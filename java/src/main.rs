@@ -15,11 +15,3 @@ fn main() {
     let class = Class::new(class).unwrap();
     println!("{class:?}")
 }
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn fail_test() {
-        assert_eq!(1, 2)
-    }
-}
