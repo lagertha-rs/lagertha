@@ -1,8 +1,8 @@
-use std::fmt;
-use common::ByteCursor;
-use crate::attribute::MethodAttribute;
+use crate::attribute::method::MethodAttribute;
+use crate::constant_pool::ConstantInfo;
 use crate::ClassFileErr;
-use crate::runtime_constant_pool::RuntimeConstantPool;
+use common::ByteCursor;
+use std::fmt;
 
 #[derive(Debug)]
 pub struct MethodInfo {
@@ -14,7 +14,7 @@ pub struct MethodInfo {
 
 impl<'a> MethodInfo {
     pub(crate) fn read(
-        constant_pool: &RuntimeConstantPool,
+        constant_pool: &Vec<ConstantInfo>,
         cursor: &mut ByteCursor<'a>,
     ) -> Result<Self, ClassFileErr> {
         let access_flags = cursor.u16()?;

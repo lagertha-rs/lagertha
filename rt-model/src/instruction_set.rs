@@ -1,6 +1,6 @@
-use num_enum::TryFromPrimitive;
-use common::ByteCursor;
 use crate::JvmError;
+use common::ByteCursor;
+use num_enum::TryFromPrimitive;
 
 /// https://docs.oracle.com/javase/specs/jvms/se23/html/jvms-6.html
 #[derive(Debug, Clone, Copy, TryFromPrimitive)]
@@ -28,29 +28,29 @@ impl Instruction {
     pub fn new_instruction_set(code: &Vec<u8>) -> Result<Vec<Instruction>, JvmError> {
         let mut cursor = ByteCursor::new(code.as_slice());
         let mut res = Vec::new();
-        
+
         while let Some(opcode_byte) = cursor.try_u8() {
             let opcode = Opcode::try_from(opcode_byte).map_err(|_| JvmError::TrailingBytes)?; //TODO: Err
-            
+
             let instruction = match opcode {
                 Opcode::Invokespecial => {
                     let method_index = ((cursor.u8()? as u16) << 8) | cursor.u8()? as u16;
-                    Instruction::Invokespecial {method_index}
+                    Instruction::Invokespecial { method_index }
                 }
                 Opcode::Invokevirtual => {
                     let method_index = ((cursor.u8()? as u16) << 8) | cursor.u8()? as u16;
-                    Instruction::Invokevirtual {method_index}
+                    Instruction::Invokevirtual { method_index }
                 }
 
                 Opcode::Getstatic => {
                     let field_index = ((cursor.u8()? as u16) << 8) | cursor.u8()? as u16;
                     Instruction::Getstatic { field_index }
                 }
-                Opcode::Ldc => {
-                    Instruction::Ldc { index: cursor.u8()? as u16 }
-                }
+                Opcode::Ldc => Instruction::Ldc {
+                    index: cursor.u8()? as u16,
+                },
                 Opcode::Aload0 => Instruction::Aload0,
-                Opcode::Return => Instruction::Return
+                Opcode::Return => Instruction::Return,
             };
             res.push(instruction)
         }

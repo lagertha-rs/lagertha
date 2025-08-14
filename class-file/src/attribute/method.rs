@@ -1,0 +1,132 @@
+use crate::attribute::code::CodeAttribute;
+use crate::attribute::{get_utf8, ATTR_CODE};
+use crate::constant_pool::ConstantInfo;
+use crate::ClassFileErr;
+use common::ByteCursor;
+use std::fmt;
+use std::fmt::{Display, Formatter};
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct ExceptionTableEntry {
+    start_pc: u16,
+    end_pc: u16,
+    handler_pc: u16,
+    catch_type: u16,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum MethodAttribute {
+    Code {
+        max_stack: u16,
+        max_locals: u16,
+        code: Vec<u8>,
+        exception_table: Vec<ExceptionTableEntry>,
+        attributes: Vec<CodeAttribute>,
+    },
+    Unknown {
+        name_index: u16,
+        info: Vec<u8>,
+    },
+}
+
+impl<'a> MethodAttribute {
+    pub(crate) fn read(
+        pool: &Vec<ConstantInfo>,
+        cursor: &mut ByteCursor<'a>,
+    ) -> Result<Self, ClassFileErr> {
+        let attribute_name_index = cursor.u16()?;
+        let attribute_length = cursor.u32()? as usize;
+
+        let utf8 = get_utf8(attribute_name_index, pool)?.as_bytes();
+        match utf8 {
+            ATTR_CODE => {
+                let max_stack = cursor.u16()?;
+                let max_locals = cursor.u16()?;
+                let code_length = cursor.u32()? as usize;
+
+                let mut code = vec![0u8; code_length];
+                cursor.read_exact(&mut code)?;
+
+                let exception_table_length = cursor.u16()? as usize;
+                let mut exception_table = Vec::with_capacity(exception_table_length);
+                for _ in 0..exception_table_length {
+                    exception_table.push(ExceptionTableEntry {
+                        start_pc: cursor.u16()?,
+                        end_pc: cursor.u16()?,
+                        handler_pc: cursor.u16()?,
+                        catch_type: cursor.u16()?,
+                    });
+                }
+
+                let attributes_count = cursor.u16()? as usize;
+                let mut attributes = Vec::with_capacity(attributes_count);
+                for _ in 0..attributes_count {
+                    attributes.push(CodeAttribute::read(pool, cursor)?);
+                }
+
+                Ok(MethodAttribute::Code {
+                    max_stack,
+                    max_locals,
+                    code,
+                    exception_table,
+                    attributes,
+                })
+            }
+            _ => {
+                let mut buf = vec![0u8; attribute_length];
+                cursor.read_exact(&mut buf)?;
+                Ok(MethodAttribute::Unknown {
+                    name_index: attribute_name_index,
+                    info: buf,
+                })
+            }
+        }
+    }
+}
+
+impl Display for MethodAttribute {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            MethodAttribute::Code {
+                max_stack,
+                max_locals,
+                code,
+                exception_table,
+                attributes,
+            } => {
+                let code_str = code
+                    .iter()
+                    .map(|b| format!("{:02X}", b))
+                    .collect::<Vec<_>>()
+                    .join(" ");
+
+                write!(
+                    f,
+                    "Code(max_stack: {}, max_locals: {}, code: \"{}\"",
+                    max_stack, max_locals, code_str
+                )?;
+
+                if !exception_table.is_empty() {
+                    write!(f, ", exception_table: {:?} ", exception_table)?;
+                }
+                if !attributes.is_empty() {
+                    write!(f, ", attributes: [")?;
+                    for (i, attr) in attributes.iter().enumerate() {
+                        if i > 0 {
+                            write!(f, ", ")?;
+                        }
+                        write!(f, "{}", attr)?;
+                    }
+                    write!(f, "]")?;
+                }
+                write!(f, ")")
+            }
+            MethodAttribute::Unknown { name_index, info } => write!(
+                f,
+                "Unsupported(name_index: {}, data: {} bytes)",
+                name_index,
+                info.len()
+            ),
+        }
+    }
+}

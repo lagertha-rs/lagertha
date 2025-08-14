@@ -25,9 +25,7 @@ name = "class-file"
 version = "0.1.0"
 dependencies = [
  "common",
- "dashmap",
  "num_enum",
- "once_cell",
  "thiserror",
 ]
 
@@ -91,7 +89,7 @@ name = "java"
 version = "0.1.0"
 dependencies = [
  "class-file",
- "vm",
+ "rt-model",
 ]
 
 [[package]]
@@ -204,6 +202,14 @@ dependencies = [
 [[package]]
 name = "rt-model"
 version = "0.1.0"
+dependencies = [
+ "class-file",
+ "common",
+ "dashmap",
+ "num_enum",
+ "once_cell",
+ "thiserror",
+]
 
 [[package]]
 name = "rustversion"
@@ -281,9 +287,9 @@ checksum = "5a5f39404a5da50712a4c1eecf25e90dd62b613502b7e925fd4e4d19b5c96512"
 name = "vm"
 version = "0.1.0"
 dependencies = [
- "class-file",
  "common",
  "num_enum",
+ "rt-model",
  "thiserror",
 ]
 

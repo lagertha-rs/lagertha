@@ -1,10 +1,10 @@
-use crate::runtime::method_area::java::access::class::ClassAccessFlag;
-use crate::runtime::method_area::java::field::Field;
-use crate::runtime::method_area::java::method::Method;
-use std::rc::Rc;
+use crate::access::class::ClassAccessFlag;
+use crate::field::Field;
+use crate::method::Method;
+use crate::runtime_constant_pool::RuntimeConstantPool;
+use crate::{ClassReference, JvmError};
 use class_file::ClassFile;
-use class_file::constant_pool::{ClassReference, ConstantInfo};
-use crate::JvmError;
+use std::rc::Rc;
 
 #[derive(Debug)]
 pub struct Class {
@@ -13,19 +13,21 @@ pub struct Class {
     super_class: Rc<ClassReference>,
     fields: Vec<Field>,
     methods: Vec<Method>,
-    cp: Vec<ConstantInfo>,
+    cp: RuntimeConstantPool,
     initialized: bool,
 }
 
 impl Class {
     pub fn new(cf: ClassFile) -> Result<Self, JvmError> {
-        let cp = &cf.constant_pool;
+        let cp = RuntimeConstantPool::new(cf.constant_pool);
         let this = cp.get_class(cf.this_class)?.clone();
         let super_class = cp.get_class(cf.super_class)?.clone();
         let access = ClassAccessFlag(cf.access_flags);
-        let methods = cf.methods.iter().map(|method| {
-            Method::new(method, &cp)
-        }).collect::<Result<Vec<_>, _>>()?;
+        let methods = cf
+            .methods
+            .iter()
+            .map(|method| Method::new(method, &cp))
+            .collect::<Result<Vec<_>, _>>()?;
 
         Ok(Class {
             this,
@@ -33,7 +35,7 @@ impl Class {
             super_class,
             fields: vec![],
             methods,
-            cp: vec![],
+            cp,
             initialized: false,
         })
     }

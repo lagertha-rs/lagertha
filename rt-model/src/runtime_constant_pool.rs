@@ -1,30 +1,75 @@
-use crate::ClassFileErr;
-use crate::constant_pool::{
-    ClassReference, ConstantInfo, FieldReference, MethodReference, NameAndTypeReference,
-    StringReference,
+use crate::{
+    ClassReference, FieldReference, MethodReference, NameAndTypeReference, StringReference,
 };
-use crate::descriptor::MethodDescriptor;
-use crate::jtype::Type;
+use class_file::constant_pool::{ConstantInfo, ReferenceInfo};
+use class_file::descriptor::MethodDescriptor;
+use class_file::jtype::Type;
+use class_file::ClassFileErr;
 use dashmap::DashMap;
 use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::rc::Rc;
 
+#[derive(Debug, Clone)]
+pub enum RuntimeConstant {
+    Dummy,
+    Utf8(Rc<String>),
+    Integer(i32),
+    Float(f32),
+    Long(i64),
+    Double(f64),
+    Class(Rc<ClassReference>),
+    String(Rc<StringReference>),
+    MethodRef(Rc<MethodReference>),
+    FieldRef(Rc<FieldReference>),
+    InterfaceRef(ReferenceInfo),
+    NameAndType(Rc<NameAndTypeReference>),
+}
+
 #[derive(Debug)]
 pub struct RuntimeConstantPool {
-    entries: Vec<ConstantInfo>,
+    entries: Vec<RuntimeConstant>,
     method_descriptors: DashMap<u16, Rc<MethodDescriptor>>,
 }
 
 impl RuntimeConstantPool {
     pub fn new(entries: Vec<ConstantInfo>) -> Self {
         Self {
-            entries,
+            entries: entries
+                .into_iter()
+                .map(|c| match c {
+                    ConstantInfo::Dummy => RuntimeConstant::Dummy,
+                    ConstantInfo::Utf8(val) => RuntimeConstant::Utf8(Rc::new(val)),
+                    ConstantInfo::Integer(val) => RuntimeConstant::Integer(val),
+                    ConstantInfo::Float(val) => RuntimeConstant::Float(val),
+                    ConstantInfo::Long(val) => RuntimeConstant::Long(val),
+                    ConstantInfo::Double(val) => RuntimeConstant::Double(val),
+                    ConstantInfo::Class(idx) => {
+                        RuntimeConstant::Class(Rc::new(ClassReference::new(idx)))
+                    }
+                    ConstantInfo::String(idx) => {
+                        RuntimeConstant::String(Rc::new(StringReference::new(idx)))
+                    }
+                    ConstantInfo::MethodRef(method_ref) => {
+                        RuntimeConstant::MethodRef(Rc::new(MethodReference::new(
+                            method_ref.class_index,
+                            method_ref.name_and_type_index,
+                        )))
+                    }
+                    ConstantInfo::FieldRef(field_ref) => RuntimeConstant::FieldRef(Rc::new(
+                        FieldReference::new(field_ref.class_index, field_ref.name_and_type_index),
+                    )),
+                    ConstantInfo::InterfaceRef(v) => RuntimeConstant::InterfaceRef(v),
+                    ConstantInfo::NameAndType(nat) => RuntimeConstant::NameAndType(Rc::new(
+                        NameAndTypeReference::new(nat.name_index, nat.descriptor_index),
+                    )),
+                })
+                .collect(),
             method_descriptors: DashMap::new(),
         }
     }
 
-    fn entry(&self, idx: u16) -> Result<&ConstantInfo, ClassFileErr> {
+    fn entry(&self, idx: u16) -> Result<&RuntimeConstant, ClassFileErr> {
         self.entries
             .get(idx as usize)
             .ok_or(ClassFileErr::TypeError) //TODO: Err
@@ -43,14 +88,14 @@ impl RuntimeConstantPool {
 
     pub fn get_utf8(&self, idx: u16) -> Result<&Rc<String>, ClassFileErr> {
         match self.entry(idx)? {
-            ConstantInfo::Utf8(string) => Ok(string),
+            RuntimeConstant::Utf8(string) => Ok(string),
             _ => Err(ClassFileErr::TypeError),
         }
     }
 
     pub fn get_string(&self, idx: u16) -> Result<&Rc<StringReference>, ClassFileErr> {
         match self.entry(idx)? {
-            ConstantInfo::String(string_ref) => {
+            RuntimeConstant::String(string_ref) => {
                 string_ref.value.get_or_try_init::<_, ClassFileErr>(|| {
                     Ok(self.get_utf8(string_ref.string_index)?.clone())
                 })?;
@@ -62,7 +107,7 @@ impl RuntimeConstantPool {
 
     pub fn get_class(&self, idx: u16) -> Result<&Rc<ClassReference>, ClassFileErr> {
         match self.entry(idx)? {
-            ConstantInfo::Class(class_ref) => {
+            RuntimeConstant::Class(class_ref) => {
                 class_ref.name.get_or_try_init::<_, ClassFileErr>(|| {
                     Ok(self.get_utf8(class_ref.name_index)?.clone())
                 })?;
@@ -74,7 +119,7 @@ impl RuntimeConstantPool {
 
     pub fn get_method_nat(&self, idx: u16) -> Result<&Rc<NameAndTypeReference>, ClassFileErr> {
         match self.entry(idx)? {
-            ConstantInfo::NameAndType(method_nat) => {
+            RuntimeConstant::NameAndType(method_nat) => {
                 method_nat.name.get_or_try_init::<_, ClassFileErr>(|| {
                     Ok(self.get_utf8(method_nat.name_index)?.clone())
                 })?;
@@ -96,7 +141,7 @@ impl RuntimeConstantPool {
 
     pub fn get_field_nat(&self, idx: u16) -> Result<&Rc<NameAndTypeReference>, ClassFileErr> {
         match self.entry(idx)? {
-            ConstantInfo::NameAndType(field_nat) => {
+            RuntimeConstant::NameAndType(field_nat) => {
                 field_nat.name.get_or_try_init(|| {
                     Ok::<_, ClassFileErr>(self.get_utf8(field_nat.name_index)?.clone())
                 })?;
@@ -114,7 +159,7 @@ impl RuntimeConstantPool {
 
     pub fn get_methodref(&self, idx: u16) -> Result<&Rc<MethodReference>, ClassFileErr> {
         match self.entry(idx)? {
-            ConstantInfo::MethodRef(method_ref) => {
+            RuntimeConstant::MethodRef(method_ref) => {
                 method_ref.class.get_or_try_init(|| {
                     Ok::<_, ClassFileErr>(self.get_class(method_ref.class_index)?.clone())
                 })?;
@@ -131,7 +176,7 @@ impl RuntimeConstantPool {
 
     pub fn get_fieldref(&self, idx: u16) -> Result<&Rc<FieldReference>, ClassFileErr> {
         match self.entry(idx)? {
-            ConstantInfo::FieldRef(field_ref) => {
+            RuntimeConstant::FieldRef(field_ref) => {
                 field_ref.class.get_or_try_init::<_, ClassFileErr>(|| {
                     Ok(self.get_class(field_ref.class_index)?.clone())
                 })?;
@@ -160,10 +205,10 @@ impl Display for RuntimeConstantPool {
         for (pos, entry) in self.entries.iter().enumerate().skip(1) {
             write!(f, "{p:>w$} = ", p = format_args!("#{}", pos), w = width)?;
             match entry {
-                ConstantInfo::Utf8(s) => {
+                RuntimeConstant::Utf8(s) => {
                     writeln!(f, "{:<16}\t{}", "Utf8", s)?;
                 }
-                ConstantInfo::Class(class) => {
+                RuntimeConstant::Class(class) => {
                     let name = try_map!(self.get_utf8(class.name_index))?;
                     writeln!(
                         f,
@@ -171,7 +216,7 @@ impl Display for RuntimeConstantPool {
                         "Class", class.name_index, &**name
                     )?;
                 }
-                ConstantInfo::String(sr) => {
+                RuntimeConstant::String(sr) => {
                     let val = try_map!(self.get_utf8(sr.string_index))?;
                     writeln!(
                         f,
@@ -179,7 +224,7 @@ impl Display for RuntimeConstantPool {
                         "String", sr.string_index, &**val
                     )?;
                 }
-                ConstantInfo::MethodRef(mr) => {
+                RuntimeConstant::MethodRef(mr) => {
                     let class = try_map!(self.get_class(mr.class_index))?;
                     let nat = try_map!(self.get_method_nat(mr.name_and_type_index))?;
                     let cls_name = class.name.get().ok_or(fmt::Error)?;
@@ -196,7 +241,7 @@ impl Display for RuntimeConstantPool {
                         &**desc
                     )?;
                 }
-                ConstantInfo::FieldRef(fr) => {
+                RuntimeConstant::FieldRef(fr) => {
                     let class = try_map!(self.get_class(fr.class_index))?;
                     let nat = try_map!(self.get_field_nat(fr.name_and_type_index))?;
                     let cls_name = class.name.get().ok_or(fmt::Error)?;
@@ -213,7 +258,7 @@ impl Display for RuntimeConstantPool {
                         &**desc
                     )?;
                 }
-                ConstantInfo::NameAndType(nat) => {
+                RuntimeConstant::NameAndType(nat) => {
                     let name = try_map!(self.get_utf8(nat.name_index))?;
                     let desc = try_map!(self.get_utf8(nat.descriptor_index))?;
                     writeln!(

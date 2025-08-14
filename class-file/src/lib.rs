@@ -1,26 +1,24 @@
+use crate::attribute::class::ClassAttribute;
+use common::{ByteCursor, CursorError};
 use constant_pool::ConstantInfo;
 use field::FieldInfo;
 use method::MethodInfo;
 use std::fmt;
 use thiserror::Error;
-use common::{ByteCursor, CursorError};
-use crate::attribute::ClassAttribute;
-use crate::runtime_constant_pool::RuntimeConstantPool;
 
 pub mod attribute;
 pub mod constant_pool;
-pub mod field;
-pub mod method;
-pub mod runtime_constant_pool;
 pub mod descriptor;
+pub mod field;
 pub mod jtype;
+pub mod method;
 
 /// https://docs.oracle.com/javase/specs/jvms/se23/html/jvms-4.html
 #[derive(Debug)]
 pub struct ClassFile {
     pub minor_version: u16,
     pub major_version: u16,
-    pub constant_pool: RuntimeConstantPool,
+    pub constant_pool: Vec<ConstantInfo>,
     pub access_flags: u16,
     pub this_class: u16,
     pub super_class: u16,
@@ -57,10 +55,10 @@ pub enum ClassFileErr {
     #[error("")]
     UnknownTag(u8),
     #[error("")]
-    TypeError
+    TypeError,
+    #[error("")]
+    ConstantNotFound,
 }
-
-
 
 impl ClassFile {
     const MAGIC: u32 = 0xCAFEBABE;
@@ -81,12 +79,11 @@ impl TryFrom<Vec<u8>> for ClassFile {
         let minor_version = cursor.u16()?;
         let major_version = cursor.u16()?;
         let constant_pool_count = cursor.u16()?;
-        let mut constant_pool_entries = Vec::with_capacity((constant_pool_count + 1) as usize);
-        constant_pool_entries.push(ConstantInfo::Dummy);
+        let mut constant_pool = Vec::with_capacity((constant_pool_count + 1) as usize);
+        constant_pool.push(ConstantInfo::Dummy);
         for _ in 1..constant_pool_count {
-            constant_pool_entries.push(ConstantInfo::read(&mut cursor)?);
+            constant_pool.push(ConstantInfo::read(&mut cursor)?);
         }
-        let constant_pool = RuntimeConstantPool::new(constant_pool_entries);
         let access_flags = cursor.u16()?;
         let this_class = cursor.u16()?;
         let super_class = cursor.u16()?;
@@ -139,7 +136,7 @@ impl fmt::Display for ClassFile {
         writeln!(f, "  this_class: #{}", self.this_class)?;
         writeln!(f, "  super_class: #{}", self.super_class)?;
 
-        writeln!(f, "  constant_pool:\n{}", self.constant_pool)?;
+        writeln!(f, "  constant_pool:\n{:?}", self.constant_pool)?;
 
         writeln!(
             f,

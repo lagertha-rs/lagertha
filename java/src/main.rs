@@ -1,6 +1,6 @@
-use std::{fs::File, io::Read};
 use class_file::ClassFile;
-use vm::runtime::method_area::java::class::Class;
+use rt_model::class::Class;
+use std::{fs::File, io::Read};
 
 fn main() {
     let mut file = File::open("Main.class").expect("Can't open Main.class");
