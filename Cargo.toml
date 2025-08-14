@@ -1,4 +1,4 @@
 [workspace]
 resolver = "2"
 
-members = [ "class-file", "common", "java", "javap", "jdes", "rt-model", "vm"]
+members = ["class", "common", "java", "javap", "jdes", "vm"]

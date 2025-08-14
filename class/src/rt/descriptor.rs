@@ -1,7 +1,7 @@
 //TODO: probably use global err
 
-use crate::jtype::Type;
-use crate::{ClassFileErr, MethodDescriptorErr};
+use crate::class_file::{ClassFileErr, MethodDescriptorErr};
+use crate::rt::jtype::Type;
 
 /// https://docs.oracle.com/javase/specs/jvms/se23/html/jvms-4.html#jvms-4.3
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -17,7 +17,9 @@ impl TryFrom<&str> for MethodDescriptor {
         let mut chars = desc.chars().peekable();
 
         if chars.next() != Some('(') {
-            return Err(ClassFileErr::MethodDescriptor(MethodDescriptorErr::ShouldStartWithParentheses));
+            return Err(ClassFileErr::MethodDescriptor(
+                MethodDescriptorErr::ShouldStartWithParentheses,
+            ));
         }
 
         let mut params = Vec::new();
@@ -28,14 +30,20 @@ impl TryFrom<&str> for MethodDescriptor {
                     break;
                 }
                 Some(_) => params.push(Type::try_recursive(&mut chars)?),
-                None => return Err(ClassFileErr::MethodDescriptor(MethodDescriptorErr::MissingClosingParenthesis)),
+                None => {
+                    return Err(ClassFileErr::MethodDescriptor(
+                        MethodDescriptorErr::MissingClosingParenthesis,
+                    ));
+                }
             }
         }
 
         let ret = Type::try_recursive(&mut chars)?;
 
         if chars.next().is_some() {
-            return Err(ClassFileErr::MethodDescriptor(MethodDescriptorErr::TrailingCharacters));
+            return Err(ClassFileErr::MethodDescriptor(
+                MethodDescriptorErr::TrailingCharacters,
+            ));
         }
 
         Ok(MethodDescriptor { params, ret })

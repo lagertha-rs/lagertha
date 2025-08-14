@@ -1,10 +1,12 @@
-use crate::attribute::code::CodeAttribute;
-use crate::attribute::{get_utf8, ATTR_CODE};
-use crate::constant_pool::ConstantInfo;
+use crate::class_file::attribute::code::CodeAttribute;
+use crate::class_file::attribute::get_utf8;
+use crate::class_file::constant_pool::ConstantInfo;
 use crate::ClassFileErr;
 use common::ByteCursor;
 use std::fmt;
 use std::fmt::{Display, Formatter};
+
+const ATTR_CODE: &[u8] = b"Code";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct ExceptionTableEntry {

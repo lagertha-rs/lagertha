@@ -1,4 +1,4 @@
-use crate::attribute::class::ClassAttribute;
+use crate::class_file::attribute::class::ClassAttribute;
 use common::{ByteCursor, CursorError};
 use constant_pool::ConstantInfo;
 use field::FieldInfo;
@@ -8,9 +8,7 @@ use thiserror::Error;
 
 pub mod attribute;
 pub mod constant_pool;
-pub mod descriptor;
 pub mod field;
-pub mod jtype;
 pub mod method;
 
 /// https://docs.oracle.com/javase/specs/jvms/se23/html/jvms-4.html
@@ -124,43 +122,6 @@ impl TryFrom<Vec<u8>> for ClassFile {
                 attributes,
             })
         }
-    }
-}
-
-impl fmt::Display for ClassFile {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        writeln!(f, "ClassFile {{")?;
-        writeln!(f, "  minor version: {}", self.minor_version)?;
-        writeln!(f, "  major version: {}", self.major_version)?;
-        writeln!(f, "  access_flags: 0x{:04X}", self.access_flags)?;
-        writeln!(f, "  this_class: #{}", self.this_class)?;
-        writeln!(f, "  super_class: #{}", self.super_class)?;
-
-        writeln!(f, "  constant_pool:\n{:?}", self.constant_pool)?;
-
-        writeln!(
-            f,
-            "  interfaces ({}): {:?}",
-            self.interfaces.len(),
-            self.interfaces
-        )?;
-
-        writeln!(f, "  fields ({}):", self.fields.len())?;
-        for field in &self.fields {
-            writeln!(f, "    {}", field)?;
-        }
-
-        writeln!(f, "  methods ({}):", self.methods.len())?;
-        for method in &self.methods {
-            writeln!(f, "    {}", method)?;
-        }
-
-        writeln!(f, "  attributes ({}):", self.attributes.len())?;
-        for attr in &self.attributes {
-            writeln!(f, "    {:?}", attr)?;
-        }
-
-        write!(f, "}}")
     }
 }
 

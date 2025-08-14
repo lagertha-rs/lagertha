@@ -1,5 +1,5 @@
+use crate::class_file::{ClassFileErr, MethodDescriptorErr};
 use std::iter::Peekable;
-use crate::{ClassFileErr, MethodDescriptorErr};
 
 /// https://docs.oracle.com/javase/specs/jvms/se23/html/jvms-4.html#jvms-4.3.2
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -48,7 +48,9 @@ impl Type {
                 let elem = Type::try_recursive(it)?;
                 Ok(Type::Array(Box::new(elem)))
             }
-            _ => Err(ClassFileErr::MethodDescriptor(MethodDescriptorErr::InvalidType)),
+            _ => Err(ClassFileErr::MethodDescriptor(
+                MethodDescriptorErr::InvalidType,
+            )),
         }
     }
 }

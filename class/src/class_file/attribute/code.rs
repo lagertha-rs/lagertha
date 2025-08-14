@@ -1,9 +1,12 @@
-use crate::attribute::{get_utf8, ATTR_LINE_NUMBER_TABLE, ATTR_LOCAL_VARIABLE_TABLE};
-use crate::constant_pool::ConstantInfo;
+use crate::class_file::attribute::get_utf8;
+use crate::class_file::constant_pool::ConstantInfo;
 use crate::ClassFileErr;
 use common::ByteCursor;
 use std::fmt;
 use std::fmt::{Display, Formatter};
+
+pub const ATTR_LOCAL_VARIABLE_TABLE: &[u8] = b"LocalVariableTable";
+pub const ATTR_LINE_NUMBER_TABLE: &[u8] = b"LineNumberTable";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct LineNumberEntry {

@@ -4,5 +4,4 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-class-file = { path = "../class-file" }
-rt-model = { path = "../rt-model" }
+class = { path = "../class" }

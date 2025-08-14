@@ -1,10 +1,10 @@
-use crate::{
+use crate::class_file::constant_pool::{ConstantInfo, ReferenceInfo};
+use crate::class_file::ClassFileErr;
+use crate::rt::descriptor::MethodDescriptor;
+use crate::rt::jtype::Type;
+use crate::rt::{
     ClassReference, FieldReference, MethodReference, NameAndTypeReference, StringReference,
 };
-use class_file::constant_pool::{ConstantInfo, ReferenceInfo};
-use class_file::descriptor::MethodDescriptor;
-use class_file::jtype::Type;
-use class_file::ClassFileErr;
 use dashmap::DashMap;
 use std::fmt;
 use std::fmt::{Display, Formatter};
@@ -193,8 +193,15 @@ impl RuntimeConstantPool {
 }
 
 impl Display for RuntimeConstantPool {
+    // copying -v arg
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let width = ((self.entries.len().saturating_sub(1)).to_string().len()).max(1) + 1;
+        let digits = (self.entries.len().saturating_sub(1))
+            .to_string()
+            .len()
+            .max(1);
+        let idx_w = digits + 1;
+        let kind_w = 16;
+        let op_w = 16;
 
         macro_rules! try_map {
             ($e:expr) => {
@@ -203,27 +210,46 @@ impl Display for RuntimeConstantPool {
         }
 
         for (pos, entry) in self.entries.iter().enumerate().skip(1) {
-            write!(f, "{p:>w$} = ", p = format_args!("#{}", pos), w = width)?;
+            write!(f, "  {p:>w$} = ", p = format!("#{}", pos), w = idx_w)?;
+
             match entry {
                 RuntimeConstant::Utf8(s) => {
-                    writeln!(f, "{:<16}\t{}", "Utf8", s)?;
+                    writeln!(
+                        f,
+                        "{:<kind_w$} {:<op_w$}",
+                        "Utf8",
+                        s,
+                        kind_w = kind_w,
+                        op_w = op_w
+                    )?;
                 }
+
                 RuntimeConstant::Class(class) => {
                     let name = try_map!(self.get_utf8(class.name_index))?;
                     writeln!(
                         f,
-                        "{:<16}\t#{}\t\t // {}",
-                        "Class", class.name_index, &**name
+                        "{:<kind_w$} {:<op_w$} // {}",
+                        "Class",
+                        format!("#{}", class.name_index),
+                        &**name,
+                        kind_w = kind_w,
+                        op_w = op_w
                     )?;
                 }
+
                 RuntimeConstant::String(sr) => {
                     let val = try_map!(self.get_utf8(sr.string_index))?;
                     writeln!(
                         f,
-                        "{:<16}\t#{}\t\t // {}",
-                        "String", sr.string_index, &**val
+                        "{:<kind_w$} {:<op_w$} // {}",
+                        "String",
+                        format!("#{}", sr.string_index),
+                        &**val,
+                        kind_w = kind_w,
+                        op_w = op_w
                     )?;
                 }
+
                 RuntimeConstant::MethodRef(mr) => {
                     let class = try_map!(self.get_class(mr.class_index))?;
                     let nat = try_map!(self.get_method_nat(mr.name_and_type_index))?;
@@ -232,15 +258,17 @@ impl Display for RuntimeConstantPool {
                     let desc = nat.raw_descriptor.get().ok_or(fmt::Error)?;
                     writeln!(
                         f,
-                        "{:<16}\t#{}.#{}\t\t // {}.\"{}\":{}",
+                        "{:<kind_w$} {:<op_w$} // {}.\"{}\":{}",
                         "Methodref",
-                        mr.class_index,
-                        mr.name_and_type_index,
+                        format!("#{}.#{}", mr.class_index, mr.name_and_type_index),
                         &**cls_name,
                         &**name,
-                        &**desc
+                        &**desc,
+                        kind_w = kind_w,
+                        op_w = op_w
                     )?;
                 }
+
                 RuntimeConstant::FieldRef(fr) => {
                     let class = try_map!(self.get_class(fr.class_index))?;
                     let nat = try_map!(self.get_field_nat(fr.name_and_type_index))?;
@@ -249,26 +277,41 @@ impl Display for RuntimeConstantPool {
                     let desc = nat.raw_descriptor.get().ok_or(fmt::Error)?;
                     writeln!(
                         f,
-                        "{:<16}\t#{}.#{}\t\t // {}.\"{}\":{}",
+                        "{:<kind_w$} {:<op_w$} // {}.\"{}\":{}",
                         "Fieldref",
-                        fr.class_index,
-                        fr.name_and_type_index,
+                        format!("#{}.#{}", fr.class_index, fr.name_and_type_index),
                         &**cls_name,
                         &**name,
-                        &**desc
+                        &**desc,
+                        kind_w = kind_w,
+                        op_w = op_w
                     )?;
                 }
+
                 RuntimeConstant::NameAndType(nat) => {
                     let name = try_map!(self.get_utf8(nat.name_index))?;
                     let desc = try_map!(self.get_utf8(nat.descriptor_index))?;
                     writeln!(
                         f,
-                        "{:<16}\t#{}.#{}\t\t // \"{}\":{}",
-                        "NameAndType", nat.name_index, nat.descriptor_index, &**name, &**desc
+                        "{:<kind_w$} {:<op_w$} // \"{}\":{}",
+                        "NameAndType",
+                        format!("#{}.#{}", nat.name_index, nat.descriptor_index),
+                        &**name,
+                        &**desc,
+                        kind_w = kind_w,
+                        op_w = op_w
                     )?;
                 }
+
                 other => {
-                    writeln!(f, "{:<16}\t{:?}", "/* TODO */", other)?;
+                    writeln!(
+                        f,
+                        "{:<kind_w$} {:<op_w$}",
+                        "/* TODO */",
+                        format!("{:?}", other),
+                        kind_w = kind_w,
+                        op_w = op_w
+                    )?;
                 }
             }
         }

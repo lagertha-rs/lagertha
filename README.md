@@ -1,4 +1,12 @@
 # Toy java virtual machine
 
 ## Docs
-https://docs.oracle.com/javase/specs/jvms/se23/html/index.html
+
+https://docs.oracle.com/javase/specs/jvms/se24/html/
+
+- **jclass**
+- **common**
+- **java**
+- **javap**
+- **jdes**
+- **vm**

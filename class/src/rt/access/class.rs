@@ -50,6 +50,10 @@ impl ClassAccessFlag {
     pub fn is_module(&self) -> bool {
         self.0 & 0x8000 != 0
     }
+
+    pub fn get_raw(&self) -> u16 {
+        self.0
+    }
 }
 
 impl MethodAccessFlag {

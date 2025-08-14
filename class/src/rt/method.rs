@@ -1,10 +1,10 @@
-use crate::access::class::MethodAccessFlag;
-use crate::instruction_set::Instruction;
-use crate::runtime_constant_pool::RuntimeConstantPool;
+use crate::class_file::attribute::method::MethodAttribute;
+use crate::class_file::method::MethodInfo;
+use crate::rt::access::class::MethodAccessFlag;
+use crate::rt::descriptor::MethodDescriptor;
+use crate::rt::instruction_set::Instruction;
+use crate::rt::runtime_constant_pool::RuntimeConstantPool;
 use crate::JvmError;
-use class_file::attribute::method::MethodAttribute;
-use class_file::descriptor::MethodDescriptor;
-use class_file::method::MethodInfo;
 use std::rc::Rc;
 
 ///https://docs.oracle.com/javase/specs/jvms/se23/html/jvms-4.html#jvms-4.6

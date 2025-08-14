@@ -1,3 +1,4 @@
 # Javap
 
-https://docs.oracle.com/javase/8/docs/technotes/tools/windows/javap.html
+https://docs.oracle.com/en/java/javase/24/docs/specs/man/javap.html
+

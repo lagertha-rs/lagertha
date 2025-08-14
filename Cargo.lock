@@ -21,11 +21,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9555578bc9e57714c812a1f84e4fc5b4d21fcb063490c624de019f7464c91268"
 
 [[package]]
-name = "class-file"
+name = "class"
 version = "0.1.0"
 dependencies = [
  "common",
+ "dashmap",
  "num_enum",
+ "once_cell",
  "thiserror",
 ]
 
@@ -88,13 +90,15 @@ dependencies = [
 name = "java"
 version = "0.1.0"
 dependencies = [
- "class-file",
- "rt-model",
+ "class",
 ]
 
 [[package]]
 name = "javap"
 version = "0.1.0"
+dependencies = [
+ "class",
+]
 
 [[package]]
 name = "jdescriptor"
@@ -200,18 +204,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rt-model"
-version = "0.1.0"
-dependencies = [
- "class-file",
- "common",
- "dashmap",
- "num_enum",
- "once_cell",
- "thiserror",
-]
-
-[[package]]
 name = "rustversion"
 version = "1.0.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -286,12 +278,6 @@ checksum = "5a5f39404a5da50712a4c1eecf25e90dd62b613502b7e925fd4e4d19b5c96512"
 [[package]]
 name = "vm"
 version = "0.1.0"
-dependencies = [
- "common",
- "num_enum",
- "rt-model",
- "thiserror",
-]
 
 [[package]]
 name = "windows-targets"

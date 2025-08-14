@@ -1,9 +1,11 @@
-use crate::attribute::{get_utf8, ATTR_SOURCE_FILE};
-use crate::constant_pool::ConstantInfo;
+use crate::class_file::attribute::get_utf8;
+use crate::class_file::constant_pool::ConstantInfo;
 use crate::ClassFileErr;
 use common::ByteCursor;
 use std::fmt;
 use std::fmt::{Display, Formatter};
+
+pub const ATTR_SOURCE_FILE: &[u8] = b"SourceFile";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ClassAttribute {

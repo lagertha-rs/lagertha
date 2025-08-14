@@ -1,4 +1,4 @@
-use crate::constant_pool::ConstantInfo;
+use crate::class_file::constant_pool::ConstantInfo;
 use crate::ClassFileErr;
 
 pub mod class;
@@ -6,11 +6,6 @@ pub mod code;
 pub mod method;
 
 /// https://docs.oracle.com/javase/specs/jvms/se23/html/jvms-4.html#jvms-4.7
-
-pub const ATTR_CODE: &[u8] = b"Code";
-pub const ATTR_LOCAL_VARIABLE_TABLE: &[u8] = b"LocalVariableTable";
-pub const ATTR_LINE_NUMBER_TABLE: &[u8] = b"LineNumberTable";
-pub const ATTR_SOURCE_FILE: &[u8] = b"SourceFile";
 
 pub(super) fn get_utf8(idx: u16, pool: &Vec<ConstantInfo>) -> Result<&String, ClassFileErr> {
     pool.get(idx as usize)

@@ -1,40 +1,25 @@
-use class_file::descriptor::MethodDescriptor;
-use class_file::jtype::Type;
-use class_file::ClassFileErr;
-use common::CursorError;
+use crate::rt::descriptor::MethodDescriptor;
+use crate::rt::jtype::Type;
+use crate::JvmError;
+use crate::JvmError::TryingAccessUninitializedRuntimeConstant;
 use std::rc::Rc;
-use thiserror::Error;
 
 pub mod access;
 pub mod class;
+pub mod descriptor;
 pub mod field;
 pub mod instruction_set;
+pub mod jtype;
 pub mod method;
 pub mod runtime_constant_pool;
-
-#[derive(Debug, Error)]
-pub enum JvmError {
-    #[error(transparent)]
-    ClassFile(#[from] ClassFileErr),
-    #[error(transparent)]
-    Cursor(#[from] CursorError),
-    #[error("")]
-    MissingAttributeInConstantPoll,
-    #[error("")]
-    ConstantNotFoundInRuntimePool,
-    #[error("")]
-    TrailingBytes,
-    #[error("")]
-    TypeError,
-}
 
 type OnceCell<I> = once_cell::unsync::OnceCell<I>;
 //type OnceCell<I> = once_cell::sync::OnceCell<I>;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct ClassReference {
-    pub name_index: u16,
-    pub name: OnceCell<Rc<String>>,
+    name_index: u16,
+    name: OnceCell<Rc<String>>,
 }
 
 impl ClassReference {
@@ -43,6 +28,15 @@ impl ClassReference {
             name_index,
             name: OnceCell::new(),
         }
+    }
+
+    pub fn get_name(&self) -> Result<&Rc<String>, JvmError> {
+        self.name
+            .get()
+            .ok_or(TryingAccessUninitializedRuntimeConstant(
+                "class",
+                self.name_index,
+            ))
     }
 }
 
