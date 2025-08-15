@@ -6,8 +6,8 @@ use crate::rt::jtype::Type;
 /// https://docs.oracle.com/javase/specs/jvms/se23/html/jvms-4.html#jvms-4.3
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MethodDescriptor {
-    params: Vec<Type>,
-    ret: Type,
+    pub params: Vec<Type>,
+    pub ret: Type,
 }
 
 impl TryFrom<&str> for MethodDescriptor {

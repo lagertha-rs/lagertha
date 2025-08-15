@@ -3,7 +3,8 @@ use crate::class_file::ClassFileErr;
 use crate::rt::descriptor::MethodDescriptor;
 use crate::rt::jtype::Type;
 use crate::rt::{
-    ClassReference, FieldReference, MethodReference, NameAndTypeReference, StringReference,
+    ClassReference, FieldDescriptorReference, FieldReference, MethodDescriptorReference,
+    MethodReference, NameAndTypeReference, StringReference,
 };
 use dashmap::DashMap;
 use std::fmt;
@@ -26,12 +27,15 @@ pub enum RuntimeConstant {
     NameAndType(Rc<NameAndTypeReference>),
 }
 
+/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-5.html#jvms-5.1
 #[derive(Debug)]
 pub struct RuntimeConstantPool {
     entries: Vec<RuntimeConstant>,
-    method_descriptors: DashMap<u16, Rc<MethodDescriptor>>,
+    method_descriptors: DashMap<u16, Rc<MethodDescriptorReference>>,
+    field_descriptors: DashMap<u16, Rc<FieldDescriptorReference>>,
 }
 
+//TODO: change u16 idx as param to &u16
 impl RuntimeConstantPool {
     pub fn new(entries: Vec<ConstantInfo>) -> Self {
         Self {
@@ -66,6 +70,7 @@ impl RuntimeConstantPool {
                 })
                 .collect(),
             method_descriptors: DashMap::new(),
+            field_descriptors: DashMap::new(),
         }
     }
 
@@ -75,15 +80,34 @@ impl RuntimeConstantPool {
             .ok_or(ClassFileErr::TypeError) //TODO: Err
     }
 
-    pub fn get_method_descriptor(&self, idx: u16) -> Result<Rc<MethodDescriptor>, ClassFileErr> {
-        if let Some(method_descriptor) = self.method_descriptors.get(&idx) {
-            return Ok(method_descriptor.clone());
+    //TODO: all other getters return ref, but this one can't cause of dash map
+    pub fn get_method_descriptor(
+        &self,
+        idx: u16,
+    ) -> Result<Rc<MethodDescriptorReference>, ClassFileErr> {
+        if let Some(descriptor) = self.method_descriptors.get(&idx) {
+            return Ok(descriptor.clone());
         }
-        let descriptor = self.get_utf8(idx)?;
-        let method_descriptor = Rc::new(MethodDescriptor::try_from(descriptor.as_str())?);
-        self.method_descriptors
-            .insert(idx, method_descriptor.clone());
-        Ok(method_descriptor)
+        let raw = self.get_utf8(idx)?.clone();
+        let resolved = MethodDescriptor::try_from(raw.as_str())?;
+        let reference = Rc::new(MethodDescriptorReference { idx, raw, resolved });
+        self.method_descriptors.insert(idx, reference.clone());
+        Ok(reference)
+    }
+
+    //TODO: all other getters return ref, but this one can't cause of dash map
+    pub fn get_field_descriptor(
+        &self,
+        idx: u16,
+    ) -> Result<Rc<FieldDescriptorReference>, ClassFileErr> {
+        if let Some(descriptor) = self.field_descriptors.get(&idx) {
+            return Ok(descriptor.clone());
+        }
+        let raw = self.get_utf8(idx)?.clone();
+        let resolved = Type::try_from(raw.as_str())?;
+        let reference = Rc::new(FieldDescriptorReference { idx, raw, resolved });
+        self.field_descriptors.insert(idx, reference.clone());
+        Ok(reference)
     }
 
     pub fn get_utf8(&self, idx: u16) -> Result<&Rc<String>, ClassFileErr> {
@@ -124,14 +148,9 @@ impl RuntimeConstantPool {
                     Ok(self.get_utf8(method_nat.name_index)?.clone())
                 })?;
                 method_nat
-                    .raw_descriptor
+                    .method_descriptor
                     .get_or_try_init::<_, ClassFileErr>(|| {
-                        Ok(self.get_utf8(method_nat.descriptor_index)?.clone())
-                    })?;
-                method_nat
-                    .resolved_method
-                    .get_or_try_init::<_, ClassFileErr>(|| {
-                        Ok(self.get_method_descriptor(method_nat.descriptor_index)?)
+                        self.get_method_descriptor(method_nat.descriptor_index)
                     })?;
                 Ok(method_nat)
             }
@@ -145,12 +164,11 @@ impl RuntimeConstantPool {
                 field_nat.name.get_or_try_init(|| {
                     Ok::<_, ClassFileErr>(self.get_utf8(field_nat.name_index)?.clone())
                 })?;
-                let descriptor = field_nat.raw_descriptor.get_or_try_init(|| {
-                    Ok::<_, ClassFileErr>(self.get_utf8(field_nat.descriptor_index)?.clone())
-                })?;
-                field_nat.resolved_field.get_or_try_init(|| {
-                    Ok::<_, ClassFileErr>(Rc::new(Type::try_from(descriptor.as_str())?))
-                })?;
+                field_nat
+                    .field_descriptor
+                    .get_or_try_init::<_, ClassFileErr>(|| {
+                        self.get_field_descriptor(field_nat.descriptor_index)
+                    })?;
                 Ok(field_nat)
             }
             _ => Err(ClassFileErr::TypeError),
@@ -231,7 +249,7 @@ impl Display for RuntimeConstantPool {
                         "{:<kind_w$} {:<op_w$} // {}",
                         "Class",
                         format!("#{}", class.name_index),
-                        &**name,
+                        name,
                         kind_w = kind_w,
                         op_w = op_w
                     )?;
@@ -244,7 +262,7 @@ impl Display for RuntimeConstantPool {
                         "{:<kind_w$} {:<op_w$} // {}",
                         "String",
                         format!("#{}", sr.string_index),
-                        &**val,
+                        val,
                         kind_w = kind_w,
                         op_w = op_w
                     )?;
@@ -255,15 +273,16 @@ impl Display for RuntimeConstantPool {
                     let nat = try_map!(self.get_method_nat(mr.name_and_type_index))?;
                     let cls_name = class.name.get().ok_or(fmt::Error)?;
                     let name = try_map!(self.get_utf8(nat.name_index))?;
-                    let desc = nat.raw_descriptor.get().ok_or(fmt::Error)?;
+                    let desc = &nat.method_descriptor.get().ok_or(fmt::Error)?.raw;
+
                     writeln!(
                         f,
-                        "{:<kind_w$} {:<op_w$} // {}.\"{}\":{}",
+                        "{:<kind_w$} {:<op_w$} // {}.{}:{}",
                         "Methodref",
                         format!("#{}.#{}", mr.class_index, mr.name_and_type_index),
-                        &**cls_name,
-                        &**name,
-                        &**desc,
+                        cls_name,
+                        name,
+                        desc,
                         kind_w = kind_w,
                         op_w = op_w
                     )?;
@@ -274,15 +293,15 @@ impl Display for RuntimeConstantPool {
                     let nat = try_map!(self.get_field_nat(fr.name_and_type_index))?;
                     let cls_name = class.name.get().ok_or(fmt::Error)?;
                     let name = try_map!(self.get_utf8(nat.name_index))?;
-                    let desc = nat.raw_descriptor.get().ok_or(fmt::Error)?;
+                    let desc = &nat.field_descriptor.get().ok_or(fmt::Error)?.raw;
                     writeln!(
                         f,
-                        "{:<kind_w$} {:<op_w$} // {}.\"{}\":{}",
+                        "{:<kind_w$} {:<op_w$} // {}.{}:{}",
                         "Fieldref",
                         format!("#{}.#{}", fr.class_index, fr.name_and_type_index),
-                        &**cls_name,
-                        &**name,
-                        &**desc,
+                        cls_name,
+                        name,
+                        desc,
                         kind_w = kind_w,
                         op_w = op_w
                     )?;
@@ -293,11 +312,11 @@ impl Display for RuntimeConstantPool {
                     let desc = try_map!(self.get_utf8(nat.descriptor_index))?;
                     writeln!(
                         f,
-                        "{:<kind_w$} {:<op_w$} // \"{}\":{}",
+                        "{:<kind_w$} {:<op_w$} // {}:{}",
                         "NameAndType",
                         format!("#{}.#{}", nat.name_index, nat.descriptor_index),
-                        &**name,
-                        &**desc,
+                        name,
+                        desc,
                         kind_w = kind_w,
                         op_w = op_w
                     )?;

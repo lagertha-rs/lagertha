@@ -1,10 +1,12 @@
 use crate::class_file::attribute::method::MethodAttribute;
 use crate::class_file::method::MethodInfo;
-use crate::rt::access::class::MethodAccessFlag;
-use crate::rt::descriptor::MethodDescriptor;
+use crate::rt::access::MethodAccessFlag;
 use crate::rt::instruction_set::Instruction;
 use crate::rt::runtime_constant_pool::RuntimeConstantPool;
+use crate::rt::MethodDescriptorReference;
 use crate::JvmError;
+use std::fmt;
+use std::fmt::Formatter;
 use std::rc::Rc;
 
 ///https://docs.oracle.com/javase/specs/jvms/se23/html/jvms-4.html#jvms-4.6
@@ -20,17 +22,20 @@ pub struct CodeContext {
 pub struct Method {
     pub name: Rc<String>,
     pub flags: MethodAccessFlag,
-    pub descriptor: Rc<MethodDescriptor>,
+    pub descriptor: Rc<MethodDescriptorReference>,
+    //TODO: not sure right now if method needs to have a direct access to the runtime constant pool
+    // but now I use it only for display
+    pub const_pool: Rc<RuntimeConstantPool>,
     pub code_context: CodeContext,
 }
 
 impl Method {
     pub fn new(
         method_info: &MethodInfo,
-        const_pool: &RuntimeConstantPool,
+        const_pool: Rc<RuntimeConstantPool>,
     ) -> Result<Self, JvmError> {
         let name = const_pool.get_utf8(method_info.name_index)?.clone();
-        let flags = MethodAccessFlag(method_info.access_flags);
+        let flags = MethodAccessFlag::new(method_info.access_flags);
         let descriptor = const_pool.get_method_descriptor(method_info.descriptor_index)?;
 
         let mut code_context = None;
@@ -56,10 +61,57 @@ impl Method {
         }
         let code_context = code_context.ok_or(JvmError::TypeError)?; //TODO: Error
         Ok(Method {
+            const_pool,
             name,
             flags,
             descriptor,
             code_context,
         })
+    }
+}
+
+impl fmt::Display for Method {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        writeln!(f, "{} {}();", self.flags, self.name.replace("/", "."))?;
+        writeln!(f, "    descriptor: {}", self.descriptor.raw)?;
+        writeln!(
+            f,
+            "    flags: (0x{:04X}) {}",
+            self.flags.get_raw(),
+            self.flags
+        )?;
+        writeln!(f, "    Code:")?;
+        writeln!(
+            f,
+            "      stack={}, locals={}, args_size={}",
+            self.code_context.max_stack,
+            self.code_context.max_locals,
+            self.descriptor.resolved.params.len() //TODO: incorrect, for non static need to add + 1 (this)
+        )?;
+        let mut byte_pos = 0;
+        for instruction in &self.code_context.instructions {
+            write!(f, "        {byte_pos}: {instruction:<24}")?;
+            match instruction {
+                Instruction::Aload0 => {}
+                Instruction::Ldc { .. } => {}
+                Instruction::Invokespecial { method_index }
+                | Instruction::Invokevirtual { method_index } => {
+                    let method_ref = self
+                        .const_pool
+                        .get_methodref(*method_index)
+                        .map_err(|_| fmt::Error)?;
+                    write!(f, "#{method_ref}")?;
+                }
+                Instruction::Getstatic { .. } => {}
+                Instruction::Return => {}
+            }
+            byte_pos += instruction.byte_size();
+            writeln!(f, "")?;
+        }
+        writeln!(f, "      ")?;
+        writeln!(f, "      ")?;
+        writeln!(f, "      ")?;
+
+        Ok(())
     }
 }

@@ -1,6 +1,8 @@
 use crate::JvmError;
 use common::ByteCursor;
 use num_enum::TryFromPrimitive;
+use std::fmt;
+use std::fmt::Formatter;
 
 /// https://docs.oracle.com/javase/specs/jvms/se23/html/jvms-6.html
 #[derive(Debug, Clone, Copy, TryFromPrimitive)]
@@ -22,6 +24,19 @@ pub enum Instruction {
     Invokevirtual { method_index: u16 },
     Getstatic { field_index: u16 },
     Return,
+}
+
+impl Instruction {
+    pub fn byte_size(&self) -> u16 {
+        match self {
+            Instruction::Aload0 => 1,
+            Instruction::Ldc { .. } => 2,
+            Instruction::Invokespecial { .. } => 3,
+            Instruction::Invokevirtual { .. } => 3,
+            Instruction::Getstatic { .. } => 3,
+            Instruction::Return => 1,
+        }
+    }
 }
 
 impl Instruction {
@@ -55,5 +70,23 @@ impl Instruction {
             res.push(instruction)
         }
         Ok(res)
+    }
+}
+
+impl fmt::Display for Instruction {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        let s = match self {
+            Instruction::Aload0 => "aload_0".to_string(),
+            Instruction::Ldc { index } => format!("{:<13} #{index}", "ldc"),
+            Instruction::Invokespecial { method_index } => {
+                format!("{:<13} #{method_index}", "invokespecial")
+            }
+            Instruction::Invokevirtual { method_index } => {
+                format!("{:<13} #{method_index}", "invokevirtual")
+            }
+            Instruction::Getstatic { field_index } => format!("{:<13} #{field_index}", "getstatic"),
+            Instruction::Return => "return".to_string(),
+        };
+        f.pad(&s) // I use instruction display inside other display, and need to apply padding explicitly
     }
 }

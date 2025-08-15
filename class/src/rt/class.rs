@@ -1,5 +1,5 @@
 use crate::class_file::ClassFile;
-use crate::rt::access::class::ClassAccessFlag;
+use crate::rt::access::ClassAccessFlag;
 use crate::rt::field::Field;
 use crate::rt::method::Method;
 use crate::rt::runtime_constant_pool::RuntimeConstantPool;
@@ -19,22 +19,22 @@ pub struct Class {
     methods: Vec<Method>,
     interfaces: Vec<String>,
     attributes: Vec<String>,
-    cp: RuntimeConstantPool,
+    cp: Rc<RuntimeConstantPool>,
     initialized: bool,
 }
 
 impl Class {
     pub fn new(cf: ClassFile) -> Result<Self, JvmError> {
-        let cp = RuntimeConstantPool::new(cf.constant_pool);
+        let cp = Rc::new(RuntimeConstantPool::new(cf.constant_pool));
         let minor_version = cf.minor_version;
         let major_version = cf.major_version;
         let this = cp.get_class(cf.this_class)?.clone();
         let super_class = cp.get_class(cf.super_class)?.clone();
-        let access = ClassAccessFlag(cf.access_flags);
+        let access = ClassAccessFlag::new(cf.access_flags);
         let methods = cf
             .methods
             .iter()
-            .map(|method| Method::new(method, &cp))
+            .map(|method| Method::new(method, cp.clone()))
             .collect::<Result<Vec<_>, _>>()?;
 
         Ok(Class {
@@ -53,6 +53,7 @@ impl Class {
     }
 }
 
+// TODO: all nested displays have hardcoded space count on the beginning, find elegant solution
 impl fmt::Display for Class {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(
@@ -93,6 +94,11 @@ impl fmt::Display for Class {
             self.attributes.len()
         )?;
         writeln!(f, "Constant pool:\n{}", self.cp)?;
+        writeln!(f, "{{")?;
+        for method in &self.methods {
+            writeln!(f, "{method}")?;
+        }
+        writeln!(f, "}}")?;
 
         Ok(())
     }

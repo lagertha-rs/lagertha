@@ -2,6 +2,8 @@ use crate::rt::descriptor::MethodDescriptor;
 use crate::rt::jtype::Type;
 use crate::JvmError;
 use crate::JvmError::TryingAccessUninitializedRuntimeConstant;
+use std::fmt;
+use std::fmt::Formatter;
 use std::rc::Rc;
 
 pub mod access;
@@ -63,6 +65,12 @@ pub struct MethodReference {
     pub name_and_type: OnceCell<Rc<NameAndTypeReference>>,
 }
 
+impl fmt::Display for MethodReference {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        Ok(())
+    }
+}
+
 impl MethodReference {
     pub fn new(class_index: u16, name_and_type_index: u16) -> Self {
         Self {
@@ -96,11 +104,25 @@ impl FieldReference {
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct NameAndTypeReference {
     pub name_index: u16,
-    pub descriptor_index: u16,
     pub name: OnceCell<Rc<String>>,
-    pub raw_descriptor: OnceCell<Rc<String>>,
-    pub resolved_field: OnceCell<Rc<Type>>,
-    pub resolved_method: OnceCell<Rc<MethodDescriptor>>,
+    pub descriptor_index: u16,
+    // TODO: either method, either field. find elegant solution
+    pub method_descriptor: OnceCell<Rc<MethodDescriptorReference>>,
+    pub field_descriptor: OnceCell<Rc<FieldDescriptorReference>>,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub struct MethodDescriptorReference {
+    pub idx: u16,
+    pub raw: Rc<String>,
+    pub resolved: MethodDescriptor,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub struct FieldDescriptorReference {
+    pub idx: u16,
+    pub raw: Rc<String>,
+    pub resolved: Type,
 }
 
 impl NameAndTypeReference {
@@ -109,9 +131,8 @@ impl NameAndTypeReference {
             name_index,
             descriptor_index,
             name: OnceCell::new(),
-            raw_descriptor: OnceCell::new(),
-            resolved_field: OnceCell::new(),
-            resolved_method: OnceCell::new(),
+            method_descriptor: OnceCell::new(),
+            field_descriptor: OnceCell::new(),
         }
     }
 }

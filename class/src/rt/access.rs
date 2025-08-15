@@ -1,14 +1,14 @@
 use std::fmt;
 
-/// https://docs.oracle.com/javase/specs/jvms/se23/html/jvms-4.html#jvms-4.1
+/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.1-200-E.1
 /// Table 4.1-B. Class access and property modifiers
 #[derive(Debug, Clone, Copy)]
-pub struct ClassAccessFlag(pub u16);
+pub struct ClassAccessFlag(u16);
 
-/// https://docs.oracle.com/javase/specs/jvms/se23/html/jvms-4.html#jvms-4.6
+/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.6-200-A.1
 /// Table 4.6-A. Method access and property flags
 #[derive(Debug, Clone, Copy)]
-pub struct MethodAccessFlag(pub u16);
+pub struct MethodAccessFlag(u16);
 
 impl ClassAccessFlag {
     pub fn new(value: u16) -> Self {
@@ -51,8 +51,8 @@ impl ClassAccessFlag {
         self.0 & 0x8000 != 0
     }
 
-    pub fn get_raw(&self) -> u16 {
-        self.0
+    pub fn get_raw(&self) -> &u16 {
+        &self.0
     }
 }
 
@@ -66,15 +66,15 @@ impl MethodAccessFlag {
     }
 
     pub fn is_private(&self) -> bool {
-        self.0 & 0x0001 != 0
+        self.0 & 0x0002 != 0
     }
 
     pub fn is_protected(&self) -> bool {
-        self.0 & 0x0001 != 0
+        self.0 & 0x0004 != 0
     }
 
     pub fn is_static(&self) -> bool {
-        self.0 & 0x0001 != 0
+        self.0 & 0x0008 != 0
     }
 
     pub fn is_final(&self) -> bool {
@@ -86,27 +86,31 @@ impl MethodAccessFlag {
     }
 
     pub fn is_bridge(&self) -> bool {
-        self.0 & 0x0400 != 0
+        self.0 & 0x0040 != 0
     }
 
     pub fn is_varargs(&self) -> bool {
-        self.0 & 0x1000 != 0
+        self.0 & 0x0080 != 0
     }
 
     pub fn is_native(&self) -> bool {
-        self.0 & 0x2000 != 0
+        self.0 & 0x0100 != 0
     }
 
     pub fn is_abstract(&self) -> bool {
-        self.0 & 0x4000 != 0
+        self.0 & 0x0400 != 0
     }
 
     pub fn is_strict(&self) -> bool {
-        self.0 & 0x8000 != 0
+        self.0 & 0x0800 != 0
     }
 
     pub fn is_synthetic(&self) -> bool {
-        self.0 & 0x8000 != 0
+        self.0 & 0x1000 != 0
+    }
+
+    pub fn get_raw(&self) -> &u16 {
+        &self.0
     }
 }
 
