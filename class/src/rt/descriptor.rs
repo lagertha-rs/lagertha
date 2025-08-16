@@ -1,6 +1,6 @@
 //TODO: probably use global err
 
-use crate::class_file::{ClassFileErr, MethodDescriptorErr};
+use crate::class_file::DescriptorErr;
 use crate::rt::jtype::Type;
 
 /// https://docs.oracle.com/javase/specs/jvms/se23/html/jvms-4.html#jvms-4.3
@@ -11,15 +11,13 @@ pub struct MethodDescriptor {
 }
 
 impl TryFrom<&str> for MethodDescriptor {
-    type Error = ClassFileErr;
+    type Error = DescriptorErr;
 
     fn try_from(desc: &str) -> Result<Self, Self::Error> {
         let mut chars = desc.chars().peekable();
 
         if chars.next() != Some('(') {
-            return Err(ClassFileErr::MethodDescriptor(
-                MethodDescriptorErr::ShouldStartWithParentheses,
-            ));
+            return Err(DescriptorErr::ShouldStartWithParentheses);
         }
 
         let mut params = Vec::new();
@@ -31,9 +29,7 @@ impl TryFrom<&str> for MethodDescriptor {
                 }
                 Some(_) => params.push(Type::try_recursive(&mut chars)?),
                 None => {
-                    return Err(ClassFileErr::MethodDescriptor(
-                        MethodDescriptorErr::MissingClosingParenthesis,
-                    ));
+                    return Err(DescriptorErr::MissingClosingParenthesis);
                 }
             }
         }
@@ -41,9 +37,7 @@ impl TryFrom<&str> for MethodDescriptor {
         let ret = Type::try_recursive(&mut chars)?;
 
         if chars.next().is_some() {
-            return Err(ClassFileErr::MethodDescriptor(
-                MethodDescriptorErr::TrailingCharacters,
-            ));
+            return Err(DescriptorErr::TrailingCharacters);
         }
 
         Ok(MethodDescriptor { params, ret })

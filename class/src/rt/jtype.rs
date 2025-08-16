@@ -1,4 +1,4 @@
-use crate::class_file::{ClassFileErr, MethodDescriptorErr};
+use crate::class_file::DescriptorErr;
 use std::iter::Peekable;
 
 /// https://docs.oracle.com/javase/specs/jvms/se23/html/jvms-4.html#jvms-4.3.2
@@ -18,13 +18,11 @@ pub enum Type {
 }
 
 impl Type {
-    pub fn try_recursive<I>(it: &mut Peekable<I>) -> Result<Type, ClassFileErr>
+    pub fn try_recursive<I>(it: &mut Peekable<I>) -> Result<Type, DescriptorErr>
     where
         I: Iterator<Item = char>,
     {
-        let c = it.next().ok_or(ClassFileErr::MethodDescriptor(
-            MethodDescriptorErr::UnexpectedEnd,
-        ))?;
+        let c = it.next().ok_or(DescriptorErr::UnexpectedEnd)?;
 
         if let Ok(base) = Type::try_from(c) {
             return Ok(base);
@@ -40,23 +38,19 @@ impl Type {
                     }
                     instance_name.push(next);
                 }
-                Err(ClassFileErr::MethodDescriptor(
-                    MethodDescriptorErr::UnexpectedEnd,
-                ))
+                Err(DescriptorErr::UnexpectedEnd)
             }
             '[' => {
                 let elem = Type::try_recursive(it)?;
                 Ok(Type::Array(Box::new(elem)))
             }
-            _ => Err(ClassFileErr::MethodDescriptor(
-                MethodDescriptorErr::InvalidType,
-            )),
+            _ => Err(DescriptorErr::InvalidType),
         }
     }
 }
 
 impl TryFrom<&str> for Type {
-    type Error = ClassFileErr; // todo
+    type Error = DescriptorErr;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         Type::try_recursive(&mut value.chars().peekable())
@@ -86,12 +80,12 @@ impl TryFrom<char> for Type {
 mod tests {
     use super::*;
 
-    fn parse_one(s: &str) -> Result<Type, ClassFileErr> {
+    fn parse_one(s: &str) -> Result<Type, DescriptorErr> {
         let mut it = s.chars().peekable();
         Type::try_recursive(&mut it)
     }
 
-    fn parse_and_rest(s: &str) -> (Result<Type, ClassFileErr>, String) {
+    fn parse_and_rest(s: &str) -> (Result<Type, DescriptorErr>, String) {
         let mut it = s.chars().peekable();
         let res = Type::try_recursive(&mut it);
         let rest: String = it.collect();
@@ -162,28 +156,19 @@ mod tests {
     fn error_unexpected_end_after_l() {
         // Missing ';' terminator
         let err = parse_one("Ljava/lang/String").unwrap_err();
-        assert!(matches!(
-            err,
-            ClassFileErr::MethodDescriptor(MethodDescriptorErr::UnexpectedEnd)
-        ));
+        assert!(matches!(err, DescriptorErr::UnexpectedEnd));
     }
 
     #[test]
     fn error_unexpected_end_after_array_prefix() {
         let err = parse_one("[").unwrap_err();
-        assert!(matches!(
-            err,
-            ClassFileErr::MethodDescriptor(MethodDescriptorErr::UnexpectedEnd)
-        ));
+        assert!(matches!(err, DescriptorErr::UnexpectedEnd));
     }
 
     #[test]
     fn error_invalid_type_tag() {
         let err = parse_one("Q").unwrap_err();
-        assert!(matches!(
-            err,
-            ClassFileErr::MethodDescriptor(MethodDescriptorErr::InvalidType)
-        ));
+        assert!(matches!(err, DescriptorErr::InvalidType));
     }
 
     #[test]

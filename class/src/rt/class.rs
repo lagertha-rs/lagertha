@@ -1,9 +1,9 @@
 use crate::class_file::ClassFile;
 use crate::rt::access::ClassAccessFlag;
+use crate::rt::constant_pool::reference::ClassReference;
+use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::field::Field;
 use crate::rt::method::Method;
-use crate::rt::runtime_constant_pool::RuntimeConstantPool;
-use crate::rt::ClassReference;
 use crate::JvmError;
 use std::fmt;
 use std::rc::Rc;
@@ -28,8 +28,8 @@ impl Class {
         let cp = Rc::new(RuntimeConstantPool::new(cf.constant_pool));
         let minor_version = cf.minor_version;
         let major_version = cf.major_version;
-        let this = cp.get_class(cf.this_class)?.clone();
-        let super_class = cp.get_class(cf.super_class)?.clone();
+        let this = cp.get_class(&cf.this_class)?.clone();
+        let super_class = cp.get_class(&cf.super_class)?.clone();
         let access = ClassAccessFlag::new(cf.access_flags);
         let methods = cf
             .methods
@@ -61,7 +61,7 @@ impl fmt::Display for Class {
             "{} class {}",
             self.access,
             self.this
-                .get_name()
+                .name()
                 .map(|v| v.replace("/", "."))
                 .map_err(Into::into)?
         )?;
@@ -76,14 +76,14 @@ impl fmt::Display for Class {
         writeln!(
             f,
             "  this_class: #{}\t\t// {}",
-            self.this.name_index,
-            self.this.get_name().map_err(Into::into)?
+            self.this.name_index(),
+            self.this.name().map_err(Into::into)?
         )?;
         writeln!(
             f,
             "  super_class: #{}\t\t// {}",
-            self.super_class.name_index,
-            self.super_class.get_name().map_err(Into::into)?
+            self.super_class.name_index(),
+            self.super_class.name().map_err(Into::into)?
         )?;
         writeln!(
             f,

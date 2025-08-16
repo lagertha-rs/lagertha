@@ -1,9 +1,9 @@
 use crate::class_file::ClassFile;
 use crate::rt::class::Class;
+use crate::rt::constant_pool::error::RuntimePoolError;
 use class_file::ClassFileErr;
 use common::CursorError;
 use std::fmt;
-use std::fmt::Error;
 use thiserror::Error;
 
 mod class_file;
@@ -15,6 +15,8 @@ pub enum JvmError {
     ClassFile(#[from] ClassFileErr),
     #[error(transparent)]
     Cursor(#[from] CursorError),
+    #[error(transparent)]
+    RuntimePool(#[from] RuntimePoolError),
     #[error("")]
     MissingAttributeInConstantPoll,
     #[error("")]
@@ -23,8 +25,6 @@ pub enum JvmError {
     TrailingBytes,
     #[error("")]
     TypeError,
-    #[error("")]
-    TryingAccessUninitializedRuntimeConstant(&'static str, u16), //TODO: not str, but rather enum?
 }
 
 impl Into<fmt::Error> for JvmError {

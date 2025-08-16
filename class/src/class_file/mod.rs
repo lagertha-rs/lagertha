@@ -27,7 +27,7 @@ pub struct ClassFile {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
-pub enum MethodDescriptorErr {
+pub enum DescriptorErr {
     #[error("")]
     ShouldStartWithParentheses,
     #[error("")]
@@ -45,7 +45,7 @@ pub enum ClassFileErr {
     #[error(transparent)]
     Cursor(#[from] CursorError),
     #[error(transparent)]
-    MethodDescriptor(#[from] MethodDescriptorErr),
+    MethodDescriptor(#[from] DescriptorErr),
     #[error("")]
     WrongMagic,
     #[error("")]

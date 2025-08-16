@@ -1,9 +1,9 @@
 use crate::class_file::attribute::method::MethodAttribute;
 use crate::class_file::method::MethodInfo;
 use crate::rt::access::MethodAccessFlag;
+use crate::rt::constant_pool::reference::MethodDescriptorReference;
+use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::instruction_set::Instruction;
-use crate::rt::runtime_constant_pool::RuntimeConstantPool;
-use crate::rt::MethodDescriptorReference;
 use crate::JvmError;
 use std::fmt;
 use std::fmt::Formatter;
@@ -34,9 +34,9 @@ impl Method {
         method_info: &MethodInfo,
         const_pool: Rc<RuntimeConstantPool>,
     ) -> Result<Self, JvmError> {
-        let name = const_pool.get_utf8(method_info.name_index)?.clone();
+        let name = const_pool.get_utf8(&method_info.name_index)?.clone();
         let flags = MethodAccessFlag::new(method_info.access_flags);
-        let descriptor = const_pool.get_method_descriptor(method_info.descriptor_index)?;
+        let descriptor = const_pool.get_method_descriptor(&method_info.descriptor_index)?;
 
         let mut code_context = None;
         for attr in &method_info.attributes {
@@ -73,7 +73,7 @@ impl Method {
 impl fmt::Display for Method {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         writeln!(f, "{} {}();", self.flags, self.name.replace("/", "."))?;
-        writeln!(f, "    descriptor: {}", self.descriptor.raw)?;
+        writeln!(f, "    descriptor: {}", self.descriptor.raw())?;
         writeln!(
             f,
             "    flags: (0x{:04X}) {}",
@@ -86,7 +86,7 @@ impl fmt::Display for Method {
             "      stack={}, locals={}, args_size={}",
             self.code_context.max_stack,
             self.code_context.max_locals,
-            self.descriptor.resolved.params.len() //TODO: incorrect, for non static need to add + 1 (this)
+            self.descriptor.resolved().params.len() //TODO: incorrect, for non static need to add + 1 (this)
         )?;
         let mut byte_pos = 0;
         for instruction in &self.code_context.instructions {
@@ -98,7 +98,7 @@ impl fmt::Display for Method {
                 | Instruction::Invokevirtual { method_index } => {
                     let method_ref = self
                         .const_pool
-                        .get_methodref(*method_index)
+                        .get_methodref(method_index)
                         .map_err(|_| fmt::Error)?;
                     write!(f, "#{method_ref}")?;
                 }
