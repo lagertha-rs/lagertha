@@ -8,5 +8,4 @@ https://docs.oracle.com/javase/specs/jvms/se24/html/
 - **common**
 - **java**
 - **javap**
-- **jdes**
 - **vm**
