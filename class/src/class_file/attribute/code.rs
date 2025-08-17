@@ -9,17 +9,17 @@ pub const ATTR_LOCAL_VARIABLE_TABLE: &[u8] = b"LocalVariableTable";
 pub const ATTR_LINE_NUMBER_TABLE: &[u8] = b"LineNumberTable";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-struct LineNumberEntry {
-    start_pc: u16,
-    line_number: u16,
+pub struct LineNumberEntry {
+    pub start_pc: u16,
+    pub line_number: u16,
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
-struct LocalVariableEntry {
-    start_pc: u16,
-    length: u16,
-    name_index: u16,
-    descriptor_index: u16,
-    index: u16,
+pub struct LocalVariableEntry {
+    pub start_pc: u16,
+    pub length: u16,
+    pub name_index: u16,
+    pub descriptor_index: u16,
+    pub index: u16,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

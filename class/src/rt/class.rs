@@ -55,6 +55,7 @@ impl Class {
 
 // TODO: all nested displays have hardcoded space count on the beginning, find elegant solution
 // TODO: Seems my was of error of mapping to fmt error skips the error message, hard to debug
+// TODO: clean up all nested displays
 impl fmt::Display for Class {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(

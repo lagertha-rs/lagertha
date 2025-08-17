@@ -1,3 +1,4 @@
+use crate::class_file::attribute::code::{CodeAttribute, LineNumberEntry, LocalVariableEntry};
 use crate::class_file::attribute::method::MethodAttribute;
 use crate::class_file::method::MethodInfo;
 use crate::rt::access::MethodAccessFlag;
@@ -16,6 +17,10 @@ pub struct CodeContext {
     max_stack: u16,
     max_locals: u16,
     instructions: Vec<Instruction>,
+    // TODO: Create a dedicated struct?
+    line_numbers: Vec<LineNumberEntry>,
+    // TODO: Create a dedicated struct?
+    local_variables: Vec<LocalVariableEntry>,
 }
 
 #[derive(Debug)]
@@ -30,6 +35,7 @@ pub struct Method {
 }
 
 impl Method {
+    //TODO: probably should not take method info reference as arg, since
     pub fn new(
         method_info: &MethodInfo,
         const_pool: Rc<RuntimeConstantPool>,
@@ -45,18 +51,40 @@ impl Method {
                     max_stack,
                     max_locals,
                     code,
+                    attributes,
                     ..
                 } => {
                     if code_context.is_some() {
-                        Err(JvmError::TypeError)?
+                        Err(JvmError::TypeError)? //TODO: Err, can't have multiple code attrs
+                    }
+                    let mut line_numbers = None;
+                    let mut local_variables = None;
+                    for code_attr in attributes {
+                        match code_attr {
+                            CodeAttribute::LineNumberTable(t) => {
+                                if line_numbers.is_some() {
+                                    Err(JvmError::TypeError)? // TODO: Err
+                                }
+                                line_numbers = Some(t.clone());
+                            }
+                            CodeAttribute::LocalVariableTable(t) => {
+                                if local_variables.is_some() {
+                                    Err(JvmError::TypeError)? // TODO: Err
+                                }
+                                local_variables = Some(t.clone())
+                            }
+                            CodeAttribute::Unknown { .. } => unimplemented!(),
+                        }
                     }
                     code_context = Some(CodeContext {
+                        local_variables: local_variables.ok_or(JvmError::TypeError)?, // TODO: Err
+                        line_numbers: line_numbers.ok_or(JvmError::TypeError)?,       // TODO: Err
                         max_locals: *max_locals,
                         max_stack: *max_stack,
                         instructions: Instruction::new_instruction_set(code)?,
                     })
                 }
-                MethodAttribute::Unknown { .. } => {}
+                MethodAttribute::Unknown { .. } => unimplemented!(),
             }
         }
         let code_context = code_context.ok_or(JvmError::TypeError)?; //TODO: Error
@@ -80,6 +108,7 @@ impl fmt::Display for Method {
             self.flags.get_raw(),
             self.flags
         )?;
+        //TODO: Move code part to the CodeContext Display
         writeln!(f, "    Code:")?;
         writeln!(
             f,
@@ -113,6 +142,42 @@ impl fmt::Display for Method {
             }
             byte_pos += instruction.byte_size();
             writeln!(f)?;
+        }
+        writeln!(f, "      LineNumberTable:")?;
+        for line_number in &self.code_context.line_numbers {
+            writeln!(
+                f,
+                "        line {}: {}",
+                line_number.line_number, line_number.start_pc
+            )?;
+        }
+
+        //TODO: clean up
+        writeln!(f, "      LocalVariableTable:")?;
+        const W_START: usize = 13;
+        const W_LENGTH: usize = 8;
+        const W_SLOT: usize = 5;
+        const W_NAME: usize = 4;
+
+        writeln!(
+            f,
+            "{:>W_START$} {:>W_LENGTH$} {:>W_SLOT$}  {:<W_NAME$}   {}",
+            "Start", "Length", "Slot", "Name", "Signature",
+        )?;
+        for lv in &self.code_context.local_variables {
+            let name = self
+                .const_pool
+                .get_utf8(&lv.name_index)
+                .map_err(Into::into)?;
+            let sig = self
+                .const_pool
+                .get_utf8(&lv.descriptor_index)
+                .map_err(Into::into)?;
+            writeln!(
+                f,
+                "{:>W_START$} {:>W_LENGTH$} {:>W_SLOT$}  {:<W_NAME$}   {}",
+                lv.start_pc, lv.length, lv.index, name, sig,
+            )?;
         }
 
         Ok(())
