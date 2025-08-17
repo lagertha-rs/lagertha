@@ -68,6 +68,13 @@ impl StringReference {
     }
 }
 
+impl fmt::Display for StringReference {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        writeln!(f, "String {}", self.value().map_err(Into::into)?)?;
+        Ok(())
+    }
+}
+
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct MethodReference {
     cp_index: u16,
@@ -79,6 +86,15 @@ pub struct MethodReference {
 
 impl fmt::Display for MethodReference {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        let class = self.class().map_err(Into::into)?;
+        let nat = self.name_and_type().map_err(Into::into)?;
+        writeln!(
+            f,
+            "Method {}.{}:{}",
+            class.name().map_err(Into::into)?,
+            nat.name().map_err(Into::into)?,
+            nat.method_descriptor().map_err(Into::into)?.raw()
+        )?;
         Ok(())
     }
 }
@@ -197,6 +213,15 @@ impl NameAndTypeReference {
 
     pub fn descriptor_index(&self) -> &u16 {
         &self.descriptor_index
+    }
+
+    pub fn name(&self) -> Result<&Rc<String>, RuntimePoolError> {
+        self.name
+            .get()
+            .ok_or(RuntimePoolError::TryingToAccessUnresolved(
+                self.cp_index,
+                RuntimeConstantType::NameAndType,
+            ))
     }
 
     pub fn method_descriptor(&self) -> Result<&Rc<MethodDescriptorReference>, RuntimePoolError> {

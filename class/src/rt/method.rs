@@ -100,7 +100,7 @@ impl fmt::Display for Method {
                         .const_pool
                         .get_methodref(method_index)
                         .map_err(|_| fmt::Error)?;
-                    write!(f, "#{method_ref}")?;
+                    write!(f, "// {method_ref}")?;
                 }
                 Instruction::Getstatic { .. } => {}
                 Instruction::Return => {}
