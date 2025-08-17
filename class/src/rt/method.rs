@@ -93,24 +93,27 @@ impl fmt::Display for Method {
             write!(f, "        {byte_pos}: {instruction:<24}")?;
             match instruction {
                 Instruction::Aload0 => {}
-                Instruction::Ldc { .. } => {}
+                Instruction::Ldc { index } => {
+                    write!(f, "// {}", self.const_pool.get(index).map_err(Into::into)?)?
+                }
                 Instruction::Invokespecial { method_index }
                 | Instruction::Invokevirtual { method_index } => {
-                    let method_ref = self
-                        .const_pool
-                        .get_methodref(method_index)
-                        .map_err(|_| fmt::Error)?;
-                    write!(f, "// {method_ref}")?;
+                    write!(
+                        f,
+                        "// {}",
+                        self.const_pool.get(method_index).map_err(Into::into)?
+                    )?;
                 }
-                Instruction::Getstatic { .. } => {}
+                Instruction::Getstatic { field_index } => write!(
+                    f,
+                    "// {}",
+                    self.const_pool.get(field_index).map_err(Into::into)?
+                )?,
                 Instruction::Return => {}
             }
             byte_pos += instruction.byte_size();
-            writeln!(f, "")?;
+            writeln!(f)?;
         }
-        writeln!(f, "      ")?;
-        writeln!(f, "      ")?;
-        writeln!(f, "      ")?;
 
         Ok(())
     }

@@ -70,7 +70,7 @@ impl StringReference {
 
 impl fmt::Display for StringReference {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        writeln!(f, "String {}", self.value().map_err(Into::into)?)?;
+        write!(f, "{}", self.value().map_err(Into::into)?)?;
         Ok(())
     }
 }
@@ -85,12 +85,13 @@ pub struct MethodReference {
 }
 
 impl fmt::Display for MethodReference {
+    //TODO: avoid .map_err
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let class = self.class().map_err(Into::into)?;
         let nat = self.name_and_type().map_err(Into::into)?;
-        writeln!(
+        write!(
             f,
-            "Method {}.{}:{}",
+            "{}.{}:{}",
             class.name().map_err(Into::into)?,
             nat.name().map_err(Into::into)?,
             nat.method_descriptor().map_err(Into::into)?.raw()
@@ -144,6 +145,22 @@ pub struct FieldReference {
     name_and_type_index: u16,
     pub(super) class: OnceCell<Rc<ClassReference>>,
     pub(super) name_and_type: OnceCell<Rc<NameAndTypeReference>>,
+}
+
+impl fmt::Display for FieldReference {
+    //TODO: avoid .map_err
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        let class = self.class().map_err(Into::into)?;
+        let nat = self.name_and_type().map_err(Into::into)?;
+        write!(
+            f,
+            "{}.{}:{}",
+            class.name().map_err(Into::into)?,
+            nat.name().map_err(Into::into)?,
+            nat.field_descriptor().map_err(Into::into)?.raw()
+        )?;
+        Ok(())
+    }
 }
 
 impl FieldReference {

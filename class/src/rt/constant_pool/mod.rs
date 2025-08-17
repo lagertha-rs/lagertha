@@ -126,6 +126,33 @@ impl RuntimeConstantPool {
             .ok_or(RuntimePoolError::WrongIndex(*idx))
     }
 
+    /*TODO: as far as I understand it will be needed for ldc opcode, now use only for display.
+     * get are called to resolve references before return it. does it make sense to have separate
+     * resolve method, instead of using getters?
+     * And seems I can't resolve nat here, cause IDK it is field or method, so probably it should
+     * not be named as get, but more specific for ldc opcode etc...
+     */
+    pub fn get(&self, idx: &u16) -> Result<&RuntimeConstant, RuntimePoolError> {
+        let entry = self.entry(idx)?;
+        match entry {
+            RuntimeConstant::Class(_) => {
+                self.get_class(idx)?;
+            }
+            RuntimeConstant::String(_) => {
+                self.get_string(idx)?;
+            }
+            RuntimeConstant::MethodRef(_) => {
+                self.get_methodref(idx)?;
+            }
+            RuntimeConstant::FieldRef(_) => {
+                self.get_fieldref(idx)?;
+            }
+            RuntimeConstant::NameAndType(_) => unimplemented!(),
+            _ => {}
+        };
+        Ok(entry)
+    }
+
     pub fn get_utf8(&self, idx: &u16) -> Result<&Rc<String>, RuntimePoolError> {
         match self.entry(idx)? {
             RuntimeConstant::Utf8(string) => Ok(string),
@@ -273,9 +300,7 @@ impl RuntimeConstantPool {
                 field_ref
                     .name_and_type
                     .get_or_try_init::<_, RuntimePoolError>(|| {
-                        Ok(self
-                            .get_method_nat(field_ref.name_and_type_index())?
-                            .clone())
+                        Ok(self.get_field_nat(field_ref.name_and_type_index())?.clone())
                     })?;
                 Ok(field_ref)
             }
@@ -288,7 +313,27 @@ impl RuntimeConstantPool {
     }
 }
 
-impl Display for RuntimeConstantPool {
+impl fmt::Display for RuntimeConstant {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            RuntimeConstant::Dummy => {} //TODO
+            RuntimeConstant::Utf8(val) => write!(f, "Utf8 {val}")?,
+            RuntimeConstant::Integer(val) => write!(f, "Integer {val}")?,
+            RuntimeConstant::Float(val) => write!(f, "Float {val}")?,
+            RuntimeConstant::Long(val) => write!(f, "Long {val}")?,
+            RuntimeConstant::Double(val) => write!(f, "Double {val}")?,
+            RuntimeConstant::Class(_val) => write!(f, "Class")?, //TODO
+            RuntimeConstant::String(val) => write!(f, "String {val}")?,
+            RuntimeConstant::MethodRef(val) => write!(f, "Method {val}")?,
+            RuntimeConstant::FieldRef(val) => write!(f, "Field {val}")?,
+            RuntimeConstant::InterfaceRef(_val) => write!(f, "Interface")?, //TODO
+            RuntimeConstant::NameAndType(_val) => write!(f, "NameAndType")?, //TODO
+        }
+        Ok(())
+    }
+}
+
+impl fmt::Display for RuntimeConstantPool {
     // copying -v arg
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let digits = (self.entries.len().saturating_sub(1))
