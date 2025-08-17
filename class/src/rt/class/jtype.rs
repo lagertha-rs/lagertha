@@ -1,7 +1,7 @@
 use crate::class_file::DescriptorErr;
 use std::iter::Peekable;
 
-/// https://docs.oracle.com/javase/specs/jvms/se23/html/jvms-4.html#jvms-4.3.2
+/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.3.2
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Type {
     Void,

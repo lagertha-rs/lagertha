@@ -4,7 +4,7 @@ use num_enum::TryFromPrimitive;
 use std::fmt;
 use std::fmt::Formatter;
 
-/// https://docs.oracle.com/javase/specs/jvms/se23/html/jvms-6.html
+/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-6.html
 #[derive(Debug, Clone, Copy, TryFromPrimitive)]
 #[repr(u8)]
 pub enum Opcode {

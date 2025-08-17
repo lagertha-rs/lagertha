@@ -1,7 +1,7 @@
+use crate::rt::class::descriptor::MethodDescriptor;
+use crate::rt::class::jtype::Type;
 use crate::rt::constant_pool::error::RuntimePoolError;
 use crate::rt::constant_pool::RuntimeConstantType;
-use crate::rt::descriptor::MethodDescriptor;
-use crate::rt::jtype::Type;
 use std::fmt;
 use std::fmt::Formatter;
 use std::rc::Rc;

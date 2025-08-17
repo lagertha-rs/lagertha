@@ -11,7 +11,7 @@ pub mod constant_pool;
 pub mod field;
 pub mod method;
 
-/// https://docs.oracle.com/javase/specs/jvms/se23/html/jvms-4.html
+/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html
 #[derive(Debug)]
 pub struct ClassFile {
     pub minor_version: u16,

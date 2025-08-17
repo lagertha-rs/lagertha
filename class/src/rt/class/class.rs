@@ -1,9 +1,9 @@
 use crate::class_file::ClassFile;
-use crate::rt::access::ClassAccessFlag;
+use crate::rt::class::access::ClassAccessFlag;
+use crate::rt::class::field::Field;
+use crate::rt::class::method::Method;
 use crate::rt::constant_pool::reference::ClassReference;
 use crate::rt::constant_pool::RuntimeConstantPool;
-use crate::rt::field::Field;
-use crate::rt::method::Method;
 use crate::JvmError;
 use std::fmt;
 use std::rc::Rc;

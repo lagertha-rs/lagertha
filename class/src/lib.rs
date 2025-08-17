@@ -1,5 +1,5 @@
 use crate::class_file::ClassFile;
-use crate::rt::class::Class;
+use crate::rt::class::class::Class;
 use crate::rt::constant_pool::error::RuntimePoolError;
 use class_file::ClassFileErr;
 use common::CursorError;

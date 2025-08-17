@@ -1,14 +1,14 @@
 use crate::class_file::constant_pool::{ConstantInfo, ReferenceInfo};
+use crate::rt::class::descriptor::MethodDescriptor;
+use crate::rt::class::jtype::Type;
 use crate::rt::constant_pool::error::RuntimePoolError;
 use crate::rt::constant_pool::reference::{
     ClassReference, FieldDescriptorReference, FieldReference, MethodDescriptorReference,
     MethodReference, NameAndTypeReference, StringReference,
 };
-use crate::rt::descriptor::MethodDescriptor;
-use crate::rt::jtype::Type;
 use dashmap::DashMap;
 use std::fmt;
-use std::fmt::{Display, Formatter};
+use std::fmt::Formatter;
 use std::rc::Rc;
 
 pub mod error;

@@ -1,17 +1,16 @@
 use crate::class_file::attribute::code::{CodeAttribute, LineNumberEntry, LocalVariableEntry};
 use crate::class_file::attribute::method::MethodAttribute;
 use crate::class_file::method::MethodInfo;
-use crate::rt::access::MethodAccessFlag;
+use crate::rt::class::access::MethodAccessFlag;
+use crate::rt::class::instruction_set::Instruction;
 use crate::rt::constant_pool::reference::MethodDescriptorReference;
 use crate::rt::constant_pool::RuntimeConstantPool;
-use crate::rt::instruction_set::Instruction;
 use crate::JvmError;
 use std::fmt;
 use std::fmt::Formatter;
 use std::rc::Rc;
 
-///https://docs.oracle.com/javase/specs/jvms/se23/html/jvms-4.html#jvms-4.6
-
+///https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.3
 #[derive(Debug)]
 pub struct CodeContext {
     max_stack: u16,
@@ -23,6 +22,7 @@ pub struct CodeContext {
     local_variables: Vec<LocalVariableEntry>,
 }
 
+/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.6
 #[derive(Debug)]
 pub struct Method {
     pub name: Rc<String>,

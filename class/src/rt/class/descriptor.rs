@@ -1,9 +1,9 @@
 //TODO: probably use global err
 
 use crate::class_file::DescriptorErr;
-use crate::rt::jtype::Type;
+use crate::rt::class::jtype::Type;
 
-/// https://docs.oracle.com/javase/specs/jvms/se23/html/jvms-4.html#jvms-4.3
+/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.3
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MethodDescriptor {
     pub params: Vec<Type>,
