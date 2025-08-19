@@ -1,8 +1,22 @@
+use crate::byte_cursor::CursorError;
+use crate::class_file::{ClassFile, ClassFileErr};
+use crate::class_loader::ClassLoaderErr;
+use crate::method_area::MethodArea;
+use crate::rt::class::class::Class;
+use crate::rt::constant_pool::error::RuntimePoolError;
+use std::fmt;
+use std::ops::Deref;
+use std::rc::Rc;
+use thiserror::Error;
+
+mod byte_cursor;
+mod class_file;
 mod class_loader;
 mod heap;
 mod method_area;
 mod native_registry;
-pub mod stack;
+pub mod rt;
+mod stack;
 mod string_pool;
 
 type HeapAddr = usize;
@@ -25,4 +39,41 @@ pub enum ClassState {
     Initialized,
 }
 
-pub fn run(_main: Vec<u8>) {}
+#[derive(Debug, Error)]
+pub enum JvmError {
+    #[error(transparent)]
+    ClassFile(#[from] ClassFileErr),
+    #[error(transparent)]
+    Cursor(#[from] CursorError),
+    #[error(transparent)]
+    RuntimePool(#[from] RuntimePoolError),
+    #[error(transparent)]
+    ClassLoader(#[from] ClassLoaderErr),
+    #[error("")]
+    MissingAttributeInConstantPoll,
+    #[error("")]
+    ConstantNotFoundInRuntimePool,
+    #[error("")]
+    TrailingBytes,
+    #[error("")]
+    TypeError,
+}
+
+impl Into<fmt::Error> for JvmError {
+    fn into(self) -> fmt::Error {
+        fmt::Error
+    }
+}
+
+// TODO: returns only class right now, in future not sure
+pub fn parse_bin_class(main_class: Vec<u8>) -> Result<Rc<Class>, JvmError> {
+    let class_file = ClassFile::try_from(main_class)?;
+    let main = Rc::new(Class::new(class_file)?);
+
+    let method_area = MethodArea::with_main(main.clone())?;
+
+    let obj_class_name = "java.lang.Object".to_string();
+    let obj_class = method_area.get_class(&obj_class_name);
+
+    Ok(main)
+}

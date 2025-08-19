@@ -1,5 +1,5 @@
+use crate::byte_cursor::ByteCursor;
 use crate::ClassFileErr;
-use common::ByteCursor;
 use core::fmt;
 use num_enum::TryFromPrimitive;
 

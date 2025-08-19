@@ -1,5 +1,5 @@
+use crate::byte_cursor::ByteCursor;
 use crate::JvmError;
-use common::ByteCursor;
 use num_enum::TryFromPrimitive;
 use std::fmt;
 use std::fmt::Formatter;

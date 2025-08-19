@@ -1,6 +1,6 @@
+use crate::byte_cursor::ByteCursor;
 use crate::class_file::constant_pool::ConstantInfo;
 use crate::ClassFileErr;
-use common::ByteCursor;
 use core::fmt;
 
 #[derive(Debug)]

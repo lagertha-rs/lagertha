@@ -1,7 +1,7 @@
+use crate::byte_cursor::ByteCursor;
 use crate::class_file::attribute::get_utf8;
 use crate::class_file::constant_pool::ConstantInfo;
 use crate::ClassFileErr;
-use common::ByteCursor;
 use std::fmt;
 use std::fmt::{Display, Formatter};
 

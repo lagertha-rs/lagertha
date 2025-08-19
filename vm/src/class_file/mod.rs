@@ -1,5 +1,5 @@
+use crate::byte_cursor::{ByteCursor, CursorError};
 use crate::class_file::attribute::class::ClassAttribute;
-use common::{ByteCursor, CursorError};
 use constant_pool::ConstantInfo;
 use field::FieldInfo;
 use method::MethodInfo;

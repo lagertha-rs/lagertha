@@ -51,6 +51,10 @@ impl Class {
             initialized: false,
         })
     }
+
+    pub fn get_name(&self) -> Result<&Rc<String>, JvmError> {
+        self.this.name().map_err(Into::into)
+    }
 }
 
 // TODO: all nested displays have hardcoded space count on the beginning, find elegant solution
