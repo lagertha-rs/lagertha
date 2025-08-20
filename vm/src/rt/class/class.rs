@@ -14,7 +14,7 @@ pub struct Class {
     access: ClassAccessFlag,
     minor_version: u16,
     major_version: u16,
-    super_class: Rc<ClassReference>,
+    super_class: Option<Rc<ClassReference>>,
     fields: Vec<Field>,
     methods: Vec<Method>,
     interfaces: Vec<String>,
@@ -29,7 +29,11 @@ impl Class {
         let minor_version = cf.minor_version;
         let major_version = cf.major_version;
         let this = cp.get_class(&cf.this_class)?.clone();
-        let super_class = cp.get_class(&cf.super_class)?.clone();
+        let super_class = if cf.super_class != 0 {
+            Some(cp.get_class(&cf.super_class)?.clone())
+        } else {
+            None
+        };
         let access = ClassAccessFlag::new(cf.access_flags);
         let methods = cf
             .methods
@@ -85,12 +89,16 @@ impl fmt::Display for Class {
             self.this.name_index(),
             self.this.name().map_err(Into::into)?
         )?;
-        writeln!(
-            f,
-            "  super_class: #{}\t\t// {}",
-            self.super_class.name_index(),
-            self.super_class.name().map_err(Into::into)?
-        )?;
+        if let Some(super_class) = &self.super_class {
+            writeln!(
+                f,
+                "  super_class: #{}\t\t// {}",
+                super_class.name_index(),
+                super_class.name().map_err(Into::into)?
+            )?;
+        } else {
+            writeln!(f, "  super_class: #0",)?;
+        }
         writeln!(
             f,
             "  interfaces: {}, fields: {}, methods: {}, attributes: {}",

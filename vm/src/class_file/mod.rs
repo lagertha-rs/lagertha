@@ -79,9 +79,21 @@ impl TryFrom<Vec<u8>> for ClassFile {
         let constant_pool_count = cursor.u16()?;
         let mut constant_pool = Vec::with_capacity((constant_pool_count + 1) as usize);
         constant_pool.push(ConstantInfo::Dummy);
-        for _ in 1..constant_pool_count {
-            constant_pool.push(ConstantInfo::read(&mut cursor)?);
+        let mut i = 1;
+        while i < constant_pool_count {
+            let constant = ConstantInfo::read(&mut cursor)?;
+            constant_pool.push(constant.clone());
+            match constant {
+                ConstantInfo::Long(_) | ConstantInfo::Double(_) => {
+                    constant_pool.push(ConstantInfo::Dummy);
+                    i += 2;
+                }
+                _ => {
+                    i += 1;
+                }
+            }
         }
+
         let access_flags = cursor.u16()?;
         let this_class = cursor.u16()?;
         let super_class = cursor.u16()?;

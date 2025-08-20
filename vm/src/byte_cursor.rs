@@ -30,6 +30,18 @@ impl<'a> ByteCursor<'a> {
             .ok_or(CursorError::UnexpectedEof)
     }
 
+    pub fn i32(&mut self) -> Result<i32, CursorError> {
+        ByteCursor::take::<4>(&mut self.it)
+            .map(i32::from_be_bytes)
+            .ok_or(CursorError::UnexpectedEof)
+    }
+
+    pub fn i64(&mut self) -> Result<i64, CursorError> {
+        ByteCursor::take::<8>(&mut self.it)
+            .map(i64::from_be_bytes)
+            .ok_or(CursorError::UnexpectedEof)
+    }
+
     pub fn u16(&mut self) -> Result<u16, CursorError> {
         ByteCursor::take::<2>(&mut self.it)
             .map(u16::from_be_bytes)

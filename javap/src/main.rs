@@ -9,5 +9,4 @@ fn main() {
     file.read_to_end(&mut buf).expect("Problem with read");
 
     let rt = parse_bin_class(buf).unwrap();
-    println!("{rt}");
 }

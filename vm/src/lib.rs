@@ -67,13 +67,16 @@ impl Into<fmt::Error> for JvmError {
 
 // TODO: returns only class right now, in future not sure
 pub fn parse_bin_class(main_class: Vec<u8>) -> Result<Rc<Class>, JvmError> {
-    let class_file = ClassFile::try_from(main_class)?;
-    let main = Rc::new(Class::new(class_file)?);
+    //let class_file = ClassFile::try_from(main_class)?;
+    //let main = Rc::new(Class::new(class_file)?);
 
-    let method_area = MethodArea::with_main(main.clone())?;
+    //let method_area = MethodArea::with_main(main.clone())?;
+    let method_area = MethodArea::new()?;
 
-    let obj_class_name = "java.lang.Object".to_string();
-    let obj_class = method_area.get_class(&obj_class_name);
+    let obj_class_name = "java/lang/Object".to_string();
+    let obj_class = method_area.get_class(&obj_class_name)?;
 
-    Ok(main)
+    println!("{obj_class}");
+
+    Ok(obj_class)
 }

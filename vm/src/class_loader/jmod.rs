@@ -61,7 +61,7 @@ impl BootstrapJmodLoader {
             return None;
         }
         let inner = &entry[PREFIX.len()..entry.len() - SUFFIX.len()];
-        Some(inner.replace('/', "."))
+        Some(inner.to_string())
     }
 
     pub fn find_class(&self, binary_name: &str) -> Result<Vec<u8>, ClassLoaderErr> {

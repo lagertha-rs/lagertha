@@ -82,9 +82,15 @@ impl<'a> ConstantInfo {
                 let bytes = cursor.bytes(len as usize)?;
                 ConstantInfo::Utf8(String::from_utf8(bytes).unwrap())
             }
-            ConstantTag::Integer => todo!(),
+            ConstantTag::Integer => {
+                let value = cursor.i32()?;
+                ConstantInfo::Integer(value)
+            }
             ConstantTag::Float => todo!(),
-            ConstantTag::Long => todo!(),
+            ConstantTag::Long => {
+                let value = cursor.i64()?;
+                ConstantInfo::Long(value)
+            }
             ConstantTag::Double => todo!(),
             ConstantTag::Class => ConstantInfo::Class(cursor.u16()?),
             ConstantTag::String => ConstantInfo::String(cursor.u16()?),

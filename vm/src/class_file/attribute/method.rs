@@ -7,6 +7,7 @@ use std::fmt;
 use std::fmt::{Display, Formatter};
 
 const ATTR_CODE: &[u8] = b"Code";
+const ATTR_RT_VISIBLE_ANNOTATIONS: &[u8] = b"RuntimeVisibleAnnotations";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct ExceptionTableEntry {
@@ -29,6 +30,10 @@ pub enum MethodAttribute {
         name_index: u16,
         info: Vec<u8>,
     },
+}
+
+pub struct Annotation {
+    type_index: u16,
 }
 
 impl<'a> MethodAttribute {
@@ -73,6 +78,10 @@ impl<'a> MethodAttribute {
                     exception_table,
                     attributes,
                 })
+            }
+            ATTR_RT_VISIBLE_ANNOTATIONS => {
+                let num_annotations = cursor.u16()?;
+                todo!()
             }
             _ => {
                 let mut buf = vec![0u8; attribute_length];
