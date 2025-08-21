@@ -1,5 +1,6 @@
 use crate::byte_cursor::ByteCursor;
-use crate::class_file::attribute::code::CodeAttribute;
+use crate::class_file::attribute::annotation::Annotation;
+use crate::class_file::attribute::code::CodeAttributeInfo;
 use crate::class_file::attribute::get_utf8;
 use crate::class_file::constant_pool::ConstantInfo;
 use crate::ClassFileErr;
@@ -8,6 +9,7 @@ use std::fmt::{Display, Formatter};
 
 const ATTR_CODE: &[u8] = b"Code";
 const ATTR_RT_VISIBLE_ANNOTATIONS: &[u8] = b"RuntimeVisibleAnnotations";
+const ATTR_SIGNATURE: &[u8] = b"Signature";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct ExceptionTableEntry {
@@ -18,22 +20,20 @@ struct ExceptionTableEntry {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum MethodAttribute {
-    Code {
-        max_stack: u16,
-        max_locals: u16,
-        code: Vec<u8>,
-        exception_table: Vec<ExceptionTableEntry>,
-        attributes: Vec<CodeAttribute>,
-    },
-    Unknown {
-        name_index: u16,
-        info: Vec<u8>,
-    },
+pub struct CodeAttribute {
+    pub max_stack: u16,
+    pub max_locals: u16,
+    pub code: Vec<u8>,
+    pub exception_table: Vec<ExceptionTableEntry>,
+    pub attributes: Vec<CodeAttributeInfo>,
 }
 
-pub struct Annotation {
-    type_index: u16,
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum MethodAttribute {
+    Code(CodeAttribute),
+    RuntimeVisibleAnnotations(Vec<Annotation>),
+    Signature(u16),
+    Unknown { name_index: u16, info: Vec<u8> },
 }
 
 impl<'a> MethodAttribute {
@@ -68,21 +68,27 @@ impl<'a> MethodAttribute {
                 let attributes_count = cursor.u16()? as usize;
                 let mut attributes = Vec::with_capacity(attributes_count);
                 for _ in 0..attributes_count {
-                    attributes.push(CodeAttribute::read(pool, cursor)?);
+                    attributes.push(CodeAttributeInfo::read(pool, cursor)?);
                 }
 
-                Ok(MethodAttribute::Code {
+                Ok(MethodAttribute::Code(CodeAttribute {
                     max_stack,
                     max_locals,
                     code,
                     exception_table,
                     attributes,
-                })
+                }))
             }
             ATTR_RT_VISIBLE_ANNOTATIONS => {
                 let num_annotations = cursor.u16()?;
-                todo!()
+                let mut annotations = Vec::with_capacity(num_annotations as usize);
+
+                for _ in 0..num_annotations {
+                    annotations.push(Annotation::read(cursor)?)
+                }
+                Ok(MethodAttribute::RuntimeVisibleAnnotations(annotations))
             }
+            ATTR_SIGNATURE => Ok(MethodAttribute::Signature(cursor.u16()?)),
             _ => {
                 let mut buf = vec![0u8; attribute_length];
                 cursor.read_exact(&mut buf)?;
@@ -98,14 +104,9 @@ impl<'a> MethodAttribute {
 impl Display for MethodAttribute {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
-            MethodAttribute::Code {
-                max_stack,
-                max_locals,
-                code,
-                exception_table,
-                attributes,
-            } => {
+            MethodAttribute::Code(code) => {
                 let code_str = code
+                    .code
                     .iter()
                     .map(|b| format!("{:02X}", b))
                     .collect::<Vec<_>>()
@@ -114,15 +115,15 @@ impl Display for MethodAttribute {
                 write!(
                     f,
                     "Code(max_stack: {}, max_locals: {}, code: \"{}\"",
-                    max_stack, max_locals, code_str
+                    code.max_stack, code.max_locals, code_str
                 )?;
 
-                if !exception_table.is_empty() {
-                    write!(f, ", exception_table: {:?} ", exception_table)?;
+                if !code.exception_table.is_empty() {
+                    write!(f, ", exception_table: {:?} ", code.exception_table)?;
                 }
-                if !attributes.is_empty() {
+                if !code.attributes.is_empty() {
                     write!(f, ", attributes: [")?;
-                    for (i, attr) in attributes.iter().enumerate() {
+                    for (i, attr) in code.attributes.iter().enumerate() {
                         if i > 0 {
                             write!(f, ", ")?;
                         }
@@ -132,6 +133,10 @@ impl Display for MethodAttribute {
                 }
                 write!(f, ")")
             }
+            MethodAttribute::RuntimeVisibleAnnotations(annotations) => {
+                write!(f, "RuntimeVisibleAnnotations {annotations:?}")
+            }
+            MethodAttribute::Signature(idx) => write!(f, "Signature: {idx:?}"),
             MethodAttribute::Unknown { name_index, info } => write!(
                 f,
                 "Unsupported(name_index: {}, data: {} bytes)",

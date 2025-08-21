@@ -37,7 +37,7 @@ impl Class {
         let access = ClassAccessFlag::new(cf.access_flags);
         let methods = cf
             .methods
-            .iter()
+            .into_iter()
             .map(|method| Method::new(method, cp.clone()))
             .collect::<Result<Vec<_>, _>>()?;
 

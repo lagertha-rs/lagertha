@@ -1,11 +1,11 @@
 use crate::byte_cursor::CursorError;
-use crate::class_file::{ClassFile, ClassFileErr};
+use crate::class_file::ClassFileErr;
 use crate::class_loader::ClassLoaderErr;
 use crate::method_area::MethodArea;
 use crate::rt::class::class::Class;
+use crate::rt::class::LoadingError;
 use crate::rt::constant_pool::error::RuntimePoolError;
 use std::fmt;
-use std::ops::Deref;
 use std::rc::Rc;
 use thiserror::Error;
 
@@ -41,6 +41,8 @@ pub enum ClassState {
 
 #[derive(Debug, Error)]
 pub enum JvmError {
+    #[error(transparent)]
+    Loading(#[from] LoadingError),
     #[error(transparent)]
     ClassFile(#[from] ClassFileErr),
     #[error(transparent)]

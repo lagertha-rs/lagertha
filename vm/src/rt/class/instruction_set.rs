@@ -1,5 +1,5 @@
 use crate::byte_cursor::ByteCursor;
-use crate::JvmError;
+use crate::rt::class::LoadingError;
 use num_enum::TryFromPrimitive;
 use std::fmt;
 use std::fmt::Formatter;
@@ -40,12 +40,12 @@ impl Instruction {
 }
 
 impl Instruction {
-    pub fn new_instruction_set(code: &Vec<u8>) -> Result<Vec<Instruction>, JvmError> {
+    pub fn new_instruction_set(code: Vec<u8>) -> Result<Vec<Instruction>, LoadingError> {
         let mut cursor = ByteCursor::new(code.as_slice());
         let mut res = Vec::new();
 
         while let Some(opcode_byte) = cursor.try_u8() {
-            let opcode = Opcode::try_from(opcode_byte).map_err(|_| JvmError::TrailingBytes)?; //TODO: Err
+            let opcode = Opcode::try_from(opcode_byte).map_err(|_| LoadingError::UnknownOpCode)?; //TODO: Err
 
             let instruction = match opcode {
                 Opcode::Invokespecial => {

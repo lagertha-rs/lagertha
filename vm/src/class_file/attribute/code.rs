@@ -23,13 +23,13 @@ pub struct LocalVariableEntry {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum CodeAttribute {
+pub enum CodeAttributeInfo {
     LineNumberTable(Vec<LineNumberEntry>),
     LocalVariableTable(Vec<LocalVariableEntry>),
     Unknown { name_index: u16, info: Vec<u8> },
 }
 
-impl<'a> CodeAttribute {
+impl<'a> CodeAttributeInfo {
     pub(crate) fn read(
         pool: &Vec<ConstantInfo>,
         cursor: &mut ByteCursor<'a>,
@@ -48,7 +48,7 @@ impl<'a> CodeAttribute {
                         line_number: cursor.u16()?,
                     });
                 }
-                Ok(CodeAttribute::LineNumberTable(line_number_table))
+                Ok(CodeAttributeInfo::LineNumberTable(line_number_table))
             }
             ATTR_LOCAL_VARIABLE_TABLE => {
                 let local_variable_table_length = cursor.u16()?;
@@ -68,12 +68,12 @@ impl<'a> CodeAttribute {
                         index,
                     });
                 }
-                Ok(CodeAttribute::LocalVariableTable(local_variable_table))
+                Ok(CodeAttributeInfo::LocalVariableTable(local_variable_table))
             }
             _ => {
                 let mut buf = vec![0u8; attribute_length];
                 cursor.read_exact(&mut buf)?;
-                Ok(CodeAttribute::Unknown {
+                Ok(CodeAttributeInfo::Unknown {
                     name_index: attribute_name_index,
                     info: buf,
                 })
@@ -82,16 +82,16 @@ impl<'a> CodeAttribute {
     }
 }
 
-impl Display for CodeAttribute {
+impl Display for CodeAttributeInfo {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
-            CodeAttribute::LineNumberTable(table) => {
+            CodeAttributeInfo::LineNumberTable(table) => {
                 write!(f, "LineNumberTable{:?}", table)
             }
-            CodeAttribute::LocalVariableTable(table) => {
+            CodeAttributeInfo::LocalVariableTable(table) => {
                 write!(f, "LocalVariableTable{:?}", table)
             }
-            CodeAttribute::Unknown { name_index, info } => write!(
+            CodeAttributeInfo::Unknown { name_index, info } => write!(
                 f,
                 "Unsupported(name_index: {}, data: {} bytes)",
                 name_index,
