@@ -10,6 +10,8 @@ use std::fmt::{Display, Formatter};
 const ATTR_CODE: &[u8] = b"Code";
 const ATTR_RT_VISIBLE_ANNOTATIONS: &[u8] = b"RuntimeVisibleAnnotations";
 const ATTR_SIGNATURE: &[u8] = b"Signature";
+const ATTR_EXCEPTIONS: &[u8] = b"Exceptions";
+const ATTR_DEPRECATED: &[u8] = b"Deprecated";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct ExceptionTableEntry {
@@ -33,6 +35,8 @@ pub enum MethodAttribute {
     Code(CodeAttribute),
     RuntimeVisibleAnnotations(Vec<Annotation>),
     Signature(u16),
+    Exceptions(Vec<u16>),
+    Deprecated,
     Unknown { name_index: u16, info: Vec<u8> },
 }
 
@@ -89,6 +93,15 @@ impl<'a> MethodAttribute {
                 Ok(MethodAttribute::RuntimeVisibleAnnotations(annotations))
             }
             ATTR_SIGNATURE => Ok(MethodAttribute::Signature(cursor.u16()?)),
+            ATTR_DEPRECATED => Ok(MethodAttribute::Deprecated),
+            ATTR_EXCEPTIONS => {
+                let number_of_exceptions = cursor.u16()?;
+                let mut exception_index_table = Vec::with_capacity(number_of_exceptions as usize);
+                for _ in 0..number_of_exceptions {
+                    exception_index_table.push(cursor.u16()?);
+                }
+                Ok(MethodAttribute::Exceptions(exception_index_table))
+            }
             _ => {
                 let mut buf = vec![0u8; attribute_length];
                 cursor.read_exact(&mut buf)?;
@@ -136,7 +149,11 @@ impl Display for MethodAttribute {
             MethodAttribute::RuntimeVisibleAnnotations(annotations) => {
                 write!(f, "RuntimeVisibleAnnotations {annotations:?}")
             }
+            MethodAttribute::Exceptions(exceptions) => {
+                write!(f, "Exceptions {exceptions:?}")
+            }
             MethodAttribute::Signature(idx) => write!(f, "Signature: {idx:?}"),
+            MethodAttribute::Deprecated => write!(f, "Deprecated"),
             MethodAttribute::Unknown { name_index, info } => write!(
                 f,
                 "Unsupported(name_index: {}, data: {} bytes)",

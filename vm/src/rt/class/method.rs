@@ -39,6 +39,7 @@ pub struct Method {
     pub code_context: Option<CodeContext>,
     pub signature: Option<Rc<String>>,
     pub rt_visible_annotations: Option<Vec<Annotation>>,
+    pub is_deprecated: bool,
 }
 
 impl Method {
@@ -50,6 +51,8 @@ impl Method {
         let code_ctx = OnceCell::<CodeContext>::new();
         let signature = OnceCell::<Rc<String>>::new();
         let rt_vis_ann = OnceCell::<Vec<Annotation>>::new();
+        let exceptions = OnceCell::<Vec<u16>>::new();
+        let mut is_deprecated = false;
 
         for attr in method_info.attributes {
             match attr {
@@ -62,6 +65,10 @@ impl Method {
                 MethodAttribute::RuntimeVisibleAnnotations(v) => rt_vis_ann
                     .set(v)
                     .map_err(|_| LoadingError::DuplicatedRuntimeVisibleAnnotationsAttr)?,
+                MethodAttribute::Exceptions(v) => exceptions
+                    .set(v)
+                    .map_err(|_| LoadingError::DuplicatedExceptionAttribute)?,
+                MethodAttribute::Deprecated => is_deprecated = true,
                 MethodAttribute::Unknown { name_index, .. } => {
                     unimplemented!("Unknown method attr: {}", name_index)
                 }
@@ -81,6 +88,7 @@ impl Method {
             descriptor,
             cp,
             code_context,
+            is_deprecated,
             signature: signature.into_inner(),
             rt_visible_annotations: rt_vis_ann.into_inner(),
         })
@@ -121,10 +129,6 @@ impl TryFrom<CodeAttribute> for CodeContext {
             }
         }
 
-        if stack_map_table.get().is_some() {
-            println!()
-        }
-
         Ok(CodeContext {
             max_stack: code.max_stack,
             max_locals: code.max_locals,
@@ -160,18 +164,15 @@ impl fmt::Display for Method {
             for instruction in &code.instructions {
                 write!(f, "        {byte_pos}: {instruction:<24}")?;
                 match instruction {
-                    Instruction::Aload0 => {}
-                    Instruction::Ldc { index } => {
+                    Instruction::Ldc(index) => {
                         write!(f, "// {}", self.cp.get(index).map_err(Into::into)?)?
                     }
-                    Instruction::Invokespecial { method_index }
-                    | Instruction::Invokevirtual { method_index } => {
-                        write!(f, "// {}", self.cp.get(method_index).map_err(Into::into)?)?;
+                    Instruction::Invokespecial(index)
+                    | Instruction::Invokevirtual(index)
+                    | Instruction::Getstatic(index) => {
+                        write!(f, "// {}", self.cp.get(index).map_err(Into::into)?)?;
                     }
-                    Instruction::Getstatic { field_index } => {
-                        write!(f, "// {}", self.cp.get(field_index).map_err(Into::into)?)?
-                    }
-                    Instruction::Return => {}
+                    _ => {}
                 }
                 byte_pos += instruction.byte_size();
                 writeln!(f)?;
