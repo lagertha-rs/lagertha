@@ -39,6 +39,7 @@ pub struct Method {
     pub code_context: Option<CodeContext>,
     pub signature: Option<Rc<String>>,
     pub rt_visible_annotations: Option<Vec<Annotation>>,
+    pub is_deprecated: bool,
 }
 
 impl Method {
@@ -51,6 +52,7 @@ impl Method {
         let signature = OnceCell::<Rc<String>>::new();
         let rt_vis_ann = OnceCell::<Vec<Annotation>>::new();
         let exceptions = OnceCell::<Vec<u16>>::new();
+        let mut is_deprecated = false;
 
         for attr in method_info.attributes {
             match attr {
@@ -66,6 +68,7 @@ impl Method {
                 MethodAttribute::Exceptions(v) => exceptions
                     .set(v)
                     .map_err(|_| LoadingError::DuplicatedExceptionAttribute)?,
+                MethodAttribute::Deprecated => is_deprecated = true,
                 MethodAttribute::Unknown { name_index, .. } => {
                     unimplemented!("Unknown method attr: {}", name_index)
                 }
@@ -85,6 +88,7 @@ impl Method {
             descriptor,
             cp,
             code_context,
+            is_deprecated,
             signature: signature.into_inner(),
             rt_visible_annotations: rt_vis_ann.into_inner(),
         })
