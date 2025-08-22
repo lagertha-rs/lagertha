@@ -50,6 +50,7 @@ impl Method {
         let code_ctx = OnceCell::<CodeContext>::new();
         let signature = OnceCell::<Rc<String>>::new();
         let rt_vis_ann = OnceCell::<Vec<Annotation>>::new();
+        let exceptions = OnceCell::<Vec<u16>>::new();
 
         for attr in method_info.attributes {
             match attr {
@@ -62,6 +63,9 @@ impl Method {
                 MethodAttribute::RuntimeVisibleAnnotations(v) => rt_vis_ann
                     .set(v)
                     .map_err(|_| LoadingError::DuplicatedRuntimeVisibleAnnotationsAttr)?,
+                MethodAttribute::Exceptions(v) => exceptions
+                    .set(v)
+                    .map_err(|_| LoadingError::DuplicatedExceptionAttribute)?,
                 MethodAttribute::Unknown { name_index, .. } => {
                     unimplemented!("Unknown method attr: {}", name_index)
                 }

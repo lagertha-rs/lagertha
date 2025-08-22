@@ -24,6 +24,8 @@ pub enum LoadingError {
     #[error("")]
     DuplicatedStackMapTable,
     #[error("")]
+    DuplicatedExceptionAttribute,
+    #[error("")]
     DuplicatedRuntimeVisibleAnnotationsAttr,
     // TODO: only for non native?
     #[error("")]
