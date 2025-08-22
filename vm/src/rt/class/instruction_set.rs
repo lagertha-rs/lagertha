@@ -14,10 +14,10 @@ pub enum Opcode {
     Aload2 = 0x2C,
     Aload3 = 0x2D,
     Astore = 0x3A,
-    Astore0 = 0x4b,
-    Astore1 = 0x4c,
-    Astore2 = 0x4d,
-    Astore3 = 0x4e,
+    Astore0 = 0x4B,
+    Astore1 = 0x4C,
+    Astore2 = 0x4D,
+    Astore3 = 0x4E,
     Athrow = 0xBF,
     Checkcast = 0xC0,
     Dup = 0x59,
@@ -30,13 +30,23 @@ pub enum Opcode {
     Iconst3 = 0x06,
     Iconst4 = 0x07,
     Iconst5 = 0x08,
+    Iload0 = 0x1A,
+    Iload1 = 0x1B,
+    Iload2 = 0x1C,
+    Iload3 = 0x1D,
     IfAcmpne = 0xA6,
     Ifeq = 0x99,
-    Ifne = 0x9a,
-    Iflt = 0x9b,
-    Ifge = 0x9c,
-    Ifgt = 0x9d,
-    Ifle = 0x9e,
+    Ifne = 0x9A,
+    Iflt = 0x9B,
+    Ifge = 0x9C,
+    Ifgt = 0x9D,
+    Ifle = 0x9E,
+    IfIcmpeq = 0x9F,
+    IfIcmpne = 0xA0,
+    IfIcmplt = 0xA1,
+    IfIcmpge = 0xA2,
+    IfIcmpgt = 0xA3,
+    IfIcmple = 0xA4,
     Instanceof = 0xC1,
     Invokespecial = 0xB7,
     Invokestatic = 0xB8,
@@ -50,7 +60,9 @@ pub enum Opcode {
     Lload2 = 0x20,
     Lload3 = 0x21,
     Ldc = 0x12,
+    Ldc2w = 0x14,
     New = 0xBB,
+    Pop = 0x57,
     Areturn = 0xB0,
     Return = 0xB1,
 }
@@ -79,6 +91,10 @@ pub enum Instruction {
     Iconst3,
     Iconst4,
     Iconst5,
+    Iload0,
+    Iload1,
+    Iload2,
+    Iload3,
     Instanceof(u16),
     IfAcmpNe(i16),
     Ifeq(i16),
@@ -87,6 +103,12 @@ pub enum Instruction {
     Ifge(i16),
     Ifgt(i16),
     Ifle(i16),
+    IfIcmpeq(i16),
+    IfIcmpne(i16),
+    IfIcmplt(i16),
+    IfIcmpge(i16),
+    IfIcmpgt(i16),
+    IfIcmple(i16),
     Ireturn,
     Invokespecial(u16),
     Invokestatic(u16),
@@ -99,7 +121,9 @@ pub enum Instruction {
     Lload2,
     Lload3,
     Ldc(u16),
+    Ldc2w(u16),
     New(u16),
+    Pop,
     Return,
     Areturn,
 }
@@ -116,6 +140,12 @@ impl Instruction {
             | Self::Ifge(_)
             | Self::Ifgt(_)
             | Self::Ifle(_)
+            | Self::IfIcmpeq(_)
+            | Self::IfIcmpne(_)
+            | Self::IfIcmplt(_)
+            | Self::IfIcmpge(_)
+            | Self::IfIcmpgt(_)
+            | Self::IfIcmple(_)
             | Self::Invokespecial(_)
             | Self::Invokestatic(_)
             | Self::Invokevirtual(_)
@@ -139,6 +169,13 @@ impl Instruction {
                 .map_err(|_| LoadingError::UnsupportedOpCode(opcode_byte))?;
 
             let instruction = match opcode {
+                Opcode::IfIcmpeq => Self::IfIcmpeq(cursor.i16()?),
+                Opcode::IfIcmpne => Self::IfIcmpne(cursor.i16()?),
+                Opcode::IfIcmplt => Self::IfIcmplt(cursor.i16()?),
+                Opcode::IfIcmpge => Self::IfIcmpge(cursor.i16()?),
+                Opcode::IfIcmpgt => Self::IfIcmpgt(cursor.i16()?),
+                Opcode::IfIcmple => Self::IfIcmple(cursor.i16()?),
+                Opcode::Ldc2w => Self::Ldc2w(cursor.u16()?),
                 Opcode::Astore => Self::Astore(cursor.u8()?),
                 Opcode::Aload => Self::Aload(cursor.u8()?),
                 Opcode::Checkcast => Self::Checkcast(cursor.u16()?),
@@ -184,6 +221,11 @@ impl Instruction {
                 Opcode::Lload3 => Self::Lload3,
                 Opcode::Dup => Self::Ireturn,
                 Opcode::Lcmp => Self::Lcmp,
+                Opcode::Pop => Self::Pop,
+                Opcode::Iload0 => Self::Iload0,
+                Opcode::Iload1 => Self::Iload1,
+                Opcode::Iload2 => Self::Iload2,
+                Opcode::Iload3 => Self::Iload3,
             };
             res.push(instruction)
         }
