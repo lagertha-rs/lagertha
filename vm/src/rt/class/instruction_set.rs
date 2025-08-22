@@ -27,8 +27,16 @@ pub enum Opcode {
     Invokestatic = 0xB8,
     Invokevirtual = 0xB6,
     Ireturn = 0xAC,
+    Lcmp = 0x94,
+    Lconst0 = 0x09,
+    Lconst1 = 0x0A,
+    Lload0 = 0x1E,
+    Lload1 = 0x1F,
+    Lload2 = 0x20,
+    Lload3 = 0x21,
     Ldc = 0x12,
     New = 0xBB,
+    Areturn = 0xB0,
     Return = 0xB1,
 }
 
@@ -53,9 +61,17 @@ pub enum Instruction {
     Invokespecial(u16),
     Invokestatic(u16),
     Invokevirtual(u16),
+    Lcmp,
+    Lconst0,
+    Lconst1,
+    Lload0,
+    Lload1,
+    Lload2,
+    Lload3,
     Ldc(u16),
     New(u16),
     Return,
+    Areturn,
 }
 
 impl Instruction {
@@ -105,8 +121,16 @@ impl Instruction {
                 Opcode::Iconst3 => Self::Iconst3,
                 Opcode::Iconst4 => Self::Iconst4,
                 Opcode::Iconst5 => Self::Iconst5,
+                Opcode::Areturn => Self::Areturn,
                 Opcode::Ireturn => Self::Ireturn,
+                Opcode::Lconst0 => Self::Lconst0,
+                Opcode::Lconst1 => Self::Lconst1,
+                Opcode::Lload0 => Self::Lload0,
+                Opcode::Lload1 => Self::Lload1,
+                Opcode::Lload2 => Self::Lload2,
+                Opcode::Lload3 => Self::Lload3,
                 Opcode::Dup => Self::Ireturn,
+                Opcode::Lcmp => Self::Lcmp,
             };
             res.push(instruction)
         }
