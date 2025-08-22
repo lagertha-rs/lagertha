@@ -230,7 +230,7 @@ impl Instruction {
                 Opcode::Lload1 => Self::Lload1,
                 Opcode::Lload2 => Self::Lload2,
                 Opcode::Lload3 => Self::Lload3,
-                Opcode::Dup => Self::Ireturn,
+                Opcode::Dup => Self::Dup,
                 Opcode::Lcmp => Self::Lcmp,
                 Opcode::Pop => Self::Pop,
                 Opcode::Iload0 => Self::Iload0,
