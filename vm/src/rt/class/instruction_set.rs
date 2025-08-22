@@ -8,10 +8,18 @@ use std::fmt::Formatter;
 #[derive(Debug, Clone, Copy, TryFromPrimitive)]
 #[repr(u8)]
 pub enum Opcode {
+    Aload = 0x19,
     Aload0 = 0x2A,
     Aload1 = 0x2B,
     Aload2 = 0x2C,
     Aload3 = 0x2D,
+    Astore = 0x3A,
+    Astore0 = 0x4b,
+    Astore1 = 0x4c,
+    Astore2 = 0x4d,
+    Astore3 = 0x4e,
+    Athrow = 0xBF,
+    Checkcast = 0xC0,
     Dup = 0x59,
     Getstatic = 0xB2,
     Goto = 0xA7,
@@ -23,6 +31,13 @@ pub enum Opcode {
     Iconst4 = 0x07,
     Iconst5 = 0x08,
     IfAcmpne = 0xA6,
+    Ifeq = 0x99,
+    Ifne = 0x9a,
+    Iflt = 0x9b,
+    Ifge = 0x9c,
+    Ifgt = 0x9d,
+    Ifle = 0x9e,
+    Instanceof = 0xC1,
     Invokespecial = 0xB7,
     Invokestatic = 0xB8,
     Invokevirtual = 0xB6,
@@ -42,10 +57,18 @@ pub enum Opcode {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Instruction {
+    Aload(u8),
     Aload0,
     Aload1,
     Aload2,
     Aload3,
+    Astore(u8),
+    Astore0,
+    Astore1,
+    Astore2,
+    Astore3,
+    Athrow,
+    Checkcast(u16),
     Dup,
     Getstatic(u16),
     Goto(i16),
@@ -56,7 +79,14 @@ pub enum Instruction {
     Iconst3,
     Iconst4,
     Iconst5,
+    Instanceof(u16),
     IfAcmpNe(i16),
+    Ifeq(i16),
+    Ifne(i16),
+    Iflt(i16),
+    Ifge(i16),
+    Ifgt(i16),
+    Ifle(i16),
     Ireturn,
     Invokespecial(u16),
     Invokestatic(u16),
@@ -77,11 +107,19 @@ pub enum Instruction {
 impl Instruction {
     pub fn byte_size(&self) -> u16 {
         match self {
-            Self::Ldc(_) => 2,
+            Self::Ldc(_) | Self::Astore(_) | Self::Aload(_) => 2,
             Self::New(_)
+            | Self::Checkcast(_)
+            | Self::Ifeq(_)
+            | Self::Ifne(_)
+            | Self::Iflt(_)
+            | Self::Ifge(_)
+            | Self::Ifgt(_)
+            | Self::Ifle(_)
             | Self::Invokespecial(_)
             | Self::Invokestatic(_)
             | Self::Invokevirtual(_)
+            | Self::Instanceof(_)
             | Self::Getstatic(_)
             | Self::Goto(_)
             | Self::IfAcmpNe(_) => 3,
@@ -101,18 +139,33 @@ impl Instruction {
                 .map_err(|_| LoadingError::UnsupportedOpCode(opcode_byte))?;
 
             let instruction = match opcode {
+                Opcode::Astore => Self::Astore(cursor.u8()?),
+                Opcode::Aload => Self::Aload(cursor.u8()?),
+                Opcode::Checkcast => Self::Checkcast(cursor.u16()?),
                 Opcode::Invokespecial => Self::Invokespecial(cursor.u16()?),
                 Opcode::Invokestatic => Self::Invokestatic(cursor.u16()?),
                 Opcode::Invokevirtual => Self::Invokevirtual(cursor.u16()?),
+                Opcode::Instanceof => Self::Instanceof(cursor.u16()?),
                 Opcode::Getstatic => Self::Getstatic(cursor.u16()?),
                 Opcode::Goto => Self::Goto(cursor.i16()?),
                 Opcode::Ldc => Self::Ldc(cursor.u8()? as u16),
                 Opcode::IfAcmpne => Self::IfAcmpNe(cursor.i16()?),
+                Opcode::Ifeq => Self::Ifeq(cursor.i16()?),
+                Opcode::Ifne => Self::Ifne(cursor.i16()?),
+                Opcode::Iflt => Self::Iflt(cursor.i16()?),
+                Opcode::Ifge => Self::Ifge(cursor.i16()?),
+                Opcode::Ifgt => Self::Ifgt(cursor.i16()?),
+                Opcode::Ifle => Self::Ifle(cursor.i16()?),
                 Opcode::New => Self::New(cursor.u16()?),
+                Opcode::Astore0 => Self::Astore0,
+                Opcode::Astore1 => Self::Astore1,
+                Opcode::Astore2 => Self::Astore2,
+                Opcode::Astore3 => Self::Astore3,
                 Opcode::Aload0 => Self::Aload0,
                 Opcode::Aload1 => Self::Aload1,
                 Opcode::Aload2 => Self::Aload2,
                 Opcode::Aload3 => Self::Aload3,
+                Opcode::Athrow => Self::Athrow,
                 Opcode::Return => Self::Return,
                 Opcode::IconstM1 => Self::IconstM1,
                 Opcode::Iconst0 => Self::Iconst0,
