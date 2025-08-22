@@ -59,12 +59,17 @@ pub enum Opcode {
     Lload1 = 0x1F,
     Lload2 = 0x20,
     Lload3 = 0x21,
+    Lstore0 = 0x3F,
+    Lstore1 = 0x40,
+    Lstore2 = 0x41,
+    Lstore3 = 0x42,
     Ldc = 0x12,
     Ldc2w = 0x14,
     New = 0xBB,
     Pop = 0x57,
     Areturn = 0xB0,
     Return = 0xB1,
+    Ladd = 0x61,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -120,12 +125,17 @@ pub enum Instruction {
     Lload1,
     Lload2,
     Lload3,
+    Lstore0,
+    Lstore1,
+    Lstore2,
+    Lstore3,
     Ldc(u16),
     Ldc2w(u16),
     New(u16),
     Pop,
     Return,
     Areturn,
+    Ladd,
 }
 
 impl Instruction {
@@ -133,6 +143,7 @@ impl Instruction {
         match self {
             Self::Ldc(_) | Self::Astore(_) | Self::Aload(_) => 2,
             Self::New(_)
+            | Self::Ldc2w(_)
             | Self::Checkcast(_)
             | Self::Ifeq(_)
             | Self::Ifne(_)
@@ -226,6 +237,11 @@ impl Instruction {
                 Opcode::Iload1 => Self::Iload1,
                 Opcode::Iload2 => Self::Iload2,
                 Opcode::Iload3 => Self::Iload3,
+                Opcode::Lstore0 => Self::Lstore0,
+                Opcode::Lstore1 => Self::Lstore1,
+                Opcode::Lstore2 => Self::Lstore2,
+                Opcode::Lstore3 => Self::Lstore3,
+                Opcode::Ladd => Self::Ladd,
             };
             res.push(instruction)
         }
