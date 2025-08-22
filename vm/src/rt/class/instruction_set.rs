@@ -12,7 +12,8 @@ pub enum Opcode {
     Aload1 = 0x2B,
     Aload2 = 0x2C,
     Aload3 = 0x2D,
-    Getstatic = 0xb2,
+    Dup = 0x59,
+    Getstatic = 0xB2,
     Goto = 0xA7,
     IconstM1 = 0x02,
     Iconst0 = 0x03,
@@ -23,10 +24,12 @@ pub enum Opcode {
     Iconst5 = 0x08,
     IfAcmpne = 0xA6,
     Invokespecial = 0xB7,
+    Invokestatic = 0xB8,
     Invokevirtual = 0xB6,
     Ireturn = 0xAC,
     Ldc = 0x12,
-    Return = 0xb1,
+    New = 0xBB,
+    Return = 0xB1,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -35,6 +38,7 @@ pub enum Instruction {
     Aload1,
     Aload2,
     Aload3,
+    Dup,
     Getstatic(u16),
     Goto(i16),
     IconstM1,
@@ -47,8 +51,10 @@ pub enum Instruction {
     IfAcmpNe(i16),
     Ireturn,
     Invokespecial(u16),
+    Invokestatic(u16),
     Invokevirtual(u16),
     Ldc(u16),
+    New(u16),
     Return,
 }
 
@@ -56,7 +62,9 @@ impl Instruction {
     pub fn byte_size(&self) -> u16 {
         match self {
             Self::Ldc(_) => 2,
-            Self::Invokespecial(_)
+            Self::New(_)
+            | Self::Invokespecial(_)
+            | Self::Invokestatic(_)
             | Self::Invokevirtual(_)
             | Self::Getstatic(_)
             | Self::Goto(_)
@@ -67,21 +75,24 @@ impl Instruction {
 }
 
 impl Instruction {
+    //TODO: Idk, don't really like such constructor
     pub fn new_instruction_set(code: Vec<u8>) -> Result<Vec<Instruction>, LoadingError> {
         let mut cursor = ByteCursor::new(code.as_slice());
         let mut res = Vec::new();
 
         while let Some(opcode_byte) = cursor.try_u8() {
             let opcode = Opcode::try_from(opcode_byte)
-                .map_err(|_| LoadingError::UnsupportedOpCode(opcode_byte))?; //TODO: Err
+                .map_err(|_| LoadingError::UnsupportedOpCode(opcode_byte))?;
 
             let instruction = match opcode {
                 Opcode::Invokespecial => Self::Invokespecial(cursor.u16()?),
+                Opcode::Invokestatic => Self::Invokestatic(cursor.u16()?),
                 Opcode::Invokevirtual => Self::Invokevirtual(cursor.u16()?),
                 Opcode::Getstatic => Self::Getstatic(cursor.u16()?),
                 Opcode::Goto => Self::Goto(cursor.i16()?),
-                Opcode::Ldc => Self::Ldc(cursor.u16()?),
+                Opcode::Ldc => Self::Ldc(cursor.u8()? as u16),
                 Opcode::IfAcmpne => Self::IfAcmpNe(cursor.i16()?),
+                Opcode::New => Self::New(cursor.u16()?),
                 Opcode::Aload0 => Self::Aload0,
                 Opcode::Aload1 => Self::Aload1,
                 Opcode::Aload2 => Self::Aload2,
@@ -95,6 +106,7 @@ impl Instruction {
                 Opcode::Iconst4 => Self::Iconst4,
                 Opcode::Iconst5 => Self::Iconst5,
                 Opcode::Ireturn => Self::Ireturn,
+                Opcode::Dup => Self::Ireturn,
             };
             res.push(instruction)
         }
