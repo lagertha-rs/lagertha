@@ -80,31 +80,31 @@ impl<'a> ConstantInfo {
             ConstantTag::Utf8 => {
                 let len = cursor.u16()?;
                 let bytes = cursor.bytes(len as usize)?;
-                ConstantInfo::Utf8(String::from_utf8(bytes).unwrap())
+                Self::Utf8(String::from_utf8(bytes).unwrap())
             }
             ConstantTag::Integer => {
                 let value = cursor.i32()?;
-                ConstantInfo::Integer(value)
+                Self::Integer(value)
             }
             ConstantTag::Float => todo!(),
             ConstantTag::Long => {
                 let value = cursor.i64()?;
-                ConstantInfo::Long(value)
+                Self::Long(value)
             }
             ConstantTag::Double => todo!(),
-            ConstantTag::Class => ConstantInfo::Class(cursor.u16()?),
-            ConstantTag::String => ConstantInfo::String(cursor.u16()?),
+            ConstantTag::Class => Self::Class(cursor.u16()?),
+            ConstantTag::String => Self::String(cursor.u16()?),
             ConstantTag::FieldRef => {
-                ConstantInfo::FieldRef(ReferenceInfo::new(cursor.u16()?, cursor.u16()?))
+                Self::FieldRef(ReferenceInfo::new(cursor.u16()?, cursor.u16()?))
             }
             ConstantTag::MethodRef => {
-                ConstantInfo::MethodRef(ReferenceInfo::new(cursor.u16()?, cursor.u16()?))
+                Self::MethodRef(ReferenceInfo::new(cursor.u16()?, cursor.u16()?))
             }
             ConstantTag::InterfaceMethodRef => {
-                ConstantInfo::InterfaceRef(ReferenceInfo::new(cursor.u16()?, cursor.u16()?))
+                Self::InterfaceRef(ReferenceInfo::new(cursor.u16()?, cursor.u16()?))
             }
             ConstantTag::NameAndType => {
-                ConstantInfo::NameAndType(NameAndTypeInfo::new(cursor.u16()?, cursor.u16()?))
+                Self::NameAndType(NameAndTypeInfo::new(cursor.u16()?, cursor.u16()?))
             }
             ConstantTag::Dynamic => todo!(),
             ConstantTag::InvokeDynamic => todo!(),

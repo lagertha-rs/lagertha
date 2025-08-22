@@ -89,28 +89,26 @@ impl<'a> ElementValue {
             .map_err(|_| ClassFileErr::UnknownTag(raw_tag))?;
 
         let ev = match tag {
-            ElementTag::Byte => ElementValue::Byte(cursor.u16()?),
-            ElementTag::Char => ElementValue::Char(cursor.u16()?),
-            ElementTag::Double => ElementValue::Double(cursor.u16()?),
-            ElementTag::Float => ElementValue::Float(cursor.u16()?),
-            ElementTag::Int => ElementValue::Int(cursor.u16()?),
-            ElementTag::Long => ElementValue::Long(cursor.u16()?),
-            ElementTag::Short => ElementValue::Short(cursor.u16()?),
-            ElementTag::Boolean => ElementValue::Boolean(cursor.u16()?),
-            ElementTag::String => ElementValue::String(cursor.u16()?),
-            ElementTag::EnumClass => ElementValue::EnumConstValue {
+            ElementTag::Byte => Self::Byte(cursor.u16()?),
+            ElementTag::Char => Self::Char(cursor.u16()?),
+            ElementTag::Double => Self::Double(cursor.u16()?),
+            ElementTag::Float => Self::Float(cursor.u16()?),
+            ElementTag::Int => Self::Int(cursor.u16()?),
+            ElementTag::Long => Self::Long(cursor.u16()?),
+            ElementTag::Short => Self::Short(cursor.u16()?),
+            ElementTag::Boolean => Self::Boolean(cursor.u16()?),
+            ElementTag::String => Self::String(cursor.u16()?),
+            ElementTag::EnumClass => Self::EnumConstValue {
                 type_name_index: cursor.u16()?,
                 const_name_index: cursor.u16()?,
             },
-            ElementTag::Class => ElementValue::Class(cursor.u16()?),
-            ElementTag::AnnotationInterface => {
-                ElementValue::AnnotationValue(Annotation::read(cursor)?)
-            }
+            ElementTag::Class => Self::Class(cursor.u16()?),
+            ElementTag::AnnotationInterface => Self::AnnotationValue(Annotation::read(cursor)?),
             ElementTag::ArrayType => {
                 let element_types = cursor.u16()?;
                 let mut elements = Vec::with_capacity(element_types as usize);
                 for _ in 0..element_types {
-                    elements.push(ElementValue::read(cursor)?)
+                    elements.push(Self::read(cursor)?)
                 }
                 ElementValue::Array(elements)
             }

@@ -22,6 +22,8 @@ pub enum LoadingError {
     #[error("")]
     DuplicatedSignatureAttr,
     #[error("")]
+    DuplicatedStackMapTable,
+    #[error("")]
     DuplicatedRuntimeVisibleAnnotationsAttr,
     // TODO: only for non native?
     #[error("")]

@@ -1,5 +1,7 @@
 use crate::class_file::attribute::annotation::Annotation;
-use crate::class_file::attribute::code::{CodeAttributeInfo, LineNumberEntry, LocalVariableEntry};
+use crate::class_file::attribute::code::{
+    CodeAttributeInfo, LineNumberEntry, LocalVariableEntry, StackMapFrame,
+};
 use crate::class_file::attribute::method::{CodeAttribute, MethodAttribute};
 use crate::class_file::method::MethodInfo;
 use crate::rt::class::access::MethodAccessFlag;
@@ -22,6 +24,7 @@ pub struct CodeContext {
     line_numbers: Option<Vec<LineNumberEntry>>,
     // TODO: Create a dedicated struct? (now struct from class_file)
     local_variables: Option<Vec<LocalVariableEntry>>,
+    stack_map_table: Option<Vec<StackMapFrame>>,
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.6
@@ -90,6 +93,7 @@ impl TryFrom<CodeAttribute> for CodeContext {
     fn try_from(code: CodeAttribute) -> Result<Self, Self::Error> {
         let mut all_line_numbers: Option<Vec<LineNumberEntry>> = None;
         let mut all_local_vars: Option<Vec<LocalVariableEntry>> = None;
+        let mut stack_map_table = OnceCell::<Vec<StackMapFrame>>::new();
 
         for code_attr in code.attributes {
             match code_attr {
@@ -108,10 +112,17 @@ impl TryFrom<CodeAttribute> for CodeContext {
                     }
                     // TODO: JVMS §4.7.13: ensure no more than one entry per *local variable* across tables.
                 }
+                CodeAttributeInfo::StackMapTable(table) => stack_map_table
+                    .set(table)
+                    .map_err(|_| LoadingError::DuplicatedStackMapTable)?,
                 CodeAttributeInfo::Unknown { name_index, .. } => {
                     unimplemented!("Unknown code attr {}", name_index);
                 }
             }
+        }
+
+        if stack_map_table.get().is_some() {
+            println!()
         }
 
         Ok(CodeContext {
@@ -120,6 +131,7 @@ impl TryFrom<CodeAttribute> for CodeContext {
             instructions: Instruction::new_instruction_set(code.code)?,
             line_numbers: all_line_numbers,
             local_variables: all_local_vars,
+            stack_map_table: stack_map_table.take(),
         })
     }
 }
