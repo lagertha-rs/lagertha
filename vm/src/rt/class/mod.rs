@@ -12,8 +12,8 @@ pub mod method;
 
 #[derive(Debug, Error)]
 pub enum LoadingError {
-    #[error("")]
-    UnknownOpCode,
+    #[error("Unsupported opcode `{0:#04X}`")]
+    UnsupportedOpCode(u8),
     #[error("")]
     DuplicatedCodeAttr,
     //TODO: confused 4.7.13. The LocalVariableTable Attribute

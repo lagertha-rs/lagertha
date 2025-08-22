@@ -9,32 +9,59 @@ use std::fmt::Formatter;
 #[repr(u8)]
 pub enum Opcode {
     Aload0 = 0x2A,
+    Aload1 = 0x2B,
+    Aload2 = 0x2C,
+    Aload3 = 0x2D,
+    Getstatic = 0xb2,
+    Goto = 0xA7,
+    IconstM1 = 0x02,
+    Iconst0 = 0x03,
+    Iconst1 = 0x04,
+    Iconst2 = 0x05,
+    Iconst3 = 0x06,
+    Iconst4 = 0x07,
+    Iconst5 = 0x08,
+    IfAcmpne = 0xA6,
     Invokespecial = 0xB7,
     Invokevirtual = 0xB6,
-    Return = 0xb1,
-    Getstatic = 0xb2,
+    Ireturn = 0xAC,
     Ldc = 0x12,
+    Return = 0xb1,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Instruction {
     Aload0,
-    Ldc { index: u16 },
-    Invokespecial { method_index: u16 },
-    Invokevirtual { method_index: u16 },
-    Getstatic { field_index: u16 },
+    Aload1,
+    Aload2,
+    Aload3,
+    Getstatic(u16),
+    Goto(i16),
+    IconstM1,
+    Iconst0,
+    Iconst1,
+    Iconst2,
+    Iconst3,
+    Iconst4,
+    Iconst5,
+    IfAcmpNe(i16),
+    Ireturn,
+    Invokespecial(u16),
+    Invokevirtual(u16),
+    Ldc(u16),
     Return,
 }
 
 impl Instruction {
     pub fn byte_size(&self) -> u16 {
         match self {
-            Instruction::Aload0 => 1,
-            Instruction::Ldc { .. } => 2,
-            Instruction::Invokespecial { .. } => 3,
-            Instruction::Invokevirtual { .. } => 3,
-            Instruction::Getstatic { .. } => 3,
-            Instruction::Return => 1,
+            Self::Ldc(_) => 2,
+            Self::Invokespecial(_)
+            | Self::Invokevirtual(_)
+            | Self::Getstatic(_)
+            | Self::Goto(_)
+            | Self::IfAcmpNe(_) => 3,
+            _ => 1,
         }
     }
 }
@@ -45,27 +72,29 @@ impl Instruction {
         let mut res = Vec::new();
 
         while let Some(opcode_byte) = cursor.try_u8() {
-            let opcode = Opcode::try_from(opcode_byte).map_err(|_| LoadingError::UnknownOpCode)?; //TODO: Err
+            let opcode = Opcode::try_from(opcode_byte)
+                .map_err(|_| LoadingError::UnsupportedOpCode(opcode_byte))?; //TODO: Err
 
             let instruction = match opcode {
-                Opcode::Invokespecial => {
-                    let method_index = ((cursor.u8()? as u16) << 8) | cursor.u8()? as u16;
-                    Instruction::Invokespecial { method_index }
-                }
-                Opcode::Invokevirtual => {
-                    let method_index = ((cursor.u8()? as u16) << 8) | cursor.u8()? as u16;
-                    Instruction::Invokevirtual { method_index }
-                }
-
-                Opcode::Getstatic => {
-                    let field_index = ((cursor.u8()? as u16) << 8) | cursor.u8()? as u16;
-                    Instruction::Getstatic { field_index }
-                }
-                Opcode::Ldc => Instruction::Ldc {
-                    index: cursor.u8()? as u16,
-                },
-                Opcode::Aload0 => Instruction::Aload0,
-                Opcode::Return => Instruction::Return,
+                Opcode::Invokespecial => Self::Invokespecial(cursor.u16()?),
+                Opcode::Invokevirtual => Self::Invokevirtual(cursor.u16()?),
+                Opcode::Getstatic => Self::Getstatic(cursor.u16()?),
+                Opcode::Goto => Self::Goto(cursor.i16()?),
+                Opcode::Ldc => Self::Ldc(cursor.u16()?),
+                Opcode::IfAcmpne => Self::IfAcmpNe(cursor.i16()?),
+                Opcode::Aload0 => Self::Aload0,
+                Opcode::Aload1 => Self::Aload1,
+                Opcode::Aload2 => Self::Aload2,
+                Opcode::Aload3 => Self::Aload3,
+                Opcode::Return => Self::Return,
+                Opcode::IconstM1 => Self::IconstM1,
+                Opcode::Iconst0 => Self::Iconst0,
+                Opcode::Iconst1 => Self::Iconst1,
+                Opcode::Iconst2 => Self::Iconst2,
+                Opcode::Iconst3 => Self::Iconst3,
+                Opcode::Iconst4 => Self::Iconst4,
+                Opcode::Iconst5 => Self::Iconst5,
+                Opcode::Ireturn => Self::Ireturn,
             };
             res.push(instruction)
         }
@@ -74,18 +103,24 @@ impl Instruction {
 }
 
 impl fmt::Display for Instruction {
+    //TODO: avoid allocation in display
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let s = match self {
-            Instruction::Aload0 => "aload_0".to_string(),
-            Instruction::Ldc { index } => format!("{:<13} #{index}", "ldc"),
-            Instruction::Invokespecial { method_index } => {
+            Instruction::Ldc(index) => format!("{:<13} #{index}", "ldc"),
+            Instruction::Invokespecial(method_index) => {
                 format!("{:<13} #{method_index}", "invokespecial")
             }
-            Instruction::Invokevirtual { method_index } => {
+            Instruction::Invokevirtual(method_index) => {
                 format!("{:<13} #{method_index}", "invokevirtual")
             }
-            Instruction::Getstatic { field_index } => format!("{:<13} #{field_index}", "getstatic"),
-            Instruction::Return => "return".to_string(),
+            Instruction::IfAcmpNe(offset) => {
+                format!("{:<13} #{offset}", "if_acmpne")
+            }
+            Instruction::Goto(offset) => {
+                format!("{:<13} #{offset}", "goto")
+            }
+            Instruction::Getstatic(field_index) => format!("{:<13} #{field_index}", "getstatic"),
+            no_arg => format!("{no_arg:?}"),
         };
         f.pad(&s) // I use instruction display inside other display, and need to apply padding explicitly
     }

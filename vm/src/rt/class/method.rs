@@ -121,10 +121,6 @@ impl TryFrom<CodeAttribute> for CodeContext {
             }
         }
 
-        if stack_map_table.get().is_some() {
-            println!()
-        }
-
         Ok(CodeContext {
             max_stack: code.max_stack,
             max_locals: code.max_locals,
@@ -160,18 +156,15 @@ impl fmt::Display for Method {
             for instruction in &code.instructions {
                 write!(f, "        {byte_pos}: {instruction:<24}")?;
                 match instruction {
-                    Instruction::Aload0 => {}
-                    Instruction::Ldc { index } => {
+                    Instruction::Ldc(index) => {
                         write!(f, "// {}", self.cp.get(index).map_err(Into::into)?)?
                     }
-                    Instruction::Invokespecial { method_index }
-                    | Instruction::Invokevirtual { method_index } => {
-                        write!(f, "// {}", self.cp.get(method_index).map_err(Into::into)?)?;
+                    Instruction::Invokespecial(index)
+                    | Instruction::Invokevirtual(index)
+                    | Instruction::Getstatic(index) => {
+                        write!(f, "// {}", self.cp.get(index).map_err(Into::into)?)?;
                     }
-                    Instruction::Getstatic { field_index } => {
-                        write!(f, "// {}", self.cp.get(field_index).map_err(Into::into)?)?
-                    }
-                    Instruction::Return => {}
+                    _ => {}
                 }
                 byte_pos += instruction.byte_size();
                 writeln!(f)?;
