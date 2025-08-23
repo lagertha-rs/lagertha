@@ -1,8 +1,7 @@
 use crate::rt::constant_pool::error::RuntimePoolError;
-use common::CursorError;
+use common::cursor::CursorError;
 use thiserror::Error;
 
-pub mod access;
 pub mod class;
 pub mod descriptor;
 pub mod field;

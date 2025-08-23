@@ -1,5 +1,5 @@
 use crate::rt::class::LoadingError;
-use common::ByteCursor;
+use common::cursor::ByteCursor;
 use num_enum::TryFromPrimitive;
 use std::fmt;
 use std::fmt::Formatter;

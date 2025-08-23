@@ -1,8 +1,8 @@
-use crate::rt::class::access::MethodAccessFlag;
 use crate::rt::class::instruction_set::Instruction;
 use crate::rt::class::LoadingError;
 use crate::rt::constant_pool::reference::MethodDescriptorReference;
 use crate::rt::constant_pool::RuntimeConstantPool;
+use class_file::access::MethodAccessFlag;
 use class_file::attribute::annotation::Annotation;
 use class_file::attribute::code::{
     CodeAttributeInfo, LineNumberEntry, LocalVariableEntry, StackMapFrame,
@@ -10,8 +10,6 @@ use class_file::attribute::code::{
 use class_file::attribute::method::{CodeAttribute, MethodAttribute};
 use class_file::method::MethodInfo;
 use std::cell::OnceCell;
-use std::fmt;
-use std::fmt::Formatter;
 use std::rc::Rc;
 
 ///https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.3
@@ -140,6 +138,7 @@ impl TryFrom<CodeAttribute> for CodeContext {
     }
 }
 
+/* TODO: replace in class_file crate
 impl fmt::Display for Method {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         writeln!(f, "{} {}();", self.flags, self.name.replace("/", "."))?;
@@ -230,3 +229,4 @@ impl fmt::Display for Method {
         Ok(())
     }
 }
+ */

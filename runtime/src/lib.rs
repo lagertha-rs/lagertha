@@ -4,7 +4,7 @@ use crate::rt::class::class::Class;
 use crate::rt::class::LoadingError;
 use crate::rt::constant_pool::error::RuntimePoolError;
 use class_file::ClassFileErr;
-use common::CursorError;
+use common::cursor::CursorError;
 use std::fmt;
 use std::rc::Rc;
 use thiserror::Error;
@@ -60,12 +60,6 @@ pub enum JvmError {
     TypeError,
 }
 
-impl Into<fmt::Error> for JvmError {
-    fn into(self) -> fmt::Error {
-        fmt::Error
-    }
-}
-
 // TODO: returns only class right now, in future not sure
 pub fn parse_bin_class(main_class: Vec<u8>) -> Result<Rc<Class>, JvmError> {
     //let class_file = ClassFile::try_from(main_class)?;
@@ -76,8 +70,6 @@ pub fn parse_bin_class(main_class: Vec<u8>) -> Result<Rc<Class>, JvmError> {
 
     let obj_class_name = "java/lang/Object".to_string();
     let obj_class = method_area.get_class(&obj_class_name)?;
-
-    println!("{obj_class}");
 
     Ok(obj_class)
 }

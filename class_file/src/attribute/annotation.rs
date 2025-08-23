@@ -1,5 +1,5 @@
 use crate::ClassFileErr;
-use common::ByteCursor;
+use common::cursor::ByteCursor;
 use num_enum::TryFromPrimitive;
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.16

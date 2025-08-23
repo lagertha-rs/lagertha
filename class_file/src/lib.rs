@@ -1,10 +1,18 @@
+use crate::access::ClassAccessFlag;
 use crate::attribute::class::ClassAttribute;
-use common::{ByteCursor, CursorError};
+use crate::constant_pool::{ConstantPool, ConstantTag};
+use common::cursor::{ByteCursor, CursorError};
+#[cfg(feature = "pretty_print")]
+use common::indent_write::Indented;
+use common::{pretty_class_name_try, pretty_try};
 use constant_pool::ConstantInfo;
 use field::FieldInfo;
 use method::MethodInfo;
+#[cfg(feature = "pretty_print")]
+use std::fmt::{self, Write as _};
 use thiserror::Error;
 
+pub mod access;
 pub mod attribute;
 pub mod constant_pool;
 pub mod field;
@@ -15,8 +23,8 @@ pub mod method;
 pub struct ClassFile {
     pub minor_version: u16,
     pub major_version: u16,
-    pub constant_pool: Vec<ConstantInfo>,
-    pub access_flags: u16,
+    pub cp: ConstantPool,
+    pub access_flags: ClassAccessFlag,
     pub this_class: u16,
     pub super_class: u16,
     pub interfaces: Vec<u16>,
@@ -51,10 +59,12 @@ pub enum ClassFileErr {
     TrailingBytes,
     #[error("")]
     UnknownTag(u8),
-    #[error("")]
-    TypeError,
-    #[error("")]
-    ConstantNotFound,
+    #[error("Expected type `{1}` with index `{0}` but found `{2}`")]
+    TypeError(u16, ConstantTag, ConstantTag),
+    #[error("Constant with index `{0}` isn't found in constant pool.")]
+    ConstantNotFound(u16),
+    #[error("Unknown stack frame type {0}.")]
+    UnknownStackFrameType(u8),
 }
 
 impl ClassFile {
@@ -92,8 +102,9 @@ impl TryFrom<Vec<u8>> for ClassFile {
                 }
             }
         }
+        let constant_pool = ConstantPool { cp: constant_pool };
 
-        let access_flags = cursor.u16()?;
+        let access_flags = ClassAccessFlag::new(cursor.u16()?);
         let this_class = cursor.u16()?;
         let super_class = cursor.u16()?;
         let interfaces_count = cursor.u16()?;
@@ -123,7 +134,7 @@ impl TryFrom<Vec<u8>> for ClassFile {
             Ok(Self {
                 minor_version,
                 major_version,
-                constant_pool,
+                cp: constant_pool,
                 access_flags,
                 this_class,
                 super_class,
@@ -136,8 +147,69 @@ impl TryFrom<Vec<u8>> for ClassFile {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {}
+#[cfg(feature = "pretty_print")]
+impl fmt::Display for ClassFile {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let constant_kind_width = 16;
+        let mut ind = Indented::new(f);
+        writeln!(
+            ind,
+            "{} {}",
+            self.access_flags.get_pretty_java_like_prefix(),
+            pretty_class_name_try!(ind, self.cp.get_class_name(self.this_class))
+        )?;
+        ind.with_indent(|ind| {
+            writeln!(ind, "minor version: {}", self.minor_version)?;
+            writeln!(ind, "major version: {}", self.major_version)?;
+            writeln!(
+                ind,
+                "flags: (0x{:04X}) {}",
+                self.access_flags.get_raw(),
+                self.access_flags.get_javap_like_list()
+            )?;
+            writeln!(
+                ind,
+                "this_class: {:<24}//{}",
+                format!("#{}", self.this_class),
+                pretty_try!(ind, self.cp.get_class_name(self.this_class))
+            )?;
+            writeln!(ind, "super_class: #{}", self.super_class)?;
+            writeln!(
+                ind,
+                "interfaces: {}, fields: {}, methods: {}, attributes: {}",
+                self.interfaces.len(),
+                self.fields.len(),
+                self.methods.len(),
+                self.attributes.len()
+            )?;
+            Ok(())
+        })?;
+        writeln!(ind, "Constant pool:")?;
+        ind.with_indent(|ind| {
+            let counter_width = self.cp.cp.len().checked_ilog10().map_or(0, |d| d as usize) + 2;
+            for (i, c) in self.cp.cp.iter().enumerate() {
+                if matches!(c, ConstantInfo::Dummy) {
+                    continue;
+                }
+                let tag = format_args!("{:<kw$}", c.get_tag(), kw = constant_kind_width);
+                write!(ind, "{:>w$} = {} ", format!("#{i}"), tag, w = counter_width)?;
+                c.fmt_pretty(ind, &self.cp)?;
+            }
+            Ok(())
+        })?;
+        /*
+        pub minor_version: u16,
+        pub major_version: u16,
+        pub constant_pool: Vec<ConstantInfo>,
+        pub access_flags: u16,
+        pub this_class: u16,
+        pub super_class: u16,
+        pub interfaces: Vec<u16>,
+        pub fields: Vec<FieldInfo>,
+        pub methods: Vec<MethodInfo>,
+        pub attributes: Vec<ClassAttribute>,
+             */
+
+        Ok(())
+    }
 }

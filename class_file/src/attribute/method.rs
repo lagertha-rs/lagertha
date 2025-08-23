@@ -1,9 +1,8 @@
 use crate::attribute::annotation::Annotation;
 use crate::attribute::code::CodeAttributeInfo;
-use crate::attribute::get_utf8;
-use crate::constant_pool::ConstantInfo;
+use crate::constant_pool::ConstantPool;
 use crate::ClassFileErr;
-use common::ByteCursor;
+use common::cursor::ByteCursor;
 use std::fmt;
 use std::fmt::{Display, Formatter};
 
@@ -42,13 +41,13 @@ pub enum MethodAttribute {
 
 impl<'a> MethodAttribute {
     pub(crate) fn read(
-        pool: &Vec<ConstantInfo>,
+        pool: &ConstantPool,
         cursor: &mut ByteCursor<'a>,
     ) -> Result<Self, ClassFileErr> {
         let attribute_name_index = cursor.u16()?;
         let attribute_length = cursor.u32()? as usize;
 
-        let utf8 = get_utf8(attribute_name_index, pool)?.as_bytes();
+        let utf8 = pool.get_utf8(attribute_name_index)?.as_bytes();
         match utf8 {
             ATTR_CODE => {
                 let max_stack = cursor.u16()?;

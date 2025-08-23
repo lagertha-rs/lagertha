@@ -1,6 +1,6 @@
-use crate::constant_pool::ConstantInfo;
+use crate::constant_pool::ConstantPool;
 use crate::ClassFileErr;
-use common::ByteCursor;
+use common::cursor::ByteCursor;
 use core::fmt;
 
 #[derive(Debug)]
@@ -13,7 +13,7 @@ pub struct FieldInfo {
 
 impl<'a> FieldInfo {
     pub(crate) fn read(
-        _constant_pool: &Vec<ConstantInfo>,
+        _constant_pool: &ConstantPool,
         cursor: &mut ByteCursor<'a>,
     ) -> Result<Self, ClassFileErr> {
         let access_flags = cursor.u16()?;

@@ -104,7 +104,7 @@ dependencies = [
 name = "classp"
 version = "0.1.0"
 dependencies = [
- "runtime",
+ "class_file",
 ]
 
 [[package]]
