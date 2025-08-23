@@ -1,4 +1,8 @@
 [workspace]
 resolver = "2"
 
-members = ["java", "javap", "vm"]
+members = ["class_file", "common", "vm", "classp", "runtime"]
+
+[workspace.dependencies]
+thiserror = "2.0.16"
+
