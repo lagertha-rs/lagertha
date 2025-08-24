@@ -1,8 +1,7 @@
 use crate::attribute::method::MethodAttribute;
-use crate::constant_pool::ConstantPool;
+use crate::constant::pool::ConstantPool;
 use crate::ClassFileErr;
-use common::cursor::ByteCursor;
-use std::fmt;
+use common::utils::cursor::ByteCursor;
 
 #[derive(Debug)]
 pub struct MethodInfo {
@@ -32,23 +31,44 @@ impl<'a> MethodInfo {
             attributes,
         })
     }
-}
 
-impl fmt::Display for MethodInfo {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "MethodInfo {} name_index={} descriptor_index={} attributes=[",
-            self.access_flags, self.name_index, self.descriptor_index
+    #[cfg(feature = "pretty_print")]
+    pub(crate) fn fmt_pretty(
+        &self,
+        ind: &mut common::utils::indent_write::Indented<'_>,
+        cp: &ConstantPool,
+    ) -> std::fmt::Result {
+        use crate::print::{get_method_javap_like_list, get_method_pretty_java_like_prefix};
+        use common::descriptor::MethodDescriptor;
+        use common::{pretty_class_name_try, pretty_try};
+        use itertools::Itertools;
+        use std::fmt::Write as _;
+
+        let raw_descriptor = pretty_try!(ind, cp.get_utf8(self.descriptor_index));
+        let descriptor = pretty_try!(ind, MethodDescriptor::try_from(raw_descriptor));
+        //TODO: add throws
+        writeln!(
+            ind,
+            "{} {} {}({})",
+            get_method_pretty_java_like_prefix(self.access_flags),
+            descriptor.ret,
+            pretty_class_name_try!(ind, cp.get_utf8(self.name_index)),
+            descriptor.params.iter().map(|v| v.to_string()).join(", ")
         )?;
-
-        for (i, attr) in self.attributes.iter().enumerate() {
-            if i != 0 {
-                write!(f, ", ")?;
+        ind.with_indent(|ind| {
+            writeln!(ind, "descriptor: {}", raw_descriptor)?;
+            writeln!(
+                ind,
+                "flags: (0x{:04X}) {}",
+                self.access_flags,
+                get_method_javap_like_list(self.access_flags)
+            )?;
+            for attr in &self.attributes {
+                attr.fmt_pretty(ind, cp, &descriptor)?;
             }
-            write!(f, "{}", attr)?;
-        }
+            Ok(())
+        })?;
 
-        write!(f, "]")
+        Ok(())
     }
 }

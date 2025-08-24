@@ -1,13 +1,19 @@
-use crate::constant_pool::ConstantPool;
+use crate::attribute::AttributeType;
+use crate::constant::pool::ConstantPool;
 use crate::ClassFileErr;
-use common::cursor::ByteCursor;
+use common::utils::cursor::ByteCursor;
 use num_enum::TryFromPrimitive;
-use std::fmt;
-use std::fmt::{Display, Formatter};
 
-pub const ATTR_LOCAL_VARIABLE_TABLE: &[u8] = b"LocalVariableTable";
-pub const ATTR_LINE_NUMBER_TABLE: &[u8] = b"LineNumberTable";
-pub const ATTR_STACK_MAP_TABLE: &[u8] = b"StackMapTable";
+/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.3
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum CodeAttributeInfo {
+    LineNumberTable(Vec<LineNumberEntry>),
+    LocalVariableTable(Vec<LocalVariableEntry>),
+    StackMapTable(Vec<StackMapFrame>),
+    LocalVariableTypeTable,
+    RuntimeVisibleTypeAnnotations,
+    RuntimeInvisibleTypeAnnotations,
+}
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.12
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -57,6 +63,33 @@ pub enum StackMapFrame {
         locals: Vec<VerificationTypeInfo>,
         stack: Vec<VerificationTypeInfo>,
     },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, TryFromPrimitive)]
+#[repr(u8)]
+pub enum VerificationTypeTag {
+    Top,
+    Integer,
+    Float,
+    Double,
+    Long,
+    Null,
+    UninitializedThis,
+    Object,
+    Uninitialized,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum VerificationTypeInfo {
+    Top,
+    Integer,
+    Float,
+    Double,
+    Long,
+    Null,
+    UninitializedThis,
+    Object(u16),
+    Uninitialized(u16),
 }
 
 impl<'a> StackMapFrame {
@@ -111,33 +144,6 @@ impl<'a> StackMapFrame {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, TryFromPrimitive)]
-#[repr(u8)]
-pub enum VerificationTypeTag {
-    Top,
-    Integer,
-    Float,
-    Double,
-    Long,
-    Null,
-    UninitializedThis,
-    Object,
-    Uninitialized,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum VerificationTypeInfo {
-    Top,
-    Integer,
-    Float,
-    Double,
-    Long,
-    Null,
-    UninitializedThis,
-    Object(u16),
-    Uninitialized(u16),
-}
-
 impl<'a> VerificationTypeInfo {
     pub(crate) fn read(cursor: &mut ByteCursor<'a>) -> Result<Self, ClassFileErr> {
         let raw_tag = cursor.u8()?;
@@ -157,25 +163,17 @@ impl<'a> VerificationTypeInfo {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum CodeAttributeInfo {
-    LineNumberTable(Vec<LineNumberEntry>),
-    LocalVariableTable(Vec<LocalVariableEntry>),
-    StackMapTable(Vec<StackMapFrame>),
-    Unknown { name_index: u16, info: Vec<u8> },
-}
-
 impl<'a> CodeAttributeInfo {
     pub(crate) fn read(
         pool: &ConstantPool,
         cursor: &mut ByteCursor<'a>,
     ) -> Result<Self, ClassFileErr> {
         let attribute_name_index = cursor.u16()?;
-        let attribute_length = cursor.u32()? as usize;
+        let _attribute_length = cursor.u32()? as usize;
 
-        let utf8 = pool.get_utf8(attribute_name_index)?.as_bytes();
-        match utf8 {
-            ATTR_LINE_NUMBER_TABLE => {
+        let attribute_type = AttributeType::try_from(pool.get_utf8(attribute_name_index)?)?;
+        match attribute_type {
+            AttributeType::LineNumberTable => {
                 let line_number_table_length = cursor.u16()? as usize;
                 let mut line_number_table = Vec::with_capacity(line_number_table_length);
                 for _ in 0..line_number_table_length {
@@ -186,7 +184,7 @@ impl<'a> CodeAttributeInfo {
                 }
                 Ok(CodeAttributeInfo::LineNumberTable(line_number_table))
             }
-            ATTR_LOCAL_VARIABLE_TABLE => {
+            AttributeType::LocalVariableTable => {
                 let local_variable_table_length = cursor.u16()?;
                 let mut local_variable_table =
                     Vec::with_capacity(local_variable_table_length as usize);
@@ -206,7 +204,7 @@ impl<'a> CodeAttributeInfo {
                 }
                 Ok(CodeAttributeInfo::LocalVariableTable(local_variable_table))
             }
-            ATTR_STACK_MAP_TABLE => {
+            AttributeType::StackMapTable => {
                 let frames_count = cursor.u16()?;
                 let mut frames = Vec::with_capacity(frames_count as usize);
                 for _ in 0..frames_count {
@@ -214,36 +212,7 @@ impl<'a> CodeAttributeInfo {
                 }
                 Ok(CodeAttributeInfo::StackMapTable(frames))
             }
-            _ => {
-                let mut buf = vec![0u8; attribute_length];
-                cursor.read_exact(&mut buf)?;
-                Ok(CodeAttributeInfo::Unknown {
-                    name_index: attribute_name_index,
-                    info: buf,
-                })
-            }
-        }
-    }
-}
-
-impl Display for CodeAttributeInfo {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            CodeAttributeInfo::LineNumberTable(table) => {
-                write!(f, "LineNumberTable{table:?}")
-            }
-            CodeAttributeInfo::LocalVariableTable(table) => {
-                write!(f, "LocalVariableTable {table:?}")
-            }
-            CodeAttributeInfo::StackMapTable(table) => {
-                write!(f, "StackMapTable {table:?}")
-            }
-            CodeAttributeInfo::Unknown { name_index, info } => write!(
-                f,
-                "Unsupported(name_index: {}, data: {} bytes)",
-                name_index,
-                info.len()
-            ),
+            _ => unimplemented!(),
         }
     }
 }

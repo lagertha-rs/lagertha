@@ -1,8 +1,6 @@
-use crate::rt::class::LoadingError;
-use common::cursor::ByteCursor;
+use crate::utils::cursor::ByteCursor;
+use crate::InstructionErr;
 use num_enum::TryFromPrimitive;
-use std::fmt;
-use std::fmt::Formatter;
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-6.html
 #[derive(Debug, Clone, Copy, TryFromPrimitive)]
@@ -171,13 +169,13 @@ impl Instruction {
 
 impl Instruction {
     //TODO: Idk, don't really like such constructor
-    pub fn new_instruction_set(code: Vec<u8>) -> Result<Vec<Instruction>, LoadingError> {
+    pub fn new_instruction_set(code: &Vec<u8>) -> Result<Vec<Instruction>, InstructionErr> {
         let mut cursor = ByteCursor::new(code.as_slice());
         let mut res = Vec::new();
 
         while let Some(opcode_byte) = cursor.try_u8() {
             let opcode = Opcode::try_from(opcode_byte)
-                .map_err(|_| LoadingError::UnsupportedOpCode(opcode_byte))?;
+                .map_err(|_| InstructionErr::UnsupportedOpCode(opcode_byte))?;
 
             let instruction = match opcode {
                 Opcode::IfIcmpeq => Self::IfIcmpeq(cursor.i16()?),
@@ -246,29 +244,5 @@ impl Instruction {
             res.push(instruction)
         }
         Ok(res)
-    }
-}
-
-impl fmt::Display for Instruction {
-    //TODO: avoid allocation in display
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let s = match self {
-            Instruction::Ldc(index) => format!("{:<13} #{index}", "ldc"),
-            Instruction::Invokespecial(method_index) => {
-                format!("{:<13} #{method_index}", "invokespecial")
-            }
-            Instruction::Invokevirtual(method_index) => {
-                format!("{:<13} #{method_index}", "invokevirtual")
-            }
-            Instruction::IfAcmpNe(offset) => {
-                format!("{:<13} #{offset}", "if_acmpne")
-            }
-            Instruction::Goto(offset) => {
-                format!("{:<13} #{offset}", "goto")
-            }
-            Instruction::Getstatic(field_index) => format!("{:<13} #{field_index}", "getstatic"),
-            no_arg => format!("{no_arg:?}"),
-        };
-        f.pad(&s) // I use instruction display inside other display, and need to apply padding explicitly
     }
 }

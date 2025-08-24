@@ -1,70 +1,39 @@
-use crate::access::ClassAccessFlag;
+extern crate core;
+
 use crate::attribute::class::ClassAttribute;
-use crate::constant_pool::{ConstantPool, ConstantTag};
-use common::cursor::{ByteCursor, CursorError};
-#[cfg(feature = "pretty_print")]
-use common::indent_write::Indented;
-use common::{pretty_class_name_try, pretty_try};
-use constant_pool::ConstantInfo;
+use crate::constant::pool::ConstantPool;
+use crate::error::ClassFileErr;
+use common::utils::cursor::ByteCursor;
+use constant::ConstantInfo;
 use field::FieldInfo;
 use method::MethodInfo;
-#[cfg(feature = "pretty_print")]
-use std::fmt::{self, Write as _};
-use thiserror::Error;
 
-pub mod access;
 pub mod attribute;
-pub mod constant_pool;
+pub mod constant;
+pub mod error;
 pub mod field;
 pub mod method;
+#[cfg(feature = "pretty_print")]
+pub mod print;
+//TODO: make fn pub(crate)
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html
+/// A rust representation of a Java .class file. All structures in the crates have public only public
+/// fields for easier access, because anyway it will be remapped to runtime structures.
+///
+/// All print related code is behind the `pretty_print` feature flag.
 #[derive(Debug)]
 pub struct ClassFile {
     pub minor_version: u16,
     pub major_version: u16,
     pub cp: ConstantPool,
-    pub access_flags: ClassAccessFlag,
+    pub access_flags: u16,
     pub this_class: u16,
     pub super_class: u16,
     pub interfaces: Vec<u16>,
     pub fields: Vec<FieldInfo>,
     pub methods: Vec<MethodInfo>,
     pub attributes: Vec<ClassAttribute>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Error)]
-pub enum DescriptorErr {
-    #[error("")]
-    ShouldStartWithParentheses,
-    #[error("")]
-    MissingClosingParenthesis,
-    #[error("")]
-    UnexpectedEnd,
-    #[error("")]
-    InvalidType,
-    #[error("")]
-    TrailingCharacters,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Error)]
-pub enum ClassFileErr {
-    #[error(transparent)]
-    Cursor(#[from] CursorError),
-    #[error(transparent)]
-    MethodDescriptor(#[from] DescriptorErr),
-    #[error("")]
-    WrongMagic,
-    #[error("")]
-    TrailingBytes,
-    #[error("")]
-    UnknownTag(u8),
-    #[error("Expected type `{1}` with index `{0}` but found `{2}`")]
-    TypeError(u16, ConstantTag, ConstantTag),
-    #[error("Constant with index `{0}` isn't found in constant pool.")]
-    ConstantNotFound(u16),
-    #[error("Unknown stack frame type {0}.")]
-    UnknownStackFrameType(u8),
 }
 
 impl ClassFile {
@@ -87,14 +56,16 @@ impl TryFrom<Vec<u8>> for ClassFile {
         let major_version = cursor.u16()?;
         let constant_pool_count = cursor.u16()?;
         let mut constant_pool = Vec::with_capacity((constant_pool_count + 1) as usize);
-        constant_pool.push(ConstantInfo::Dummy);
+        constant_pool.push(ConstantInfo::Unused);
         let mut i = 1;
         while i < constant_pool_count {
             let constant = ConstantInfo::read(&mut cursor)?;
             constant_pool.push(constant.clone());
             match constant {
+                // described in JVM spec that Long and Double take two entries in the constant pool
+                // https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.4.5
                 ConstantInfo::Long(_) | ConstantInfo::Double(_) => {
-                    constant_pool.push(ConstantInfo::Dummy);
+                    constant_pool.push(ConstantInfo::Unused);
                     i += 2;
                 }
                 _ => {
@@ -104,7 +75,7 @@ impl TryFrom<Vec<u8>> for ClassFile {
         }
         let constant_pool = ConstantPool { cp: constant_pool };
 
-        let access_flags = ClassAccessFlag::new(cursor.u16()?);
+        let access_flags = cursor.u16()?;
         let this_class = cursor.u16()?;
         let super_class = cursor.u16()?;
         let interfaces_count = cursor.u16()?;
@@ -148,14 +119,19 @@ impl TryFrom<Vec<u8>> for ClassFile {
 }
 
 #[cfg(feature = "pretty_print")]
-impl fmt::Display for ClassFile {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl std::fmt::Display for ClassFile {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use crate::print::{get_class_javap_like_list, get_class_pretty_java_like_prefix};
+        use common::utils::indent_write::Indented;
+        use common::{pretty_class_name_try, pretty_try};
+        use std::fmt::Write as _;
+
         let constant_kind_width = 16;
         let mut ind = Indented::new(f);
         writeln!(
             ind,
             "{} {}",
-            self.access_flags.get_pretty_java_like_prefix(),
+            get_class_pretty_java_like_prefix(self.access_flags),
             pretty_class_name_try!(ind, self.cp.get_class_name(self.this_class))
         )?;
         ind.with_indent(|ind| {
@@ -164,8 +140,8 @@ impl fmt::Display for ClassFile {
             writeln!(
                 ind,
                 "flags: (0x{:04X}) {}",
-                self.access_flags.get_raw(),
-                self.access_flags.get_javap_like_list()
+                self.access_flags,
+                get_class_javap_like_list(self.access_flags)
             )?;
             writeln!(
                 ind,
@@ -184,11 +160,11 @@ impl fmt::Display for ClassFile {
             )?;
             Ok(())
         })?;
-        writeln!(ind, "Constant pool:")?;
+        writeln!(ind, "Constant constant:")?;
         ind.with_indent(|ind| {
             let counter_width = self.cp.cp.len().checked_ilog10().map_or(0, |d| d as usize) + 2;
             for (i, c) in self.cp.cp.iter().enumerate() {
-                if matches!(c, ConstantInfo::Dummy) {
+                if matches!(c, ConstantInfo::Unused) {
                     continue;
                 }
                 let tag = format_args!("{:<kw$}", c.get_tag(), kw = constant_kind_width);
@@ -197,19 +173,14 @@ impl fmt::Display for ClassFile {
             }
             Ok(())
         })?;
-        /*
-        pub minor_version: u16,
-        pub major_version: u16,
-        pub constant_pool: Vec<ConstantInfo>,
-        pub access_flags: u16,
-        pub this_class: u16,
-        pub super_class: u16,
-        pub interfaces: Vec<u16>,
-        pub fields: Vec<FieldInfo>,
-        pub methods: Vec<MethodInfo>,
-        pub attributes: Vec<ClassAttribute>,
-             */
-
+        writeln!(ind, "{{")?;
+        ind.with_indent(|ind| {
+            for method in &self.methods {
+                method.fmt_pretty(ind, &self.cp)?;
+            }
+            Ok(())
+        })?;
+        writeln!(ind, "}}")?;
         Ok(())
     }
 }

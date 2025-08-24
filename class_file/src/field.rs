@@ -1,7 +1,6 @@
-use crate::constant_pool::ConstantPool;
+use crate::constant::pool::ConstantPool;
 use crate::ClassFileErr;
-use common::cursor::ByteCursor;
-use core::fmt;
+use common::utils::cursor::ByteCursor;
 
 #[derive(Debug)]
 pub struct FieldInfo {
@@ -16,6 +15,7 @@ impl<'a> FieldInfo {
         _constant_pool: &ConstantPool,
         cursor: &mut ByteCursor<'a>,
     ) -> Result<Self, ClassFileErr> {
+        unimplemented!();
         let access_flags = cursor.u16()?;
         let name_index = cursor.u16()?;
         let descriptor_index = cursor.u16()?;
@@ -31,26 +31,5 @@ impl<'a> FieldInfo {
             descriptor_index,
             //attributes,
         })
-    }
-}
-
-impl fmt::Display for FieldInfo {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "FieldInfo {} name_index={} descriptor_index={} attributes=[",
-            self.access_flags, self.name_index, self.descriptor_index
-        )?;
-
-        /*
-        for (i, attr) in self.attributes.iter().enumerate() {
-            if i != 0 {
-                write!(f, ", ")?;
-            }
-            write!(f, "{}", attr)?;
-        }
-         */
-
-        write!(f, "]")
     }
 }

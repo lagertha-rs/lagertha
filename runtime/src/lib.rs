@@ -3,13 +3,12 @@ use crate::method_area::MethodArea;
 use crate::rt::class::class::Class;
 use crate::rt::class::LoadingError;
 use crate::rt::constant_pool::error::RuntimePoolError;
-use class_file::ClassFileErr;
-use common::cursor::CursorError;
-use std::fmt;
+use class_file::error::ClassFileErr;
+use common::utils::cursor::CursorError;
+use common::InstructionErr;
 use std::rc::Rc;
 use thiserror::Error;
 
-mod byte_cursor;
 mod class_loader;
 mod heap;
 mod method_area;

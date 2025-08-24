@@ -1,14 +1,12 @@
-use crate::rt::class::descriptor::MethodDescriptor;
-use crate::rt::class::jtype::Type;
 use crate::rt::constant_pool::error::RuntimePoolError;
 use crate::rt::constant_pool::reference::{
     ClassReference, FieldDescriptorReference, FieldReference, MethodDescriptorReference,
     MethodReference, NameAndTypeReference, StringReference,
 };
-use class_file::constant_pool::{ConstantInfo, ReferenceInfo};
+use class_file::constant::ConstantInfo;
+use common::descriptor::MethodDescriptor;
+use common::jtype::Type;
 use dashmap::DashMap;
-use std::fmt;
-use std::fmt::Formatter;
 use std::rc::Rc;
 
 pub mod error;
@@ -16,7 +14,7 @@ pub mod reference;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum RuntimeConstantType {
-    Dummy,
+    Unused,
     Utf8,
     Integer,
     Float,
@@ -34,7 +32,7 @@ pub enum RuntimeConstantType {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum RuntimeConstant {
-    Dummy,
+    Unused,
     Utf8(Rc<String>),
     Integer(i32),
     Float(f32),
@@ -44,14 +42,14 @@ pub enum RuntimeConstant {
     String(Rc<StringReference>),
     MethodRef(Rc<MethodReference>),
     FieldRef(Rc<FieldReference>),
-    InterfaceRef(ReferenceInfo),
+    InterfaceRef,
     NameAndType(Rc<NameAndTypeReference>),
 }
 
 impl RuntimeConstant {
     pub fn get_type(&self) -> RuntimeConstantType {
         match self {
-            RuntimeConstant::Dummy => RuntimeConstantType::Dummy,
+            RuntimeConstant::Unused => RuntimeConstantType::Unused,
             RuntimeConstant::Utf8(_) => RuntimeConstantType::Utf8,
             RuntimeConstant::Integer(_) => RuntimeConstantType::Integer,
             RuntimeConstant::Float(_) => RuntimeConstantType::Float,
@@ -61,7 +59,7 @@ impl RuntimeConstant {
             RuntimeConstant::String(_) => RuntimeConstantType::String,
             RuntimeConstant::MethodRef(_) => RuntimeConstantType::MethodRef,
             RuntimeConstant::FieldRef(_) => RuntimeConstantType::FieldRef,
-            RuntimeConstant::InterfaceRef(_) => RuntimeConstantType::InterfaceRef,
+            RuntimeConstant::InterfaceRef => RuntimeConstantType::InterfaceRef,
             RuntimeConstant::NameAndType(_) => RuntimeConstantType::NameAndType,
         }
     }
@@ -83,7 +81,7 @@ impl RuntimeConstantPool {
                 .into_iter()
                 .enumerate()
                 .map(|(i, c)| match c {
-                    ConstantInfo::Dummy => RuntimeConstant::Dummy,
+                    ConstantInfo::Unused => RuntimeConstant::Unused,
                     ConstantInfo::Utf8(val) => RuntimeConstant::Utf8(Rc::new(val)),
                     ConstantInfo::Integer(val) => RuntimeConstant::Integer(val),
                     ConstantInfo::Float(val) => RuntimeConstant::Float(val),
@@ -109,7 +107,7 @@ impl RuntimeConstantPool {
                             field_ref.name_and_type_index,
                         )))
                     }
-                    ConstantInfo::InterfaceRef(v) => RuntimeConstant::InterfaceRef(v),
+                    ConstantInfo::InterfaceRef(v) => unimplemented!(),
                     ConstantInfo::NameAndType(nat) => RuntimeConstant::NameAndType(Rc::new(
                         NameAndTypeReference::new(i as u16, nat.name_index, nat.descriptor_index),
                     )),
@@ -310,189 +308,5 @@ impl RuntimeConstantPool {
                 other.get_type(),
             )),
         }
-    }
-}
-
-impl fmt::Display for RuntimeConstant {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            RuntimeConstant::Dummy => {} //TODO
-            RuntimeConstant::Utf8(val) => write!(f, "Utf8 {val}")?,
-            RuntimeConstant::Integer(val) => write!(f, "Integer {val}")?,
-            RuntimeConstant::Float(val) => write!(f, "Float {val}")?,
-            RuntimeConstant::Long(val) => write!(f, "Long {val}")?,
-            RuntimeConstant::Double(val) => write!(f, "Double {val}")?,
-            RuntimeConstant::Class(_val) => write!(f, "Class")?, //TODO
-            RuntimeConstant::String(val) => write!(f, "String {val}")?,
-            RuntimeConstant::MethodRef(val) => write!(f, "Method {val}")?,
-            RuntimeConstant::FieldRef(val) => write!(f, "Field {val}")?,
-            RuntimeConstant::InterfaceRef(_val) => write!(f, "Interface")?, //TODO
-            RuntimeConstant::NameAndType(_val) => write!(f, "NameAndType")?, //TODO
-        }
-        Ok(())
-    }
-}
-
-impl fmt::Display for RuntimeConstantPool {
-    // TODO: clean up!
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let digits = (self.entries.len().saturating_sub(1))
-            .to_string()
-            .len()
-            .max(1);
-        let idx_w = digits + 1;
-        let kind_w = 16;
-        let op_w = 16;
-
-        macro_rules! try_map {
-            ($e:expr) => {
-                $e.map_err(|_| fmt::Error)
-            };
-        }
-
-        for (pos, entry) in self.entries.iter().enumerate().skip(1) {
-            if entry.get_type() == RuntimeConstantType::Dummy {
-                continue;
-            }
-            write!(f, "  {p:>w$} = ", p = format!("#{}", pos), w = idx_w)?;
-            match entry {
-                RuntimeConstant::Utf8(s) => {
-                    writeln!(
-                        f,
-                        "{:<kind_w$} {:<op_w$}",
-                        "Utf8",
-                        s,
-                        kind_w = kind_w,
-                        op_w = op_w
-                    )?;
-                }
-                RuntimeConstant::Class(class) => {
-                    let name = try_map!(self.get_utf8(class.name_index()))?;
-                    writeln!(
-                        f,
-                        "{:<kind_w$} {:<op_w$} // {}",
-                        "Class",
-                        format!("#{}", class.name_index()),
-                        name,
-                        kind_w = kind_w,
-                        op_w = op_w
-                    )?;
-                }
-                RuntimeConstant::String(sr) => {
-                    let val = try_map!(self.get_utf8(sr.string_index()))?;
-                    writeln!(
-                        f,
-                        "{:<kind_w$} {:<op_w$} // {}",
-                        "String",
-                        format!("#{}", sr.string_index()),
-                        val,
-                        kind_w = kind_w,
-                        op_w = op_w
-                    )?;
-                }
-                RuntimeConstant::MethodRef(mr) => {
-                    let class = try_map!(self.get_class(mr.class_index()))?;
-                    let nat = try_map!(self.get_method_nat(mr.name_and_type_index()))?;
-                    let cls_name = class.name.get().ok_or(fmt::Error)?;
-                    let name = try_map!(self.get_utf8(nat.name_index()))?;
-                    let desc = &nat.method_descriptor.get().ok_or(fmt::Error)?.raw();
-
-                    writeln!(
-                        f,
-                        "{:<kind_w$} {:<op_w$} // {}.{}:{}",
-                        "Methodref",
-                        format!("#{}.#{}", mr.class_index(), mr.name_and_type_index()),
-                        cls_name,
-                        name,
-                        desc,
-                        kind_w = kind_w,
-                        op_w = op_w
-                    )?;
-                }
-                RuntimeConstant::FieldRef(fr) => {
-                    let class = try_map!(self.get_class(fr.class_index()))?;
-                    let nat = try_map!(self.get_field_nat(fr.name_and_type_index()))?;
-                    let cls_name = class.name.get().ok_or(fmt::Error)?;
-                    let name = try_map!(self.get_utf8(nat.name_index()))?;
-                    let desc = &nat.field_descriptor.get().ok_or(fmt::Error)?.raw();
-                    writeln!(
-                        f,
-                        "{:<kind_w$} {:<op_w$} // {}.{}:{}",
-                        "Fieldref",
-                        format!("#{}.#{}", fr.class_index(), fr.name_and_type_index()),
-                        cls_name,
-                        name,
-                        desc,
-                        kind_w = kind_w,
-                        op_w = op_w
-                    )?;
-                }
-                RuntimeConstant::NameAndType(nat) => {
-                    let name = try_map!(self.get_utf8(nat.name_index()))?;
-                    let desc = try_map!(self.get_utf8(nat.descriptor_index()))?;
-                    writeln!(
-                        f,
-                        "{:<kind_w$} {:<op_w$} // {}:{}",
-                        "NameAndType",
-                        format!("#{}.#{}", nat.name_index(), nat.descriptor_index()),
-                        name,
-                        desc,
-                        kind_w = kind_w,
-                        op_w = op_w
-                    )?;
-                }
-                RuntimeConstant::Integer(s) => {
-                    writeln!(
-                        f,
-                        "{:<kind_w$} {:<op_w$}",
-                        "Integer",
-                        s,
-                        kind_w = kind_w,
-                        op_w = op_w
-                    )?;
-                }
-                RuntimeConstant::Float(s) => {
-                    writeln!(
-                        f,
-                        "{:<kind_w$} {:<op_w$}",
-                        "Float",
-                        s,
-                        kind_w = kind_w,
-                        op_w = op_w
-                    )?;
-                }
-                RuntimeConstant::Long(s) => {
-                    writeln!(
-                        f,
-                        "{:<kind_w$} {:<op_w$}",
-                        "Long",
-                        s,
-                        kind_w = kind_w,
-                        op_w = op_w
-                    )?;
-                }
-                RuntimeConstant::Double(s) => {
-                    writeln!(
-                        f,
-                        "{:<kind_w$} {:<op_w$}",
-                        "Double",
-                        s,
-                        kind_w = kind_w,
-                        op_w = op_w
-                    )?;
-                }
-                other => {
-                    writeln!(
-                        f,
-                        "{:<kind_w$} {:<op_w$}",
-                        "/* TODO */",
-                        format!("{:?}", other),
-                        kind_w = kind_w,
-                        op_w = op_w
-                    )?;
-                }
-            }
-        }
-        Ok(())
     }
 }

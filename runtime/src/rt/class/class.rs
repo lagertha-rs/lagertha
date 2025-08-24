@@ -3,9 +3,9 @@ use crate::rt::class::method::Method;
 use crate::rt::constant_pool::reference::ClassReference;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::JvmError;
-use class_file::access::ClassAccessFlag;
 use class_file::attribute::class::ClassAttribute;
 use class_file::ClassFile;
+use common::access::ClassAccessFlag;
 use std::rc::Rc;
 
 #[derive(Debug)]
@@ -34,7 +34,7 @@ impl Class {
         } else {
             None
         };
-        let access = cf.access_flags;
+        let access = ClassAccessFlag::new(cf.access_flags);
         let methods = cf
             .methods
             .into_iter()

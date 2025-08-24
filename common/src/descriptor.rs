@@ -1,7 +1,5 @@
-//TODO: probably use global err
-
-use crate::rt::class::jtype::Type;
-use class_file::DescriptorErr;
+use crate::jtype::Type;
+use crate::DescriptorErr;
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.3
 #[derive(Debug, Clone, PartialEq, Eq)]

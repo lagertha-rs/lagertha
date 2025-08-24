@@ -1,6 +1,7 @@
 use std::fmt::{self};
 
-#[doc(hidden)]
+/// Allows to avoid boilerplate error handling when pretty printing and
+/// printing errors to the given indented writer.
 #[macro_export]
 macro_rules! pretty_try {
     ($ind:expr, $expr:expr) => {

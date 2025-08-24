@@ -1,5 +1,5 @@
 use crate::rt::constant_pool::RuntimeConstantType;
-use class_file::DescriptorErr;
+use common::DescriptorErr;
 use std::fmt;
 use thiserror::Error;
 

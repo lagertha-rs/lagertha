@@ -1,4 +1,6 @@
-use class_file::DescriptorErr;
+use crate::DescriptorErr;
+use core::fmt;
+use std::fmt::Formatter;
 use std::iter::Peekable;
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.3.2
@@ -72,6 +74,24 @@ impl TryFrom<char> for Type {
             'S' => Ok(Type::Short),
             'Z' => Ok(Type::Boolean),
             _ => Err(()),
+        }
+    }
+}
+
+impl fmt::Display for Type {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            Type::Void => write!(f, "void"),
+            Type::Byte => write!(f, "byte"),
+            Type::Char => write!(f, "char"),
+            Type::Double => write!(f, "double"),
+            Type::Float => write!(f, "float"),
+            Type::Int => write!(f, "int"),
+            Type::Long => write!(f, "long"),
+            Type::Instance(name) => write!(f, "{}", name.replace('/', ".")),
+            Type::Short => write!(f, "short"),
+            Type::Boolean => write!(f, "boolean"),
+            Type::Array(elem) => write!(f, "{}[]", elem),
         }
     }
 }

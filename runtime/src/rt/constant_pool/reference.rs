@@ -1,9 +1,7 @@
-use crate::rt::class::descriptor::MethodDescriptor;
-use crate::rt::class::jtype::Type;
 use crate::rt::constant_pool::error::RuntimePoolError;
 use crate::rt::constant_pool::RuntimeConstantType;
-use std::fmt;
-use std::fmt::Formatter;
+use common::descriptor::MethodDescriptor;
+use common::jtype::Type;
 use std::rc::Rc;
 
 type OnceCell<I> = once_cell::sync::OnceCell<I>;
@@ -72,13 +70,6 @@ impl StringReference {
     }
 }
 
-impl fmt::Display for StringReference {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.value().map_err(Into::into)?)?;
-        Ok(())
-    }
-}
-
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct MethodReference {
     cp_index: u16,
@@ -86,22 +77,6 @@ pub struct MethodReference {
     name_and_type_index: u16,
     pub(super) class: OnceCell<Rc<ClassReference>>,
     pub(super) name_and_type: OnceCell<Rc<NameAndTypeReference>>,
-}
-
-impl fmt::Display for MethodReference {
-    //TODO: avoid .map_err
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let class = self.class().map_err(Into::into)?;
-        let nat = self.name_and_type().map_err(Into::into)?;
-        write!(
-            f,
-            "{}.{}:{}",
-            class.name().map_err(Into::into)?,
-            nat.name().map_err(Into::into)?,
-            nat.method_descriptor().map_err(Into::into)?.raw()
-        )?;
-        Ok(())
-    }
 }
 
 impl MethodReference {
@@ -149,22 +124,6 @@ pub struct FieldReference {
     name_and_type_index: u16,
     pub(super) class: OnceCell<Rc<ClassReference>>,
     pub(super) name_and_type: OnceCell<Rc<NameAndTypeReference>>,
-}
-
-impl fmt::Display for FieldReference {
-    //TODO: avoid .map_err
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let class = self.class().map_err(Into::into)?;
-        let nat = self.name_and_type().map_err(Into::into)?;
-        write!(
-            f,
-            "{}.{}:{}",
-            class.name().map_err(Into::into)?,
-            nat.name().map_err(Into::into)?,
-            nat.field_descriptor().map_err(Into::into)?.raw()
-        )?;
-        Ok(())
-    }
 }
 
 impl FieldReference {
