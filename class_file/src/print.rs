@@ -162,18 +162,20 @@ pub fn get_pretty_instruction(
         Ok(Some(constant.get_pretty_value(cp)?))
     };
     let (val, name, comment, is_position) = match instruction {
-        Instruction::Aload(val) => (Some(*val as i32), "aload", None, false),
+        Instruction::Aload(val) => (Some(*val as i32), "aload", None, true),
         Instruction::Aload0 => (None, "aload_0", None, false),
         Instruction::Aload1 => (None, "aload_1", None, false),
         Instruction::Aload2 => (None, "aload_2", None, false),
         Instruction::Aload3 => (None, "aload_3", None, false),
-        Instruction::Astore(val) => (Some(*val as i32), "astore", None, false),
+        Instruction::Astore(val) => (Some(*val as i32), "astore", None, true),
         Instruction::Astore0 => (None, "astore_0", None, false),
         Instruction::Astore1 => (None, "astore_1", None, false),
         Instruction::Astore2 => (None, "astore_2", None, false),
         Instruction::Astore3 => (None, "astore_3", None, false),
         Instruction::Athrow => (None, "athrow", None, false),
-        Instruction::Checkcast(val) => (Some(*val as i32), "checkcast", None, false),
+        Instruction::Checkcast(val) => {
+            (Some(*val as i32), "checkcast", comment_value(*val)?, false)
+        }
         Instruction::Dup => (None, "dup", None, false),
         Instruction::Getstatic(val) => {
             (Some(*val as i32), "getstatic", comment_value(*val)?, false)
@@ -235,7 +237,7 @@ pub fn get_pretty_instruction(
         Instruction::Lstore2 => (None, "lstore_2", None, false),
         Instruction::Lstore3 => (None, "lstore_3", None, false),
         Instruction::Ldc(val) => (Some(*val as i32), "ldc", comment_value(*val)?, false),
-        Instruction::Ldc2w(val) => (Some(*val as i32), "ldc2_w", None, false),
+        Instruction::Ldc2w(val) => (Some(*val as i32), "ldc2_w", comment_value(*val)?, false),
         Instruction::New(val) => (Some(*val as i32), "new", comment_value(*val)?, false),
         Instruction::Pop => (None, "pop", None, false),
         Instruction::Return => (None, "return", None, false),
