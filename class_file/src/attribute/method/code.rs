@@ -142,6 +142,65 @@ impl<'a> StackMapFrame {
             other => Err(ClassFileErr::UnknownStackFrameType(other)),
         }
     }
+
+    #[cfg(feature = "pretty_print")]
+    pub(crate) fn fmt_pretty(
+        &self,
+        ind: &mut common::utils::indent_write::Indented<'_>,
+        cp: &ConstantPool,
+    ) -> std::fmt::Result {
+        use common::pretty_try;
+        use std::fmt::Write as _;
+
+        write!(ind, "frame_type = ")?;
+        match self {
+            StackMapFrame::Same { offset_delta } => writeln!(ind, "{offset_delta} /* same */")?,
+            StackMapFrame::SameLocals1StackItem { offset_delta, .. } => {
+                //TODO: seems stack var isn't printed in javap?
+                writeln!(ind, "{} /* same_locals_1_stack_item */", offset_delta + 64)?;
+            }
+            StackMapFrame::SameLocals1StackItemExtended { .. } => unimplemented!(),
+            StackMapFrame::Chop { k, offset_delta } => {
+                writeln!(ind, "{k} /* chop */")?;
+                ind.with_indent(|ind| {
+                    writeln!(ind, "offset_delta = {offset_delta}")?;
+                    Ok(())
+                })?;
+            }
+            StackMapFrame::SameExtended { .. } => unimplemented!(),
+            StackMapFrame::Append { .. } => unimplemented!(),
+            StackMapFrame::Full {
+                offset_delta,
+                locals,
+                stack,
+            } => {
+                writeln!(ind, "255 /* full_frame */")?;
+                ind.with_indent(|ind| {
+                    let locals = pretty_try!(
+                        ind,
+                        locals
+                            .iter()
+                            .map(|v| v.get_pretty_value(cp))
+                            .collect::<Result<Vec<_>, _>>()
+                    )
+                    .join(", ");
+                    let stack = pretty_try!(
+                        ind,
+                        stack
+                            .iter()
+                            .map(|v| v.get_pretty_value(cp))
+                            .collect::<Result<Vec<_>, _>>()
+                    )
+                    .join(", ");
+                    writeln!(ind, "offset_delta = {offset_delta}")?;
+                    writeln!(ind, "locals = [{}]", locals)?;
+                    writeln!(ind, "stack = [{}]", stack)?;
+                    Ok(())
+                })?;
+            }
+        }
+        Ok(())
+    }
 }
 
 impl<'a> VerificationTypeInfo {
@@ -161,6 +220,21 @@ impl<'a> VerificationTypeInfo {
             VerificationTypeTag::Uninitialized => Self::Uninitialized(cursor.u16()?),
         })
     }
+
+    #[cfg(feature = "pretty_print")]
+    pub(crate) fn get_pretty_value(&self, cp: &ConstantPool) -> Result<String, ClassFileErr> {
+        Ok(match self {
+            VerificationTypeInfo::Top => "top".to_string(),
+            VerificationTypeInfo::Integer => "int".to_string(),
+            VerificationTypeInfo::Float => "float".to_string(),
+            VerificationTypeInfo::Double => "double".to_string(),
+            VerificationTypeInfo::Long => "long".to_string(),
+            VerificationTypeInfo::Null => "null".to_string(),
+            VerificationTypeInfo::UninitializedThis => unimplemented!(),
+            VerificationTypeInfo::Object(cp_index) => cp.get_raw(cp_index)?.get_pretty_value(cp)?,
+            VerificationTypeInfo::Uninitialized(_) => unimplemented!(),
+        })
+    }
 }
 
 impl<'a> CodeAttributeInfo {
@@ -171,7 +245,7 @@ impl<'a> CodeAttributeInfo {
         let attribute_name_index = cursor.u16()?;
         let _attribute_length = cursor.u32()? as usize;
 
-        let attribute_type = AttributeType::try_from(pool.get_utf8(attribute_name_index)?)?;
+        let attribute_type = AttributeType::try_from(pool.get_utf8(&attribute_name_index)?)?;
         match attribute_type {
             AttributeType::LineNumberTable => {
                 let line_number_table_length = cursor.u16()? as usize;
@@ -214,5 +288,61 @@ impl<'a> CodeAttributeInfo {
             }
             _ => unimplemented!(),
         }
+    }
+
+    #[cfg(feature = "pretty_print")]
+    pub(crate) fn fmt_pretty(
+        &self,
+        ind: &mut common::utils::indent_write::Indented<'_>,
+        cp: &ConstantPool,
+    ) -> std::fmt::Result {
+        use common::pretty_try;
+        use std::fmt::Write as _;
+
+        match self {
+            CodeAttributeInfo::LineNumberTable(table) => {
+                writeln!(ind, "LineNumberTable:")?;
+                ind.with_indent(|ind| {
+                    for entry in table {
+                        writeln!(ind, "line {}: {}", entry.line_number, entry.start_pc)?;
+                    }
+                    Ok(())
+                })?;
+            }
+            CodeAttributeInfo::LocalVariableTable(table) => {
+                const W_START: usize = 6;
+                const W_LENGTH: usize = 8;
+                const W_SLOT: usize = 5;
+                const W_NAME: usize = 4;
+                writeln!(ind, "      LocalVariableTable:")?;
+                writeln!(
+                    ind,
+                    "{:>W_START$} {:>W_LENGTH$} {:>W_SLOT$}  {:<W_NAME$}   {}",
+                    "Start", "Length", "Slot", "Name", "Signature",
+                )?;
+                for lv in table {
+                    let name = pretty_try!(ind, cp.get_utf8(&lv.name_index));
+                    let descriptor = pretty_try!(ind, cp.get_utf8(&lv.descriptor_index));
+                    writeln!(
+                        ind,
+                        "{:>W_START$} {:>W_LENGTH$} {:>W_SLOT$}  {:<W_NAME$}   {}",
+                        lv.start_pc, lv.length, lv.index, name, descriptor,
+                    )?;
+                }
+            }
+            CodeAttributeInfo::StackMapTable(table) => {
+                writeln!(ind, "StackMapTable: number_of_entries = 4")?;
+                ind.with_indent(|ind| {
+                    for frame in table {
+                        frame.fmt_pretty(ind, cp)?;
+                    }
+                    Ok(())
+                })?;
+            }
+            CodeAttributeInfo::LocalVariableTypeTable => unimplemented!(),
+            CodeAttributeInfo::RuntimeVisibleTypeAnnotations => unimplemented!(),
+            CodeAttributeInfo::RuntimeInvisibleTypeAnnotations => unimplemented!(),
+        }
+        Ok(())
     }
 }

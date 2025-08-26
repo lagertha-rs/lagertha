@@ -28,7 +28,7 @@ impl<'a> ClassAttribute {
         let attribute_name_index = cursor.u16()?;
         let _attribute_length = cursor.u32()? as usize;
 
-        let attribute_type = AttributeType::try_from(pool.get_utf8(attribute_name_index)?)?;
+        let attribute_type = AttributeType::try_from(pool.get_utf8(&attribute_name_index)?)?;
         match attribute_type {
             AttributeType::SourceFile => Ok(ClassAttribute::SourceFile(cursor.u16()?)),
             _ => unimplemented!(),

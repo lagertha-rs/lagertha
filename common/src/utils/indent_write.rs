@@ -20,7 +20,10 @@ macro_rules! pretty_try {
 macro_rules! pretty_class_name_try {
     ($ind:expr, $expr:expr) => {
         match $expr {
-            Ok(class) => class.replace("/", "."),
+            Ok(class) => class
+                .trim_start_matches('L')
+                .trim_end_matches(';')
+                .replace('/', "."),
             Err(e) => {
                 let _ = ::std::writeln!($ind, "\nprint error: {}", e);
                 return Err(::std::fmt::Error);

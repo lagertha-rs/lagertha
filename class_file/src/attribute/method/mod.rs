@@ -47,7 +47,7 @@ impl<'a> MethodAttribute {
         let attribute_name_index = cursor.u16()?;
         let _attribute_length = cursor.u32()? as usize;
 
-        let attribute_type = AttributeType::try_from(pool.get_utf8(attribute_name_index)?)?;
+        let attribute_type = AttributeType::try_from(pool.get_utf8(&attribute_name_index)?)?;
         match attribute_type {
             AttributeType::Code => Ok(MethodAttribute::Code(CodeAttribute::read(pool, cursor)?)),
             AttributeType::RuntimeVisibleAnnotations
@@ -76,14 +76,32 @@ impl<'a> MethodAttribute {
         cp: &ConstantPool,
         descriptor: &MethodDescriptor,
     ) -> std::fmt::Result {
+        use common::pretty_try;
+        use std::fmt::Write as _;
         match self {
-            MethodAttribute::Shared(_) => {}
+            MethodAttribute::Shared(shared) => shared.fmt_pretty(ind, cp)?,
             MethodAttribute::Code(code) => code.fmt_pretty(ind, cp, descriptor)?,
-            MethodAttribute::Exceptions(_) => {}
-            MethodAttribute::RuntimeVisibleParameterAnnotations => {}
-            MethodAttribute::RuntimeInvisibleParameterAnnotations => {}
-            MethodAttribute::AnnotationsDefault => {}
-            MethodAttribute::MethodParameters => {}
+            MethodAttribute::Exceptions(exc) => {
+                writeln!(ind, "Exceptions:")?;
+                ind.with_indent(|ind| {
+                    writeln!(
+                        ind,
+                        "throws {}",
+                        pretty_try!(
+                            ind,
+                            exc.iter()
+                                .map(|index| cp.get_pretty_class_name(index))
+                                .collect::<Result<Vec<_>, _>>()
+                        )
+                        .join(", ")
+                    )?;
+                    Ok(())
+                })?
+            }
+            MethodAttribute::RuntimeVisibleParameterAnnotations => unimplemented!(),
+            MethodAttribute::RuntimeInvisibleParameterAnnotations => unimplemented!(),
+            MethodAttribute::AnnotationsDefault => unimplemented!(),
+            MethodAttribute::MethodParameters => unimplemented!(),
         }
 
         Ok(())
@@ -161,62 +179,12 @@ impl<'a> CodeAttribute {
                 )?;
                 byte_pos += instruction.byte_size();
             }
+            for attr in &self.attributes {
+                attr.fmt_pretty(nested, cp)?;
+            }
             Ok(())
         })?;
 
         Ok(())
     }
 }
-
-/*
-impl Display for MethodAttribute {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            MethodAttribute::Code(code) => {
-                let code_str = code
-                    .code
-                    .iter()
-                    .map(|b| format!("{:02X}", b))
-                    .collect::<Vec<_>>()
-                    .join(" ");
-
-                write!(
-                    f,
-                    "Code(max_stack: {}, max_locals: {}, code: \"{}\"",
-                    code.max_stack, code.max_locals, code_str
-                )?;
-
-                if !code.exception_table.is_empty() {
-                    write!(f, ", exception_table: {:?} ", code.exception_table)?;
-                }
-                if !code.attributes.is_empty() {
-                    write!(f, ", attributes: [")?;
-                    for (i, attr) in code.attributes.iter().enumerate() {
-                        if i > 0 {
-                            write!(f, ", ")?;
-                        }
-                        write!(f, "{}", attr)?;
-                    }
-                    write!(f, "]")?;
-                }
-                write!(f, ")")
-            }
-            MethodAttribute::RuntimeVisibleAnnotations(annotations) => {
-                write!(f, "RuntimeVisibleAnnotations {annotations:?}")
-            }
-            MethodAttribute::Exceptions(exceptions) => {
-                write!(f, "Exceptions {exceptions:?}")
-            }
-            MethodAttribute::Signature(idx) => write!(f, "Signature: {idx:?}"),
-            MethodAttribute::Deprecated => write!(f, "Deprecated"),
-            MethodAttribute::Unknown { name_index, info } => write!(
-                f,
-                "Unsupported(name_index: {}, data: {} bytes)",
-                name_index,
-                info.len()
-            ),
-        }
-    }
-}
-
- */

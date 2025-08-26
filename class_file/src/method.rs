@@ -1,6 +1,7 @@
 use crate::attribute::method::MethodAttribute;
 use crate::constant::pool::ConstantPool;
 use crate::ClassFileErr;
+use common::pretty_try;
 use common::utils::cursor::ByteCursor;
 
 #[derive(Debug)]
@@ -44,15 +45,39 @@ impl<'a> MethodInfo {
         use itertools::Itertools;
         use std::fmt::Write as _;
 
-        let raw_descriptor = pretty_try!(ind, cp.get_utf8(self.descriptor_index));
+        let raw_descriptor = pretty_try!(ind, cp.get_utf8(&self.descriptor_index));
         let descriptor = pretty_try!(ind, MethodDescriptor::try_from(raw_descriptor));
-        //TODO: add throws
+        let throws = {
+            let exc_opt = self.attributes.iter().find_map(|attr| {
+                if let MethodAttribute::Exceptions(exc) = attr {
+                    (!exc.is_empty()).then_some(exc)
+                } else {
+                    None
+                }
+            });
+
+            if let Some(exc) = exc_opt {
+                format!(
+                    "throws {}",
+                    pretty_try!(
+                        ind,
+                        exc.iter()
+                            .map(|index| cp.get_pretty_class_name(index))
+                            .collect::<Result<Vec<_>, _>>()
+                    )
+                    .join(", ")
+                )
+            } else {
+                String::new()
+            }
+        };
+
         writeln!(
             ind,
-            "{} {} {}({})",
+            "{} {} {}({}) {throws}",
             get_method_pretty_java_like_prefix(self.access_flags),
             descriptor.ret,
-            pretty_class_name_try!(ind, cp.get_utf8(self.name_index)),
+            pretty_class_name_try!(ind, cp.get_utf8(&self.name_index)),
             descriptor.params.iter().map(|v| v.to_string()).join(", ")
         )?;
         ind.with_indent(|ind| {

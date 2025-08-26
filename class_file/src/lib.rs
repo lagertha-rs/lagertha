@@ -132,7 +132,7 @@ impl std::fmt::Display for ClassFile {
             ind,
             "{} {}",
             get_class_pretty_java_like_prefix(self.access_flags),
-            pretty_class_name_try!(ind, self.cp.get_class_name(self.this_class))
+            pretty_class_name_try!(ind, self.cp.get_class_name(&self.this_class))
         )?;
         ind.with_indent(|ind| {
             writeln!(ind, "minor version: {}", self.minor_version)?;
@@ -147,7 +147,7 @@ impl std::fmt::Display for ClassFile {
                 ind,
                 "this_class: {:<24}//{}",
                 format!("#{}", self.this_class),
-                pretty_try!(ind, self.cp.get_class_name(self.this_class))
+                pretty_try!(ind, self.cp.get_class_name(&self.this_class))
             )?;
             writeln!(ind, "super_class: #{}", self.super_class)?;
             writeln!(

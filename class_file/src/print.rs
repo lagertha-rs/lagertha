@@ -157,7 +157,7 @@ pub fn get_pretty_instruction(
     cp: &ConstantPool,
     pc: i32,
 ) -> Result<String, ClassFileErr> {
-    let comment_value = |index: u16| -> Result<Option<String>, ClassFileErr> {
+    let comment_value = |index: &u16| -> Result<Option<String>, ClassFileErr> {
         let constant = cp.get_raw(index)?;
         Ok(Some(constant.get_pretty_value(cp)?))
     };
@@ -173,13 +173,9 @@ pub fn get_pretty_instruction(
         Instruction::Astore2 => (None, "astore_2", None, false),
         Instruction::Astore3 => (None, "astore_3", None, false),
         Instruction::Athrow => (None, "athrow", None, false),
-        Instruction::Checkcast(val) => {
-            (Some(*val as i32), "checkcast", comment_value(*val)?, false)
-        }
+        Instruction::Checkcast(val) => (Some(*val as i32), "checkcast", comment_value(val)?, false),
         Instruction::Dup => (None, "dup", None, false),
-        Instruction::Getstatic(val) => {
-            (Some(*val as i32), "getstatic", comment_value(*val)?, false)
-        }
+        Instruction::Getstatic(val) => (Some(*val as i32), "getstatic", comment_value(val)?, false),
         Instruction::Goto(val) => (Some(*val as i32 + pc), "goto", None, true),
         Instruction::IconstM1 => (None, "iconst_m1", None, false),
         Instruction::Iconst0 => (None, "iconst_0", None, false),
@@ -210,19 +206,19 @@ pub fn get_pretty_instruction(
         Instruction::Invokespecial(val) => (
             Some(*val as i32),
             "invokespecial",
-            comment_value(*val)?,
+            comment_value(val)?,
             false,
         ),
         Instruction::Invokestatic(val) => (
             Some(*val as i32),
             "invokestatic",
-            comment_value(*val)?,
+            comment_value(val)?,
             false,
         ),
         Instruction::Invokevirtual(val) => (
             Some(*val as i32),
             "invokevirtual",
-            comment_value(*val)?,
+            comment_value(val)?,
             false,
         ),
         Instruction::Lcmp => (None, "lcmp", None, false),
@@ -236,9 +232,9 @@ pub fn get_pretty_instruction(
         Instruction::Lstore1 => (None, "lstore_1", None, false),
         Instruction::Lstore2 => (None, "lstore_2", None, false),
         Instruction::Lstore3 => (None, "lstore_3", None, false),
-        Instruction::Ldc(val) => (Some(*val as i32), "ldc", comment_value(*val)?, false),
-        Instruction::Ldc2w(val) => (Some(*val as i32), "ldc2_w", comment_value(*val)?, false),
-        Instruction::New(val) => (Some(*val as i32), "new", comment_value(*val)?, false),
+        Instruction::Ldc(val) => (Some(*val as i32), "ldc", comment_value(val)?, false),
+        Instruction::Ldc2w(val) => (Some(*val as i32), "ldc2_w", comment_value(val)?, false),
+        Instruction::New(val) => (Some(*val as i32), "new", comment_value(val)?, false),
         Instruction::Pop => (None, "pop", None, false),
         Instruction::Return => (None, "return", None, false),
         Instruction::Areturn => (None, "areturn", None, false),

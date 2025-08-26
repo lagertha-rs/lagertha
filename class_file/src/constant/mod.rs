@@ -162,14 +162,14 @@ impl<'a> ConstantInfo {
                 ind,
                 "{:<op_w$} // {}",
                 format!("#{index}"),
-                pretty_try!(ind, cp.get_utf8(*index)),
+                pretty_try!(ind, cp.get_utf8(index)),
                 op_w = op_w
             ),
             ConstantInfo::String(index) => writeln!(
                 ind,
                 "{:<op_w$} // {}",
                 format!("#{index}"),
-                pretty_try!(ind, cp.get_utf8(*index)),
+                pretty_try!(ind, cp.get_utf8(index)),
                 op_w = op_w
             ),
             ConstantInfo::MethodRef(ref_info) => writeln!(
@@ -204,8 +204,8 @@ impl<'a> ConstantInfo {
             ConstantInfo::Float(fl) => format!("float {}", fl),
             ConstantInfo::Long(l) => format!("long {}", l),
             ConstantInfo::Double(d) => format!("double {}", d),
-            ConstantInfo::Class(index) => format!("class {}", cp.get_utf8(*index)?),
-            ConstantInfo::String(index) => format!("String {}", cp.get_utf8(*index)?),
+            ConstantInfo::Class(index) => format!("class {}", cp.get_utf8(index)?),
+            ConstantInfo::String(index) => format!("String {}", cp.get_utf8(index)?),
             ConstantInfo::MethodRef(ref_info) => format!(
                 "Method {}.{}:{}",
                 cp.get_method_class_name(ref_info)?,

@@ -1,3 +1,4 @@
+use crate::constant::pool::ConstantPool;
 use crate::ClassFileErr;
 use common::utils::cursor::ByteCursor;
 use core::fmt;
@@ -79,6 +80,82 @@ impl<'a> SharedAttribute {
             | AttributeType::RuntimeVisibleTypeAnnotations => unimplemented!(),
             _ => Err(ClassFileErr::AttributeIsNotShared(attr_type)),
         }
+    }
+
+    #[cfg(feature = "pretty_print")]
+    pub(crate) fn fmt_pretty(
+        &self,
+        ind: &mut common::utils::indent_write::Indented<'_>,
+        cp: &ConstantPool,
+    ) -> fmt::Result {
+        use common::pretty_class_name_try;
+        use common::pretty_try;
+        use itertools::Itertools;
+        use std::fmt::Write as _;
+
+        match self {
+            SharedAttribute::Synthetic => unimplemented!(),
+            SharedAttribute::Deprecated => writeln!(ind, "Deprecated: true")?,
+            SharedAttribute::Signature(index) => writeln!(
+                ind,
+                "Signature: #{:<26} // {}",
+                index,
+                pretty_try!(ind, cp.get_utf8(index)),
+            )?,
+            SharedAttribute::RuntimeVisibleAnnotations(annotations) => {
+                writeln!(ind, "RuntimeVisibleAnnotations:")?;
+                ind.with_indent(|ind| {
+                    for (i, annotation) in annotations.iter().enumerate() {
+                        writeln!(
+                            ind,
+                            "{i}: #{}({})",
+                            annotation.type_index,
+                            annotation
+                                .element_value_pairs
+                                .iter()
+                                .map(|pair| format!(
+                                    "#{}={}",
+                                    pair.element_name_index,
+                                    pair.value.get_pretty_descriptor()
+                                ))
+                                .join(",")
+                        )?;
+                        ind.with_indent(|ind| {
+                            writeln!(
+                                ind,
+                                "{}",
+                                pretty_class_name_try!(ind, cp.get_utf8(&annotation.type_index))
+                            )?;
+                            if !annotation.element_value_pairs.is_empty() {
+                                writeln!(ind, "(")?;
+                                for param in &annotation.element_value_pairs {
+                                    ind.with_indent(|ind| {
+                                        writeln!(
+                                            ind,
+                                            "{}={}",
+                                            pretty_try!(
+                                                ind,
+                                                cp.get_utf8(&param.element_name_index)
+                                            ),
+                                            pretty_try!(ind, param.value.get_pretty_value(cp))
+                                        )?;
+                                        Ok(())
+                                    })?;
+                                }
+                                writeln!(ind, ")")?;
+                            }
+                            Ok(())
+                        })?;
+                    }
+                    Ok(())
+                })?
+            }
+            SharedAttribute::RuntimeInvisibleAnnotations => unimplemented!(),
+            SharedAttribute::RuntimeVisibleTypeAnnotations => unimplemented!(),
+            SharedAttribute::RuntimeInvisibleTypeAnnotations => unimplemented!(),
+        }
+
+        Ok(())
     }
 }
 
@@ -195,6 +272,28 @@ impl<'a> ElementValue {
         };
 
         Ok(ev)
+    }
+
+    #[cfg(feature = "pretty_print")]
+    pub fn get_pretty_descriptor(&self) -> String {
+        match self {
+            ElementValue::Boolean(v) => format!("Z#{}", v),
+            ElementValue::String(v) => format!("s#{}", v),
+            _ => unimplemented!(),
+        }
+    }
+
+    #[cfg(feature = "pretty_print")]
+    pub(crate) fn get_pretty_value(&self, cp: &ConstantPool) -> Result<String, ClassFileErr> {
+        Ok(match self {
+            ElementValue::Boolean(idx) => match cp.get_integer(idx)? {
+                0 => "false".to_string(),
+                1 => "true".to_string(),
+                _ => unimplemented!(),
+            },
+            ElementValue::String(idx) => cp.get_utf8(idx)?.to_string(),
+            _ => unimplemented!(),
+        })
     }
 }
 
