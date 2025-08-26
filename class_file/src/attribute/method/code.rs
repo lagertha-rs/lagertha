@@ -331,7 +331,7 @@ impl<'a> CodeAttributeInfo {
                 }
             }
             CodeAttributeInfo::StackMapTable(table) => {
-                writeln!(ind, "StackMapTable: number_of_entries = 4")?;
+                writeln!(ind, "StackMapTable: number_of_entries = {}", table.len())?;
                 ind.with_indent(|ind| {
                     for frame in table {
                         frame.fmt_pretty(ind, cp)?;
