@@ -1,5 +1,5 @@
-use crate::rt::constant_pool::error::RuntimePoolError;
 use crate::rt::constant_pool::RuntimeConstantType;
+use crate::rt::constant_pool::error::RuntimePoolError;
 use common::descriptor::MethodDescriptor;
 use common::jtype::Type;
 use std::rc::Rc;

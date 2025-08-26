@@ -1,6 +1,6 @@
 use crate::rt::class::LoadingError;
-use crate::rt::constant_pool::reference::MethodDescriptorReference;
 use crate::rt::constant_pool::RuntimeConstantPool;
+use crate::rt::constant_pool::reference::MethodDescriptorReference;
 use class_file::attribute::method::code::{
     CodeAttributeInfo, LineNumberEntry, LocalVariableEntry, StackMapFrame,
 };

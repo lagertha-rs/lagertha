@@ -1,6 +1,6 @@
 use crate::rt::constant_pool::error::RuntimePoolError;
-use common::utils::cursor::CursorError;
 use common::InstructionErr;
+use common::utils::cursor::CursorError;
 use thiserror::Error;
 
 pub mod class;

@@ -1,6 +1,6 @@
+use crate::JvmError;
 use crate::class_loader::BootstrapClassLoader;
 use crate::rt::class::class::Class;
-use crate::JvmError;
 use dashmap::DashMap;
 use std::rc::Rc;
 

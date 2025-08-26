@@ -1,6 +1,6 @@
+use crate::JvmError;
 use crate::class_loader::jmod::BootstrapJmodLoader;
 use crate::rt::class::class::Class;
-use crate::JvmError;
 use class_file::ClassFile;
 use std::env;
 use thiserror::Error;

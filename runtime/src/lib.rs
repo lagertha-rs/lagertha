@@ -1,11 +1,11 @@
 use crate::class_loader::ClassLoaderErr;
 use crate::method_area::MethodArea;
-use crate::rt::class::class::Class;
 use crate::rt::class::LoadingError;
+use crate::rt::class::class::Class;
 use crate::rt::constant_pool::error::RuntimePoolError;
 use class_file::error::ClassFileErr;
-use common::utils::cursor::CursorError;
 use common::InstructionErr;
+use common::utils::cursor::CursorError;
 use std::rc::Rc;
 use thiserror::Error;
 

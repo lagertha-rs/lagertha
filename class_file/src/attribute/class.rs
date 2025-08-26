@@ -1,6 +1,6 @@
+use crate::ClassFileErr;
 use crate::attribute::{AttributeType, SharedAttribute};
 use crate::constant::pool::ConstantPool;
-use crate::ClassFileErr;
 use common::utils::cursor::ByteCursor;
 
 #[derive(Debug, Clone, PartialEq, Eq)]

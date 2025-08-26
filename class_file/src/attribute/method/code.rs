@@ -1,6 +1,6 @@
+use crate::ClassFileErr;
 use crate::attribute::AttributeType;
 use crate::constant::pool::ConstantPool;
-use crate::ClassFileErr;
 use common::utils::cursor::ByteCursor;
 use num_enum::TryFromPrimitive;
 

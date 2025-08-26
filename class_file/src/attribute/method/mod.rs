@@ -1,7 +1,7 @@
+use crate::ClassFileErr;
 use crate::attribute::method::code::CodeAttributeInfo;
 use crate::attribute::{AttributeType, SharedAttribute};
 use crate::constant::pool::ConstantPool;
-use crate::ClassFileErr;
 use common::descriptor::MethodDescriptor;
 use common::instruction::Instruction;
 use common::utils::cursor::ByteCursor;

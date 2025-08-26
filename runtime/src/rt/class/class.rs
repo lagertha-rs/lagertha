@@ -1,10 +1,10 @@
+use crate::JvmError;
 use crate::rt::class::field::Field;
 use crate::rt::class::method::Method;
-use crate::rt::constant_pool::reference::ClassReference;
 use crate::rt::constant_pool::RuntimeConstantPool;
-use crate::JvmError;
-use class_file::attribute::class::ClassAttribute;
+use crate::rt::constant_pool::reference::ClassReference;
 use class_file::ClassFile;
+use class_file::attribute::class::ClassAttribute;
 use common::access::ClassAccessFlag;
 use std::rc::Rc;
 

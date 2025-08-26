@@ -1,5 +1,5 @@
-use crate::heap::Heap;
 use crate::HeapAddr;
+use crate::heap::Heap;
 use std::collections::HashMap;
 
 pub struct StringPool {

@@ -1,6 +1,6 @@
+use crate::ClassFileErr;
 use crate::attribute::method::MethodAttribute;
 use crate::constant::pool::ConstantPool;
-use crate::ClassFileErr;
 use common::pretty_try;
 use common::utils::cursor::ByteCursor;
 

@@ -1,5 +1,5 @@
-use crate::constant::pool::ConstantPool;
 use crate::ClassFileErr;
+use crate::constant::pool::ConstantPool;
 use common::utils::cursor::ByteCursor;
 use num_enum::TryFromPrimitive;
 use std::fmt::{Display, Formatter};

@@ -1,5 +1,5 @@
-use crate::utils::cursor::ByteCursor;
 use crate::InstructionErr;
+use crate::utils::cursor::ByteCursor;
 use num_enum::TryFromPrimitive;
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-6.html

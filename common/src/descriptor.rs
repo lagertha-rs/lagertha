@@ -1,5 +1,5 @@
-use crate::jtype::Type;
 use crate::DescriptorErr;
+use crate::jtype::Type;
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.3
 #[derive(Debug, Clone, PartialEq, Eq)]

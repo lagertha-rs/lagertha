@@ -30,8 +30,8 @@ jobs:
           toolchain: ${{ matrix.rust }}
           components: rustfmt
 
-      #- name: Check formatting
-      #  run: cargo fmt --all -- --check
+      - name: Check formatting
+        run: cargo fmt --all -- --check
 
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
