@@ -1,7 +1,10 @@
 use crate::ClassFileErr;
 use crate::constant::pool::ConstantPool;
 use common::utils::cursor::ByteCursor;
+#[cfg(test)]
+use serde::Serialize;
 
+#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug)]
 pub struct FieldInfo {
     access_flags: u16,

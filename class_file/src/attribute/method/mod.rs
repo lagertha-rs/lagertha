@@ -5,10 +5,13 @@ use crate::constant::pool::ConstantPool;
 use common::descriptor::MethodDescriptor;
 use common::instruction::Instruction;
 use common::utils::cursor::ByteCursor;
+#[cfg(test)]
+use serde::Serialize;
 
 pub mod code;
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.3
+#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct ExceptionTableEntry {
     start_pc: u16,
@@ -18,6 +21,7 @@ struct ExceptionTableEntry {
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.3
+#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CodeAttribute {
     pub max_stack: u16,
@@ -28,6 +32,7 @@ pub struct CodeAttribute {
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7
+#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MethodAttribute {
     Shared(SharedAttribute),

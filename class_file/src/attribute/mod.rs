@@ -3,6 +3,8 @@ use crate::constant::pool::ConstantPool;
 use common::utils::cursor::ByteCursor;
 use core::fmt;
 use num_enum::TryFromPrimitive;
+#[cfg(test)]
+use serde::Serialize;
 use std::fmt::Formatter;
 
 pub mod class;
@@ -44,6 +46,7 @@ pub enum AttributeType {
 }
 
 /// Common attribute payloads that appear at multiple locations
+#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SharedAttribute {
     Synthetic,
@@ -160,6 +163,7 @@ impl<'a> SharedAttribute {
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.16
+#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Annotation {
     pub type_index: u16,
@@ -184,6 +188,7 @@ impl<'a> Annotation {
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.16
+#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ElementValuePair {
     pub element_name_index: u16,
@@ -219,6 +224,7 @@ pub enum ElementTag {
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.16.1
+#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ElementValue {
     Byte(u16),

@@ -1,7 +1,10 @@
 use crate::constant::{ConstantInfo, ConstantTag, NameAndTypeInfo, ReferenceInfo};
 use crate::error::ClassFileErr;
+#[cfg(test)]
+use serde::Serialize;
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.4
+#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq)]
 pub struct ConstantPool {
     pub cp: Vec<ConstantInfo>,

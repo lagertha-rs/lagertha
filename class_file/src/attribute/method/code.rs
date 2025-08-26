@@ -3,8 +3,11 @@ use crate::attribute::AttributeType;
 use crate::constant::pool::ConstantPool;
 use common::utils::cursor::ByteCursor;
 use num_enum::TryFromPrimitive;
+#[cfg(test)]
+use serde::Serialize;
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.3
+#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CodeAttributeInfo {
     LineNumberTable(Vec<LineNumberEntry>),
@@ -16,6 +19,7 @@ pub enum CodeAttributeInfo {
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.12
+#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LineNumberEntry {
     pub start_pc: u16,
@@ -23,6 +27,7 @@ pub struct LineNumberEntry {
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.13
+#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LocalVariableEntry {
     pub start_pc: u16,
@@ -33,6 +38,7 @@ pub struct LocalVariableEntry {
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.4
+#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum StackMapFrame {
     Same {
@@ -65,6 +71,7 @@ pub enum StackMapFrame {
     },
 }
 
+#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq, TryFromPrimitive)]
 #[repr(u8)]
 pub enum VerificationTypeTag {
@@ -79,6 +86,7 @@ pub enum VerificationTypeTag {
     Uninitialized,
 }
 
+#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum VerificationTypeInfo {
     Top,

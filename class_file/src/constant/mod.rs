@@ -2,6 +2,8 @@ use crate::ClassFileErr;
 use crate::constant::pool::ConstantPool;
 use common::utils::cursor::ByteCursor;
 use num_enum::TryFromPrimitive;
+#[cfg(test)]
+use serde::Serialize;
 use std::fmt::{Display, Formatter};
 
 pub mod pool;
@@ -33,6 +35,7 @@ pub enum ConstantTag {
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.4-140
 /// Each entry is as described in section column of Table 4.4-A. Constant pool tags (by section)
+#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq)]
 pub enum ConstantInfo {
     Unused,
@@ -49,12 +52,14 @@ pub enum ConstantInfo {
     NameAndType(NameAndTypeInfo),
 }
 
+#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ReferenceInfo {
     pub class_index: u16,
     pub name_and_type_index: u16,
 }
 
+#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NameAndTypeInfo {
     pub name_index: u16,

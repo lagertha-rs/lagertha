@@ -3,7 +3,10 @@ use crate::attribute::method::MethodAttribute;
 use crate::constant::pool::ConstantPool;
 use common::pretty_try;
 use common::utils::cursor::ByteCursor;
+#[cfg(test)]
+use serde::Serialize;
 
+#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug)]
 pub struct MethodInfo {
     pub access_flags: u16,

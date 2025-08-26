@@ -1,5 +1,3 @@
-extern crate core;
-
 use crate::attribute::class::ClassAttribute;
 use crate::constant::pool::ConstantPool;
 use crate::error::ClassFileErr;
@@ -7,6 +5,8 @@ use common::utils::cursor::ByteCursor;
 use constant::ConstantInfo;
 use field::FieldInfo;
 use method::MethodInfo;
+#[cfg(test)]
+use serde::Serialize;
 
 pub mod attribute;
 pub mod constant;
@@ -23,6 +23,7 @@ pub mod print;
 ///
 /// All print related code is behind the `pretty_print` feature flag.
 #[derive(Debug)]
+#[cfg_attr(test, derive(Serialize))]
 pub struct ClassFile {
     pub minor_version: u16,
     pub major_version: u16,
@@ -182,5 +183,48 @@ impl std::fmt::Display for ClassFile {
         })?;
         writeln!(ind, "}}")?;
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use insta::with_settings;
+    use rstest::*;
+    use std::fs;
+    use std::path::PathBuf;
+    use std::time::Duration;
+
+    const SNAPSHOT_BASE_FOLDER: &str = "../snapshots";
+
+    #[rstest]
+    #[timeout(Duration::from_secs(1))]
+    fn load_java_binaries(#[files("../target/test-classes/**/*.class")] path: PathBuf) {
+        // Given
+        let bytes = fs::read(&path).unwrap_or_else(|_| panic!("Can't read file {:?}", path));
+        let snapshot_name = {
+            let mut iter = path.iter().map(|s| s.to_string_lossy().to_string());
+            for seg in iter.by_ref() {
+                if seg == "test-classes" {
+                    break;
+                }
+            }
+            let tail: Vec<String> = iter.collect();
+            tail.join("-")
+        };
+
+        // When
+        let result = ClassFile::try_from(bytes).unwrap();
+
+        // Then
+        with_settings!(
+            {
+                snapshot_path => SNAPSHOT_BASE_FOLDER,
+                prepend_module_to_snapshot => false,
+            },
+            {
+                insta::assert_yaml_snapshot!(snapshot_name, result);
+            }
+        );
     }
 }

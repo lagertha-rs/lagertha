@@ -2,7 +2,10 @@ use crate::ClassFileErr;
 use crate::attribute::{AttributeType, SharedAttribute};
 use crate::constant::pool::ConstantPool;
 use common::utils::cursor::ByteCursor;
+#[cfg(test)]
+use serde::Serialize;
 
+#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ClassAttribute {
     Shared(SharedAttribute),
