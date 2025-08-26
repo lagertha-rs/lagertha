@@ -40,7 +40,7 @@ impl ConstantPool {
                 ConstantInfo::Integer(value) => Ok(value),
                 e => Err(ClassFileErr::TypeError(
                     *idx,
-                    ConstantTag::Utf8,
+                    ConstantTag::Integer,
                     e.get_tag(),
                 )),
             })
