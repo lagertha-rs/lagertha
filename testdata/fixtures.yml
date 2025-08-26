@@ -1,5 +1,5 @@
 fixtures:
   - id: sample
-    path: testdata/java/core/Hello.java
+    path: testdata/java/core/Main.java
     package: fixtures.core
     class: Main
