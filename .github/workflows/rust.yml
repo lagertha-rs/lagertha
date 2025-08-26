@@ -1,4 +1,4 @@
-name: Rust
+name: CI
 
 on:
   push:
@@ -10,13 +10,53 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        rust: [ stable ]
+        jdk: [ '24.0.2+12' ]
+        jdk_distribution: [ 'oracle' ]
+
+    
     steps:
-    - uses: actions/checkout@v4
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up rust (${{ matrix.rust }})
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ matrix.rust }}
+          components: rustfmt
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Set up Java (${{ matrix.jdk_dist }} ${{ matrix.jdk }})
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ matrix.jdk_dist }}
+          java-version: ${{ matrix.jdk }}
+
+      - name: Cache compiled fixtures
+        id: cache-fixtures
+        uses: actions/cache@v4
+        with:
+          path: target/test-classes
+          key: >
+            ${{ runner.os }}-jdk-${{ matrix.jdk }}-${{ matrix.jdk_dist }}-fixtures-
+            ${{ hashFiles('testdata/java/**/*.java', 'testdata/fixtures.yml', 'testdata/compile-fixtures.sh') }}
+
+      - name: Compile fixtures
+        if: steps.cache-fixtures.outputs.cache-hit != 'true'
+        run: bash testdata/compile-fixtures.sh
+
+      - name: Build
+        run: cargo build --verbose --locked
+
+      - name: Run tests
+        run: cargo test --all-features --verbose --locked

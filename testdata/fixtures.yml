@@ -1,0 +1,5 @@
+fixtures:
+  - id: sample
+    path: testdata/java/core/Hello.java
+    package: fixtures.core
+    class: Main
