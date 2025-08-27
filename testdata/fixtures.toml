@@ -1,0 +1,3 @@
+# Classes to extract from jdk for testing purposes
+[modules."java.base"]
+classes = ["java.lang.Object"]

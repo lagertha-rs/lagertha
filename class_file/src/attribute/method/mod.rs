@@ -163,29 +163,55 @@ impl<'a> CodeAttribute {
         use std::fmt::Write as _;
 
         writeln!(ind, "Code: ")?;
-        ind.with_indent(|nested| {
+        ind.with_indent(|ind| {
             writeln!(
-                nested,
+                ind,
                 "stack={}, locals={}, args_size={}",
                 self.max_stack,
                 self.max_locals,
                 method_descriptor.params.len() + 1 // +1 for 'this'
             )?;
-            let instructions = pretty_try!(nested, Instruction::new_instruction_set(&self.code));
+            let instructions = pretty_try!(ind, Instruction::new_instruction_set(&self.code));
             let mut byte_pos = 0;
             for instruction in instructions {
                 writeln!(
-                    nested,
+                    ind,
                     "{byte_pos:4}: {:<24}",
                     pretty_try!(
-                        nested,
+                        ind,
                         get_pretty_instruction(&instruction, cp, byte_pos as i32)
                     )
                 )?;
                 byte_pos += instruction.byte_size();
             }
+            if !self.exception_table.is_empty() {
+                const W_START: usize = 6;
+                const W_LENGTH: usize = 8;
+                const W_SLOT: usize = 5;
+                const W_NAME: usize = 4;
+                writeln!(ind, "Exception table:")?;
+                ind.with_indent(|ind| {
+                    writeln!(
+                        ind,
+                        "{:>W_START$} {:>W_LENGTH$} {:>W_SLOT$}  {:<W_NAME$}",
+                        "from", "to", "target", "type"
+                    )?;
+                    for entry in &self.exception_table {
+                        writeln!(
+                            ind,
+                            "{:>W_START$} {:>W_LENGTH$} {:>W_SLOT$}  {:<W_NAME$}",
+                            entry.start_pc,
+                            entry.end_pc,
+                            entry.handler_pc,
+                            pretty_try!(ind, cp.get_pretty_class_name(&entry.catch_type))
+                                .to_string()
+                        )?;
+                    }
+                    Ok(())
+                })?;
+            }
             for attr in &self.attributes {
-                attr.fmt_pretty(nested, cp)?;
+                attr.fmt_pretty(ind, cp)?;
             }
             Ok(())
         })?;

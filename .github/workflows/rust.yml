@@ -49,11 +49,11 @@ jobs:
           path: target/test-classes
           key: >
             ${{ runner.os }}-jdk-${{ matrix.jdk }}-${{ matrix.jdk_distribution }}-fixtures-
-            ${{ hashFiles('testdata/java/**/*.java', 'testdata/compile-fixtures.sh') }}
+            ${{ hashFiles('testdata/java/**/*.java', 'testdata/prepare_fixtures.py', 'fixtures.toml') }}
 
-      - name: Compile fixtures
+      - name: Prepare fixtures (compile + extract)
         if: steps.cache-fixtures.outputs.cache-hit != 'true'
-        run: bash testdata/compile-fixtures.sh
+        run: python3 testdata/prepare_fixtures.py
 
       - name: Build
         run: cargo build --verbose --locked

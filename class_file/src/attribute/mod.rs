@@ -124,7 +124,7 @@ impl<'a> SharedAttribute {
                                 .join(",")
                         )?;
                         ind.with_indent(|ind| {
-                            writeln!(
+                            write!(
                                 ind,
                                 "{}",
                                 pretty_class_name_try!(ind, cp.get_utf8(&annotation.type_index))
@@ -146,6 +146,8 @@ impl<'a> SharedAttribute {
                                     })?;
                                 }
                                 writeln!(ind, ")")?;
+                            } else {
+                                writeln!(ind)?;
                             }
                             Ok(())
                         })?;

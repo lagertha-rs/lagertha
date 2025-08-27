@@ -161,7 +161,7 @@ impl std::fmt::Display for ClassFile {
             )?;
             Ok(())
         })?;
-        writeln!(ind, "Constant constant:")?;
+        writeln!(ind, "Constant pool:")?;
         ind.with_indent(|ind| {
             let counter_width = self.cp.cp.len().checked_ilog10().map_or(0, |d| d as usize) + 2;
             for (i, c) in self.cp.cp.iter().enumerate() {
@@ -176,8 +176,11 @@ impl std::fmt::Display for ClassFile {
         })?;
         writeln!(ind, "{{")?;
         ind.with_indent(|ind| {
-            for method in &self.methods {
+            for (i, method) in self.methods.iter().enumerate() {
                 method.fmt_pretty(ind, &self.cp)?;
+                if i + 1 < self.methods.len() {
+                    writeln!(ind)?;
+                }
             }
             Ok(())
         })?;
@@ -192,38 +195,73 @@ mod tests {
     use insta::with_settings;
     use rstest::*;
     use std::fs;
-    use std::path::PathBuf;
+    use std::path::{Path, PathBuf};
     use std::time::Duration;
 
-    const SNAPSHOT_BASE_FOLDER: &str = "../snapshots";
+    const CLASS_SNAPSHOT_PATH: &str = "../snapshots/class_file";
+    const DISPLAY_SNAPSHOT_PATH: &str = "../snapshots/display";
+
+    fn to_snapshot_name(path: &Path) -> String {
+        let mut iter = path.iter().map(|s| s.to_string_lossy().to_string());
+        for seg in iter.by_ref() {
+            if seg == "test-classes" {
+                break;
+            }
+        }
+        let tail: Vec<String> = iter.collect();
+        tail.join("-")
+    }
 
     #[rstest]
+    #[trace]
     #[timeout(Duration::from_secs(1))]
-    fn load_java_binaries(#[files("../target/test-classes/**/*.class")] path: PathBuf) {
+    // Requires `testdata/compile-fixtures.py` to be executed to generate the .class files
+    fn parse_class_file(
+        #[base_dir = "../target/test-classes"]
+        #[files("**/*.class")]
+        path: PathBuf,
+    ) {
         // Given
         let bytes = fs::read(&path).unwrap_or_else(|_| panic!("Can't read file {:?}", path));
-        let snapshot_name = {
-            let mut iter = path.iter().map(|s| s.to_string_lossy().to_string());
-            for seg in iter.by_ref() {
-                if seg == "test-classes" {
-                    break;
-                }
-            }
-            let tail: Vec<String> = iter.collect();
-            tail.join("-")
-        };
 
         // When
-        let result = ClassFile::try_from(bytes).unwrap();
+        let class_file = ClassFile::try_from(bytes).unwrap();
 
         // Then
         with_settings!(
             {
-                snapshot_path => SNAPSHOT_BASE_FOLDER,
+                snapshot_path => CLASS_SNAPSHOT_PATH,
                 prepend_module_to_snapshot => false,
             },
             {
-                insta::assert_yaml_snapshot!(snapshot_name, result);
+                insta::assert_yaml_snapshot!(to_snapshot_name(&path), class_file);
+            }
+        );
+    }
+
+    #[rstest]
+    #[trace]
+    #[timeout(Duration::from_secs(1))]
+    // Requires `testdata/compile-fixtures.sh` to be run to generate the .class files
+    fn test_display(
+        #[base_dir = "../target/test-classes"]
+        #[files("**/*.class")]
+        path: PathBuf,
+    ) {
+        // Given
+        let bytes = fs::read(&path).unwrap_or_else(|_| panic!("Can't read file {:?}", path));
+
+        // When
+        let display = format!("{}", ClassFile::try_from(bytes).unwrap());
+
+        // Then
+        with_settings!(
+            {
+                snapshot_path => DISPLAY_SNAPSHOT_PATH,
+                prepend_module_to_snapshot => false,
+            },
+            {
+                insta::assert_snapshot!(to_snapshot_name(&path), display);
             }
         );
     }

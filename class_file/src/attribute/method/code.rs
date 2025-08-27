@@ -163,9 +163,19 @@ impl<'a> StackMapFrame {
         write!(ind, "frame_type = ")?;
         match self {
             StackMapFrame::Same { offset_delta } => writeln!(ind, "{offset_delta} /* same */")?,
-            StackMapFrame::SameLocals1StackItem { offset_delta, .. } => {
-                //TODO: seems stack var isn't printed in javap?
+            StackMapFrame::SameLocals1StackItem {
+                offset_delta,
+                stack,
+            } => {
                 writeln!(ind, "{} /* same_locals_1_stack_item */", offset_delta + 64)?;
+                ind.with_indent(|ind| {
+                    writeln!(
+                        ind,
+                        "stack = [ {} ]",
+                        pretty_try!(ind, stack.get_pretty_value(cp))
+                    )?;
+                    Ok(())
+                })?;
             }
             StackMapFrame::SameLocals1StackItemExtended { .. } => unimplemented!(),
             StackMapFrame::Chop { k, offset_delta } => {
@@ -322,7 +332,7 @@ impl<'a> CodeAttributeInfo {
                 const W_LENGTH: usize = 8;
                 const W_SLOT: usize = 5;
                 const W_NAME: usize = 4;
-                writeln!(ind, "      LocalVariableTable:")?;
+                writeln!(ind, "LocalVariableTable:")?;
                 writeln!(
                     ind,
                     "{:>W_START$} {:>W_LENGTH$} {:>W_SLOT$}  {:<W_NAME$}   {}",
