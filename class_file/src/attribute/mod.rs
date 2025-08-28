@@ -8,6 +8,7 @@ use serde::Serialize;
 use std::fmt::Formatter;
 
 pub mod class;
+pub mod field;
 pub mod method;
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7

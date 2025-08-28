@@ -13,7 +13,7 @@ pub enum CodeAttributeInfo {
     LineNumberTable(Vec<LineNumberEntry>),
     LocalVariableTable(Vec<LocalVariableEntry>),
     StackMapTable(Vec<StackMapFrame>),
-    LocalVariableTypeTable,
+    LocalVariableTypeTable(Vec<LocalVariableTypeEntry>),
     RuntimeVisibleTypeAnnotations,
     RuntimeInvisibleTypeAnnotations,
 }
@@ -34,6 +34,17 @@ pub struct LocalVariableEntry {
     pub length: u16,
     pub name_index: u16,
     pub descriptor_index: u16,
+    pub index: u16,
+}
+
+/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.14
+#[cfg_attr(test, derive(Serialize))]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalVariableTypeEntry {
+    pub start_pc: u16,
+    pub length: u16,
+    pub name_index: u16,
+    pub signature_index: u16,
     pub index: u16,
 }
 
@@ -294,20 +305,32 @@ impl<'a> CodeAttributeInfo {
                 let mut local_variable_table =
                     Vec::with_capacity(local_variable_table_length as usize);
                 for _ in 0..local_variable_table_length {
-                    let start_pc = cursor.u16()?;
-                    let length = cursor.u16()?;
-                    let name_index = cursor.u16()?;
-                    let descriptor_index = cursor.u16()?;
-                    let index = cursor.u16()?;
                     local_variable_table.push(LocalVariableEntry {
-                        start_pc,
-                        length,
-                        name_index,
-                        descriptor_index,
-                        index,
+                        start_pc: cursor.u16()?,
+                        length: cursor.u16()?,
+                        name_index: cursor.u16()?,
+                        descriptor_index: cursor.u16()?,
+                        index: cursor.u16()?,
                     });
                 }
                 Ok(CodeAttributeInfo::LocalVariableTable(local_variable_table))
+            }
+            AttributeType::LocalVariableTypeTable => {
+                let local_variable_table_type_length = cursor.u16()?;
+                let mut local_variable_type_table =
+                    Vec::with_capacity(local_variable_table_type_length as usize);
+                for _ in 0..local_variable_table_type_length {
+                    local_variable_type_table.push(LocalVariableTypeEntry {
+                        start_pc: cursor.u16()?,
+                        length: cursor.u16()?,
+                        name_index: cursor.u16()?,
+                        signature_index: cursor.u16()?,
+                        index: cursor.u16()?,
+                    });
+                }
+                Ok(CodeAttributeInfo::LocalVariableTypeTable(
+                    local_variable_type_table,
+                ))
             }
             AttributeType::StackMapTable => {
                 let frames_count = cursor.u16()?;
@@ -317,7 +340,7 @@ impl<'a> CodeAttributeInfo {
                 }
                 Ok(CodeAttributeInfo::StackMapTable(frames))
             }
-            _ => unimplemented!(),
+            other => unimplemented!("{other:?}"),
         }
     }
 
@@ -371,7 +394,7 @@ impl<'a> CodeAttributeInfo {
                     Ok(())
                 })?;
             }
-            CodeAttributeInfo::LocalVariableTypeTable => unimplemented!(),
+            CodeAttributeInfo::LocalVariableTypeTable(_) => unimplemented!(),
             CodeAttributeInfo::RuntimeVisibleTypeAnnotations => unimplemented!(),
             CodeAttributeInfo::RuntimeInvisibleTypeAnnotations => unimplemented!(),
         }

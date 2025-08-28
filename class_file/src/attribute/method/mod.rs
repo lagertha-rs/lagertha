@@ -31,6 +31,13 @@ pub struct CodeAttribute {
     pub attributes: Vec<CodeAttributeInfo>,
 }
 
+#[cfg_attr(test, derive(Serialize))]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MethodParameterEntry {
+    pub name_index: u16,
+    pub access_flags: u16,
+}
+
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7
 #[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -41,7 +48,16 @@ pub enum MethodAttribute {
     RuntimeVisibleParameterAnnotations,
     RuntimeInvisibleParameterAnnotations,
     AnnotationsDefault,
-    MethodParameters,
+    MethodParameters(Vec<MethodParameterEntry>),
+}
+
+impl MethodParameterEntry {
+    pub fn new(name_index: u16, access_flags: u16) -> Self {
+        Self {
+            name_index,
+            access_flags,
+        }
+    }
 }
 
 impl<'a> MethodAttribute {
@@ -62,6 +78,14 @@ impl<'a> MethodAttribute {
                 attribute_type,
                 cursor,
             )?)),
+            AttributeType::MethodParameters => {
+                let parameters_count = cursor.u8()? as usize;
+                let mut parameters = Vec::with_capacity(parameters_count);
+                for _ in 0..parameters_count {
+                    parameters.push(MethodParameterEntry::new(cursor.u16()?, cursor.u16()?));
+                }
+                Ok(MethodAttribute::MethodParameters(parameters))
+            }
             AttributeType::Exceptions => {
                 let number_of_exceptions = cursor.u16()?;
                 let mut exception_index_table = Vec::with_capacity(number_of_exceptions as usize);
@@ -70,7 +94,7 @@ impl<'a> MethodAttribute {
                 }
                 Ok(MethodAttribute::Exceptions(exception_index_table))
             }
-            _ => unimplemented!(),
+            other => unimplemented!("Method attribute {:?} not implemented", other),
         }
     }
 
@@ -107,7 +131,7 @@ impl<'a> MethodAttribute {
             MethodAttribute::RuntimeVisibleParameterAnnotations => unimplemented!(),
             MethodAttribute::RuntimeInvisibleParameterAnnotations => unimplemented!(),
             MethodAttribute::AnnotationsDefault => unimplemented!(),
-            MethodAttribute::MethodParameters => unimplemented!(),
+            MethodAttribute::MethodParameters(_) => unimplemented!(),
         }
 
         Ok(())

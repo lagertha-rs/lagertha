@@ -76,6 +76,7 @@ pub struct RuntimeConstantPool {
 //TODO: change u16 idx as param to &u16
 impl RuntimeConstantPool {
     pub fn new(entries: Vec<ConstantInfo>) -> Self {
+        /*
         Self {
             entries: entries
                 .into_iter()
@@ -115,6 +116,12 @@ impl RuntimeConstantPool {
                 .collect(),
             method_descriptors: DashMap::new(),
             field_descriptors: DashMap::new(),
+        }
+         */
+        Self {
+            entries: vec![],
+            method_descriptors: Default::default(),
+            field_descriptors: Default::default(),
         }
     }
 

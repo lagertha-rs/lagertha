@@ -1,29 +1,19 @@
-use crate::ClassFileErr;
+use crate::attribute::method::{CodeAttribute, MethodAttribute};
 use crate::attribute::{AttributeType, SharedAttribute};
 use crate::constant::pool::ConstantPool;
+use crate::error::ClassFileErr;
 use common::utils::cursor::ByteCursor;
 #[cfg(test)]
 use serde::Serialize;
 
 #[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ClassAttribute {
+pub enum FieldAttribute {
     Shared(SharedAttribute),
-    SourceFile(u16),
-    InnerClasses,
-    EnclosingMethod,
-    SourceDebugExtension,
-    BootstrapMethods,
-    Module,
-    ModulePackages,
-    ModuleMainClass,
-    NestHost,
-    NestMembers,
-    Record,
-    PermittedSubclasses,
+    ConstantValue(u16),
 }
 
-impl<'a> ClassAttribute {
+impl<'a> FieldAttribute {
     pub(crate) fn read(
         pool: &ConstantPool,
         cursor: &mut ByteCursor<'a>,
@@ -33,12 +23,15 @@ impl<'a> ClassAttribute {
 
         let attribute_type = AttributeType::try_from(pool.get_utf8(&attribute_name_index)?)?;
         match attribute_type {
-            AttributeType::SourceFile => Ok(ClassAttribute::SourceFile(cursor.u16()?)),
-            AttributeType::Signature => Ok(ClassAttribute::Shared(SharedAttribute::read(
+            AttributeType::ConstantValue => Ok(FieldAttribute::ConstantValue(cursor.u16()?)),
+            AttributeType::RuntimeVisibleAnnotations
+            | AttributeType::Synthetic
+            | AttributeType::Deprecated
+            | AttributeType::Signature => Ok(FieldAttribute::Shared(SharedAttribute::read(
                 attribute_type,
                 cursor,
             )?)),
-            other => unimplemented!("Class attribute {:?} not implemented", other),
+            _ => unimplemented!(),
         }
     }
 }

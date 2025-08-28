@@ -51,6 +51,10 @@ pub enum ConstantInfo {
     FieldRef(ReferenceInfo),
     InterfaceRef(ReferenceInfo),
     NameAndType(NameAndTypeInfo),
+    Dynamic(DynamicInfo),
+    InvokeDynamic(DynamicInfo),
+    MethodHandle(MethodHandleInfo),
+    MethodType(u16),
 }
 
 #[cfg_attr(test, derive(Serialize))]
@@ -65,6 +69,38 @@ pub struct ReferenceInfo {
 pub struct NameAndTypeInfo {
     pub name_index: u16,
     pub descriptor_index: u16,
+}
+
+#[cfg_attr(test, derive(Serialize))]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DynamicInfo {
+    pub bootstrap_method_attr_index: u16,
+    pub name_and_type_index: u16,
+}
+
+#[cfg_attr(test, derive(Serialize))]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MethodHandleInfo {
+    pub reference_kind: u8,
+    pub reference_index: u16,
+}
+
+impl MethodHandleInfo {
+    pub fn new(reference_kind: u8, reference_index: u16) -> Self {
+        Self {
+            reference_kind,
+            reference_index,
+        }
+    }
+}
+
+impl DynamicInfo {
+    pub fn new(bootstrap_method_attr_index: u16, name_and_type_index: u16) -> Self {
+        Self {
+            bootstrap_method_attr_index,
+            name_and_type_index,
+        }
+    }
 }
 
 impl ReferenceInfo {
@@ -123,11 +159,16 @@ impl<'a> ConstantInfo {
             ConstantTag::NameAndType => {
                 Self::NameAndType(NameAndTypeInfo::new(cursor.u16()?, cursor.u16()?))
             }
-            ConstantTag::Dynamic => todo!(),
-            ConstantTag::InvokeDynamic => todo!(),
+            ConstantTag::Dynamic => Self::Dynamic(DynamicInfo::new(cursor.u16()?, cursor.u16()?)),
+            ConstantTag::InvokeDynamic => {
+                Self::Dynamic(DynamicInfo::new(cursor.u16()?, cursor.u16()?))
+            }
             ConstantTag::Module => todo!(),
             ConstantTag::Package => todo!(),
-            ConstantTag::MethodHandle | ConstantTag::MethodType => todo!(),
+            ConstantTag::MethodHandle => {
+                Self::MethodHandle(MethodHandleInfo::new(cursor.u8()?, cursor.u16()?))
+            }
+            ConstantTag::MethodType => Self::MethodType(cursor.u16()?),
         };
         Ok(const_info)
     }
@@ -146,6 +187,10 @@ impl<'a> ConstantInfo {
             ConstantInfo::FieldRef(_) => ConstantTag::FieldRef,
             ConstantInfo::InterfaceRef(_) => ConstantTag::InterfaceMethodRef,
             ConstantInfo::NameAndType(_) => ConstantTag::NameAndType,
+            ConstantInfo::Dynamic(_) => ConstantTag::Dynamic,
+            ConstantInfo::InvokeDynamic(_) => ConstantTag::InvokeDynamic,
+            ConstantInfo::MethodHandle(_) => ConstantTag::MethodHandle,
+            ConstantInfo::MethodType(_) => ConstantTag::MethodType,
         }
     }
 

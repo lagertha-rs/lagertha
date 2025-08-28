@@ -6,6 +6,7 @@ use common::utils::cursor::ByteCursor;
 #[cfg(test)]
 use serde::Serialize;
 
+/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.6
 #[cfg_attr(test, derive(Serialize))]
 #[derive(Debug)]
 pub struct MethodInfo {
