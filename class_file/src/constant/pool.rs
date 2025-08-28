@@ -7,12 +7,12 @@ use serde::Serialize;
 #[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq)]
 pub struct ConstantPool {
-    pub cp: Vec<ConstantInfo>,
+    pub inner: Vec<ConstantInfo>,
 }
 
 impl ConstantPool {
     pub fn get_utf8(&self, idx: &u16) -> Result<&str, ClassFileErr> {
-        self.cp
+        self.inner
             .get(*idx as usize)
             .ok_or(ClassFileErr::ConstantNotFound(*idx))
             .and_then(|entry| match entry {
@@ -30,13 +30,13 @@ impl ConstantPool {
 /// Getters that are useful only for pretty printing
 impl ConstantPool {
     pub fn get_raw(&self, idx: &u16) -> Result<&ConstantInfo, ClassFileErr> {
-        self.cp
+        self.inner
             .get(*idx as usize)
             .ok_or(ClassFileErr::ConstantNotFound(*idx))
     }
 
     pub fn get_integer(&self, idx: &u16) -> Result<&i32, ClassFileErr> {
-        self.cp
+        self.inner
             .get(*idx as usize)
             .ok_or(ClassFileErr::ConstantNotFound(*idx))
             .and_then(|entry| match entry {
@@ -50,7 +50,7 @@ impl ConstantPool {
     }
 
     pub fn get_class(&self, idx: &u16) -> Result<u16, ClassFileErr> {
-        self.cp
+        self.inner
             .get(*idx as usize)
             .ok_or(ClassFileErr::ConstantNotFound(*idx))
             .and_then(|entry| match entry {
@@ -74,7 +74,7 @@ impl ConstantPool {
     }
 
     pub fn get_methodref(&self, idx: &u16) -> Result<&ReferenceInfo, ClassFileErr> {
-        self.cp
+        self.inner
             .get(*idx as usize)
             .ok_or(ClassFileErr::ConstantNotFound(*idx))
             .and_then(|entry| match entry {
@@ -88,7 +88,7 @@ impl ConstantPool {
     }
 
     pub fn get_name_and_type(&self, idx: &u16) -> Result<&NameAndTypeInfo, ClassFileErr> {
-        self.cp
+        self.inner
             .get(*idx as usize)
             .ok_or(ClassFileErr::ConstantNotFound(*idx))
             .and_then(|entry| match entry {

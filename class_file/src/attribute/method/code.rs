@@ -104,10 +104,10 @@ impl<'a> StackMapFrame {
     pub(crate) fn read(cursor: &mut ByteCursor<'a>) -> Result<Self, ClassFileErr> {
         let frame_type = cursor.u8()?;
         match frame_type {
-            0..64 => Ok(StackMapFrame::Same {
+            0..=63 => Ok(StackMapFrame::Same {
                 offset_delta: u16::from(frame_type),
             }),
-            64..128 => Ok(StackMapFrame::SameLocals1StackItem {
+            64..=127 => Ok(StackMapFrame::SameLocals1StackItem {
                 offset_delta: u16::from(frame_type - 64),
                 stack: VerificationTypeInfo::read(cursor)?,
             }),
@@ -115,14 +115,20 @@ impl<'a> StackMapFrame {
                 offset_delta: cursor.u16()?,
                 stack: VerificationTypeInfo::read(cursor)?,
             }),
-            248..251 => Ok(StackMapFrame::Chop {
-                k: (251 - frame_type),
-                offset_delta: cursor.u16()?,
-            }),
+            248..=250 => {
+                let a = 2;
+                if a == 2 {
+                    // just to have a place for a breakpoint
+                }
+                Ok(StackMapFrame::Chop {
+                    k: (251 - frame_type),
+                    offset_delta: cursor.u16()?,
+                })
+            }
             251 => Ok(StackMapFrame::SameExtended {
                 offset_delta: cursor.u16()?,
             }),
-            252..255 => Ok(StackMapFrame::Append {
+            252..=254 => Ok(StackMapFrame::Append {
                 k: (frame_type - 251),
                 offset_delta: cursor.u16()?,
                 locals: (0..usize::from(frame_type - 251))
@@ -156,6 +162,7 @@ impl<'a> StackMapFrame {
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &ConstantPool,
+        this: &u16,
     ) -> std::fmt::Result {
         use common::pretty_try;
         use std::fmt::Write as _;
@@ -172,14 +179,14 @@ impl<'a> StackMapFrame {
                     writeln!(
                         ind,
                         "stack = [ {} ]",
-                        pretty_try!(ind, stack.get_pretty_value(cp))
+                        pretty_try!(ind, stack.get_pretty_value(cp, this))
                     )?;
                     Ok(())
                 })?;
             }
             StackMapFrame::SameLocals1StackItemExtended { .. } => unimplemented!(),
             StackMapFrame::Chop { k, offset_delta } => {
-                writeln!(ind, "{k} /* chop */")?;
+                writeln!(ind, "{} /* chop */", 251 - k)?;
                 ind.with_indent(|ind| {
                     writeln!(ind, "offset_delta = {offset_delta}")?;
                     Ok(())
@@ -198,7 +205,7 @@ impl<'a> StackMapFrame {
                         ind,
                         locals
                             .iter()
-                            .map(|v| v.get_pretty_value(cp))
+                            .map(|v| v.get_pretty_value(cp, this))
                             .collect::<Result<Vec<_>, _>>()
                     )
                     .join(", ");
@@ -206,7 +213,7 @@ impl<'a> StackMapFrame {
                         ind,
                         stack
                             .iter()
-                            .map(|v| v.get_pretty_value(cp))
+                            .map(|v| v.get_pretty_value(cp, this))
                             .collect::<Result<Vec<_>, _>>()
                     )
                     .join(", ");
@@ -240,7 +247,11 @@ impl<'a> VerificationTypeInfo {
     }
 
     #[cfg(feature = "pretty_print")]
-    pub(crate) fn get_pretty_value(&self, cp: &ConstantPool) -> Result<String, ClassFileErr> {
+    pub(crate) fn get_pretty_value(
+        &self,
+        cp: &ConstantPool,
+        this: &u16,
+    ) -> Result<String, ClassFileErr> {
         Ok(match self {
             VerificationTypeInfo::Top => "top".to_string(),
             VerificationTypeInfo::Integer => "int".to_string(),
@@ -249,7 +260,9 @@ impl<'a> VerificationTypeInfo {
             VerificationTypeInfo::Long => "long".to_string(),
             VerificationTypeInfo::Null => "null".to_string(),
             VerificationTypeInfo::UninitializedThis => unimplemented!(),
-            VerificationTypeInfo::Object(cp_index) => cp.get_raw(cp_index)?.get_pretty_value(cp)?,
+            VerificationTypeInfo::Object(cp_index) => {
+                cp.get_raw(cp_index)?.get_pretty_value(cp, this)?
+            }
             VerificationTypeInfo::Uninitialized(_) => unimplemented!(),
         })
     }
@@ -313,6 +326,7 @@ impl<'a> CodeAttributeInfo {
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &ConstantPool,
+        this: &u16,
     ) -> std::fmt::Result {
         use common::pretty_try;
         use std::fmt::Write as _;
@@ -352,7 +366,7 @@ impl<'a> CodeAttributeInfo {
                 writeln!(ind, "StackMapTable: number_of_entries = {}", table.len())?;
                 ind.with_indent(|ind| {
                     for frame in table {
-                        frame.fmt_pretty(ind, cp)?;
+                        frame.fmt_pretty(ind, cp, this)?;
                     }
                     Ok(())
                 })?;

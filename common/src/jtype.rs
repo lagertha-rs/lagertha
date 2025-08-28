@@ -88,7 +88,7 @@ impl fmt::Display for Type {
             Type::Float => write!(f, "float"),
             Type::Int => write!(f, "int"),
             Type::Long => write!(f, "long"),
-            Type::Instance(name) => write!(f, "{}", name.replace('/', ".")),
+            Type::Instance(name) => write!(f, "{}", name.replace('/', ".").replace("*", "?")),
             Type::Short => write!(f, "short"),
             Type::Boolean => write!(f, "boolean"),
             Type::Array(elem) => write!(f, "{}[]", elem),

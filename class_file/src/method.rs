@@ -41,7 +41,9 @@ impl<'a> MethodInfo {
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &ConstantPool,
+        this: &u16,
     ) -> std::fmt::Result {
+        use crate::attribute::SharedAttribute;
         use crate::print::{get_method_javap_like_list, get_method_pretty_java_like_prefix};
         use common::descriptor::MethodDescriptor;
         use common::{pretty_class_name_try, pretty_try};
@@ -49,7 +51,24 @@ impl<'a> MethodInfo {
         use std::fmt::Write as _;
 
         let raw_descriptor = pretty_try!(ind, cp.get_utf8(&self.descriptor_index));
-        let descriptor = pretty_try!(ind, MethodDescriptor::try_from(raw_descriptor));
+        let descriptor = {
+            let generic_signature_opt = self.attributes.iter().find_map(|attr| {
+                if let MethodAttribute::Shared(shared) = attr {
+                    match shared {
+                        SharedAttribute::Signature(sig_index) => Some(sig_index),
+                        _ => None,
+                    }
+                } else {
+                    None
+                }
+            });
+            if let Some(sig_index) = generic_signature_opt {
+                let raw_sig = pretty_try!(ind, cp.get_utf8(sig_index));
+                pretty_try!(ind, MethodDescriptor::try_from(raw_sig))
+            } else {
+                pretty_try!(ind, MethodDescriptor::try_from(raw_descriptor))
+            }
+        };
         let throws = {
             let exc_opt = self.attributes.iter().find_map(|attr| {
                 if let MethodAttribute::Exceptions(exc) = attr {
@@ -61,7 +80,7 @@ impl<'a> MethodInfo {
 
             if let Some(exc) = exc_opt {
                 format!(
-                    "throws {}",
+                    " throws {}",
                     pretty_try!(
                         ind,
                         exc.iter()
@@ -75,12 +94,21 @@ impl<'a> MethodInfo {
             }
         };
 
+        // constructor special handling
+        let ret_and_class_name = {
+            let method_name = pretty_class_name_try!(ind, cp.get_utf8(&self.name_index));
+            if method_name != "<init>" {
+                format!("{} {}", descriptor.ret, method_name)
+            } else {
+                pretty_class_name_try!(ind, cp.get_class_name(this))
+            }
+        };
+
         writeln!(
             ind,
-            "{} {} {}({}) {throws}",
+            "{} {}({}){throws};",
             get_method_pretty_java_like_prefix(self.access_flags),
-            descriptor.ret,
-            pretty_class_name_try!(ind, cp.get_utf8(&self.name_index)),
+            ret_and_class_name,
             descriptor.params.iter().map(|v| v.to_string()).join(", ")
         )?;
         ind.with_indent(|ind| {
@@ -92,7 +120,7 @@ impl<'a> MethodInfo {
                 get_method_javap_like_list(self.access_flags)
             )?;
             for attr in &self.attributes {
-                attr.fmt_pretty(ind, cp, &descriptor)?;
+                attr.fmt_pretty(ind, cp, &descriptor, this)?;
             }
             Ok(())
         })?;
