@@ -156,10 +156,11 @@ pub fn get_pretty_instruction(
     instruction: &Instruction,
     cp: &ConstantPool,
     pc: i32,
+    this: &u16,
 ) -> Result<String, ClassFileErr> {
     let comment_value = |index: &u16| -> Result<Option<String>, ClassFileErr> {
         let constant = cp.get_raw(index)?;
-        Ok(Some(constant.get_pretty_value(cp)?))
+        Ok(Some(constant.get_pretty_value(cp, this)?))
     };
     let (val, name, comment, is_position) = match instruction {
         Instruction::Aload(val) => (Some(*val as i32), "aload", None, true),
@@ -188,7 +189,9 @@ pub fn get_pretty_instruction(
         Instruction::Iload1 => (None, "iload_1", None, false),
         Instruction::Iload2 => (None, "iload_2", None, false),
         Instruction::Iload3 => (None, "iload_3", None, false),
-        Instruction::Instanceof(val) => (Some(*val as i32), "instanceof", None, false),
+        Instruction::Instanceof(val) => {
+            (Some(*val as i32), "instanceof", comment_value(val)?, false)
+        }
         Instruction::IfAcmpNe(val) => (Some(*val as i32 + pc), "if_acmpne", None, true),
         Instruction::Ifeq(val) => (Some(*val as i32 + pc), "ifeq", None, true),
         Instruction::Ifne(val) => (Some(*val as i32 + pc), "ifne", None, true),

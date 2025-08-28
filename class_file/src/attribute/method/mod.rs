@@ -80,12 +80,13 @@ impl<'a> MethodAttribute {
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &ConstantPool,
         descriptor: &MethodDescriptor,
+        this: &u16,
     ) -> std::fmt::Result {
         use common::pretty_try;
         use std::fmt::Write as _;
         match self {
             MethodAttribute::Shared(shared) => shared.fmt_pretty(ind, cp)?,
-            MethodAttribute::Code(code) => code.fmt_pretty(ind, cp, descriptor)?,
+            MethodAttribute::Code(code) => code.fmt_pretty(ind, cp, descriptor, this)?,
             MethodAttribute::Exceptions(exc) => {
                 writeln!(ind, "Exceptions:")?;
                 ind.with_indent(|ind| {
@@ -157,6 +158,7 @@ impl<'a> CodeAttribute {
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &ConstantPool,
         method_descriptor: &MethodDescriptor,
+        this: &u16,
     ) -> std::fmt::Result {
         use crate::print::get_pretty_instruction;
         use common::pretty_try;
@@ -179,7 +181,7 @@ impl<'a> CodeAttribute {
                     "{byte_pos:4}: {:<24}",
                     pretty_try!(
                         ind,
-                        get_pretty_instruction(&instruction, cp, byte_pos as i32)
+                        get_pretty_instruction(&instruction, cp, byte_pos as i32, this)
                     )
                 )?;
                 byte_pos += instruction.byte_size();
@@ -199,19 +201,18 @@ impl<'a> CodeAttribute {
                     for entry in &self.exception_table {
                         writeln!(
                             ind,
-                            "{:>W_START$} {:>W_LENGTH$} {:>W_SLOT$}  {:<W_NAME$}",
+                            "{:>W_START$} {:>W_LENGTH$} {:>W_SLOT$}  Class {:<W_NAME$}",
                             entry.start_pc,
                             entry.end_pc,
                             entry.handler_pc,
-                            pretty_try!(ind, cp.get_pretty_class_name(&entry.catch_type))
-                                .to_string()
+                            pretty_try!(ind, cp.get_class_name(&entry.catch_type)).to_string()
                         )?;
                     }
                     Ok(())
                 })?;
             }
             for attr in &self.attributes {
-                attr.fmt_pretty(ind, cp)?;
+                attr.fmt_pretty(ind, cp, this)?;
             }
             Ok(())
         })?;

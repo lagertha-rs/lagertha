@@ -8,12 +8,17 @@ macro_rules! pretty_try {
         match $expr {
             Ok(v) => v,
             Err(e) => {
-                let _ = ::std::writeln!($ind, "\nprint error: {}", e);
+                let _ = $ind.with_specific_indent(0, |ind| {
+                    ::std::writeln!(ind, "\n****************************************")?;
+                    ::std::writeln!(ind, "print error: {}", e)
+                });
                 return Err(::std::fmt::Error);
             }
         }
     };
 }
+
+// TODO: next 2 macros are specific to class files, move them to class_file crate?
 
 #[doc(hidden)]
 #[macro_export]
@@ -25,7 +30,30 @@ macro_rules! pretty_class_name_try {
                 .trim_end_matches(';')
                 .replace('/', "."),
             Err(e) => {
-                let _ = ::std::writeln!($ind, "\nprint error: {}", e);
+                let _ = $ind.with_specific_indent(0, |ind| {
+                    ::std::writeln!(ind, "\n****************************************")?;
+                    ::std::writeln!(ind, "print error: {}", e)
+                });
+                return Err(::std::fmt::Error);
+            }
+        }
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! pretty_method_name_try {
+    ($ind:expr, $expr:expr) => {
+        match $expr {
+            Ok(method_name) => match method_name {
+                "<init>" => format!("\"{}\"", method_name),
+                _ => method_name.to_string(),
+            },
+            Err(e) => {
+                let _ = $ind.with_specific_indent(0, |ind| {
+                    ::std::writeln!(ind, "\n****************************************")?;
+                    ::std::writeln!(ind, "print error: {}", e)
+                });
                 return Err(::std::fmt::Error);
             }
         }
@@ -56,6 +84,17 @@ impl<'a> Indented<'a> {
         self.level += 1;
         let res = f(self);
         self.level -= 1;
+        res
+    }
+
+    pub fn with_specific_indent<F>(&mut self, level: usize, f: F) -> fmt::Result
+    where
+        F: FnOnce(&mut Self) -> fmt::Result,
+    {
+        let prev_level = self.level;
+        self.level = level;
+        let res = f(self);
+        self.level = prev_level;
         res
     }
 }

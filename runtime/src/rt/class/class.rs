@@ -25,7 +25,7 @@ pub struct Class {
 
 impl Class {
     pub fn new(cf: ClassFile) -> Result<Self, JvmError> {
-        let cp = Rc::new(RuntimeConstantPool::new(cf.cp.cp));
+        let cp = Rc::new(RuntimeConstantPool::new(cf.cp.inner));
         let minor_version = cf.minor_version;
         let major_version = cf.major_version;
         let this = cp.get_class(&cf.this_class)?.clone();

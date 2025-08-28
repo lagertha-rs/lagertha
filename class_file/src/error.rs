@@ -1,8 +1,11 @@
 use crate::attribute::AttributeType;
 use crate::constant::ConstantTag;
 use common::utils::cursor::CursorError;
+#[cfg(test)]
+use serde::Serialize;
 use thiserror::Error;
 
+#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum ClassFileErr {
     #[error(transparent)]

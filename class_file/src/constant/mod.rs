@@ -10,6 +10,7 @@ pub mod pool;
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.4-210
 /// Table 4.4-B. Constant pool tags (by tag)
+#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq, TryFromPrimitive)]
 #[repr(u8)]
 pub enum ConstantTag {
@@ -154,14 +155,14 @@ impl<'a> ConstantInfo {
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &ConstantPool,
     ) -> std::fmt::Result {
-        use common::pretty_try;
+        use common::{pretty_method_name_try, pretty_try};
         use std::fmt::Write as _;
         let op_w = 16;
         match self {
             ConstantInfo::Utf8(s) => writeln!(ind, "{s}"),
             ConstantInfo::Integer(i) => writeln!(ind, "{i}"),
             ConstantInfo::Float(fl) => writeln!(ind, "{fl}"),
-            ConstantInfo::Long(l) => writeln!(ind, "{l}"),
+            ConstantInfo::Long(l) => writeln!(ind, "{l}l"),
             ConstantInfo::Double(d) => writeln!(ind, "{d}"),
             ConstantInfo::Class(index) => writeln!(
                 ind,
@@ -185,7 +186,7 @@ impl<'a> ConstantInfo {
                     ref_info.class_index, ref_info.name_and_type_index
                 ),
                 pretty_try!(ind, cp.get_method_class_name(ref_info)),
-                pretty_try!(ind, cp.get_method_name(ref_info)),
+                pretty_method_name_try!(ind, cp.get_method_name(ref_info)),
                 pretty_try!(ind, cp.get_method_descriptor(ref_info)),
                 op_w = op_w
             ),
@@ -193,7 +194,7 @@ impl<'a> ConstantInfo {
                 ind,
                 "{:<op_w$} // {}:{}",
                 format!("#{}:#{}", nat.name_index, nat.descriptor_index),
-                pretty_try!(ind, cp.get_nat_name(nat)),
+                pretty_method_name_try!(ind, cp.get_nat_name(nat)),
                 pretty_try!(ind, cp.get_nat_descriptor(nat)),
                 op_w = op_w
             ),
@@ -202,21 +203,39 @@ impl<'a> ConstantInfo {
     }
 
     #[cfg(feature = "pretty_print")]
-    pub(crate) fn get_pretty_value(&self, cp: &ConstantPool) -> Result<String, ClassFileErr> {
+    pub(crate) fn get_pretty_value(
+        &self,
+        cp: &ConstantPool,
+        this_class_name: &u16,
+    ) -> Result<String, ClassFileErr> {
         Ok(match self {
             ConstantInfo::Utf8(s) => format!("utf8 {}", s),
             ConstantInfo::Integer(i) => format!("int {}", i),
             ConstantInfo::Float(fl) => format!("float {}", fl),
-            ConstantInfo::Long(l) => format!("long {}", l),
+            ConstantInfo::Long(l) => format!("long {}l", l),
             ConstantInfo::Double(d) => format!("double {}", d),
             ConstantInfo::Class(index) => format!("class {}", cp.get_utf8(index)?),
             ConstantInfo::String(index) => format!("String {}", cp.get_utf8(index)?),
-            ConstantInfo::MethodRef(ref_info) => format!(
-                "Method {}.{}:{}",
-                cp.get_method_class_name(ref_info)?,
-                cp.get_method_name(ref_info)?,
-                cp.get_method_descriptor(ref_info)?,
-            ),
+            ConstantInfo::MethodRef(ref_info) => {
+                let method_name = match cp.get_method_name(ref_info)? {
+                    "<init>" => "\"<init>\"".to_owned(),
+                    other => other.to_owned(),
+                };
+                let name = cp.get_method_class_name(ref_info)?;
+                let final_class_name = {
+                    if name != cp.get_class_name(this_class_name)? {
+                        format_args!("{}.", name)
+                    } else {
+                        format_args!("")
+                    }
+                };
+                format!(
+                    "Method {}{}:{}",
+                    final_class_name,
+                    method_name,
+                    cp.get_method_descriptor(ref_info)?,
+                )
+            }
             e => todo!("Pretty print not implemented for {e:?}"),
         })
     }
@@ -233,8 +252,8 @@ impl Display for ConstantTag {
             ConstantTag::Double => "Double",
             ConstantTag::Class => "Class",
             ConstantTag::String => "String",
-            ConstantTag::FieldRef => "FieldRef",
-            ConstantTag::MethodRef => "MethodRef",
+            ConstantTag::FieldRef => "Fieldref",
+            ConstantTag::MethodRef => "Methodref",
             ConstantTag::InterfaceMethodRef => "InterfaceMethodRef",
             ConstantTag::NameAndType => "NameAndType",
             ConstantTag::MethodHandle => "MethodHandle",

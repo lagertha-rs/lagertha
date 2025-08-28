@@ -11,6 +11,7 @@ pub mod class;
 pub mod method;
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7
+#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum AttributeType {
     ConstantValue,
@@ -299,7 +300,7 @@ impl<'a> ElementValue {
                 1 => "true".to_string(),
                 _ => unimplemented!(),
             },
-            ElementValue::String(idx) => cp.get_utf8(idx)?.to_string(),
+            ElementValue::String(idx) => format!("\"{}\"", cp.get_utf8(idx)?),
             _ => unimplemented!(),
         })
     }

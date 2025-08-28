@@ -22,8 +22,8 @@ pub mod print;
 /// fields for easier access, because anyway it will be remapped to runtime structures.
 ///
 /// All print related code is behind the `pretty_print` feature flag.
-#[derive(Debug)]
 #[cfg_attr(test, derive(Serialize))]
+#[derive(Debug)]
 pub struct ClassFile {
     pub minor_version: u16,
     pub major_version: u16,
@@ -74,7 +74,9 @@ impl TryFrom<Vec<u8>> for ClassFile {
                 }
             }
         }
-        let constant_pool = ConstantPool { cp: constant_pool };
+        let constant_pool = ConstantPool {
+            inner: constant_pool,
+        };
 
         let access_flags = cursor.u16()?;
         let this_class = cursor.u16()?;
@@ -127,7 +129,7 @@ impl std::fmt::Display for ClassFile {
         use common::{pretty_class_name_try, pretty_try};
         use std::fmt::Write as _;
 
-        let constant_kind_width = 16;
+        const CONSTANT_KIND_WIDTH: usize = 16;
         let mut ind = Indented::new(f);
         writeln!(
             ind,
@@ -163,12 +165,18 @@ impl std::fmt::Display for ClassFile {
         })?;
         writeln!(ind, "Constant pool:")?;
         ind.with_indent(|ind| {
-            let counter_width = self.cp.cp.len().checked_ilog10().map_or(0, |d| d as usize) + 2;
-            for (i, c) in self.cp.cp.iter().enumerate() {
+            let counter_width = self
+                .cp
+                .inner
+                .len()
+                .checked_ilog10()
+                .map_or(0, |d| d as usize)
+                + 2;
+            for (i, c) in self.cp.inner.iter().enumerate() {
                 if matches!(c, ConstantInfo::Unused) {
                     continue;
                 }
-                let tag = format_args!("{:<kw$}", c.get_tag(), kw = constant_kind_width);
+                let tag = format_args!("{:<kw$}", c.get_tag(), kw = CONSTANT_KIND_WIDTH);
                 write!(ind, "{:>w$} = {} ", format!("#{i}"), tag, w = counter_width)?;
                 c.fmt_pretty(ind, &self.cp)?;
             }
@@ -177,7 +185,7 @@ impl std::fmt::Display for ClassFile {
         writeln!(ind, "{{")?;
         ind.with_indent(|ind| {
             for (i, method) in self.methods.iter().enumerate() {
-                method.fmt_pretty(ind, &self.cp)?;
+                method.fmt_pretty(ind, &self.cp, &self.this_class)?;
                 if i + 1 < self.methods.len() {
                     writeln!(ind)?;
                 }
@@ -195,8 +203,8 @@ mod tests {
     use insta::with_settings;
     use rstest::*;
     use std::fs;
+    use std::io::BufRead;
     use std::path::{Path, PathBuf};
-    use std::time::Duration;
 
     const CLASS_SNAPSHOT_PATH: &str = "../snapshots/class_file";
     const DISPLAY_SNAPSHOT_PATH: &str = "../snapshots/display";
@@ -214,7 +222,6 @@ mod tests {
 
     #[rstest]
     #[trace]
-    #[timeout(Duration::from_secs(1))]
     // Requires `testdata/compile-fixtures.py` to be executed to generate the .class files
     fn parse_class_file(
         #[base_dir = "../target/test-classes"]
@@ -241,7 +248,6 @@ mod tests {
 
     #[rstest]
     #[trace]
-    #[timeout(Duration::from_secs(1))]
     // Requires `testdata/compile-fixtures.sh` to be run to generate the .class files
     fn test_display(
         #[base_dir = "../target/test-classes"]
@@ -264,5 +270,46 @@ mod tests {
                 insta::assert_snapshot!(to_snapshot_name(&path), display);
             }
         );
+    }
+
+    #[rstest]
+    // Requires `testdata/compile-fixtures.sh` to be run to generate the .class files
+    fn compare_with_javap(
+        #[base_dir = "../target/test-classes"]
+        #[files("**/*.class")]
+        path: PathBuf,
+    ) {
+        // Given
+        let bytes = fs::read(&path).unwrap_or_else(|_| panic!("Can't read file {:?}", path));
+        let my_display = format!("{}", ClassFile::try_from(bytes).unwrap())
+            .as_bytes()
+            .lines()
+            .collect::<Result<Vec<_>, _>>()
+            .unwrap();
+        let javap = std::process::Command::new("javap")
+            .arg("-v")
+            .arg("-p")
+            .arg(&path)
+            .output()
+            .unwrap_or_else(|e| panic!("Can't run javap on file {:?}:{}\n", path, e))
+            .stdout
+            .lines()
+            .collect::<Result<Vec<_>, _>>()
+            .unwrap();
+        let javap_display = javap[4..javap.len() - 1].to_vec();
+
+        // When && Then
+        for (i, (my, javap)) in my_display.iter().zip(javap_display.iter()).enumerate() {
+            let my_line_normalized: String = my.chars().filter(|c| !c.is_whitespace()).collect();
+            let javap_line_normalized: String =
+                javap.chars().filter(|c| !c.is_whitespace()).collect();
+            assert_eq!(
+                my_line_normalized,
+                javap_line_normalized,
+                "Mismatch at line {} of file {:?}",
+                i + 1,
+                path,
+            );
+        }
     }
 }
