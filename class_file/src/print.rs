@@ -1,8 +1,43 @@
 use crate::constant::pool::ConstantPool;
 use crate::error::ClassFileErr;
-use common::access::{ClassAccessFlag, MethodAccessFlag};
+use common::access::{ClassAccessFlag, FieldAccessFlag, MethodAccessFlag};
 use common::instruction::Instruction;
 use std::fmt::Write;
+
+/// Java-like modifier prefix for a field header
+pub fn get_field_pretty_java_like_prefix(raw_flags: u16) -> String {
+    let flags = FieldAccessFlag::new(raw_flags);
+    let mut parts = Vec::with_capacity(6);
+
+    if flags.is_public() {
+        parts.push("public");
+    } else if flags.is_protected() {
+        parts.push("protected");
+    } else if flags.is_private() {
+        parts.push("private");
+    }
+
+    if flags.is_static() {
+        parts.push("static");
+    }
+    if flags.is_final() {
+        parts.push("final");
+    }
+    if flags.is_volatile() {
+        parts.push("volatile");
+    }
+    if flags.is_transient() {
+        parts.push("transient");
+    }
+    if flags.is_enum() {
+        parts.push("enum");
+    }
+    if flags.is_synthetic() {
+        parts.push("synthetic");
+    }
+
+    parts.join(" ")
+}
 
 /// Java-like modifier prefix for a method header
 pub fn get_method_pretty_java_like_prefix(raw_flags: u16) -> String {
