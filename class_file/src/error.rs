@@ -27,4 +27,6 @@ pub enum ClassFileErr {
     UnknownAttribute(String),
     #[error("Can't build shared attribute, the `{0}` attribute isn't shared.")]
     AttributeIsNotShared(AttributeType),
+    #[error("Invalid method handle kind {0}.")]
+    InvalidMethodHandleKind(u8),
 }

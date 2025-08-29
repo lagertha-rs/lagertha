@@ -49,7 +49,7 @@ pub enum ConstantInfo {
     String(u16),
     MethodRef(ReferenceInfo),
     FieldRef(ReferenceInfo),
-    InterfaceRef(ReferenceInfo),
+    InterfaceMethodRef(ReferenceInfo),
     NameAndType(NameAndTypeInfo),
     Dynamic(DynamicInfo),
     InvokeDynamic(DynamicInfo),
@@ -71,6 +71,7 @@ pub struct NameAndTypeInfo {
     pub descriptor_index: u16,
 }
 
+/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.4.10
 #[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DynamicInfo {
@@ -78,11 +79,27 @@ pub struct DynamicInfo {
     pub name_and_type_index: u16,
 }
 
+/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.4.8
 #[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MethodHandleInfo {
     pub reference_kind: u8,
     pub reference_index: u16,
+}
+
+#[cfg_attr(test, derive(Serialize))]
+#[derive(Debug, Clone, PartialEq, Eq, TryFromPrimitive)]
+#[repr(u8)]
+pub enum MethodHandleKind {
+    GetField = 1,
+    GetStatic = 2,
+    PutField = 3,
+    PutStatic = 4,
+    InvokeVirtual = 5,
+    InvokeStatic = 6,
+    InvokeSpecial = 7,
+    NewInvokeSpecial = 8,
+    InvokeInterface = 9,
 }
 
 impl MethodHandleInfo {
@@ -91,6 +108,11 @@ impl MethodHandleInfo {
             reference_kind,
             reference_index,
         }
+    }
+
+    pub fn get_kind(&self) -> Result<MethodHandleKind, ClassFileErr> {
+        MethodHandleKind::try_from_primitive(self.reference_kind)
+            .map_err(|_| ClassFileErr::InvalidMethodHandleKind(self.reference_kind))
     }
 }
 
@@ -154,7 +176,7 @@ impl<'a> ConstantInfo {
                 Self::MethodRef(ReferenceInfo::new(cursor.u16()?, cursor.u16()?))
             }
             ConstantTag::InterfaceMethodRef => {
-                Self::InterfaceRef(ReferenceInfo::new(cursor.u16()?, cursor.u16()?))
+                Self::InterfaceMethodRef(ReferenceInfo::new(cursor.u16()?, cursor.u16()?))
             }
             ConstantTag::NameAndType => {
                 Self::NameAndType(NameAndTypeInfo::new(cursor.u16()?, cursor.u16()?))
@@ -185,7 +207,7 @@ impl<'a> ConstantInfo {
             ConstantInfo::String(_) => ConstantTag::String,
             ConstantInfo::MethodRef(_) => ConstantTag::MethodRef,
             ConstantInfo::FieldRef(_) => ConstantTag::FieldRef,
-            ConstantInfo::InterfaceRef(_) => ConstantTag::InterfaceMethodRef,
+            ConstantInfo::InterfaceMethodRef(_) => ConstantTag::InterfaceMethodRef,
             ConstantInfo::NameAndType(_) => ConstantTag::NameAndType,
             ConstantInfo::Dynamic(_) => ConstantTag::Dynamic,
             ConstantInfo::InvokeDynamic(_) => ConstantTag::InvokeDynamic,
@@ -209,32 +231,27 @@ impl<'a> ConstantInfo {
             ConstantInfo::Float(fl) => writeln!(ind, "{fl}"),
             ConstantInfo::Long(l) => writeln!(ind, "{l}l"),
             ConstantInfo::Double(d) => writeln!(ind, "{d}"),
-            ConstantInfo::Class(index) => writeln!(
+            ConstantInfo::Class(index) | ConstantInfo::String(index) => writeln!(
                 ind,
                 "{:<op_w$} // {}",
                 format!("#{index}"),
                 pretty_try!(ind, cp.get_utf8(index)),
                 op_w = op_w
             ),
-            ConstantInfo::String(index) => writeln!(
-                ind,
-                "{:<op_w$} // {}",
-                format!("#{index}"),
-                pretty_try!(ind, cp.get_utf8(index)),
-                op_w = op_w
-            ),
-            ConstantInfo::MethodRef(ref_info) => writeln!(
-                ind,
-                "{:<op_w$} // {}.{}:{}",
-                format!(
-                    "#{}.#{}",
-                    ref_info.class_index, ref_info.name_and_type_index
-                ),
-                pretty_try!(ind, cp.get_method_class_name(ref_info)),
-                pretty_method_name_try!(ind, cp.get_method_name(ref_info)),
-                pretty_try!(ind, cp.get_method_descriptor(ref_info)),
-                op_w = op_w
-            ),
+            ConstantInfo::MethodRef(ref_info) | ConstantInfo::InterfaceMethodRef(ref_info) => {
+                writeln!(
+                    ind,
+                    "{:<op_w$} // {}.{}:{}",
+                    format!(
+                        "#{}.#{}",
+                        ref_info.class_index, ref_info.name_and_type_index
+                    ),
+                    pretty_try!(ind, cp.get_method_class_name(ref_info)),
+                    pretty_method_name_try!(ind, cp.get_method_name(ref_info)),
+                    pretty_try!(ind, cp.get_descriptor(ref_info)),
+                    op_w = op_w
+                )
+            }
             ConstantInfo::NameAndType(nat) => writeln!(
                 ind,
                 "{:<op_w$} // {}:{}",
@@ -243,6 +260,55 @@ impl<'a> ConstantInfo {
                 pretty_try!(ind, cp.get_nat_descriptor(nat)),
                 op_w = op_w
             ),
+            ConstantInfo::FieldRef(ref_info) => writeln!(
+                ind,
+                "{:<op_w$} // {}:{}",
+                format!(
+                    "#{}:#{}",
+                    ref_info.class_index, ref_info.name_and_type_index
+                ),
+                pretty_try!(ind, cp.get_class_name(&ref_info.class_index)),
+                pretty_try!(ind, cp.get_descriptor(ref_info)),
+                op_w = op_w
+            ),
+            ConstantInfo::Dynamic(dyn_info) | ConstantInfo::InvokeDynamic(dyn_info) => {
+                writeln!(
+                    ind,
+                    "{:<op_w$} // #{}:{}:{}",
+                    format!(
+                        "#{}:#{}",
+                        dyn_info.bootstrap_method_attr_index, dyn_info.name_and_type_index
+                    ),
+                    dyn_info.bootstrap_method_attr_index,
+                    pretty_try!(ind, cp.get_dyn_info_name(dyn_info)),
+                    pretty_try!(ind, cp.get_dyn_info_descriptor(dyn_info)),
+                    op_w = op_w
+                )
+            }
+            ConstantInfo::MethodType(idx) => writeln!(
+                ind,
+                "{:<op_w$} // {}",
+                format!("#{}", idx),
+                pretty_try!(ind, cp.get_utf8(idx)),
+                op_w = op_w
+            ),
+            ConstantInfo::MethodHandle(handle_info) => {
+                let handle_kind = pretty_try!(ind, handle_info.get_kind());
+                let method_ref = pretty_try!(ind, cp.get_methodref(&handle_info.reference_index));
+                writeln!(
+                    ind,
+                    "{:<op_w$} // {} {}.{}:{}",
+                    format!(
+                        "#{}.{}",
+                        handle_info.reference_kind, handle_info.reference_index
+                    ),
+                    pretty_try!(ind, handle_kind.get_pretty_value()),
+                    pretty_try!(ind, cp.get_method_class_name(method_ref)),
+                    pretty_method_name_try!(ind, cp.get_method_name(method_ref)),
+                    pretty_try!(ind, cp.get_descriptor(method_ref)),
+                    op_w = op_w
+                )
+            }
             e => todo!("Pretty print not implemented for {e:?}"),
         }
     }
@@ -278,10 +344,27 @@ impl<'a> ConstantInfo {
                     "Method {}{}:{}",
                     final_class_name,
                     method_name,
-                    cp.get_method_descriptor(ref_info)?,
+                    cp.get_descriptor(ref_info)?,
                 )
             }
             e => todo!("Pretty print not implemented for {e:?}"),
+        })
+    }
+}
+
+impl MethodHandleKind {
+    #[cfg(feature = "pretty_print")]
+    pub(crate) fn get_pretty_value(&self) -> Result<&str, ClassFileErr> {
+        Ok(match self {
+            MethodHandleKind::GetField => "REF_getField",
+            MethodHandleKind::GetStatic => "REF_getStatic",
+            MethodHandleKind::PutField => "REF_putField",
+            MethodHandleKind::PutStatic => "REF_putStatic",
+            MethodHandleKind::InvokeVirtual => "REF_invokeVirtual",
+            MethodHandleKind::InvokeStatic => "REF_invokeStatic",
+            MethodHandleKind::InvokeSpecial => "REF_invokeSpecial",
+            MethodHandleKind::NewInvokeSpecial => "REF_newInvokeSpecial",
+            MethodHandleKind::InvokeInterface => "REF_invokeInterface",
         })
     }
 }

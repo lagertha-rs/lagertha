@@ -13,7 +13,7 @@ pub mod code;
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.3
 #[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
-struct ExceptionTableEntry {
+pub struct ExceptionTableEntry {
     start_pc: u16,
     end_pc: u16,
     handler_pc: u16,
