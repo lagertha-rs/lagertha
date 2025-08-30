@@ -68,6 +68,7 @@ impl ConstantPool {
         self.get_utf8(&name_index)
     }
 
+    //TODO: There is a macro to do that? replace?
     pub fn get_pretty_class_name(&self, idx: &u16) -> Result<String, ClassFileErr> {
         let name_index = self.get_class(idx)?;
         self.get_utf8(&name_index).map(|raw| raw.replace('/', "."))

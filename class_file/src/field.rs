@@ -1,7 +1,7 @@
 use crate::ClassFileErr;
 use crate::attribute::field::FieldAttribute;
 use crate::constant::pool::ConstantPool;
-use common::descriptor::MethodDescriptor;
+use crate::print::get_method_javap_like_list;
 use common::utils::cursor::ByteCursor;
 use common::utils::indent_write::Indented;
 #[cfg(test)]
@@ -41,19 +41,31 @@ impl<'a> FieldInfo {
     #[cfg(feature = "pretty_print")]
     pub(crate) fn fmt_pretty(&self, ind: &mut Indented, cp: &ConstantPool) -> std::fmt::Result {
         use crate::print::get_field_pretty_java_like_prefix;
+        use common::jtype::Type;
         use common::pretty_try;
         use std::fmt::Write as _;
 
         let raw_descriptor = pretty_try!(ind, cp.get_utf8(&self.descriptor_index));
-        //let descriptor = pretty_try!(ind, MethodDescriptor::try_from(raw_descriptor));
+        let descriptor = pretty_try!(ind, Type::try_from(raw_descriptor));
         writeln!(
             ind,
             "{} {} {};",
             get_field_pretty_java_like_prefix(self.access_flags),
-            raw_descriptor,
+            descriptor,
             pretty_try!(ind, cp.get_utf8(&self.name_index))
         )?;
-
-        todo!()
+        ind.with_indent(|ind| {
+            writeln!(ind, "descriptor: {raw_descriptor}")?;
+            writeln!(
+                ind,
+                "flags: (0x{:04x}) {}",
+                self.access_flags,
+                get_method_javap_like_list(self.access_flags)
+            )?;
+            for attr in &self.attributes {
+                attr.fmt_pretty(ind, cp)?;
+            }
+            Ok(())
+        })
     }
 }

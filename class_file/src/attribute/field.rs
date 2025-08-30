@@ -2,6 +2,7 @@ use crate::attribute::method::{CodeAttribute, MethodAttribute};
 use crate::attribute::{AttributeType, SharedAttribute};
 use crate::constant::pool::ConstantPool;
 use crate::error::ClassFileErr;
+use common::descriptor::MethodDescriptor;
 use common::utils::cursor::ByteCursor;
 #[cfg(test)]
 use serde::Serialize;
@@ -33,5 +34,29 @@ impl<'a> FieldAttribute {
             )?)),
             _ => unimplemented!(),
         }
+    }
+
+    #[cfg(feature = "pretty_print")]
+    pub(crate) fn fmt_pretty(
+        &self,
+        ind: &mut common::utils::indent_write::Indented<'_>,
+        cp: &ConstantPool,
+    ) -> std::fmt::Result {
+        use common::pretty_try;
+        use std::fmt::Write as _;
+
+        match self {
+            FieldAttribute::Shared(shared) => shared.fmt_pretty(ind, cp)?,
+            FieldAttribute::ConstantValue(val) => {
+                let constant = pretty_try!(ind, cp.get_raw(val));
+                writeln!(
+                    ind,
+                    "ConstantValue: {}",
+                    pretty_try!(ind, constant.get_pretty_value(cp, &0))
+                )?;
+            }
+        }
+
+        Ok(())
     }
 }

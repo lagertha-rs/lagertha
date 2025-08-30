@@ -116,7 +116,7 @@ impl<'a> MethodInfo {
             writeln!(ind, "descriptor: {}", raw_descriptor)?;
             writeln!(
                 ind,
-                "flags: (0x{:04X}) {}",
+                "flags: (0x{:04x}) {}",
                 self.access_flags,
                 get_method_javap_like_list(self.access_flags)
             )?;
