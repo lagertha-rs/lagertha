@@ -178,6 +178,15 @@ impl<'a> StackMapFrame {
         use common::pretty_try;
         use std::fmt::Write as _;
 
+        let get_pretty_verif_type =
+            |locals: &Vec<VerificationTypeInfo>| -> Result<String, ClassFileErr> {
+                locals
+                    .iter()
+                    .map(|v| v.get_pretty_value(cp, this))
+                    .collect::<Result<Vec<_>, _>>()
+                    .map(|v| v.join(", "))
+            };
+
         write!(ind, "frame_type = ")?;
         match self {
             StackMapFrame::Same { offset_delta } => writeln!(ind, "{offset_delta} /* same */")?,
@@ -203,8 +212,29 @@ impl<'a> StackMapFrame {
                     Ok(())
                 })?;
             }
-            StackMapFrame::SameExtended { .. } => unimplemented!(),
-            StackMapFrame::Append { .. } => unimplemented!(),
+            StackMapFrame::SameExtended { offset_delta } => {
+                writeln!(ind, "251 /* same_frame_extended */")?;
+                ind.with_indent(|ind| {
+                    writeln!(ind, "offset_delta = {offset_delta}")?;
+                    Ok(())
+                })?;
+            }
+            StackMapFrame::Append {
+                k,
+                offset_delta,
+                locals,
+            } => {
+                writeln!(ind, "{} /* append */", 251 + k)?;
+                ind.with_indent(|ind| {
+                    writeln!(ind, "offset_delta = {offset_delta}")?;
+                    writeln!(
+                        ind,
+                        "locals = [{}]",
+                        pretty_try!(ind, get_pretty_verif_type(locals))
+                    )?;
+                    Ok(())
+                })?;
+            }
             StackMapFrame::Full {
                 offset_delta,
                 locals,
@@ -212,25 +242,17 @@ impl<'a> StackMapFrame {
             } => {
                 writeln!(ind, "255 /* full_frame */")?;
                 ind.with_indent(|ind| {
-                    let locals = pretty_try!(
-                        ind,
-                        locals
-                            .iter()
-                            .map(|v| v.get_pretty_value(cp, this))
-                            .collect::<Result<Vec<_>, _>>()
-                    )
-                    .join(", ");
-                    let stack = pretty_try!(
-                        ind,
-                        stack
-                            .iter()
-                            .map(|v| v.get_pretty_value(cp, this))
-                            .collect::<Result<Vec<_>, _>>()
-                    )
-                    .join(", ");
                     writeln!(ind, "offset_delta = {offset_delta}")?;
-                    writeln!(ind, "locals = [{}]", locals)?;
-                    writeln!(ind, "stack = [{}]", stack)?;
+                    writeln!(
+                        ind,
+                        "locals = [{}]",
+                        pretty_try!(ind, get_pretty_verif_type(locals))
+                    )?;
+                    writeln!(
+                        ind,
+                        "stack = [{}]",
+                        pretty_try!(ind, get_pretty_verif_type(stack))
+                    )?;
                     Ok(())
                 })?;
             }
@@ -394,7 +416,30 @@ impl<'a> CodeAttributeInfo {
                     Ok(())
                 })?;
             }
-            CodeAttributeInfo::LocalVariableTypeTable(_) => unimplemented!(),
+            CodeAttributeInfo::LocalVariableTypeTable(table) => {
+                writeln!(ind, "LocalVariableTypeTable:")?;
+                const W_START: usize = 6;
+                const W_LENGTH: usize = 8;
+                const W_SLOT: usize = 5;
+                const W_NAME: usize = 4;
+                ind.with_indent(|ind| {
+                    writeln!(
+                        ind,
+                        "{:>W_START$} {:>W_LENGTH$} {:>W_SLOT$}  {:<W_NAME$}   Signature",
+                        "Start", "Length", "Slot", "Name"
+                    )?;
+                    for lv in table {
+                        let name = pretty_try!(ind, cp.get_utf8(&lv.name_index));
+                        let signature = pretty_try!(ind, cp.get_utf8(&lv.signature_index));
+                        writeln!(
+                            ind,
+                            "{:>W_START$} {:>W_LENGTH$} {:>W_SLOT$}  {:<W_NAME$}   {}",
+                            lv.start_pc, lv.length, lv.index, name, signature,
+                        )?;
+                    }
+                    Ok(())
+                })?;
+            }
             CodeAttributeInfo::RuntimeVisibleTypeAnnotations => unimplemented!(),
             CodeAttributeInfo::RuntimeInvisibleTypeAnnotations => unimplemented!(),
         }

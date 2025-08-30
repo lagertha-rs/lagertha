@@ -1,5 +1,6 @@
 use crate::ClassFileErr;
 use crate::constant::pool::ConstantPool;
+use common::pretty_try;
 use common::utils::cursor::ByteCursor;
 use num_enum::TryFromPrimitive;
 #[cfg(test)]
@@ -246,9 +247,9 @@ impl<'a> ConstantInfo {
                         "#{}.#{}",
                         ref_info.class_index, ref_info.name_and_type_index
                     ),
-                    pretty_try!(ind, cp.get_method_class_name(ref_info)),
-                    pretty_method_name_try!(ind, cp.get_method_name(ref_info)),
-                    pretty_try!(ind, cp.get_descriptor(ref_info)),
+                    pretty_try!(ind, cp.get_method_or_field_class_name(ref_info)),
+                    pretty_method_name_try!(ind, cp.get_method_or_field_name(ref_info)),
+                    pretty_try!(ind, cp.get_method_or_field_descriptor(ref_info)),
                     op_w = op_w
                 )
             }
@@ -268,7 +269,7 @@ impl<'a> ConstantInfo {
                     ref_info.class_index, ref_info.name_and_type_index
                 ),
                 pretty_try!(ind, cp.get_class_name(&ref_info.class_index)),
-                pretty_try!(ind, cp.get_descriptor(ref_info)),
+                pretty_try!(ind, cp.get_method_or_field_descriptor(ref_info)),
                 op_w = op_w
             ),
             ConstantInfo::Dynamic(dyn_info) | ConstantInfo::InvokeDynamic(dyn_info) => {
@@ -303,9 +304,9 @@ impl<'a> ConstantInfo {
                         handle_info.reference_kind, handle_info.reference_index
                     ),
                     pretty_try!(ind, handle_kind.get_pretty_value()),
-                    pretty_try!(ind, cp.get_method_class_name(method_ref)),
-                    pretty_method_name_try!(ind, cp.get_method_name(method_ref)),
-                    pretty_try!(ind, cp.get_descriptor(method_ref)),
+                    pretty_try!(ind, cp.get_method_or_field_class_name(method_ref)),
+                    pretty_method_name_try!(ind, cp.get_method_or_field_name(method_ref)),
+                    pretty_try!(ind, cp.get_method_or_field_descriptor(method_ref)),
                     op_w = op_w
                 )
             }
@@ -328,11 +329,11 @@ impl<'a> ConstantInfo {
             ConstantInfo::Class(index) => format!("class {}", cp.get_utf8(index)?),
             ConstantInfo::String(index) => format!("String {}", cp.get_utf8(index)?),
             ConstantInfo::MethodRef(ref_info) => {
-                let method_name = match cp.get_method_name(ref_info)? {
+                let method_name = match cp.get_method_or_field_name(ref_info)? {
                     "<init>" => "\"<init>\"".to_owned(),
                     other => other.to_owned(),
                 };
-                let name = cp.get_method_class_name(ref_info)?;
+                let name = cp.get_method_or_field_class_name(ref_info)?;
                 let final_class_name = {
                     if name != cp.get_class_name(this_class_name)? {
                         format_args!("{}.", name)
@@ -344,7 +345,39 @@ impl<'a> ConstantInfo {
                     "Method {}{}:{}",
                     final_class_name,
                     method_name,
-                    cp.get_descriptor(ref_info)?,
+                    cp.get_method_or_field_descriptor(ref_info)?,
+                )
+            }
+            ConstantInfo::FieldRef(ref_info) => {
+                let name = cp.get_method_or_field_class_name(ref_info)?;
+                let final_class_name = {
+                    if name != cp.get_class_name(this_class_name)? {
+                        format_args!("{}.", name)
+                    } else {
+                        format_args!("")
+                    }
+                };
+                format!(
+                    "Field {}{}:{}",
+                    final_class_name,
+                    cp.get_method_or_field_name(ref_info)?,
+                    cp.get_method_or_field_descriptor(ref_info)?,
+                )
+            }
+            ConstantInfo::InterfaceMethodRef(ref_info) => {
+                let name = cp.get_method_or_field_class_name(ref_info)?;
+                let final_class_name = {
+                    if name != cp.get_class_name(this_class_name)? {
+                        format_args!("{}.", name)
+                    } else {
+                        format_args!("")
+                    }
+                };
+                format!(
+                    "InterfaceMethod {}{}:{}",
+                    final_class_name,
+                    cp.get_method_or_field_name(ref_info)?,
+                    cp.get_method_or_field_descriptor(ref_info)?,
                 )
             }
             e => todo!("Pretty print not implemented for {e:?}"),

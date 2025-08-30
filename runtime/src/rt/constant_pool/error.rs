@@ -1,12 +1,14 @@
 use crate::rt::constant_pool::RuntimeConstantType;
-use common::DescriptorErr;
+use common::{MethodDescriptorErr, TypeDescriptorErr};
 use std::fmt;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum RuntimePoolError {
     #[error(transparent)]
-    Descriptor(#[from] DescriptorErr),
+    MethodDescriptor(#[from] MethodDescriptorErr),
+    #[error(transparent)]
+    TypeDescriptor(#[from] TypeDescriptorErr),
     #[error("")]
     WrongIndex(u16),
     #[error("")]

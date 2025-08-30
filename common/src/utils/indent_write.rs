@@ -10,7 +10,12 @@ macro_rules! pretty_try {
             Err(e) => {
                 let _ = $ind.with_specific_indent(0, |ind| {
                     ::std::writeln!(ind, "\n****************************************")?;
-                    ::std::writeln!(ind, "print error: {}", e)
+                    let err_str = format!("{}", e);
+                    if err_str.is_empty() {
+                        ::std::writeln!(ind, "print error (no message): debug {e:?}")
+                    } else {
+                        ::std::writeln!(ind, "print error: {}", err_str)
+                    }
                 });
                 return Err(::std::fmt::Error);
             }
@@ -32,7 +37,12 @@ macro_rules! pretty_class_name_try {
             Err(e) => {
                 let _ = $ind.with_specific_indent(0, |ind| {
                     ::std::writeln!(ind, "\n****************************************")?;
-                    ::std::writeln!(ind, "print error: {}", e)
+                    let err_str = format!("{}", e);
+                    if err_str.is_empty() {
+                        ::std::writeln!(ind, "print error (no message): debug {e:?}")
+                    } else {
+                        ::std::writeln!(ind, "print error: {}", err_str)
+                    }
                 });
                 return Err(::std::fmt::Error);
             }
@@ -52,7 +62,12 @@ macro_rules! pretty_method_name_try {
             Err(e) => {
                 let _ = $ind.with_specific_indent(0, |ind| {
                     ::std::writeln!(ind, "\n****************************************")?;
-                    ::std::writeln!(ind, "print error: {}", e)
+                    let err_str = format!("{}", e);
+                    if err_str.is_empty() {
+                        ::std::writeln!(ind, "print error (no message): debug {e:?}")
+                    } else {
+                        ::std::writeln!(ind, "print error: {}", err_str)
+                    }
                 });
                 return Err(::std::fmt::Error);
             }

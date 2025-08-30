@@ -214,22 +214,27 @@ impl<'a> CodeAttribute {
                 const W_START: usize = 6;
                 const W_LENGTH: usize = 8;
                 const W_SLOT: usize = 5;
-                const W_NAME: usize = 4;
                 writeln!(ind, "Exception table:")?;
                 ind.with_indent(|ind| {
                     writeln!(
                         ind,
-                        "{:>W_START$} {:>W_LENGTH$} {:>W_SLOT$}  {:<W_NAME$}",
-                        "from", "to", "target", "type"
+                        "{:>W_START$} {:>W_LENGTH$} {:>W_SLOT$} type",
+                        "from", "to", "target"
                     )?;
                     for entry in &self.exception_table {
+                        let catch_type = if entry.catch_type == 0 {
+                            "any"
+                        } else {
+                            pretty_try!(ind, cp.get_class_name(&entry.catch_type))
+                        };
                         writeln!(
                             ind,
-                            "{:>W_START$} {:>W_LENGTH$} {:>W_SLOT$}  Class {:<W_NAME$}",
+                            "{:>W_START$} {:>W_LENGTH$} {:>W_SLOT$}  {}{}",
                             entry.start_pc,
                             entry.end_pc,
                             entry.handler_pc,
-                            pretty_try!(ind, cp.get_class_name(&entry.catch_type)).to_string()
+                            if catch_type != "any" { "Class " } else { "" },
+                            catch_type
                         )?;
                     }
                     Ok(())

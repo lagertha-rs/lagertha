@@ -120,17 +120,26 @@ impl ConstantPool {
         self.get_nat_descriptor(nat)
     }
 
-    pub fn get_method_class_name(&self, method_ref: &ReferenceInfo) -> Result<&str, ClassFileErr> {
+    pub fn get_method_or_field_class_name(
+        &self,
+        method_ref: &ReferenceInfo,
+    ) -> Result<&str, ClassFileErr> {
         self.get_class_name(&method_ref.class_index)
     }
 
-    pub fn get_method_name(&self, method_ref: &ReferenceInfo) -> Result<&str, ClassFileErr> {
+    pub fn get_method_or_field_name(
+        &self,
+        method_ref: &ReferenceInfo,
+    ) -> Result<&str, ClassFileErr> {
         let nat_index = method_ref.name_and_type_index;
         let nat = self.get_name_and_type(&nat_index)?;
         self.get_nat_name(nat)
     }
 
-    pub fn get_descriptor(&self, ref_info: &ReferenceInfo) -> Result<&str, ClassFileErr> {
+    pub fn get_method_or_field_descriptor(
+        &self,
+        ref_info: &ReferenceInfo,
+    ) -> Result<&str, ClassFileErr> {
         let nat_index = ref_info.name_and_type_index;
         let desc_index = self.get_name_and_type(&nat_index)?;
         self.get_nat_descriptor(desc_index)
