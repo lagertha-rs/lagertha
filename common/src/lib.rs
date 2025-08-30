@@ -10,17 +10,23 @@ pub mod jtype;
 pub mod utils;
 
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
-pub enum DescriptorErr {
+pub enum TypeDescriptorErr {
+    #[error("Unexpected end of descriptor")]
+    UnexpectedEnd,
+    #[error("Invalid descriptor type `{0}`")]
+    InvalidType(char),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
+pub enum MethodDescriptorErr {
     #[error("")]
     ShouldStartWithParentheses,
     #[error("")]
     MissingClosingParenthesis,
     #[error("")]
-    UnexpectedEnd,
-    #[error("")]
-    InvalidType,
-    #[error("")]
     TrailingCharacters,
+    #[error("Method descriptor error in \"{0}\": {1}")]
+    Type(String, TypeDescriptorErr),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
