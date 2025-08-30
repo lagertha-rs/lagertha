@@ -183,28 +183,32 @@ impl std::fmt::Display for ClassFile {
             }
             Ok(())
         })?;
-        writeln!(ind, "{{")?;
-        ind.with_indent(|ind| {
-            for (i, field) in self.fields.iter().enumerate() {
-                field.fmt_pretty(ind, &self.cp)?;
-                if i + 1 < self.methods.len() {
-                    writeln!(ind)?;
+        if !self.fields.is_empty() {
+            writeln!(ind, "{{")?;
+            ind.with_indent(|ind| {
+                for (i, field) in self.fields.iter().enumerate() {
+                    field.fmt_pretty(ind, &self.cp)?;
+                    if i + 1 < self.methods.len() {
+                        writeln!(ind)?;
+                    }
                 }
-            }
-            Ok(())
-        })?;
-        writeln!(ind, "}}")?;
-        writeln!(ind, "{{")?;
-        ind.with_indent(|ind| {
-            for (i, method) in self.methods.iter().enumerate() {
-                method.fmt_pretty(ind, &self.cp, &self.this_class)?;
-                if i + 1 < self.methods.len() {
-                    writeln!(ind)?;
+                Ok(())
+            })?;
+            writeln!(ind, "}}")?;
+        }
+        if !self.methods.is_empty() {
+            writeln!(ind, "{{")?;
+            ind.with_indent(|ind| {
+                for (i, method) in self.methods.iter().enumerate() {
+                    method.fmt_pretty(ind, &self.cp, &self.this_class)?;
+                    if i + 1 < self.methods.len() {
+                        writeln!(ind)?;
+                    }
                 }
-            }
-            Ok(())
-        })?;
-        writeln!(ind, "}}")?;
+                Ok(())
+            })?;
+            writeln!(ind, "}}")?;
+        }
         Ok(())
     }
 }

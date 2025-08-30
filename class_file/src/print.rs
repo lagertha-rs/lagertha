@@ -228,12 +228,12 @@ pub fn get_pretty_instruction(
             (Some(*val as i32), "instanceof", comment_value(val)?, false)
         }
         Instruction::IfAcmpNe(val) => (Some(*val as i32 + pc), "if_acmpne", None, true),
-        Instruction::Ifeq(val) => (Some(*val as i32 + pc), "ifeq", None, true),
-        Instruction::Ifne(val) => (Some(*val as i32 + pc), "ifne", None, true),
-        Instruction::Iflt(val) => (Some(*val as i32 + pc), "iflt", None, true),
-        Instruction::Ifge(val) => (Some(*val as i32 + pc), "ifge", None, true),
-        Instruction::Ifgt(val) => (Some(*val as i32 + pc), "ifgt", None, true),
-        Instruction::Ifle(val) => (Some(*val as i32 + pc), "ifle", None, true),
+        Instruction::IfEq(val) => (Some(*val as i32 + pc), "ifeq", None, true),
+        Instruction::IfNe(val) => (Some(*val as i32 + pc), "ifne", None, true),
+        Instruction::IfLt(val) => (Some(*val as i32 + pc), "iflt", None, true),
+        Instruction::IfGe(val) => (Some(*val as i32 + pc), "ifge", None, true),
+        Instruction::IfGt(val) => (Some(*val as i32 + pc), "ifgt", None, true),
+        Instruction::IfLe(val) => (Some(*val as i32 + pc), "ifle", None, true),
         Instruction::IfIcmpeq(val) => (Some(*val as i32 + pc), "if_icmpeq", None, true),
         Instruction::IfIcmpne(val) => (Some(*val as i32 + pc), "if_icmpne", None, true),
         Instruction::IfIcmplt(val) => (Some(*val as i32 + pc), "if_icmplt", None, true),
@@ -241,19 +241,19 @@ pub fn get_pretty_instruction(
         Instruction::IfIcmpgt(val) => (Some(*val as i32 + pc), "if_icmpgt", None, true),
         Instruction::IfIcmple(val) => (Some(*val as i32 + pc), "if_icmple", None, true),
         Instruction::Ireturn => (None, "ireturn", None, false),
-        Instruction::Invokespecial(val) => (
+        Instruction::InvokeSpecial(val) => (
             Some(*val as i32),
             "invokespecial",
             comment_value(val)?,
             false,
         ),
-        Instruction::Invokestatic(val) => (
+        Instruction::InvokeStatic(val) => (
             Some(*val as i32),
             "invokestatic",
             comment_value(val)?,
             false,
         ),
-        Instruction::Invokevirtual(val) => (
+        Instruction::InvokeVirtual(val) => (
             Some(*val as i32),
             "invokevirtual",
             comment_value(val)?,
@@ -271,12 +271,13 @@ pub fn get_pretty_instruction(
         Instruction::Lstore2 => (None, "lstore_2", None, false),
         Instruction::Lstore3 => (None, "lstore_3", None, false),
         Instruction::Ldc(val) => (Some(*val as i32), "ldc", comment_value(val)?, false),
-        Instruction::Ldc2w(val) => (Some(*val as i32), "ldc2_w", comment_value(val)?, false),
+        Instruction::Ldc2W(val) => (Some(*val as i32), "ldc2_w", comment_value(val)?, false),
         Instruction::New(val) => (Some(*val as i32), "new", comment_value(val)?, false),
         Instruction::Pop => (None, "pop", None, false),
         Instruction::Return => (None, "return", None, false),
         Instruction::Areturn => (None, "areturn", None, false),
         Instruction::Ladd => (None, "ladd", None, false),
+        _ => (None, "unimplemented", None, false),
     };
 
     let mut out = String::with_capacity(32);
