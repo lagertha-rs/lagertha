@@ -15,7 +15,9 @@ impl TryFrom<&str> for MethodDescriptor {
         let mut chars = desc.chars().peekable();
 
         if chars.next() != Some('(') {
-            return Err(MethodDescriptorErr::ShouldStartWithParentheses);
+            return Err(MethodDescriptorErr::ShouldStartWithParentheses(
+                desc.to_string(),
+            ));
         }
 
         let mut params = Vec::new();
@@ -30,7 +32,9 @@ impl TryFrom<&str> for MethodDescriptor {
                         .map_err(|e| MethodDescriptorErr::Type(desc.to_string(), e))?,
                 ),
                 None => {
-                    return Err(MethodDescriptorErr::MissingClosingParenthesis);
+                    return Err(MethodDescriptorErr::MissingClosingParenthesis(
+                        desc.to_string(),
+                    ));
                 }
             }
         }

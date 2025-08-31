@@ -7,6 +7,7 @@ pub mod access;
 pub mod descriptor;
 pub mod instruction;
 pub mod jtype;
+pub mod signature;
 pub mod utils;
 
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
@@ -19,10 +20,10 @@ pub enum TypeDescriptorErr {
 
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum MethodDescriptorErr {
-    #[error("")]
-    ShouldStartWithParentheses,
-    #[error("")]
-    MissingClosingParenthesis,
+    #[error("Descriptor must start with '('. Descriptor: \"{0}\"")]
+    ShouldStartWithParentheses(String),
+    #[error("Descriptor must contain ')'. Descriptor: \"{0}\"")]
+    MissingClosingParenthesis(String),
     #[error("")]
     TrailingCharacters,
     #[error("Method descriptor error in \"{0}\": {1}")]

@@ -2,6 +2,13 @@ use crate::InstructionErr;
 use crate::utils::cursor::ByteCursor;
 use num_enum::TryFromPrimitive;
 
+/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-6.html#jvms-6.5.lookupswitch
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LookupSwitchData {
+    pub default_offset: i32,
+    pub pairs: Vec<(i32, i32)>,
+}
+
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-6.html
 #[derive(Debug, Clone, Copy, TryFromPrimitive)]
 #[repr(u8)]
@@ -177,6 +184,7 @@ pub enum Opcode {
     Lload3 = 0x21,
     Lmul = 0x69,
     Lneg = 0x75,
+    Lookupswitch = 0xAB,
     Lor = 0x81,
     Lrem = 0x71,
     Lreturn = 0xAD,
@@ -339,6 +347,7 @@ pub enum Instruction {
     Iload3,
     Imul,
     Ineg,
+    Lookupswitch(LookupSwitchData),
     Instanceof(u16),
     InvokeDynamic(u16),
     InvokeInterface(u16, u8),
@@ -670,6 +679,22 @@ impl Instruction {
                 Opcode::Lload3 => Self::Lload3,
                 Opcode::Lmul => Self::Lmul,
                 Opcode::Lneg => Self::Lneg,
+                Opcode::Lookupswitch => {
+                    // TOOD: assert signed are >= 0?
+                    cursor.align_to(4)?;
+                    let default_offset = cursor.i32()?;
+                    let npairs = cursor.i32()?;
+                    let mut pairs = Vec::with_capacity(npairs as usize);
+                    for _ in 0..npairs {
+                        let match_value = cursor.i32()?;
+                        let offset = cursor.i32()?;
+                        pairs.push((match_value, offset));
+                    }
+                    Self::Lookupswitch(LookupSwitchData {
+                        default_offset,
+                        pairs,
+                    })
+                }
                 Opcode::Lor => Self::Lor,
                 Opcode::Lrem => Self::Lrem,
                 Opcode::Lreturn => Self::Lreturn,

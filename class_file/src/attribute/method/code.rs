@@ -390,11 +390,11 @@ impl<'a> CodeAttributeInfo {
                 const W_START: usize = 6;
                 const W_LENGTH: usize = 8;
                 const W_SLOT: usize = 5;
-                const W_NAME: usize = 4;
+                const W_NAME: usize = 6;
                 writeln!(ind, "LocalVariableTable:")?;
                 writeln!(
                     ind,
-                    "{:>W_START$} {:>W_LENGTH$} {:>W_SLOT$}  {:<W_NAME$}   {}",
+                    "{:>W_START$} {:>W_LENGTH$} {:>W_SLOT$}  {:<W_NAME$} {}",
                     "Start", "Length", "Slot", "Name", "Signature",
                 )?;
                 for lv in table {
@@ -402,7 +402,7 @@ impl<'a> CodeAttributeInfo {
                     let descriptor = pretty_try!(ind, cp.get_utf8(&lv.descriptor_index));
                     writeln!(
                         ind,
-                        "{:>W_START$} {:>W_LENGTH$} {:>W_SLOT$}  {:<W_NAME$}   {}",
+                        "{:>W_START$} {:>W_LENGTH$} {:>W_SLOT$}  {:<W_NAME$} {}",
                         lv.start_pc, lv.length, lv.index, name, descriptor,
                     )?;
                 }

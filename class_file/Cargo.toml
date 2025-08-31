@@ -11,6 +11,8 @@ pretty_print = []
 num_enum = "0.7.4"
 itertools = "0.14.0"
 
+either = "1.15.0" # TODO: add only under pretty_print feature
+
 thiserror = { workspace = true }
 
 common = { path = "../common" }
