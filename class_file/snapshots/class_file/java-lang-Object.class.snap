@@ -1,0 +1,656 @@
+---
+source: class_file/src/lib.rs
+expression: class_file
+---
+minor_version: 0
+major_version: 68
+cp:
+  inner:
+    - Unused
+    - Class: 2
+    - Utf8: java/lang/StringBuilder
+    - MethodRef:
+        class_index: 1
+        name_and_type_index: 4
+    - NameAndType:
+        name_index: 5
+        descriptor_index: 6
+    - Utf8: "<init>"
+    - Utf8: ()V
+    - MethodRef:
+        class_index: 8
+        name_and_type_index: 9
+    - Class: 10
+    - NameAndType:
+        name_index: 11
+        descriptor_index: 12
+    - Utf8: java/lang/Object
+    - Utf8: getClass
+    - Utf8: ()Ljava/lang/Class;
+    - MethodRef:
+        class_index: 14
+        name_and_type_index: 15
+    - Class: 16
+    - NameAndType:
+        name_index: 17
+        descriptor_index: 18
+    - Utf8: java/lang/Class
+    - Utf8: getName
+    - Utf8: ()Ljava/lang/String;
+    - MethodRef:
+        class_index: 1
+        name_and_type_index: 20
+    - NameAndType:
+        name_index: 21
+        descriptor_index: 22
+    - Utf8: append
+    - Utf8: (Ljava/lang/String;)Ljava/lang/StringBuilder;
+    - String: 24
+    - Utf8: "@"
+    - MethodRef:
+        class_index: 8
+        name_and_type_index: 26
+    - NameAndType:
+        name_index: 27
+        descriptor_index: 28
+    - Utf8: hashCode
+    - Utf8: ()I
+    - MethodRef:
+        class_index: 30
+        name_and_type_index: 31
+    - Class: 32
+    - NameAndType:
+        name_index: 33
+        descriptor_index: 34
+    - Utf8: java/lang/Integer
+    - Utf8: toHexString
+    - Utf8: (I)Ljava/lang/String;
+    - MethodRef:
+        class_index: 1
+        name_and_type_index: 36
+    - NameAndType:
+        name_index: 37
+        descriptor_index: 18
+    - Utf8: toString
+    - MethodRef:
+        class_index: 8
+        name_and_type_index: 39
+    - NameAndType:
+        name_index: 40
+        descriptor_index: 41
+    - Utf8: wait
+    - Utf8: (J)V
+    - Class: 43
+    - Utf8: java/lang/IllegalArgumentException
+    - String: 45
+    - Utf8: timeout value is negative
+    - MethodRef:
+        class_index: 42
+        name_and_type_index: 47
+    - NameAndType:
+        name_index: 5
+        descriptor_index: 48
+    - Utf8: (Ljava/lang/String;)V
+    - MethodRef:
+        class_index: 50
+        name_and_type_index: 51
+    - Class: 52
+    - NameAndType:
+        name_index: 53
+        descriptor_index: 54
+    - Utf8: java/lang/Thread
+    - Utf8: currentThread
+    - Utf8: ()Ljava/lang/Thread;
+    - Class: 56
+    - Utf8: java/lang/VirtualThread
+    - MethodRef:
+        class_index: 8
+        name_and_type_index: 58
+    - NameAndType:
+        name_index: 59
+        descriptor_index: 41
+    - Utf8: wait0
+    - Class: 61
+    - Utf8: java/lang/InterruptedException
+    - MethodRef:
+        class_index: 55
+        name_and_type_index: 63
+    - NameAndType:
+        name_index: 64
+        descriptor_index: 65
+    - Utf8: getAndClearInterrupt
+    - Utf8: ()Z
+    - String: 67
+    - Utf8: timeoutMillis value is negative
+    - Integer: 999999
+    - String: 70
+    - Utf8: nanosecond timeout value out of range
+    - Class: 72
+    - Utf8: java/lang/Long
+    - Long: 9223372036854775807
+    - Unused
+    - Utf8: Code
+    - Utf8: LineNumberTable
+    - Utf8: LocalVariableTable
+    - Utf8: this
+    - Utf8: Ljava/lang/Object;
+    - Utf8: RuntimeVisibleAnnotations
+    - Utf8: Ljdk/internal/vm/annotation/IntrinsicCandidate;
+    - Utf8: Signature
+    - Utf8: ()Ljava/lang/Class<*>;
+    - Utf8: equals
+    - Utf8: (Ljava/lang/Object;)Z
+    - Utf8: obj
+    - Utf8: StackMapTable
+    - Utf8: clone
+    - Utf8: ()Ljava/lang/Object;
+    - Utf8: Exceptions
+    - Class: 92
+    - Utf8: java/lang/CloneNotSupportedException
+    - Utf8: notify
+    - Utf8: notifyAll
+    - Utf8: e
+    - Utf8: Ljava/lang/InterruptedException;
+    - Utf8: vthread
+    - Utf8: Ljava/lang/VirtualThread;
+    - Utf8: timeoutMillis
+    - Utf8: J
+    - Utf8: (JI)V
+    - Utf8: nanos
+    - Utf8: I
+    - Utf8: finalize
+    - Class: 106
+    - Utf8: java/lang/Throwable
+    - Utf8: Deprecated
+    - Utf8: Ljava/lang/Deprecated;
+    - Utf8: since
+    - Utf8: "9"
+    - Utf8: forRemoval
+    - Integer: 1
+    - Utf8: SourceFile
+    - Utf8: Object.java
+access_flags: 33
+this_class: 8
+super_class: 0
+interfaces: []
+fields: []
+methods:
+  - access_flags: 1
+    name_index: 5
+    descriptor_index: 6
+    attributes:
+      - Code:
+          max_stack: 0
+          max_locals: 1
+          code:
+            - 177
+          exception_table: []
+          attributes:
+            - LineNumberTable:
+                - start_pc: 0
+                  line_number: 44
+            - LocalVariableTable:
+                - start_pc: 0
+                  length: 1
+                  name_index: 78
+                  descriptor_index: 79
+                  index: 0
+      - Shared:
+          RuntimeVisibleAnnotations:
+            - type_index: 81
+              element_value_pairs: []
+  - access_flags: 273
+    name_index: 11
+    descriptor_index: 12
+    attributes:
+      - Shared:
+          Signature: 83
+      - Shared:
+          RuntimeVisibleAnnotations:
+            - type_index: 81
+              element_value_pairs: []
+  - access_flags: 257
+    name_index: 27
+    descriptor_index: 28
+    attributes:
+      - Shared:
+          RuntimeVisibleAnnotations:
+            - type_index: 81
+              element_value_pairs: []
+  - access_flags: 1
+    name_index: 84
+    descriptor_index: 85
+    attributes:
+      - Code:
+          max_stack: 2
+          max_locals: 2
+          code:
+            - 42
+            - 43
+            - 166
+            - 0
+            - 7
+            - 4
+            - 167
+            - 0
+            - 4
+            - 3
+            - 172
+          exception_table: []
+          attributes:
+            - LineNumberTable:
+                - start_pc: 0
+                  line_number: 170
+            - LocalVariableTable:
+                - start_pc: 0
+                  length: 11
+                  name_index: 78
+                  descriptor_index: 79
+                  index: 0
+                - start_pc: 0
+                  length: 11
+                  name_index: 86
+                  descriptor_index: 79
+                  index: 1
+            - StackMapTable:
+                - Same:
+                    offset_delta: 9
+                - SameLocals1StackItem:
+                    offset_delta: 0
+                    stack: Integer
+  - access_flags: 260
+    name_index: 88
+    descriptor_index: 89
+    attributes:
+      - Exceptions:
+          - 91
+      - Shared:
+          RuntimeVisibleAnnotations:
+            - type_index: 81
+              element_value_pairs: []
+  - access_flags: 1
+    name_index: 37
+    descriptor_index: 18
+    attributes:
+      - Code:
+          max_stack: 2
+          max_locals: 1
+          code:
+            - 187
+            - 0
+            - 1
+            - 89
+            - 183
+            - 0
+            - 3
+            - 42
+            - 182
+            - 0
+            - 7
+            - 182
+            - 0
+            - 13
+            - 182
+            - 0
+            - 19
+            - 18
+            - 23
+            - 182
+            - 0
+            - 19
+            - 42
+            - 182
+            - 0
+            - 25
+            - 184
+            - 0
+            - 29
+            - 182
+            - 0
+            - 19
+            - 182
+            - 0
+            - 35
+            - 176
+          exception_table: []
+          attributes:
+            - LineNumberTable:
+                - start_pc: 0
+                  line_number: 269
+            - LocalVariableTable:
+                - start_pc: 0
+                  length: 36
+                  name_index: 78
+                  descriptor_index: 79
+                  index: 0
+  - access_flags: 273
+    name_index: 93
+    descriptor_index: 6
+    attributes:
+      - Shared:
+          RuntimeVisibleAnnotations:
+            - type_index: 81
+              element_value_pairs: []
+  - access_flags: 273
+    name_index: 94
+    descriptor_index: 6
+    attributes:
+      - Shared:
+          RuntimeVisibleAnnotations:
+            - type_index: 81
+              element_value_pairs: []
+  - access_flags: 17
+    name_index: 40
+    descriptor_index: 6
+    attributes:
+      - Code:
+          max_stack: 3
+          max_locals: 1
+          code:
+            - 42
+            - 9
+            - 182
+            - 0
+            - 38
+            - 177
+          exception_table: []
+          attributes:
+            - LineNumberTable:
+                - start_pc: 0
+                  line_number: 351
+                - start_pc: 5
+                  line_number: 352
+            - LocalVariableTable:
+                - start_pc: 0
+                  length: 6
+                  name_index: 78
+                  descriptor_index: 79
+                  index: 0
+      - Exceptions:
+          - 60
+  - access_flags: 17
+    name_index: 40
+    descriptor_index: 41
+    attributes:
+      - Code:
+          max_stack: 4
+          max_locals: 5
+          code:
+            - 31
+            - 9
+            - 148
+            - 156
+            - 0
+            - 13
+            - 187
+            - 0
+            - 42
+            - 89
+            - 18
+            - 44
+            - 183
+            - 0
+            - 46
+            - 191
+            - 184
+            - 0
+            - 49
+            - 58
+            - 4
+            - 25
+            - 4
+            - 193
+            - 0
+            - 55
+            - 153
+            - 0
+            - 27
+            - 25
+            - 4
+            - 192
+            - 0
+            - 55
+            - 78
+            - 42
+            - 31
+            - 182
+            - 0
+            - 57
+            - 167
+            - 0
+            - 18
+            - 58
+            - 4
+            - 45
+            - 182
+            - 0
+            - 62
+            - 87
+            - 25
+            - 4
+            - 191
+            - 42
+            - 31
+            - 182
+            - 0
+            - 57
+            - 177
+          exception_table:
+            - start_pc: 35
+              end_pc: 40
+              handler_pc: 43
+              catch_type: 60
+          attributes:
+            - LineNumberTable:
+                - start_pc: 0
+                  line_number: 376
+                - start_pc: 6
+                  line_number: 377
+                - start_pc: 16
+                  line_number: 380
+                - start_pc: 35
+                  line_number: 382
+                - start_pc: 40
+                  line_number: 387
+                - start_pc: 43
+                  line_number: 383
+                - start_pc: 45
+                  line_number: 385
+                - start_pc: 50
+                  line_number: 386
+                - start_pc: 53
+                  line_number: 389
+                - start_pc: 58
+                  line_number: 391
+            - LocalVariableTable:
+                - start_pc: 45
+                  length: 8
+                  name_index: 95
+                  descriptor_index: 96
+                  index: 4
+                - start_pc: 35
+                  length: 18
+                  name_index: 97
+                  descriptor_index: 98
+                  index: 3
+                - start_pc: 0
+                  length: 59
+                  name_index: 78
+                  descriptor_index: 79
+                  index: 0
+                - start_pc: 0
+                  length: 59
+                  name_index: 99
+                  descriptor_index: 100
+                  index: 1
+            - StackMapTable:
+                - Same:
+                    offset_delta: 16
+                - Full:
+                    offset_delta: 26
+                    locals:
+                      - Object: 8
+                      - Long
+                      - Object: 55
+                    stack:
+                      - Object: 60
+                - Chop:
+                    k: 1
+                    offset_delta: 9
+                - Same:
+                    offset_delta: 4
+      - Exceptions:
+          - 60
+  - access_flags: 274
+    name_index: 59
+    descriptor_index: 41
+    attributes:
+      - Exceptions:
+          - 60
+  - access_flags: 17
+    name_index: 40
+    descriptor_index: 101
+    attributes:
+      - Code:
+          max_stack: 4
+          max_locals: 4
+          code:
+            - 31
+            - 9
+            - 148
+            - 156
+            - 0
+            - 13
+            - 187
+            - 0
+            - 42
+            - 89
+            - 18
+            - 66
+            - 183
+            - 0
+            - 46
+            - 191
+            - 29
+            - 155
+            - 0
+            - 9
+            - 29
+            - 18
+            - 68
+            - 164
+            - 0
+            - 13
+            - 187
+            - 0
+            - 42
+            - 89
+            - 18
+            - 69
+            - 183
+            - 0
+            - 46
+            - 191
+            - 29
+            - 158
+            - 0
+            - 15
+            - 31
+            - 20
+            - 0
+            - 73
+            - 148
+            - 156
+            - 0
+            - 7
+            - 31
+            - 10
+            - 97
+            - 64
+            - 42
+            - 31
+            - 182
+            - 0
+            - 38
+            - 177
+          exception_table: []
+          attributes:
+            - LineNumberTable:
+                - start_pc: 0
+                  line_number: 491
+                - start_pc: 6
+                  line_number: 492
+                - start_pc: 16
+                  line_number: 495
+                - start_pc: 26
+                  line_number: 496
+                - start_pc: 36
+                  line_number: 500
+                - start_pc: 48
+                  line_number: 501
+                - start_pc: 52
+                  line_number: 504
+                - start_pc: 57
+                  line_number: 505
+            - LocalVariableTable:
+                - start_pc: 0
+                  length: 58
+                  name_index: 78
+                  descriptor_index: 79
+                  index: 0
+                - start_pc: 0
+                  length: 58
+                  name_index: 99
+                  descriptor_index: 100
+                  index: 1
+                - start_pc: 0
+                  length: 58
+                  name_index: 102
+                  descriptor_index: 103
+                  index: 3
+            - StackMapTable:
+                - Same:
+                    offset_delta: 16
+                - Same:
+                    offset_delta: 9
+                - Same:
+                    offset_delta: 9
+                - Same:
+                    offset_delta: 15
+      - Exceptions:
+          - 60
+  - access_flags: 4
+    name_index: 104
+    descriptor_index: 6
+    attributes:
+      - Code:
+          max_stack: 0
+          max_locals: 1
+          code:
+            - 177
+          exception_table: []
+          attributes:
+            - LineNumberTable:
+                - start_pc: 0
+                  line_number: 609
+            - LocalVariableTable:
+                - start_pc: 0
+                  length: 1
+                  name_index: 78
+                  descriptor_index: 79
+                  index: 0
+      - Exceptions:
+          - 105
+      - Shared: Deprecated
+      - Shared:
+          RuntimeVisibleAnnotations:
+            - type_index: 108
+              element_value_pairs:
+                - element_name_index: 109
+                  value:
+                    String: 110
+                - element_name_index: 111
+                  value:
+                    Boolean: 112
+attributes:
+  - SourceFile: 114
