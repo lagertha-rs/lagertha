@@ -222,8 +222,7 @@ mod tests {
     use std::io::BufRead;
     use std::path::{Path, PathBuf};
 
-    const CLASS_SNAPSHOT_PATH: &str = "../snapshots/class_file";
-    const DISPLAY_SNAPSHOT_PATH: &str = "../snapshots/display";
+    const DISPLAY_SNAPSHOT_PATH: &str = "../snapshots";
 
     fn to_snapshot_name(path: &Path) -> String {
         let mut iter = path.iter().map(|s| s.to_string_lossy().to_string());
@@ -234,34 +233,6 @@ mod tests {
         }
         let tail: Vec<String> = iter.collect();
         tail.join("-")
-    }
-
-    #[rstest]
-    #[trace]
-    // Requires `testdata/compile-fixtures.py` to be executed to generate the .class files
-    fn parse_class_file(
-        #[base_dir = "../target/test-classes"]
-        #[files("**/*.class")]
-        path: PathBuf,
-    ) {
-        // Given
-        let bytes = fs::read(&path).unwrap_or_else(|_| panic!("Can't read file {:?}", path));
-
-        // When
-        let class_file = ClassFile::try_from(bytes).unwrap();
-
-        // Then
-        /*
-        with_settings!(
-            {
-                snapshot_path => CLASS_SNAPSHOT_PATH,
-                prepend_module_to_snapshot => false,
-            },
-            {
-                insta::assert_yaml_snapshot!(to_snapshot_name(&path), class_file);
-            }
-        );
-        */
     }
 
     #[rstest]
@@ -279,7 +250,6 @@ mod tests {
         let display = format!("{}", ClassFile::try_from(bytes).unwrap());
 
         // Then
-        /*
         with_settings!(
             {
                 snapshot_path => DISPLAY_SNAPSHOT_PATH,
@@ -289,7 +259,6 @@ mod tests {
                 insta::assert_snapshot!(to_snapshot_name(&path), display);
             }
         );
-         */
     }
 
     #[rstest]
