@@ -680,7 +680,7 @@ impl Instruction {
                 Opcode::Lmul => Self::Lmul,
                 Opcode::Lneg => Self::Lneg,
                 Opcode::Lookupswitch => {
-                    // TOOD: assert signed are >= 0?
+                    // TODO: assert signed are >= 0?
                     cursor.align_to(4)?;
                     let default_offset = cursor.i32()?;
                     let npairs = cursor.i32()?;

@@ -126,16 +126,10 @@ impl<'a> StackMapFrame {
                 offset_delta: cursor.u16()?,
                 stack: VerificationTypeInfo::read(cursor)?,
             }),
-            248..=250 => {
-                let a = 2;
-                if a == 2 {
-                    // just to have a place for a breakpoint
-                }
-                Ok(StackMapFrame::Chop {
-                    k: (251 - frame_type),
-                    offset_delta: cursor.u16()?,
-                })
-            }
+            248..=250 => Ok(StackMapFrame::Chop {
+                k: (251 - frame_type),
+                offset_delta: cursor.u16()?,
+            }),
             251 => Ok(StackMapFrame::SameExtended {
                 offset_delta: cursor.u16()?,
             }),
