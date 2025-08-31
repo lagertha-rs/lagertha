@@ -10,6 +10,11 @@ pub struct ClassAccessFlag(u16);
 #[derive(Debug, Clone, Copy)]
 pub struct MethodAccessFlag(u16);
 
+/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.5-200-A.1
+/// Table 4.5-A. Field access and property flags
+#[derive(Debug, Clone, Copy)]
+pub struct FieldAccessFlag(u16);
+
 impl ClassAccessFlag {
     pub fn new(value: u16) -> Self {
         Self(value)
@@ -107,6 +112,52 @@ impl MethodAccessFlag {
 
     pub fn is_synthetic(&self) -> bool {
         self.0 & 0x1000 != 0
+    }
+
+    pub fn get_raw(&self) -> &u16 {
+        &self.0
+    }
+}
+
+impl FieldAccessFlag {
+    pub fn new(value: u16) -> Self {
+        Self(value)
+    }
+
+    pub fn is_public(&self) -> bool {
+        self.0 & 0x0001 != 0
+    }
+
+    pub fn is_private(&self) -> bool {
+        self.0 & 0x0002 != 0
+    }
+
+    pub fn is_protected(&self) -> bool {
+        self.0 & 0x0004 != 0
+    }
+
+    pub fn is_static(&self) -> bool {
+        self.0 & 0x0008 != 0
+    }
+
+    pub fn is_final(&self) -> bool {
+        self.0 & 0x0010 != 0
+    }
+
+    pub fn is_volatile(&self) -> bool {
+        self.0 & 0x0040 != 0
+    }
+
+    pub fn is_transient(&self) -> bool {
+        self.0 & 0x0080 != 0
+    }
+
+    pub fn is_synthetic(&self) -> bool {
+        self.0 & 0x1000 != 0
+    }
+
+    pub fn is_enum(&self) -> bool {
+        self.0 & 0x4000 != 0
     }
 
     pub fn get_raw(&self) -> &u16 {

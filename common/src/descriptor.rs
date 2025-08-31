@@ -1,4 +1,4 @@
-use crate::DescriptorErr;
+use crate::MethodDescriptorErr;
 use crate::jtype::Type;
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.3
@@ -9,13 +9,15 @@ pub struct MethodDescriptor {
 }
 
 impl TryFrom<&str> for MethodDescriptor {
-    type Error = DescriptorErr;
+    type Error = MethodDescriptorErr;
 
     fn try_from(desc: &str) -> Result<Self, Self::Error> {
         let mut chars = desc.chars().peekable();
 
         if chars.next() != Some('(') {
-            return Err(DescriptorErr::ShouldStartWithParentheses);
+            return Err(MethodDescriptorErr::ShouldStartWithParentheses(
+                desc.to_string(),
+            ));
         }
 
         let mut params = Vec::new();
@@ -25,17 +27,23 @@ impl TryFrom<&str> for MethodDescriptor {
                     chars.next();
                     break;
                 }
-                Some(_) => params.push(Type::try_recursive(&mut chars)?),
+                Some(_) => params.push(
+                    Type::try_recursive(&mut chars)
+                        .map_err(|e| MethodDescriptorErr::Type(desc.to_string(), e))?,
+                ),
                 None => {
-                    return Err(DescriptorErr::MissingClosingParenthesis);
+                    return Err(MethodDescriptorErr::MissingClosingParenthesis(
+                        desc.to_string(),
+                    ));
                 }
             }
         }
 
-        let ret = Type::try_recursive(&mut chars)?;
+        let ret = Type::try_recursive(&mut chars)
+            .map_err(|e| MethodDescriptorErr::Type(desc.to_string(), e))?;
 
         if chars.next().is_some() {
-            return Err(DescriptorErr::TrailingCharacters);
+            return Err(MethodDescriptorErr::TrailingCharacters);
         }
 
         Ok(MethodDescriptor { params, ret })

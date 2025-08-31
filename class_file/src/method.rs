@@ -2,10 +2,13 @@ use crate::ClassFileErr;
 use crate::attribute::method::MethodAttribute;
 use crate::constant::pool::ConstantPool;
 use common::pretty_try;
+use common::signature::MethodSignature;
 use common::utils::cursor::ByteCursor;
+use either::Either;
 #[cfg(test)]
 use serde::Serialize;
 
+/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.6
 #[cfg_attr(test, derive(Serialize))]
 #[derive(Debug)]
 pub struct MethodInfo {
@@ -64,9 +67,9 @@ impl<'a> MethodInfo {
             });
             if let Some(sig_index) = generic_signature_opt {
                 let raw_sig = pretty_try!(ind, cp.get_utf8(sig_index));
-                pretty_try!(ind, MethodDescriptor::try_from(raw_sig))
+                Either::Left(pretty_try!(ind, MethodSignature::try_from(raw_sig)))
             } else {
-                pretty_try!(ind, MethodDescriptor::try_from(raw_descriptor))
+                Either::Right(pretty_try!(ind, MethodDescriptor::try_from(raw_descriptor)))
             }
         };
         let throws = {
@@ -98,7 +101,14 @@ impl<'a> MethodInfo {
         let ret_and_class_name = {
             let method_name = pretty_class_name_try!(ind, cp.get_utf8(&self.name_index));
             if method_name != "<init>" {
-                format!("{} {}", descriptor.ret, method_name)
+                format!(
+                    "{} {}",
+                    match &descriptor {
+                        Either::Left(signature) => &signature.ret,
+                        Either::Right(descriptor) => &descriptor.ret,
+                    },
+                    method_name
+                )
             } else {
                 pretty_class_name_try!(ind, cp.get_class_name(this))
             }
@@ -109,18 +119,30 @@ impl<'a> MethodInfo {
             "{} {}({}){throws};",
             get_method_pretty_java_like_prefix(self.access_flags),
             ret_and_class_name,
-            descriptor.params.iter().map(|v| v.to_string()).join(", ")
+            match &descriptor {
+                Either::Left(sig) => &sig.params,
+                Either::Right(desc) => &desc.params,
+            }
+            .iter()
+            .map(|v| v.to_string())
+            .join(", ")
         )?;
         ind.with_indent(|ind| {
             writeln!(ind, "descriptor: {}", raw_descriptor)?;
             writeln!(
                 ind,
-                "flags: (0x{:04X}) {}",
+                "flags: (0x{:04x}) {}",
                 self.access_flags,
                 get_method_javap_like_list(self.access_flags)
             )?;
             for attr in &self.attributes {
-                attr.fmt_pretty(ind, cp, &descriptor, this)?;
+                attr.fmt_pretty(
+                    ind,
+                    cp,
+                    //TODO: avoid double conversion, not sure that method signature is needed here
+                    &pretty_try!(ind, MethodDescriptor::try_from(raw_descriptor)),
+                    this,
+                )?;
             }
             Ok(())
         })?;

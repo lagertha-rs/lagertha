@@ -15,7 +15,8 @@ pub mod field;
 pub mod method;
 #[cfg(feature = "pretty_print")]
 pub mod print;
-//TODO: make fn pub(crate)
+// TODO: review all access levels in the crate (methods, fields, modules, structs, etc.)
+// TODO: align enums that end with "Info"/"Ref" and "Type"/"Kind" suffixes
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html
 /// A rust representation of a Java .class file. All structures in the crates have public only public
@@ -129,7 +130,7 @@ impl std::fmt::Display for ClassFile {
         use common::{pretty_class_name_try, pretty_try};
         use std::fmt::Write as _;
 
-        const CONSTANT_KIND_WIDTH: usize = 16;
+        const CONSTANT_KIND_WIDTH: usize = 18;
         let mut ind = Indented::new(f);
         writeln!(
             ind,
@@ -182,17 +183,32 @@ impl std::fmt::Display for ClassFile {
             }
             Ok(())
         })?;
-        writeln!(ind, "{{")?;
-        ind.with_indent(|ind| {
-            for (i, method) in self.methods.iter().enumerate() {
-                method.fmt_pretty(ind, &self.cp, &self.this_class)?;
-                if i + 1 < self.methods.len() {
-                    writeln!(ind)?;
+        if !self.fields.is_empty() {
+            writeln!(ind, "{{")?;
+            ind.with_indent(|ind| {
+                for (i, field) in self.fields.iter().enumerate() {
+                    field.fmt_pretty(ind, &self.cp)?;
+                    if i + 1 < self.methods.len() {
+                        writeln!(ind)?;
+                    }
                 }
-            }
-            Ok(())
-        })?;
-        writeln!(ind, "}}")?;
+                Ok(())
+            })?;
+            writeln!(ind, "}}")?;
+        }
+        if !self.methods.is_empty() {
+            writeln!(ind, "{{")?;
+            ind.with_indent(|ind| {
+                for (i, method) in self.methods.iter().enumerate() {
+                    method.fmt_pretty(ind, &self.cp, &self.this_class)?;
+                    if i + 1 < self.methods.len() {
+                        writeln!(ind)?;
+                    }
+                }
+                Ok(())
+            })?;
+            writeln!(ind, "}}")?;
+        }
         Ok(())
     }
 }
@@ -206,8 +222,7 @@ mod tests {
     use std::io::BufRead;
     use std::path::{Path, PathBuf};
 
-    const CLASS_SNAPSHOT_PATH: &str = "../snapshots/class_file";
-    const DISPLAY_SNAPSHOT_PATH: &str = "../snapshots/display";
+    const DISPLAY_SNAPSHOT_PATH: &str = "../snapshots";
 
     fn to_snapshot_name(path: &Path) -> String {
         let mut iter = path.iter().map(|s| s.to_string_lossy().to_string());
@@ -218,32 +233,6 @@ mod tests {
         }
         let tail: Vec<String> = iter.collect();
         tail.join("-")
-    }
-
-    #[rstest]
-    #[trace]
-    // Requires `testdata/compile-fixtures.py` to be executed to generate the .class files
-    fn parse_class_file(
-        #[base_dir = "../target/test-classes"]
-        #[files("**/*.class")]
-        path: PathBuf,
-    ) {
-        // Given
-        let bytes = fs::read(&path).unwrap_or_else(|_| panic!("Can't read file {:?}", path));
-
-        // When
-        let class_file = ClassFile::try_from(bytes).unwrap();
-
-        // Then
-        with_settings!(
-            {
-                snapshot_path => CLASS_SNAPSHOT_PATH,
-                prepend_module_to_snapshot => false,
-            },
-            {
-                insta::assert_yaml_snapshot!(to_snapshot_name(&path), class_file);
-            }
-        );
     }
 
     #[rstest]

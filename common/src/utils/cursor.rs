@@ -7,26 +7,40 @@ pub enum CursorError {
     UnexpectedEof,
 }
 pub struct ByteCursor<'a> {
-    it: std::iter::Copied<std::slice::Iter<'a, u8>>,
+    data: &'a [u8],
+    pos: usize,
 }
 
 impl<'a> ByteCursor<'a> {
     pub fn new(data: &'a [u8]) -> Self {
-        Self {
-            it: data.iter().copied(),
-        }
+        Self { data, pos: 0 }
+    }
+
+    pub fn position(&self) -> usize {
+        self.pos
+    }
+
+    pub fn remaining(&self) -> usize {
+        self.data.len().saturating_sub(self.pos)
     }
 
     fn take<const N: usize>(&mut self) -> Result<[u8; N], CursorError> {
-        let mut buf = [0u8; N];
-        for b in &mut buf {
-            *b = self.it.next().ok_or(CursorError::UnexpectedEof)?;
+        if self.remaining() < N {
+            return Err(CursorError::UnexpectedEof);
         }
+        let mut buf = [0u8; N];
+        buf.copy_from_slice(&self.data[self.pos..self.pos + N]);
+        self.pos += N;
         Ok(buf)
     }
 
     pub fn u8(&mut self) -> Result<u8, CursorError> {
-        self.it.next().ok_or(CursorError::UnexpectedEof)
+        if self.remaining() < 1 {
+            return Err(CursorError::UnexpectedEof);
+        }
+        let b = self.data[self.pos];
+        self.pos += 1;
+        Ok(b)
     }
     pub fn i8(&mut self) -> Result<i8, CursorError> {
         Ok(self.u8()? as i8)
@@ -51,21 +65,47 @@ impl<'a> ByteCursor<'a> {
     }
 
     pub fn try_u8(&mut self) -> Option<u8> {
-        self.it.next()
+        if self.remaining() == 0 {
+            None
+        } else {
+            let b = self.data[self.pos];
+            self.pos += 1;
+            Some(b)
+        }
     }
 
     pub fn bytes(&mut self, n: usize) -> Result<Vec<u8>, CursorError> {
-        let mut v = Vec::with_capacity(n);
-        for _ in 0..n {
-            v.push(self.it.next().ok_or(CursorError::UnexpectedEof)?);
+        if self.remaining() < n {
+            return Err(CursorError::UnexpectedEof);
         }
+        let v = self.data[self.pos..self.pos + n].to_vec();
+        self.pos += n;
         Ok(v)
     }
 
     pub fn read_exact(&mut self, buf: &mut [u8]) -> Result<(), CursorError> {
-        for byte in buf {
-            *byte = self.it.next().ok_or(CursorError::UnexpectedEof)?;
+        let n = buf.len();
+        if self.remaining() < n {
+            return Err(CursorError::UnexpectedEof);
         }
+        buf.copy_from_slice(&self.data[self.pos..self.pos + n]);
+        self.pos += n;
+        Ok(())
+    }
+
+    pub fn align_to(&mut self, align: usize) -> Result<(), CursorError> {
+        if align == 0 {
+            return Ok(());
+        }
+        let mis = self.pos % align;
+        if mis == 0 {
+            return Ok(());
+        }
+        let skip = align - mis;
+        if self.remaining() < skip {
+            return Err(CursorError::UnexpectedEof);
+        }
+        self.pos += skip;
         Ok(())
     }
 }

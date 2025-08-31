@@ -3,7 +3,7 @@ use std::fs::File;
 use std::io::Read;
 
 fn main() {
-    let mut file = File::open("Object.class").expect("Can't open Main.class");
+    let mut file = File::open("String.class").expect("Can't open String.class");
     let m = file.metadata().expect("Metadata err");
     let mut buf = Vec::with_capacity(m.len() as usize);
     file.read_to_end(&mut buf).expect("Problem with read");

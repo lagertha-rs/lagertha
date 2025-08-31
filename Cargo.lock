@@ -105,6 +105,7 @@ name = "class_file"
 version = "0.1.0"
 dependencies = [
  "common",
+ "either",
  "insta",
  "itertools",
  "num_enum",
