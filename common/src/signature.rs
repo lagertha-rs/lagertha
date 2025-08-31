@@ -1,5 +1,7 @@
 use crate::TypeDescriptorErr;
 use crate::jtype::Type;
+use std::fmt;
+use std::fmt::Formatter;
 use std::iter::Peekable;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -11,6 +13,13 @@ pub struct MethodSignature {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ClassSignature {
+    pub type_params: Vec<FormalTypeParam>,
+    pub super_class: Type,
+    pub interfaces: Vec<Type>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FormalTypeParam {
     pub name: String,
     pub class_bound: Option<Type>,
@@ -18,7 +27,7 @@ pub struct FormalTypeParam {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
-pub enum MethodSignatureErr {
+pub enum SignatureErr {
     #[error("Unexpected end of signature")]
     UnexpectedEnd,
     #[error("Expected '(' after formal type parameters")]
@@ -29,14 +38,18 @@ pub enum MethodSignatureErr {
     TrailingCharacters,
     #[error("Invalid identifier for type parameter")]
     InvalidIdentifier,
+    #[error("Missing superclass signature")]
+    MissingSuper,
     #[error("Invalid type after ':' in bound")]
     InvalidBound,
     #[error("Type parse error: {0}")]
     Type(#[from] TypeDescriptorErr),
+    #[error("Superclass must be a class type signature")]
+    InvalidSuperClassType,
 }
 
 impl TryFrom<&str> for MethodSignature {
-    type Error = MethodSignatureErr;
+    type Error = SignatureErr;
 
     fn try_from(s: &str) -> Result<Self, Self::Error> {
         let mut it = s.chars().peekable();
@@ -49,7 +62,7 @@ impl TryFrom<&str> for MethodSignature {
         };
 
         if it.next() != Some('(') {
-            return Err(MethodSignatureErr::MissingParamsOpenParen);
+            return Err(SignatureErr::MissingParamsOpenParen);
         }
         let mut params = Vec::new();
         loop {
@@ -59,7 +72,7 @@ impl TryFrom<&str> for MethodSignature {
                     break;
                 }
                 Some(_) => params.push(Type::try_recursive(&mut it)?),
-                None => return Err(MethodSignatureErr::MissingParamsCloseParen),
+                None => return Err(SignatureErr::MissingParamsCloseParen),
             }
         }
 
@@ -67,13 +80,13 @@ impl TryFrom<&str> for MethodSignature {
 
         let mut throws = Vec::new();
         while it.peek() == Some(&'^') {
-            it.next(); // consume '^'
+            it.next();
             let t = Type::try_recursive(&mut it)?;
             throws.push(t);
         }
 
         if it.next().is_some() {
-            return Err(MethodSignatureErr::TrailingCharacters);
+            return Err(SignatureErr::TrailingCharacters);
         }
 
         Ok(MethodSignature {
@@ -85,9 +98,7 @@ impl TryFrom<&str> for MethodSignature {
     }
 }
 
-fn parse_formal_type_params<I>(
-    it: &mut Peekable<I>,
-) -> Result<Vec<FormalTypeParam>, MethodSignatureErr>
+fn parse_formal_type_params<I>(it: &mut Peekable<I>) -> Result<Vec<FormalTypeParam>, SignatureErr>
 where
     I: Iterator<Item = char>,
 {
@@ -95,30 +106,30 @@ where
     loop {
         let mut name = String::new();
         loop {
-            let ch = it.next().ok_or(MethodSignatureErr::UnexpectedEnd)?;
+            let ch = it.next().ok_or(SignatureErr::UnexpectedEnd)?;
             if ch == ':' {
                 break;
             }
             if ch == '>' {
-                return Err(MethodSignatureErr::InvalidIdentifier);
+                return Err(SignatureErr::InvalidIdentifier);
             }
             name.push(ch);
         }
         if name.is_empty() {
-            return Err(MethodSignatureErr::InvalidIdentifier);
+            return Err(SignatureErr::InvalidIdentifier);
         }
 
         let class_bound = match it.peek().copied() {
             Some(':') => None,
             Some(_) => Some(Type::try_recursive(it)?),
-            None => return Err(MethodSignatureErr::UnexpectedEnd),
+            None => return Err(SignatureErr::UnexpectedEnd),
         };
 
         let mut interface_bounds = Vec::new();
         while it.peek() == Some(&':') {
             it.next();
             if matches!(it.peek(), Some('>')) {
-                return Err(MethodSignatureErr::InvalidBound);
+                return Err(SignatureErr::InvalidBound);
             }
             interface_bounds.push(Type::try_recursive(it)?);
         }
@@ -137,8 +148,105 @@ where
             Some(_) => {
                 continue;
             }
-            None => return Err(MethodSignatureErr::UnexpectedEnd),
+            None => return Err(SignatureErr::UnexpectedEnd),
         }
     }
     Ok(res)
+}
+
+impl TryFrom<&str> for ClassSignature {
+    type Error = SignatureErr;
+
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        let mut it = s.chars().peekable();
+
+        let type_params = if it.peek() == Some(&'<') {
+            it.next();
+            parse_formal_type_params(&mut it)?
+        } else {
+            Vec::new()
+        };
+
+        let super_class = parse_class_type(&mut it)?.ok_or(SignatureErr::MissingSuper)?;
+
+        let mut interfaces = Vec::new();
+        while let Some(_) = it.peek() {
+            let iface = parse_class_type(&mut it)?.ok_or(SignatureErr::UnexpectedEnd)?;
+            interfaces.push(iface);
+        }
+
+        Ok(ClassSignature {
+            type_params,
+            super_class,
+            interfaces,
+        })
+    }
+}
+
+fn parse_class_type<I>(it: &mut Peekable<I>) -> Result<Option<Type>, SignatureErr>
+where
+    I: Iterator<Item = char>,
+{
+    if it.peek().is_none() {
+        return Ok(None);
+    }
+    let t = Type::try_recursive(it)?;
+    match t {
+        Type::Instance(_) | Type::GenericInstance(_) => Ok(Some(t)),
+        _ => Err(SignatureErr::InvalidSuperClassType),
+    }
+}
+
+impl fmt::Display for ClassSignature {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        if !self.type_params.is_empty() {
+            write!(f, "<")?;
+            for (i, tp) in self.type_params.iter().enumerate() {
+                if i > 0 {
+                    write!(f, ", ")?;
+                }
+                write!(f, "{tp}")?;
+            }
+            write!(f, "> ")?;
+        }
+
+        // extends Super
+        write!(f, "extends {}", self.super_class)?;
+
+        if !self.interfaces.is_empty() {
+            write!(f, " implements ")?;
+            for (i, itf) in self.interfaces.iter().enumerate() {
+                if i > 0 {
+                    write!(f, ", ")?;
+                }
+                write!(f, "{itf}")?;
+            }
+        }
+        Ok(())
+    }
+}
+
+impl fmt::Display for FormalTypeParam {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.name)?;
+        let mut printed_any_bound = false;
+
+        if let Some(cb) = &self.class_bound {
+            let is_object = matches!(cb, Type::Instance(n) if n == "java/lang/Object");
+            if !is_object || !self.interface_bounds.is_empty() {
+                write!(f, " extends {}", cb)?;
+                printed_any_bound = true;
+            }
+        }
+
+        for ib in &self.interface_bounds {
+            if printed_any_bound {
+                write!(f, " & {}", ib)?;
+            } else {
+                write!(f, " extends {}", ib)?;
+                printed_any_bound = true;
+            }
+        }
+        Ok(())
+    }
 }
