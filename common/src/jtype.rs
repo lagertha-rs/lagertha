@@ -424,7 +424,6 @@ mod tests {
 
     #[test]
     fn generic_first_segment_only() {
-        // Ljava/util/List<+Ljava/lang/CharSequence;>;
         let s = "Ljava/util/List<+Ljava/lang/CharSequence;>;";
         let t = parse_one(s).unwrap();
         assert_eq!(
@@ -443,7 +442,6 @@ mod tests {
 
     #[test]
     fn generic_with_suffix_and_args() {
-        // Ljava/util/Map<Ljava/lang/String;Ljava/lang/Integer;>.Entry<Ljava/lang/String;>;
         let s = "Ljava/util/Map<Ljava/lang/String;Ljava/lang/Integer;>.Entry<Ljava/lang/String;>;";
         let t = parse_one(s).unwrap();
         assert_eq!(
@@ -468,7 +466,6 @@ mod tests {
 
     #[test]
     fn suffix_without_args() {
-        // Lpkg/Outer.Inner;
         let s = "Lpkg/Outer.Inner;";
         let t = parse_one(s).unwrap();
         assert_eq!(

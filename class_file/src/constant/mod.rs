@@ -226,8 +226,14 @@ impl<'a> ConstantInfo {
         use common::{pretty_method_name_try, pretty_try};
         use std::fmt::Write as _;
         let op_w = 16;
+        // if matches!(self, ConstantInfo::String(777)) {
+        //     let a = cp.get_pretty_utf8_for_cp_print(&777).unwrap();
+        //     println!("a tak? {a}");
+        //     println!();
+        //     println!()
+        // }
         match self {
-            ConstantInfo::Utf8(s) => writeln!(ind, "{s}"),
+            ConstantInfo::Utf8(s) => writeln!(ind, "{}", s.replace("\\", "\\\\")),
             ConstantInfo::Integer(i) => writeln!(ind, "{i}"),
             ConstantInfo::Float(fl) => writeln!(ind, "{fl}"),
             ConstantInfo::Long(l) => writeln!(ind, "{l}l"),
@@ -236,7 +242,7 @@ impl<'a> ConstantInfo {
                 ind,
                 "{:<op_w$} // {}",
                 format!("#{index}"),
-                pretty_try!(ind, cp.get_utf8(index)),
+                pretty_try!(ind, cp.get_pretty_utf8_for_cp_print(index)),
                 op_w = op_w
             ),
             ConstantInfo::MethodRef(ref_info) | ConstantInfo::InterfaceMethodRef(ref_info) => {
@@ -263,12 +269,13 @@ impl<'a> ConstantInfo {
             ),
             ConstantInfo::FieldRef(ref_info) => writeln!(
                 ind,
-                "{:<op_w$} // {}:{}",
+                "{:<op_w$} // {}.{}:{}",
                 format!(
-                    "#{}:#{}",
+                    "#{}.#{}",
                     ref_info.class_index, ref_info.name_and_type_index
                 ),
                 pretty_try!(ind, cp.get_class_name(&ref_info.class_index)),
+                pretty_try!(ind, cp.get_method_or_field_name(ref_info)),
                 pretty_try!(ind, cp.get_method_or_field_descriptor(ref_info)),
                 op_w = op_w
             ),
@@ -415,11 +422,11 @@ impl Display for ConstantTag {
             ConstantTag::String => "String",
             ConstantTag::FieldRef => "Fieldref",
             ConstantTag::MethodRef => "Methodref",
-            ConstantTag::InterfaceMethodRef => "InterfaceMethodRef",
+            ConstantTag::InterfaceMethodRef => "InterfaceMethodref",
             ConstantTag::NameAndType => "NameAndType",
             ConstantTag::MethodHandle => "MethodHandle",
             ConstantTag::MethodType => "MethodType",
-            ConstantTag::Dynamic => "Dynamic",
+            ConstantTag::Dynamic => "InvokeDynamic",
             ConstantTag::InvokeDynamic => "InvokeDynamic",
             ConstantTag::Module => "Module",
             ConstantTag::Package => "Package",

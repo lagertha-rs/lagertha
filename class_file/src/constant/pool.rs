@@ -1,5 +1,6 @@
 use crate::constant::{ConstantInfo, ConstantTag, DynamicInfo, NameAndTypeInfo, ReferenceInfo};
 use crate::error::ClassFileErr;
+use common::pretty_try;
 #[cfg(test)]
 use serde::Serialize;
 
@@ -74,6 +75,22 @@ impl ConstantPool {
         self.get_utf8(&name_index).map(|raw| raw.replace('/', "."))
     }
 
+    pub fn get_pretty_utf8_for_cp_print(&self, idx: &u16) -> Result<String, ClassFileErr> {
+        self.get_utf8(idx).map(|raw| {
+            let raw = raw.replace("\\", "\\\\");
+            if raw.starts_with('[') {
+                format!("\"{raw}\"")
+            } else {
+                raw.to_string()
+            }
+        })
+    }
+
+    pub fn get_pretty_class_name_for_cp_print(&self, idx: &u16) -> Result<String, ClassFileErr> {
+        let name_index = self.get_class(idx)?;
+        self.get_pretty_utf8_for_cp_print(&name_index)
+    }
+
     pub fn get_methodref(&self, idx: &u16) -> Result<&ReferenceInfo, ClassFileErr> {
         self.inner
             .get(*idx as usize)
@@ -123,8 +140,8 @@ impl ConstantPool {
     pub fn get_method_or_field_class_name(
         &self,
         method_ref: &ReferenceInfo,
-    ) -> Result<&str, ClassFileErr> {
-        self.get_class_name(&method_ref.class_index)
+    ) -> Result<String, ClassFileErr> {
+        self.get_pretty_class_name_for_cp_print(&method_ref.class_index)
     }
 
     pub fn get_method_or_field_name(
