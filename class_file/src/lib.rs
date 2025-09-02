@@ -171,16 +171,15 @@ impl std::fmt::Display for ClassFile {
                 format!("#{}", self.this_class),
                 pretty_try!(ind, self.cp.get_class_name(&self.this_class))
             )?;
-            writeln!(
-                ind,
-                "super_class: {:<24}//{}",
-                format!("#{}", self.super_class),
-                if self.super_class == 0 {
-                    ""
-                } else {
+            write!(ind, "super_class: {:<24}", format!("#{}", self.super_class),)?;
+            if self.super_class != 0 {
+                write!(
+                    ind,
+                    "//{}",
                     pretty_try!(ind, self.cp.get_class_name(&self.super_class))
-                }
-            )?;
+                )?;
+            }
+            writeln!(ind)?;
             writeln!(
                 ind,
                 "interfaces: {}, fields: {}, methods: {}, attributes: {}",
@@ -210,7 +209,7 @@ impl std::fmt::Display for ClassFile {
             }
             Ok(())
         })?;
-        if !self.fields.is_empty() {
+        if !self.fields.is_empty() || !self.methods.is_empty() {
             writeln!(ind, "{{")?;
             ind.with_indent(|ind| {
                 for (i, field) in self.fields.iter().enumerate() {
@@ -219,13 +218,7 @@ impl std::fmt::Display for ClassFile {
                         writeln!(ind)?;
                     }
                 }
-                Ok(())
-            })?;
-            writeln!(ind, "}}")?;
-        }
-        if !self.methods.is_empty() {
-            writeln!(ind, "{{")?;
-            ind.with_indent(|ind| {
+
                 for (i, method) in self.methods.iter().enumerate() {
                     method.fmt_pretty(ind, &self.cp, &self.this_class)?;
                     if i + 1 < self.methods.len() {

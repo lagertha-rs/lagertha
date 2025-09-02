@@ -334,8 +334,10 @@ impl<'a> ConstantInfo {
             ConstantInfo::Float(fl) => format!("float {}", fl),
             ConstantInfo::Long(l) => format!("long {}l", l),
             ConstantInfo::Double(d) => format!("double {}", d),
-            ConstantInfo::Class(index) => format!("class {}", cp.get_utf8(index)?),
-            ConstantInfo::String(index) => format!("String {}", cp.get_utf8(index)?),
+            ConstantInfo::Class(index) => {
+                format!("class {}", cp.get_pretty_class_name_utf8(index)?)
+            }
+            ConstantInfo::String(index) => format!("String {}", cp.get_printable_utf8(index)?),
             ConstantInfo::MethodRef(ref_info) => {
                 let method_name = match cp.get_method_or_field_name(ref_info)? {
                     "<init>" => "\"<init>\"".to_owned(),

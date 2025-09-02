@@ -72,6 +72,8 @@ impl<'a> MethodInfo {
                 Either::Right(pretty_try!(ind, MethodDescriptor::try_from(raw_descriptor)))
             }
         };
+
+        // TODO: can be replaced by method signature?
         let throws = {
             let exc_opt = self.attributes.iter().find_map(|attr| {
                 if let MethodAttribute::Exceptions(exc) = attr {
@@ -98,17 +100,13 @@ impl<'a> MethodInfo {
         };
 
         // constructor special handling
-        let ret_and_class_name = {
+        let ret_and_method_name = {
             let method_name = pretty_class_name_try!(ind, cp.get_utf8(&self.name_index));
             if method_name != "<init>" {
-                format!(
-                    "{} {}",
-                    match &descriptor {
-                        Either::Left(signature) => &signature.ret,
-                        Either::Right(descriptor) => &descriptor.ret,
-                    },
-                    method_name
-                )
+                match &descriptor {
+                    Either::Left(signature) => format!("{} {}", &signature.ret, method_name),
+                    Either::Right(descriptor) => format!("{} {}", &descriptor.ret, method_name),
+                }
             } else {
                 pretty_class_name_try!(ind, cp.get_class_name(this))
             }
@@ -118,7 +116,7 @@ impl<'a> MethodInfo {
             ind,
             "{} {}({}){throws};",
             get_method_pretty_java_like_prefix(self.access_flags),
-            ret_and_class_name,
+            ret_and_method_name,
             match &descriptor {
                 Either::Left(sig) => &sig.params,
                 Either::Right(desc) => &desc.params,
@@ -128,6 +126,7 @@ impl<'a> MethodInfo {
             .join(", ")
         )?;
         ind.with_indent(|ind| {
+            let is_static = (self.access_flags & 0x0008) != 0;
             writeln!(ind, "descriptor: {}", raw_descriptor)?;
             writeln!(
                 ind,
@@ -142,6 +141,7 @@ impl<'a> MethodInfo {
                     //TODO: avoid double conversion, not sure that method signature is needed here
                     &pretty_try!(ind, MethodDescriptor::try_from(raw_descriptor)),
                     this,
+                    is_static,
                 )?;
             }
             Ok(())

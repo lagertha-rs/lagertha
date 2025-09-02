@@ -1,9 +1,12 @@
 use crate::ClassFileErr;
+use crate::attribute::SharedAttribute;
 use crate::attribute::field::FieldAttribute;
+use crate::attribute::method::MethodAttribute;
 use crate::constant::pool::ConstantPool;
 use crate::print::get_method_javap_like_list;
 use common::utils::cursor::ByteCursor;
 use common::utils::indent_write::Indented;
+use either::Either;
 #[cfg(test)]
 use serde::Serialize;
 
@@ -46,7 +49,24 @@ impl<'a> FieldInfo {
         use std::fmt::Write as _;
 
         let raw_descriptor = pretty_try!(ind, cp.get_utf8(&self.descriptor_index));
-        let descriptor = pretty_try!(ind, Type::try_from(raw_descriptor));
+        let descriptor = {
+            let generic_signature_opt = self.attributes.iter().find_map(|attr| {
+                if let FieldAttribute::Shared(shared) = attr {
+                    match shared {
+                        SharedAttribute::Signature(sig_index) => Some(sig_index),
+                        _ => None,
+                    }
+                } else {
+                    None
+                }
+            });
+            if let Some(sig_index) = generic_signature_opt {
+                let raw_sig = pretty_try!(ind, cp.get_utf8(sig_index));
+                pretty_try!(ind, Type::try_from(raw_sig))
+            } else {
+                pretty_try!(ind, Type::try_from(raw_descriptor))
+            }
+        };
         writeln!(
             ind,
             "{} {} {};",

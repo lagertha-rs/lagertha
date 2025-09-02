@@ -34,6 +34,8 @@ pub enum MethodDescriptorErr {
 pub enum InstructionErr {
     #[error("Unsupported opcode `{0:#04X}`")]
     UnsupportedOpCode(u8),
+    #[error("Unknown array type `{0:#04X}`")]
+    UnknownArrayType(u8),
     #[error(transparent)]
     Cursor(#[from] CursorError),
 }

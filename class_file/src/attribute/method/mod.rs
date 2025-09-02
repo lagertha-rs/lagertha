@@ -105,12 +105,13 @@ impl<'a> MethodAttribute {
         cp: &ConstantPool,
         descriptor: &MethodDescriptor,
         this: &u16,
+        is_static: bool,
     ) -> std::fmt::Result {
         use common::pretty_try;
         use std::fmt::Write as _;
         match self {
             MethodAttribute::Shared(shared) => shared.fmt_pretty(ind, cp)?,
-            MethodAttribute::Code(code) => code.fmt_pretty(ind, cp, descriptor, this)?,
+            MethodAttribute::Code(code) => code.fmt_pretty(ind, cp, descriptor, this, is_static)?,
             MethodAttribute::Exceptions(exc) => {
                 writeln!(ind, "Exceptions:")?;
                 ind.with_indent(|ind| {
@@ -198,6 +199,7 @@ impl<'a> CodeAttribute {
         cp: &ConstantPool,
         method_descriptor: &MethodDescriptor,
         this: &u16,
+        is_static: bool,
     ) -> std::fmt::Result {
         use crate::print::get_pretty_instruction;
         use common::pretty_try;
@@ -210,7 +212,8 @@ impl<'a> CodeAttribute {
                 "stack={}, locals={}, args_size={}",
                 self.max_stack,
                 self.max_locals,
-                method_descriptor.params.len() + 1 // +1 for 'this'
+                // +1 for 'this' if not static
+                method_descriptor.params.len() + if is_static { 0 } else { 1 }
             )?;
             let instructions = pretty_try!(ind, Instruction::new_instruction_set(&self.code));
             let mut byte_pos = 0;

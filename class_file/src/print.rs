@@ -186,102 +186,128 @@ pub fn get_class_javap_like_list(raw_flags: u16) -> String {
     parts.join(", ")
 }
 
-// TODO: looks like shit
+/// Returns true if the instruction's operand is a position (like for `goto` or `if` instructions)
+/// needs to decide whether to print `#` before the operand
+fn instruction_is_position(instruction: &Instruction) -> bool {
+    matches!(
+        instruction,
+        Instruction::Aload(_)
+            | Instruction::Astore(_)
+            | Instruction::Bipush(_)
+            | Instruction::Goto(_)
+            | Instruction::IfAcmpEq(_)
+            | Instruction::IfAcmpNe(_)
+            | Instruction::IfEq(_)
+            | Instruction::IfNe(_)
+            | Instruction::Ifnull(_)
+            | Instruction::IfLt(_)
+            | Instruction::IfGe(_)
+            | Instruction::IfGt(_)
+            | Instruction::IfLe(_)
+            | Instruction::IfIcmpeq(_)
+            | Instruction::IfIcmpne(_)
+            | Instruction::IfIcmplt(_)
+            | Instruction::IfIcmpge(_)
+            | Instruction::IfIcmpgt(_)
+            | Instruction::IfIcmple(_)
+            | Instruction::Iinc(_, _)
+            | Instruction::Iload(_)
+            | Instruction::Ifnonnull(_)
+            | Instruction::Istore(_)
+            | Instruction::Lload(_)
+            | Instruction::Lstore(_)
+            | Instruction::Newarray(_)
+            | Instruction::Sipush(_)
+    )
+}
+
+fn get_instruction_value(instruction: &Instruction, pc: i32) -> Option<String> {
+    match instruction {
+        Instruction::Aload(val) => Some(val.to_string()),
+        Instruction::Anewarray(val) => Some(val.to_string()),
+        Instruction::Astore(val) => Some(val.to_string()),
+        Instruction::Bipush(val) => Some(val.to_string()),
+        Instruction::Checkcast(val) => Some(val.to_string()),
+        Instruction::Getfield(val) => Some(val.to_string()),
+        Instruction::Getstatic(val) => Some(val.to_string()),
+        Instruction::Goto(val) => Some(((*val as i32) + pc).to_string()),
+        Instruction::Instanceof(val) => Some(val.to_string()),
+        Instruction::IfAcmpEq(val) => Some(((*val as i32) + pc).to_string()),
+        Instruction::IfAcmpNe(val) => Some(((*val as i32) + pc).to_string()),
+        Instruction::IfEq(val) => Some(((*val as i32) + pc).to_string()),
+        Instruction::IfNe(val) => Some(((*val as i32) + pc).to_string()),
+        Instruction::Ifnull(val) => Some(((*val as i32) + pc).to_string()),
+        Instruction::IfLt(val) => Some(((*val as i32) + pc).to_string()),
+        Instruction::IfGe(val) => Some(((*val as i32) + pc).to_string()),
+        Instruction::IfGt(val) => Some(((*val as i32) + pc).to_string()),
+        Instruction::IfLe(val) => Some(((*val as i32) + pc).to_string()),
+        Instruction::IfIcmpeq(val) => Some(((*val as i32) + pc).to_string()),
+        Instruction::IfIcmpne(val) => Some(((*val as i32) + pc).to_string()),
+        Instruction::IfIcmplt(val) => Some(((*val as i32) + pc).to_string()),
+        Instruction::IfIcmpge(val) => Some(((*val as i32) + pc).to_string()),
+        Instruction::IfIcmpgt(val) => Some(((*val as i32) + pc).to_string()),
+        Instruction::IfIcmple(val) => Some(((*val as i32) + pc).to_string()),
+        Instruction::Iinc(val1, val2) => Some(format!("{}, {}", val1, val2)),
+        Instruction::Iload(val) => Some(val.to_string()),
+        Instruction::Ifnonnull(val) => Some(((*val as i32) + pc).to_string()),
+        Instruction::InvokeInterface(val1, val2) => Some(format!("{}, {}", val1, val2)),
+        Instruction::InvokeSpecial(val) => Some(val.to_string()),
+        Instruction::InvokeStatic(val) => Some(val.to_string()),
+        Instruction::InvokeVirtual(val) => Some(val.to_string()),
+        Instruction::Istore(val) => Some(val.to_string()),
+        Instruction::Ldc(val) => Some(val.to_string()),
+        Instruction::LdcW(val) => Some(val.to_string()),
+        Instruction::Ldc2W(val) => Some(val.to_string()),
+        Instruction::Lload(val) => Some(val.to_string()),
+        Instruction::Lstore(val) => Some(val.to_string()),
+        Instruction::New(val) => Some(val.to_string()),
+        Instruction::Newarray(val) => Some(val.to_string()),
+        Instruction::Putfield(val) => Some(val.to_string()),
+        Instruction::Sipush(val) => Some(val.to_string()),
+        _ => None,
+    }
+}
+
+fn get_instruction_comment(
+    instruction: &Instruction,
+    cp: &ConstantPool,
+    this: &u16,
+) -> Result<Option<String>, ClassFileErr> {
+    let comment_value = |index: &u16| -> Result<Option<String>, ClassFileErr> {
+        let constant = cp.get_raw(index)?;
+        Ok(Some(constant.get_pretty_value(cp, this)?))
+    };
+    match instruction {
+        Instruction::Anewarray(val) => comment_value(val),
+        Instruction::Checkcast(val) => comment_value(val),
+        Instruction::Getfield(val) => comment_value(val),
+        Instruction::Getstatic(val) => comment_value(val),
+        Instruction::Instanceof(val) => comment_value(val),
+        Instruction::InvokeInterface(val, _) => comment_value(val),
+        Instruction::InvokeSpecial(val) => comment_value(val),
+        Instruction::InvokeStatic(val) => comment_value(val),
+        Instruction::InvokeVirtual(val) => comment_value(val),
+        Instruction::Ldc(val) => comment_value(val),
+        Instruction::LdcW(val) => comment_value(val),
+        Instruction::Ldc2W(val) => comment_value(val),
+        Instruction::New(val) => comment_value(val),
+        Instruction::Putfield(val) => comment_value(val),
+        _ => Ok(None),
+    }
+}
+
 pub fn get_pretty_instruction(
     instruction: &Instruction,
     cp: &ConstantPool,
     pc: i32,
     this: &u16,
 ) -> Result<String, ClassFileErr> {
-    let comment_value = |index: &u16| -> Result<Option<String>, ClassFileErr> {
-        let constant = cp.get_raw(index)?;
-        Ok(Some(constant.get_pretty_value(cp, this)?))
-    };
-    let (val, name, comment, is_position) = match instruction {
-        Instruction::Aload(val) => (Some(*val as i32), "aload", None, true),
-        Instruction::Aload0 => (None, "aload_0", None, false),
-        Instruction::Aload1 => (None, "aload_1", None, false),
-        Instruction::Aload2 => (None, "aload_2", None, false),
-        Instruction::Aload3 => (None, "aload_3", None, false),
-        Instruction::Astore(val) => (Some(*val as i32), "astore", None, true),
-        Instruction::Astore0 => (None, "astore_0", None, false),
-        Instruction::Astore1 => (None, "astore_1", None, false),
-        Instruction::Astore2 => (None, "astore_2", None, false),
-        Instruction::Astore3 => (None, "astore_3", None, false),
-        Instruction::Athrow => (None, "athrow", None, false),
-        Instruction::Checkcast(val) => (Some(*val as i32), "checkcast", comment_value(val)?, false),
-        Instruction::Dup => (None, "dup", None, false),
-        Instruction::Getstatic(val) => (Some(*val as i32), "getstatic", comment_value(val)?, false),
-        Instruction::Goto(val) => (Some(*val as i32 + pc), "goto", None, true),
-        Instruction::IconstM1 => (None, "iconst_m1", None, false),
-        Instruction::Iconst0 => (None, "iconst_0", None, false),
-        Instruction::Iconst1 => (None, "iconst_1", None, false),
-        Instruction::Iconst2 => (None, "iconst_2", None, false),
-        Instruction::Iconst3 => (None, "iconst_3", None, false),
-        Instruction::Iconst4 => (None, "iconst_4", None, false),
-        Instruction::Iconst5 => (None, "iconst_5", None, false),
-        Instruction::Iload0 => (None, "iload_0", None, false),
-        Instruction::Iload1 => (None, "iload_1", None, false),
-        Instruction::Iload2 => (None, "iload_2", None, false),
-        Instruction::Iload3 => (None, "iload_3", None, false),
-        Instruction::Instanceof(val) => {
-            (Some(*val as i32), "instanceof", comment_value(val)?, false)
-        }
-        Instruction::IfAcmpNe(val) => (Some(*val as i32 + pc), "if_acmpne", None, true),
-        Instruction::IfEq(val) => (Some(*val as i32 + pc), "ifeq", None, true),
-        Instruction::IfNe(val) => (Some(*val as i32 + pc), "ifne", None, true),
-        Instruction::IfLt(val) => (Some(*val as i32 + pc), "iflt", None, true),
-        Instruction::IfGe(val) => (Some(*val as i32 + pc), "ifge", None, true),
-        Instruction::IfGt(val) => (Some(*val as i32 + pc), "ifgt", None, true),
-        Instruction::IfLe(val) => (Some(*val as i32 + pc), "ifle", None, true),
-        Instruction::IfIcmpeq(val) => (Some(*val as i32 + pc), "if_icmpeq", None, true),
-        Instruction::IfIcmpne(val) => (Some(*val as i32 + pc), "if_icmpne", None, true),
-        Instruction::IfIcmplt(val) => (Some(*val as i32 + pc), "if_icmplt", None, true),
-        Instruction::IfIcmpge(val) => (Some(*val as i32 + pc), "if_icmpge", None, true),
-        Instruction::IfIcmpgt(val) => (Some(*val as i32 + pc), "if_icmpgt", None, true),
-        Instruction::IfIcmple(val) => (Some(*val as i32 + pc), "if_icmple", None, true),
-        Instruction::Ireturn => (None, "ireturn", None, false),
-        Instruction::InvokeSpecial(val) => (
-            Some(*val as i32),
-            "invokespecial",
-            comment_value(val)?,
-            false,
-        ),
-        Instruction::InvokeStatic(val) => (
-            Some(*val as i32),
-            "invokestatic",
-            comment_value(val)?,
-            false,
-        ),
-        Instruction::InvokeVirtual(val) => (
-            Some(*val as i32),
-            "invokevirtual",
-            comment_value(val)?,
-            false,
-        ),
-        Instruction::Lcmp => (None, "lcmp", None, false),
-        Instruction::Lconst0 => (None, "lconst_0", None, false),
-        Instruction::Lconst1 => (None, "lconst_1", None, false),
-        Instruction::Lload0 => (None, "lload_0", None, false),
-        Instruction::Lload1 => (None, "lload_1", None, false),
-        Instruction::Lload2 => (None, "lload_2", None, false),
-        Instruction::Lload3 => (None, "lload_3", None, false),
-        Instruction::Lstore0 => (None, "lstore_0", None, false),
-        Instruction::Lstore1 => (None, "lstore_1", None, false),
-        Instruction::Lstore2 => (None, "lstore_2", None, false),
-        Instruction::Lstore3 => (None, "lstore_3", None, false),
-        Instruction::Ldc(val) => (Some(*val as i32), "ldc", comment_value(val)?, false),
-        Instruction::Ldc2W(val) => (Some(*val as i32), "ldc2_w", comment_value(val)?, false),
-        Instruction::New(val) => (Some(*val as i32), "new", comment_value(val)?, false),
-        Instruction::Pop => (None, "pop", None, false),
-        Instruction::Return => (None, "return", None, false),
-        Instruction::Areturn => (None, "areturn", None, false),
-        Instruction::Ladd => (None, "ladd", None, false),
-        _ => (None, "unimplemented", None, false),
-    };
+    let val = get_instruction_value(instruction, pc);
+    let comment = get_instruction_comment(instruction, cp, this)?;
+    let is_position = instruction_is_position(instruction);
 
     let mut out = String::with_capacity(32);
-    write!(&mut out, "{:<13}", name).unwrap();
+    write!(&mut out, "{:<13}", instruction.get_name()).unwrap();
     if let Some(v) = val {
         write!(&mut out, " {}{v:<18}", if !is_position { "#" } else { "" }).unwrap();
         if let Some(c) = comment {
