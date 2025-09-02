@@ -30,6 +30,10 @@ impl ConstantPool {
 #[cfg(feature = "pretty_print")]
 /// Getters that are useful only for pretty printing
 impl ConstantPool {
+    pub fn get_printable_utf8(&self, idx: &u16) -> Result<String, ClassFileErr> {
+        self.get_utf8(idx).map(|raw| raw.escape_debug().to_string())
+    }
+
     pub fn get_raw(&self, idx: &u16) -> Result<&ConstantInfo, ClassFileErr> {
         self.inner
             .get(*idx as usize)
@@ -75,9 +79,8 @@ impl ConstantPool {
         self.get_utf8(&name_index).map(|raw| raw.replace('/', "."))
     }
 
-    pub fn get_pretty_utf8_for_cp_print(&self, idx: &u16) -> Result<String, ClassFileErr> {
+    pub fn get_pretty_class_name_utf8(&self, idx: &u16) -> Result<String, ClassFileErr> {
         self.get_utf8(idx).map(|raw| {
-            let raw = raw.replace("\\", "\\\\");
             if raw.starts_with('[') {
                 format!("\"{raw}\"")
             } else {
@@ -88,7 +91,7 @@ impl ConstantPool {
 
     pub fn get_pretty_class_name_for_cp_print(&self, idx: &u16) -> Result<String, ClassFileErr> {
         let name_index = self.get_class(idx)?;
-        self.get_pretty_utf8_for_cp_print(&name_index)
+        self.get_pretty_class_name_utf8(&name_index)
     }
 
     pub fn get_methodref(&self, idx: &u16) -> Result<&ReferenceInfo, ClassFileErr> {

@@ -226,23 +226,24 @@ impl<'a> ConstantInfo {
         use common::{pretty_method_name_try, pretty_try};
         use std::fmt::Write as _;
         let op_w = 16;
-        // if matches!(self, ConstantInfo::String(777)) {
-        //     let a = cp.get_pretty_utf8_for_cp_print(&777).unwrap();
-        //     println!("a tak? {a}");
-        //     println!();
-        //     println!()
-        // }
         match self {
-            ConstantInfo::Utf8(s) => writeln!(ind, "{}", s.replace("\\", "\\\\")),
+            ConstantInfo::Utf8(s) => writeln!(ind, "{}", s.escape_debug()),
             ConstantInfo::Integer(i) => writeln!(ind, "{i}"),
             ConstantInfo::Float(fl) => writeln!(ind, "{fl}"),
             ConstantInfo::Long(l) => writeln!(ind, "{l}l"),
             ConstantInfo::Double(d) => writeln!(ind, "{d}"),
-            ConstantInfo::Class(index) | ConstantInfo::String(index) => writeln!(
+            ConstantInfo::String(index) => writeln!(
                 ind,
                 "{:<op_w$} // {}",
                 format!("#{index}"),
-                pretty_try!(ind, cp.get_pretty_utf8_for_cp_print(index)),
+                pretty_try!(ind, cp.get_printable_utf8(index)),
+                op_w = op_w
+            ),
+            ConstantInfo::Class(index) => writeln!(
+                ind,
+                "{:<op_w$} // {}",
+                format!("#{index}"),
+                pretty_try!(ind, cp.get_pretty_class_name_utf8(index)),
                 op_w = op_w
             ),
             ConstantInfo::MethodRef(ref_info) | ConstantInfo::InterfaceMethodRef(ref_info) => {
@@ -307,7 +308,7 @@ impl<'a> ConstantInfo {
                     ind,
                     "{:<op_w$} // {} {}.{}:{}",
                     format!(
-                        "#{}.{}",
+                        "{}:#{}",
                         handle_info.reference_kind, handle_info.reference_index
                     ),
                     pretty_try!(ind, handle_kind.get_pretty_value()),
