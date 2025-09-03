@@ -232,11 +232,8 @@ impl fmt::Display for FormalTypeParam {
         let mut printed_any_bound = false;
 
         if let Some(cb) = &self.class_bound {
-            let is_object = matches!(cb, Type::Instance(n) if n == "java/lang/Object");
-            if !is_object || !self.interface_bounds.is_empty() {
-                write!(f, " extends {}", cb)?;
-                printed_any_bound = true;
-            }
+            write!(f, " extends {}", cb)?;
+            printed_any_bound = true;
         }
 
         for ib in &self.interface_bounds {
@@ -248,5 +245,29 @@ impl fmt::Display for FormalTypeParam {
             }
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn method_sig_typevar_return_and_bounds() {
+        let sig = MethodSignature::try_from(
+            "<R:Ljava/lang/Object;>(Ljava/util/function/Function<-Ljava/lang/String;+TR;>;)TR;",
+        )
+        .unwrap();
+
+        assert_eq!(sig.type_params.len(), 1);
+        assert_eq!(sig.type_params[0].to_string(), "R extends java.lang.Object");
+
+        assert_eq!(sig.params.len(), 1);
+        assert_eq!(
+            sig.params[0].to_string(),
+            "java.util.function.Function<? super java.lang.String, ? extends R>"
+        );
+
+        assert_eq!(sig.ret.to_string(), "R");
     }
 }

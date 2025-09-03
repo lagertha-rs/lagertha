@@ -6,6 +6,7 @@ use std::fmt::Formatter;
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-6.html#jvms-6.5.lookupswitch
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LookupSwitchData {
+    pub padding: u8,
     pub default_offset: i32,
     pub pairs: Vec<(i32, i32)>,
 }
@@ -442,6 +443,11 @@ pub enum Instruction {
 impl Instruction {
     pub fn byte_size(&self) -> u16 {
         match self {
+            // Variable-size instructions
+            Self::Lookupswitch(data) => {
+                // opcode (1) + padding (0-3) + default (4) + npairs (4) + pairs (8 * n)
+                1 + data.padding as u16 + 4 + 4 + (8 * data.pairs.len() as u16)
+            }
             // 5-byte instructions
             Self::GotoW(_)
             | Self::JsrW(_)
@@ -649,7 +655,11 @@ impl Instruction {
                 Opcode::Imul => Self::Imul,
                 Opcode::Ineg => Self::Ineg,
                 Opcode::Instanceof => Self::Instanceof(cursor.u16()?),
-                Opcode::InvokeDynamic => Self::InvokeDynamic(cursor.u16()?),
+                Opcode::InvokeDynamic => {
+                    let index = cursor.u16()?;
+                    let _zero = cursor.u16()?; //TODO assert?
+                    Self::InvokeDynamic(index)
+                }
                 Opcode::InvokeInterface => {
                     let index = cursor.u16()?;
                     let count = cursor.u8()?;
@@ -697,7 +707,7 @@ impl Instruction {
                 Opcode::Lneg => Self::Lneg,
                 Opcode::Lookupswitch => {
                     // TODO: assert signed are >= 0?
-                    cursor.align_to(4)?;
+                    let padding = cursor.align_to(4)?;
                     let default_offset = cursor.i32()?;
                     let npairs = cursor.i32()?;
                     let mut pairs = Vec::with_capacity(npairs as usize);
@@ -709,6 +719,7 @@ impl Instruction {
                     Self::Lookupswitch(LookupSwitchData {
                         default_offset,
                         pairs,
+                        padding,
                     })
                 }
                 Opcode::Lor => Self::Lor,

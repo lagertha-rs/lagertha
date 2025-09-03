@@ -302,7 +302,7 @@ impl fmt::Display for Type {
                 Ok(())
             }
 
-            Type::TypeVar(name) => write!(f, "T{}", name),
+            Type::TypeVar(name) => write!(f, "{}", name),
 
             Type::Array(elem) => write!(f, "{}[]", elem),
         }

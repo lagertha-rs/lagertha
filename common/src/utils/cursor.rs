@@ -93,19 +93,20 @@ impl<'a> ByteCursor<'a> {
         Ok(())
     }
 
-    pub fn align_to(&mut self, align: usize) -> Result<(), CursorError> {
+    pub fn align_to(&mut self, align: u8) -> Result<u8, CursorError> {
+        let align = align as usize;
         if align == 0 {
-            return Ok(());
+            return Ok(0);
         }
         let mis = self.pos % align;
         if mis == 0 {
-            return Ok(());
+            return Ok(0);
         }
         let skip = align - mis;
         if self.remaining() < skip {
             return Err(CursorError::UnexpectedEof);
         }
         self.pos += skip;
-        Ok(())
+        Ok(skip as u8)
     }
 }

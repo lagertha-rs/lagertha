@@ -104,7 +104,14 @@ impl<'a> MethodInfo {
             let method_name = pretty_class_name_try!(ind, cp.get_utf8(&self.name_index));
             if method_name != "<init>" {
                 match &descriptor {
-                    Either::Left(signature) => format!("{} {}", &signature.ret, method_name),
+                    Either::Left(signature) => {
+                        let generic_ret = if signature.type_params.len() == 1 {
+                            format!("<{}> ", signature.type_params[0])
+                        } else {
+                            String::new()
+                        };
+                        format!("{}{} {}", generic_ret, &signature.ret, method_name)
+                    }
                     Either::Right(descriptor) => format!("{} {}", &descriptor.ret, method_name),
                 }
             } else {
@@ -112,18 +119,24 @@ impl<'a> MethodInfo {
             }
         };
 
+        let mut params = match &descriptor {
+            Either::Left(sig) => &sig.params,
+            Either::Right(desc) => &desc.params,
+        }
+        .iter()
+        .map(|v| v.to_string())
+        .join(", ");
+
+        let is_varargs = (self.access_flags & 0x0080) != 0;
+        if is_varargs {
+            params = format!("{}...", params.trim_end_matches("[]"));
+        }
+
         writeln!(
             ind,
-            "{} {}({}){throws};",
+            "{} {}({params}){throws};",
             get_method_pretty_java_like_prefix(self.access_flags),
             ret_and_method_name,
-            match &descriptor {
-                Either::Left(sig) => &sig.params,
-                Either::Right(desc) => &desc.params,
-            }
-            .iter()
-            .map(|v| v.to_string())
-            .join(", ")
         )?;
         ind.with_indent(|ind| {
             let is_static = (self.access_flags & 0x0008) != 0;

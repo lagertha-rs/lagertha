@@ -184,7 +184,7 @@ impl<'a> ConstantInfo {
             }
             ConstantTag::Dynamic => Self::Dynamic(DynamicInfo::new(cursor.u16()?, cursor.u16()?)),
             ConstantTag::InvokeDynamic => {
-                Self::Dynamic(DynamicInfo::new(cursor.u16()?, cursor.u16()?))
+                Self::InvokeDynamic(DynamicInfo::new(cursor.u16()?, cursor.u16()?))
             }
             ConstantTag::Module => todo!(),
             ConstantTag::Package => todo!(),
@@ -390,6 +390,15 @@ impl<'a> ConstantInfo {
                     cp.get_method_or_field_descriptor(ref_info)?,
                 )
             }
+            ConstantInfo::InvokeDynamic(dyn_info) => {
+                format!(
+                    "InvokeDynamic #{}:{}:{}",
+                    dyn_info.bootstrap_method_attr_index,
+                    cp.get_dyn_info_name(dyn_info)?,
+                    cp.get_dyn_info_descriptor(dyn_info)?
+                )
+            }
+            ConstantInfo::Dynamic(_) => "Dynamic (details omitted)".to_owned(),
             e => todo!("Pretty print not implemented for {e:?}"),
         })
     }

@@ -136,14 +136,14 @@ impl<'a> MethodAttribute {
                 const W_NAME: usize = 32;
                 writeln!(ind, "MethodParameters:")?;
                 ind.with_indent(|ind| {
-                    writeln!(ind, "{:>W_NAME$} Flags", "Name")?;
+                    writeln!(ind, "{:<W_NAME$} Flags", "Name")?;
                     for param in params {
                         let name = if param.name_index == 0 {
                             "<no name>".to_string()
                         } else {
                             pretty_try!(ind, cp.get_utf8(&param.name_index)).to_string()
                         };
-                        writeln!(ind, "{:>W_NAME$} 0x{:04x}", name, param.access_flags,)?;
+                        writeln!(ind, "{:<W_NAME$} 0x{:04x}", name, param.access_flags,)?;
                     }
                     Ok(())
                 })?;

@@ -2,7 +2,7 @@ use crate::constant::pool::ConstantPool;
 use crate::error::ClassFileErr;
 use common::access::{ClassAccessFlag, FieldAccessFlag, MethodAccessFlag};
 use common::instruction::Instruction;
-use std::fmt::Write;
+use std::fmt::{Write, format};
 
 /// Java-like modifier prefix for a field header
 pub fn get_field_pretty_java_like_prefix(raw_flags: u16) -> String {
@@ -215,6 +215,7 @@ fn instruction_is_position(instruction: &Instruction) -> bool {
             | Instruction::Ifnonnull(_)
             | Instruction::Istore(_)
             | Instruction::Lload(_)
+            | Instruction::Lookupswitch(_)
             | Instruction::Lstore(_)
             | Instruction::Newarray(_)
             | Instruction::Sipush(_)
@@ -250,7 +251,8 @@ fn get_instruction_value(instruction: &Instruction, pc: i32) -> Option<String> {
         Instruction::Iinc(val1, val2) => Some(format!("{}, {}", val1, val2)),
         Instruction::Iload(val) => Some(val.to_string()),
         Instruction::Ifnonnull(val) => Some(((*val as i32) + pc).to_string()),
-        Instruction::InvokeInterface(val1, val2) => Some(format!("{}, {}", val1, val2)),
+        Instruction::InvokeDynamic(val) => Some(format!("{val}, 0")),
+        Instruction::InvokeInterface(val1, val2) => Some(format!("{val1}, {val2}")),
         Instruction::InvokeSpecial(val) => Some(val.to_string()),
         Instruction::InvokeStatic(val) => Some(val.to_string()),
         Instruction::InvokeVirtual(val) => Some(val.to_string()),
@@ -259,6 +261,20 @@ fn get_instruction_value(instruction: &Instruction, pc: i32) -> Option<String> {
         Instruction::LdcW(val) => Some(val.to_string()),
         Instruction::Ldc2W(val) => Some(val.to_string()),
         Instruction::Lload(val) => Some(val.to_string()),
+        Instruction::Lookupswitch(data) => {
+            let mut s = String::new();
+            s.push_str(&format!("{{ // {}\n", data.pairs.len()));
+            for (k, v) in &data.pairs {
+                s.push_str(&format!("{:>20}: {}\n", k, v + pc));
+            }
+            s.push_str(&format!(
+                "{:>20}: {}\n",
+                "default",
+                data.default_offset + pc
+            ));
+            s.push_str(&format!("{:>7}", "}"));
+            Some(s)
+        }
         Instruction::Lstore(val) => Some(val.to_string()),
         Instruction::New(val) => Some(val.to_string()),
         Instruction::Newarray(val) => Some(val.to_string()),
@@ -283,6 +299,7 @@ fn get_instruction_comment(
         Instruction::Getfield(val) => comment_value(val),
         Instruction::Getstatic(val) => comment_value(val),
         Instruction::Instanceof(val) => comment_value(val),
+        Instruction::InvokeDynamic(val) => comment_value(val),
         Instruction::InvokeInterface(val, _) => comment_value(val),
         Instruction::InvokeSpecial(val) => comment_value(val),
         Instruction::InvokeStatic(val) => comment_value(val),
