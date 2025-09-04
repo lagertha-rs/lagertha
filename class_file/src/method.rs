@@ -1,13 +1,8 @@
 use crate::ClassFileErr;
-use crate::attribute::SharedAttribute;
 use crate::attribute::method::MethodAttribute;
 use crate::constant::pool::ConstantPool;
 use crate::flags::MethodFlags;
-use common::descriptor::MethodDescriptor;
-use common::pretty_class_name_try;
-use common::signature::MethodSignature;
 use common::utils::cursor::ByteCursor;
-use either::Either;
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.6
 #[derive(Debug)]
@@ -46,8 +41,14 @@ impl MethodInfo {
         &self,
         cp: &ConstantPool,
         raw_descriptor: &str,
-    ) -> Result<Either<MethodSignature, MethodDescriptor>, ClassFileErr> {
+    ) -> Result<
+        either::Either<common::signature::MethodSignature, common::descriptor::MethodDescriptor>,
+        ClassFileErr,
+    > {
         use crate::attribute::SharedAttribute;
+        use common::descriptor::MethodDescriptor;
+        use common::signature::MethodSignature;
+        use either::Either;
 
         let generic_signature_opt = self.attributes.iter().find_map(|attr| {
             if let MethodAttribute::Shared(shared) = attr {
@@ -83,7 +84,7 @@ impl MethodInfo {
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &ConstantPool,
     ) -> std::fmt::Result {
-        use common::pretty_try;
+        use common::pretty_class_name_try;
         use std::fmt::Write as _;
 
         let exceptions_attr_opt = self.attributes.iter().find_map(|attr| {
@@ -111,9 +112,13 @@ impl MethodInfo {
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &ConstantPool,
         this: &u16,
-        descriptor: &Either<MethodSignature, MethodDescriptor>,
+        descriptor: &either::Either<
+            common::signature::MethodSignature,
+            common::descriptor::MethodDescriptor,
+        >,
     ) -> std::fmt::Result {
         use common::pretty_class_name_try;
+        use either::Either;
         use std::fmt::Write as _;
 
         let method_name = pretty_class_name_try!(ind, cp.get_utf8(&self.name_index));
@@ -141,9 +146,13 @@ impl MethodInfo {
     fn fmt_pretty_params(
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
-        descriptor: &Either<MethodSignature, MethodDescriptor>,
+        descriptor: &either::Either<
+            common::signature::MethodSignature,
+            common::descriptor::MethodDescriptor,
+        >,
     ) -> std::fmt::Result {
         use common::jtype::Type;
+        use either::Either;
         use std::fmt::Write as _;
 
         let params: &[Type] = match descriptor {

@@ -1,9 +1,7 @@
-use crate::attribute::SharedAttribute;
 use crate::attribute::class::ClassAttribute;
 use crate::constant::pool::ConstantPool;
 use crate::error::ClassFileErr;
 use crate::flags::ClassFlags;
-use common::signature::ClassSignature;
 use common::utils::cursor::ByteCursor;
 use constant::ConstantInfo;
 use field::FieldInfo;
@@ -133,7 +131,9 @@ impl ClassFile {
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
     ) -> std::fmt::Result {
+        use crate::attribute::SharedAttribute;
         use common::pretty_try;
+        use common::signature::ClassSignature;
         use std::fmt::Write as _;
 
         if let Some(sig_index) = self.attributes.iter().find_map(|attr| {
@@ -265,7 +265,7 @@ impl std::fmt::Display for ClassFile {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "pretty_print"))]
 mod tests {
     use super::*;
     use insta::with_settings;

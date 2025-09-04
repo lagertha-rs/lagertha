@@ -2,10 +2,7 @@ use crate::ClassFileErr;
 use crate::attribute::{AttributeType, SharedAttribute};
 use crate::constant::pool::ConstantPool;
 use common::utils::cursor::ByteCursor;
-#[cfg(test)]
-use serde::Serialize;
 
-#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ClassAttribute {
     Shared(SharedAttribute),
@@ -23,7 +20,6 @@ pub enum ClassAttribute {
     PermittedSubclasses,
 }
 
-#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct BootstrapMethodEntry {
     pub bootstrap_method_ref: u16,
@@ -39,7 +35,6 @@ impl BootstrapMethodEntry {
     }
 }
 
-#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct InnerClassEntry {
     pub inner_class_info_index: u16,

@@ -2,17 +2,11 @@ use crate::ClassFileErr;
 use crate::attribute::method::code::CodeAttributeInfo;
 use crate::attribute::{AttributeType, SharedAttribute};
 use crate::constant::pool::ConstantPool;
-use crate::flags::MethodFlags;
-use common::descriptor::MethodDescriptor;
-use common::instruction::Instruction;
 use common::utils::cursor::ByteCursor;
-#[cfg(test)]
-use serde::Serialize;
 
 pub mod code;
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.3
-#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ExceptionTableEntry {
     start_pc: u16,
@@ -22,7 +16,6 @@ pub struct ExceptionTableEntry {
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.3
-#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CodeAttribute {
     pub max_stack: u16,
@@ -32,7 +25,6 @@ pub struct CodeAttribute {
     pub attributes: Vec<CodeAttributeInfo>,
 }
 
-#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MethodParameterEntry {
     pub name_index: u16,
@@ -40,7 +32,6 @@ pub struct MethodParameterEntry {
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7
-#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MethodAttribute {
     Shared(SharedAttribute),
@@ -104,12 +95,14 @@ impl<'a> MethodAttribute {
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &ConstantPool,
-        descriptor: &MethodDescriptor,
+        descriptor: &common::descriptor::MethodDescriptor,
         this: &u16,
         is_static: bool,
     ) -> std::fmt::Result {
+        use crate::flags::MethodFlags;
         use common::pretty_try;
         use std::fmt::Write as _;
+
         match self {
             MethodAttribute::Shared(shared) => shared.fmt_pretty(ind, cp)?,
             MethodAttribute::Code(code) => code.fmt_pretty(ind, cp, descriptor, this, is_static)?,
@@ -200,11 +193,12 @@ impl<'a> CodeAttribute {
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &ConstantPool,
-        method_descriptor: &MethodDescriptor,
+        method_descriptor: &common::descriptor::MethodDescriptor,
         this: &u16,
         is_static: bool,
     ) -> std::fmt::Result {
         use crate::print::get_pretty_instruction;
+        use common::instruction::Instruction;
         use common::pretty_try;
         use std::fmt::Write as _;
 

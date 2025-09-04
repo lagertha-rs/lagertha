@@ -1,18 +1,16 @@
 use crate::ClassFileErr;
-use crate::attribute::SharedAttribute;
 use crate::attribute::field::FieldAttribute;
 use crate::constant::pool::ConstantPool;
 use crate::flags::FieldFlags;
 use common::utils::cursor::ByteCursor;
-use common::utils::indent_write::Indented;
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.5
 #[derive(Debug)]
 pub struct FieldInfo {
-    access_flags: FieldFlags,
-    name_index: u16,
-    descriptor_index: u16,
-    attributes: Vec<FieldAttribute>,
+    pub access_flags: FieldFlags,
+    pub name_index: u16,
+    pub descriptor_index: u16,
+    pub attributes: Vec<FieldAttribute>,
 }
 
 impl<'a> FieldInfo {
@@ -42,10 +40,11 @@ impl<'a> FieldInfo {
 impl FieldInfo {
     fn fmt_pretty_type(
         &self,
-        ind: &mut Indented,
+        ind: &mut common::utils::indent_write::Indented,
         cp: &ConstantPool,
         raw_descriptor: &str,
     ) -> std::fmt::Result {
+        use crate::attribute::SharedAttribute;
         use common::jtype::Type;
         use common::pretty_try;
         use std::fmt::Write as _;
@@ -71,7 +70,11 @@ impl FieldInfo {
         write!(ind, "{field_type} ")
     }
 
-    pub(crate) fn fmt_pretty(&self, ind: &mut Indented, cp: &ConstantPool) -> std::fmt::Result {
+    pub(crate) fn fmt_pretty(
+        &self,
+        ind: &mut common::utils::indent_write::Indented,
+        cp: &ConstantPool,
+    ) -> std::fmt::Result {
         use common::pretty_try;
         use std::fmt::Write as _;
 

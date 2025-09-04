@@ -1,10 +1,7 @@
 use crate::ClassFileErr;
-use crate::constant::pool::ConstantPool;
 use common::utils::cursor::ByteCursor;
 use core::fmt;
 use num_enum::TryFromPrimitive;
-#[cfg(test)]
-use serde::Serialize;
 use std::fmt::Formatter;
 
 pub mod class;
@@ -12,7 +9,6 @@ pub mod field;
 pub mod method;
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7
-#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum AttributeType {
     ConstantValue,
@@ -48,7 +44,6 @@ pub enum AttributeType {
 }
 
 /// Common attribute payloads that appear at multiple locations
-#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SharedAttribute {
     Synthetic,
@@ -91,7 +86,7 @@ impl<'a> SharedAttribute {
     pub(crate) fn fmt_pretty(
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
-        cp: &ConstantPool,
+        cp: &crate::constant::pool::ConstantPool,
     ) -> fmt::Result {
         use common::pretty_class_name_try;
         use common::pretty_try;
@@ -167,7 +162,6 @@ impl<'a> SharedAttribute {
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.16
-#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Annotation {
     pub type_index: u16,
@@ -192,7 +186,6 @@ impl<'a> Annotation {
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.16
-#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ElementValuePair {
     pub element_name_index: u16,
@@ -228,7 +221,6 @@ pub enum ElementTag {
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.16.1
-#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ElementValue {
     Byte(u16),
@@ -294,7 +286,10 @@ impl<'a> ElementValue {
     }
 
     #[cfg(feature = "pretty_print")]
-    pub(crate) fn get_pretty_value(&self, cp: &ConstantPool) -> Result<String, ClassFileErr> {
+    pub(crate) fn get_pretty_value(
+        &self,
+        cp: &crate::constant::pool::ConstantPool,
+    ) -> Result<String, ClassFileErr> {
         Ok(match self {
             ElementValue::Boolean(idx) => match cp.get_integer(idx)? {
                 0 => "false".to_string(),

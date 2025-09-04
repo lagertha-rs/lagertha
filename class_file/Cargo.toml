@@ -20,6 +20,5 @@ common = { path = "../common" }
 [dev-dependencies]
 insta = { version = "1.42.2", features = ["yaml"] }
 rstest = "0.26.1"
-serde = { version = "1.0.219", features = ["derive"] }
 
 

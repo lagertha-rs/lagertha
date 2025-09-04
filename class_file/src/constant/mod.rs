@@ -1,17 +1,13 @@
 use crate::ClassFileErr;
-use crate::constant::pool::ConstantPool;
-use common::pretty_try;
+
 use common::utils::cursor::ByteCursor;
 use num_enum::TryFromPrimitive;
-#[cfg(test)]
-use serde::Serialize;
 use std::fmt::{Display, Formatter};
 
 pub mod pool;
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.4-210
 /// Table 4.4-B. Constant pool tags (by tag)
-#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq, TryFromPrimitive)]
 #[repr(u8)]
 pub enum ConstantTag {
@@ -37,7 +33,6 @@ pub enum ConstantTag {
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.4-140
 /// Each entry is as described in section column of Table 4.4-A. Constant pool tags (by section)
-#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq)]
 pub enum ConstantInfo {
     Unused,
@@ -58,14 +53,12 @@ pub enum ConstantInfo {
     MethodType(u16),
 }
 
-#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ReferenceInfo {
     pub class_index: u16,
     pub name_and_type_index: u16,
 }
 
-#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NameAndTypeInfo {
     pub name_index: u16,
@@ -73,7 +66,6 @@ pub struct NameAndTypeInfo {
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.4.10
-#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DynamicInfo {
     pub bootstrap_method_attr_index: u16,
@@ -81,14 +73,12 @@ pub struct DynamicInfo {
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.4.8
-#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MethodHandleInfo {
     pub reference_kind: u8,
     pub reference_index: u16,
 }
 
-#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq, TryFromPrimitive)]
 #[repr(u8)]
 pub enum MethodHandleKind {
@@ -221,7 +211,7 @@ impl<'a> ConstantInfo {
     pub(crate) fn fmt_pretty(
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
-        cp: &ConstantPool,
+        cp: &pool::ConstantPool,
     ) -> std::fmt::Result {
         use common::{pretty_method_name_try, pretty_try};
         use std::fmt::Write as _;
@@ -325,7 +315,7 @@ impl<'a> ConstantInfo {
     #[cfg(feature = "pretty_print")]
     pub(crate) fn get_pretty_value(
         &self,
-        cp: &ConstantPool,
+        cp: &pool::ConstantPool,
         this_class_name: &u16,
     ) -> Result<String, ClassFileErr> {
         Ok(match self {
