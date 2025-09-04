@@ -2,6 +2,7 @@ use crate::ClassFileErr;
 use crate::attribute::method::code::CodeAttributeInfo;
 use crate::attribute::{AttributeType, SharedAttribute};
 use crate::constant::pool::ConstantPool;
+use crate::flags::MethodFlags;
 use common::descriptor::MethodDescriptor;
 use common::instruction::Instruction;
 use common::utils::cursor::ByteCursor;
@@ -143,7 +144,9 @@ impl<'a> MethodAttribute {
                         } else {
                             pretty_try!(ind, cp.get_utf8(&param.name_index)).to_string()
                         };
-                        writeln!(ind, "{:<W_NAME$} 0x{:04x}", name, param.access_flags,)?;
+                        write!(ind, "{:<W_NAME$} ", name)?;
+                        MethodFlags::new(param.access_flags).fmt_pretty_everything(ind)?;
+                        writeln!(ind)?;
                     }
                     Ok(())
                 })?;

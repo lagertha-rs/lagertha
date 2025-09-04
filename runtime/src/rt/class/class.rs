@@ -5,13 +5,13 @@ use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::constant_pool::reference::ClassReference;
 use class_file::ClassFile;
 use class_file::attribute::class::ClassAttribute;
-use common::access::ClassAccessFlag;
+use class_file::flags::ClassFlags;
 use std::rc::Rc;
 
 #[derive(Debug)]
 pub struct Class {
     this: Rc<ClassReference>,
-    access: ClassAccessFlag,
+    access: ClassFlags,
     minor_version: u16,
     major_version: u16,
     super_class: Option<Rc<ClassReference>>,
@@ -34,7 +34,7 @@ impl Class {
         } else {
             None
         };
-        let access = ClassAccessFlag::new(cf.access_flags);
+        let access = cf.access_flags;
         let methods = cf
             .methods
             .into_iter()

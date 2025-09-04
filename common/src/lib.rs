@@ -3,7 +3,6 @@ extern crate core;
 use crate::utils::cursor::CursorError;
 use thiserror::Error;
 
-pub mod access;
 pub mod descriptor;
 pub mod instruction;
 pub mod jtype;

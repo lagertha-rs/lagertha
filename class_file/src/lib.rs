@@ -2,19 +2,20 @@ use crate::attribute::SharedAttribute;
 use crate::attribute::class::ClassAttribute;
 use crate::constant::pool::ConstantPool;
 use crate::error::ClassFileErr;
+use crate::flags::ClassFlags;
 use common::signature::ClassSignature;
 use common::utils::cursor::ByteCursor;
 use constant::ConstantInfo;
 use field::FieldInfo;
 use method::MethodInfo;
-#[cfg(test)]
-use serde::Serialize;
 
 pub mod attribute;
 pub mod constant;
 pub mod error;
 pub mod field;
+pub mod flags;
 pub mod method;
+
 #[cfg(feature = "pretty_print")]
 pub mod print;
 // TODO: review all access levels in the crate (methods, fields, modules, structs, etc.)
@@ -25,13 +26,12 @@ pub mod print;
 /// fields for easier access, because anyway it will be remapped to runtime structures.
 ///
 /// All print related code is behind the `pretty_print` feature flag.
-#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug)]
 pub struct ClassFile {
     pub minor_version: u16,
     pub major_version: u16,
     pub cp: ConstantPool,
-    pub access_flags: u16,
+    pub access_flags: ClassFlags,
     pub this_class: u16,
     pub super_class: u16,
     pub interfaces: Vec<u16>,
@@ -81,7 +81,7 @@ impl TryFrom<Vec<u8>> for ClassFile {
             inner: constant_pool,
         };
 
-        let access_flags = cursor.u16()?;
+        let access_flags = ClassFlags::new(cursor.u16()?);
         let this_class = cursor.u16()?;
         let super_class = cursor.u16()?;
         let interfaces_count = cursor.u16()?;
@@ -125,16 +125,18 @@ impl TryFrom<Vec<u8>> for ClassFile {
 }
 
 #[cfg(feature = "pretty_print")]
-impl std::fmt::Display for ClassFile {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        use crate::print::{get_class_javap_like_list, get_class_pretty_java_like_prefix};
-        use common::utils::indent_write::Indented;
-        use common::{pretty_class_name_try, pretty_try};
+impl ClassFile {
+    const COMMENT_WIDTH: usize = 24;
+    const CONSTANT_KIND_WIDTH: usize = 18;
+
+    fn fmt_generic_signature(
+        &self,
+        ind: &mut common::utils::indent_write::Indented<'_>,
+    ) -> std::fmt::Result {
+        use common::pretty_try;
         use std::fmt::Write as _;
 
-        const CONSTANT_KIND_WIDTH: usize = 18;
-        let mut ind = Indented::new(f);
-        let generic_signature_opt = self.attributes.iter().find_map(|attr| {
+        if let Some(sig_index) = self.attributes.iter().find_map(|attr| {
             if let ClassAttribute::Shared(shared) = attr {
                 match shared {
                     SharedAttribute::Signature(sig_index) => Some(sig_index),
@@ -143,35 +145,65 @@ impl std::fmt::Display for ClassFile {
             } else {
                 None
             }
-        });
-        writeln!(
+        }) {
+            let raw_sig = pretty_try!(ind, self.cp.get_utf8(sig_index));
+            let sig = pretty_try!(ind, ClassSignature::try_from(raw_sig));
+            write!(ind, "{}", sig)
+        } else {
+            Ok(())
+        }
+    }
+
+    fn fmt_java_like_signature(
+        &self,
+        ind: &mut common::utils::indent_write::Indented<'_>,
+    ) -> std::fmt::Result {
+        use common::pretty_class_name_try;
+        use std::fmt::Write as _;
+
+        self.access_flags.fmt_pretty_java_like_prefix(ind)?;
+        write!(
             ind,
-            "{} {} {}",
-            get_class_pretty_java_like_prefix(self.access_flags),
-            pretty_class_name_try!(ind, self.cp.get_class_name(&self.this_class)),
-            if let Some(sig_index) = generic_signature_opt {
-                let raw_sig = pretty_try!(ind, self.cp.get_utf8(sig_index));
-                pretty_try!(ind, ClassSignature::try_from(raw_sig)).to_string()
-            } else {
-                String::new()
-            }
+            "{} ",
+            pretty_class_name_try!(ind, self.cp.get_class_name(&self.this_class))
         )?;
+        self.fmt_generic_signature(ind)?;
+        writeln!(ind)
+    }
+}
+
+#[cfg(feature = "pretty_print")]
+impl std::fmt::Display for ClassFile {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use common::pretty_try;
+        use common::utils::indent_write::Indented;
+        use std::fmt::Write as _;
+
+        let mut ind = Indented::new(f);
+
+        self.fmt_java_like_signature(&mut ind)?;
+
         ind.with_indent(|ind| {
             writeln!(ind, "minor version: {}", self.minor_version)?;
             writeln!(ind, "major version: {}", self.major_version)?;
+
+            write!(ind, "flags: (0x{:04X}) ", self.access_flags.get_raw(),)?;
+            self.access_flags.fmt_class_javap_like_list(ind)?;
+            writeln!(ind)?;
+
             writeln!(
                 ind,
-                "flags: (0x{:04X}) {}",
-                self.access_flags,
-                get_class_javap_like_list(self.access_flags)
-            )?;
-            writeln!(
-                ind,
-                "this_class: {:<24}//{}",
+                "this_class: {:<w$} //{}",
                 format!("#{}", self.this_class),
-                pretty_try!(ind, self.cp.get_class_name(&self.this_class))
+                pretty_try!(ind, self.cp.get_class_name(&self.this_class)),
+                w = Self::COMMENT_WIDTH
             )?;
-            write!(ind, "super_class: {:<24}", format!("#{}", self.super_class),)?;
+            write!(
+                ind,
+                "super_class: {:<w$}",
+                format!("#{}", self.super_class),
+                w = Self::COMMENT_WIDTH
+            )?;
             if self.super_class != 0 {
                 write!(
                     ind,
@@ -203,7 +235,7 @@ impl std::fmt::Display for ClassFile {
                 if matches!(c, ConstantInfo::Unused) {
                     continue;
                 }
-                let tag = format_args!("{:<kw$}", c.get_tag(), kw = CONSTANT_KIND_WIDTH);
+                let tag = format_args!("{:<kw$}", c.get_tag(), kw = Self::CONSTANT_KIND_WIDTH);
                 write!(ind, "{:>w$} = {} ", format!("#{i}"), tag, w = counter_width)?;
                 c.fmt_pretty(ind, &self.cp)?;
             }
@@ -270,7 +302,6 @@ mod tests {
         let display = format!("{}", ClassFile::try_from(bytes).unwrap());
 
         // Then
-        /*
         with_settings!(
             {
                 snapshot_path => DISPLAY_SNAPSHOT_PATH,
@@ -280,7 +311,6 @@ mod tests {
                 insta::assert_snapshot!(to_snapshot_name(&path), display);
             }
         );
-         */
     }
 
     #[rstest]

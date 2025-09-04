@@ -1,18 +1,18 @@
 use crate::ClassFileErr;
+use crate::attribute::SharedAttribute;
 use crate::attribute::method::MethodAttribute;
 use crate::constant::pool::ConstantPool;
-use common::pretty_try;
+use crate::flags::MethodFlags;
+use common::descriptor::MethodDescriptor;
+use common::pretty_class_name_try;
 use common::signature::MethodSignature;
 use common::utils::cursor::ByteCursor;
 use either::Either;
-#[cfg(test)]
-use serde::Serialize;
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.6
-#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug)]
 pub struct MethodInfo {
-    pub access_flags: u16,
+    pub access_flags: MethodFlags,
     pub name_index: u16,
     pub descriptor_index: u16,
     pub attributes: Vec<MethodAttribute>,
@@ -23,7 +23,7 @@ impl<'a> MethodInfo {
         constant_pool: &ConstantPool,
         cursor: &mut ByteCursor<'a>,
     ) -> Result<Self, ClassFileErr> {
-        let access_flags = cursor.u16()?;
+        let access_flags = MethodFlags::new(cursor.u16()?);
         let name_index = cursor.u16()?;
         let descriptor_index = cursor.u16()?;
         let attribute_count = cursor.u16()?;
@@ -38,115 +38,163 @@ impl<'a> MethodInfo {
             attributes,
         })
     }
+}
 
-    #[cfg(feature = "pretty_print")]
+#[cfg(feature = "pretty_print")]
+impl MethodInfo {
+    fn get_descriptor(
+        &self,
+        cp: &ConstantPool,
+        raw_descriptor: &str,
+    ) -> Result<Either<MethodSignature, MethodDescriptor>, ClassFileErr> {
+        use crate::attribute::SharedAttribute;
+
+        let generic_signature_opt = self.attributes.iter().find_map(|attr| {
+            if let MethodAttribute::Shared(shared) = attr {
+                match shared {
+                    SharedAttribute::Signature(sig_index) => Some(sig_index),
+                    _ => None,
+                }
+            } else {
+                None
+            }
+        });
+        Ok(if let Some(sig_index) = generic_signature_opt {
+            let raw_sig = cp.get_utf8(sig_index)?;
+            Either::Left(MethodSignature::try_from(raw_sig)?)
+        } else {
+            Either::Right(MethodDescriptor::try_from(raw_descriptor)?)
+        })
+    }
+
+    fn fmt_pretty_javap_flags(
+        &self,
+        ind: &mut common::utils::indent_write::Indented<'_>,
+    ) -> std::fmt::Result {
+        use std::fmt::Write as _;
+
+        write!(ind, "flags: (0x{:04x}) ", self.access_flags.get_raw(),)?;
+        self.access_flags.fmt_class_javap_like_list(ind)?;
+        writeln!(ind)
+    }
+
+    fn fmt_pretty_throws(
+        &self,
+        ind: &mut common::utils::indent_write::Indented<'_>,
+        cp: &ConstantPool,
+    ) -> std::fmt::Result {
+        use common::pretty_try;
+        use std::fmt::Write as _;
+
+        let exceptions_attr_opt = self.attributes.iter().find_map(|attr| {
+            if let MethodAttribute::Exceptions(exception_index_table) = attr {
+                Some(exception_index_table)
+            } else {
+                None
+            }
+        });
+        if let Some(exception_index_table) = exceptions_attr_opt {
+            write!(ind, " throws ")?;
+            for (i, ex_index) in exception_index_table.iter().enumerate() {
+                if i > 0 {
+                    write!(ind, ", ")?;
+                }
+                let ex_name = pretty_class_name_try!(ind, cp.get_class_name(ex_index));
+                write!(ind, "{ex_name}")?;
+            }
+        }
+        Ok(())
+    }
+
+    fn fmt_pretty_name_and_ret_type(
+        &self,
+        ind: &mut common::utils::indent_write::Indented<'_>,
+        cp: &ConstantPool,
+        this: &u16,
+        descriptor: &Either<MethodSignature, MethodDescriptor>,
+    ) -> std::fmt::Result {
+        use common::pretty_class_name_try;
+        use std::fmt::Write as _;
+
+        let method_name = pretty_class_name_try!(ind, cp.get_utf8(&self.name_index));
+        if method_name == "<init>" {
+            write!(
+                ind,
+                "{}",
+                pretty_class_name_try!(ind, cp.get_class_name(this))
+            )
+        } else if method_name == "<clinit>" {
+            write!(ind, "{{}}")
+        } else {
+            match descriptor {
+                Either::Left(signature) => {
+                    if signature.type_params.len() == 1 {
+                        write!(ind, "<{}> ", signature.type_params[0])?;
+                    }
+                    write!(ind, "{} {}", &signature.ret, method_name)
+                }
+                Either::Right(descriptor) => write!(ind, "{} {}", &descriptor.ret, method_name),
+            }
+        }
+    }
+
+    fn fmt_pretty_params(
+        &self,
+        ind: &mut common::utils::indent_write::Indented<'_>,
+        descriptor: &Either<MethodSignature, MethodDescriptor>,
+    ) -> std::fmt::Result {
+        use common::jtype::Type;
+        use std::fmt::Write as _;
+
+        let params: &[Type] = match descriptor {
+            Either::Left(sig) => &sig.params,
+            Either::Right(desc) => &desc.params,
+        };
+
+        ind.write_char('(')?;
+        for (i, ty) in params.iter().enumerate() {
+            if i > 0 {
+                ind.write_str(", ")?;
+            }
+
+            let is_last = i + 1 == params.len();
+            if is_last && self.access_flags.is_varargs() {
+                if let Type::Array(elem) = ty {
+                    write!(ind, "{}", &**elem)?;
+                    ind.write_str("...")?;
+                    continue;
+                }
+            }
+
+            write!(ind, "{ty}")?;
+        }
+        ind.write_char(')')
+    }
+
     pub(crate) fn fmt_pretty(
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &ConstantPool,
         this: &u16,
     ) -> std::fmt::Result {
-        use crate::attribute::SharedAttribute;
-        use crate::print::{get_method_javap_like_list, get_method_pretty_java_like_prefix};
         use common::descriptor::MethodDescriptor;
-        use common::{pretty_class_name_try, pretty_try};
-        use itertools::Itertools;
+        use common::pretty_try;
         use std::fmt::Write as _;
 
         let raw_descriptor = pretty_try!(ind, cp.get_utf8(&self.descriptor_index));
-        let descriptor = {
-            let generic_signature_opt = self.attributes.iter().find_map(|attr| {
-                if let MethodAttribute::Shared(shared) = attr {
-                    match shared {
-                        SharedAttribute::Signature(sig_index) => Some(sig_index),
-                        _ => None,
-                    }
-                } else {
-                    None
-                }
-            });
-            if let Some(sig_index) = generic_signature_opt {
-                let raw_sig = pretty_try!(ind, cp.get_utf8(sig_index));
-                Either::Left(pretty_try!(ind, MethodSignature::try_from(raw_sig)))
-            } else {
-                Either::Right(pretty_try!(ind, MethodDescriptor::try_from(raw_descriptor)))
-            }
-        };
+        let descriptor = pretty_try!(ind, self.get_descriptor(cp, &raw_descriptor));
 
-        // TODO: can be replaced by method signature?
-        let throws = {
-            let exc_opt = self.attributes.iter().find_map(|attr| {
-                if let MethodAttribute::Exceptions(exc) = attr {
-                    (!exc.is_empty()).then_some(exc)
-                } else {
-                    None
-                }
-            });
-
-            if let Some(exc) = exc_opt {
-                format!(
-                    " throws {}",
-                    pretty_try!(
-                        ind,
-                        exc.iter()
-                            .map(|index| cp.get_pretty_class_name(index))
-                            .collect::<Result<Vec<_>, _>>()
-                    )
-                    .join(", ")
-                )
-            } else {
-                String::new()
-            }
-        };
-
-        // constructor special handling
-        let ret_and_method_name = {
-            let method_name = pretty_class_name_try!(ind, cp.get_utf8(&self.name_index));
-            if method_name != "<init>" {
-                match &descriptor {
-                    Either::Left(signature) => {
-                        let generic_ret = if signature.type_params.len() == 1 {
-                            format!("<{}> ", signature.type_params[0])
-                        } else {
-                            String::new()
-                        };
-                        format!("{}{} {}", generic_ret, &signature.ret, method_name)
-                    }
-                    Either::Right(descriptor) => format!("{} {}", &descriptor.ret, method_name),
-                }
-            } else {
-                pretty_class_name_try!(ind, cp.get_class_name(this))
-            }
-        };
-
-        let mut params = match &descriptor {
-            Either::Left(sig) => &sig.params,
-            Either::Right(desc) => &desc.params,
+        self.access_flags.fmt_pretty_java_like_prefix(ind)?;
+        self.fmt_pretty_name_and_ret_type(ind, cp, this, &descriptor)?;
+        if pretty_try!(ind, cp.get_utf8(&self.name_index)) != "<clinit>" {
+            self.fmt_pretty_params(ind, &descriptor)?;
+            self.fmt_pretty_throws(ind, cp)?;
         }
-        .iter()
-        .map(|v| v.to_string())
-        .join(", ");
+        writeln!(ind, ";")?;
 
-        let is_varargs = (self.access_flags & 0x0080) != 0;
-        if is_varargs {
-            params = format!("{}...", params.trim_end_matches("[]"));
-        }
-
-        writeln!(
-            ind,
-            "{} {}({params}){throws};",
-            get_method_pretty_java_like_prefix(self.access_flags),
-            ret_and_method_name,
-        )?;
         ind.with_indent(|ind| {
-            let is_static = (self.access_flags & 0x0008) != 0;
             writeln!(ind, "descriptor: {}", raw_descriptor)?;
-            writeln!(
-                ind,
-                "flags: (0x{:04x}) {}",
-                self.access_flags,
-                get_method_javap_like_list(self.access_flags)
-            )?;
+            self.fmt_pretty_javap_flags(ind)?;
             for attr in &self.attributes {
                 attr.fmt_pretty(
                     ind,
@@ -154,7 +202,7 @@ impl<'a> MethodInfo {
                     //TODO: avoid double conversion, not sure that method signature is needed here
                     &pretty_try!(ind, MethodDescriptor::try_from(raw_descriptor)),
                     this,
-                    is_static,
+                    self.access_flags.is_static(),
                 )?;
             }
             Ok(())

@@ -6,8 +6,8 @@ use class_file::attribute::method::code::{
 };
 use class_file::attribute::method::{CodeAttribute, MethodAttribute};
 use class_file::attribute::{Annotation, SharedAttribute};
+use class_file::flags::MethodFlags;
 use class_file::method::MethodInfo;
-use common::access::MethodAccessFlag;
 use common::instruction::Instruction;
 use std::cell::OnceCell;
 use std::rc::Rc;
@@ -29,7 +29,7 @@ pub struct CodeContext {
 #[derive(Debug)]
 pub struct Method {
     pub name: Rc<String>,
-    pub flags: MethodAccessFlag,
+    pub flags: MethodFlags,
     pub descriptor: Rc<MethodDescriptorReference>,
     pub code_context: Option<CodeContext>,
     pub signature: Option<Rc<String>>,
@@ -40,7 +40,7 @@ pub struct Method {
 impl Method {
     pub fn new(method_info: MethodInfo, cp: Rc<RuntimeConstantPool>) -> Result<Self, LoadingError> {
         let name = cp.get_utf8(&method_info.name_index)?.clone();
-        let flags = MethodAccessFlag::new(method_info.access_flags);
+        let flags = method_info.access_flags;
         let descriptor = cp.get_method_descriptor(&method_info.descriptor_index)?;
 
         let code_ctx = OnceCell::<CodeContext>::new();

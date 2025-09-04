@@ -1,11 +1,9 @@
 use crate::attribute::AttributeType;
 use crate::constant::ConstantTag;
+use common::signature::SignatureErr;
 use common::utils::cursor::CursorError;
-#[cfg(test)]
-use serde::Serialize;
 use thiserror::Error;
 
-#[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum ClassFileErr {
     #[error(transparent)]
@@ -29,4 +27,8 @@ pub enum ClassFileErr {
     AttributeIsNotShared(AttributeType),
     #[error("Invalid method handle kind {0}.")]
     InvalidMethodHandleKind(u8),
+    #[error(transparent)]
+    Signature(#[from] SignatureErr),
+    #[error(transparent)]
+    MethodDescriptor(#[from] common::MethodDescriptorErr),
 }
