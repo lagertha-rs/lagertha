@@ -170,7 +170,7 @@ impl TryFrom<&str> for ClassSignature {
         let super_class = parse_class_type(&mut it)?.ok_or(SignatureErr::MissingSuper)?;
 
         let mut interfaces = Vec::new();
-        while let Some(_) = it.peek() {
+        while it.peek().is_some() {
             let iface = parse_class_type(&mut it)?.ok_or(SignatureErr::UnexpectedEnd)?;
             interfaces.push(iface);
         }
