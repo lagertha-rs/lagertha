@@ -49,7 +49,7 @@ jobs:
           path: target/test-classes
           key: >
             ${{ runner.os }}-jdk-${{ matrix.jdk }}-${{ matrix.jdk_distribution }}-fixtures-
-            ${{ hashFiles('testdata/java/**/*.java', 'testdata/prepare_fixtures.py', 'fixtures.toml') }}
+            ${{ hashFiles('testdata/java/**/*.java', 'testdata/prepare_fixtures.py', 'fixtures.toml', 'target/test-classes/**/*.class') }}
 
       - name: Prepare fixtures (compile + extract)
         if: steps.cache-fixtures.outputs.cache-hit != 'true'
