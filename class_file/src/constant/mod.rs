@@ -438,7 +438,7 @@ impl Display for ConstantTag {
             ConstantTag::NameAndType => "NameAndType",
             ConstantTag::MethodHandle => "MethodHandle",
             ConstantTag::MethodType => "MethodType",
-            ConstantTag::Dynamic => "InvokeDynamic",
+            ConstantTag::Dynamic => "Dynamic",
             ConstantTag::InvokeDynamic => "InvokeDynamic",
             ConstantTag::Module => "Module",
             ConstantTag::Package => "Package",
