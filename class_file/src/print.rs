@@ -1,7 +1,7 @@
 use crate::constant::pool::ConstantPool;
 use crate::error::ClassFileErr;
 use common::instruction::Instruction;
-use std::fmt::{Write, format};
+use std::fmt::Write;
 
 /// Returns true if the instruction's operand is a position (like for `goto` or `if` instructions)
 /// needs to decide whether to print `#` before the operand

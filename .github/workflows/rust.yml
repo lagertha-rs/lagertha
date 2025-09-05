@@ -14,14 +14,14 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      CRATES_WITH_STRICT_RULES: "class_file common classp"
+      PKG_ARG: "--package class_file --package classp --package common"
 
     strategy:
       matrix:
         rust: [ stable ]
         jdk: [ '24.0.2' ]
         jdk_distribution: [ 'oracle' ]
-
+    
     
     steps:
       - name: Checkout code
@@ -32,9 +32,6 @@ jobs:
         with:
           toolchain: ${{ matrix.rust }}
           components: rustfmt, clippy
-
-      - name: Check formatting
-        run: cargo fmt --all -- --check
 
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
@@ -57,6 +54,42 @@ jobs:
       - name: Prepare fixtures (compile + extract)
         if: steps.cache-fixtures.outputs.cache-hit != 'true'
         run: python3 testdata/prepare_fixtures.py
+
+      - name: Install cargo-hack
+        run: cargo install --locked cargo-hack
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: check (no default features)
+        shell: bash
+        env: { RUSTFLAGS: -Dwarnings }
+        run: |
+          cargo hack check --all-targets --no-default-features $PKG_ARG
+
+      - name: check (each feature)
+        shell: bash
+        env: { RUSTFLAGS: -Dwarnings }
+        run: |
+          cargo hack check --all-targets --each-feature $PKG_ARG
+
+      - name: check (all features)
+        shell: bash
+        env: { RUSTFLAGS: -Dwarnings }
+        run: |
+          cargo hack check --all-targets --all-features $PKG_ARG
+
+      - name: clippy (each feature)
+        shell: bash
+        env: { RUSTFLAGS: -Dwarnings }
+        run: |
+          cargo hack clippy --all-targets --each-feature $PKG_ARG -- -D warnings
+
+      - name: clippy (all features)
+        shell: bash
+        env: { RUSTFLAGS: -Dwarnings }
+        run: |
+          cargo hack clippy --all-targets --all-features $PKG_ARG -- -D warnings
 
       - name: Build
         run: cargo build --verbose --locked

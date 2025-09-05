@@ -379,8 +379,8 @@ impl<'a> CodeAttributeInfo {
                 writeln!(ind, "LocalVariableTable:")?;
                 writeln!(
                     ind,
-                    "{:>W_START$} {:>W_LENGTH$} {:>W_SLOT$}  {:<W_NAME$} {}",
-                    "Start", "Length", "Slot", "Name", "Signature",
+                    "{:>W_START$} {:>W_LENGTH$} {:>W_SLOT$}  {:<W_NAME$} Signature",
+                    "Start", "Length", "Slot", "Name",
                 )?;
                 for lv in table {
                     let name = pretty_try!(ind, cp.get_utf8(&lv.name_index));

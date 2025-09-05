@@ -167,12 +167,13 @@ impl MethodInfo {
             }
 
             let is_last = i + 1 == params.len();
-            if is_last && self.access_flags.is_varargs() {
-                if let Type::Array(elem) = ty {
-                    write!(ind, "{}", &**elem)?;
-                    ind.write_str("...")?;
-                    continue;
-                }
+            if is_last
+                && self.access_flags.is_varargs()
+                && let Type::Array(elem) = ty
+            {
+                write!(ind, "{}", &**elem)?;
+                ind.write_str("...")?;
+                continue;
             }
 
             write!(ind, "{ty}")?;
@@ -191,7 +192,7 @@ impl MethodInfo {
         use std::fmt::Write as _;
 
         let raw_descriptor = pretty_try!(ind, cp.get_utf8(&self.descriptor_index));
-        let descriptor = pretty_try!(ind, self.get_descriptor(cp, &raw_descriptor));
+        let descriptor = pretty_try!(ind, self.get_descriptor(cp, raw_descriptor));
 
         self.access_flags.fmt_pretty_java_like_prefix(ind)?;
         self.fmt_pretty_name_and_ret_type(ind, cp, this, &descriptor)?;
