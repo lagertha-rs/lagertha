@@ -1,13 +1,11 @@
 use crate::class_loader::ClassLoaderErr;
 use crate::method_area::MethodArea;
-use crate::rt::class::LoadingError;
-use crate::rt::class::class::Class;
+use crate::rt::class::LinkageError;
 use crate::rt::constant_pool::error::RuntimePoolError;
-use class_file::error::ClassFileErr;
-use common::InstructionErr;
 use common::utils::cursor::CursorError;
-use std::rc::Rc;
+use once_cell::sync::OnceCell;
 use thiserror::Error;
+use tracing_log::log::debug;
 
 mod class_loader;
 mod heap;
@@ -39,36 +37,60 @@ pub enum ClassState {
 
 #[derive(Debug, Error)]
 pub enum JvmError {
-    #[error(transparent)]
-    Loading(#[from] LoadingError),
-    #[error(transparent)]
-    ClassFile(#[from] ClassFileErr),
+    #[error("LinkageError: {0}")]
+    Linkage(#[from] LinkageError),
     #[error(transparent)]
     Cursor(#[from] CursorError),
     #[error(transparent)]
     RuntimePool(#[from] RuntimePoolError),
     #[error(transparent)]
     ClassLoader(#[from] ClassLoaderErr),
-    #[error("")]
+    #[error("MissingAttributeInConstantPoll")]
     MissingAttributeInConstantPoll,
-    #[error("")]
+    #[error("ConstantNotFoundInRuntimePool")]
     ConstantNotFoundInRuntimePool,
-    #[error("")]
+    #[error("TrailingBytes")]
     TrailingBytes,
-    #[error("")]
+    #[error("TypeError")]
     TypeError,
+    #[error("ClassNotFoundException: {0}")]
+    ClassNotFound(String),
 }
 
-// TODO: returns only class right now, in future not sure
-pub fn parse_bin_class(main_class: Vec<u8>) -> Result<Rc<Class>, JvmError> {
-    //let class_file = ClassFile::try_from(main_class)?;
-    //let main = Rc::new(Class::new(class_file)?);
+#[derive(Debug)]
+pub struct VmConfig {
+    pub home: String,
+    pub version: String,
+    pub initial_heap_size: usize,
+    pub max_heap_size: usize,
+    pub stack_size_per_thread: usize,
+}
 
-    //let method_area = MethodArea::with_main(main.clone())?;
-    let method_area = MethodArea::new()?;
+//TODO: make it better
+impl VmConfig {
+    pub fn validate(&self) {
+        if self.version != "24.0.2" {
+            panic!(
+                "Unsupported Java version: {}. Only 24.0.2 is supported.",
+                self.version
+            );
+        }
+    }
+}
+pub static VM_CONFIGURATION: OnceCell<VmConfig> = OnceCell::new();
 
-    let obj_class_name = "java/lang/Object".to_string();
-    let obj_class = method_area.get_class(&obj_class_name)?;
+// TODO: right now static and global, probably should be dealt differently later
+pub static METHOD_AREA: OnceCell<MethodArea> = OnceCell::new();
 
-    Ok(obj_class)
+pub fn start(main_class: Vec<u8>, config: VmConfig) -> Result<(), JvmError> {
+    debug!("Starting VM with config: {:?}", config);
+    config.validate();
+    VM_CONFIGURATION.set(config).expect("TODO: panic message");
+    METHOD_AREA
+        .set(MethodArea::try_with_main(main_class)?)
+        .expect("TODO: panic message");
+    debug!("VM started successfully");
+
+    let main = METHOD_AREA.get().unwrap().get_main();
+    Ok(())
 }

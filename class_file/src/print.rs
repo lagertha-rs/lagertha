@@ -1,5 +1,5 @@
 use crate::constant::pool::ConstantPool;
-use crate::error::ClassFileErr;
+use crate::error::ClassFormatErr;
 use common::instruction::Instruction;
 use std::fmt::Write;
 
@@ -106,8 +106,8 @@ fn get_instruction_comment(
     instruction: &Instruction,
     cp: &ConstantPool,
     this: &u16,
-) -> Result<Option<String>, ClassFileErr> {
-    let comment_value = |index: &u16| -> Result<Option<String>, ClassFileErr> {
+) -> Result<Option<String>, ClassFormatErr> {
+    let comment_value = |index: &u16| -> Result<Option<String>, ClassFormatErr> {
         let constant = cp.get_raw(index)?;
         Ok(Some(constant.get_pretty_value(cp, this)?))
     };
@@ -137,7 +137,7 @@ pub fn get_pretty_instruction(
     cp: &ConstantPool,
     pc: i32,
     this: &u16,
-) -> Result<String, ClassFileErr> {
+) -> Result<String, ClassFormatErr> {
     let val = get_instruction_value(instruction, pc);
     let comment = get_instruction_comment(instruction, cp, this)?;
     let is_position = instruction_is_position(instruction);

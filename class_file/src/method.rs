@@ -1,4 +1,4 @@
-use crate::ClassFileErr;
+use crate::ClassFormatErr;
 use crate::attribute::method::MethodAttribute;
 use crate::constant::pool::ConstantPool;
 use crate::flags::MethodFlags;
@@ -17,7 +17,7 @@ impl<'a> MethodInfo {
     pub(crate) fn read(
         constant_pool: &ConstantPool,
         cursor: &mut ByteCursor<'a>,
-    ) -> Result<Self, ClassFileErr> {
+    ) -> Result<Self, ClassFormatErr> {
         let access_flags = MethodFlags::new(cursor.u16()?);
         let name_index = cursor.u16()?;
         let descriptor_index = cursor.u16()?;
@@ -43,7 +43,7 @@ impl MethodInfo {
         raw_descriptor: &str,
     ) -> Result<
         either::Either<common::signature::MethodSignature, common::descriptor::MethodDescriptor>,
-        ClassFileErr,
+        ClassFormatErr,
     > {
         use crate::attribute::SharedAttribute;
         use common::descriptor::MethodDescriptor;

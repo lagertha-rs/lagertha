@@ -1,7 +1,6 @@
-use serde::Serialize;
 use thiserror::Error;
 
-#[derive(Debug, Clone, PartialEq, Eq, Error, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum CursorError {
     #[error("Unexpected end of data")]
     UnexpectedEof,

@@ -1,4 +1,4 @@
-use crate::rt::class::LoadingError;
+use crate::rt::class::LinkageError;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::constant_pool::reference::MethodDescriptorReference;
 use class_file::attribute::method::code::{
@@ -10,7 +10,7 @@ use class_file::flags::MethodFlags;
 use class_file::method::MethodInfo;
 use common::instruction::Instruction;
 use std::cell::OnceCell;
-use std::rc::Rc;
+use std::sync::Arc;
 
 ///https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.3
 #[derive(Debug)]
@@ -28,23 +28,26 @@ pub struct CodeContext {
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.6
 #[derive(Debug)]
 pub struct Method {
-    pub name: Rc<String>,
+    pub name: Arc<String>,
     pub flags: MethodFlags,
-    pub descriptor: Rc<MethodDescriptorReference>,
+    pub descriptor: Arc<MethodDescriptorReference>,
     pub code_context: Option<CodeContext>,
-    pub signature: Option<Rc<String>>,
+    pub signature: Option<Arc<String>>,
     pub rt_visible_annotations: Option<Vec<Annotation>>,
     pub is_deprecated: bool,
 }
 
 impl Method {
-    pub fn new(method_info: MethodInfo, cp: Rc<RuntimeConstantPool>) -> Result<Self, LoadingError> {
+    pub fn new(
+        method_info: MethodInfo,
+        cp: Arc<RuntimeConstantPool>,
+    ) -> Result<Self, LinkageError> {
         let name = cp.get_utf8(&method_info.name_index)?.clone();
         let flags = method_info.access_flags;
         let descriptor = cp.get_method_descriptor(&method_info.descriptor_index)?;
 
         let code_ctx = OnceCell::<CodeContext>::new();
-        let signature = OnceCell::<Rc<String>>::new();
+        let signature = OnceCell::<Arc<String>>::new();
         let rt_vis_ann = OnceCell::<Vec<Annotation>>::new();
         let exceptions = OnceCell::<Vec<u16>>::new();
         let mut is_deprecated = false;
@@ -53,32 +56,32 @@ impl Method {
             match attr {
                 MethodAttribute::Code(code) => code_ctx
                     .set(CodeContext::try_from(code)?)
-                    .map_err(|_| LoadingError::DuplicatedCodeAttr)?,
+                    .map_err(|_| LinkageError::DuplicatedCodeAttr)?,
                 MethodAttribute::Shared(shared) => match shared {
                     SharedAttribute::Synthetic => unimplemented!(),
                     SharedAttribute::Deprecated => is_deprecated = true,
                     SharedAttribute::Signature(idx) => signature
                         .set(cp.get_utf8(&idx)?.clone())
-                        .map_err(|_| LoadingError::DuplicatedSignatureAttr)?,
+                        .map_err(|_| LinkageError::DuplicatedSignatureAttr)?,
                     SharedAttribute::RuntimeVisibleAnnotations(v) => rt_vis_ann
                         .set(v)
-                        .map_err(|_| LoadingError::DuplicatedRuntimeVisibleAnnotationsAttr)?,
+                        .map_err(|_| LinkageError::DuplicatedRuntimeVisibleAnnotationsAttr)?,
                     SharedAttribute::RuntimeInvisibleAnnotations => unimplemented!(),
                     SharedAttribute::RuntimeVisibleTypeAnnotations => unimplemented!(),
                     SharedAttribute::RuntimeInvisibleTypeAnnotations => unimplemented!(),
                 },
                 MethodAttribute::Exceptions(v) => exceptions
                     .set(v)
-                    .map_err(|_| LoadingError::DuplicatedExceptionAttribute)?,
+                    .map_err(|_| LinkageError::DuplicatedExceptionAttribute)?,
                 other => unimplemented!(),
             }
         }
 
         let code_context = match (flags.is_native(), code_ctx.into_inner()) {
-            (true, Some(_)) => return Err(LoadingError::CodeAttrIsAmbiguousForNative),
+            (true, Some(_)) => return Err(LinkageError::CodeAttrIsAmbiguousForNative),
             (true, None) => None,
             (false, Some(c)) => Some(c),
-            (false, None) => return Err(LoadingError::MissingCodeAttr),
+            (false, None) => return Err(LinkageError::MissingCodeAttr),
         };
 
         Ok(Method {
@@ -94,7 +97,7 @@ impl Method {
 }
 
 impl TryFrom<CodeAttribute> for CodeContext {
-    type Error = LoadingError;
+    type Error = LinkageError;
 
     fn try_from(code: CodeAttribute) -> Result<Self, Self::Error> {
         let mut all_line_numbers: Option<Vec<LineNumberEntry>> = None;
@@ -120,7 +123,7 @@ impl TryFrom<CodeAttribute> for CodeContext {
                 }
                 CodeAttributeInfo::StackMapTable(table) => stack_map_table
                     .set(table)
-                    .map_err(|_| LoadingError::DuplicatedStackMapTable)?,
+                    .map_err(|_| LinkageError::DuplicatedStackMapTable)?,
                 other => unimplemented!("Unknown code attr {:?}", other),
             }
         }

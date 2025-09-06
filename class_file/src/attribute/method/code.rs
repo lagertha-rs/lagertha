@@ -1,4 +1,4 @@
-use crate::ClassFileErr;
+use crate::ClassFormatErr;
 use crate::attribute::AttributeType;
 use crate::constant::pool::ConstantPool;
 use common::utils::cursor::ByteCursor;
@@ -103,7 +103,7 @@ pub enum VerificationTypeInfo {
 }
 
 impl<'a> StackMapFrame {
-    pub(crate) fn read(cursor: &mut ByteCursor<'a>) -> Result<Self, ClassFileErr> {
+    pub(crate) fn read(cursor: &mut ByteCursor<'a>) -> Result<Self, ClassFormatErr> {
         let frame_type = cursor.u8()?;
         match frame_type {
             0..=63 => Ok(StackMapFrame::Same {
@@ -149,7 +149,7 @@ impl<'a> StackMapFrame {
                     stack,
                 })
             }
-            other => Err(ClassFileErr::UnknownStackFrameType(other)),
+            other => Err(ClassFormatErr::UnknownStackFrameType(other)),
         }
     }
 
@@ -164,7 +164,7 @@ impl<'a> StackMapFrame {
         use std::fmt::Write as _;
 
         let get_pretty_verif_type =
-            |locals: &Vec<VerificationTypeInfo>| -> Result<String, ClassFileErr> {
+            |locals: &Vec<VerificationTypeInfo>| -> Result<String, ClassFormatErr> {
                 locals
                     .iter()
                     .map(|v| v.get_pretty_value(cp, this))
@@ -247,10 +247,10 @@ impl<'a> StackMapFrame {
 }
 
 impl<'a> VerificationTypeInfo {
-    pub(crate) fn read(cursor: &mut ByteCursor<'a>) -> Result<Self, ClassFileErr> {
+    pub(crate) fn read(cursor: &mut ByteCursor<'a>) -> Result<Self, ClassFormatErr> {
         let raw_tag = cursor.u8()?;
         let frame_type: VerificationTypeTag = VerificationTypeTag::try_from_primitive(raw_tag)
-            .map_err(|_| ClassFileErr::UnknownTag(raw_tag))?;
+            .map_err(|_| ClassFormatErr::UnknownTag(raw_tag))?;
         Ok(match frame_type {
             VerificationTypeTag::Top => Self::Top,
             VerificationTypeTag::Integer => Self::Integer,
@@ -269,7 +269,7 @@ impl<'a> VerificationTypeInfo {
         &self,
         cp: &ConstantPool,
         this: &u16,
-    ) -> Result<String, ClassFileErr> {
+    ) -> Result<String, ClassFormatErr> {
         Ok(match self {
             VerificationTypeInfo::Top => "top".to_string(),
             VerificationTypeInfo::Integer => "int".to_string(),
@@ -290,7 +290,7 @@ impl<'a> CodeAttributeInfo {
     pub(crate) fn read(
         pool: &ConstantPool,
         cursor: &mut ByteCursor<'a>,
-    ) -> Result<Self, ClassFileErr> {
+    ) -> Result<Self, ClassFormatErr> {
         let attribute_name_index = cursor.u16()?;
         let _attribute_length = cursor.u32()? as usize;
 

@@ -1,4 +1,4 @@
-use crate::ClassFileErr;
+use crate::ClassFormatErr;
 use crate::attribute::field::FieldAttribute;
 use crate::constant::pool::ConstantPool;
 use crate::flags::FieldFlags;
@@ -17,7 +17,7 @@ impl<'a> FieldInfo {
     pub(crate) fn read(
         pool: &ConstantPool,
         cursor: &mut ByteCursor<'a>,
-    ) -> Result<Self, ClassFileErr> {
+    ) -> Result<Self, ClassFormatErr> {
         let access_flags = FieldFlags::new(cursor.u16()?);
         let name_index = cursor.u16()?;
         let descriptor_index = cursor.u16()?;

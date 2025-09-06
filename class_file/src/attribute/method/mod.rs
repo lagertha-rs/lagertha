@@ -1,4 +1,4 @@
-use crate::ClassFileErr;
+use crate::ClassFormatErr;
 use crate::attribute::method::code::CodeAttributeInfo;
 use crate::attribute::{AttributeType, SharedAttribute};
 use crate::constant::pool::ConstantPool;
@@ -56,7 +56,7 @@ impl<'a> MethodAttribute {
     pub(crate) fn read(
         pool: &ConstantPool,
         cursor: &mut ByteCursor<'a>,
-    ) -> Result<Self, ClassFileErr> {
+    ) -> Result<Self, ClassFormatErr> {
         let attribute_name_index = cursor.u16()?;
         let _attribute_length = cursor.u32()? as usize;
 
@@ -154,7 +154,7 @@ impl<'a> CodeAttribute {
     pub(crate) fn read(
         pool: &ConstantPool,
         cursor: &mut ByteCursor<'a>,
-    ) -> Result<Self, ClassFileErr> {
+    ) -> Result<Self, ClassFormatErr> {
         let max_stack = cursor.u16()?;
         let max_locals = cursor.u16()?;
         let code_length = cursor.u32()? as usize;

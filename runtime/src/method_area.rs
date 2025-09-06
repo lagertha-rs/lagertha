@@ -2,31 +2,47 @@ use crate::JvmError;
 use crate::class_loader::BootstrapClassLoader;
 use crate::rt::class::class::Class;
 use dashmap::DashMap;
-use std::rc::Rc;
+use std::sync::Arc;
+use tracing_log::log::debug;
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.5.4
+#[derive(Debug)]
 pub struct MethodArea {
     bootstrap_class_loader: BootstrapClassLoader,
-    classes: DashMap<String, Rc<Class>>,
+    classes: DashMap<String, Arc<Class>>,
+    main: Arc<Class>,
 }
 
 impl MethodArea {
-    pub fn with_main(main: Rc<Class>) -> Result<Self, JvmError> {
-        let mut instance = Self::new()?;
-        instance.classes.insert(main.get_name()?.to_string(), main);
-        Ok(instance)
-    }
-    pub fn new() -> Result<Self, JvmError> {
+    pub fn try_with_main(main: Vec<u8>) -> Result<Self, JvmError> {
+        let bootstrap_class_loader = BootstrapClassLoader::new()?;
+        debug!("Loading main class from bytes...");
+        let main_class = Arc::new(bootstrap_class_loader.load_with_bytes(main)?);
+
+        let classes = DashMap::new();
+        classes.insert(main_class.get_name()?.to_string(), main_class.clone());
+        debug!(
+            "MethodArea initialized with main class \"{}\"",
+            main_class.get_name()?
+        );
         Ok(Self {
-            bootstrap_class_loader: BootstrapClassLoader::new()?,
-            classes: DashMap::new(),
+            classes,
+            main: main_class,
+            bootstrap_class_loader,
         })
     }
 
-    pub fn get_class(&self, name: &String) -> Result<Rc<Class>, JvmError> {
-        let class = Rc::new(self.bootstrap_class_loader.try_load(name)?);
+    pub fn get_main(&self) -> Arc<Class> {
+        self.main.clone()
+    }
 
-        self.classes.insert(name.clone(), class.clone());
+    pub fn get_class(&self, name: &str) -> Result<Arc<Class>, JvmError> {
+        if let Some(class) = self.classes.get(name) {
+            return Ok(class.clone());
+        }
+        let class = Arc::new(self.bootstrap_class_loader.load(name)?);
+
+        self.classes.insert(name.to_string(), class.clone());
 
         Ok(class)
     }

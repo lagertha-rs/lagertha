@@ -1,4 +1,4 @@
-use crate::ClassFileErr;
+use crate::ClassFormatErr;
 
 use common::utils::cursor::ByteCursor;
 use num_enum::TryFromPrimitive;
@@ -101,9 +101,9 @@ impl MethodHandleInfo {
         }
     }
 
-    pub fn get_kind(&self) -> Result<MethodHandleKind, ClassFileErr> {
+    pub fn get_kind(&self) -> Result<MethodHandleKind, ClassFormatErr> {
         MethodHandleKind::try_from_primitive(self.reference_kind)
-            .map_err(|_| ClassFileErr::InvalidMethodHandleKind(self.reference_kind))
+            .map_err(|_| ClassFormatErr::InvalidMethodHandleKind(self.reference_kind))
     }
 }
 
@@ -135,10 +135,10 @@ impl NameAndTypeInfo {
 }
 
 impl<'a> ConstantInfo {
-    pub(crate) fn read(cursor: &mut ByteCursor<'a>) -> Result<Self, ClassFileErr> {
+    pub(crate) fn read(cursor: &mut ByteCursor<'a>) -> Result<Self, ClassFormatErr> {
         let raw_tag = cursor.u8()?;
         let tag = ConstantTag::try_from_primitive(raw_tag)
-            .map_err(|_| ClassFileErr::UnknownTag(raw_tag))?;
+            .map_err(|_| ClassFormatErr::UnknownTag(raw_tag))?;
         let const_info = match tag {
             ConstantTag::Unused => {
                 unreachable!() // TODO: Sure?
@@ -317,7 +317,7 @@ impl<'a> ConstantInfo {
         &self,
         cp: &pool::ConstantPool,
         this_class_name: &u16,
-    ) -> Result<String, ClassFileErr> {
+    ) -> Result<String, ClassFormatErr> {
         Ok(match self {
             ConstantInfo::Utf8(s) => format!("utf8 {}", s),
             ConstantInfo::Integer(i) => format!("int {}", i),
@@ -396,7 +396,7 @@ impl<'a> ConstantInfo {
 
 impl MethodHandleKind {
     #[cfg(feature = "pretty_print")]
-    pub(crate) fn get_pretty_value(&self) -> Result<&str, ClassFileErr> {
+    pub(crate) fn get_pretty_value(&self) -> Result<&str, ClassFormatErr> {
         Ok(match self {
             MethodHandleKind::GetField => "REF_getField",
             MethodHandleKind::GetStatic => "REF_getStatic",

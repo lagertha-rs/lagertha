@@ -1,18 +1,19 @@
 use crate::attribute::AttributeType;
 use crate::constant::ConstantTag;
+use common::MethodDescriptorErr;
 use common::signature::SignatureErr;
 use common::utils::cursor::CursorError;
 use thiserror::Error;
 
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
-pub enum ClassFileErr {
+pub enum ClassFormatErr {
     #[error(transparent)]
     Cursor(#[from] CursorError),
-    #[error("")]
-    WrongMagic,
+    #[error("Incompatible magic value: {0}")]
+    WrongMagic(u32),
     #[error("Expected end of file but found trailing bytes.")]
     TrailingBytes,
-    #[error("")]
+    #[error("TrailingBytes")]
     UnknownTag(u8),
     #[error("Expected type `{1}` with index `{0}` but found `{2}`")]
     /// First u16 is index, second is expected type, third is actual type
@@ -30,5 +31,5 @@ pub enum ClassFileErr {
     #[error(transparent)]
     Signature(#[from] SignatureErr),
     #[error(transparent)]
-    MethodDescriptor(#[from] common::MethodDescriptorErr),
+    MethodDescriptor(#[from] MethodDescriptorErr),
 }

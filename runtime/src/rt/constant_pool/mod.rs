@@ -7,7 +7,7 @@ use class_file::constant::ConstantInfo;
 use common::descriptor::MethodDescriptor;
 use common::jtype::Type;
 use dashmap::DashMap;
-use std::rc::Rc;
+use std::sync::Arc;
 
 pub mod error;
 pub mod reference;
@@ -33,17 +33,17 @@ pub enum RuntimeConstantType {
 #[derive(Debug, Clone, PartialEq)]
 pub enum RuntimeConstant {
     Unused,
-    Utf8(Rc<String>),
+    Utf8(Arc<String>),
     Integer(i32),
     Float(f32),
     Long(i64),
     Double(f64),
-    Class(Rc<ClassReference>),
-    String(Rc<StringReference>),
-    MethodRef(Rc<MethodReference>),
-    FieldRef(Rc<FieldReference>),
+    Class(Arc<ClassReference>),
+    String(Arc<StringReference>),
+    MethodRef(Arc<MethodReference>),
+    FieldRef(Arc<FieldReference>),
     InterfaceRef,
-    NameAndType(Rc<NameAndTypeReference>),
+    NameAndType(Arc<NameAndTypeReference>),
 }
 
 impl RuntimeConstant {
@@ -69,59 +69,52 @@ impl RuntimeConstant {
 #[derive(Debug)]
 pub struct RuntimeConstantPool {
     entries: Vec<RuntimeConstant>,
-    method_descriptors: DashMap<u16, Rc<MethodDescriptorReference>>,
-    field_descriptors: DashMap<u16, Rc<FieldDescriptorReference>>,
+    method_descriptors: DashMap<u16, Arc<MethodDescriptorReference>>,
+    field_descriptors: DashMap<u16, Arc<FieldDescriptorReference>>,
 }
 
 //TODO: change u16 idx as param to &u16
 impl RuntimeConstantPool {
     pub fn new(entries: Vec<ConstantInfo>) -> Self {
-        /*
         Self {
             entries: entries
                 .into_iter()
                 .enumerate()
                 .map(|(i, c)| match c {
                     ConstantInfo::Unused => RuntimeConstant::Unused,
-                    ConstantInfo::Utf8(val) => RuntimeConstant::Utf8(Rc::new(val)),
+                    ConstantInfo::Utf8(val) => RuntimeConstant::Utf8(Arc::new(val)),
                     ConstantInfo::Integer(val) => RuntimeConstant::Integer(val),
                     ConstantInfo::Float(val) => RuntimeConstant::Float(val),
                     ConstantInfo::Long(val) => RuntimeConstant::Long(val),
                     ConstantInfo::Double(val) => RuntimeConstant::Double(val),
                     ConstantInfo::Class(idx) => {
-                        RuntimeConstant::Class(Rc::new(ClassReference::new(i as u16, idx)))
+                        RuntimeConstant::Class(Arc::new(ClassReference::new(i as u16, idx)))
                     }
                     ConstantInfo::String(idx) => {
-                        RuntimeConstant::String(Rc::new(StringReference::new(i as u16, idx)))
+                        RuntimeConstant::String(Arc::new(StringReference::new(i as u16, idx)))
                     }
                     ConstantInfo::MethodRef(method_ref) => {
-                        RuntimeConstant::MethodRef(Rc::new(MethodReference::new(
+                        RuntimeConstant::MethodRef(Arc::new(MethodReference::new(
                             i as u16,
                             method_ref.class_index,
                             method_ref.name_and_type_index,
                         )))
                     }
                     ConstantInfo::FieldRef(field_ref) => {
-                        RuntimeConstant::FieldRef(Rc::new(FieldReference::new(
+                        RuntimeConstant::FieldRef(Arc::new(FieldReference::new(
                             i as u16,
                             field_ref.class_index,
                             field_ref.name_and_type_index,
                         )))
                     }
-                    ConstantInfo::InterfaceRef(v) => unimplemented!(),
-                    ConstantInfo::NameAndType(nat) => RuntimeConstant::NameAndType(Rc::new(
+                    ConstantInfo::NameAndType(nat) => RuntimeConstant::NameAndType(Arc::new(
                         NameAndTypeReference::new(i as u16, nat.name_index, nat.descriptor_index),
                     )),
+                    _ => unimplemented!(),
                 })
                 .collect(),
             method_descriptors: DashMap::new(),
             field_descriptors: DashMap::new(),
-        }
-         */
-        Self {
-            entries: vec![],
-            method_descriptors: Default::default(),
-            field_descriptors: Default::default(),
         }
     }
 
@@ -158,7 +151,7 @@ impl RuntimeConstantPool {
         Ok(entry)
     }
 
-    pub fn get_utf8(&self, idx: &u16) -> Result<&Rc<String>, RuntimePoolError> {
+    pub fn get_utf8(&self, idx: &u16) -> Result<&Arc<String>, RuntimePoolError> {
         match self.entry(idx)? {
             RuntimeConstant::Utf8(string) => Ok(string),
             other => Err(RuntimePoolError::TypeError(
@@ -169,7 +162,7 @@ impl RuntimeConstantPool {
         }
     }
 
-    pub fn get_string(&self, idx: &u16) -> Result<&Rc<StringReference>, RuntimePoolError> {
+    pub fn get_string(&self, idx: &u16) -> Result<&Arc<StringReference>, RuntimePoolError> {
         match self.entry(idx)? {
             RuntimeConstant::String(str_ref) => {
                 str_ref.value.get_or_try_init::<_, RuntimePoolError>(|| {
@@ -185,7 +178,7 @@ impl RuntimeConstantPool {
         }
     }
 
-    pub fn get_class(&self, idx: &u16) -> Result<&Rc<ClassReference>, RuntimePoolError> {
+    pub fn get_class(&self, idx: &u16) -> Result<&Arc<ClassReference>, RuntimePoolError> {
         match self.entry(idx)? {
             RuntimeConstant::Class(class_ref) => {
                 class_ref.name.get_or_try_init::<_, RuntimePoolError>(|| {
@@ -205,13 +198,13 @@ impl RuntimeConstantPool {
     pub fn get_method_descriptor(
         &self,
         idx: &u16,
-    ) -> Result<Rc<MethodDescriptorReference>, RuntimePoolError> {
+    ) -> Result<Arc<MethodDescriptorReference>, RuntimePoolError> {
         if let Some(descriptor) = self.method_descriptors.get(&idx) {
             return Ok(descriptor.clone());
         }
         let raw = self.get_utf8(idx)?.clone();
         let resolved = MethodDescriptor::try_from(raw.as_str())?;
-        let reference = Rc::new(MethodDescriptorReference::new(*idx, raw, resolved));
+        let reference = Arc::new(MethodDescriptorReference::new(*idx, raw, resolved));
         self.method_descriptors.insert(*idx, reference.clone());
         Ok(reference)
     }
@@ -220,18 +213,21 @@ impl RuntimeConstantPool {
     pub fn get_field_descriptor(
         &self,
         idx: &u16,
-    ) -> Result<Rc<FieldDescriptorReference>, RuntimePoolError> {
+    ) -> Result<Arc<FieldDescriptorReference>, RuntimePoolError> {
         if let Some(descriptor) = self.field_descriptors.get(&idx) {
             return Ok(descriptor.clone());
         }
         let raw = self.get_utf8(idx)?.clone();
         let resolved = Type::try_from(raw.as_str())?;
-        let reference = Rc::new(FieldDescriptorReference::new(*idx, raw, resolved));
+        let reference = Arc::new(FieldDescriptorReference::new(*idx, raw, resolved));
         self.field_descriptors.insert(*idx, reference.clone());
         Ok(reference)
     }
 
-    pub fn get_method_nat(&self, idx: &u16) -> Result<&Rc<NameAndTypeReference>, RuntimePoolError> {
+    pub fn get_method_nat(
+        &self,
+        idx: &u16,
+    ) -> Result<&Arc<NameAndTypeReference>, RuntimePoolError> {
         match self.entry(idx)? {
             RuntimeConstant::NameAndType(method_nat) => {
                 method_nat.name.get_or_try_init::<_, RuntimePoolError>(|| {
@@ -252,7 +248,7 @@ impl RuntimeConstantPool {
         }
     }
 
-    pub fn get_field_nat(&self, idx: &u16) -> Result<&Rc<NameAndTypeReference>, RuntimePoolError> {
+    pub fn get_field_nat(&self, idx: &u16) -> Result<&Arc<NameAndTypeReference>, RuntimePoolError> {
         match self.entry(idx)? {
             RuntimeConstant::NameAndType(field_nat) => {
                 field_nat.name.get_or_try_init::<_, RuntimePoolError>(|| {
@@ -273,7 +269,7 @@ impl RuntimeConstantPool {
         }
     }
 
-    pub fn get_methodref(&self, idx: &u16) -> Result<&Rc<MethodReference>, RuntimePoolError> {
+    pub fn get_methodref(&self, idx: &u16) -> Result<&Arc<MethodReference>, RuntimePoolError> {
         match self.entry(idx)? {
             RuntimeConstant::MethodRef(method_ref) => {
                 method_ref.class.get_or_try_init(|| {
@@ -296,7 +292,7 @@ impl RuntimeConstantPool {
         }
     }
 
-    pub fn get_fieldref(&self, idx: &u16) -> Result<&Rc<FieldReference>, RuntimePoolError> {
+    pub fn get_fieldref(&self, idx: &u16) -> Result<&Arc<FieldReference>, RuntimePoolError> {
         match self.entry(idx)? {
             RuntimeConstant::FieldRef(field_ref) => {
                 field_ref.class.get_or_try_init::<_, RuntimePoolError>(|| {

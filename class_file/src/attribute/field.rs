@@ -1,6 +1,6 @@
 use crate::attribute::{AttributeType, SharedAttribute};
 use crate::constant::pool::ConstantPool;
-use crate::error::ClassFileErr;
+use crate::error::ClassFormatErr;
 use common::utils::cursor::ByteCursor;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -13,7 +13,7 @@ impl<'a> FieldAttribute {
     pub(crate) fn read(
         pool: &ConstantPool,
         cursor: &mut ByteCursor<'a>,
-    ) -> Result<Self, ClassFileErr> {
+    ) -> Result<Self, ClassFormatErr> {
         let attribute_name_index = cursor.u16()?;
         let _attribute_length = cursor.u32()? as usize;
 

@@ -1,4 +1,4 @@
-use crate::ClassFileErr;
+use crate::ClassFormatErr;
 use crate::attribute::{AttributeType, SharedAttribute};
 use crate::constant::pool::ConstantPool;
 use common::utils::cursor::ByteCursor;
@@ -63,7 +63,7 @@ impl<'a> ClassAttribute {
     pub(crate) fn read(
         pool: &ConstantPool,
         cursor: &mut ByteCursor<'a>,
-    ) -> Result<Self, ClassFileErr> {
+    ) -> Result<Self, ClassFormatErr> {
         let attribute_name_index = cursor.u16()?;
         let _attribute_length = cursor.u32()? as usize;
 

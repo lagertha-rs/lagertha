@@ -1,4 +1,5 @@
 use crate::rt::constant_pool::error::RuntimePoolError;
+use class_file::error::ClassFormatErr;
 use common::InstructionErr;
 use common::utils::cursor::CursorError;
 use thiserror::Error;
@@ -8,7 +9,7 @@ pub mod field;
 pub mod method;
 
 #[derive(Debug, Error)]
-pub enum LoadingError {
+pub enum LinkageError {
     #[error(transparent)]
     Instruction(#[from] InstructionErr),
     #[error("Unsupported opcode `{0:#04X}`")]
@@ -18,21 +19,23 @@ pub enum LoadingError {
     //TODO: confused 4.7.13. The LocalVariableTable Attribute
     //#[error("")]
     //DuplicatedLocalVariableTableAttr,
-    #[error("")]
+    #[error("DuplicatedSignatureAttr")]
     DuplicatedSignatureAttr,
-    #[error("")]
+    #[error("DuplicatedStackMapTable")]
     DuplicatedStackMapTable,
-    #[error("")]
+    #[error("DuplicatedExceptionAttribute")]
     DuplicatedExceptionAttribute,
-    #[error("")]
+    #[error("DuplicatedRuntimeVisibleAnnotationsAttr")]
     DuplicatedRuntimeVisibleAnnotationsAttr,
     // TODO: only for non native?
-    #[error("")]
+    #[error("MissingCodeAttr")]
     MissingCodeAttr,
-    #[error("")]
+    #[error("CodeAttrIsAmbiguousForNative")]
     CodeAttrIsAmbiguousForNative,
     #[error(transparent)]
     RuntimeConstantPool(#[from] RuntimePoolError),
     #[error(transparent)]
     Cursor(#[from] CursorError),
+    #[error("java.lang.ClassFormatError: {0}")]
+    ClassFile(#[from] ClassFormatErr),
 }

@@ -23,7 +23,7 @@ pub enum MethodDescriptorErr {
     ShouldStartWithParentheses(String),
     #[error("Descriptor must contain ')'. Descriptor: \"{0}\"")]
     MissingClosingParenthesis(String),
-    #[error("")]
+    #[error("TrailingCharacters")]
     TrailingCharacters,
     #[error("Method descriptor error in \"{0}\": {1}")]
     Type(String, TypeDescriptorErr),

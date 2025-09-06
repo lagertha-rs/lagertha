@@ -1,6 +1,6 @@
 use crate::attribute::class::ClassAttribute;
 use crate::constant::pool::ConstantPool;
-use crate::error::ClassFileErr;
+use crate::error::ClassFormatErr;
 use crate::flags::ClassFlags;
 use common::utils::cursor::ByteCursor;
 use constant::ConstantInfo;
@@ -40,15 +40,15 @@ pub struct ClassFile {
 
 impl ClassFile {
     const MAGIC: u32 = 0xCAFEBABE;
-    fn validate_magic(val: u32) -> Result<(), ClassFileErr> {
+    fn validate_magic(val: u32) -> Result<(), ClassFormatErr> {
         (val == ClassFile::MAGIC)
             .then_some(())
-            .ok_or(ClassFileErr::WrongMagic)
+            .ok_or(ClassFormatErr::WrongMagic(val))
     }
 }
 
 impl TryFrom<Vec<u8>> for ClassFile {
-    type Error = ClassFileErr;
+    type Error = ClassFormatErr;
 
     fn try_from(value: Vec<u8>) -> Result<Self, Self::Error> {
         let mut cursor = ByteCursor::new(&value);
@@ -104,7 +104,7 @@ impl TryFrom<Vec<u8>> for ClassFile {
         }
 
         if cursor.u8().is_ok() {
-            Err(ClassFileErr::TrailingBytes)
+            Err(ClassFormatErr::TrailingBytes)
         } else {
             Ok(Self {
                 minor_version,

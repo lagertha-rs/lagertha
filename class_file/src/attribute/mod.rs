@@ -1,4 +1,4 @@
-use crate::ClassFileErr;
+use crate::ClassFormatErr;
 use common::utils::cursor::ByteCursor;
 use core::fmt;
 use num_enum::TryFromPrimitive;
@@ -59,7 +59,7 @@ impl<'a> SharedAttribute {
     pub(crate) fn read(
         attr_type: AttributeType,
         cursor: &mut ByteCursor<'a>,
-    ) -> Result<Self, ClassFileErr> {
+    ) -> Result<Self, ClassFormatErr> {
         match attr_type {
             AttributeType::Synthetic => Ok(SharedAttribute::Synthetic),
             AttributeType::Deprecated => Ok(SharedAttribute::Deprecated),
@@ -78,7 +78,7 @@ impl<'a> SharedAttribute {
             AttributeType::RuntimeInvisibleAnnotations
             | AttributeType::RuntimeInvisibleTypeAnnotations
             | AttributeType::RuntimeVisibleTypeAnnotations => unimplemented!(),
-            _ => Err(ClassFileErr::AttributeIsNotShared(attr_type)),
+            _ => Err(ClassFormatErr::AttributeIsNotShared(attr_type)),
         }
     }
 
@@ -169,7 +169,7 @@ pub struct Annotation {
 }
 
 impl<'a> Annotation {
-    pub(crate) fn read(cursor: &mut ByteCursor<'a>) -> Result<Self, ClassFileErr> {
+    pub(crate) fn read(cursor: &mut ByteCursor<'a>) -> Result<Self, ClassFormatErr> {
         let type_index = cursor.u16()?;
         let num_element_value_pairs = cursor.u16()?;
         let mut element_value_pairs = Vec::with_capacity(num_element_value_pairs as usize);
@@ -193,7 +193,7 @@ pub struct ElementValuePair {
 }
 
 impl<'a> ElementValuePair {
-    pub(crate) fn read(cursor: &mut ByteCursor<'a>) -> Result<Self, ClassFileErr> {
+    pub(crate) fn read(cursor: &mut ByteCursor<'a>) -> Result<Self, ClassFormatErr> {
         Ok(Self {
             element_name_index: cursor.u16()?,
             value: ElementValue::read(cursor)?,
@@ -242,10 +242,10 @@ pub enum ElementValue {
 }
 
 impl<'a> ElementValue {
-    pub(crate) fn read(cursor: &mut ByteCursor<'a>) -> Result<Self, ClassFileErr> {
+    pub(crate) fn read(cursor: &mut ByteCursor<'a>) -> Result<Self, ClassFormatErr> {
         let raw_tag = cursor.u8()?;
         let tag = ElementTag::try_from_primitive(raw_tag)
-            .map_err(|_| ClassFileErr::UnknownTag(raw_tag))?;
+            .map_err(|_| ClassFormatErr::UnknownTag(raw_tag))?;
 
         let ev = match tag {
             ElementTag::Byte => Self::Byte(cursor.u16()?),
@@ -289,7 +289,7 @@ impl<'a> ElementValue {
     pub(crate) fn get_pretty_value(
         &self,
         cp: &crate::constant::pool::ConstantPool,
-    ) -> Result<String, ClassFileErr> {
+    ) -> Result<String, ClassFormatErr> {
         Ok(match self {
             ElementValue::Boolean(idx) => match cp.get_integer(idx)? {
                 0 => "false".to_string(),
@@ -378,7 +378,7 @@ impl AttributeType {
 }
 
 impl TryFrom<&str> for AttributeType {
-    type Error = ClassFileErr;
+    type Error = ClassFormatErr;
 
     fn try_from(s: &str) -> Result<Self, Self::Error> {
         Ok(match s {
@@ -416,7 +416,7 @@ impl TryFrom<&str> for AttributeType {
             Self::ATTR_NEST_MEMBERS => Self::NestMembers,
             Self::ATTR_RECORD => Self::Record,
             Self::ATTR_PERMITTED_SUBCLASSES => Self::PermittedSubclasses,
-            _ => return Err(ClassFileErr::UnknownAttribute(s.to_string())),
+            _ => return Err(ClassFormatErr::UnknownAttribute(s.to_string())),
         })
     }
 }
