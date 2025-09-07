@@ -7,6 +7,7 @@ use thiserror::Error;
 pub mod class;
 pub mod field;
 pub mod method;
+pub mod native_method;
 
 #[derive(Debug, Error)]
 pub enum LinkageError {

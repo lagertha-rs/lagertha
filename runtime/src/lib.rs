@@ -2,17 +2,20 @@ use crate::class_loader::ClassLoaderErr;
 use crate::method_area::MethodArea;
 use crate::rt::class::LinkageError;
 use crate::rt::constant_pool::error::RuntimePoolError;
+use crate::stack::ThreadStack;
 use common::utils::cursor::CursorError;
 use once_cell::sync::OnceCell;
+use std::sync::Arc;
 use thiserror::Error;
 use tracing_log::log::debug;
 
 mod class_loader;
+mod executor;
 mod heap;
 mod method_area;
 mod native_registry;
 pub mod rt;
-mod stack;
+pub mod stack;
 mod string_pool;
 
 type HeapAddr = usize;
@@ -55,6 +58,14 @@ pub enum JvmError {
     TypeError,
     #[error("ClassNotFoundException: {0}")]
     ClassNotFound(String),
+    #[error("stack overflow")]
+    StackOverflow,
+    #[error("Stack is empty")]
+    StackIsEmpty,
+    #[error("OutOfMemory")]
+    OutOfMemory,
+    #[error("Could not find or load main class {0}")]
+    NoMainClassFound(String),
 }
 
 #[derive(Debug)]
@@ -77,20 +88,14 @@ impl VmConfig {
         }
     }
 }
-pub static VM_CONFIGURATION: OnceCell<VmConfig> = OnceCell::new();
-
-// TODO: right now static and global, probably should be dealt differently later
-pub static METHOD_AREA: OnceCell<MethodArea> = OnceCell::new();
 
 pub fn start(main_class: Vec<u8>, config: VmConfig) -> Result<(), JvmError> {
     debug!("Starting VM with config: {:?}", config);
     config.validate();
-    VM_CONFIGURATION.set(config).expect("TODO: panic message");
-    METHOD_AREA
-        .set(MethodArea::try_with_main(main_class)?)
-        .expect("TODO: panic message");
-    debug!("VM started successfully");
 
-    let main = METHOD_AREA.get().unwrap().get_main();
-    Ok(())
+    let vm_config = Arc::new(config);
+    let method_area = Arc::new(MethodArea::new(vm_config.clone())?);
+
+    let executor = executor::Executor::new(&vm_config, method_area);
+    executor.start(main_class)
 }

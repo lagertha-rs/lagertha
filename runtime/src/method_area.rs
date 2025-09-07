@@ -1,6 +1,8 @@
-use crate::JvmError;
 use crate::class_loader::BootstrapClassLoader;
+use crate::rt::class::LinkageError;
 use crate::rt::class::class::Class;
+use crate::{JvmError, VmConfig};
+use class_file::ClassFile;
 use dashmap::DashMap;
 use std::sync::Arc;
 use tracing_log::log::debug;
@@ -8,41 +10,51 @@ use tracing_log::log::debug;
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.5.4
 #[derive(Debug)]
 pub struct MethodArea {
+    vm_config: Arc<VmConfig>,
     bootstrap_class_loader: BootstrapClassLoader,
     classes: DashMap<String, Arc<Class>>,
-    main: Arc<Class>,
 }
 
 impl MethodArea {
-    pub fn try_with_main(main: Vec<u8>) -> Result<Self, JvmError> {
-        let bootstrap_class_loader = BootstrapClassLoader::new()?;
-        debug!("Loading main class from bytes...");
-        let main_class = Arc::new(bootstrap_class_loader.load_with_bytes(main)?);
-
+    pub fn new(vm_config: Arc<VmConfig>) -> Result<Self, JvmError> {
+        debug!("Initializing MethodArea...");
+        let bootstrap_class_loader = BootstrapClassLoader::new(vm_config.clone())?;
         let classes = DashMap::new();
-        classes.insert(main_class.get_name()?.to_string(), main_class.clone());
-        debug!(
-            "MethodArea initialized with main class \"{}\"",
-            main_class.get_name()?
-        );
+        debug!("MethodArea initialized");
         Ok(Self {
+            vm_config,
             classes,
-            main: main_class,
             bootstrap_class_loader,
         })
     }
 
-    pub fn get_main(&self) -> Arc<Class> {
-        self.main.clone()
+    fn load_with_bytes(&self, data: Vec<u8>) -> Result<Class, JvmError> {
+        let cf = ClassFile::try_from(data).map_err(LinkageError::from)?;
+        let class = Class::new(cf, self)?;
+        Ok(class)
+    }
+
+    pub fn add_class(&self, raw_class: Vec<u8>) -> Result<Arc<Class>, JvmError> {
+        debug!("Adding class from bytes...");
+        let class = Arc::new(self.load_with_bytes(raw_class)?);
+        let name = class.get_name()?.to_string();
+        debug!("Class \"{}\" added", name);
+        self.classes.insert(name, class.clone());
+        Ok(class)
     }
 
     pub fn get_class(&self, name: &str) -> Result<Arc<Class>, JvmError> {
+        debug!("Requesting class \"{}\"...", name);
         if let Some(class) = self.classes.get(name) {
+            debug!("Class \"{}\" found in MethodArea cache", name);
             return Ok(class.clone());
         }
-        let class = Arc::new(self.bootstrap_class_loader.load(name)?);
+        let class_data = self.bootstrap_class_loader.load(name)?;
+        let class = Arc::new(self.load_with_bytes(class_data)?);
 
         self.classes.insert(name.to_string(), class.clone());
+
+        debug!("Class \"{}\" loaded and added to MethodArea", name);
 
         Ok(class)
     }

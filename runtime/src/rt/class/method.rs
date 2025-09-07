@@ -31,7 +31,7 @@ pub struct Method {
     pub name: Arc<String>,
     pub flags: MethodFlags,
     pub descriptor: Arc<MethodDescriptorReference>,
-    pub code_context: Option<CodeContext>,
+    pub code_context: CodeContext,
     pub signature: Option<Arc<String>>,
     pub rt_visible_annotations: Option<Vec<Annotation>>,
     pub is_deprecated: bool,
@@ -46,7 +46,7 @@ impl Method {
         let flags = method_info.access_flags;
         let descriptor = cp.get_method_descriptor(&method_info.descriptor_index)?;
 
-        let code_ctx = OnceCell::<CodeContext>::new();
+        let mut code_ctx = OnceCell::<CodeContext>::new();
         let signature = OnceCell::<Arc<String>>::new();
         let rt_vis_ann = OnceCell::<Vec<Annotation>>::new();
         let exceptions = OnceCell::<Vec<u16>>::new();
@@ -77,12 +77,7 @@ impl Method {
             }
         }
 
-        let code_context = match (flags.is_native(), code_ctx.into_inner()) {
-            (true, Some(_)) => return Err(LinkageError::CodeAttrIsAmbiguousForNative),
-            (true, None) => None,
-            (false, Some(c)) => Some(c),
-            (false, None) => return Err(LinkageError::MissingCodeAttr),
-        };
+        let code_context = code_ctx.take().ok_or(LinkageError::MissingCodeAttr)?;
 
         Ok(Method {
             name,
@@ -93,6 +88,25 @@ impl Method {
             signature: signature.into_inner(),
             rt_visible_annotations: rt_vis_ann.into_inner(),
         })
+    }
+
+    pub fn is_main(&self) -> bool {
+        self.name.as_str() == "main"
+            && self.flags.is_public()
+            && self.flags.is_static()
+            && self.descriptor.raw().as_str() == "([Ljava/lang/String;)V"
+    }
+
+    pub fn instructions(&self) -> &Vec<Instruction> {
+        &self.code_context.instructions
+    }
+
+    pub fn max_stack(&self) -> usize {
+        self.code_context.max_stack as usize
+    }
+
+    pub fn max_locals(&self) -> usize {
+        self.code_context.max_locals as usize
     }
 }
 

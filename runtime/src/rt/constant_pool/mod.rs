@@ -194,6 +194,10 @@ impl RuntimeConstantPool {
         }
     }
 
+    pub fn get_class_name(&self, idx: &u16) -> Result<&Arc<String>, RuntimePoolError> {
+        Ok(self.get_class(idx)?.name()?)
+    }
+
     //TODO: all other getters return ref, but this one can't cause of dash map
     pub fn get_method_descriptor(
         &self,
