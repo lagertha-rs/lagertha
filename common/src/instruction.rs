@@ -773,6 +773,7 @@ impl Instruction {
                 Opcode::Sipush => Self::Sipush(cursor.i16()?),
                 Opcode::Swap => Self::Swap,
                 Opcode::TableSwitch => {
+                    //TODO: assert high >= low
                     let padding = cursor.align_to(4)?;
                     let default_offset = cursor.i32()?;
                     let low = cursor.i32()?;
