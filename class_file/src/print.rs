@@ -36,6 +36,7 @@ fn instruction_is_position(instruction: &Instruction) -> bool {
             | Instruction::Lstore(_)
             | Instruction::Newarray(_)
             | Instruction::Sipush(_)
+            | Instruction::TableSwitch(_)
     )
 }
 
@@ -98,6 +99,20 @@ fn get_instruction_value(instruction: &Instruction, pc: i32) -> Option<String> {
         Instruction::Putfield(val) => Some(val.to_string()),
         Instruction::Putstatic(val) => Some(val.to_string()),
         Instruction::Sipush(val) => Some(val.to_string()),
+        Instruction::TableSwitch(data) => {
+            let mut s = String::new();
+            s.push_str(&format!("{{ // {} to {}\n", data.low, data.high));
+            for (i, v) in data.offsets.iter().enumerate() {
+                s.push_str(&format!("{:>20}: {}\n", i as i32 + data.low, v + pc));
+            }
+            s.push_str(&format!(
+                "{:>20}: {}\n",
+                "default",
+                data.default_offset + pc
+            ));
+            s.push_str(&format!("{:>7}", "}"));
+            Some(s)
+        }
         _ => None,
     }
 }

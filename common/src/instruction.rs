@@ -11,6 +11,16 @@ pub struct LookupSwitchData {
     pub pairs: Vec<(i32, i32)>,
 }
 
+/// https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-6.html#jvms-6.5.tableswitch
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TableSwitchData {
+    pub padding: u8,
+    pub default_offset: i32,
+    pub low: i32,
+    pub high: i32,
+    pub offsets: Vec<i32>,
+}
+
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-6.html#jvms-6.5.newarray
 /// Table 6.5-A. Newarray type codes
 #[derive(Debug, Clone, Copy, PartialEq, Eq, TryFromPrimitive)]
@@ -231,6 +241,7 @@ pub enum Opcode {
     Sastore = 0x56,
     Sipush = 0x11,
     Swap = 0x5F,
+    TableSwitch = 0xAA,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -438,6 +449,7 @@ pub enum Instruction {
     Swap,
     Impdep1,
     Impdep2,
+    TableSwitch(TableSwitchData),
 }
 
 impl Instruction {
@@ -447,6 +459,10 @@ impl Instruction {
             Self::Lookupswitch(data) => {
                 // opcode (1) + padding (0-3) + default (4) + npairs (4) + pairs (8 * n)
                 1 + data.padding as u16 + 4 + 4 + (8 * data.pairs.len() as u16)
+            }
+            Self::TableSwitch(data) => {
+                // opcode (1) + padding (0-3) + default (4) + low (4) + high (4) + offsets (4 * n)
+                1 + data.padding as u16 + 4 + 4 + 4 + (4 * data.offsets.len() as u16)
             }
             // 5-byte instructions
             Self::GotoW(_)
@@ -756,6 +772,24 @@ impl Instruction {
                 Opcode::Sastore => Self::Sastore,
                 Opcode::Sipush => Self::Sipush(cursor.i16()?),
                 Opcode::Swap => Self::Swap,
+                Opcode::TableSwitch => {
+                    let padding = cursor.align_to(4)?;
+                    let default_offset = cursor.i32()?;
+                    let low = cursor.i32()?;
+                    let high = cursor.i32()?;
+                    let num_offsets = (high - low + 1) as usize;
+                    let mut offsets = Vec::with_capacity(num_offsets);
+                    for _ in 0..num_offsets {
+                        offsets.push(cursor.i32()?);
+                    }
+                    Self::TableSwitch(TableSwitchData {
+                        default_offset,
+                        low,
+                        high,
+                        offsets,
+                        padding,
+                    })
+                }
             };
 
             res.push(instruction)
@@ -969,6 +1003,7 @@ impl Instruction {
             Self::Swap => "swap",
             Self::Impdep1 => "impdep1",
             Self::Impdep2 => "impdep2",
+            Self::TableSwitch(_) => "tableswitch",
         }
     }
 }
