@@ -136,6 +136,12 @@ impl ClassFile {
         use common::signature::ClassSignature;
         use std::fmt::Write as _;
 
+        // for java.lang.Object
+        if self.super_class == 0 {
+            return Ok(());
+        }
+        let super_class_name = pretty_try!(ind, self.cp.get_pretty_class_name(&self.super_class));
+        let super_is_object = super_class_name == "java.lang.Object";
         if let Some(sig_index) = self.attributes.iter().find_map(|attr| {
             if let ClassAttribute::Shared(shared) = attr {
                 match shared {
@@ -149,6 +155,25 @@ impl ClassFile {
             let raw_sig = pretty_try!(ind, self.cp.get_utf8(sig_index));
             let sig = pretty_try!(ind, ClassSignature::try_from(raw_sig));
             write!(ind, "{}", sig)
+        } else if !super_is_object || !self.interfaces.is_empty() {
+            let interfaces_names = pretty_try!(
+                ind,
+                self.interfaces
+                    .iter()
+                    .map(|i| self.cp.get_pretty_class_name(i))
+                    .collect::<Result<Vec<_>, _>>()
+            );
+
+            if !super_is_object {
+                write!(ind, "extends {}", super_class_name)?;
+                if !interfaces_names.is_empty() {
+                    write!(ind, " ")?;
+                }
+            }
+            if !interfaces_names.is_empty() {
+                write!(ind, "implements {}", interfaces_names.join(", "))?;
+            }
+            Ok(())
         } else {
             Ok(())
         }
