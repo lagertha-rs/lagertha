@@ -40,7 +40,7 @@ pub struct Method {
 impl Method {
     pub fn new(
         method_info: MethodInfo,
-        cp: Arc<RuntimeConstantPool>,
+        cp: &Arc<RuntimeConstantPool>,
     ) -> Result<Self, LinkageError> {
         let name = cp.get_utf8(&method_info.name_index)?.clone();
         let flags = method_info.access_flags;

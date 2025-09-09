@@ -41,7 +41,37 @@ pub enum Type {
     Array(Box<Type>),
 }
 
+//TODO: draft
+#[derive(Debug, Clone, PartialEq)]
+pub enum TypeValue {
+    Byte(i8),
+    Char(char),
+    Double(f64),
+    Float(f32),
+    Int(i32),
+    Long(i64),
+    Instance(Option<()>), // obj or interface
+    Short(i16),
+    Boolean(bool),
+    Array(Option<()>),
+}
+
 impl Type {
+    pub fn get_default_value(&self) -> TypeValue {
+        match self {
+            Type::Byte => TypeValue::Byte(0),
+            Type::Char => TypeValue::Char('\0'),
+            Type::Double => TypeValue::Double(0.0),
+            Type::Float => TypeValue::Float(0.0),
+            Type::Int => TypeValue::Int(0),
+            Type::Long => TypeValue::Long(0),
+            Type::Instance(_) => TypeValue::Instance(None),
+            Type::Short => TypeValue::Short(0),
+            Type::Boolean => TypeValue::Boolean(false),
+            Type::Array(_) => TypeValue::Array(None),
+            _ => panic!("No default value for type: {:?}", self), //TODO
+        }
+    }
     pub fn try_recursive<I>(it: &mut Peekable<I>) -> Result<Type, TypeDescriptorErr>
     where
         I: Iterator<Item = char>,

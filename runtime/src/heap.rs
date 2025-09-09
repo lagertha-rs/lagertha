@@ -10,10 +10,6 @@ pub enum HeapObject {
     JavaString {
         utf8: String,
     },
-    JavaArray {
-        len: usize,
-        elements: Vec<Value>,
-    },
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.5.3
@@ -45,13 +41,6 @@ impl Heap {
         self.push(HeapObject::JavaString { utf8: s.into() })
     }
 
-    pub fn alloc_array_refs(&mut self, len: usize) -> HeapAddr {
-        self.push(HeapObject::JavaArray {
-            len,
-            elements: vec![Value::Null; len],
-        })
-    }
-
     pub fn get(&self, h: HeapAddr) -> &HeapObject {
         self.objects.get(h).expect("heap: invalid handle (get)")
     }
@@ -79,31 +68,6 @@ impl Heap {
                 .expect("heap: instance field slot OOB")
                 .clone(),
             _ => panic!("heap: read_instance_field on non-instance"),
-        }
-    }
-
-    pub fn array_len(&self, h: HeapAddr) -> usize {
-        match self.get(h) {
-            HeapObject::JavaArray { len, .. } => *len,
-            _ => panic!("heap: array_len on non-array"),
-        }
-    }
-
-    pub fn array_get(&self, h: HeapAddr, idx: usize) -> Value {
-        match self.get(h) {
-            HeapObject::JavaArray { elements, .. } => {
-                elements.get(idx).expect("heap: array_get OOB").clone()
-            }
-            _ => panic!("heap: array_get on non-array"),
-        }
-    }
-
-    pub fn array_set(&mut self, h: HeapAddr, idx: usize, val: Value) {
-        match self.get_mut(h) {
-            HeapObject::JavaArray { elements, .. } => {
-                *elements.get_mut(idx).expect("heap: array_set OOB") = val;
-            }
-            _ => panic!("heap: array_set on non-array"),
         }
     }
 }

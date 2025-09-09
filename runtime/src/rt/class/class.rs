@@ -1,10 +1,11 @@
 use crate::JvmError;
 use crate::method_area::MethodArea;
-use crate::rt::class::field::Field;
-use crate::rt::class::method::Method;
-use crate::rt::class::native_method::NativeMethod;
+use crate::rt::class::field::{Field, StaticField};
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::constant_pool::reference::ClassReference;
+use crate::rt::method::java::Method;
+use crate::rt::method::native::NativeMethod;
+use crate::rt::method::{StaticMethodType, VirtualMethodType};
 use class_file::ClassFile;
 use class_file::attribute::class::ClassAttribute;
 use class_file::flags::ClassFlags;
@@ -18,8 +19,12 @@ pub struct Class {
     major_version: u16,
     super_class: Option<Arc<Class>>,
     fields: Vec<Field>,
-    methods: Vec<Method>,
-    native_methods: Vec<NativeMethod>,
+    static_fields: Vec<StaticField>,
+    // TODO: probably use hashmap for methods with method name+descriptor as key. TBD when execute instructions
+    methods: Vec<VirtualMethodType>,
+    static_methods: Vec<StaticMethodType>,
+    constructors: Vec<Method>,
+    initializer: Option<Method>,
     interfaces: Vec<String>,
     attributes: Vec<ClassAttribute>,
     cp: Arc<RuntimeConstantPool>,
@@ -34,14 +39,46 @@ impl Class {
         let this = cp.get_class(&cf.this_class)?.clone();
         let access = cf.access_flags;
         let mut methods = vec![];
-        let mut native_methods = vec![];
-        for method in cf.methods.into_iter() {
-            if method.access_flags.is_native() {
-                let native_method = NativeMethod::new(method, cp.clone())?;
-                native_methods.push(native_method);
+        let mut static_methods = vec![];
+        let mut constructors = vec![];
+        let mut initializer = None;
+        for method in cf.methods {
+            let flags = method.access_flags;
+            let name = cp.get_utf8(&method.name_index)?.as_str();
+
+            match (flags.is_native(), flags.is_static()) {
+                (true, true) => static_methods.push(StaticMethodType::Native(NativeMethod::new(
+                    method,
+                    cp.clone(),
+                )?)),
+                (true, false) => methods.push(VirtualMethodType::Native(NativeMethod::new(
+                    method,
+                    cp.clone(),
+                )?)),
+                (false, true) => {
+                    if name == "<clinit>" {
+                        initializer = Some(Method::new(method, &cp)?);
+                    } else {
+                        static_methods.push(StaticMethodType::Java(Method::new(method, &cp)?));
+                    }
+                }
+                (false, false) => {
+                    if name == "<init>" {
+                        constructors.push(Method::new(method, &cp)?);
+                    } else {
+                        methods.push(VirtualMethodType::Java(Method::new(method, &cp)?));
+                    }
+                }
+            }
+        }
+        let mut static_fields = vec![];
+        let mut fields = vec![];
+
+        for field in cf.fields {
+            if field.access_flags.is_static() {
+                static_fields.push(StaticField::new(field, &cp)?)
             } else {
-                let method = Method::new(method, cp.clone())?;
-                methods.push(method);
+                fields.push(Field::new(field, &cp)?)
             }
         }
         let super_class = if cf.super_class != 0 {
@@ -56,9 +93,12 @@ impl Class {
             super_class,
             minor_version,
             major_version,
-            fields: vec![],
+            fields,
+            static_fields,
+            static_methods,
             methods,
-            native_methods,
+            constructors,
+            initializer,
             interfaces: vec![],
             attributes: cf.attributes,
             cp,
@@ -71,7 +111,13 @@ impl Class {
     }
 
     pub fn get_main_method(&self) -> Option<&Method> {
-        self.methods.iter().find(|m| m.is_main())
+        self.static_methods
+            .iter()
+            .find(|m| m.is_main())
+            .and_then(|m| match m {
+                StaticMethodType::Java(m) => Some(m),
+                StaticMethodType::Native(_) => None,
+            })
     }
 
     pub fn get_cp(&self) -> &Arc<RuntimeConstantPool> {
