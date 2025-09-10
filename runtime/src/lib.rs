@@ -2,7 +2,7 @@ use crate::class_loader::ClassLoaderErr;
 use crate::method_area::MethodArea;
 use crate::rt::class::LinkageError;
 use crate::rt::constant_pool::error::RuntimePoolError;
-use crate::stack::ThreadStack;
+use crate::stack::FrameStack;
 use common::utils::cursor::CursorError;
 use once_cell::sync::OnceCell;
 use std::sync::Arc;
@@ -60,8 +60,10 @@ pub enum JvmError {
     ClassNotFound(String),
     #[error("stack overflow")]
     StackOverflow,
-    #[error("Stack is empty")]
-    StackIsEmpty,
+    #[error("Frame stack is empty")]
+    FrameStackIsEmpty,
+    #[error("Operand stack is empty")]
+    OperandStackIsEmpty,
     #[error("OutOfMemory")]
     OutOfMemory,
     #[error("Could not find or load main class {0}")]
@@ -75,7 +77,8 @@ pub struct VmConfig {
     pub class_path: Vec<String>,
     pub initial_heap_size: usize,
     pub max_heap_size: usize,
-    pub stack_size_per_thread: usize,
+    pub frame_stack_size: usize,
+    pub operand_stack_size: usize,
 }
 
 //TODO: make it better

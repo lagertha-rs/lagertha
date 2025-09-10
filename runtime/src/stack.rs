@@ -1,18 +1,22 @@
-use crate::JvmError;
 use crate::rt::constant_pool::RuntimeConstantPool;
+use crate::{JvmError, VmConfig};
+use common::jtype::TypeValue;
 use std::cell::RefCell;
 use std::sync::Arc;
 
 #[derive(Debug)]
-pub struct ThreadStack {
+pub struct FrameStack {
     max_size: usize,
+    max_operand_stack_size: usize,
     frames: RefCell<Vec<Frame>>,
 }
 
-impl ThreadStack {
-    pub fn new(max_size: usize) -> Self {
+impl FrameStack {
+    pub fn new(vm_config: &VmConfig) -> Self {
+        let max_size = vm_config.frame_stack_size;
         Self {
             max_size,
+            max_operand_stack_size: vm_config.operand_stack_size,
             frames: RefCell::new(Vec::with_capacity(max_size)),
         }
     }
@@ -28,7 +32,38 @@ impl ThreadStack {
 
     pub fn pop_frame(&self) -> Result<Frame, JvmError> {
         let mut frames = self.frames.borrow_mut();
-        frames.pop().ok_or(JvmError::StackIsEmpty)
+        frames.pop().ok_or(JvmError::FrameStackIsEmpty)
+    }
+
+    pub fn cur_frame_push_operand(&self, value: TypeValue) -> Result<(), JvmError> {
+        let mut frames = self.frames.borrow_mut();
+        if let Some(frame) = frames.last_mut() {
+            if frame.operands.len() >= self.max_operand_stack_size {
+                return Err(JvmError::StackOverflow);
+            }
+            frame.operands.push(value);
+            Ok(())
+        } else {
+            Err(JvmError::OperandStackIsEmpty)
+        }
+    }
+
+    pub fn cur_frame_pop_operand(&self) -> Result<TypeValue, JvmError> {
+        let mut frames = self.frames.borrow_mut();
+        if let Some(frame) = frames.last_mut() {
+            frame.operands.pop().ok_or(JvmError::OperandStackIsEmpty)
+        } else {
+            Err(JvmError::FrameStackIsEmpty)
+        }
+    }
+
+    //TODO: arc clone is cheap, but probably not in each instruction execution
+    pub fn cur_frame_cp(&self) -> Result<Arc<RuntimeConstantPool>, JvmError> {
+        self.frames
+            .borrow()
+            .last()
+            .map(|v| v.cp.clone())
+            .ok_or(JvmError::FrameStackIsEmpty)
     }
 }
 
@@ -36,7 +71,7 @@ impl ThreadStack {
 #[derive(Debug)]
 pub struct Frame {
     locals: Vec<()>,
-    operands: Vec<()>,
+    operands: Vec<TypeValue>,
     cp: Arc<RuntimeConstantPool>,
 }
 

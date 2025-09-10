@@ -33,7 +33,8 @@ fn create_vm_configuration(args: Args) -> Result<VmConfig, String> {
                 class_path: args.class_path,
                 initial_heap_size: 0,
                 max_heap_size: 0,
-                stack_size_per_thread: 0,
+                frame_stack_size: 10,
+                operand_stack_size: 10,
             });
         }
     }

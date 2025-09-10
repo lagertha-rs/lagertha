@@ -4,6 +4,7 @@ use crate::rt::constant_pool::reference::FieldDescriptorReference;
 use class_file::field::FieldInfo;
 use class_file::flags::FieldFlags;
 use common::jtype::TypeValue;
+use std::cell::RefCell;
 use std::sync::Arc;
 
 #[derive(Debug)]
@@ -18,7 +19,7 @@ pub struct StaticField {
     pub name: Arc<String>,
     pub flags: FieldFlags,
     pub descriptor: Arc<FieldDescriptorReference>,
-    pub value: TypeValue,
+    pub value: RefCell<TypeValue>,
 }
 
 impl Field {
@@ -42,7 +43,7 @@ impl StaticField {
         let name = cp.get_utf8(&field_info.name_index)?.clone();
         let flags = field_info.access_flags;
         let descriptor = cp.get_field_descriptor(&field_info.descriptor_index)?;
-        let value = descriptor.resolved().get_default_value();
+        let value = RefCell::new(descriptor.resolved().get_default_value());
 
         //TODO: field attributes
 
@@ -52,5 +53,13 @@ impl StaticField {
             descriptor,
             value,
         })
+    }
+
+    pub fn set_value(&self, value: TypeValue) -> Result<(), JvmError> {
+        if !self.descriptor.resolved().is_compatible_with(&value) {
+            unimplemented!()
+        }
+        self.value.replace(value);
+        Ok(())
     }
 }

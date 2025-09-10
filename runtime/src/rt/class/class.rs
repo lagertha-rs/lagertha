@@ -2,13 +2,16 @@ use crate::JvmError;
 use crate::method_area::MethodArea;
 use crate::rt::class::field::{Field, StaticField};
 use crate::rt::constant_pool::RuntimeConstantPool;
-use crate::rt::constant_pool::reference::ClassReference;
+use crate::rt::constant_pool::reference::{ClassReference, NameAndTypeReference};
 use crate::rt::method::java::Method;
 use crate::rt::method::native::NativeMethod;
 use crate::rt::method::{StaticMethodType, VirtualMethodType};
 use class_file::ClassFile;
 use class_file::attribute::class::ClassAttribute;
 use class_file::flags::ClassFlags;
+use common::descriptor;
+use common::jtype::TypeValue;
+use std::collections::HashMap;
 use std::sync::{Arc, OnceLock};
 
 #[derive(Debug)]
@@ -19,7 +22,8 @@ pub struct Class {
     major_version: u16,
     super_class: Option<Arc<Class>>,
     fields: Vec<Field>,
-    static_fields: Vec<StaticField>,
+    // TODO: TBD hashmap key type
+    static_fields: HashMap<(Arc<String>, Arc<String>), StaticField>,
     // TODO: probably use hashmap for methods with method name+descriptor as key. TBD when execute instructions
     methods: Vec<VirtualMethodType>,
     static_methods: Vec<StaticMethodType>,
@@ -69,12 +73,14 @@ impl Class {
                 }
             }
         }
-        let mut static_fields = vec![];
+        let mut static_fields = HashMap::new();
         let mut fields = vec![];
 
         for field in cf.fields {
             if field.access_flags.is_static() {
-                static_fields.push(StaticField::new(field, &cp)?)
+                let name = cp.get_utf8(&field.name_index)?.clone();
+                let descriptor = cp.get_utf8(&field.descriptor_index)?.clone();
+                static_fields.insert((name, descriptor), StaticField::new(field, &cp)?);
             } else {
                 fields.push(Field::new(field, &cp)?)
             }
@@ -144,5 +150,29 @@ impl Class {
 
     pub fn initializer(&self) -> Option<&Method> {
         self.initializer.as_ref()
+    }
+
+    /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-5.html#jvms-5.4.3.2
+    pub fn set_static_field(
+        &self,
+        nat: &NameAndTypeReference,
+        value: TypeValue,
+    ) -> Result<(), JvmError> {
+        let name = nat.name()?;
+        let descriptor = nat.field_descriptor()?.raw();
+
+        if let Some(field) = self.static_fields.get(&(name.clone(), descriptor.clone())) {
+            field.set_value(value)?;
+        } else {
+            todo!()
+        }
+
+        /* TODO:
+        NoSuchFieldError,
+        IncompatibleClassChangeError,
+        IllegalAccessError
+        etc...
+         */
+        Ok(())
     }
 }

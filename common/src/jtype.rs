@@ -72,6 +72,23 @@ impl Type {
             _ => panic!("No default value for type: {:?}", self), //TODO
         }
     }
+
+    pub fn is_compatible_with(&self, value: &TypeValue) -> bool {
+        match (self, value) {
+            (Type::Byte, TypeValue::Byte(_)) => true,
+            (Type::Char, TypeValue::Char(_)) => true,
+            (Type::Double, TypeValue::Double(_)) => true,
+            (Type::Float, TypeValue::Float(_)) => true,
+            (Type::Int, TypeValue::Int(_)) => true,
+            (Type::Long, TypeValue::Long(_)) => true,
+            (Type::Instance(_), TypeValue::Instance(_)) => true, //TODO: check class compatibility
+            (Type::Short, TypeValue::Short(_)) => true,
+            (Type::Boolean, TypeValue::Boolean(_)) => true,
+            (Type::Array(_), TypeValue::Array(_)) => true, //TODO: check array type compatibility
+            _ => false,
+        }
+    }
+
     pub fn try_recursive<I>(it: &mut Peekable<I>) -> Result<Type, TypeDescriptorErr>
     where
         I: Iterator<Item = char>,
