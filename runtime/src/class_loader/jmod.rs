@@ -1,8 +1,8 @@
-use crate::class_loader::ClassLoaderErr;
+use crate::class_loader::{ClassLoaderErr, ClassSource};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use tracing_log::log::debug;
 use zip::ZipArchive;
 
@@ -11,18 +11,13 @@ use zip::ZipArchive;
 ///
 /// As a temporary workaround, this project falls back to parsing `.jmod` files from `$JAVA_HOME/jmods` to get the class
 /// binary representation.
-#[derive(Debug, Clone)]
-struct JmodSource {
-    jmod_path: PathBuf,
-    entry_name: String,
-}
 
 #[derive(Debug)]
-pub struct BootstrapJmodLoader {
-    index: HashMap<String, JmodSource>,
+pub struct BootstrapJmodClassLoader {
+    index: HashMap<String, ClassSource>,
 }
 
-impl BootstrapJmodLoader {
+impl BootstrapJmodClassLoader {
     pub fn from_jmods_dir<P: AsRef<Path>>(jmods_dir: P) -> Result<Self, ClassLoaderErr> {
         debug!(
             "Creating BootstrapJmodLoader from jmods dir \"{}\"...",
@@ -51,7 +46,7 @@ impl BootstrapJmodLoader {
                     }
 
                     if let Some(bin_name) = Self::binary_name(&name) {
-                        index.entry(bin_name).or_insert(JmodSource {
+                        index.entry(bin_name).or_insert(ClassSource {
                             jmod_path: path.clone(),
                             entry_name: name,
                         });
@@ -74,8 +69,7 @@ impl BootstrapJmodLoader {
         let inner = &entry[PREFIX.len()..entry.len() - SUFFIX.len()];
         Some(inner.to_string())
     }
-
-    pub fn find_class(&self, binary_name: &str) -> Result<Vec<u8>, ClassLoaderErr> {
+    pub(crate) fn find_class(&self, binary_name: &str) -> Result<Vec<u8>, ClassLoaderErr> {
         let src = self
             .index
             .get(binary_name)

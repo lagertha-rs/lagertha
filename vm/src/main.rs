@@ -5,12 +5,21 @@ use tracing_log::log::debug;
 
 #[derive(Parser, Debug)]
 #[command(version, about)]
-struct Args {
-    #[arg(short, long, help = "Path to the main class file to execute")]
-    class_file: String,
+pub struct Args {
+    #[arg(
+        short = 'c',
+        long = "classpath",
+        visible_alias = "cp",
+        visible_alias = "class-path",
+        value_delimiter = ';',
+        help = "Classpath entries (only dirs, no jars(todo)); use ';' as separator"
+    )]
+    pub class_path: Vec<String>,
+    #[arg(help = "Main class to run")]
+    pub main_class: String,
 }
 
-fn create_vm_configuration() -> Result<VmConfig, String> {
+fn create_vm_configuration(args: Args) -> Result<VmConfig, String> {
     let java_home = std::env::var("JAVA_HOME").expect("JAVA_HOME not set");
     let release_file = format!("{}/release", java_home);
 
@@ -21,6 +30,7 @@ fn create_vm_configuration() -> Result<VmConfig, String> {
             return Ok(VmConfig {
                 home: java_home,
                 version: value.trim_matches('"').to_string(),
+                class_path: args.class_path,
                 initial_heap_size: 0,
                 max_heap_size: 0,
                 stack_size_per_thread: 0,
@@ -34,12 +44,12 @@ fn main() {
     init_tracing();
     let args = Args::parse();
     debug!("Provided command line arguments: {:?}", args);
-    debug!("Trying to open class file: {}", args.class_file);
-    let class_file_bytes = std::fs::read(&args.class_file);
+    debug!("Trying to open class file: {}", args.main_class);
+    let class_file_bytes = std::fs::read(&args.main_class);
     match class_file_bytes {
         Ok(bytes) => {
             debug!("Class file read successfully, size: {} bytes", bytes.len());
-            let vm_config = match create_vm_configuration() {
+            let vm_config = match create_vm_configuration(args) {
                 Ok(config) => config,
                 Err(e) => {
                     eprintln!("Error creating VM configuration: {}", e);
@@ -51,7 +61,7 @@ fn main() {
             }
         }
         Err(e) => {
-            eprintln!("Failed to read class file {}: {}", args.class_file, e);
+            eprintln!("Failed to read class file {}: {}", args.main_class, e);
         }
     }
 }

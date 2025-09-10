@@ -1,4 +1,4 @@
-use crate::class_loader::BootstrapClassLoader;
+use crate::class_loader::ClassLoader;
 use crate::rt::class::LinkageError;
 use crate::rt::class::class::Class;
 use crate::{JvmError, VmConfig};
@@ -11,14 +11,14 @@ use tracing_log::log::debug;
 #[derive(Debug)]
 pub struct MethodArea {
     vm_config: Arc<VmConfig>,
-    bootstrap_class_loader: BootstrapClassLoader,
+    bootstrap_class_loader: ClassLoader,
     classes: DashMap<String, Arc<Class>>,
 }
 
 impl MethodArea {
     pub fn new(vm_config: Arc<VmConfig>) -> Result<Self, JvmError> {
         debug!("Initializing MethodArea...");
-        let bootstrap_class_loader = BootstrapClassLoader::new(vm_config.clone())?;
+        let bootstrap_class_loader = ClassLoader::new(vm_config.clone())?;
         let classes = DashMap::new();
         debug!("MethodArea initialized");
         Ok(Self {
@@ -37,7 +37,7 @@ impl MethodArea {
     pub fn add_class(&self, raw_class: Vec<u8>) -> Result<Arc<Class>, JvmError> {
         debug!("Adding class from bytes...");
         let class = Arc::new(self.load_with_bytes(raw_class)?);
-        let name = class.get_name()?.to_string();
+        let name = class.name()?.to_string();
         debug!("Class \"{}\" added", name);
         self.classes.insert(name, class.clone());
         Ok(class)

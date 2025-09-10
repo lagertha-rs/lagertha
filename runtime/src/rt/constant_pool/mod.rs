@@ -110,7 +110,7 @@ impl RuntimeConstantPool {
                     ConstantInfo::NameAndType(nat) => RuntimeConstant::NameAndType(Arc::new(
                         NameAndTypeReference::new(i as u16, nat.name_index, nat.descriptor_index),
                     )),
-                    _ => unimplemented!(),
+                    other => unimplemented!("{:?}", other),
                 })
                 .collect(),
             method_descriptors: DashMap::new(),

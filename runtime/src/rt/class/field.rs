@@ -22,7 +22,7 @@ pub struct StaticField {
 }
 
 impl Field {
-    pub fn new(field_info: FieldInfo, cp: &Arc<RuntimeConstantPool>) -> Result<Self, JvmError> {
+    pub fn new(field_info: FieldInfo, cp: &RuntimeConstantPool) -> Result<Self, JvmError> {
         let name = cp.get_utf8(&field_info.name_index)?.clone();
         let flags = field_info.access_flags;
         let descriptor = cp.get_field_descriptor(&field_info.descriptor_index)?;
@@ -38,7 +38,7 @@ impl Field {
 }
 
 impl StaticField {
-    pub fn new(field_info: FieldInfo, cp: &Arc<RuntimeConstantPool>) -> Result<Self, JvmError> {
+    pub fn new(field_info: FieldInfo, cp: &RuntimeConstantPool) -> Result<Self, JvmError> {
         let name = cp.get_utf8(&field_info.name_index)?.clone();
         let flags = field_info.access_flags;
         let descriptor = cp.get_field_descriptor(&field_info.descriptor_index)?;

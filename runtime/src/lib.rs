@@ -72,6 +72,7 @@ pub enum JvmError {
 pub struct VmConfig {
     pub home: String,
     pub version: String,
+    pub class_path: Vec<String>,
     pub initial_heap_size: usize,
     pub max_heap_size: usize,
     pub stack_size_per_thread: usize,

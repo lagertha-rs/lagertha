@@ -9,7 +9,7 @@ use crate::rt::method::{StaticMethodType, VirtualMethodType};
 use class_file::ClassFile;
 use class_file::attribute::class::ClassAttribute;
 use class_file::flags::ClassFlags;
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 
 #[derive(Debug)]
 pub struct Class {
@@ -28,7 +28,7 @@ pub struct Class {
     interfaces: Vec<String>,
     attributes: Vec<ClassAttribute>,
     cp: Arc<RuntimeConstantPool>,
-    initialized: bool,
+    initialized: OnceLock<()>,
 }
 
 impl Class {
@@ -47,14 +47,12 @@ impl Class {
             let name = cp.get_utf8(&method.name_index)?.as_str();
 
             match (flags.is_native(), flags.is_static()) {
-                (true, true) => static_methods.push(StaticMethodType::Native(NativeMethod::new(
-                    method,
-                    cp.clone(),
-                )?)),
-                (true, false) => methods.push(VirtualMethodType::Native(NativeMethod::new(
-                    method,
-                    cp.clone(),
-                )?)),
+                (true, true) => {
+                    static_methods.push(StaticMethodType::Native(NativeMethod::new(method, &cp)?))
+                }
+                (true, false) => {
+                    methods.push(VirtualMethodType::Native(NativeMethod::new(method, &cp)?))
+                }
                 (false, true) => {
                     if name == "<clinit>" {
                         initializer = Some(Method::new(method, &cp)?);
@@ -87,6 +85,14 @@ impl Class {
             None
         };
 
+        let initialized = if initializer.is_some() {
+            OnceLock::new()
+        } else {
+            let lock = OnceLock::new();
+            let _ = lock.set(());
+            lock
+        };
+
         Ok(Class {
             this,
             access,
@@ -102,15 +108,15 @@ impl Class {
             interfaces: vec![],
             attributes: cf.attributes,
             cp,
-            initialized: false,
+            initialized,
         })
     }
 
-    pub fn get_name(&self) -> Result<&Arc<String>, JvmError> {
+    pub fn name(&self) -> Result<&Arc<String>, JvmError> {
         self.this.name().map_err(Into::into)
     }
 
-    pub fn get_main_method(&self) -> Option<&Method> {
+    pub fn find_main_method(&self) -> Option<&Method> {
         self.static_methods
             .iter()
             .find(|m| m.is_main())
@@ -120,7 +126,23 @@ impl Class {
             })
     }
 
-    pub fn get_cp(&self) -> &Arc<RuntimeConstantPool> {
+    pub fn cp(&self) -> &Arc<RuntimeConstantPool> {
         &self.cp
+    }
+
+    pub fn initialized(&self) -> bool {
+        self.initialized.get().is_some()
+    }
+
+    pub fn set_initialized(&self) {
+        let _ = self.initialized.set(());
+    }
+
+    pub fn super_class(&self) -> Option<&Arc<Class>> {
+        self.super_class.as_ref()
+    }
+
+    pub fn initializer(&self) -> Option<&Method> {
+        self.initializer.as_ref()
     }
 }
