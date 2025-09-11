@@ -89,7 +89,6 @@ impl Executor {
                 let method_ref = cp.get_methodref(idx)?;
                 let class = self.method_area.get_class(method_ref.class()?.name()?)?;
                 let method = class.get_static_method(method_ref)?;
-                println!()
             }
             _ => {}
         }
