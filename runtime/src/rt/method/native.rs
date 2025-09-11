@@ -34,4 +34,12 @@ impl NativeMethod {
             rt_visible_annotations: rt_vis_ann.into_inner(),
         })
     }
+
+    pub fn name(&self) -> &Arc<String> {
+        &self.name
+    }
+
+    pub fn descriptor(&self) -> &Arc<MethodDescriptorReference> {
+        &self.descriptor
+    }
 }

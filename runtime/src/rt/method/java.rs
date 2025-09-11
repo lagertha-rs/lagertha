@@ -2,7 +2,7 @@ use crate::rt::class::LinkageError;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::constant_pool::reference::MethodDescriptorReference;
 use class_file::attribute::method::code::{
-    CodeAttributeInfo, LineNumberEntry, LocalVariableEntry, StackMapFrame,
+    CodeAttributeInfo, LineNumberEntry, LocalVariableEntry, LocalVariableTypeEntry, StackMapFrame,
 };
 use class_file::attribute::method::{CodeAttribute, MethodAttribute};
 use class_file::attribute::{Annotation, SharedAttribute};
@@ -22,19 +22,21 @@ pub struct CodeContext {
     line_numbers: Option<Vec<LineNumberEntry>>,
     // TODO: Create a dedicated struct? (now struct from class_file)
     local_variables: Option<Vec<LocalVariableEntry>>,
+    // TODO: Create a dedicated struct? (now struct from class_file)
+    local_variable_types: Option<Vec<LocalVariableTypeEntry>>,
     stack_map_table: Option<Vec<StackMapFrame>>,
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.6
 #[derive(Debug)]
 pub struct Method {
-    pub name: Arc<String>,
-    pub flags: MethodFlags,
-    pub descriptor: Arc<MethodDescriptorReference>,
-    pub code_context: CodeContext,
-    pub signature: Option<Arc<String>>,
-    pub rt_visible_annotations: Option<Vec<Annotation>>,
-    pub is_deprecated: bool,
+    name: Arc<String>,
+    flags: MethodFlags,
+    descriptor: Arc<MethodDescriptorReference>,
+    code_context: CodeContext,
+    signature: Option<Arc<String>>,
+    rt_visible_annotations: Option<Vec<Annotation>>,
+    is_deprecated: bool,
 }
 
 impl Method {
@@ -105,6 +107,14 @@ impl Method {
     pub fn max_locals(&self) -> usize {
         self.code_context.max_locals as usize
     }
+
+    pub fn name(&self) -> &Arc<String> {
+        &self.name
+    }
+
+    pub fn descriptor(&self) -> &Arc<MethodDescriptorReference> {
+        &self.descriptor
+    }
 }
 
 impl TryFrom<CodeAttribute> for CodeContext {
@@ -113,6 +123,7 @@ impl TryFrom<CodeAttribute> for CodeContext {
     fn try_from(code: CodeAttribute) -> Result<Self, Self::Error> {
         let mut all_line_numbers: Option<Vec<LineNumberEntry>> = None;
         let mut all_local_vars: Option<Vec<LocalVariableEntry>> = None;
+        let mut all_local_types: Option<Vec<LocalVariableTypeEntry>> = None;
         let mut stack_map_table = OnceCell::<Vec<StackMapFrame>>::new();
 
         for code_attr in code.attributes {
@@ -122,6 +133,13 @@ impl TryFrom<CodeAttribute> for CodeContext {
                         cur.extend(v);
                     } else {
                         all_line_numbers = Some(v);
+                    }
+                }
+                CodeAttributeInfo::LocalVariableTypeTable(v) => {
+                    if let Some(cur) = &mut all_local_types {
+                        cur.extend(v);
+                    } else {
+                        all_local_types = Some(v);
                     }
                 }
                 CodeAttributeInfo::LocalVariableTable(v) => {
@@ -135,6 +153,7 @@ impl TryFrom<CodeAttribute> for CodeContext {
                 CodeAttributeInfo::StackMapTable(table) => stack_map_table
                     .set(table)
                     .map_err(|_| LinkageError::DuplicatedStackMapTable)?,
+
                 other => unimplemented!("Unknown code attr {:?}", other),
             }
         }
@@ -145,6 +164,7 @@ impl TryFrom<CodeAttribute> for CodeContext {
             instructions: Instruction::new_instruction_set(&code.code)?,
             line_numbers: all_line_numbers,
             local_variables: all_local_vars,
+            local_variable_types: all_local_types,
             stack_map_table: stack_map_table.take(),
         })
     }

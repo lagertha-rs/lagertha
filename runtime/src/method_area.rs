@@ -8,7 +8,6 @@ use std::sync::Arc;
 use tracing_log::log::debug;
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.5.4
-#[derive(Debug)]
 pub struct MethodArea {
     vm_config: Arc<VmConfig>,
     bootstrap_class_loader: ClassLoader,
@@ -44,17 +43,13 @@ impl MethodArea {
     }
 
     pub fn get_class(&self, name: &str) -> Result<Arc<Class>, JvmError> {
-        debug!("Requesting class \"{}\"...", name);
         if let Some(class) = self.classes.get(name) {
-            debug!("Class \"{}\" found in MethodArea cache", name);
             return Ok(class.clone());
         }
         let class_data = self.bootstrap_class_loader.load(name)?;
         let class = Arc::new(self.load_with_bytes(class_data)?);
 
         self.classes.insert(name.to_string(), class.clone());
-
-        debug!("Class \"{}\" loaded and added to MethodArea", name);
 
         Ok(class)
     }

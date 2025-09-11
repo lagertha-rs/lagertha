@@ -1,5 +1,6 @@
 use crate::method_area::MethodArea;
-use crate::rt::class::class::Class;
+use crate::rt::class::class::{Class, InitState};
+use crate::rt::method::StaticMethodType;
 use crate::stack::{Frame, FrameStack};
 use crate::{JvmError, VmConfig};
 use common::instruction::Instruction;
@@ -33,6 +34,7 @@ impl Executor {
             if !class.initialized()
                 && let Some(initializer) = class.initializer()
             {
+                class.set_state(InitState::Initializing);
                 debug!("Initializing class {}", class.name()?);
 
                 let frame = Frame::new(
@@ -52,7 +54,7 @@ impl Executor {
                 // just to be sure that no operands are left in the stack before popping the frame
                 assert!(self.frame_stack.cur_frame_pop_operand().is_err());
                 self.frame_stack.pop_frame()?;
-                class.set_initialized();
+                class.set_state(InitState::Initialized);
                 debug!("Class {} initialized", class.name()?);
             }
         }
@@ -69,13 +71,37 @@ impl Executor {
                 let cp = self.frame_stack.cur_frame_cp()?;
                 let field_ref = cp.get_fieldref(idx)?;
                 let class = self.method_area.get_class(field_ref.class()?.name()?)?;
-                // self.insure_initialized(Some(&class))?; TODO: need to add smth like statuses for initialization. I try initialze the same class recursively
+                self.insure_initialized(Some(&class))?;
                 let field_nat = field_ref.name_and_type()?;
                 class.set_static_field(field_nat, self.frame_stack.cur_frame_pop_operand()?)?;
+            }
+            Instruction::Getstatic(idx) => {
+                let cp = self.frame_stack.cur_frame_cp()?;
+                let field_ref = cp.get_fieldref(idx)?;
+                let class = self.method_area.get_class(field_ref.class()?.name()?)?;
+                self.insure_initialized(Some(&class))?;
+                let field_nat = field_ref.name_and_type()?;
+                let value = class.get_static_field_value(field_nat)?;
+                self.frame_stack.cur_frame_push_operand(value)?;
+            }
+            Instruction::InvokeStatic(idx) => {
+                let cp = self.frame_stack.cur_frame_cp()?;
+                let method_ref = cp.get_methodref(idx)?;
+                let class = self.method_area.get_class(method_ref.class()?.name()?)?;
+                let method = class.get_static_method(method_ref)?;
+                println!()
             }
             _ => {}
         }
         Ok(())
+    }
+
+    fn execute_static_method(
+        &self,
+        class: &Arc<Class>,
+        method: &StaticMethodType,
+    ) -> Result<(), JvmError> {
+        todo!()
     }
 
     pub fn start(&self, data: Vec<u8>) -> Result<(), JvmError> {

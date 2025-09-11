@@ -3,7 +3,7 @@ use crate::rt::constant_pool::reference::{
     ClassReference, FieldDescriptorReference, FieldReference, MethodDescriptorReference,
     MethodReference, NameAndTypeReference, StringReference,
 };
-use class_file::constant::ConstantInfo;
+use class_file::constant::{ConstantInfo, ReferenceInfo};
 use common::descriptor::MethodDescriptor;
 use common::jtype::Type;
 use dashmap::DashMap;
@@ -24,7 +24,7 @@ pub enum RuntimeConstantType {
     String,
     MethodRef,
     FieldRef,
-    InterfaceRef,
+    InterfaceMethodRef,
     NameAndType,
     MethodNameAndType,
     FieldNameAndType,
@@ -42,7 +42,7 @@ pub enum RuntimeConstant {
     String(Arc<StringReference>),
     MethodRef(Arc<MethodReference>),
     FieldRef(Arc<FieldReference>),
-    InterfaceRef,
+    InterfaceMethodRef(Arc<ReferenceInfo>), //TODO: stub
     NameAndType(Arc<NameAndTypeReference>),
 }
 
@@ -59,7 +59,7 @@ impl RuntimeConstant {
             RuntimeConstant::String(_) => RuntimeConstantType::String,
             RuntimeConstant::MethodRef(_) => RuntimeConstantType::MethodRef,
             RuntimeConstant::FieldRef(_) => RuntimeConstantType::FieldRef,
-            RuntimeConstant::InterfaceRef => RuntimeConstantType::InterfaceRef,
+            RuntimeConstant::InterfaceMethodRef(_) => RuntimeConstantType::InterfaceMethodRef,
             RuntimeConstant::NameAndType(_) => RuntimeConstantType::NameAndType,
         }
     }
@@ -110,6 +110,9 @@ impl RuntimeConstantPool {
                     ConstantInfo::NameAndType(nat) => RuntimeConstant::NameAndType(Arc::new(
                         NameAndTypeReference::new(i as u16, nat.name_index, nat.descriptor_index),
                     )),
+                    ConstantInfo::InterfaceMethodRef(ref_info) => {
+                        RuntimeConstant::InterfaceMethodRef(Arc::new(ref_info))
+                    }
                     other => unimplemented!("{:?}", other),
                 })
                 .collect(),

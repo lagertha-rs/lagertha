@@ -2,19 +2,27 @@ use crate::JvmError;
 use crate::method_area::MethodArea;
 use crate::rt::class::field::{Field, StaticField};
 use crate::rt::constant_pool::RuntimeConstantPool;
-use crate::rt::constant_pool::reference::{ClassReference, NameAndTypeReference};
+use crate::rt::constant_pool::reference::{ClassReference, MethodReference, NameAndTypeReference};
 use crate::rt::method::java::Method;
 use crate::rt::method::native::NativeMethod;
 use crate::rt::method::{StaticMethodType, VirtualMethodType};
 use class_file::ClassFile;
 use class_file::attribute::class::ClassAttribute;
 use class_file::flags::ClassFlags;
-use common::descriptor;
 use common::jtype::TypeValue;
+use parking_lot::RwLock;
+use std::cmp::PartialEq;
 use std::collections::HashMap;
-use std::sync::{Arc, OnceLock};
+use std::sync::Arc;
 
-#[derive(Debug)]
+#[derive(Eq, PartialEq)]
+pub enum InitState {
+    NotInitialized,
+    Initializing,
+    Initialized,
+    // TODO: Failed(Throwable) ??
+}
+
 pub struct Class {
     this: Arc<ClassReference>,
     access: ClassFlags,
@@ -22,17 +30,18 @@ pub struct Class {
     major_version: u16,
     super_class: Option<Arc<Class>>,
     fields: Vec<Field>,
-    // TODO: TBD hashmap key type
+    // TODO: TBD hashmap check key type
     static_fields: HashMap<(Arc<String>, Arc<String>), StaticField>,
     // TODO: probably use hashmap for methods with method name+descriptor as key. TBD when execute instructions
     methods: Vec<VirtualMethodType>,
-    static_methods: Vec<StaticMethodType>,
+    // TODO: TBD hashmap check key type
+    static_methods: HashMap<(Arc<String>, Arc<String>), StaticMethodType>,
     constructors: Vec<Method>,
     initializer: Option<Method>,
     interfaces: Vec<String>,
     attributes: Vec<ClassAttribute>,
     cp: Arc<RuntimeConstantPool>,
-    initialized: OnceLock<()>,
+    state: RwLock<InitState>,
 }
 
 impl Class {
@@ -43,7 +52,7 @@ impl Class {
         let this = cp.get_class(&cf.this_class)?.clone();
         let access = cf.access_flags;
         let mut methods = vec![];
-        let mut static_methods = vec![];
+        let mut static_methods = HashMap::new();
         let mut constructors = vec![];
         let mut initializer = None;
         for method in cf.methods {
@@ -52,7 +61,10 @@ impl Class {
 
             match (flags.is_native(), flags.is_static()) {
                 (true, true) => {
-                    static_methods.push(StaticMethodType::Native(NativeMethod::new(method, &cp)?))
+                    let method = NativeMethod::new(method, &cp)?;
+                    let name = method.name().clone();
+                    let descriptor = method.descriptor().raw().clone();
+                    static_methods.insert((name, descriptor), StaticMethodType::Native(method));
                 }
                 (true, false) => {
                     methods.push(VirtualMethodType::Native(NativeMethod::new(method, &cp)?))
@@ -61,7 +73,10 @@ impl Class {
                     if name == "<clinit>" {
                         initializer = Some(Method::new(method, &cp)?);
                     } else {
-                        static_methods.push(StaticMethodType::Java(Method::new(method, &cp)?));
+                        let method = Method::new(method, &cp)?;
+                        let name = method.name().clone();
+                        let descriptor = method.descriptor().raw().clone();
+                        static_methods.insert((name, descriptor), StaticMethodType::Java(method));
                     }
                 }
                 (false, false) => {
@@ -78,9 +93,10 @@ impl Class {
 
         for field in cf.fields {
             if field.access_flags.is_static() {
-                let name = cp.get_utf8(&field.name_index)?.clone();
-                let descriptor = cp.get_utf8(&field.descriptor_index)?.clone();
-                static_fields.insert((name, descriptor), StaticField::new(field, &cp)?);
+                let resolved_field = StaticField::new(field, &cp)?;
+                let name = resolved_field.name.clone();
+                let descriptor = resolved_field.descriptor.raw().clone();
+                static_fields.insert((name, descriptor), resolved_field);
             } else {
                 fields.push(Field::new(field, &cp)?)
             }
@@ -92,11 +108,9 @@ impl Class {
         };
 
         let initialized = if initializer.is_some() {
-            OnceLock::new()
+            RwLock::new(InitState::NotInitialized)
         } else {
-            let lock = OnceLock::new();
-            let _ = lock.set(());
-            lock
+            RwLock::new(InitState::Initialized)
         };
 
         Ok(Class {
@@ -114,7 +128,7 @@ impl Class {
             interfaces: vec![],
             attributes: cf.attributes,
             cp,
-            initialized,
+            state: initialized,
         })
     }
 
@@ -122,11 +136,12 @@ impl Class {
         self.this.name().map_err(Into::into)
     }
 
+    //TODO: check the logic
     pub fn find_main_method(&self) -> Option<&Method> {
         self.static_methods
             .iter()
-            .find(|m| m.is_main())
-            .and_then(|m| match m {
+            .find(|(_, m)| m.is_main())
+            .and_then(|(_, m)| match m {
                 StaticMethodType::Java(m) => Some(m),
                 StaticMethodType::Native(_) => None,
             })
@@ -136,12 +151,16 @@ impl Class {
         &self.cp
     }
 
+    //TODO: right now I don't use initializing state, but I will need it when implementing multithreading
     pub fn initialized(&self) -> bool {
-        self.initialized.get().is_some()
+        matches!(
+            *self.state.read(),
+            InitState::Initializing | InitState::Initialized
+        )
     }
 
-    pub fn set_initialized(&self) {
-        let _ = self.initialized.set(());
+    pub fn set_state(&self, state: InitState) {
+        *self.state.write() = state;
     }
 
     pub fn super_class(&self) -> Option<&Arc<Class>> {
@@ -174,5 +193,34 @@ impl Class {
         etc...
          */
         Ok(())
+    }
+
+    pub fn get_static_field_value(
+        &self,
+        nat: &NameAndTypeReference,
+    ) -> Result<TypeValue, JvmError> {
+        let name = nat.name()?;
+        let descriptor = nat.field_descriptor()?.raw();
+
+        if let Some(field) = self.static_fields.get(&(name.clone(), descriptor.clone())) {
+            Ok(field.value.borrow().clone())
+        } else {
+            todo!()
+        }
+    }
+
+    pub fn get_static_method(
+        &self,
+        method_ref: &MethodReference,
+    ) -> Result<&StaticMethodType, JvmError> {
+        let nat = method_ref.name_and_type()?;
+        let name = nat.name()?;
+        let descriptor = nat.method_descriptor()?.raw();
+
+        if let Some(method) = self.static_methods.get(&(name.clone(), descriptor.clone())) {
+            Ok(method)
+        } else {
+            todo!()
+        }
     }
 }
