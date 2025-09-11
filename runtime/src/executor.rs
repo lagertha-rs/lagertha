@@ -47,7 +47,7 @@ impl Executor {
 
                 let instructions = initializer.instructions();
                 for instruction in instructions {
-                    self.execute_instruction(instruction)?;
+                    self.ensure_initialized(instruction)?;
                 }
 
                 // TODO: delete, since I don't have return in clinit and tests for it
@@ -61,7 +61,7 @@ impl Executor {
         Ok(())
     }
 
-    fn execute_instruction(&self, instruction: &Instruction) -> Result<(), JvmError> {
+    fn ensure_initialized(&self, instruction: &Instruction) -> Result<(), JvmError> {
         debug!("Executing instruction: {:?}", instruction);
         match instruction {
             Instruction::Iconst0 => {
@@ -121,7 +121,7 @@ impl Executor {
         debug!("Executing main method...");
 
         for instruction in instructions {
-            self.execute_instruction(instruction)?;
+            self.ensure_initialized(instruction)?;
         }
 
         self.frame_stack.pop_frame()?;

@@ -153,7 +153,6 @@ impl TryFrom<CodeAttribute> for CodeContext {
                 CodeAttributeInfo::StackMapTable(table) => stack_map_table
                     .set(table)
                     .map_err(|_| LinkageError::DuplicatedStackMapTable)?,
-
                 other => unimplemented!("Unknown code attr {:?}", other),
             }
         }
