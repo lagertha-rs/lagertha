@@ -10,13 +10,26 @@ use thiserror::Error;
 use tracing_log::log::debug;
 
 mod class_loader;
-mod executor;
 mod heap;
+mod interpreter;
 mod method_area;
-mod native_registry;
+mod native;
 pub mod rt;
 pub mod stack;
 mod string_pool;
+
+#[derive(Hash, Eq, PartialEq, Clone, Debug)]
+pub struct MethodKey {
+    pub class: &'static str,
+    pub name: &'static str,
+    pub desc: &'static str,
+}
+
+impl MethodKey {
+    pub fn new(class: &'static str, name: &'static str, desc: &'static str) -> Self {
+        Self { class, name, desc }
+    }
+}
 
 type HeapAddr = usize;
 
@@ -100,6 +113,6 @@ pub fn start(main_class: Vec<u8>, config: VmConfig) -> Result<(), JvmError> {
     let vm_config = Arc::new(config);
     let method_area = Arc::new(MethodArea::new(vm_config.clone())?);
 
-    let executor = executor::Executor::new(&vm_config, method_area);
+    let executor = interpreter::Interpreter::new(&vm_config, method_area);
     executor.start(main_class)
 }

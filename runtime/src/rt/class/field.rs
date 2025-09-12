@@ -3,7 +3,7 @@ use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::constant_pool::reference::FieldDescriptorReference;
 use class_file::field::FieldInfo;
 use class_file::flags::FieldFlags;
-use common::jtype::TypeValue;
+use common::jtype::Value;
 use std::cell::RefCell;
 use std::sync::Arc;
 
@@ -19,7 +19,7 @@ pub struct StaticField {
     pub name: Arc<String>,
     pub flags: FieldFlags,
     pub descriptor: Arc<FieldDescriptorReference>,
-    pub value: RefCell<TypeValue>,
+    pub value: RefCell<Value>,
 }
 
 impl Field {
@@ -55,7 +55,7 @@ impl StaticField {
         })
     }
 
-    pub fn set_value(&self, value: TypeValue) -> Result<(), JvmError> {
+    pub fn set_value(&self, value: Value) -> Result<(), JvmError> {
         if !self.descriptor.resolved().is_compatible_with(&value) {
             unimplemented!()
         }

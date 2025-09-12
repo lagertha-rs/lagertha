@@ -9,7 +9,7 @@ use crate::rt::method::{StaticMethodType, VirtualMethodType};
 use class_file::ClassFile;
 use class_file::attribute::class::ClassAttribute;
 use class_file::flags::ClassFlags;
-use common::jtype::TypeValue;
+use common::jtype::Value;
 use parking_lot::RwLock;
 use std::cmp::PartialEq;
 use std::collections::HashMap;
@@ -175,7 +175,7 @@ impl Class {
     pub fn set_static_field(
         &self,
         nat: &NameAndTypeReference,
-        value: TypeValue,
+        value: Value,
     ) -> Result<(), JvmError> {
         let name = nat.name()?;
         let descriptor = nat.field_descriptor()?.raw();
@@ -195,10 +195,7 @@ impl Class {
         Ok(())
     }
 
-    pub fn get_static_field_value(
-        &self,
-        nat: &NameAndTypeReference,
-    ) -> Result<TypeValue, JvmError> {
+    pub fn get_static_field_value(&self, nat: &NameAndTypeReference) -> Result<Value, JvmError> {
         let name = nat.name()?;
         let descriptor = nat.field_descriptor()?.raw();
 

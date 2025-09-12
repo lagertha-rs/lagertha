@@ -1,6 +1,6 @@
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::{JvmError, VmConfig};
-use common::jtype::TypeValue;
+use common::jtype::Value;
 use std::cell::RefCell;
 use std::sync::Arc;
 
@@ -35,7 +35,7 @@ impl FrameStack {
         frames.pop().ok_or(JvmError::FrameStackIsEmpty)
     }
 
-    pub fn cur_frame_push_operand(&self, value: TypeValue) -> Result<(), JvmError> {
+    pub fn cur_frame_push_operand(&self, value: Value) -> Result<(), JvmError> {
         let mut frames = self.frames.borrow_mut();
         if let Some(frame) = frames.last_mut() {
             if frame.operands.len() >= self.max_operand_stack_size {
@@ -48,7 +48,7 @@ impl FrameStack {
         }
     }
 
-    pub fn cur_frame_pop_operand(&self) -> Result<TypeValue, JvmError> {
+    pub fn cur_frame_pop_operand(&self) -> Result<Value, JvmError> {
         let mut frames = self.frames.borrow_mut();
         if let Some(frame) = frames.last_mut() {
             frame.operands.pop().ok_or(JvmError::OperandStackIsEmpty)
@@ -71,7 +71,7 @@ impl FrameStack {
 #[derive(Debug)]
 pub struct Frame {
     locals: Vec<()>,
-    operands: Vec<TypeValue>,
+    operands: Vec<Value>,
     cp: Arc<RuntimeConstantPool>,
 }
 

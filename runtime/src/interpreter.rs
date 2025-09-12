@@ -4,18 +4,18 @@ use crate::rt::method::StaticMethodType;
 use crate::stack::{Frame, FrameStack};
 use crate::{JvmError, VmConfig};
 use common::instruction::Instruction;
-use common::jtype::TypeValue;
+use common::jtype::Value;
 use std::sync::Arc;
 use tracing_log::log::debug;
 
-pub struct Executor {
+pub struct Interpreter {
     method_area: Arc<MethodArea>,
     frame_stack: FrameStack,
     native_stack: (),
     pc: (),
 }
 
-impl Executor {
+impl Interpreter {
     pub fn new(vm_config: &VmConfig, method_area: Arc<MethodArea>) -> Self {
         let thread_stack = FrameStack::new(vm_config);
         Self {
@@ -65,7 +65,7 @@ impl Executor {
         debug!("Executing instruction: {:?}", instruction);
         match instruction {
             Instruction::Iconst0 => {
-                self.frame_stack.cur_frame_push_operand(TypeValue::Int(0))?;
+                self.frame_stack.cur_frame_push_operand(Value::Int(0))?;
             }
             Instruction::Putstatic(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
@@ -89,13 +89,14 @@ impl Executor {
                 let method_ref = cp.get_methodref(idx)?;
                 let class = self.method_area.get_class(method_ref.class()?.name()?)?;
                 let method = class.get_static_method(method_ref)?;
+                println!()
             }
             _ => {}
         }
         Ok(())
     }
 
-    fn execute_static_method(
+    fn run_static_method(
         &self,
         class: &Arc<Class>,
         method: &StaticMethodType,
@@ -103,6 +104,7 @@ impl Executor {
         todo!()
     }
 
+    //TODO: redisign start method (maybe return Value, maybe take args)
     pub fn start(&self, data: Vec<u8>) -> Result<(), JvmError> {
         let main_class = self.method_area.add_class(data)?;
         let main_method = main_class

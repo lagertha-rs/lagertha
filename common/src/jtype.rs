@@ -43,7 +43,7 @@ pub enum Type {
 
 //TODO: draft
 #[derive(Debug, Clone, PartialEq)]
-pub enum TypeValue {
+pub enum Value {
     Byte(i8),
     Char(char),
     Double(f64),
@@ -57,34 +57,34 @@ pub enum TypeValue {
 }
 
 impl Type {
-    pub fn get_default_value(&self) -> TypeValue {
+    pub fn get_default_value(&self) -> Value {
         match self {
-            Type::Byte => TypeValue::Byte(0),
-            Type::Char => TypeValue::Char('\0'),
-            Type::Double => TypeValue::Double(0.0),
-            Type::Float => TypeValue::Float(0.0),
-            Type::Int => TypeValue::Int(0),
-            Type::Long => TypeValue::Long(0),
-            Type::Instance(_) => TypeValue::Instance(None),
-            Type::Short => TypeValue::Short(0),
-            Type::Boolean => TypeValue::Boolean(false),
-            Type::Array(_) => TypeValue::Array(None),
+            Type::Byte => Value::Byte(0),
+            Type::Char => Value::Char('\0'),
+            Type::Double => Value::Double(0.0),
+            Type::Float => Value::Float(0.0),
+            Type::Int => Value::Int(0),
+            Type::Long => Value::Long(0),
+            Type::Instance(_) => Value::Instance(None),
+            Type::Short => Value::Short(0),
+            Type::Boolean => Value::Boolean(false),
+            Type::Array(_) => Value::Array(None),
             _ => panic!("No default value for type: {:?}", self), //TODO
         }
     }
 
-    pub fn is_compatible_with(&self, value: &TypeValue) -> bool {
+    pub fn is_compatible_with(&self, value: &Value) -> bool {
         match (self, value) {
-            (Type::Byte, TypeValue::Byte(_)) => true,
-            (Type::Char, TypeValue::Char(_)) => true,
-            (Type::Double, TypeValue::Double(_)) => true,
-            (Type::Float, TypeValue::Float(_)) => true,
-            (Type::Int, TypeValue::Int(_)) => true,
-            (Type::Long, TypeValue::Long(_)) => true,
-            (Type::Instance(_), TypeValue::Instance(_)) => true, //TODO: check class compatibility
-            (Type::Short, TypeValue::Short(_)) => true,
-            (Type::Boolean, TypeValue::Boolean(_)) => true,
-            (Type::Array(_), TypeValue::Array(_)) => true, //TODO: check array type compatibility
+            (Type::Byte, Value::Byte(_)) => true,
+            (Type::Char, Value::Char(_)) => true,
+            (Type::Double, Value::Double(_)) => true,
+            (Type::Float, Value::Float(_)) => true,
+            (Type::Int, Value::Int(_)) => true,
+            (Type::Long, Value::Long(_)) => true,
+            (Type::Instance(_), Value::Instance(_)) => true, //TODO: check class compatibility
+            (Type::Short, Value::Short(_)) => true,
+            (Type::Boolean, Value::Boolean(_)) => true,
+            (Type::Array(_), Value::Array(_)) => true, //TODO: check array type compatibility
             _ => false,
         }
     }
