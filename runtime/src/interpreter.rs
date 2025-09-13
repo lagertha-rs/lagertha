@@ -52,9 +52,10 @@ impl Interpreter {
 
                 self.run_static_method(class, initializer)?;
 
-                // TODO: need to be implemented and executed
+                // TODO: need to be placed in better place
                 if class.name()? == "java/lang/System" {
-                    class.get_static_method("initPhase1", "()V")?;
+                    let init = class.get_static_method("initPhase1", "()V")?;
+                    self.run_static_method(class, init)?;
                 }
 
                 class.set_state(InitState::Initialized);
@@ -128,6 +129,12 @@ impl Interpreter {
     ) -> Result<(), JvmError> {
         match method {
             StaticMethodType::Java(method) => {
+                debug!(
+                    "Running static method {}{} of class {}",
+                    method.name(),
+                    method.descriptor().raw(),
+                    class.name()?
+                );
                 let frame = Frame::new(class.cp().clone(), method.max_locals(), method.max_stack());
 
                 self.frame_stack.push_frame(frame)?;
@@ -144,6 +151,12 @@ impl Interpreter {
                 Ok(())
             }
             StaticMethodType::Native(method) => {
+                debug!(
+                    "Running native method {}{} of class {}",
+                    method.name(),
+                    method.descriptor().raw(),
+                    class.name()?
+                );
                 // TODO: pass args, native stack?
                 let method_key = MethodKey::new(
                     class.name()?.to_string(),
