@@ -1,8 +1,9 @@
 use crate::method_area::MethodArea;
+use crate::native::JNIEnv;
 use crate::rt::class::class::{Class, InitState};
 use crate::rt::method::StaticMethodType;
 use crate::stack::{Frame, FrameStack};
-use crate::{JvmError, VmConfig};
+use crate::{JvmError, MethodKey, VmConfig};
 use common::instruction::Instruction;
 use common::jtype::Value;
 use std::sync::Arc;
@@ -13,23 +14,26 @@ pub struct Interpreter {
     frame_stack: FrameStack,
     native_stack: (),
     pc: (),
+    jni_env: JNIEnv,
 }
 
 impl Interpreter {
     pub fn new(vm_config: &VmConfig, method_area: Arc<MethodArea>) -> Self {
         let thread_stack = FrameStack::new(vm_config);
+        let jni_env = JNIEnv::new();
         Self {
             method_area,
             frame_stack: thread_stack,
             native_stack: (),
             pc: (),
+            jni_env,
         }
     }
 
-    fn insure_initialized(&self, class: Option<&Arc<Class>>) -> Result<(), JvmError> {
+    fn ensure_initialized(&mut self, class: Option<&Arc<Class>>) -> Result<(), JvmError> {
         if let Some(class) = class {
             if let Some(super_class) = &class.super_class() {
-                self.insure_initialized(Some(super_class))?;
+                self.ensure_initialized(Some(super_class))?;
             }
             if !class.initialized()
                 && let Some(initializer) = class.initializer()
@@ -37,23 +41,8 @@ impl Interpreter {
                 class.set_state(InitState::Initializing);
                 debug!("Initializing class {}", class.name()?);
 
-                let frame = Frame::new(
-                    class.cp().clone(),
-                    initializer.max_locals(),
-                    initializer.max_stack(),
-                );
+                self.run_static_method(class, initializer)?;
 
-                self.frame_stack.push_frame(frame)?;
-
-                let instructions = initializer.instructions();
-                for instruction in instructions {
-                    self.ensure_initialized(instruction)?;
-                }
-
-                // TODO: delete, since I don't have return in clinit and tests for it
-                // just to be sure that no operands are left in the stack before popping the frame
-                assert!(self.frame_stack.cur_frame_pop_operand().is_err());
-                self.frame_stack.pop_frame()?;
                 class.set_state(InitState::Initialized);
                 debug!("Class {} initialized", class.name()?);
             }
@@ -61,7 +50,7 @@ impl Interpreter {
         Ok(())
     }
 
-    fn ensure_initialized(&self, instruction: &Instruction) -> Result<(), JvmError> {
+    fn interpret_instruction(&mut self, instruction: &Instruction) -> Result<(), JvmError> {
         debug!("Executing instruction: {:?}", instruction);
         match instruction {
             Instruction::Iconst0 => {
@@ -71,7 +60,7 @@ impl Interpreter {
                 let cp = self.frame_stack.cur_frame_cp()?;
                 let field_ref = cp.get_fieldref(idx)?;
                 let class = self.method_area.get_class(field_ref.class()?.name()?)?;
-                self.insure_initialized(Some(&class))?;
+                self.ensure_initialized(Some(&class))?;
                 let field_nat = field_ref.name_and_type()?;
                 class.set_static_field(field_nat, self.frame_stack.cur_frame_pop_operand()?)?;
             }
@@ -79,7 +68,7 @@ impl Interpreter {
                 let cp = self.frame_stack.cur_frame_cp()?;
                 let field_ref = cp.get_fieldref(idx)?;
                 let class = self.method_area.get_class(field_ref.class()?.name()?)?;
-                self.insure_initialized(Some(&class))?;
+                self.ensure_initialized(Some(&class))?;
                 let field_nat = field_ref.name_and_type()?;
                 let value = class.get_static_field_value(field_nat)?;
                 self.frame_stack.cur_frame_push_operand(value)?;
@@ -88,30 +77,79 @@ impl Interpreter {
                 let cp = self.frame_stack.cur_frame_cp()?;
                 let method_ref = cp.get_methodref(idx)?;
                 let class = self.method_area.get_class(method_ref.class()?.name()?)?;
+                self.ensure_initialized(Some(&class))?;
                 let method = class.get_static_method(method_ref)?;
-                println!()
+                self.run_static_method(&class, method)?;
             }
-            _ => {}
+            Instruction::AconstNull => {
+                self.frame_stack
+                    .cur_frame_push_operand(Value::Instance(None))?;
+            }
+            Instruction::Ldc(idx) => {
+                let cp = self.frame_stack.cur_frame_cp()?;
+                let raw = cp.get(idx)?;
+                todo!()
+                //let constant = cp.get_raw(idx)?;
+                //let value = constant.get_value(cp, &0)?; // TODO: pass 'this' index
+                //self.frame_stack.cur_frame_push_operand(value)?;
+            }
+            Instruction::Return => {
+                // TODO: does nothing right now, since I don't have return values in methods
+                // and the instructions are executed one by one in a loop
+            }
+            unimp => unimplemented!("Instruction {:?} not implemented", unimp),
         }
         Ok(())
     }
 
     fn run_static_method(
-        &self,
+        &mut self,
         class: &Arc<Class>,
         method: &StaticMethodType,
     ) -> Result<(), JvmError> {
-        todo!()
+        match method {
+            StaticMethodType::Java(method) => {
+                let frame = Frame::new(class.cp().clone(), method.max_locals(), method.max_stack());
+
+                self.frame_stack.push_frame(frame)?;
+
+                let instructions = method.instructions();
+                for instruction in instructions {
+                    self.interpret_instruction(instruction)?;
+                }
+
+                // TODO: delete, since I don't have return in clinit and tests for it
+                // just to be sure that no operands are left in the stack before popping the frame
+                assert!(self.frame_stack.cur_frame_pop_operand().is_err());
+                self.frame_stack.pop_frame()?;
+                Ok(())
+            }
+            StaticMethodType::Native(method) => {
+                // TODO: pass args, native stack?
+                let method_key = MethodKey::new(
+                    class.name()?.to_string(),
+                    method.name.to_string(),
+                    method.descriptor.raw().to_string(),
+                );
+                let method = self
+                    .jni_env
+                    .native_registry
+                    .get(&method_key)
+                    .ok_or(JvmError::UnsatisfiedLinkError(format!("{method_key:?}")))?;
+                method(&mut self.jni_env, &[]);
+                Ok(())
+            }
+        }
     }
 
     //TODO: redisign start method (maybe return Value, maybe take args)
-    pub fn start(&self, data: Vec<u8>) -> Result<(), JvmError> {
+    pub fn start(&mut self, data: Vec<u8>) -> Result<(), JvmError> {
         let main_class = self.method_area.add_class(data)?;
         let main_method = main_class
             .find_main_method()
             .ok_or(JvmError::NoMainClassFound(main_class.name()?.to_string()))?;
         debug!("Found main method in class {}", main_class.name()?);
-        self.insure_initialized(Some(&main_class))?;
+        self.ensure_initialized(Some(&main_class))?;
         let instructions = main_method.instructions();
         let frame = Frame::new(
             main_class.cp().clone(),
@@ -123,7 +161,7 @@ impl Interpreter {
         debug!("Executing main method...");
 
         for instruction in instructions {
-            self.ensure_initialized(instruction)?;
+            self.interpret_instruction(instruction)?;
         }
 
         self.frame_stack.pop_frame()?;

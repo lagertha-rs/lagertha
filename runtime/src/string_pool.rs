@@ -1,7 +1,4 @@
-use crate::HeapAddr;
-use crate::heap::Heap;
-use std::collections::HashMap;
-
+/*
 pub struct StringPool {
     pool: HashMap<String, HeapAddr>,
 }
@@ -25,3 +22,6 @@ impl StringPool {
         self.pool.contains_key(s)
     }
 }
+
+
+ */

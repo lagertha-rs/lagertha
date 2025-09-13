@@ -50,7 +50,8 @@ pub enum Value {
     Float(f32),
     Int(i32),
     Long(i64),
-    Instance(Option<()>), // obj or interface
+    // TODO: Instance None means null, but not so obvious. rethink
+    Instance(Option<()>),
     Short(i16),
     Boolean(bool),
     Array(Option<()>),

@@ -37,7 +37,8 @@ pub struct Class {
     // TODO: TBD hashmap check key type
     static_methods: HashMap<(Arc<String>, Arc<String>), StaticMethodType>,
     constructors: Vec<Method>,
-    initializer: Option<Method>,
+    // TODO: can't be native, but easier to handle it this way for now
+    initializer: Option<StaticMethodType>,
     interfaces: Vec<String>,
     attributes: Vec<ClassAttribute>,
     cp: Arc<RuntimeConstantPool>,
@@ -71,7 +72,7 @@ impl Class {
                 }
                 (false, true) => {
                     if name == "<clinit>" {
-                        initializer = Some(Method::new(method, &cp)?);
+                        initializer = Some(StaticMethodType::Java(Method::new(method, &cp)?));
                     } else {
                         let method = Method::new(method, &cp)?;
                         let name = method.name().clone();
@@ -167,7 +168,7 @@ impl Class {
         self.super_class.as_ref()
     }
 
-    pub fn initializer(&self) -> Option<&Method> {
+    pub fn initializer(&self) -> Option<&StaticMethodType> {
         self.initializer.as_ref()
     }
 

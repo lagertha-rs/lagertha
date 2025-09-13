@@ -1,4 +1,5 @@
 use crate::class_loader::ClassLoaderErr;
+use crate::interpreter::Interpreter;
 use crate::method_area::MethodArea;
 use crate::rt::class::LinkageError;
 use crate::rt::constant_pool::error::RuntimePoolError;
@@ -18,25 +19,18 @@ pub mod rt;
 pub mod stack;
 mod string_pool;
 
+//TODO: avoid string allocations here
 #[derive(Hash, Eq, PartialEq, Clone, Debug)]
 pub struct MethodKey {
-    pub class: &'static str,
-    pub name: &'static str,
-    pub desc: &'static str,
+    pub class: String,
+    pub name: String,
+    pub desc: String,
 }
 
 impl MethodKey {
-    pub fn new(class: &'static str, name: &'static str, desc: &'static str) -> Self {
+    pub fn new(class: String, name: String, desc: String) -> Self {
         Self { class, name, desc }
     }
-}
-
-type HeapAddr = usize;
-
-#[derive(Clone, Debug)]
-pub enum Value {
-    Null,
-    Ref(HeapAddr),
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
@@ -81,6 +75,8 @@ pub enum JvmError {
     OutOfMemory,
     #[error("Could not find or load main class {0}")]
     NoMainClassFound(String),
+    #[error("NoSuchMethod: {0}")]
+    UnsatisfiedLinkError(String),
 }
 
 #[derive(Debug)]
@@ -113,6 +109,6 @@ pub fn start(main_class: Vec<u8>, config: VmConfig) -> Result<(), JvmError> {
     let vm_config = Arc::new(config);
     let method_area = Arc::new(MethodArea::new(vm_config.clone())?);
 
-    let executor = interpreter::Interpreter::new(&vm_config, method_area);
-    executor.start(main_class)
+    let mut interpreter = Interpreter::new(&vm_config, method_area);
+    interpreter.start(main_class)
 }
