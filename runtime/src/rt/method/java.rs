@@ -30,23 +30,23 @@ pub struct CodeContext {
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.6
 #[derive(Debug)]
 pub struct Method {
-    name: Arc<String>,
+    name: Arc<str>,
     flags: MethodFlags,
     descriptor: Arc<MethodDescriptorReference>,
     code_context: CodeContext,
-    signature: Option<Arc<String>>,
+    signature: Option<Arc<str>>,
     rt_visible_annotations: Option<Vec<Annotation>>,
     is_deprecated: bool,
 }
 
 impl Method {
     pub fn new(method_info: MethodInfo, cp: &RuntimeConstantPool) -> Result<Self, LinkageError> {
-        let name = cp.get_utf8(&method_info.name_index)?.clone();
+        let name = cp.get_utf8_arc(&method_info.name_index)?;
         let flags = method_info.access_flags;
         let descriptor = cp.get_method_descriptor(&method_info.descriptor_index)?;
 
         let mut code_ctx = OnceCell::<CodeContext>::new();
-        let signature = OnceCell::<Arc<String>>::new();
+        let signature = OnceCell::<Arc<str>>::new();
         let rt_vis_ann = OnceCell::<Vec<Annotation>>::new();
         let exceptions = OnceCell::<Vec<u16>>::new();
         let mut is_deprecated = false;
@@ -60,7 +60,7 @@ impl Method {
                     SharedAttribute::Synthetic => unimplemented!(),
                     SharedAttribute::Deprecated => is_deprecated = true,
                     SharedAttribute::Signature(idx) => signature
-                        .set(cp.get_utf8(&idx)?.clone())
+                        .set(cp.get_utf8_arc(&idx)?)
                         .map_err(|_| LinkageError::DuplicatedSignatureAttr)?,
                     SharedAttribute::RuntimeVisibleAnnotations(v) => rt_vis_ann
                         .set(v)
@@ -89,13 +89,6 @@ impl Method {
         })
     }
 
-    pub fn is_main(&self) -> bool {
-        self.name.as_str() == "main"
-            && self.flags.is_public()
-            && self.flags.is_static()
-            && self.descriptor.raw().as_str() == "([Ljava/lang/String;)V"
-    }
-
     pub fn instructions(&self) -> &Vec<Instruction> {
         &self.code_context.instructions
     }
@@ -108,8 +101,12 @@ impl Method {
         self.code_context.max_locals as usize
     }
 
-    pub fn name(&self) -> &Arc<String> {
+    pub fn name(&self) -> &str {
         &self.name
+    }
+
+    pub fn name_arc(&self) -> Arc<str> {
+        self.name.clone()
     }
 
     pub fn descriptor(&self) -> &Arc<MethodDescriptorReference> {

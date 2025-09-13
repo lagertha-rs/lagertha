@@ -10,15 +10,6 @@ pub enum StaticMethodType {
     Native(NativeMethod),
 }
 
-impl StaticMethodType {
-    pub fn is_main(&self) -> bool {
-        match self {
-            StaticMethodType::Java(m) => m.is_main(),
-            StaticMethodType::Native(_) => false,
-        }
-    }
-}
-
 #[derive(Debug)]
 pub enum VirtualMethodType {
     Java(Method),

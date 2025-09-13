@@ -4,27 +4,28 @@ use crate::rt::constant_pool::reference::FieldDescriptorReference;
 use class_file::field::FieldInfo;
 use class_file::flags::FieldFlags;
 use common::jtype::Value;
-use std::cell::RefCell;
+use std::cell::{Ref, RefCell};
+use std::ops::Deref;
 use std::sync::Arc;
 
 #[derive(Debug)]
 pub struct Field {
-    pub name: Arc<String>,
-    pub flags: FieldFlags,
-    pub descriptor: Arc<FieldDescriptorReference>,
+    name: Arc<str>,
+    flags: FieldFlags,
+    descriptor: Arc<FieldDescriptorReference>,
 }
 
 #[derive(Debug)]
 pub struct StaticField {
-    pub name: Arc<String>,
-    pub flags: FieldFlags,
-    pub descriptor: Arc<FieldDescriptorReference>,
-    pub value: RefCell<Value>,
+    name: Arc<str>,
+    flags: FieldFlags,
+    descriptor: Arc<FieldDescriptorReference>,
+    value: RefCell<Value>,
 }
 
 impl Field {
     pub fn new(field_info: FieldInfo, cp: &RuntimeConstantPool) -> Result<Self, JvmError> {
-        let name = cp.get_utf8(&field_info.name_index)?.clone();
+        let name = cp.get_utf8_arc(&field_info.name_index)?;
         let flags = field_info.access_flags;
         let descriptor = cp.get_field_descriptor(&field_info.descriptor_index)?;
 
@@ -40,7 +41,7 @@ impl Field {
 
 impl StaticField {
     pub fn new(field_info: FieldInfo, cp: &RuntimeConstantPool) -> Result<Self, JvmError> {
-        let name = cp.get_utf8(&field_info.name_index)?.clone();
+        let name = cp.get_utf8_arc(&field_info.name_index)?;
         let flags = field_info.access_flags;
         let descriptor = cp.get_field_descriptor(&field_info.descriptor_index)?;
         let value = RefCell::new(descriptor.resolved().get_default_value());
@@ -53,6 +54,18 @@ impl StaticField {
             descriptor,
             value,
         })
+    }
+
+    pub fn name_arc(&self) -> Arc<str> {
+        self.name.clone()
+    }
+
+    pub fn descriptor(&self) -> &Arc<FieldDescriptorReference> {
+        &self.descriptor
+    }
+
+    pub fn value(&self) -> Value {
+        self.value.borrow().deref().clone()
     }
 
     pub fn set_value(&self, value: Value) -> Result<(), JvmError> {

@@ -1,11 +1,14 @@
+use crate::heap::Heap;
 use crate::method_area::MethodArea;
 use crate::native::JNIEnv;
 use crate::rt::class::class::{Class, InitState};
+use crate::rt::constant_pool::RuntimeConstant;
 use crate::rt::method::StaticMethodType;
 use crate::stack::{Frame, FrameStack};
+use crate::string_pool::StringPool;
 use crate::{JvmError, MethodKey, VmConfig};
 use common::instruction::Instruction;
-use common::jtype::Value;
+use common::jtype::{ObjectRef, Value};
 use std::sync::Arc;
 use tracing_log::log::debug;
 
@@ -15,18 +18,24 @@ pub struct Interpreter {
     native_stack: (),
     pc: (),
     jni_env: JNIEnv,
+    heap: Heap,
+    string_pool: StringPool,
 }
 
 impl Interpreter {
     pub fn new(vm_config: &VmConfig, method_area: Arc<MethodArea>) -> Self {
         let thread_stack = FrameStack::new(vm_config);
         let jni_env = JNIEnv::new();
+        let heap = Heap::new();
+        let string_pool = StringPool::new();
         Self {
             method_area,
             frame_stack: thread_stack,
             native_stack: (),
             pc: (),
             jni_env,
+            heap,
+            string_pool,
         }
     }
 
@@ -42,6 +51,11 @@ impl Interpreter {
                 debug!("Initializing class {}", class.name()?);
 
                 self.run_static_method(class, initializer)?;
+
+                // TODO: need to be implemented and executed
+                if class.name()? == "java/lang/System" {
+                    class.get_static_method("initPhase1", "()V")?;
+                }
 
                 class.set_state(InitState::Initialized);
                 debug!("Class {} initialized", class.name()?);
@@ -78,20 +92,25 @@ impl Interpreter {
                 let method_ref = cp.get_methodref(idx)?;
                 let class = self.method_area.get_class(method_ref.class()?.name()?)?;
                 self.ensure_initialized(Some(&class))?;
-                let method = class.get_static_method(method_ref)?;
+                let method = class.get_static_method_by_nat(method_ref)?;
                 self.run_static_method(&class, method)?;
             }
             Instruction::AconstNull => {
                 self.frame_stack
-                    .cur_frame_push_operand(Value::Instance(None))?;
+                    .cur_frame_push_operand(Value::Object(ObjectRef::Null))?;
             }
             Instruction::Ldc(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
                 let raw = cp.get(idx)?;
-                todo!()
-                //let constant = cp.get_raw(idx)?;
-                //let value = constant.get_value(cp, &0)?; // TODO: pass 'this' index
-                //self.frame_stack.cur_frame_push_operand(value)?;
+                match raw {
+                    RuntimeConstant::String(data) => {
+                        let string_addr =
+                            self.string_pool.get_or_new(&mut self.heap, data.value()?);
+                        self.frame_stack
+                            .cur_frame_push_operand(Value::Object(ObjectRef::Ref(string_addr)))?;
+                    }
+                    _ => unimplemented!("Ldc for constant {:?}", raw),
+                }
             }
             Instruction::Return => {
                 // TODO: does nothing right now, since I don't have return values in methods
@@ -128,14 +147,14 @@ impl Interpreter {
                 // TODO: pass args, native stack?
                 let method_key = MethodKey::new(
                     class.name()?.to_string(),
-                    method.name.to_string(),
-                    method.descriptor.raw().to_string(),
+                    method.name().to_string(),
+                    method.descriptor().raw().to_string(),
                 );
                 let method = self
                     .jni_env
                     .native_registry
                     .get(&method_key)
-                    .ok_or(JvmError::UnsatisfiedLinkError(format!("{method_key:?}")))?;
+                    .ok_or(JvmError::NoSuchMethod(format!("{method_key:?}")))?;
                 method(&mut self.jni_env, &[]);
                 Ok(())
             }

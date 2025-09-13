@@ -76,7 +76,9 @@ pub enum JvmError {
     #[error("Could not find or load main class {0}")]
     NoMainClassFound(String),
     #[error("NoSuchMethod: {0}")]
-    UnsatisfiedLinkError(String),
+    NoSuchMethod(String),
+    #[error("NoSuchField: {0}")]
+    FieldNotFound(String),
 }
 
 #[derive(Debug)]

@@ -10,20 +10,20 @@ use std::sync::Arc;
 // TODO:
 #[derive(Debug)]
 pub struct NativeMethod {
-    pub name: Arc<String>,
-    pub flags: MethodFlags,
-    pub descriptor: Arc<MethodDescriptorReference>,
-    pub signature: Option<Arc<String>>,
-    pub rt_visible_annotations: Option<Vec<Annotation>>,
+    name: Arc<str>,
+    flags: MethodFlags,
+    descriptor: Arc<MethodDescriptorReference>,
+    signature: Option<Arc<str>>,
+    rt_visible_annotations: Option<Vec<Annotation>>,
 }
 
 impl NativeMethod {
     pub fn new(method_info: MethodInfo, cp: &RuntimeConstantPool) -> Result<Self, LinkageError> {
-        let name = cp.get_utf8(&method_info.name_index)?.clone();
+        let name = cp.get_utf8_arc(&method_info.name_index)?;
         let flags = method_info.access_flags;
         let descriptor = cp.get_method_descriptor(&method_info.descriptor_index)?;
 
-        let signature = OnceCell::<Arc<String>>::new();
+        let signature = OnceCell::<Arc<str>>::new();
         let rt_vis_ann = OnceCell::<Vec<Annotation>>::new();
 
         Ok(NativeMethod {
@@ -35,8 +35,12 @@ impl NativeMethod {
         })
     }
 
-    pub fn name(&self) -> &Arc<String> {
+    pub fn name(&self) -> &str {
         &self.name
+    }
+
+    pub fn name_arc(&self) -> Arc<str> {
+        self.name.clone()
     }
 
     pub fn descriptor(&self) -> &Arc<MethodDescriptorReference> {

@@ -33,7 +33,7 @@ pub enum RuntimeConstantType {
 #[derive(Debug, Clone, PartialEq)]
 pub enum RuntimeConstant {
     Unused,
-    Utf8(Arc<String>),
+    Utf8(Arc<str>),
     Integer(i32),
     Float(f32),
     Long(i64),
@@ -82,7 +82,7 @@ impl RuntimeConstantPool {
                 .enumerate()
                 .map(|(i, c)| match c {
                     ConstantInfo::Unused => RuntimeConstant::Unused,
-                    ConstantInfo::Utf8(val) => RuntimeConstant::Utf8(Arc::new(val)),
+                    ConstantInfo::Utf8(val) => RuntimeConstant::Utf8(Arc::from(val)),
                     ConstantInfo::Integer(val) => RuntimeConstant::Integer(val),
                     ConstantInfo::Float(val) => RuntimeConstant::Float(val),
                     ConstantInfo::Long(val) => RuntimeConstant::Long(val),
@@ -154,9 +154,20 @@ impl RuntimeConstantPool {
         Ok(entry)
     }
 
-    pub fn get_utf8(&self, idx: &u16) -> Result<&Arc<String>, RuntimePoolError> {
+    pub fn get_utf8(&self, idx: &u16) -> Result<&str, RuntimePoolError> {
         match self.entry(idx)? {
             RuntimeConstant::Utf8(string) => Ok(string),
+            other => Err(RuntimePoolError::TypeError(
+                *idx,
+                RuntimeConstantType::Utf8,
+                other.get_type(),
+            )),
+        }
+    }
+
+    pub fn get_utf8_arc(&self, idx: &u16) -> Result<Arc<str>, RuntimePoolError> {
+        match self.entry(idx)? {
+            RuntimeConstant::Utf8(string) => Ok(string.clone()),
             other => Err(RuntimePoolError::TypeError(
                 *idx,
                 RuntimeConstantType::Utf8,
@@ -169,7 +180,7 @@ impl RuntimeConstantPool {
         match self.entry(idx)? {
             RuntimeConstant::String(str_ref) => {
                 str_ref.value.get_or_try_init::<_, RuntimePoolError>(|| {
-                    Ok(self.get_utf8(str_ref.string_index())?.clone())
+                    Ok(self.get_utf8_arc(str_ref.string_index())?)
                 })?;
                 Ok(str_ref)
             }
@@ -185,7 +196,7 @@ impl RuntimeConstantPool {
         match self.entry(idx)? {
             RuntimeConstant::Class(class_ref) => {
                 class_ref.name.get_or_try_init::<_, RuntimePoolError>(|| {
-                    Ok(self.get_utf8(class_ref.name_index())?.clone())
+                    Ok(self.get_utf8_arc(class_ref.name_index())?)
                 })?;
                 Ok(class_ref)
             }
@@ -197,7 +208,7 @@ impl RuntimeConstantPool {
         }
     }
 
-    pub fn get_class_name(&self, idx: &u16) -> Result<&Arc<String>, RuntimePoolError> {
+    pub fn get_class_name(&self, idx: &u16) -> Result<&str, RuntimePoolError> {
         Ok(self.get_class(idx)?.name()?)
     }
 
@@ -209,8 +220,8 @@ impl RuntimeConstantPool {
         if let Some(descriptor) = self.method_descriptors.get(&idx) {
             return Ok(descriptor.clone());
         }
-        let raw = self.get_utf8(idx)?.clone();
-        let resolved = MethodDescriptor::try_from(raw.as_str())?;
+        let raw = self.get_utf8_arc(idx)?.clone();
+        let resolved = MethodDescriptor::try_from(raw.as_ref())?;
         let reference = Arc::new(MethodDescriptorReference::new(*idx, raw, resolved));
         self.method_descriptors.insert(*idx, reference.clone());
         Ok(reference)
@@ -224,8 +235,8 @@ impl RuntimeConstantPool {
         if let Some(descriptor) = self.field_descriptors.get(&idx) {
             return Ok(descriptor.clone());
         }
-        let raw = self.get_utf8(idx)?.clone();
-        let resolved = Type::try_from(raw.as_str())?;
+        let raw = self.get_utf8_arc(idx)?;
+        let resolved = Type::try_from(raw.as_ref())?;
         let reference = Arc::new(FieldDescriptorReference::new(*idx, raw, resolved));
         self.field_descriptors.insert(*idx, reference.clone());
         Ok(reference)
@@ -238,7 +249,7 @@ impl RuntimeConstantPool {
         match self.entry(idx)? {
             RuntimeConstant::NameAndType(method_nat) => {
                 method_nat.name.get_or_try_init::<_, RuntimePoolError>(|| {
-                    Ok(self.get_utf8(method_nat.name_index())?.clone())
+                    Ok(self.get_utf8_arc(method_nat.name_index())?)
                 })?;
                 method_nat
                     .method_descriptor
@@ -259,7 +270,7 @@ impl RuntimeConstantPool {
         match self.entry(idx)? {
             RuntimeConstant::NameAndType(field_nat) => {
                 field_nat.name.get_or_try_init::<_, RuntimePoolError>(|| {
-                    Ok(self.get_utf8(field_nat.name_index())?.clone())
+                    Ok(self.get_utf8_arc(field_nat.name_index())?)
                 })?;
                 field_nat
                     .field_descriptor

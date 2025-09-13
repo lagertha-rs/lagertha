@@ -10,7 +10,7 @@ type OnceCell<I> = once_cell::sync::OnceCell<I>;
 pub struct ClassReference {
     cp_index: u16,
     name_index: u16,
-    pub(super) name: OnceCell<Arc<String>>,
+    pub(super) name: OnceCell<Arc<str>>,
 }
 
 impl ClassReference {
@@ -30,9 +30,10 @@ impl ClassReference {
         &self.name_index
     }
 
-    pub fn name(&self) -> Result<&Arc<String>, RuntimePoolError> {
+    pub fn name(&self) -> Result<&str, RuntimePoolError> {
         self.name
             .get()
+            .map(AsRef::as_ref)
             .ok_or(RuntimePoolError::TryingToAccessUnresolved(
                 self.cp_index,
                 RuntimeConstantType::Class,
@@ -44,7 +45,7 @@ impl ClassReference {
 pub struct StringReference {
     cp_index: u16,
     string_index: u16,
-    pub(super) value: OnceCell<Arc<String>>,
+    pub(super) value: OnceCell<Arc<str>>,
 }
 
 impl StringReference {
@@ -60,9 +61,10 @@ impl StringReference {
         &self.string_index
     }
 
-    pub fn value(&self) -> Result<&Arc<String>, RuntimePoolError> {
+    pub fn value(&self) -> Result<&str, RuntimePoolError> {
         self.value
             .get()
+            .map(AsRef::as_ref)
             .ok_or(RuntimePoolError::TryingToAccessUnresolved(
                 self.cp_index,
                 RuntimeConstantType::String,
@@ -168,7 +170,7 @@ impl FieldReference {
 pub struct NameAndTypeReference {
     cp_index: u16,
     name_index: u16,
-    pub(super) name: OnceCell<Arc<String>>,
+    pub(super) name: OnceCell<Arc<str>>,
     descriptor_index: u16,
     // TODO: either method, either field. find elegant solution
     pub(super) method_descriptor: OnceCell<Arc<MethodDescriptorReference>>,
@@ -195,9 +197,10 @@ impl NameAndTypeReference {
         &self.descriptor_index
     }
 
-    pub fn name(&self) -> Result<&Arc<String>, RuntimePoolError> {
+    pub fn name(&self) -> Result<&str, RuntimePoolError> {
         self.name
             .get()
+            .map(AsRef::as_ref)
             .ok_or(RuntimePoolError::TryingToAccessUnresolved(
                 self.cp_index,
                 RuntimeConstantType::NameAndType,
@@ -226,12 +229,12 @@ impl NameAndTypeReference {
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct MethodDescriptorReference {
     idx: u16,
-    raw: Arc<String>,
+    raw: Arc<str>,
     resolved: MethodDescriptor,
 }
 
 impl MethodDescriptorReference {
-    pub fn new(idx: u16, raw: Arc<String>, resolved: MethodDescriptor) -> Self {
+    pub fn new(idx: u16, raw: Arc<str>, resolved: MethodDescriptor) -> Self {
         Self { idx, raw, resolved }
     }
 
@@ -239,8 +242,12 @@ impl MethodDescriptorReference {
         self.idx
     }
 
-    pub fn raw(&self) -> &Arc<String> {
+    pub fn raw(&self) -> &str {
         &self.raw
+    }
+
+    pub fn raw_arc(&self) -> Arc<str> {
+        self.raw.clone()
     }
 
     pub fn resolved(&self) -> &MethodDescriptor {
@@ -251,12 +258,12 @@ impl MethodDescriptorReference {
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct FieldDescriptorReference {
     idx: u16,
-    raw: Arc<String>,
+    raw: Arc<str>,
     resolved: Type,
 }
 
 impl FieldDescriptorReference {
-    pub fn new(idx: u16, raw: Arc<String>, resolved: Type) -> Self {
+    pub fn new(idx: u16, raw: Arc<str>, resolved: Type) -> Self {
         Self { idx, raw, resolved }
     }
 
@@ -264,8 +271,12 @@ impl FieldDescriptorReference {
         self.idx
     }
 
-    pub fn raw(&self) -> &Arc<String> {
+    pub fn raw(&self) -> &str {
         &self.raw
+    }
+
+    pub fn raw_arc(&self) -> Arc<str> {
+        self.raw.clone()
     }
 
     pub fn resolved(&self) -> &Type {

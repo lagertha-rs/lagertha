@@ -1,10 +1,15 @@
-/*
+use crate::heap::Heap;
+use common::jtype::HeapAddr;
+use std::collections::HashMap;
+use tracing_log::log::debug;
+
 pub struct StringPool {
     pool: HashMap<String, HeapAddr>,
 }
 
 impl StringPool {
     pub fn new() -> Self {
+        debug!("Initializing StringPool...");
         Self {
             pool: HashMap::new(),
         }
@@ -22,6 +27,3 @@ impl StringPool {
         self.pool.contains_key(s)
     }
 }
-
-
- */

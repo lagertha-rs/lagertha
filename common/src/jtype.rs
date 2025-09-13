@@ -41,6 +41,16 @@ pub enum Type {
     Array(Box<Type>),
 }
 
+//TODO: should be in this module?
+pub type HeapAddr = usize;
+
+//TODO: should be in this module?
+#[derive(Clone, Debug, PartialEq)]
+pub enum ObjectRef {
+    Null,
+    Ref(HeapAddr),
+}
+
 //TODO: draft
 #[derive(Debug, Clone, PartialEq)]
 pub enum Value {
@@ -51,7 +61,7 @@ pub enum Value {
     Int(i32),
     Long(i64),
     // TODO: Instance None means null, but not so obvious. rethink
-    Instance(Option<()>),
+    Object(ObjectRef),
     Short(i16),
     Boolean(bool),
     Array(Option<()>),
@@ -66,7 +76,7 @@ impl Type {
             Type::Float => Value::Float(0.0),
             Type::Int => Value::Int(0),
             Type::Long => Value::Long(0),
-            Type::Instance(_) => Value::Instance(None),
+            Type::Instance(_) => Value::Object(ObjectRef::Null),
             Type::Short => Value::Short(0),
             Type::Boolean => Value::Boolean(false),
             Type::Array(_) => Value::Array(None),
@@ -82,7 +92,7 @@ impl Type {
             (Type::Float, Value::Float(_)) => true,
             (Type::Int, Value::Int(_)) => true,
             (Type::Long, Value::Long(_)) => true,
-            (Type::Instance(_), Value::Instance(_)) => true, //TODO: check class compatibility
+            (Type::Instance(_), Value::Object(_)) => true, //TODO: check class compatibility
             (Type::Short, Value::Short(_)) => true,
             (Type::Boolean, Value::Boolean(_)) => true,
             (Type::Array(_), Value::Array(_)) => true, //TODO: check array type compatibility

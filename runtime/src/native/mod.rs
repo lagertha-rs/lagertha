@@ -1,5 +1,5 @@
 use crate::MethodKey;
-use common::jtype::Value;
+use common::jtype::{ObjectRef, Value};
 use std::collections::HashMap;
 use tracing_log::log::debug;
 
@@ -52,5 +52,5 @@ impl NativeRegistry {
 
 fn register_system_methods(_env: &mut JNIEnv, _args: &[Value]) -> Value {
     debug!("Stub: Registering java.lang.System native methods");
-    Value::Instance(None)
+    Value::Object(ObjectRef::Null)
 }
