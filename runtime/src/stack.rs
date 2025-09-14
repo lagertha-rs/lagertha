@@ -65,6 +65,19 @@ impl FrameStack {
             .map(|v| v.cp.clone())
             .ok_or(JvmError::FrameStackIsEmpty)
     }
+
+    pub fn cur_frame_top_operand(&self) -> Result<Value, JvmError> {
+        let frames = self.frames.borrow();
+        if let Some(frame) = frames.last() {
+            frame
+                .operands
+                .last()
+                .cloned()
+                .ok_or(JvmError::OperandStackIsEmpty)
+        } else {
+            Err(JvmError::FrameStackIsEmpty)
+        }
+    }
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.6

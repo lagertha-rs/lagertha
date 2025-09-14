@@ -37,6 +37,10 @@ impl Field {
             descriptor,
         })
     }
+
+    pub fn descriptor(&self) -> &Arc<FieldDescriptorReference> {
+        &self.descriptor
+    }
 }
 
 impl StaticField {

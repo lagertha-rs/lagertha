@@ -8,7 +8,7 @@ use crate::stack::{Frame, FrameStack};
 use crate::string_pool::StringPool;
 use crate::{JvmError, MethodKey, VmConfig};
 use common::instruction::Instruction;
-use common::jtype::{ObjectRef, Value};
+use common::jtype::{ObjectRef, PrimitiveValue, Value};
 use std::sync::Arc;
 use tracing_log::log::debug;
 
@@ -53,6 +53,7 @@ impl Interpreter {
                 self.run_static_method(class, initializer)?;
 
                 // TODO: need to be placed in better place
+                // https://stackoverflow.com/questions/78321427/initialization-of-static-final-fields-in-javas-system-class-in-jdk-14-and-beyon
                 if class.name()? == "java/lang/System" {
                     let init = class.get_static_method("initPhase1", "()V")?;
                     self.run_static_method(class, init)?;
@@ -69,7 +70,8 @@ impl Interpreter {
         debug!("Executing instruction: {:?}", instruction);
         match instruction {
             Instruction::Iconst0 => {
-                self.frame_stack.cur_frame_push_operand(Value::Int(0))?;
+                self.frame_stack
+                    .cur_frame_push_operand(Value::Primitive(PrimitiveValue::Int(0)))?;
             }
             Instruction::Putstatic(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
@@ -112,6 +114,19 @@ impl Interpreter {
                     }
                     _ => unimplemented!("Ldc for constant {:?}", raw),
                 }
+            }
+            Instruction::New(idx) => {
+                let cp = self.frame_stack.cur_frame_cp()?;
+                let class_ref = cp.get_class(idx)?;
+                let class = self.method_area.get_class(class_ref.name()?)?;
+                self.ensure_initialized(Some(&class))?;
+                let addr = self.heap.alloc_instance(class.idx(), class.fields());
+                self.frame_stack
+                    .cur_frame_push_operand(Value::Object(ObjectRef::Ref(addr)))?;
+            }
+            Instruction::Dup => {
+                let value = self.frame_stack.cur_frame_top_operand()?;
+                self.frame_stack.cur_frame_push_operand(value)?;
             }
             Instruction::Return => {
                 // TODO: does nothing right now, since I don't have return values in methods

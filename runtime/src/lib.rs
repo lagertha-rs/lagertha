@@ -3,9 +3,7 @@ use crate::interpreter::Interpreter;
 use crate::method_area::MethodArea;
 use crate::rt::class::LinkageError;
 use crate::rt::constant_pool::error::RuntimePoolError;
-use crate::stack::FrameStack;
 use common::utils::cursor::CursorError;
-use once_cell::sync::OnceCell;
 use std::sync::Arc;
 use thiserror::Error;
 use tracing_log::log::debug;
@@ -31,18 +29,6 @@ impl MethodKey {
     pub fn new(class: String, name: String, desc: String) -> Self {
         Self { class, name, desc }
     }
-}
-
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-pub struct ClassId(pub usize);
-
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-pub struct MethodId(pub usize);
-
-#[derive(Debug, Eq, PartialEq)]
-pub enum ClassState {
-    Loaded,
-    Initialized,
 }
 
 #[derive(Debug, Error)]

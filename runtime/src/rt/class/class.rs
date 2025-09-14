@@ -160,6 +160,14 @@ impl Class {
         &self.cp
     }
 
+    pub fn idx(&self) -> u16 {
+        *self.this.cp_index()
+    }
+
+    pub fn fields(&self) -> &Vec<Field> {
+        &self.fields
+    }
+
     //TODO: right now I don't use initializing state, but I will need it when implementing multithreading
     pub fn initialized(&self) -> bool {
         matches!(

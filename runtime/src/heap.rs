@@ -1,17 +1,16 @@
 // TODO: very primitive implementation, ok for right now
 
-use crate::ClassId;
-use common::jtype::{HeapAddr, ObjectRef};
+use crate::rt::class::field::Field;
+use common::jtype::{HeapAddr, ObjectRef, PrimitiveValue, Type, Value};
 use tracing_log::log::debug;
 
 pub enum HeapObject {
     Instance {
-        class_id: ClassId,
+        class_idx: u16,
         fields: Vec<ObjectRef>,
     },
-    JavaString {
-        utf8: String,
-    },
+    String(String),
+    Primitive(PrimitiveValue),
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.5.3
@@ -33,15 +32,30 @@ impl Heap {
         idx
     }
 
-    pub fn alloc_instance(&mut self, class_id: ClassId, field_count: usize) -> HeapAddr {
+    //TODO: how to handle super classes?
+    pub fn alloc_instance(&mut self, class_idx: u16, fields: &Vec<Field>) -> HeapAddr {
         self.push(HeapObject::Instance {
-            class_id,
-            fields: vec![ObjectRef::Null; field_count],
+            class_idx,
+            fields: fields
+                .iter()
+                .map(|field| match field.descriptor().resolved() {
+                    Type::Instance(_) => ObjectRef::Null,
+                    Type::Array(_) => ObjectRef::Null,
+                    other => {
+                        let default_value = other.get_default_value();
+                        if let Value::Primitive(p) = default_value {
+                            ObjectRef::Primitive(p)
+                        } else {
+                            unimplemented!()
+                        }
+                    }
+                })
+                .collect(),
         })
     }
 
     pub fn alloc_string<S: Into<String>>(&mut self, s: S) -> HeapAddr {
-        self.push(HeapObject::JavaString { utf8: s.into() })
+        self.push(HeapObject::String(s.into()))
     }
 
     pub fn get(&self, h: HeapAddr) -> &HeapObject {

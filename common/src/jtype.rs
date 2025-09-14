@@ -49,36 +49,41 @@ pub type HeapAddr = usize;
 pub enum ObjectRef {
     Null,
     Ref(HeapAddr),
+    Primitive(PrimitiveValue),
 }
 
-//TODO: draft
+//TODO: draft. refactor
 #[derive(Debug, Clone, PartialEq)]
 pub enum Value {
+    Primitive(PrimitiveValue),
+    Object(ObjectRef),
+    Array(Option<()>),
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum PrimitiveValue {
     Byte(i8),
     Char(char),
     Double(f64),
     Float(f32),
     Int(i32),
     Long(i64),
-    // TODO: Instance None means null, but not so obvious. rethink
-    Object(ObjectRef),
     Short(i16),
     Boolean(bool),
-    Array(Option<()>),
 }
 
 impl Type {
     pub fn get_default_value(&self) -> Value {
         match self {
-            Type::Byte => Value::Byte(0),
-            Type::Char => Value::Char('\0'),
-            Type::Double => Value::Double(0.0),
-            Type::Float => Value::Float(0.0),
-            Type::Int => Value::Int(0),
-            Type::Long => Value::Long(0),
+            Type::Byte => Value::Primitive(PrimitiveValue::Byte(0)),
+            Type::Char => Value::Primitive(PrimitiveValue::Char('\0')),
+            Type::Double => Value::Primitive(PrimitiveValue::Double(0.0)),
+            Type::Float => Value::Primitive(PrimitiveValue::Float(0.0)),
+            Type::Int => Value::Primitive(PrimitiveValue::Int(0)),
+            Type::Long => Value::Primitive(PrimitiveValue::Long(0)),
+            Type::Short => Value::Primitive(PrimitiveValue::Short(0)),
+            Type::Boolean => Value::Primitive(PrimitiveValue::Boolean(false)),
             Type::Instance(_) => Value::Object(ObjectRef::Null),
-            Type::Short => Value::Short(0),
-            Type::Boolean => Value::Boolean(false),
             Type::Array(_) => Value::Array(None),
             _ => panic!("No default value for type: {:?}", self), //TODO
         }
@@ -86,16 +91,16 @@ impl Type {
 
     pub fn is_compatible_with(&self, value: &Value) -> bool {
         match (self, value) {
-            (Type::Byte, Value::Byte(_)) => true,
-            (Type::Char, Value::Char(_)) => true,
-            (Type::Double, Value::Double(_)) => true,
-            (Type::Float, Value::Float(_)) => true,
-            (Type::Int, Value::Int(_)) => true,
-            (Type::Long, Value::Long(_)) => true,
+            (Type::Byte, Value::Primitive(PrimitiveValue::Byte(_))) => true,
+            (Type::Char, Value::Primitive(PrimitiveValue::Char(_))) => true,
+            (Type::Double, Value::Primitive(PrimitiveValue::Double(_))) => true,
+            (Type::Float, Value::Primitive(PrimitiveValue::Float(_))) => true,
+            (Type::Int, Value::Primitive(PrimitiveValue::Int(_))) => true,
+            (Type::Long, Value::Primitive(PrimitiveValue::Long(_))) => true,
+            (Type::Short, Value::Primitive(PrimitiveValue::Short(_))) => true,
+            (Type::Boolean, Value::Primitive(PrimitiveValue::Boolean(_))) => true,
             (Type::Instance(_), Value::Object(_)) => true, //TODO: check class compatibility
-            (Type::Short, Value::Short(_)) => true,
-            (Type::Boolean, Value::Boolean(_)) => true,
-            (Type::Array(_), Value::Array(_)) => true, //TODO: check array type compatibility
+            (Type::Array(_), Value::Array(_)) => true,     //TODO: check array type compatibility
             _ => false,
         }
     }
