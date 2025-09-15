@@ -201,7 +201,7 @@ impl Class {
             .get(name)
             .and_then(|m| m.get(descriptor))
             .map(|f| f.set_value(value))
-            .ok_or(JvmError::NoMainClassFound(name.to_string()))??;
+            .ok_or(JvmError::FieldNotFound(name.to_string()))??;
 
         /* TODO:
         NoSuchFieldError,
