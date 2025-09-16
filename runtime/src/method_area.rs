@@ -7,6 +7,8 @@ use dashmap::DashMap;
 use std::sync::Arc;
 use tracing_log::log::debug;
 
+//TODO: finally need to decide to return Arc<Class> or &Arc<Class>
+
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.5.4
 pub struct MethodArea {
     vm_config: Arc<VmConfig>,

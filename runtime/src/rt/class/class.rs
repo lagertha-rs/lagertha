@@ -32,11 +32,11 @@ pub struct Class {
     major_version: u16,
     super_class: Option<Arc<Class>>,
     fields: Vec<Field>,
+    field_idx: NatHashMap<usize>,
     static_fields: NatHashMap<StaticField>,
     // TODO: probably use hashmap for methods with method name+descriptor as key. TBD when execute instructions
-    methods: Vec<VirtualMethodType>,
+    methods: NatHashMap<VirtualMethodType>,
     static_methods: NatHashMap<StaticMethodType>,
-    constructors: Vec<Method>,
     // TODO: can't be native, but easier to handle it this way for now
     initializer: Option<StaticMethodType>,
     interfaces: Vec<String>,
@@ -52,9 +52,8 @@ impl Class {
         let major_version = cf.major_version;
         let this = cp.get_class(&cf.this_class)?.clone();
         let access = cf.access_flags;
-        let mut methods = vec![];
+        let mut methods: NatHashMap<VirtualMethodType> = HashMap::new();
         let mut static_methods: NatHashMap<StaticMethodType> = HashMap::new();
-        let mut constructors = vec![];
         let mut initializer = None;
         for method in cf.methods {
             let flags = method.access_flags;
@@ -71,7 +70,13 @@ impl Class {
                         .insert(descriptor, StaticMethodType::Native(method));
                 }
                 (true, false) => {
-                    methods.push(VirtualMethodType::Native(NativeMethod::new(method, &cp)?))
+                    let method = NativeMethod::new(method, &cp)?;
+                    let name = method.name_arc();
+                    let descriptor = method.descriptor().raw_arc();
+                    methods
+                        .entry(name)
+                        .or_default()
+                        .insert(descriptor, VirtualMethodType::Native(method));
                 }
                 (false, true) => {
                     if name == "<clinit>" {
@@ -87,18 +92,22 @@ impl Class {
                     }
                 }
                 (false, false) => {
-                    if name == "<init>" {
-                        constructors.push(Method::new(method, &cp)?);
-                    } else {
-                        methods.push(VirtualMethodType::Java(Method::new(method, &cp)?));
-                    }
+                    // TODO: probably need to put constructor methods in separate list
+                    let method = Method::new(method, &cp)?;
+                    let name = method.name_arc();
+                    let descriptor = method.descriptor().raw_arc();
+                    methods
+                        .entry(name)
+                        .or_default()
+                        .insert(descriptor, VirtualMethodType::Java(method));
                 }
             }
         }
         let mut static_fields: NatHashMap<StaticField> = HashMap::new();
         let mut fields = vec![];
+        let mut field_idx: NatHashMap<usize> = HashMap::new();
 
-        for field in cf.fields {
+        for (i, field) in cf.fields.into_iter().enumerate() {
             if field.access_flags.is_static() {
                 let resolved_field = StaticField::new(field, &cp)?;
                 let name = resolved_field.name_arc();
@@ -108,7 +117,12 @@ impl Class {
                     .or_default()
                     .insert(descriptor, resolved_field);
             } else {
-                fields.push(Field::new(field, &cp)?)
+                let field = Field::new(field, &cp)?;
+                field_idx
+                    .entry(field.name_arc())
+                    .or_default()
+                    .insert(field.descriptor().raw_arc(), i);
+                fields.push(field);
             }
         }
         let super_class = if cf.super_class != 0 {
@@ -130,10 +144,10 @@ impl Class {
             minor_version,
             major_version,
             fields,
+            field_idx,
             static_fields,
             static_methods,
             methods,
-            constructors,
             initializer,
             interfaces: vec![],
             attributes: cf.attributes,
@@ -212,6 +226,17 @@ impl Class {
         Ok(())
     }
 
+    pub fn get_field_index(&self, nat: &NameAndTypeReference) -> Result<usize, JvmError> {
+        let name = nat.name()?;
+        let descriptor = nat.field_descriptor()?.raw();
+
+        self.field_idx
+            .get(name)
+            .and_then(|m| m.get(descriptor))
+            .copied()
+            .ok_or(JvmError::FieldNotFound(name.to_string()))
+    }
+
     pub fn get_static_field_value(&self, nat: &NameAndTypeReference) -> Result<Value, JvmError> {
         let name = nat.name()?;
         let descriptor = nat.field_descriptor()?.raw();
@@ -240,6 +265,28 @@ impl Class {
         descriptor: &str,
     ) -> Result<&StaticMethodType, JvmError> {
         self.static_methods
+            .get(name)
+            .and_then(|m| m.get(descriptor))
+            .ok_or(JvmError::NoSuchMethod(format!("{}.{}", name, descriptor)))
+    }
+
+    pub fn get_virtual_method_by_nat(
+        &self,
+        method_ref: &MethodReference,
+    ) -> Result<&VirtualMethodType, JvmError> {
+        let nat = method_ref.name_and_type()?;
+        let name = nat.name()?;
+        let descriptor = nat.method_descriptor()?.raw();
+
+        self.get_virtual_method(name, descriptor)
+    }
+
+    pub fn get_virtual_method(
+        &self,
+        name: &str,
+        descriptor: &str,
+    ) -> Result<&VirtualMethodType, JvmError> {
+        self.methods
             .get(name)
             .and_then(|m| m.get(descriptor))
             .ok_or(JvmError::NoSuchMethod(format!("{}.{}", name, descriptor)))

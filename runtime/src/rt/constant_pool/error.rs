@@ -10,7 +10,7 @@ pub enum RuntimePoolError {
     TypeDescriptor(#[from] TypeDescriptorErr),
     #[error("WrongIndex")]
     WrongIndex(u16),
-    #[error("TypeError")]
+    #[error("TypeError at index {0}: expected {1:?} but found {2:?}")]
     TypeError(u16, RuntimeConstantType, RuntimeConstantType), //TODO: named args?
     #[error("TryingToAccessUnresolved")]
     TryingToAccessUnresolved(u16, RuntimeConstantType),

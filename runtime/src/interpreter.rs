@@ -3,12 +3,12 @@ use crate::method_area::MethodArea;
 use crate::native::JNIEnv;
 use crate::rt::class::class::{Class, InitState};
 use crate::rt::constant_pool::RuntimeConstant;
-use crate::rt::method::StaticMethodType;
+use crate::rt::method::{StaticMethodType, VirtualMethodType};
 use crate::stack::{Frame, FrameStack};
 use crate::string_pool::StringPool;
 use crate::{JvmError, MethodKey, VmConfig};
 use common::instruction::Instruction;
-use common::jtype::{ObjectRef, PrimitiveValue, Value};
+use common::jtype::Value;
 use std::sync::Arc;
 use tracing_log::log::debug;
 
@@ -70,8 +70,10 @@ impl Interpreter {
         debug!("Executing instruction: {:?}", instruction);
         match instruction {
             Instruction::Iconst0 => {
-                self.frame_stack
-                    .cur_frame_push_operand(Value::Primitive(PrimitiveValue::Int(0)))?;
+                self.frame_stack.cur_frame_push_operand(Value::Integer(0))?;
+            }
+            Instruction::Iconst1 => {
+                self.frame_stack.cur_frame_push_operand(Value::Integer(1))?;
             }
             Instruction::Putstatic(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
@@ -100,7 +102,7 @@ impl Interpreter {
             }
             Instruction::AconstNull => {
                 self.frame_stack
-                    .cur_frame_push_operand(Value::Object(ObjectRef::Null))?;
+                    .cur_frame_push_operand(Value::Object(None))?;
             }
             Instruction::Ldc(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
@@ -110,7 +112,7 @@ impl Interpreter {
                         let string_addr =
                             self.string_pool.get_or_new(&mut self.heap, data.value()?);
                         self.frame_stack
-                            .cur_frame_push_operand(Value::Object(ObjectRef::Ref(string_addr)))?;
+                            .cur_frame_push_operand(Value::Object(Some(string_addr)))?;
                     }
                     _ => unimplemented!("Ldc for constant {:?}", raw),
                 }
@@ -120,19 +122,89 @@ impl Interpreter {
                 let class_ref = cp.get_class(idx)?;
                 let class = self.method_area.get_class(class_ref.name()?)?;
                 self.ensure_initialized(Some(&class))?;
-                let addr = self.heap.alloc_instance(class.idx(), class.fields());
+                let addr = self.heap.alloc_instance(class.clone(), class.fields());
                 self.frame_stack
-                    .cur_frame_push_operand(Value::Object(ObjectRef::Ref(addr)))?;
+                    .cur_frame_push_operand(Value::Object(Some(addr)))?;
             }
             Instruction::Dup => {
                 let value = self.frame_stack.cur_frame_top_operand()?;
                 self.frame_stack.cur_frame_push_operand(value)?;
+            }
+            Instruction::InvokeSpecial(idx) => {
+                let cp = self.frame_stack.cur_frame_cp()?;
+                let method_ref = cp.get_methodref(idx)?;
+                let class = self.method_area.get_class(method_ref.class()?.name()?)?;
+                let method = class.get_virtual_method_by_nat(method_ref)?;
+                self.run_instance_method(&class, method)?;
+            }
+            Instruction::Aload0 => self
+                .frame_stack
+                .cur_frame_get_local(0)
+                .and_then(|v| self.frame_stack.cur_frame_push_operand(v))?,
+            Instruction::Bipush(value) => {
+                self.frame_stack
+                    .cur_frame_push_operand(Value::Integer(*value as i32))?;
+            }
+            Instruction::Putfield(idx) => {
+                let cp = self.frame_stack.cur_frame_cp()?;
+                let field_nat = cp.get_fieldref(idx)?.name_and_type()?;
+                let value = self.frame_stack.cur_frame_pop_operand()?;
+                let object_ref = self.frame_stack.cur_frame_pop_operand()?;
+                match object_ref {
+                    Value::Object(Some(o)) => {
+                        self.heap.write_instance_field(o, field_nat, value)?;
+                    }
+                    Value::Object(None) => {
+                        return Err(JvmError::NullPointerException);
+                    }
+                    _ => {
+                        panic!("putfield on non-object");
+                    }
+                }
             }
             Instruction::Return => {
                 // TODO: does nothing right now, since I don't have return values in methods
                 // and the instructions are executed one by one in a loop
             }
             unimp => unimplemented!("Instruction {:?} not implemented", unimp),
+        }
+        Ok(())
+    }
+
+    fn run_instance_method(
+        &mut self,
+        class: &Arc<Class>,
+        method: &VirtualMethodType,
+    ) -> Result<(), JvmError> {
+        match method {
+            VirtualMethodType::Java(method) => {
+                debug!(
+                    "Running instance method {}{} of class {}",
+                    method.name(),
+                    method.descriptor().raw(),
+                    class.name()?
+                );
+
+                let params_count = method.descriptor().resolved().params.len() + 1; // +1 for this
+                let mut params = Vec::with_capacity(params_count);
+                for _ in 0..params_count {
+                    params.push(self.frame_stack.cur_frame_pop_operand()?);
+                }
+
+                let frame = Frame::new(class.cp().clone(), params, method.max_stack());
+
+                self.frame_stack.push_frame(frame)?;
+
+                let instructions = method.instructions();
+                for instruction in instructions {
+                    self.interpret_instruction(instruction)?;
+                }
+
+                self.frame_stack.pop_frame()?;
+            }
+            VirtualMethodType::Native(_method) => {
+                unimplemented!("Native instance methods not implemented yet");
+            }
         }
         Ok(())
     }
@@ -150,7 +222,7 @@ impl Interpreter {
                     method.descriptor().raw(),
                     class.name()?
                 );
-                let frame = Frame::new(class.cp().clone(), method.max_locals(), method.max_stack());
+                let frame = Frame::new(class.cp().clone(), vec![], method.max_stack());
 
                 self.frame_stack.push_frame(frame)?;
 
@@ -198,11 +270,7 @@ impl Interpreter {
         debug!("Found main method in class {}", main_class.name()?);
         self.ensure_initialized(Some(&main_class))?;
         let instructions = main_method.instructions();
-        let frame = Frame::new(
-            main_class.cp().clone(),
-            main_method.max_locals(),
-            main_method.max_stack(),
-        );
+        let frame = Frame::new(main_class.cp().clone(), vec![], main_method.max_stack());
         self.frame_stack.push_frame(frame)?;
 
         debug!("Executing main method...");

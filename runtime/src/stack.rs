@@ -35,6 +35,15 @@ impl FrameStack {
         frames.pop().ok_or(JvmError::FrameStackIsEmpty)
     }
 
+    pub fn cur_frame_get_local(&self, index: u8) -> Result<Value, JvmError> {
+        let frames = self.frames.borrow();
+        if let Some(frame) = frames.last() {
+            frame.get_local(index)
+        } else {
+            Err(JvmError::FrameStackIsEmpty)
+        }
+    }
+
     pub fn cur_frame_push_operand(&self, value: Value) -> Result<(), JvmError> {
         let mut frames = self.frames.borrow_mut();
         if let Some(frame) = frames.last_mut() {
@@ -83,17 +92,24 @@ impl FrameStack {
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.6
 #[derive(Debug)]
 pub struct Frame {
-    locals: Vec<()>,
+    locals: Vec<Value>,
     operands: Vec<Value>,
     cp: Arc<RuntimeConstantPool>,
 }
 
 impl Frame {
-    pub fn new(cp: Arc<RuntimeConstantPool>, max_locals: usize, max_stack: usize) -> Self {
+    pub fn new(cp: Arc<RuntimeConstantPool>, locals: Vec<Value>, max_stack: usize) -> Self {
         Self {
-            locals: vec![(); max_locals],
+            locals,
             operands: Vec::with_capacity(max_stack),
             cp,
         }
+    }
+
+    pub fn get_local(&self, index: u8) -> Result<Value, JvmError> {
+        self.locals
+            .get(index as usize)
+            .cloned()
+            .ok_or(JvmError::LocalVariableNotFound(index))
     }
 }

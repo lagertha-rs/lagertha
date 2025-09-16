@@ -37,7 +37,7 @@ pub enum JvmError {
     Linkage(#[from] LinkageError),
     #[error(transparent)]
     Cursor(#[from] CursorError),
-    #[error(transparent)]
+    #[error("RuntimeConstantPoolError: {0}")]
     RuntimePool(#[from] RuntimePoolError),
     #[error(transparent)]
     ClassLoader(#[from] ClassLoaderErr),
@@ -47,8 +47,6 @@ pub enum JvmError {
     ConstantNotFoundInRuntimePool,
     #[error("TrailingBytes")]
     TrailingBytes,
-    #[error("TypeError")]
-    TypeError,
     #[error("ClassNotFoundException: {0}")]
     ClassNotFound(String),
     #[error("stack overflow")]
@@ -65,6 +63,12 @@ pub enum JvmError {
     NoSuchMethod(String),
     #[error("NoSuchField: {0}")]
     FieldNotFound(String),
+    #[error("LocalVariableNotFound: {0}")]
+    LocalVariableNotFound(u8),
+    #[error("TypeDescriptorErr: {0}")]
+    TypeDescriptionErr(#[from] common::TypeDescriptorErr),
+    #[error("NullPointerException")]
+    NullPointerException,
 }
 
 #[derive(Debug)]

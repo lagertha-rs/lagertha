@@ -180,7 +180,7 @@ impl RuntimeConstantPool {
         match self.entry(idx)? {
             RuntimeConstant::String(str_ref) => {
                 str_ref.value.get_or_try_init::<_, RuntimePoolError>(|| {
-                    Ok(self.get_utf8_arc(str_ref.string_index())?)
+                    self.get_utf8_arc(str_ref.string_index())
                 })?;
                 Ok(str_ref)
             }
@@ -196,7 +196,7 @@ impl RuntimeConstantPool {
         match self.entry(idx)? {
             RuntimeConstant::Class(class_ref) => {
                 class_ref.name.get_or_try_init::<_, RuntimePoolError>(|| {
-                    Ok(self.get_utf8_arc(class_ref.name_index())?)
+                    self.get_utf8_arc(class_ref.name_index())
                 })?;
                 Ok(class_ref)
             }
@@ -209,7 +209,7 @@ impl RuntimeConstantPool {
     }
 
     pub fn get_class_name(&self, idx: &u16) -> Result<&str, RuntimePoolError> {
-        Ok(self.get_class(idx)?.name()?)
+        self.get_class(idx)?.name()
     }
 
     //TODO: all other getters return ref, but this one can't cause of dash map
@@ -249,7 +249,7 @@ impl RuntimeConstantPool {
         match self.entry(idx)? {
             RuntimeConstant::NameAndType(method_nat) => {
                 method_nat.name.get_or_try_init::<_, RuntimePoolError>(|| {
-                    Ok(self.get_utf8_arc(method_nat.name_index())?)
+                    self.get_utf8_arc(method_nat.name_index())
                 })?;
                 method_nat
                     .method_descriptor
@@ -270,7 +270,7 @@ impl RuntimeConstantPool {
         match self.entry(idx)? {
             RuntimeConstant::NameAndType(field_nat) => {
                 field_nat.name.get_or_try_init::<_, RuntimePoolError>(|| {
-                    Ok(self.get_utf8_arc(field_nat.name_index())?)
+                    self.get_utf8_arc(field_nat.name_index())
                 })?;
                 field_nat
                     .field_descriptor

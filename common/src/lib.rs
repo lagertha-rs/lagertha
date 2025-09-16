@@ -15,6 +15,8 @@ pub enum TypeDescriptorErr {
     UnexpectedEnd,
     #[error("Invalid descriptor type `{0}`")]
     InvalidType(char),
+    #[error("Invalid object type")]
+    InvalidObjectRef,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
