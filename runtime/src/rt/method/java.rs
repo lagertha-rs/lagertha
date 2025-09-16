@@ -17,7 +17,7 @@ use std::sync::Arc;
 pub struct CodeContext {
     max_stack: u16,
     max_locals: u16,
-    instructions: Vec<Instruction>,
+    instructions: Vec<u8>,
     // TODO: Create a dedicated struct? (now struct from class_file)
     line_numbers: Option<Vec<LineNumberEntry>>,
     // TODO: Create a dedicated struct? (now struct from class_file)
@@ -89,7 +89,7 @@ impl Method {
         })
     }
 
-    pub fn instructions(&self) -> &Vec<Instruction> {
+    pub fn instructions(&self) -> &Vec<u8> {
         &self.code_context.instructions
     }
 
@@ -157,7 +157,7 @@ impl TryFrom<CodeAttribute> for CodeContext {
         Ok(CodeContext {
             max_stack: code.max_stack,
             max_locals: code.max_locals,
-            instructions: Instruction::new_instruction_set(&code.code)?,
+            instructions: code.code,
             line_numbers: all_line_numbers,
             local_variables: all_local_vars,
             local_variable_types: all_local_types,

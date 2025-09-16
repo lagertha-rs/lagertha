@@ -23,6 +23,10 @@ impl<'a> ByteCursor<'a> {
         self.data.len().saturating_sub(self.pos)
     }
 
+    pub fn is_eof(&self) -> bool {
+        self.pos >= self.data.len()
+    }
+
     fn take<const N: usize>(&mut self) -> Result<[u8; N], CursorError> {
         if self.remaining() < N {
             return Err(CursorError::UnexpectedEof);
@@ -90,22 +94,5 @@ impl<'a> ByteCursor<'a> {
         buf.copy_from_slice(&self.data[self.pos..self.pos + n]);
         self.pos += n;
         Ok(())
-    }
-
-    pub fn align_to(&mut self, align: u8) -> Result<u8, CursorError> {
-        let align = align as usize;
-        if align == 0 {
-            return Ok(0);
-        }
-        let mis = self.pos % align;
-        if mis == 0 {
-            return Ok(0);
-        }
-        let skip = align - mis;
-        if self.remaining() < skip {
-            return Err(CursorError::UnexpectedEof);
-        }
-        self.pos += skip;
-        Ok(skip as u8)
     }
 }

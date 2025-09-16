@@ -212,7 +212,15 @@ impl<'a> CodeAttribute {
                 // +1 for 'this' if not static
                 method_descriptor.params.len() + if is_static { 0 } else { 1 }
             )?;
-            let instructions = pretty_try!(ind, Instruction::new_instruction_set(&self.code));
+
+            let mut instructions = Vec::new();
+            let mut pc = 0;
+            let code_len = self.code.len();
+            while pc < code_len {
+                let inst = pretty_try!(ind, Instruction::new_at(&self.code, pc));
+                pc += inst.byte_size() as usize;
+                instructions.push(inst);
+            }
             let mut byte_pos = 0;
             for instruction in instructions {
                 writeln!(

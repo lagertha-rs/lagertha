@@ -65,10 +65,14 @@ pub enum JvmError {
     FieldNotFound(String),
     #[error("LocalVariableNotFound: {0}")]
     LocalVariableNotFound(u8),
+    #[error("LocalVariableNotInitialized: {0}")]
+    LocalVariableNotInitialized(u8),
     #[error("TypeDescriptorErr: {0}")]
     TypeDescriptionErr(#[from] common::TypeDescriptorErr),
     #[error("NullPointerException")]
     NullPointerException,
+    #[error("InstructionErr: {0}")]
+    InstructionErr(#[from] common::InstructionErr),
 }
 
 #[derive(Debug)]

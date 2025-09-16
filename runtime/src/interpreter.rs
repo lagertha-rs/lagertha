@@ -3,6 +3,8 @@ use crate::method_area::MethodArea;
 use crate::native::JNIEnv;
 use crate::rt::class::class::{Class, InitState};
 use crate::rt::constant_pool::RuntimeConstant;
+use crate::rt::method::java::Method;
+use crate::rt::method::native::NativeMethod;
 use crate::rt::method::{StaticMethodType, VirtualMethodType};
 use crate::stack::{Frame, FrameStack};
 use crate::string_pool::StringPool;
@@ -16,7 +18,6 @@ pub struct Interpreter {
     method_area: Arc<MethodArea>,
     frame_stack: FrameStack,
     native_stack: (),
-    pc: (),
     jni_env: JNIEnv,
     heap: Heap,
     string_pool: StringPool,
@@ -32,7 +33,6 @@ impl Interpreter {
             method_area,
             frame_stack: thread_stack,
             native_stack: (),
-            pc: (),
             jni_env,
             heap,
             string_pool,
@@ -50,13 +50,13 @@ impl Interpreter {
                 class.set_state(InitState::Initializing);
                 debug!("Initializing class {}", class.name()?);
 
-                self.run_static_method(class, initializer)?;
+                self.run_static_method_type(class, initializer)?;
 
                 // TODO: need to be placed in better place
                 // https://stackoverflow.com/questions/78321427/initialization-of-static-final-fields-in-javas-system-class-in-jdk-14-and-beyon
                 if class.name()? == "java/lang/System" {
                     let init = class.get_static_method("initPhase1", "()V")?;
-                    self.run_static_method(class, init)?;
+                    self.run_static_method_type(class, init)?;
                 }
 
                 class.set_state(InitState::Initialized);
@@ -66,14 +66,68 @@ impl Interpreter {
         Ok(())
     }
 
-    fn interpret_instruction(&mut self, instruction: &Instruction) -> Result<(), JvmError> {
+    fn interpret_method_code(&mut self, code: &Vec<u8>, frame: Frame) -> Result<(), JvmError> {
+        self.frame_stack.push_frame(frame)?;
+        loop {
+            let instruction = Instruction::new_at(code, *self.frame_stack.cur_frame_pc()?)?;
+            if self.interpret_instruction(&instruction)? {
+                break;
+            }
+        }
+
+        // TODO: delete, since I don't have return in main and tests for it
+        // just to be sure that operand stack is empty
+        assert!(self.frame_stack.cur_frame_top_operand().is_err());
+        self.frame_stack.pop_frame()?;
+        Ok(())
+    }
+
+    // TODO: find a better solution for branches
+    // maybe make Instruction::new_at return the next pc?
+    fn branch16(bci: usize, off: i16) -> usize {
+        ((bci as isize) + (off as isize)) as usize
+    }
+    fn branch32(bci: usize, off: i32) -> usize {
+        ((bci as isize) + (off as isize)) as usize
+    }
+
+    fn interpret_instruction(&mut self, instruction: &Instruction) -> Result<bool, JvmError> {
         debug!("Executing instruction: {:?}", instruction);
+        if !matches!(instruction, Instruction::Goto(_) | Instruction::IfIcmpge(_)) {
+            *self.frame_stack.cur_frame_pc_mut()? += instruction.byte_size() as usize;
+        }
         match instruction {
             Instruction::Iconst0 => {
                 self.frame_stack.cur_frame_push_operand(Value::Integer(0))?;
             }
             Instruction::Iconst1 => {
                 self.frame_stack.cur_frame_push_operand(Value::Integer(1))?;
+            }
+            Instruction::Istore2 => {
+                let value = self.frame_stack.cur_frame_pop_operand()?;
+                self.frame_stack.cur_frame_set_local(2, value)?;
+            }
+            Instruction::Iload2 => {
+                let value = self.frame_stack.cur_frame_get_local(2)?.clone();
+                self.frame_stack.cur_frame_push_operand(value)?;
+            }
+            Instruction::IfIcmpge(offset) => {
+                let pc = *self.frame_stack.cur_frame_pc()?;
+
+                let value2 = self.frame_stack.cur_frame_pop_operand()?;
+                let value1 = self.frame_stack.cur_frame_pop_operand()?;
+
+                match (value1, value2) {
+                    (Value::Integer(v1), Value::Integer(v2)) => {
+                        let new_pc = if v1 >= v2 {
+                            Self::branch16(pc, *offset)
+                        } else {
+                            pc + instruction.byte_size() as usize
+                        };
+                        *self.frame_stack.cur_frame_pc_mut()? = new_pc;
+                    }
+                    _ => panic!("if_icmpge on non-integer values"),
+                }
             }
             Instruction::Putstatic(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
@@ -98,7 +152,7 @@ impl Interpreter {
                 let class = self.method_area.get_class(method_ref.class()?.name()?)?;
                 self.ensure_initialized(Some(&class))?;
                 let method = class.get_static_method_by_nat(method_ref)?;
-                self.run_static_method(&class, method)?;
+                self.run_static_method_type(&class, method)?;
             }
             Instruction::AconstNull => {
                 self.frame_stack
@@ -128,19 +182,27 @@ impl Interpreter {
             }
             Instruction::Dup => {
                 let value = self.frame_stack.cur_frame_top_operand()?;
-                self.frame_stack.cur_frame_push_operand(value)?;
+                self.frame_stack.cur_frame_push_operand(value.clone())?;
             }
             Instruction::InvokeSpecial(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
                 let method_ref = cp.get_methodref(idx)?;
                 let class = self.method_area.get_class(method_ref.class()?.name()?)?;
                 let method = class.get_virtual_method_by_nat(method_ref)?;
-                self.run_instance_method(&class, method)?;
+                self.run_instance_method_type(&class, method)?;
             }
-            Instruction::Aload0 => self
-                .frame_stack
-                .cur_frame_get_local(0)
-                .and_then(|v| self.frame_stack.cur_frame_push_operand(v))?,
+            Instruction::Aload0 => {
+                let value = self.frame_stack.cur_frame_get_local(0)?.clone();
+                self.frame_stack.cur_frame_push_operand(value)?
+            }
+            Instruction::Aload1 => {
+                let value = self.frame_stack.cur_frame_get_local(1)?.clone();
+                self.frame_stack.cur_frame_push_operand(value)?
+            }
+            Instruction::Astore1 => {
+                let value = self.frame_stack.cur_frame_pop_operand()?;
+                self.frame_stack.cur_frame_set_local(1, value)?;
+            }
             Instruction::Bipush(value) => {
                 self.frame_stack
                     .cur_frame_push_operand(Value::Integer(*value as i32))?;
@@ -163,45 +225,40 @@ impl Interpreter {
                 }
             }
             Instruction::Return => {
-                // TODO: does nothing right now, since I don't have return values in methods
-                // and the instructions are executed one by one in a loop
+                return Ok(true);
             }
             unimp => unimplemented!("Instruction {:?} not implemented", unimp),
         }
+        Ok(false)
+    }
+
+    fn run_instance_method(&mut self, class: &Arc<Class>, method: &Method) -> Result<(), JvmError> {
+        debug!(
+            "Running instance method {}{} of class {}",
+            method.name(),
+            method.descriptor().raw(),
+            class.name()?
+        );
+
+        let params_count = method.descriptor().resolved().params.len() + 1; // +1 for this
+        let mut params = vec![None; (params_count)];
+        for i in 0..params_count {
+            params[i] = Some(self.frame_stack.cur_frame_pop_operand()?);
+        }
+
+        let frame = Frame::new(class.cp().clone(), params, method.max_stack());
+
+        self.interpret_method_code(method.instructions(), frame)?;
         Ok(())
     }
 
-    fn run_instance_method(
+    fn run_instance_method_type(
         &mut self,
         class: &Arc<Class>,
         method: &VirtualMethodType,
     ) -> Result<(), JvmError> {
         match method {
-            VirtualMethodType::Java(method) => {
-                debug!(
-                    "Running instance method {}{} of class {}",
-                    method.name(),
-                    method.descriptor().raw(),
-                    class.name()?
-                );
-
-                let params_count = method.descriptor().resolved().params.len() + 1; // +1 for this
-                let mut params = Vec::with_capacity(params_count);
-                for _ in 0..params_count {
-                    params.push(self.frame_stack.cur_frame_pop_operand()?);
-                }
-
-                let frame = Frame::new(class.cp().clone(), params, method.max_stack());
-
-                self.frame_stack.push_frame(frame)?;
-
-                let instructions = method.instructions();
-                for instruction in instructions {
-                    self.interpret_instruction(instruction)?;
-                }
-
-                self.frame_stack.pop_frame()?;
-            }
+            VirtualMethodType::Java(method) => self.run_instance_method(class, method)?,
             VirtualMethodType::Native(_method) => {
                 unimplemented!("Native instance methods not implemented yet");
             }
@@ -209,55 +266,55 @@ impl Interpreter {
         Ok(())
     }
 
-    fn run_static_method(
+    fn run_static_method(&mut self, class: &Arc<Class>, method: &Method) -> Result<(), JvmError> {
+        debug!(
+            "Running static method {}{} of class {}",
+            method.name(),
+            method.descriptor().raw(),
+            class.name()?
+        );
+        //TODO: handle locals
+        let frame = Frame::new(class.cp().clone(), vec![], method.max_stack());
+
+        self.interpret_method_code(method.instructions(), frame)?;
+
+        Ok(())
+    }
+
+    fn run_static_native_method(
+        &mut self,
+        class: &Arc<Class>,
+        method: &NativeMethod,
+    ) -> Result<(), JvmError> {
+        debug!(
+            "Running native method {}{} of class {}",
+            method.name(),
+            method.descriptor().raw(),
+            class.name()?
+        );
+        // TODO: pass args, native stack?
+        let method_key = MethodKey::new(
+            class.name()?.to_string(),
+            method.name().to_string(),
+            method.descriptor().raw().to_string(),
+        );
+        let method = self
+            .jni_env
+            .native_registry
+            .get(&method_key)
+            .ok_or(JvmError::NoSuchMethod(format!("{method_key:?}")))?;
+        method(&mut self.jni_env, &[]);
+        Ok(())
+    }
+
+    fn run_static_method_type(
         &mut self,
         class: &Arc<Class>,
         method: &StaticMethodType,
     ) -> Result<(), JvmError> {
         match method {
-            StaticMethodType::Java(method) => {
-                debug!(
-                    "Running static method {}{} of class {}",
-                    method.name(),
-                    method.descriptor().raw(),
-                    class.name()?
-                );
-                let frame = Frame::new(class.cp().clone(), vec![], method.max_stack());
-
-                self.frame_stack.push_frame(frame)?;
-
-                let instructions = method.instructions();
-                for instruction in instructions {
-                    self.interpret_instruction(instruction)?;
-                }
-
-                // TODO: delete, since I don't have return in clinit and tests for it
-                // just to be sure that no operands are left in the stack before popping the frame
-                assert!(self.frame_stack.cur_frame_pop_operand().is_err());
-                self.frame_stack.pop_frame()?;
-                Ok(())
-            }
-            StaticMethodType::Native(method) => {
-                debug!(
-                    "Running native method {}{} of class {}",
-                    method.name(),
-                    method.descriptor().raw(),
-                    class.name()?
-                );
-                // TODO: pass args, native stack?
-                let method_key = MethodKey::new(
-                    class.name()?.to_string(),
-                    method.name().to_string(),
-                    method.descriptor().raw().to_string(),
-                );
-                let method = self
-                    .jni_env
-                    .native_registry
-                    .get(&method_key)
-                    .ok_or(JvmError::NoSuchMethod(format!("{method_key:?}")))?;
-                method(&mut self.jni_env, &[]);
-                Ok(())
-            }
+            StaticMethodType::Java(method) => self.run_static_method(class, method),
+            StaticMethodType::Native(method) => self.run_static_native_method(class, method),
         }
     }
 
@@ -270,16 +327,15 @@ impl Interpreter {
         debug!("Found main method in class {}", main_class.name()?);
         self.ensure_initialized(Some(&main_class))?;
         let instructions = main_method.instructions();
-        let frame = Frame::new(main_class.cp().clone(), vec![], main_method.max_stack());
-        self.frame_stack.push_frame(frame)?;
-
+        //TODO: handle args
+        let frame = Frame::new(
+            main_class.cp().clone(),
+            vec![None; main_method.max_locals()],
+            main_method.max_stack(),
+        );
         debug!("Executing main method...");
-
-        for instruction in instructions {
-            self.interpret_instruction(instruction)?;
-        }
-
-        self.frame_stack.pop_frame()?;
+        self.interpret_method_code(instructions, frame)?;
+        debug!("Main method finished.");
 
         //TODO: delete, since I don't have return in main and tests for it
         // just to be sure that stack is empty

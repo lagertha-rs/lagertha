@@ -531,272 +531,276 @@ impl Instruction {
 }
 
 impl Instruction {
-    //TODO: Idk, don't really like such constructor
-    pub fn new_instruction_set(code: &Vec<u8>) -> Result<Vec<Instruction>, InstructionErr> {
-        let mut cursor = ByteCursor::new(code.as_slice());
-        let mut res = Vec::new();
+    fn switch_padding(pc: usize) -> u8 {
+        ((4 - ((pc + 1) & 3)) & 3) as u8
+    }
 
-        while let Some(opcode_byte) = cursor.try_u8() {
-            let opcode = Opcode::try_from(opcode_byte)
-                .map_err(|_| InstructionErr::UnsupportedOpCode(opcode_byte))?;
+    pub fn new_at(code: &[u8], pc: usize) -> Result<Instruction, InstructionErr> {
+        let mut cursor = ByteCursor::new(&code[pc..]);
+        let opcode_byte = cursor.u8()?;
+        let opcode = Opcode::try_from(opcode_byte)
+            .map_err(|_| InstructionErr::UnsupportedOpCode(opcode_byte))?;
 
-            let instruction = match opcode {
-                Opcode::Aaload => Self::Aaload,
-                Opcode::Aastore => Self::Aastore,
-                Opcode::AconstNull => Self::AconstNull,
-                Opcode::Aload => Self::Aload(cursor.u8()?),
-                Opcode::Aload0 => Self::Aload0,
-                Opcode::Aload1 => Self::Aload1,
-                Opcode::Aload2 => Self::Aload2,
-                Opcode::Aload3 => Self::Aload3,
-                Opcode::Anewarray => Self::Anewarray(cursor.u16()?),
-                Opcode::Areturn => Self::Areturn,
-                Opcode::ArrayLength => Self::ArrayLength,
-                Opcode::Astore => Self::Astore(cursor.u8()?),
-                Opcode::Astore0 => Self::Astore0,
-                Opcode::Astore1 => Self::Astore1,
-                Opcode::Astore2 => Self::Astore2,
-                Opcode::Astore3 => Self::Astore3,
-                Opcode::Athrow => Self::Athrow,
-                Opcode::Baload => Self::Baload,
-                Opcode::Bastore => Self::Bastore,
-                Opcode::Bipush => Self::Bipush(cursor.i8()?),
-                Opcode::Breakpoint => Self::Breakpoint,
-                Opcode::Caload => Self::Caload,
-                Opcode::Castore => Self::Castore,
-                Opcode::Checkcast => Self::Checkcast(cursor.u16()?),
-                Opcode::D2f => Self::D2f,
-                Opcode::D2i => Self::D2i,
-                Opcode::D2l => Self::D2l,
-                Opcode::Dadd => Self::Dadd,
-                Opcode::Daload => Self::Daload,
-                Opcode::Dastore => Self::Dastore,
-                Opcode::Dcmpg => Self::Dcmpg,
-                Opcode::Dcmpl => Self::Dcmpl,
-                Opcode::Dconst0 => Self::Dconst0,
-                Opcode::Dconst1 => Self::Dconst1,
-                Opcode::Ddiv => Self::Ddiv,
-                Opcode::Dload => Self::Dload(cursor.u8()?),
-                Opcode::Dload0 => Self::Dload0,
-                Opcode::Dload1 => Self::Dload1,
-                Opcode::Dload2 => Self::Dload2,
-                Opcode::Dload3 => Self::Dload3,
-                Opcode::Dmul => Self::Dmul,
-                Opcode::Dneg => Self::Dneg,
-                Opcode::Drem => Self::Drem,
-                Opcode::Dreturn => Self::Dreturn,
-                Opcode::Dstore => Self::Dstore(cursor.u8()?),
-                Opcode::Dstore0 => Self::Dstore0,
-                Opcode::Dstore1 => Self::Dstore1,
-                Opcode::Dstore2 => Self::Dstore2,
-                Opcode::Dstore3 => Self::Dstore3,
-                Opcode::Dsub => Self::Dsub,
-                Opcode::Dup => Self::Dup,
-                Opcode::Dup2 => Self::Dup2,
-                Opcode::Dup2X1 => Self::Dup2X1,
-                Opcode::Dup2X2 => Self::Dup2X2,
-                Opcode::DupX1 => Self::DupX1,
-                Opcode::DupX2 => Self::DupX2,
-                Opcode::F2d => Self::F2d,
-                Opcode::F2i => Self::F2i,
-                Opcode::F2l => Self::F2l,
-                Opcode::Fadd => Self::Fadd,
-                Opcode::Faload => Self::Faload,
-                Opcode::Fastore => Self::Fastore,
-                Opcode::Fcmpg => Self::Fcmpg,
-                Opcode::Fcmpl => Self::Fcmpl,
-                Opcode::Fconst0 => Self::Fconst0,
-                Opcode::Fconst1 => Self::Fconst1,
-                Opcode::Fconst2 => Self::Fconst2,
-                Opcode::Fdiv => Self::Fdiv,
-                Opcode::Fload => Self::Fload(cursor.u8()?),
-                Opcode::Fload0 => Self::Fload0,
-                Opcode::Fload1 => Self::Fload1,
-                Opcode::Fload2 => Self::Fload2,
-                Opcode::Fload3 => Self::Fload3,
-                Opcode::Fmul => Self::Fmul,
-                Opcode::Fneg => Self::Fneg,
-                Opcode::Frem => Self::Frem,
-                Opcode::Freturn => Self::Freturn,
-                Opcode::Fstore => Self::Fstore(cursor.u8()?),
-                Opcode::Fstore0 => Self::Fstore0,
-                Opcode::Fstore1 => Self::Fstore1,
-                Opcode::Fstore2 => Self::Fstore2,
-                Opcode::Fstore3 => Self::Fstore3,
-                Opcode::Fsub => Self::Fsub,
-                Opcode::Getfield => Self::Getfield(cursor.u16()?),
-                Opcode::Getstatic => Self::Getstatic(cursor.u16()?),
-                Opcode::Goto => Self::Goto(cursor.i16()?),
-                Opcode::GotoW => Self::GotoW(cursor.i32()?),
-                Opcode::I2b => Self::I2b,
-                Opcode::I2c => Self::I2c,
-                Opcode::I2d => Self::I2d,
-                Opcode::I2f => Self::I2f,
-                Opcode::I2l => Self::I2l,
-                Opcode::I2s => Self::I2s,
-                Opcode::Iadd => Self::Iadd,
-                Opcode::Iaload => Self::Iaload,
-                Opcode::Iand => Self::Iand,
-                Opcode::Iastore => Self::Iastore,
-                Opcode::IconstM1 => Self::IconstM1,
-                Opcode::Iconst0 => Self::Iconst0,
-                Opcode::Iconst1 => Self::Iconst1,
-                Opcode::Iconst2 => Self::Iconst2,
-                Opcode::Iconst3 => Self::Iconst3,
-                Opcode::Iconst4 => Self::Iconst4,
-                Opcode::Iconst5 => Self::Iconst5,
-                Opcode::Idiv => Self::Idiv,
-                Opcode::IfAcmpEq => Self::IfAcmpEq(cursor.i16()?),
-                Opcode::IfAcmpNe => Self::IfAcmpNe(cursor.i16()?),
-                Opcode::IfEq => Self::IfEq(cursor.i16()?),
-                Opcode::IfGe => Self::IfGe(cursor.i16()?),
-                Opcode::IfGt => Self::IfGt(cursor.i16()?),
-                Opcode::IfLe => Self::IfLe(cursor.i16()?),
-                Opcode::IfLt => Self::IfLt(cursor.i16()?),
-                Opcode::IfNe => Self::IfNe(cursor.i16()?),
-                Opcode::Ifnonnull => Self::Ifnonnull(cursor.i16()?),
-                Opcode::Ifnull => Self::Ifnull(cursor.i16()?),
-                Opcode::IfIcmpeq => Self::IfIcmpeq(cursor.i16()?),
-                Opcode::IfIcmpge => Self::IfIcmpge(cursor.i16()?),
-                Opcode::IfIcmpgt => Self::IfIcmpgt(cursor.i16()?),
-                Opcode::IfIcmple => Self::IfIcmple(cursor.i16()?),
-                Opcode::IfIcmplt => Self::IfIcmplt(cursor.i16()?),
-                Opcode::IfIcmpne => Self::IfIcmpne(cursor.i16()?),
-                Opcode::Iinc => Self::Iinc(cursor.u8()?, cursor.i8()?),
-                Opcode::Iload => Self::Iload(cursor.u8()?),
-                Opcode::Iload0 => Self::Iload0,
-                Opcode::Iload1 => Self::Iload1,
-                Opcode::Iload2 => Self::Iload2,
-                Opcode::Iload3 => Self::Iload3,
-                Opcode::Imul => Self::Imul,
-                Opcode::Ineg => Self::Ineg,
-                Opcode::Instanceof => Self::Instanceof(cursor.u16()?),
-                Opcode::InvokeDynamic => {
-                    let index = cursor.u16()?;
-                    let _zero = cursor.u16()?; //TODO assert?
-                    Self::InvokeDynamic(index)
+        let instruction = match opcode {
+            Opcode::Aaload => Self::Aaload,
+            Opcode::Aastore => Self::Aastore,
+            Opcode::AconstNull => Self::AconstNull,
+            Opcode::Aload => Self::Aload(cursor.u8()?),
+            Opcode::Aload0 => Self::Aload0,
+            Opcode::Aload1 => Self::Aload1,
+            Opcode::Aload2 => Self::Aload2,
+            Opcode::Aload3 => Self::Aload3,
+            Opcode::Anewarray => Self::Anewarray(cursor.u16()?),
+            Opcode::Areturn => Self::Areturn,
+            Opcode::ArrayLength => Self::ArrayLength,
+            Opcode::Astore => Self::Astore(cursor.u8()?),
+            Opcode::Astore0 => Self::Astore0,
+            Opcode::Astore1 => Self::Astore1,
+            Opcode::Astore2 => Self::Astore2,
+            Opcode::Astore3 => Self::Astore3,
+            Opcode::Athrow => Self::Athrow,
+            Opcode::Baload => Self::Baload,
+            Opcode::Bastore => Self::Bastore,
+            Opcode::Bipush => Self::Bipush(cursor.i8()?),
+            Opcode::Breakpoint => Self::Breakpoint,
+            Opcode::Caload => Self::Caload,
+            Opcode::Castore => Self::Castore,
+            Opcode::Checkcast => Self::Checkcast(cursor.u16()?),
+            Opcode::D2f => Self::D2f,
+            Opcode::D2i => Self::D2i,
+            Opcode::D2l => Self::D2l,
+            Opcode::Dadd => Self::Dadd,
+            Opcode::Daload => Self::Daload,
+            Opcode::Dastore => Self::Dastore,
+            Opcode::Dcmpg => Self::Dcmpg,
+            Opcode::Dcmpl => Self::Dcmpl,
+            Opcode::Dconst0 => Self::Dconst0,
+            Opcode::Dconst1 => Self::Dconst1,
+            Opcode::Ddiv => Self::Ddiv,
+            Opcode::Dload => Self::Dload(cursor.u8()?),
+            Opcode::Dload0 => Self::Dload0,
+            Opcode::Dload1 => Self::Dload1,
+            Opcode::Dload2 => Self::Dload2,
+            Opcode::Dload3 => Self::Dload3,
+            Opcode::Dmul => Self::Dmul,
+            Opcode::Dneg => Self::Dneg,
+            Opcode::Drem => Self::Drem,
+            Opcode::Dreturn => Self::Dreturn,
+            Opcode::Dstore => Self::Dstore(cursor.u8()?),
+            Opcode::Dstore0 => Self::Dstore0,
+            Opcode::Dstore1 => Self::Dstore1,
+            Opcode::Dstore2 => Self::Dstore2,
+            Opcode::Dstore3 => Self::Dstore3,
+            Opcode::Dsub => Self::Dsub,
+            Opcode::Dup => Self::Dup,
+            Opcode::Dup2 => Self::Dup2,
+            Opcode::Dup2X1 => Self::Dup2X1,
+            Opcode::Dup2X2 => Self::Dup2X2,
+            Opcode::DupX1 => Self::DupX1,
+            Opcode::DupX2 => Self::DupX2,
+            Opcode::F2d => Self::F2d,
+            Opcode::F2i => Self::F2i,
+            Opcode::F2l => Self::F2l,
+            Opcode::Fadd => Self::Fadd,
+            Opcode::Faload => Self::Faload,
+            Opcode::Fastore => Self::Fastore,
+            Opcode::Fcmpg => Self::Fcmpg,
+            Opcode::Fcmpl => Self::Fcmpl,
+            Opcode::Fconst0 => Self::Fconst0,
+            Opcode::Fconst1 => Self::Fconst1,
+            Opcode::Fconst2 => Self::Fconst2,
+            Opcode::Fdiv => Self::Fdiv,
+            Opcode::Fload => Self::Fload(cursor.u8()?),
+            Opcode::Fload0 => Self::Fload0,
+            Opcode::Fload1 => Self::Fload1,
+            Opcode::Fload2 => Self::Fload2,
+            Opcode::Fload3 => Self::Fload3,
+            Opcode::Fmul => Self::Fmul,
+            Opcode::Fneg => Self::Fneg,
+            Opcode::Frem => Self::Frem,
+            Opcode::Freturn => Self::Freturn,
+            Opcode::Fstore => Self::Fstore(cursor.u8()?),
+            Opcode::Fstore0 => Self::Fstore0,
+            Opcode::Fstore1 => Self::Fstore1,
+            Opcode::Fstore2 => Self::Fstore2,
+            Opcode::Fstore3 => Self::Fstore3,
+            Opcode::Fsub => Self::Fsub,
+            Opcode::Getfield => Self::Getfield(cursor.u16()?),
+            Opcode::Getstatic => Self::Getstatic(cursor.u16()?),
+            Opcode::Goto => Self::Goto(cursor.i16()?),
+            Opcode::GotoW => Self::GotoW(cursor.i32()?),
+            Opcode::I2b => Self::I2b,
+            Opcode::I2c => Self::I2c,
+            Opcode::I2d => Self::I2d,
+            Opcode::I2f => Self::I2f,
+            Opcode::I2l => Self::I2l,
+            Opcode::I2s => Self::I2s,
+            Opcode::Iadd => Self::Iadd,
+            Opcode::Iaload => Self::Iaload,
+            Opcode::Iand => Self::Iand,
+            Opcode::Iastore => Self::Iastore,
+            Opcode::IconstM1 => Self::IconstM1,
+            Opcode::Iconst0 => Self::Iconst0,
+            Opcode::Iconst1 => Self::Iconst1,
+            Opcode::Iconst2 => Self::Iconst2,
+            Opcode::Iconst3 => Self::Iconst3,
+            Opcode::Iconst4 => Self::Iconst4,
+            Opcode::Iconst5 => Self::Iconst5,
+            Opcode::Idiv => Self::Idiv,
+            Opcode::IfAcmpEq => Self::IfAcmpEq(cursor.i16()?),
+            Opcode::IfAcmpNe => Self::IfAcmpNe(cursor.i16()?),
+            Opcode::IfEq => Self::IfEq(cursor.i16()?),
+            Opcode::IfGe => Self::IfGe(cursor.i16()?),
+            Opcode::IfGt => Self::IfGt(cursor.i16()?),
+            Opcode::IfLe => Self::IfLe(cursor.i16()?),
+            Opcode::IfLt => Self::IfLt(cursor.i16()?),
+            Opcode::IfNe => Self::IfNe(cursor.i16()?),
+            Opcode::Ifnonnull => Self::Ifnonnull(cursor.i16()?),
+            Opcode::Ifnull => Self::Ifnull(cursor.i16()?),
+            Opcode::IfIcmpeq => Self::IfIcmpeq(cursor.i16()?),
+            Opcode::IfIcmpge => Self::IfIcmpge(cursor.i16()?),
+            Opcode::IfIcmpgt => Self::IfIcmpgt(cursor.i16()?),
+            Opcode::IfIcmple => Self::IfIcmple(cursor.i16()?),
+            Opcode::IfIcmplt => Self::IfIcmplt(cursor.i16()?),
+            Opcode::IfIcmpne => Self::IfIcmpne(cursor.i16()?),
+            Opcode::Iinc => Self::Iinc(cursor.u8()?, cursor.i8()?),
+            Opcode::Iload => Self::Iload(cursor.u8()?),
+            Opcode::Iload0 => Self::Iload0,
+            Opcode::Iload1 => Self::Iload1,
+            Opcode::Iload2 => Self::Iload2,
+            Opcode::Iload3 => Self::Iload3,
+            Opcode::Imul => Self::Imul,
+            Opcode::Ineg => Self::Ineg,
+            Opcode::Instanceof => Self::Instanceof(cursor.u16()?),
+            Opcode::InvokeDynamic => {
+                let index = cursor.u16()?;
+                let _zero = cursor.u16()?; //TODO assert?
+                Self::InvokeDynamic(index)
+            }
+            Opcode::InvokeInterface => {
+                let index = cursor.u16()?;
+                let count = cursor.u8()?;
+                let _zero = cursor.u8()?; //TODO assert?
+                Self::InvokeInterface(index, count)
+            }
+            Opcode::InvokeSpecial => Self::InvokeSpecial(cursor.u16()?),
+            Opcode::InvokeStatic => Self::InvokeStatic(cursor.u16()?),
+            Opcode::InvokeVirtual => Self::InvokeVirtual(cursor.u16()?),
+            Opcode::Ior => Self::Ior,
+            Opcode::Irem => Self::Irem,
+            Opcode::Ireturn => Self::Ireturn,
+            Opcode::Ishl => Self::Ishl,
+            Opcode::Ishr => Self::Ishr,
+            Opcode::Istore => Self::Istore(cursor.u8()?),
+            Opcode::Istore0 => Self::Istore0,
+            Opcode::Istore1 => Self::Istore1,
+            Opcode::Istore2 => Self::Istore2,
+            Opcode::Istore3 => Self::Istore3,
+            Opcode::Isub => Self::Isub,
+            Opcode::Iushr => Self::Iushr,
+            Opcode::Ixor => Self::Ixor,
+            Opcode::Jsr => Self::Jsr(cursor.i16()?),
+            Opcode::JsrW => Self::JsrW(cursor.i32()?),
+            Opcode::L2d => Self::L2d,
+            Opcode::L2f => Self::L2f,
+            Opcode::L2i => Self::L2i,
+            Opcode::Ladd => Self::Ladd,
+            Opcode::Laload => Self::Laload,
+            Opcode::Land => Self::Land,
+            Opcode::Lastore => Self::Lastore,
+            Opcode::Lcmp => Self::Lcmp,
+            Opcode::Lconst0 => Self::Lconst0,
+            Opcode::Lconst1 => Self::Lconst1,
+            Opcode::Ldc => Self::Ldc(cursor.u8()? as u16),
+            Opcode::Ldc2W => Self::Ldc2W(cursor.u16()?),
+            Opcode::LdcW => Self::LdcW(cursor.u16()?),
+            Opcode::Ldiv => Self::Ldiv,
+            Opcode::Lload => Self::Lload(cursor.u8()?),
+            Opcode::Lload0 => Self::Lload0,
+            Opcode::Lload1 => Self::Lload1,
+            Opcode::Lload2 => Self::Lload2,
+            Opcode::Lload3 => Self::Lload3,
+            Opcode::Lmul => Self::Lmul,
+            Opcode::Lneg => Self::Lneg,
+            Opcode::Lookupswitch => {
+                let padding = Self::switch_padding(pc);
+                for _ in 0..padding {
+                    cursor.u8()?;
                 }
-                Opcode::InvokeInterface => {
-                    let index = cursor.u16()?;
-                    let count = cursor.u8()?;
-                    let _zero = cursor.u8()?; //TODO assert?
-                    Self::InvokeInterface(index, count)
-                }
-                Opcode::InvokeSpecial => Self::InvokeSpecial(cursor.u16()?),
-                Opcode::InvokeStatic => Self::InvokeStatic(cursor.u16()?),
-                Opcode::InvokeVirtual => Self::InvokeVirtual(cursor.u16()?),
-                Opcode::Ior => Self::Ior,
-                Opcode::Irem => Self::Irem,
-                Opcode::Ireturn => Self::Ireturn,
-                Opcode::Ishl => Self::Ishl,
-                Opcode::Ishr => Self::Ishr,
-                Opcode::Istore => Self::Istore(cursor.u8()?),
-                Opcode::Istore0 => Self::Istore0,
-                Opcode::Istore1 => Self::Istore1,
-                Opcode::Istore2 => Self::Istore2,
-                Opcode::Istore3 => Self::Istore3,
-                Opcode::Isub => Self::Isub,
-                Opcode::Iushr => Self::Iushr,
-                Opcode::Ixor => Self::Ixor,
-                Opcode::Jsr => Self::Jsr(cursor.i16()?),
-                Opcode::JsrW => Self::JsrW(cursor.i32()?),
-                Opcode::L2d => Self::L2d,
-                Opcode::L2f => Self::L2f,
-                Opcode::L2i => Self::L2i,
-                Opcode::Ladd => Self::Ladd,
-                Opcode::Laload => Self::Laload,
-                Opcode::Land => Self::Land,
-                Opcode::Lastore => Self::Lastore,
-                Opcode::Lcmp => Self::Lcmp,
-                Opcode::Lconst0 => Self::Lconst0,
-                Opcode::Lconst1 => Self::Lconst1,
-                Opcode::Ldc => Self::Ldc(cursor.u8()? as u16),
-                Opcode::Ldc2W => Self::Ldc2W(cursor.u16()?),
-                Opcode::LdcW => Self::LdcW(cursor.u16()?),
-                Opcode::Ldiv => Self::Ldiv,
-                Opcode::Lload => Self::Lload(cursor.u8()?),
-                Opcode::Lload0 => Self::Lload0,
-                Opcode::Lload1 => Self::Lload1,
-                Opcode::Lload2 => Self::Lload2,
-                Opcode::Lload3 => Self::Lload3,
-                Opcode::Lmul => Self::Lmul,
-                Opcode::Lneg => Self::Lneg,
-                Opcode::Lookupswitch => {
-                    // TODO: assert signed are >= 0?
-                    let padding = cursor.align_to(4)?;
-                    let default_offset = cursor.i32()?;
-                    let npairs = cursor.i32()?;
-                    let mut pairs = Vec::with_capacity(npairs as usize);
-                    for _ in 0..npairs {
-                        let match_value = cursor.i32()?;
-                        let offset = cursor.i32()?;
-                        pairs.push((match_value, offset));
-                    }
-                    Self::Lookupswitch(LookupSwitchData {
-                        default_offset,
-                        pairs,
-                        padding,
-                    })
-                }
-                Opcode::Lor => Self::Lor,
-                Opcode::Lrem => Self::Lrem,
-                Opcode::Lreturn => Self::Lreturn,
-                Opcode::Lshl => Self::Lshl,
-                Opcode::Lshr => Self::Lshr,
-                Opcode::Lstore => Self::Lstore(cursor.u8()?),
-                Opcode::Lstore0 => Self::Lstore0,
-                Opcode::Lstore1 => Self::Lstore1,
-                Opcode::Lstore2 => Self::Lstore2,
-                Opcode::Lstore3 => Self::Lstore3,
-                Opcode::Lsub => Self::Lsub,
-                Opcode::Lushr => Self::Lushr,
-                Opcode::Lxor => Self::Lxor,
-                Opcode::Monitorenter => Self::Monitorenter,
-                Opcode::Monitorexit => Self::Monitorexit,
-                Opcode::Multianewarray => Self::Multianewarray(cursor.u16()?, cursor.u8()?),
-                Opcode::New => Self::New(cursor.u16()?),
-                Opcode::Newarray => {
-                    let array_type_raw = cursor.u8()?;
-                    let array_type = ArrayType::try_from_primitive(array_type_raw)
-                        .map_err(|_| InstructionErr::UnknownArrayType(array_type_raw))?;
-                    Self::Newarray(array_type)
-                }
-                Opcode::Nop => Self::Nop,
-                Opcode::Pop => Self::Pop,
-                Opcode::Pop2 => Self::Pop2,
-                Opcode::Putfield => Self::Putfield(cursor.u16()?),
-                Opcode::Putstatic => Self::Putstatic(cursor.u16()?),
-                Opcode::Ret => Self::Ret(cursor.u8()?),
-                Opcode::Return => Self::Return,
-                Opcode::Saload => Self::Saload,
-                Opcode::Sastore => Self::Sastore,
-                Opcode::Sipush => Self::Sipush(cursor.i16()?),
-                Opcode::Swap => Self::Swap,
-                Opcode::TableSwitch => {
-                    //TODO: assert high >= low
-                    let padding = cursor.align_to(4)?;
-                    let default_offset = cursor.i32()?;
-                    let low = cursor.i32()?;
-                    let high = cursor.i32()?;
-                    let num_offsets = (high - low + 1) as usize;
-                    let mut offsets = Vec::with_capacity(num_offsets);
-                    for _ in 0..num_offsets {
-                        offsets.push(cursor.i32()?);
-                    }
-                    Self::TableSwitch(TableSwitchData {
-                        default_offset,
-                        low,
-                        high,
-                        offsets,
-                        padding,
-                    })
-                }
-            };
 
-            res.push(instruction)
-        }
+                let default_offset = cursor.i32()?;
+                let npairs = cursor.i32()?;
+                let mut pairs = Vec::with_capacity(npairs as usize);
+                for _ in 0..npairs {
+                    let match_value = cursor.i32()?;
+                    let offset = cursor.i32()?;
+                    pairs.push((match_value, offset));
+                }
+                Instruction::Lookupswitch(LookupSwitchData {
+                    padding,
+                    default_offset,
+                    pairs,
+                })
+            }
+            Opcode::Lor => Self::Lor,
+            Opcode::Lrem => Self::Lrem,
+            Opcode::Lreturn => Self::Lreturn,
+            Opcode::Lshl => Self::Lshl,
+            Opcode::Lshr => Self::Lshr,
+            Opcode::Lstore => Self::Lstore(cursor.u8()?),
+            Opcode::Lstore0 => Self::Lstore0,
+            Opcode::Lstore1 => Self::Lstore1,
+            Opcode::Lstore2 => Self::Lstore2,
+            Opcode::Lstore3 => Self::Lstore3,
+            Opcode::Lsub => Self::Lsub,
+            Opcode::Lushr => Self::Lushr,
+            Opcode::Lxor => Self::Lxor,
+            Opcode::Monitorenter => Self::Monitorenter,
+            Opcode::Monitorexit => Self::Monitorexit,
+            Opcode::Multianewarray => Self::Multianewarray(cursor.u16()?, cursor.u8()?),
+            Opcode::New => Self::New(cursor.u16()?),
+            Opcode::Newarray => {
+                let array_type_raw = cursor.u8()?;
+                let array_type = ArrayType::try_from_primitive(array_type_raw)
+                    .map_err(|_| InstructionErr::UnknownArrayType(array_type_raw))?;
+                Self::Newarray(array_type)
+            }
+            Opcode::Nop => Self::Nop,
+            Opcode::Pop => Self::Pop,
+            Opcode::Pop2 => Self::Pop2,
+            Opcode::Putfield => Self::Putfield(cursor.u16()?),
+            Opcode::Putstatic => Self::Putstatic(cursor.u16()?),
+            Opcode::Ret => Self::Ret(cursor.u8()?),
+            Opcode::Return => Self::Return,
+            Opcode::Saload => Self::Saload,
+            Opcode::Sastore => Self::Sastore,
+            Opcode::Sipush => Self::Sipush(cursor.i16()?),
+            Opcode::Swap => Self::Swap,
+            Opcode::TableSwitch => {
+                let padding = Self::switch_padding(pc);
+                for _ in 0..padding {
+                    cursor.u8()?;
+                }
 
-        Ok(res)
+                let default_offset = cursor.i32()?;
+                let low = cursor.i32()?;
+                let high = cursor.i32()?;
+                let num_offsets = (high - low + 1) as usize;
+                let mut offsets = Vec::with_capacity(num_offsets);
+                for _ in 0..num_offsets {
+                    offsets.push(cursor.i32()?);
+                }
+                Instruction::TableSwitch(TableSwitchData {
+                    padding,
+                    default_offset,
+                    low,
+                    high,
+                    offsets,
+                })
+            }
+        };
+
+        Ok(instruction)
     }
 
     pub fn get_name(&self) -> &'static str {

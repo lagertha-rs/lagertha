@@ -39,4 +39,6 @@ pub enum InstructionErr {
     UnknownArrayType(u8),
     #[error(transparent)]
     Cursor(#[from] CursorError),
+    #[error("Unexpected end of instruction stream")]
+    UnexpectedEof,
 }
