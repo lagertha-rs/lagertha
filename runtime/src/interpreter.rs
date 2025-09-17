@@ -207,6 +207,55 @@ impl Interpreter {
                 self.frame_stack
                     .cur_frame_push_operand(Value::Integer(*value as i32))?;
             }
+            Instruction::Sipush(value) => {
+                self.frame_stack
+                    .cur_frame_push_operand(Value::Integer(*value as i32))?;
+            }
+            Instruction::Getfield(idx) => {
+                let cp = self.frame_stack.cur_frame_cp()?;
+                let field_nat = cp.get_fieldref(idx)?.name_and_type()?;
+                let object_ref = self.frame_stack.cur_frame_pop_operand()?;
+                match object_ref {
+                    Value::Object(Some(o)) => {
+                        let value = self.heap.get_instance_field(&o, field_nat).clone();
+                        self.frame_stack.cur_frame_push_operand(value)?;
+                    }
+                    Value::Object(None) => {
+                        return Err(JvmError::NullPointerException);
+                    }
+                    _ => {
+                        panic!("getfield on non-object");
+                    }
+                }
+            }
+            Instruction::Iadd => {
+                let value2 = self.frame_stack.cur_frame_pop_operand()?;
+                let value1 = self.frame_stack.cur_frame_pop_operand()?;
+                match (value1, value2) {
+                    (Value::Integer(v1), Value::Integer(v2)) => {
+                        self.frame_stack
+                            .cur_frame_push_operand(Value::Integer(v1 + v2))?;
+                    }
+                    _ => panic!("iadd on non-integer values"),
+                }
+            }
+            Instruction::Iinc(index, const_val) => {
+                let value = self.frame_stack.cur_frame_get_local(*index)?.clone();
+                match value {
+                    Value::Integer(v) => {
+                        self.frame_stack.cur_frame_set_local(
+                            *index as usize,
+                            Value::Integer(v + (*const_val as i32)),
+                        )?;
+                    }
+                    _ => panic!("iinc on non-integer value"),
+                }
+            }
+            Instruction::Goto(offset) => {
+                let pc = *self.frame_stack.cur_frame_pc()?;
+                let new_pc = Self::branch16(pc, *offset);
+                *self.frame_stack.cur_frame_pc_mut()? = new_pc;
+            }
             Instruction::Putfield(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
                 let field_nat = cp.get_fieldref(idx)?.name_and_type()?;

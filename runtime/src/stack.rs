@@ -61,8 +61,8 @@ impl FrameStack {
     }
 
     // TODO: check index bounds
-    pub fn cur_frame_set_local(&mut self, idx: i32, value: Value) -> Result<(), JvmError> {
-        self.cur_frame_mut()?.locals[idx as usize] = Some(value);
+    pub fn cur_frame_set_local(&mut self, idx: usize, value: Value) -> Result<(), JvmError> {
+        self.cur_frame_mut()?.locals[idx] = Some(value);
         Ok(())
     }
 

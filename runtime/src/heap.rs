@@ -15,8 +15,14 @@ pub enum HeapObject {
 
 #[derive(Clone)]
 pub struct ClassInstance {
-    pub class: Arc<Class>,
-    pub fields: Vec<Value>,
+    class: Arc<Class>,
+    fields: Vec<Value>,
+}
+
+impl ClassInstance {
+    pub fn get_field(&mut self, index: usize) -> &mut Value {
+        self.fields.get_mut(index).expect("invalid field index")
+    }
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.5.3
@@ -57,12 +63,18 @@ impl Heap {
         self.objects.get(h).expect("heap: invalid handle (get)")
     }
 
-    pub fn get_instance(&self, h: &HeapAddr) -> ClassInstance {
+    pub fn get_instance(&mut self, h: &HeapAddr) -> &ClassInstance {
         let heap_obj = self.get(*h);
         match heap_obj {
-            HeapObject::Instance(inst) => inst.clone(),
+            HeapObject::Instance(inst) => inst,
             _ => panic!("get_by_ref called with non-instance HeapObject",),
         }
+    }
+
+    pub fn get_instance_field(&mut self, h: &HeapAddr, nat: &NameAndTypeReference) -> &Value {
+        let instance = self.get_instance(h);
+        let slot = instance.class.get_field_index(nat).unwrap();
+        instance.fields.get(slot).unwrap()
     }
 
     pub fn get_mut(&mut self, h: HeapAddr) -> &mut HeapObject {
