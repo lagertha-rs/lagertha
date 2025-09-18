@@ -172,6 +172,12 @@ impl Interpreter {
                         self.frame_stack
                             .cur_frame_push_operand(Value::Object(Some(string_addr)))?;
                     }
+                    RuntimeConstant::Class(class) => {
+                        let class = self.method_area.get_class(class.name()?)?;
+                        let class_addr = self.heap.alloc_instance(class);
+                        self.frame_stack
+                            .cur_frame_push_operand(Value::Object(Some(class_addr)))?;
+                    }
                     _ => unimplemented!("Ldc for constant {:?}", raw),
                 }
             }
@@ -180,7 +186,7 @@ impl Interpreter {
                 let class_ref = cp.get_class(idx)?;
                 let class = self.method_area.get_class(class_ref.name()?)?;
                 self.ensure_initialized(Some(&class))?;
-                let addr = self.heap.alloc_instance(class.clone(), class.fields());
+                let addr = self.heap.alloc_instance(class);
                 self.frame_stack
                     .cur_frame_push_operand(Value::Object(Some(addr)))?;
             }
@@ -326,8 +332,15 @@ impl Interpreter {
             method.descriptor().raw(),
             class.name()?
         );
-        //TODO: handle locals
-        let frame = Frame::new(class.cp().clone(), vec![], method.max_stack());
+
+        let params_count = method.descriptor().resolved().params.len();
+        let mut params = vec![None; params_count];
+
+        for i in (0..params_count).rev() {
+            params[i] = Some(self.frame_stack.cur_frame_pop_operand()?);
+        }
+
+        let frame = Frame::new(class.cp().clone(), params, method.max_stack());
 
         self.interpret_method_code(method.instructions(), frame)?;
 

@@ -8,7 +8,7 @@ pub enum ClassAttribute {
     Shared(SharedAttribute),
     SourceFile(u16),
     InnerClasses,
-    EnclosingMethod,
+    EnclosingMethod(u16, u16),
     SourceDebugExtension,
     BootstrapMethods(Vec<BootstrapMethodEntry>),
     Module,
@@ -111,6 +111,11 @@ impl<'a> ClassAttribute {
             AttributeType::NestHost => {
                 let host_class_index = cursor.u16()?;
                 Ok(ClassAttribute::NestHost(host_class_index))
+            }
+            AttributeType::EnclosingMethod => {
+                let class_index = cursor.u16()?;
+                let method_index = cursor.u16()?;
+                Ok(ClassAttribute::EnclosingMethod(class_index, method_index))
             }
             AttributeType::Signature => Ok(ClassAttribute::Shared(SharedAttribute::read(
                 attribute_type,

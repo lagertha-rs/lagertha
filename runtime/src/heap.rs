@@ -45,14 +45,13 @@ impl Heap {
     }
 
     //TODO: how to handle super classes?
-    pub fn alloc_instance(&mut self, class: Arc<Class>, fields: &Vec<Field>) -> HeapAddr {
-        self.push(HeapObject::Instance(ClassInstance {
-            class,
-            fields: fields
-                .iter()
-                .map(|field| field.descriptor().resolved().get_default_value())
-                .collect(),
-        }))
+    pub fn alloc_instance(&mut self, class: Arc<Class>) -> HeapAddr {
+        let fields = class
+            .fields()
+            .iter()
+            .map(|field| field.descriptor().resolved().get_default_value())
+            .collect();
+        self.push(HeapObject::Instance(ClassInstance { class, fields }))
     }
 
     pub fn alloc_string<S: Into<String>>(&mut self, s: S) -> HeapAddr {
