@@ -68,7 +68,7 @@ pub enum JvmError {
     #[error("LocalVariableNotInitialized: {0}")]
     LocalVariableNotInitialized(u8),
     #[error("TypeDescriptorErr: {0}")]
-    TypeDescriptionErr(#[from] common::TypeDescriptorErr),
+    TypeDescriptorErr(#[from] common::TypeDescriptorErr),
     #[error("NullPointerException")]
     NullPointerException,
     #[error("InstructionErr: {0}")]
