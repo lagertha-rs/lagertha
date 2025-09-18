@@ -107,6 +107,10 @@ impl Interpreter {
                 let value = self.frame_stack.cur_frame_pop_operand()?;
                 self.frame_stack.cur_frame_set_local(2, value)?;
             }
+            Instruction::Iload1 => {
+                let value = self.frame_stack.cur_frame_get_local(1)?.clone();
+                self.frame_stack.cur_frame_push_operand(value)?;
+            }
             Instruction::Iload2 => {
                 let value = self.frame_stack.cur_frame_get_local(2)?.clone();
                 self.frame_stack.cur_frame_push_operand(value)?;
@@ -291,7 +295,7 @@ impl Interpreter {
 
         let params_count = method.descriptor().resolved().params.len() + 1; // +1 for this
         let mut params = vec![None; (params_count)];
-        for i in 0..params_count {
+        for i in (0..params_count).rev() {
             params[i] = Some(self.frame_stack.cur_frame_pop_operand()?);
         }
 

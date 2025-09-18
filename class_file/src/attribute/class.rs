@@ -14,7 +14,7 @@ pub enum ClassAttribute {
     Module,
     ModulePackages,
     ModuleMainClass,
-    NestHost,
+    NestHost(u16),
     NestMembers(Vec<u16>),
     Record,
     PermittedSubclasses,
@@ -107,6 +107,10 @@ impl<'a> ClassAttribute {
                     classes.push(cursor.u16()?);
                 }
                 Ok(ClassAttribute::NestMembers(classes))
+            }
+            AttributeType::NestHost => {
+                let host_class_index = cursor.u16()?;
+                Ok(ClassAttribute::NestHost(host_class_index))
             }
             AttributeType::Signature => Ok(ClassAttribute::Shared(SharedAttribute::read(
                 attribute_type,
