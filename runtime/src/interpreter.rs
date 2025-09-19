@@ -75,10 +75,6 @@ impl Interpreter {
             }
         }
 
-        // TODO: delete, since I don't have return in main and tests for it
-        // just to be sure that operand stack is empty
-        assert!(self.frame_stack.cur_frame_top_operand().is_err());
-        self.frame_stack.pop_frame()?;
         Ok(())
     }
 
@@ -201,6 +197,13 @@ impl Interpreter {
                 let method = class.get_virtual_method_by_nat(method_ref)?;
                 self.run_instance_method_type(&class, method)?;
             }
+            Instruction::InvokeVirtual(idx) => {
+                let cp = self.frame_stack.cur_frame_cp()?;
+                let method_ref = cp.get_methodref(idx)?;
+                let class = self.method_area.get_class(method_ref.class()?.name()?)?;
+                let method = class.get_virtual_method_by_nat(method_ref)?;
+                self.run_instance_method_type(&class, method)?;
+            }
             Instruction::Aload0 => {
                 let value = self.frame_stack.cur_frame_get_local(0)?.clone();
                 self.frame_stack.cur_frame_push_operand(value)?
@@ -283,7 +286,14 @@ impl Interpreter {
                     }
                 }
             }
+            Instruction::Ireturn => {
+                let value = self.frame_stack.cur_frame_pop_operand()?;
+                self.frame_stack.pop_frame()?;
+                self.frame_stack.cur_frame_push_operand(value)?;
+                return Ok(true);
+            }
             Instruction::Return => {
+                self.frame_stack.pop_frame()?;
                 return Ok(true);
             }
             unimp => unimplemented!("Instruction {:?} not implemented", unimp),

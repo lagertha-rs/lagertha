@@ -66,6 +66,7 @@ impl<'a> MethodAttribute {
             AttributeType::RuntimeVisibleAnnotations
             | AttributeType::Synthetic
             | AttributeType::Deprecated
+            | AttributeType::RuntimeInvisibleAnnotations
             | AttributeType::Signature => Ok(MethodAttribute::Shared(SharedAttribute::read(
                 attribute_type,
                 cursor,

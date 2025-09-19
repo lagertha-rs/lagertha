@@ -65,7 +65,7 @@ impl Method {
                     SharedAttribute::RuntimeVisibleAnnotations(v) => rt_vis_ann
                         .set(v)
                         .map_err(|_| LinkageError::DuplicatedRuntimeVisibleAnnotationsAttr)?,
-                    SharedAttribute::RuntimeInvisibleAnnotations => unimplemented!(),
+                    SharedAttribute::RuntimeInvisibleAnnotations(_) => unimplemented!(),
                     SharedAttribute::RuntimeVisibleTypeAnnotations => unimplemented!(),
                     SharedAttribute::RuntimeInvisibleTypeAnnotations => unimplemented!(),
                 },

@@ -23,6 +23,10 @@ impl ClassInstance {
     pub fn get_field(&mut self, index: usize) -> &mut Value {
         self.fields.get_mut(index).expect("invalid field index")
     }
+
+    pub fn class(&self) -> &Arc<Class> {
+        &self.class
+    }
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.5.3

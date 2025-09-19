@@ -50,7 +50,7 @@ pub enum SharedAttribute {
     Deprecated,
     Signature(u16),
     RuntimeVisibleAnnotations(Vec<Annotation>),
-    RuntimeInvisibleAnnotations,
+    RuntimeInvisibleAnnotations(Vec<Annotation>),
     RuntimeVisibleTypeAnnotations,
     RuntimeInvisibleTypeAnnotations,
 }
@@ -75,8 +75,15 @@ impl<'a> SharedAttribute {
                 }
                 Ok(SharedAttribute::RuntimeVisibleAnnotations(annotations))
             }
-            AttributeType::RuntimeInvisibleAnnotations
-            | AttributeType::RuntimeInvisibleTypeAnnotations
+            AttributeType::RuntimeInvisibleAnnotations => {
+                let num_annotations = cursor.u16()?;
+                let mut annotations = Vec::with_capacity(num_annotations as usize);
+                for _ in 0..num_annotations {
+                    annotations.push(Annotation::read(cursor)?);
+                }
+                Ok(SharedAttribute::RuntimeInvisibleAnnotations(annotations))
+            }
+            AttributeType::RuntimeInvisibleTypeAnnotations
             | AttributeType::RuntimeVisibleTypeAnnotations => unimplemented!(),
             _ => Err(ClassFormatErr::AttributeIsNotShared(attr_type)),
         }
