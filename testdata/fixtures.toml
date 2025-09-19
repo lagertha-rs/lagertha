@@ -1,9 +1,17 @@
 # Classes to extract from jdk for testing purposes
 [modules."java.base"]
-classes = ["java.lang.Object",
+classes = [
+    # java.lang
+    "java.lang.Object",
     "java.lang.String",
+    "java.lang.System$1",
     "java.lang.System",
+    "java.lang.Class",
+    # java.io
     "java.io.PrintStream",
     "java.io.FilterOutputStream",
     "java.io.OutputStream",
+    # internal
+    "jdk.internal.access.SharedSecrets",
+    "jdk.internal.util.SystemProps"
 ]

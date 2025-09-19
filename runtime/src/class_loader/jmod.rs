@@ -1,8 +1,9 @@
 use crate::class_loader::{ClassLoaderErr, ClassSource};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
+use toml::Value;
 use tracing_log::log::debug;
 use zip::ZipArchive;
 
@@ -15,9 +16,32 @@ use zip::ZipArchive;
 #[derive(Debug)]
 pub struct BootstrapJmodClassLoader {
     index: HashMap<String, ClassSource>,
+    //TODO: remove afterwards, insures whatever is loaded is present in fixtures.toml (tested)
+    tested_parsing: HashSet<String>,
 }
 
 impl BootstrapJmodClassLoader {
+    //TODO: remove afterwards
+    fn prepare_tested_classes() -> HashSet<String> {
+        let fixtures_toml = include_str!("../../../testdata/fixtures.toml");
+        let root_value: Value = fixtures_toml.parse().expect("Failed to parse TOML");
+
+        let classes_set: HashSet<String> = root_value
+            .get("modules")
+            .and_then(|modules| modules.get("java.base"))
+            .and_then(|java_base| java_base.get("classes"))
+            .and_then(|classes_value| classes_value.as_array())
+            .map(|classes_array| {
+                classes_array
+                    .iter()
+                    .filter_map(|val| val.as_str())
+                    .map(|v| v.replace('.', "/"))
+                    .collect()
+            })
+            .unwrap();
+
+        classes_set
+    }
     pub fn from_jmods_dir<P: AsRef<Path>>(jmods_dir: P) -> Result<Self, ClassLoaderErr> {
         debug!(
             "Creating BootstrapJmodLoader from jmods dir \"{}\"...",
@@ -57,7 +81,13 @@ impl BootstrapJmodClassLoader {
 
         debug!("Index prepared. Found {} classes.", index.len());
 
-        Ok(Self { index })
+        //TODO: remove afterwards
+        let tested_parsing = Self::prepare_tested_classes();
+
+        Ok(Self {
+            index,
+            tested_parsing,
+        })
     }
 
     fn binary_name(entry: &str) -> Option<String> {
@@ -83,6 +113,12 @@ impl BootstrapJmodClassLoader {
         let mut buf = Vec::with_capacity(zf.size() as usize);
         zf.read_to_end(&mut buf)
             .map_err(|_| ClassLoaderErr::ArchiveErr)?;
+
+        assert!(
+            self.tested_parsing.contains(binary_name),
+            "Class \"{}\" is not tested",
+            binary_name
+        );
         Ok(buf)
     }
 }

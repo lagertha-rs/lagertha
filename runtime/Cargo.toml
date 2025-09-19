@@ -14,3 +14,7 @@ tracing-log = { workspace = true }
 
 class_file = { path = "../class_file" }
 common = { path = "../common" }
+
+# TODO to be deleted
+toml = "0.8"
+serde = { version = "1.0", features = ["derive"] }

@@ -364,6 +364,15 @@ mod tests {
             .unwrap();
         let javap_display = javap[4..javap.len() - 1].to_vec();
 
+        assert_eq!(
+            my_display.len(),
+            javap.len(),
+            "Line count mismatch for output {:?}: my display has {} lines, javap has {} lines",
+            path,
+            my_display.len(),
+            javap.len()
+        );
+
         // When && Then
         for (i, (my, javap)) in my_display.iter().zip(javap_display.iter()).enumerate() {
             let my_line_normalized: String = my.chars().filter(|c| !c.is_whitespace()).collect();

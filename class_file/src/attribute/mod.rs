@@ -159,7 +159,7 @@ impl<'a> SharedAttribute {
                     Ok(())
                 })?
             }
-            SharedAttribute::RuntimeInvisibleAnnotations => unimplemented!(),
+            SharedAttribute::RuntimeInvisibleAnnotations(_) => unimplemented!(),
             SharedAttribute::RuntimeVisibleTypeAnnotations => unimplemented!(),
             SharedAttribute::RuntimeInvisibleTypeAnnotations => unimplemented!(),
         }
