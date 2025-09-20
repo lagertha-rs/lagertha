@@ -7,7 +7,7 @@ use common::utils::cursor::ByteCursor;
 pub enum ClassAttribute {
     Shared(SharedAttribute),
     SourceFile(u16),
-    InnerClasses,
+    InnerClasses(Vec<InnerClassEntry>),
     EnclosingMethod(u16, u16),
     SourceDebugExtension,
     BootstrapMethods(Vec<BootstrapMethodEntry>),
@@ -98,7 +98,7 @@ impl<'a> ClassAttribute {
                         cursor.u16()?,
                     ));
                 }
-                Ok(ClassAttribute::InnerClasses)
+                Ok(ClassAttribute::InnerClasses(classes))
             }
             AttributeType::NestMembers => {
                 let number_of_classes = cursor.u16()? as usize;
@@ -123,5 +123,132 @@ impl<'a> ClassAttribute {
             )?)),
             other => unimplemented!("Class attribute {:?} not implemented", other),
         }
+    }
+
+    #[cfg(feature = "pretty_print")]
+    pub(crate) fn fmt_pretty(
+        &self,
+        ind: &mut common::utils::indent_write::Indented<'_>,
+        cp: &ConstantPool,
+    ) -> std::fmt::Result {
+        use crate::flags::InnerClassFlags;
+        use common::pretty_try;
+        use std::fmt::Write as _;
+
+        match self {
+            ClassAttribute::Shared(shared) => shared.fmt_pretty(ind, cp)?,
+            ClassAttribute::SourceFile(idx) => {
+                writeln!(
+                    ind,
+                    "SourceFile: \"{}\"",
+                    pretty_try!(ind, cp.get_utf8(idx))
+                )?;
+            }
+            ClassAttribute::InnerClasses(inner) => {
+                writeln!(ind, "InnerClasses:")?;
+                ind.with_indent(|ind| {
+                    for entry in inner {
+                        let inner_class =
+                            pretty_try!(ind, cp.get_raw(&entry.inner_class_info_index));
+                        // Anonymous class
+                        if entry.outer_class_info_index == 0 && entry.inner_name_index == 0 {
+                            writeln!(
+                                ind,
+                                "#{:<42} // {}",
+                                format!("{};", entry.inner_class_info_index),
+                                pretty_try!(ind, inner_class.get_pretty_value(cp, &0)),
+                            )?;
+                        } else {
+                            let inner_access_flags =
+                                InnerClassFlags::new(entry.inner_class_access_flags);
+                            let outer_class =
+                                pretty_try!(ind, cp.get_raw(&entry.outer_class_info_index));
+                            writeln!(
+                                ind,
+                                "{:<43} // {}={} of {}",
+                                format!(
+                                    "{} #{}= #{} of #{};",
+                                    inner_access_flags.pretty_java_like_prefix(),
+                                    entry.inner_name_index,
+                                    entry.inner_class_info_index,
+                                    entry.outer_class_info_index
+                                ),
+                                pretty_try!(ind, cp.get_utf8(&entry.inner_name_index)),
+                                pretty_try!(ind, inner_class.get_pretty_value(cp, &0)),
+                                pretty_try!(ind, outer_class.get_pretty_value(cp, &0))
+                            )?;
+                        }
+                    }
+                    Ok(())
+                })?;
+            }
+            ClassAttribute::EnclosingMethod(class_idx, method_idx) => {
+                writeln!(
+                    ind,
+                    "{:<24} // {}.{}",
+                    format!("EnclosingMethod: #{}.#{}", class_idx, method_idx),
+                    pretty_try!(ind, cp.get_pretty_class_name(class_idx)),
+                    pretty_try!(ind, cp.get_method_or_field_name_by_nat_idx(method_idx)),
+                )?;
+            }
+            ClassAttribute::SourceDebugExtension => unimplemented!(),
+            ClassAttribute::BootstrapMethods(bootstrap_methods) => {
+                writeln!(ind, "BootstrapMethods:")?;
+                ind.with_indent(|ind| {
+                    for (i, method) in bootstrap_methods.iter().enumerate() {
+                        let method_handle =
+                            pretty_try!(ind, cp.get_raw(&method.bootstrap_method_ref));
+                        writeln!(
+                            ind,
+                            "{}: #{} {}",
+                            i,
+                            method.bootstrap_method_ref,
+                            pretty_try!(ind, method_handle.get_pretty_value(cp, &0))
+                        )?;
+                        ind.with_indent(|ind| {
+                            writeln!(ind, "Method arguments:")?;
+                            ind.with_indent(|ind| {
+                                for arg in &method.bootstrap_arguments {
+                                    let argument = pretty_try!(ind, cp.get_raw(arg));
+                                    writeln!(
+                                        ind,
+                                        "#{} {}",
+                                        arg,
+                                        pretty_try!(ind, argument.get_pretty_value(cp, &0))
+                                    )?;
+                                }
+                                Ok(())
+                            })?;
+                            Ok(())
+                        })?;
+                    }
+                    Ok(())
+                })?;
+            }
+            ClassAttribute::Module => unimplemented!(),
+            ClassAttribute::ModulePackages => unimplemented!(),
+            ClassAttribute::ModuleMainClass => unimplemented!(),
+            ClassAttribute::NestHost(idx) => {
+                let constant = pretty_try!(ind, cp.get_raw(idx));
+                writeln!(
+                    ind,
+                    "NestHost: {}",
+                    pretty_try!(ind, constant.get_pretty_value(cp, &0))
+                )?;
+            }
+            ClassAttribute::NestMembers(members) => {
+                writeln!(ind, "NestMembers:")?;
+                ind.with_indent(|ind| {
+                    for member in members {
+                        writeln!(ind, "{}", pretty_try!(ind, cp.get_class_name(member)))?;
+                    }
+                    Ok(())
+                })?;
+            }
+            ClassAttribute::Record => unimplemented!(),
+            ClassAttribute::PermittedSubclasses => unimplemented!(),
+        }
+
+        Ok(())
     }
 }

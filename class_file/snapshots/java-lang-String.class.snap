@@ -11153,3 +11153,36 @@ Constant pool:
         line 239: 4
         line 2140: 11
 }
+Signature: #1432                       // Ljava/lang/Object;Ljava/io/Serializable;Ljava/lang/Comparable<Ljava/lang/String;>;Ljava/lang/CharSequence;Ljava/lang/constant/Constable;Ljava/lang/constant/ConstantDesc;
+SourceFile: "String.java"
+NestMembers:
+  java/lang/String$CaseInsensitiveComparator
+BootstrapMethods:
+  0: #1451 REF_invokeStatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;
+    Method arguments:
+      #1437 (Ljava/lang/Object;)Ljava/lang/Object;
+      #1438 REF_invokeStatic java/lang/String.lambda$indent$0:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+      #1441 (Ljava/lang/String;)Ljava/lang/String;
+  1: #1451 REF_invokeStatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;
+    Method arguments:
+      #1437 (Ljava/lang/Object;)Ljava/lang/Object;
+      #1442 REF_invokeStatic java/lang/String.lambda$indent$1:(Ljava/lang/String;)Ljava/lang/String;
+      #1441 (Ljava/lang/String;)Ljava/lang/String;
+  2: #1451 REF_invokeStatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;
+    Method arguments:
+      #1437 (Ljava/lang/Object;)Ljava/lang/Object;
+      #1445 REF_invokeStatic java/lang/String.lambda$indent$2:(ILjava/lang/String;)Ljava/lang/String;
+      #1441 (Ljava/lang/String;)Ljava/lang/String;
+  3: #1451 REF_invokeStatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;
+    Method arguments:
+      #1437 (Ljava/lang/Object;)Ljava/lang/Object;
+      #1448 REF_invokeStatic java/lang/String.lambda$stripIndent$0:(ILjava/lang/String;)Ljava/lang/String;
+      #1441 (Ljava/lang/String;)Ljava/lang/String;
+InnerClasses:
+  public static #1461= #1459 of #546;         // OfByte=class java/lang/foreign/ValueLayout$OfByte of class java/lang/foreign/ValueLayout
+  static #1462= #990 of #107;                 // CharsSpliterator=class java/lang/StringLatin1$CharsSpliterator of class java/lang/StringLatin1
+  static #1462= #996 of #42;                  // CharsSpliterator=class java/lang/StringUTF16$CharsSpliterator of class java/lang/StringUTF16
+  public static #1463= #1381 of #992;         // OfInt=class java/util/Spliterator$OfInt of class java/util/Spliterator
+  static #1464= #1005 of #42;                 // CodePointsSpliterator=class java/lang/StringUTF16$CodePointsSpliterator of class java/lang/StringUTF16
+  public static final #1469= #1465 of #1467;  // Lookup=class java/lang/invoke/MethodHandles$Lookup of class java/lang/invoke/MethodHandles
+  private static #1470= #1115 of #10;         // CaseInsensitiveComparator=class java/lang/String$CaseInsensitiveComparator of class java/lang/String

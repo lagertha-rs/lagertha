@@ -2794,3 +2794,6 @@ Constant pool:
       Name                             Flags
       <no name>                        synthetic 
 }
+SourceFile: "PrintStream.java"
+InnerClasses:
+  public static final #353= #235 of #241;     // Category=class java/util/Locale$Category of class java/util/Locale

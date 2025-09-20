@@ -90,14 +90,67 @@ impl<'a> SharedAttribute {
     }
 
     #[cfg(feature = "pretty_print")]
+    fn fmt_annotations(
+        ind: &mut common::utils::indent_write::Indented<'_>,
+        cp: &crate::constant::pool::ConstantPool,
+        annotations: &[Annotation],
+    ) -> fmt::Result {
+        use common::pretty_class_name_try;
+        use common::pretty_try;
+        use itertools::Itertools;
+        use std::fmt::Write as _;
+
+        for (i, annotation) in annotations.iter().enumerate() {
+            writeln!(
+                ind,
+                "{i}: #{}({})",
+                annotation.type_index,
+                annotation
+                    .element_value_pairs
+                    .iter()
+                    .map(|pair| format!(
+                        "#{}={}",
+                        pair.element_name_index,
+                        pair.value.get_pretty_descriptor()
+                    ))
+                    .join(",")
+            )?;
+            ind.with_indent(|ind| {
+                write!(
+                    ind,
+                    "{}",
+                    pretty_class_name_try!(ind, cp.get_utf8(&annotation.type_index))
+                )?;
+                if !annotation.element_value_pairs.is_empty() {
+                    writeln!(ind, "(")?;
+                    for param in &annotation.element_value_pairs {
+                        ind.with_indent(|ind| {
+                            writeln!(
+                                ind,
+                                "{}={}",
+                                pretty_try!(ind, cp.get_utf8(&param.element_name_index)),
+                                pretty_try!(ind, param.value.get_pretty_value(cp))
+                            )?;
+                            Ok(())
+                        })?;
+                    }
+                    writeln!(ind, ")")?;
+                } else {
+                    writeln!(ind)?;
+                }
+                Ok(())
+            })?;
+        }
+        Ok(())
+    }
+
+    #[cfg(feature = "pretty_print")]
     pub(crate) fn fmt_pretty(
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &crate::constant::pool::ConstantPool,
     ) -> fmt::Result {
-        use common::pretty_class_name_try;
         use common::pretty_try;
-        use itertools::Itertools;
         use std::fmt::Write as _;
 
         match self {
@@ -111,55 +164,12 @@ impl<'a> SharedAttribute {
             )?,
             SharedAttribute::RuntimeVisibleAnnotations(annotations) => {
                 writeln!(ind, "RuntimeVisibleAnnotations:")?;
-                ind.with_indent(|ind| {
-                    for (i, annotation) in annotations.iter().enumerate() {
-                        writeln!(
-                            ind,
-                            "{i}: #{}({})",
-                            annotation.type_index,
-                            annotation
-                                .element_value_pairs
-                                .iter()
-                                .map(|pair| format!(
-                                    "#{}={}",
-                                    pair.element_name_index,
-                                    pair.value.get_pretty_descriptor()
-                                ))
-                                .join(",")
-                        )?;
-                        ind.with_indent(|ind| {
-                            write!(
-                                ind,
-                                "{}",
-                                pretty_class_name_try!(ind, cp.get_utf8(&annotation.type_index))
-                            )?;
-                            if !annotation.element_value_pairs.is_empty() {
-                                writeln!(ind, "(")?;
-                                for param in &annotation.element_value_pairs {
-                                    ind.with_indent(|ind| {
-                                        writeln!(
-                                            ind,
-                                            "{}={}",
-                                            pretty_try!(
-                                                ind,
-                                                cp.get_utf8(&param.element_name_index)
-                                            ),
-                                            pretty_try!(ind, param.value.get_pretty_value(cp))
-                                        )?;
-                                        Ok(())
-                                    })?;
-                                }
-                                writeln!(ind, ")")?;
-                            } else {
-                                writeln!(ind)?;
-                            }
-                            Ok(())
-                        })?;
-                    }
-                    Ok(())
-                })?
+                ind.with_indent(|ind| Self::fmt_annotations(ind, cp, annotations))?
             }
-            SharedAttribute::RuntimeInvisibleAnnotations(_) => unimplemented!(),
+            SharedAttribute::RuntimeInvisibleAnnotations(annotations) => {
+                writeln!(ind, "RuntimeInvisibleAnnotations:")?;
+                ind.with_indent(|ind| Self::fmt_annotations(ind, cp, annotations))?
+            }
             SharedAttribute::RuntimeVisibleTypeAnnotations => unimplemented!(),
             SharedAttribute::RuntimeInvisibleTypeAnnotations => unimplemented!(),
         }

@@ -388,6 +388,18 @@ impl<'a> ConstantInfo {
                     cp.get_dyn_info_descriptor(dyn_info)?
                 )
             }
+            ConstantInfo::MethodHandle(handle_info) => {
+                let handle_kind = handle_info.get_kind()?;
+                let method_ref = cp.get_methodref(&handle_info.reference_index)?;
+                format!(
+                    "{} {}.{}:{}",
+                    handle_kind.get_pretty_value()?,
+                    cp.get_method_or_field_class_name(method_ref)?,
+                    cp.get_method_or_field_name(method_ref)?,
+                    cp.get_method_or_field_descriptor(method_ref)?,
+                )
+            }
+            ConstantInfo::MethodType(idx) => cp.get_utf8(idx)?.to_string(),
             ConstantInfo::Dynamic(_) => "Dynamic (details omitted)".to_owned(),
             e => todo!("Pretty print not implemented for {e:?}"),
         })

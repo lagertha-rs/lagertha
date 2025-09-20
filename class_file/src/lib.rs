@@ -286,6 +286,9 @@ impl std::fmt::Display for ClassFile {
             })?;
             writeln!(ind, "}}")?;
         }
+        for attribute in &self.attributes {
+            attribute.fmt_pretty(&mut ind, &self.cp)?;
+        }
         Ok(())
     }
 }
@@ -362,15 +365,15 @@ mod tests {
             .lines()
             .collect::<Result<Vec<_>, _>>()
             .unwrap();
-        let javap_display = javap[4..javap.len() - 1].to_vec();
+        let javap_display = javap[4..javap.len()].to_vec();
 
         assert_eq!(
             my_display.len(),
-            javap.len(),
+            javap_display.len(),
             "Line count mismatch for output {:?}: my display has {} lines, javap has {} lines",
             path,
             my_display.len(),
-            javap.len()
+            javap_display.len()
         );
 
         // When && Then
@@ -381,9 +384,11 @@ mod tests {
             assert_eq!(
                 my_line_normalized,
                 javap_line_normalized,
-                "Mismatch at line {} of file {:?}",
+                "Mismatch at line {} of file {:?}. My line: {:?}, javap line: {:?}",
                 i + 1,
                 path,
+                my,
+                javap
             );
         }
     }

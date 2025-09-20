@@ -99,6 +99,7 @@ impl ConstantPool {
             .ok_or(ClassFormatErr::ConstantNotFound(*idx))
             .and_then(|entry| match entry {
                 ConstantInfo::MethodRef(ref_info) => Ok(ref_info),
+                ConstantInfo::InterfaceMethodRef(ref_info) => Ok(ref_info),
                 e => Err(ClassFormatErr::TypeError(
                     *idx,
                     ConstantTag::MethodRef,
@@ -167,6 +168,14 @@ impl ConstantPool {
     ) -> Result<&str, ClassFormatErr> {
         let nat_index = method_ref.name_and_type_index;
         let nat = self.get_name_and_type(&nat_index)?;
+        self.get_nat_name(nat)
+    }
+
+    pub fn get_method_or_field_name_by_nat_idx(
+        &self,
+        nat_index: &u16,
+    ) -> Result<&str, ClassFormatErr> {
+        let nat = self.get_name_and_type(nat_index)?;
         self.get_nat_name(nat)
     }
 

@@ -1891,3 +1891,19 @@ Constant pool:
         line 159: 7
         line 177: 11
 }
+SourceFile: "System.java"
+NestMembers:
+  java/lang/System$Out
+  java/lang/System$In
+  java/lang/System$LoggerFinder
+  java/lang/System$Logger
+  java/lang/System$Logger$Level
+  java/lang/System$1
+InnerClasses:
+  public static #585= #580 of #8;             // Logger=class java/lang/System$Logger of class java/lang/System
+  public static abstract #586= #151 of #8;    // LoggerFinder=class java/lang/System$LoggerFinder of class java/lang/System
+  public static #587= #297 of #272;           // Entry=class java/util/Map$Entry of class java/util/Map
+  private static #588= #352 of #8;            // In=class java/lang/System$In of class java/lang/System
+  private static #589= #363 of #8;            // Out=class java/lang/System$Out of class java/lang/System
+  #465;                                       // class java/lang/System$1
+  public static final #590= #582 of #580;     // Level=class java/lang/System$Logger$Level of class java/lang/System$Logger

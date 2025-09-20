@@ -5,6 +5,11 @@
 #[derive(Debug, Clone, Copy)]
 pub struct ClassFlags(u16);
 
+/// https://docs.oracle.com/javase/specs/jvms/se23/html/jvms-4.html#jvms-4.7.6-300-D.1-D.1
+/// Table 4.7.6-A. Nested class access and property flags
+#[derive(Debug, Clone, Copy)]
+pub struct InnerClassFlags(u16);
+
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.6-200-A.1
 /// Table 4.6-A. Method access and property flags
 #[derive(Debug, Clone, Copy)]
@@ -54,6 +59,56 @@ impl ClassFlags {
 
     pub fn is_module(&self) -> bool {
         self.0 & 0x8000 != 0
+    }
+
+    pub fn get_raw(&self) -> &u16 {
+        &self.0
+    }
+}
+
+impl InnerClassFlags {
+    pub fn new(value: u16) -> Self {
+        Self(value)
+    }
+
+    pub fn is_public(&self) -> bool {
+        self.0 & 0x0001 != 0
+    }
+
+    pub fn is_private(&self) -> bool {
+        self.0 & 0x0002 != 0
+    }
+
+    pub fn is_protected(&self) -> bool {
+        self.0 & 0x0004 != 0
+    }
+
+    pub fn is_static(&self) -> bool {
+        self.0 & 0x0008 != 0
+    }
+
+    pub fn is_final(&self) -> bool {
+        self.0 & 0x0010 != 0
+    }
+
+    pub fn is_interface(&self) -> bool {
+        self.0 & 0x0200 != 0
+    }
+
+    pub fn is_abstract(&self) -> bool {
+        self.0 & 0x0400 != 0
+    }
+
+    pub fn is_synthetic(&self) -> bool {
+        self.0 & 0x1000 != 0
+    }
+
+    pub fn is_annotation(&self) -> bool {
+        self.0 & 0x2000 != 0
+    }
+
+    pub fn is_enum(&self) -> bool {
+        self.0 & 0x4000 != 0
     }
 
     pub fn get_raw(&self) -> &u16 {
@@ -162,6 +217,40 @@ impl FieldFlags {
 
     pub fn get_raw(&self) -> &u16 {
         &self.0
+    }
+}
+
+#[cfg(feature = "pretty_print")]
+impl InnerClassFlags {
+    ///  prints java like class prefix: "public abstract class", "public interface"...
+    pub fn pretty_java_like_prefix(&self) -> String {
+        let mut flags = vec![];
+
+        if self.is_public() {
+            flags.push("public");
+        }
+
+        if self.is_private() {
+            flags.push("private");
+        }
+
+        if self.is_protected() {
+            flags.push("protected");
+        }
+
+        if self.is_static() {
+            flags.push("static");
+        }
+
+        let is_iface_like = self.is_interface() || self.is_annotation();
+        if self.is_abstract() && !is_iface_like {
+            flags.push("abstract");
+        }
+        if self.is_final() && !is_iface_like {
+            flags.push("final");
+        }
+
+        flags.join(" ")
     }
 }
 
@@ -384,9 +473,6 @@ impl FieldFlags {
         }
         if self.is_enum() {
             write!(ind, "enum ")?;
-        }
-        if self.is_synthetic() {
-            write!(ind, "synthetic ")?;
         }
 
         Ok(())

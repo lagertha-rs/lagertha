@@ -193,3 +193,8 @@ Constant pool:
     Exceptions:
       throws java.io.IOException
 }
+SourceFile: "OutputStream.java"
+NestMembers:
+  java/io/OutputStream$1
+InnerClasses:
+  #7;                                         // class java/io/OutputStream$1
