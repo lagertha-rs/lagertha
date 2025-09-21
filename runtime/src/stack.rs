@@ -3,7 +3,7 @@ use crate::{JvmError, VmConfig};
 use common::jtype::Value;
 use std::sync::Arc;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[cfg_attr(test, derive(serde::Serialize))]
 pub struct FrameStack {
     max_size: usize,
@@ -90,7 +90,7 @@ impl FrameStack {
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.6
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[cfg_attr(test, derive(serde::Serialize))]
 pub struct Frame {
     locals: Vec<Option<Value>>,

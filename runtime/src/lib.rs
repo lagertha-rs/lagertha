@@ -111,12 +111,34 @@ pub fn start(main_class: Vec<u8>, config: VmConfig) -> Result<(), JvmError> {
 
 #[cfg(test)]
 mod tests {
-    use crate::interpreter::Interpreter;
-    use class_file::ClassFile;
+    use super::*;
     use insta::with_settings;
     use rstest::rstest;
     use std::fs;
     use std::path::PathBuf;
+
+    fn vm_config() -> VmConfig {
+        let java_home = std::env::var("JAVA_HOME").expect("JAVA_HOME must be set for tests");
+
+        VmConfig {
+            home: java_home,
+            version: "24.0.2".to_string(),
+            class_path: vec![],
+            initial_heap_size: 16 * 1024 * 1024,
+            max_heap_size: 64 * 1024 * 1024,
+            frame_stack_size: 256,
+            operand_stack_size: 256,
+        }
+    }
+
+    fn main_base_package_dir(path: &PathBuf) -> String {
+        let mut dir = path.parent().expect("file should have a parent dir");
+
+        dir = dir.parent().expect("should have parent dir");
+        dir = dir.parent().expect("should have parent dir");
+
+        dir.to_string_lossy().to_string()
+    }
 
     #[rstest]
     #[trace]
@@ -128,18 +150,25 @@ mod tests {
     ) {
         // Given
         let bytes = fs::read(&path).unwrap_or_else(|_| panic!("Can't read file {:?}", path));
+        let mut base_config = vm_config();
+        base_config.class_path.push(main_base_package_dir(&path));
+        let vm_config = Arc::new(base_config);
+        let method_area = MethodArea::new(vm_config.clone()).expect("Failed to create MethodArea");
+        let mut interpreter = Interpreter::new(&vm_config, method_area);
 
         // When
-        let display = format!("{}", ClassFile::try_from(bytes).unwrap());
+        interpreter
+            .start(bytes)
+            .unwrap_or_else(|e| panic!("Interpreter failed for {:?} with error: {:?}", path, e));
 
         // Then
         with_settings!(
             {
-                snapshot_path => DISPLAY_SNAPSHOT_PATH,
+                //snapshot_path => DISPLAY_SNAPSHOT_PATH,
                 prepend_module_to_snapshot => false,
             },
             {
-                insta::assert_snapshot!(to_snapshot_name(&path), display);
+                insta::assert_yaml_snapshot!("some_name", &interpreter);
             }
         );
     }

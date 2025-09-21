@@ -18,6 +18,8 @@ use tracing_log::log::debug;
 pub struct Interpreter {
     #[cfg_attr(test, serde(skip_serializing))]
     method_area: MethodArea,
+    #[cfg(test)]
+    frame_stack_history: FrameStack,
     frame_stack: FrameStack,
     #[cfg_attr(test, serde(skip_serializing))]
     native_stack: (),
@@ -34,6 +36,8 @@ impl Interpreter {
         let heap = Heap::new();
         let string_pool = StringPool::new();
         Self {
+            #[cfg(test)]
+            frame_stack_history: thread_stack.clone(),
             method_area,
             frame_stack: thread_stack,
             native_stack: (),
@@ -41,6 +45,13 @@ impl Interpreter {
             heap,
             string_pool,
         }
+    }
+
+    fn pop_frame(&mut self) -> Result<(), JvmError> {
+        let _frame = self.frame_stack.pop_frame()?;
+        #[cfg(test)]
+        self.frame_stack_history.push_frame(_frame)?;
+        Ok(())
     }
 
     fn ensure_initialized(&mut self, class: Option<&Arc<Class>>) -> Result<(), JvmError> {
@@ -102,6 +113,10 @@ impl Interpreter {
             }
             Instruction::Iconst1 => {
                 self.frame_stack.cur_frame_push_operand(Value::Integer(1))?;
+            }
+            Instruction::Istore1 => {
+                let value = self.frame_stack.cur_frame_pop_operand()?;
+                self.frame_stack.cur_frame_set_local(1, value)?;
             }
             Instruction::Istore2 => {
                 let value = self.frame_stack.cur_frame_pop_operand()?;
@@ -292,12 +307,12 @@ impl Interpreter {
             }
             Instruction::Ireturn => {
                 let value = self.frame_stack.cur_frame_pop_operand()?;
-                self.frame_stack.pop_frame()?;
+                self.pop_frame()?;
                 self.frame_stack.cur_frame_push_operand(value)?;
                 return Ok(true);
             }
             Instruction::Return => {
-                self.frame_stack.pop_frame()?;
+                self.pop_frame()?;
                 return Ok(true);
             }
             unimp => unimplemented!("Instruction {:?} not implemented", unimp),
@@ -419,7 +434,7 @@ impl Interpreter {
 
         //TODO: delete, since I don't have return in main and tests for it
         // just to be sure that stack is empty
-        assert!(self.frame_stack.pop_frame().is_err());
+        assert!(self.pop_frame().is_err());
 
         Ok(())
     }
