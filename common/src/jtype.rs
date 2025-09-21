@@ -45,7 +45,9 @@ pub enum Type {
 pub type HeapAddr = usize;
 
 //TODO: draft. refactor
-#[derive(Debug, Clone, PartialEq)]
+//TODO: serializes right now only for runtime crate tests, but can't move it to dev deps
+//TODO: the whole common crate should be rethought
+#[derive(Debug, Clone, PartialEq, serde::Serialize)]
 pub enum Value {
     Integer(i32),
     Long(i64),

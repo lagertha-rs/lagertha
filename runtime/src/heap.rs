@@ -2,12 +2,12 @@
 
 use crate::JvmError;
 use crate::rt::class::class::Class;
-use crate::rt::class::field::Field;
 use crate::rt::constant_pool::reference::NameAndTypeReference;
 use common::jtype::{HeapAddr, Value};
 use std::sync::Arc;
 use tracing_log::log::debug;
 
+#[cfg_attr(test, derive(serde::Serialize))]
 pub enum HeapObject {
     Instance(ClassInstance),
     String(String),
@@ -29,7 +29,23 @@ impl ClassInstance {
     }
 }
 
+#[cfg(test)]
+impl serde::Serialize for ClassInstance {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+
+        let mut state = serializer.serialize_struct("ClassInstance", 2)?;
+        state.serialize_field("class", &self.class.name().unwrap())?;
+        state.serialize_field("fields", &self.fields)?;
+        state.end()
+    }
+}
+
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.5.3
+#[cfg_attr(test, derive(serde::Serialize))]
 pub struct Heap {
     objects: Vec<HeapObject>,
 }

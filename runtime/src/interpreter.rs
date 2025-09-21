@@ -14,17 +14,21 @@ use common::jtype::Value;
 use std::sync::Arc;
 use tracing_log::log::debug;
 
+#[cfg_attr(test, derive(serde::Serialize))]
 pub struct Interpreter {
-    method_area: Arc<MethodArea>,
+    #[cfg_attr(test, serde(skip_serializing))]
+    method_area: MethodArea,
     frame_stack: FrameStack,
+    #[cfg_attr(test, serde(skip_serializing))]
     native_stack: (),
+    #[cfg_attr(test, serde(skip_serializing))]
     jni_env: JNIEnv,
     heap: Heap,
     string_pool: StringPool,
 }
 
 impl Interpreter {
-    pub fn new(vm_config: &VmConfig, method_area: Arc<MethodArea>) -> Self {
+    pub fn new(vm_config: &VmConfig, method_area: MethodArea) -> Self {
         let thread_stack = FrameStack::new(vm_config);
         let jni_env = JNIEnv::new();
         let heap = Heap::new();

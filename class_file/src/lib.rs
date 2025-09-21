@@ -271,9 +271,12 @@ impl std::fmt::Display for ClassFile {
             ind.with_indent(|ind| {
                 for (i, field) in self.fields.iter().enumerate() {
                     field.fmt_pretty(ind, &self.cp)?;
-                    if i + 1 < self.methods.len() {
+                    if i + 1 < self.fields.len() {
                         writeln!(ind)?;
                     }
+                }
+                if !self.fields.is_empty() {
+                    writeln!(ind)?;
                 }
 
                 for (i, method) in self.methods.iter().enumerate() {
@@ -319,7 +322,7 @@ mod tests {
     #[trace]
     // Requires `testdata/compile-fixtures.sh` to be run to generate the .class files
     fn test_display(
-        #[base_dir = "../target/test-classes"]
+        #[base_dir = "../target/test-classes/"]
         #[files("**/*.class")]
         path: PathBuf,
     ) {

@@ -13,6 +13,9 @@ DEFAULT_OUT_DIR = "target/test-classes"
 DEFAULT_CONFIG = "testdata/fixtures.toml"
 SRC_ROOT = Path("testdata/java")
 
+SUBDIR_USER = "custom"
+SUBDIR_JDK = "jdk"
+
 
 def eprint(*a, **k):
     print(*a, file=sys.stderr, **k)
@@ -139,21 +142,25 @@ def extract_fixtures(config_path: Path, out_dir: Path, java_home: str | None):
 def main():
     ap = argparse.ArgumentParser(description="Prepare Java fixtures: compile sources and extract JDK classes.")
     ap.add_argument("--expected-javac", default=DEFAULT_EXPECTED, help="Exact `javac --version` to require")
-    ap.add_argument("--out-dir", default=DEFAULT_OUT_DIR, help="Output directory for class files")
+    ap.add_argument("--out-dir", default=DEFAULT_OUT_DIR, help="Root output directory for class files")
     ap.add_argument("--config", default=DEFAULT_CONFIG, help="TOML config with modules/classes to extract")
     ap.add_argument("--java-home", default=None, help="JAVA_HOME override (defaults to env)")
     args = ap.parse_args()
 
     check_javac_version(args.expected_javac)
 
-    out_dir = Path(args.out_dir)
+    out_root = Path(args.out_dir)
+    out_custom = out_root / SUBDIR_USER
+    out_jdk = out_root / SUBDIR_JDK
 
     sources = find_java_sources(SRC_ROOT)
-    compile_sources(sources, out_dir)
+    compile_sources(sources, out_custom)
 
-    extract_fixtures(Path(args.config), out_dir, args.java_home)
+    extract_fixtures(Path(args.config), out_jdk, args.java_home)
 
-    print(f"Fixtures ready in: {out_dir}")
+    print(f"Fixtures ready in: {out_root}")
+    print(f"  user classes: {out_custom}")
+    print(f"  jdk  classes: {out_jdk}")
 
 
 if __name__ == "__main__":

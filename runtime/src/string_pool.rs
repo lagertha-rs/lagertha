@@ -27,3 +27,15 @@ impl StringPool {
         self.pool.contains_key(s)
     }
 }
+
+#[cfg(test)]
+impl serde::Serialize for StringPool {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut values = self.pool.keys().collect::<Vec<_>>();
+        values.sort_unstable();
+        values.serialize(serializer)
+    }
+}

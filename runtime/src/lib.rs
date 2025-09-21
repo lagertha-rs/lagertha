@@ -103,8 +103,44 @@ pub fn start(main_class: Vec<u8>, config: VmConfig) -> Result<(), JvmError> {
     config.validate();
 
     let vm_config = Arc::new(config);
-    let method_area = Arc::new(MethodArea::new(vm_config.clone())?);
+    let method_area = MethodArea::new(vm_config.clone())?;
 
     let mut interpreter = Interpreter::new(&vm_config, method_area);
     interpreter.start(main_class)
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::interpreter::Interpreter;
+    use class_file::ClassFile;
+    use insta::with_settings;
+    use rstest::rstest;
+    use std::fs;
+    use std::path::PathBuf;
+
+    #[rstest]
+    #[trace]
+    // Requires `testdata/compile-fixtures.sh` to be run to generate the .class files
+    fn test_display(
+        #[base_dir = "../target/test-classes/custom"]
+        #[files("**/*Main.class")]
+        path: PathBuf,
+    ) {
+        // Given
+        let bytes = fs::read(&path).unwrap_or_else(|_| panic!("Can't read file {:?}", path));
+
+        // When
+        let display = format!("{}", ClassFile::try_from(bytes).unwrap());
+
+        // Then
+        with_settings!(
+            {
+                snapshot_path => DISPLAY_SNAPSHOT_PATH,
+                prepend_module_to_snapshot => false,
+            },
+            {
+                insta::assert_snapshot!(to_snapshot_name(&path), display);
+            }
+        );
+    }
 }

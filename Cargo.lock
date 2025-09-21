@@ -221,6 +221,7 @@ name = "common"
 version = "0.1.0"
 dependencies = [
  "num_enum",
+ "serde",
  "thiserror",
  "tracing-subscriber",
 ]
@@ -828,8 +829,10 @@ dependencies = [
  "class_file",
  "common",
  "dashmap",
+ "insta",
  "once_cell",
  "parking_lot",
+ "rstest",
  "serde",
  "thiserror",
  "toml",
