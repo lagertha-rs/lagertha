@@ -1,0 +1,22 @@
+---
+source: runtime/src/lib.rs
+expression: "&interpreter"
+---
+frame_stack:
+  max_size: 256
+  max_operand_stack_size: 256
+  frames: []
+heap:
+  objects:
+    - Instance:
+        class: inheritance/constructor_chain/ConstructorChainMain$Child
+        fields:
+          - Integer: 42
+string_pool: []
+last_pop_frame:
+  locals:
+    - ~
+    - Object: 0
+    - Integer: 42
+  operands: []
+  pc: 16

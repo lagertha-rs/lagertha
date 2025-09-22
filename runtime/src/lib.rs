@@ -115,7 +115,20 @@ mod tests {
     use insta::with_settings;
     use rstest::rstest;
     use std::fs;
-    use std::path::PathBuf;
+    use std::path::{Path, PathBuf};
+
+    const DISPLAY_SNAPSHOT_PATH: &str = "../snapshots";
+
+    fn to_snapshot_name(path: &Path) -> String {
+        let mut iter = path.iter().map(|s| s.to_string_lossy().to_string());
+        for seg in iter.by_ref() {
+            if seg == "test-classes" {
+                break;
+            }
+        }
+        let tail: Vec<String> = iter.collect();
+        tail.join("-")
+    }
 
     fn vm_config() -> VmConfig {
         let java_home = std::env::var("JAVA_HOME").expect("JAVA_HOME must be set for tests");
@@ -164,11 +177,11 @@ mod tests {
         // Then
         with_settings!(
             {
-                //snapshot_path => DISPLAY_SNAPSHOT_PATH,
+                snapshot_path => DISPLAY_SNAPSHOT_PATH,
                 prepend_module_to_snapshot => false,
             },
             {
-                insta::assert_yaml_snapshot!("some_name", &interpreter);
+                insta::assert_yaml_snapshot!(to_snapshot_name(&path), &interpreter);
             }
         );
     }

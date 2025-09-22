@@ -13,6 +13,7 @@ use common::jtype::Value;
 use parking_lot::RwLock;
 use std::cmp::PartialEq;
 use std::collections::HashMap;
+use std::ops::ControlFlow;
 use std::sync::Arc;
 
 type NatHashMap<T> = HashMap<Arc<str>, HashMap<Arc<str>, T>>;
@@ -34,10 +35,8 @@ pub struct Class {
     fields: Vec<Field>,
     field_idx: NatHashMap<usize>,
     static_fields: NatHashMap<StaticField>,
-    // TODO: probably use hashmap for methods with method name+descriptor as key. TBD when execute instructions
     methods: NatHashMap<VirtualMethodType>,
     static_methods: NatHashMap<StaticMethodType>,
-    // TODO: can't be native, but easier to handle it this way for now
     initializer: Option<StaticMethodType>,
     interfaces: Vec<String>,
     attributes: Vec<ClassAttribute>,
@@ -46,7 +45,7 @@ pub struct Class {
 }
 
 impl Class {
-    pub fn new(cf: ClassFile, method_area: &MethodArea) -> Result<Self, JvmError> {
+    pub fn new(cf: ClassFile, method_area: &MethodArea) -> Result<Arc<Self>, JvmError> {
         let cp = Arc::new(RuntimeConstantPool::new(cf.cp.inner));
         let minor_version = cf.minor_version;
         let major_version = cf.major_version;
@@ -137,7 +136,7 @@ impl Class {
             RwLock::new(InitState::Initialized)
         };
 
-        Ok(Class {
+        let class = Arc::new(Class {
             this,
             access,
             super_class,
@@ -153,7 +152,15 @@ impl Class {
             attributes: cf.attributes,
             cp,
             state: initialized,
-        })
+        });
+
+        for (_, method) in class.methods.values().flatten() {
+            if let VirtualMethodType::Java(method) = method {
+                method.set_class(class.clone())?;
+            }
+        }
+
+        Ok(class)
     }
 
     pub fn name(&self) -> Result<&str, JvmError> {
@@ -226,15 +233,34 @@ impl Class {
         Ok(())
     }
 
+    fn get_field_index_recursive(&self, name: &str, descriptor: &str) -> ControlFlow<usize, usize> {
+        if let Some(idx) = self
+            .field_idx
+            .get(name)
+            .and_then(|m| m.get(descriptor))
+            .copied()
+        {
+            return ControlFlow::Break(idx);
+        }
+
+        let fields_count = self.fields.len();
+        match &self.super_class {
+            Some(super_class) => match super_class.get_field_index_recursive(name, descriptor) {
+                ControlFlow::Break(idx) => ControlFlow::Break(idx + fields_count),
+                ControlFlow::Continue(acc) => ControlFlow::Continue(acc + fields_count),
+            },
+            None => ControlFlow::Continue(fields_count),
+        }
+    }
+
     pub fn get_field_index(&self, nat: &NameAndTypeReference) -> Result<usize, JvmError> {
         let name = nat.name()?;
         let descriptor = nat.field_descriptor()?.raw();
 
-        self.field_idx
-            .get(name)
-            .and_then(|m| m.get(descriptor))
-            .copied()
-            .ok_or(JvmError::FieldNotFound(name.to_string()))
+        match self.get_field_index_recursive(name, descriptor) {
+            ControlFlow::Break(idx) => Ok(idx),
+            ControlFlow::Continue(_) => Err(JvmError::FieldNotFound(name.to_string())),
+        }
     }
 
     pub fn get_static_field_value(&self, nat: &NameAndTypeReference) -> Result<Value, JvmError> {
@@ -281,14 +307,27 @@ impl Class {
         self.get_virtual_method(name, descriptor)
     }
 
+    fn get_virtual_method_recursive(
+        &self,
+        name: &str,
+        descriptor: &str,
+    ) -> Option<&VirtualMethodType> {
+        if let Some(m) = self.methods.get(name).and_then(|m| m.get(descriptor)) {
+            return Some(m);
+        }
+
+        match &self.super_class {
+            Some(super_class) => super_class.get_virtual_method_recursive(name, descriptor),
+            None => None,
+        }
+    }
+
     pub fn get_virtual_method(
         &self,
         name: &str,
         descriptor: &str,
     ) -> Result<&VirtualMethodType, JvmError> {
-        self.methods
-            .get(name)
-            .and_then(|m| m.get(descriptor))
+        self.get_virtual_method_recursive(name, descriptor)
             .ok_or(JvmError::NoSuchMethod(format!("{}.{}", name, descriptor)))
     }
 }

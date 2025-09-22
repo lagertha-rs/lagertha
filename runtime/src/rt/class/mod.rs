@@ -37,4 +37,8 @@ pub enum LinkageError {
     Cursor(#[from] CursorError),
     #[error("java.lang.ClassFormatError: {0}")]
     ClassFile(#[from] ClassFormatErr),
+    #[error("DuplicatedClassInMethod")]
+    DuplicatedClassInMethod,
+    #[error("MethodClassIsNotSet")]
+    MethodClassIsNotSet,
 }

@@ -18,8 +18,6 @@ use tracing_log::log::debug;
 pub struct Interpreter {
     #[cfg_attr(test, serde(skip_serializing))]
     method_area: MethodArea,
-    #[cfg(test)]
-    frame_stack_history: FrameStack,
     frame_stack: FrameStack,
     #[cfg_attr(test, serde(skip_serializing))]
     native_stack: (),
@@ -27,6 +25,8 @@ pub struct Interpreter {
     jni_env: JNIEnv,
     heap: Heap,
     string_pool: StringPool,
+    #[cfg(test)]
+    last_pop_frame: Option<Frame>,
 }
 
 impl Interpreter {
@@ -37,7 +37,7 @@ impl Interpreter {
         let string_pool = StringPool::new();
         Self {
             #[cfg(test)]
-            frame_stack_history: thread_stack.clone(),
+            last_pop_frame: None,
             method_area,
             frame_stack: thread_stack,
             native_stack: (),
@@ -50,7 +50,9 @@ impl Interpreter {
     fn pop_frame(&mut self) -> Result<(), JvmError> {
         let _frame = self.frame_stack.pop_frame()?;
         #[cfg(test)]
-        self.frame_stack_history.push_frame(_frame)?;
+        {
+            self.last_pop_frame = Some(_frame);
+        }
         Ok(())
     }
 
@@ -113,6 +115,9 @@ impl Interpreter {
             }
             Instruction::Iconst1 => {
                 self.frame_stack.cur_frame_push_operand(Value::Integer(1))?;
+            }
+            Instruction::Iconst2 => {
+                self.frame_stack.cur_frame_push_operand(Value::Integer(2))?;
             }
             Instruction::Istore1 => {
                 let value = self.frame_stack.cur_frame_pop_operand()?;
@@ -214,14 +219,14 @@ impl Interpreter {
                 let method_ref = cp.get_methodref(idx)?;
                 let class = self.method_area.get_class(method_ref.class()?.name()?)?;
                 let method = class.get_virtual_method_by_nat(method_ref)?;
-                self.run_instance_method_type(&class, method)?;
+                self.run_instance_method_type(method)?;
             }
             Instruction::InvokeVirtual(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
                 let method_ref = cp.get_methodref(idx)?;
                 let class = self.method_area.get_class(method_ref.class()?.name()?)?;
                 let method = class.get_virtual_method_by_nat(method_ref)?;
-                self.run_instance_method_type(&class, method)?;
+                self.run_instance_method_type(method)?;
             }
             Instruction::Aload0 => {
                 let value = self.frame_stack.cur_frame_get_local(0)?.clone();
@@ -320,7 +325,8 @@ impl Interpreter {
         Ok(false)
     }
 
-    fn run_instance_method(&mut self, class: &Arc<Class>, method: &Method) -> Result<(), JvmError> {
+    fn run_instance_method(&mut self, method: &Method) -> Result<(), JvmError> {
+        let class = method.class()?;
         debug!(
             "Running instance method {}{} of class {}",
             method.name(),
@@ -340,13 +346,9 @@ impl Interpreter {
         Ok(())
     }
 
-    fn run_instance_method_type(
-        &mut self,
-        class: &Arc<Class>,
-        method: &VirtualMethodType,
-    ) -> Result<(), JvmError> {
+    fn run_instance_method_type(&mut self, method: &VirtualMethodType) -> Result<(), JvmError> {
         match method {
-            VirtualMethodType::Java(method) => self.run_instance_method(class, method)?,
+            VirtualMethodType::Java(method) => self.run_instance_method(method)?,
             VirtualMethodType::Native(_method) => {
                 unimplemented!("Native instance methods not implemented yet");
             }

@@ -19,6 +19,7 @@ common = { path = "../common" }
 toml = "0.8"
 # TODO to be moved to the test scope
 serde = { version = "1.0", features = ["derive"] }
+log = "0.4.27"
 
 [dev-dependencies]
 insta = { version = "1.42.2", features = ["yaml"] }

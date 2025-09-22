@@ -29,7 +29,7 @@ impl MethodArea {
         })
     }
 
-    fn load_with_bytes(&self, data: Vec<u8>) -> Result<Class, JvmError> {
+    fn load_with_bytes(&self, data: Vec<u8>) -> Result<Arc<Class>, JvmError> {
         let cf = ClassFile::try_from(data).map_err(LinkageError::from)?;
         let class = Class::new(cf, self)?;
         Ok(class)
@@ -37,7 +37,7 @@ impl MethodArea {
 
     pub fn add_class(&self, raw_class: Vec<u8>) -> Result<Arc<Class>, JvmError> {
         debug!("Adding class from bytes...");
-        let class = Arc::new(self.load_with_bytes(raw_class)?);
+        let class = self.load_with_bytes(raw_class)?;
         let name = class.name()?.to_string();
         debug!("Class \"{}\" added", name);
         self.classes.insert(name, class.clone());
@@ -49,7 +49,7 @@ impl MethodArea {
             return Ok(class.clone());
         }
         let class_data = self.bootstrap_class_loader.load(name)?;
-        let class = Arc::new(self.load_with_bytes(class_data)?);
+        let class = self.load_with_bytes(class_data)?;
 
         self.classes.insert(name.to_string(), class.clone());
 

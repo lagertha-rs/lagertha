@@ -1,0 +1,77 @@
+---
+source: class_file/src/lib.rs
+expression: display
+---
+class interfaces.basic_interface.BasicInterfaceMain$ClassImplementingSummable implements interfaces.basic_interface.BasicInterfaceMain$Summable
+  minor version: 0
+  major version: 68
+  flags: (0x0020) ACC_SUPER
+  this_class: #7                       //interfaces/basic_interface/BasicInterfaceMain$ClassImplementingSummable
+  super_class: #2                      //java/lang/Object
+  interfaces: 1, fields: 0, methods: 2, attributes: 3
+Constant pool:
+   #1 = Methodref          #2.#3            // java/lang/Object."<init>":()V
+   #2 = Class              #4               // java/lang/Object
+   #3 = NameAndType        #5:#6            // "<init>":()V
+   #4 = Utf8               java/lang/Object
+   #5 = Utf8               <init>
+   #6 = Utf8               ()V
+   #7 = Class              #8               // interfaces/basic_interface/BasicInterfaceMain$ClassImplementingSummable
+   #8 = Utf8               interfaces/basic_interface/BasicInterfaceMain$ClassImplementingSummable
+   #9 = Class              #10              // interfaces/basic_interface/BasicInterfaceMain$Summable
+  #10 = Utf8               interfaces/basic_interface/BasicInterfaceMain$Summable
+  #11 = Utf8               Code
+  #12 = Utf8               LineNumberTable
+  #13 = Utf8               LocalVariableTable
+  #14 = Utf8               this
+  #15 = Utf8               Linterfaces/basic_interface/BasicInterfaceMain$ClassImplementingSummable;
+  #16 = Utf8               sum
+  #17 = Utf8               (II)I
+  #18 = Utf8               a
+  #19 = Utf8               I
+  #20 = Utf8               b
+  #21 = Utf8               SourceFile
+  #22 = Utf8               BasicInterfaceMain.java
+  #23 = Utf8               NestHost
+  #24 = Class              #25              // interfaces/basic_interface/BasicInterfaceMain
+  #25 = Utf8               interfaces/basic_interface/BasicInterfaceMain
+  #26 = Utf8               InnerClasses
+  #27 = Utf8               ClassImplementingSummable
+  #28 = Utf8               Summable
+{
+  interfaces.basic_interface.BasicInterfaceMain$ClassImplementingSummable();
+    descriptor: ()V
+    flags: (0x0000) 
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return                  
+      LineNumberTable:
+        line 8: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Linterfaces/basic_interface/BasicInterfaceMain$ClassImplementingSummable;
+  
+  public int sum(int, int);
+    descriptor: (II)I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=3, args_size=3
+         0: iload_1                 
+         1: iload_2                 
+         2: iadd                    
+         3: ireturn                 
+      LineNumberTable:
+        line 11: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        4     0  this   Linterfaces/basic_interface/BasicInterfaceMain$ClassImplementingSummable;
+           0        4     1  a      I
+           0        4     2  b      I
+}
+SourceFile: "BasicInterfaceMain.java"
+NestHost: class interfaces/basic_interface/BasicInterfaceMain
+InnerClasses:
+  static #27= #7 of #24;                      // ClassImplementingSummable=class interfaces/basic_interface/BasicInterfaceMain$ClassImplementingSummable of class interfaces/basic_interface/BasicInterfaceMain
+  static #28= #9 of #24;                      // Summable=class interfaces/basic_interface/BasicInterfaceMain$Summable of class interfaces/basic_interface/BasicInterfaceMain

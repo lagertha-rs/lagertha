@@ -1,4 +1,5 @@
 use crate::rt::class::LinkageError;
+use crate::rt::class::class::Class;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::constant_pool::reference::MethodDescriptorReference;
 use class_file::attribute::method::code::{
@@ -8,12 +9,11 @@ use class_file::attribute::method::{CodeAttribute, MethodAttribute};
 use class_file::attribute::{Annotation, SharedAttribute};
 use class_file::flags::MethodFlags;
 use class_file::method::MethodInfo;
-use common::instruction::Instruction;
+use once_cell::sync::OnceCell as SyncOnceCell;
 use std::cell::OnceCell;
 use std::sync::Arc;
 
 ///https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.3
-#[derive(Debug)]
 pub struct CodeContext {
     max_stack: u16,
     max_locals: u16,
@@ -28,10 +28,10 @@ pub struct CodeContext {
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.6
-#[derive(Debug)]
 pub struct Method {
     name: Arc<str>,
     flags: MethodFlags,
+    class: SyncOnceCell<Arc<Class>>,
     descriptor: Arc<MethodDescriptorReference>,
     code_context: CodeContext,
     signature: Option<Arc<str>>,
@@ -79,6 +79,7 @@ impl Method {
         let code_context = code_ctx.take().ok_or(LinkageError::MissingCodeAttr)?;
 
         Ok(Method {
+            class: SyncOnceCell::new(),
             name,
             flags,
             descriptor,
@@ -87,6 +88,20 @@ impl Method {
             signature: signature.into_inner(),
             rt_visible_annotations: rt_vis_ann.into_inner(),
         })
+    }
+
+    pub fn set_class(&self, class: Arc<Class>) -> Result<(), LinkageError> {
+        self.class
+            .set(class)
+            .map_err(|_| LinkageError::DuplicatedClassInMethod)?;
+        Ok(())
+    }
+
+    pub fn class(&self) -> Result<Arc<Class>, LinkageError> {
+        self.class
+            .get()
+            .cloned()
+            .ok_or(LinkageError::MethodClassIsNotSet)
     }
 
     pub fn instructions(&self) -> &Vec<u8> {

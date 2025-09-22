@@ -64,13 +64,18 @@ impl Heap {
         idx
     }
 
-    //TODO: how to handle super classes?
     pub fn alloc_instance(&mut self, class: Arc<Class>) -> HeapAddr {
-        let fields = class
-            .fields()
-            .iter()
-            .map(|field| field.descriptor().resolved().get_default_value())
-            .collect();
+        let mut fields = Vec::with_capacity(class.fields().len());
+
+        let mut cur_class = Some(&class);
+
+        while let Some(c) = cur_class {
+            for field in c.fields() {
+                fields.push(field.descriptor().resolved().get_default_value());
+            }
+            cur_class = c.super_class();
+        }
+
         self.push(HeapObject::Instance(ClassInstance { class, fields }))
     }
 

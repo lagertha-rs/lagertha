@@ -1,6 +1,6 @@
-package inheritance.call_parent_method;
+package inheritance.invoke_parent_method;
 
-public class CallParentMethodMain {
+public class InvokeParentMethodMain {
     static class Parent {
         private final int parentId = 42;
 
