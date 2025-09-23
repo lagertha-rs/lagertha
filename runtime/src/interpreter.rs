@@ -123,6 +123,9 @@ impl Interpreter {
             Instruction::Iconst2 => {
                 self.frame_stack.cur_frame_push_operand(Value::Integer(2))?;
             }
+            Instruction::Iconst3 => {
+                self.frame_stack.cur_frame_push_operand(Value::Integer(3))?;
+            }
             Instruction::Istore1 => {
                 let value = self.frame_stack.cur_frame_pop_operand()?;
                 self.frame_stack.cur_frame_set_local(1, value)?;
@@ -130,6 +133,10 @@ impl Interpreter {
             Instruction::Istore2 => {
                 let value = self.frame_stack.cur_frame_pop_operand()?;
                 self.frame_stack.cur_frame_set_local(2, value)?;
+            }
+            Instruction::Istore(idx) => {
+                let value = self.frame_stack.cur_frame_pop_operand()?;
+                self.frame_stack.cur_frame_set_local(*idx as usize, value)?;
             }
             Instruction::Iload1 => {
                 let value = self.frame_stack.cur_frame_get_local(1)?.clone();
@@ -220,6 +227,23 @@ impl Interpreter {
                     _ => unimplemented!("Ldc for constant {:?}", raw),
                 }
             }
+            Instruction::Anewarray(idx) => {
+                let cp = self.frame_stack.cur_frame_cp()?;
+                let class_ref = cp.get_class(idx)?;
+                let class = self.method_area.get_class(class_ref.name()?)?;
+                let count = self.frame_stack.cur_frame_pop_operand()?;
+                match count {
+                    Value::Integer(c) if c >= 0 => {
+                        let addr = self.heap.alloc_array_ref(class, c as usize);
+                        self.frame_stack
+                            .cur_frame_push_operand(Value::Object(Some(addr)))?;
+                    }
+                    Value::Integer(_) => {
+                        return Err(JvmError::NegativeArraySizeException);
+                    }
+                    _ => panic!("anewarray with non-integer count"),
+                }
+            }
             Instruction::New(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
                 let class_ref = cp.get_class(idx)?;
@@ -255,9 +279,76 @@ impl Interpreter {
                 let value = self.frame_stack.cur_frame_get_local(1)?.clone();
                 self.frame_stack.cur_frame_push_operand(value)?
             }
+            Instruction::Aload2 => {
+                let value = self.frame_stack.cur_frame_get_local(2)?.clone();
+                self.frame_stack.cur_frame_push_operand(value)?
+            }
+            Instruction::Aload3 => {
+                let value = self.frame_stack.cur_frame_get_local(3)?.clone();
+                self.frame_stack.cur_frame_push_operand(value)?
+            }
+            Instruction::Aload(idx) => {
+                let value = self.frame_stack.cur_frame_get_local(*idx)?.clone();
+                self.frame_stack.cur_frame_push_operand(value)?
+            }
+            Instruction::Aastore => {
+                let value = self.frame_stack.cur_frame_pop_operand()?;
+                let index = self.frame_stack.cur_frame_pop_operand()?;
+                let array_ref = self.frame_stack.cur_frame_pop_operand()?;
+                match (array_ref, index) {
+                    (Value::Object(Some(arr_addr)), Value::Integer(i)) => {
+                        let heap_obj = self.heap.get_mut(arr_addr);
+                        match heap_obj {
+                            crate::heap::HeapObject::ArrayRef { elements, .. } => {
+                                if i < 0 || (i as usize) >= elements.len() {
+                                    return Err(JvmError::ArrayIndexOutOfBoundsException);
+                                }
+                                elements[i as usize] = value;
+                            }
+                            _ => panic!("aastore on non-array object"),
+                        }
+                    }
+                    (Value::Object(None), _) => {
+                        return Err(JvmError::NullPointerException);
+                    }
+                    _ => panic!("aastore on non-array object or non-integer index"),
+                }
+            }
             Instruction::Astore1 => {
                 let value = self.frame_stack.cur_frame_pop_operand()?;
                 self.frame_stack.cur_frame_set_local(1, value)?;
+            }
+            Instruction::Astore2 => {
+                let value = self.frame_stack.cur_frame_pop_operand()?;
+                self.frame_stack.cur_frame_set_local(2, value)?;
+            }
+            Instruction::Astore3 => {
+                let value = self.frame_stack.cur_frame_pop_operand()?;
+                self.frame_stack.cur_frame_set_local(3, value)?;
+            }
+            Instruction::Astore(idx) => {
+                let value = self.frame_stack.cur_frame_pop_operand()?;
+                self.frame_stack.cur_frame_set_local(*idx as usize, value)?;
+            }
+            Instruction::ArrayLength => {
+                let array_ref = self.frame_stack.cur_frame_pop_operand()?;
+                match array_ref {
+                    Value::Object(Some(arr_addr)) => {
+                        let heap_obj = self.heap.get(arr_addr);
+                        match heap_obj {
+                            crate::heap::HeapObject::ArrayRef { elements, .. } => {
+                                let length = elements.len() as i32;
+                                self.frame_stack
+                                    .cur_frame_push_operand(Value::Integer(length))?;
+                            }
+                            _ => panic!("arraylength on non-array object"),
+                        }
+                    }
+                    Value::Object(None) => {
+                        return Err(JvmError::NullPointerException);
+                    }
+                    _ => panic!("arraylength on non-array object"),
+                }
             }
             Instruction::Bipush(value) => {
                 self.frame_stack
@@ -346,12 +437,15 @@ impl Interpreter {
 
     fn run_instance_method(&mut self, method: &Method) -> Result<(), JvmError> {
         let class = method.class()?;
-        debug!(
-            "Running instance method {}{} of class {}",
+
+        // TODO: delete
+        let debug_msg = format!(
+            "instance method {}{} of class {}",
             method.name(),
             method.descriptor().raw(),
             class.name()?
         );
+        debug!("Running {debug_msg}");
 
         let mut params = vec![None; method.max_locals()];
         let params_count = method.descriptor().resolved().params.len() + 1; // +1 for this
@@ -359,7 +453,7 @@ impl Interpreter {
             params[i] = Some(self.frame_stack.cur_frame_pop_operand()?);
         }
 
-        let frame = Frame::new(class.cp().clone(), params, method.max_stack());
+        let frame = Frame::new(class.cp().clone(), params, method.max_stack(), debug_msg);
 
         self.interpret_method_code(method.instructions(), frame)?;
         Ok(())
@@ -376,12 +470,13 @@ impl Interpreter {
     }
 
     fn run_static_method(&mut self, class: &Arc<Class>, method: &Method) -> Result<(), JvmError> {
-        debug!(
-            "Running static method {}{} of class {}",
+        let debug_msg = format!(
+            "static method {}{} of class {}",
             method.name(),
             method.descriptor().raw(),
             class.name()?
         );
+        debug!("Running {debug_msg}");
 
         let mut params = vec![None; method.max_locals()];
         let params_count = method.descriptor().resolved().params.len();
@@ -390,7 +485,7 @@ impl Interpreter {
             params[i] = Some(self.frame_stack.cur_frame_pop_operand()?);
         }
 
-        let frame = Frame::new(class.cp().clone(), params, method.max_stack());
+        let frame = Frame::new(class.cp().clone(), params, method.max_stack(), debug_msg);
 
         self.interpret_method_code(method.instructions(), frame)?;
 
@@ -440,7 +535,8 @@ impl Interpreter {
         let main_method = main_class
             .find_main_method()
             .ok_or(JvmError::NoMainClassFound(main_class.name()?.to_string()))?;
-        debug!("Found main method in class {}", main_class.name()?);
+        let debug_msg = format!("main method of class {}", main_class.name()?);
+        debug!("Found {debug_msg}");
         self.ensure_initialized(Some(&main_class))?;
         let instructions = main_method.instructions();
         //TODO: handle args
@@ -448,6 +544,7 @@ impl Interpreter {
             main_class.cp().clone(),
             vec![None; main_method.max_locals()],
             main_method.max_stack(),
+            debug_msg,
         );
         debug!("Executing main method...");
         self.interpret_method_code(instructions, frame)?;

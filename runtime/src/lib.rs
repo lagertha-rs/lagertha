@@ -75,6 +75,10 @@ pub enum JvmError {
     InstructionErr(#[from] common::InstructionErr),
     #[error("ClassMirrorIsAlreadyCreated")]
     ClassMirrorIsAlreadyCreated,
+    #[error("NegativeArraySizeException")]
+    NegativeArraySizeException,
+    #[error("ArrayIndexOutOfBoundsException")]
+    ArrayIndexOutOfBoundsException,
 }
 
 #[derive(Debug)]

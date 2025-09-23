@@ -7,10 +7,13 @@ use common::jtype::{HeapAddr, Value};
 use std::sync::Arc;
 use tracing_log::log::debug;
 
-#[cfg_attr(test, derive(serde::Serialize))]
 pub enum HeapObject {
     Instance(ClassInstance),
     String(String),
+    ArrayRef {
+        class: Arc<Class>,
+        elements: Vec<Value>,
+    },
 }
 
 #[derive(Clone)]
@@ -26,6 +29,38 @@ impl ClassInstance {
 
     pub fn class(&self) -> &Arc<Class> {
         &self.class
+    }
+}
+
+#[cfg(test)]
+impl serde::Serialize for HeapObject {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+
+        match self {
+            HeapObject::Instance(inst) => {
+                let mut state = serializer.serialize_struct("HeapObject", 2)?;
+                state.serialize_field("type", "Instance")?;
+                state.serialize_field("value", inst)?;
+                state.end()
+            }
+            HeapObject::String(s) => {
+                let mut state = serializer.serialize_struct("HeapObject", 2)?;
+                state.serialize_field("type", "String")?;
+                state.serialize_field("value", s)?;
+                state.end()
+            }
+            HeapObject::ArrayRef { class, elements } => {
+                let mut state = serializer.serialize_struct("HeapObject", 3)?;
+                state.serialize_field("type", "ArrayRef")?;
+                state.serialize_field("class", &class.name().unwrap())?;
+                state.serialize_field("elements", elements)?;
+                state.end()
+            }
+        }
     }
 }
 
@@ -62,6 +97,11 @@ impl Heap {
         let idx = self.objects.len();
         self.objects.push(obj);
         idx
+    }
+
+    pub fn alloc_array_ref(&mut self, class: Arc<Class>, length: usize) -> HeapAddr {
+        let elements = vec![Value::Object(None); length];
+        self.push(HeapObject::ArrayRef { class, elements })
     }
 
     pub fn alloc_instance(&mut self, class: Arc<Class>) -> HeapAddr {

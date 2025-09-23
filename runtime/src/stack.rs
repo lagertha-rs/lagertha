@@ -1,6 +1,7 @@
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::{JvmError, VmConfig};
 use common::jtype::Value;
+use log::debug;
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
@@ -30,7 +31,18 @@ impl FrameStack {
     }
 
     pub fn pop_frame(&mut self) -> Result<Frame, JvmError> {
-        self.frames.pop().ok_or(JvmError::FrameStackIsEmpty)
+        let res = self
+            .frames
+            .pop()
+            .and_then(|frame| {
+                debug!("Execution finished of {}", frame.debug_msg);
+                Some(frame)
+            })
+            .ok_or(JvmError::FrameStackIsEmpty);
+        if let Some(frame) = self.frames.last() {
+            debug!("Resuming execution of {}", frame.debug_msg);
+        }
+        res
     }
 
     fn cur_frame_mut(&mut self) -> Result<&mut Frame, JvmError> {
@@ -98,15 +110,24 @@ pub struct Frame {
     #[cfg_attr(test, serde(skip_serializing))]
     cp: Arc<RuntimeConstantPool>,
     pc: usize,
+    // TODO: delete
+    #[cfg_attr(test, serde(skip_serializing))]
+    pub debug_msg: String,
 }
 
 impl Frame {
-    pub fn new(cp: Arc<RuntimeConstantPool>, locals: Vec<Option<Value>>, max_stack: usize) -> Self {
+    pub fn new(
+        cp: Arc<RuntimeConstantPool>,
+        locals: Vec<Option<Value>>,
+        max_stack: usize,
+        debug_msg: String,
+    ) -> Self {
         Self {
             locals,
             operands: Vec::with_capacity(max_stack),
             cp,
             pc: 0,
+            debug_msg,
         }
     }
 

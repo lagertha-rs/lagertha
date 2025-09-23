@@ -8,7 +8,8 @@ frame_stack:
   frames: []
 heap:
   objects:
-    - Instance:
+    - type: Instance
+      value:
         class: interfaces/basic_interface/BasicInterfaceMain$ClassImplementingSummable
         fields: []
 string_pool: []
