@@ -36,6 +36,7 @@ pub struct Method {
     code_context: CodeContext,
     signature: Option<Arc<str>>,
     rt_visible_annotations: Option<Vec<Annotation>>,
+    rt_invisible_annotations: Option<Vec<Annotation>>,
     is_deprecated: bool,
 }
 
@@ -48,6 +49,7 @@ impl Method {
         let mut code_ctx = OnceCell::<CodeContext>::new();
         let signature = OnceCell::<Arc<str>>::new();
         let rt_vis_ann = OnceCell::<Vec<Annotation>>::new();
+        let rt_invis_ann = OnceCell::<Vec<Annotation>>::new();
         let exceptions = OnceCell::<Vec<u16>>::new();
         let mut is_deprecated = false;
 
@@ -65,14 +67,16 @@ impl Method {
                     SharedAttribute::RuntimeVisibleAnnotations(v) => rt_vis_ann
                         .set(v)
                         .map_err(|_| LinkageError::DuplicatedRuntimeVisibleAnnotationsAttr)?,
-                    SharedAttribute::RuntimeInvisibleAnnotations(_) => unimplemented!(),
+                    SharedAttribute::RuntimeInvisibleAnnotations(v) => rt_invis_ann
+                        .set(v)
+                        .map_err(|_| LinkageError::DuplicatedRuntimeInvisibleAnnotationsAttr)?,
                     SharedAttribute::RuntimeVisibleTypeAnnotations => unimplemented!(),
                     SharedAttribute::RuntimeInvisibleTypeAnnotations => unimplemented!(),
                 },
                 MethodAttribute::Exceptions(v) => exceptions
                     .set(v)
                     .map_err(|_| LinkageError::DuplicatedExceptionAttribute)?,
-                other => unimplemented!(),
+                _ => unimplemented!(),
             }
         }
 
@@ -87,6 +91,7 @@ impl Method {
             is_deprecated,
             signature: signature.into_inner(),
             rt_visible_annotations: rt_vis_ann.into_inner(),
+            rt_invisible_annotations: rt_invis_ann.into_inner(),
         })
     }
 

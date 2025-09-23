@@ -1,12 +1,13 @@
 use crate::class_loader::ClassLoader;
+use crate::heap::Heap;
 use crate::rt::class::LinkageError;
 use crate::rt::class::class::Class;
 use crate::{JvmError, VmConfig};
 use class_file::ClassFile;
+use common::jtype::HeapAddr;
 use dashmap::DashMap;
 use std::sync::Arc;
 use tracing_log::log::debug;
-
 //TODO: finally need to decide to return Arc<Class> or &Arc<Class>
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.5.4
@@ -54,5 +55,16 @@ impl MethodArea {
         self.classes.insert(name.to_string(), class.clone());
 
         Ok(class)
+    }
+
+    pub fn get_mirror(&self, name: &str, heap: &mut Heap) -> Result<HeapAddr, JvmError> {
+        let target_class = self.get_class(name)?;
+        if let Some(mirror) = target_class.mirror() {
+            return Ok(mirror);
+        }
+        let class_class = self.get_class("java/lang/Class")?;
+        let mirror = heap.alloc_instance(class_class);
+        target_class.set_mirror(mirror)?;
+        Ok(mirror)
     }
 }

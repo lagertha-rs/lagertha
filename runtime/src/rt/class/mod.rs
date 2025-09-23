@@ -26,6 +26,8 @@ pub enum LinkageError {
     DuplicatedExceptionAttribute,
     #[error("DuplicatedRuntimeVisibleAnnotationsAttr")]
     DuplicatedRuntimeVisibleAnnotationsAttr,
+    #[error("DuplicatedRuntimeInvisibleAnnotationsAttr")]
+    DuplicatedRuntimeInvisibleAnnotationsAttr,
     // TODO: only for non native?
     #[error("MissingCodeAttr")]
     MissingCodeAttr,

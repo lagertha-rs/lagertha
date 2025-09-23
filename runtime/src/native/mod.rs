@@ -37,6 +37,14 @@ impl NativeRegistry {
             ),
             register_system_methods,
         );
+        instance.register(
+            MethodKey::new(
+                "java/lang/Class".to_string(),
+                "registerNatives".to_string(),
+                "()V".to_string(),
+            ),
+            register_class_methods,
+        );
         instance
     }
 
@@ -52,5 +60,10 @@ impl NativeRegistry {
 
 fn register_system_methods(_env: &mut JNIEnv, _args: &[Value]) -> Value {
     debug!("Stub: Registering java.lang.System native methods");
+    Value::Object(None)
+}
+
+fn register_class_methods(_env: &mut JNIEnv, _args: &[Value]) -> Value {
+    debug!("Stub: Registering java.lang.Class native methods");
     Value::Object(None)
 }

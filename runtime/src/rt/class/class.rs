@@ -9,7 +9,8 @@ use crate::rt::method::{StaticMethodType, VirtualMethodType};
 use class_file::ClassFile;
 use class_file::attribute::class::ClassAttribute;
 use class_file::flags::ClassFlags;
-use common::jtype::Value;
+use common::jtype::{HeapAddr, Value};
+use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
 use std::cmp::PartialEq;
 use std::collections::HashMap;
@@ -42,6 +43,7 @@ pub struct Class {
     attributes: Vec<ClassAttribute>,
     cp: Arc<RuntimeConstantPool>,
     state: RwLock<InitState>,
+    mirror: OnceCell<HeapAddr>,
 }
 
 impl Class {
@@ -152,6 +154,7 @@ impl Class {
             attributes: cf.attributes,
             cp,
             state: initialized,
+            mirror: OnceCell::new(),
         });
 
         for (_, method) in class.methods.values().flatten() {
@@ -175,6 +178,16 @@ impl Class {
                 StaticMethodType::Java(method) => Some(method),
                 _ => None,
             })
+    }
+
+    pub fn mirror(&self) -> Option<HeapAddr> {
+        self.mirror.get().copied()
+    }
+
+    pub fn set_mirror(&self, mirror: HeapAddr) -> Result<(), JvmError> {
+        self.mirror
+            .set(mirror)
+            .map_err(|_| JvmError::ClassMirrorIsAlreadyCreated)
     }
 
     pub fn cp(&self) -> &Arc<RuntimeConstantPool> {

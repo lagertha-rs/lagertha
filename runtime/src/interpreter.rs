@@ -104,9 +104,13 @@ impl Interpreter {
         ((bci as isize) + (off as isize)) as usize
     }
 
+    // TODO: replace return book with enum or set special cp values
     fn interpret_instruction(&mut self, instruction: &Instruction) -> Result<bool, JvmError> {
         debug!("Executing instruction: {:?}", instruction);
-        if !matches!(instruction, Instruction::Goto(_) | Instruction::IfIcmpge(_)) {
+        if !matches!(
+            instruction,
+            Instruction::Goto(_) | Instruction::IfIcmpge(_) | Instruction::Ifnonnull(_)
+        ) {
             *self.frame_stack.cur_frame_pc_mut()? += instruction.byte_size() as usize;
         }
         match instruction {
@@ -153,6 +157,21 @@ impl Interpreter {
                     _ => panic!("if_icmpge on non-integer values"),
                 }
             }
+            Instruction::Ifnonnull(offset) => {
+                let pc = *self.frame_stack.cur_frame_pc()?;
+                let value = self.frame_stack.cur_frame_pop_operand()?;
+                match value {
+                    Value::Object(o) => {
+                        let new_pc = if o.is_some() {
+                            Self::branch16(pc, *offset)
+                        } else {
+                            pc + instruction.byte_size() as usize
+                        };
+                        *self.frame_stack.cur_frame_pc_mut()? = new_pc;
+                    }
+                    _ => panic!("ifnonnull on non-object value"),
+                }
+            }
             Instruction::Putstatic(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
                 let field_ref = cp.get_fieldref(idx)?;
@@ -193,10 +212,10 @@ impl Interpreter {
                             .cur_frame_push_operand(Value::Object(Some(string_addr)))?;
                     }
                     RuntimeConstant::Class(class) => {
-                        let class = self.method_area.get_class(class.name()?)?;
-                        let class_addr = self.heap.alloc_instance(class);
+                        let class_mirror =
+                            self.method_area.get_mirror(class.name()?, &mut self.heap)?;
                         self.frame_stack
-                            .cur_frame_push_operand(Value::Object(Some(class_addr)))?;
+                            .cur_frame_push_operand(Value::Object(Some(class_mirror)))?;
                     }
                     _ => unimplemented!("Ldc for constant {:?}", raw),
                 }
@@ -334,8 +353,8 @@ impl Interpreter {
             class.name()?
         );
 
+        let mut params = vec![None; method.max_locals()];
         let params_count = method.descriptor().resolved().params.len() + 1; // +1 for this
-        let mut params = vec![None; (params_count)];
         for i in (0..params_count).rev() {
             params[i] = Some(self.frame_stack.cur_frame_pop_operand()?);
         }
@@ -364,8 +383,8 @@ impl Interpreter {
             class.name()?
         );
 
+        let mut params = vec![None; method.max_locals()];
         let params_count = method.descriptor().resolved().params.len();
-        let mut params = vec![None; params_count];
 
         for i in (0..params_count).rev() {
             params[i] = Some(self.frame_stack.cur_frame_pop_operand()?);

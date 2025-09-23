@@ -1,7 +1,8 @@
 use crate::rt::constant_pool::error::RuntimePoolError;
 use crate::rt::constant_pool::reference::{
-    ClassReference, FieldDescriptorReference, FieldReference, MethodDescriptorReference,
-    MethodReference, NameAndTypeReference, StringReference,
+    ClassReference, FieldDescriptorReference, FieldReference, InvokeDynamicReference,
+    MethodDescriptorReference, MethodHandleReference, MethodReference, MethodTypeReference,
+    NameAndTypeReference, StringReference,
 };
 use class_file::constant::{ConstantInfo, ReferenceInfo};
 use common::descriptor::MethodDescriptor;
@@ -24,10 +25,13 @@ pub enum RuntimeConstantType {
     String,
     MethodRef,
     FieldRef,
+    InvokeDynamicRef,
     InterfaceMethodRef,
     NameAndType,
     MethodNameAndType,
     FieldNameAndType,
+    MethodTypeRef,
+    MethodHandleRef,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -42,8 +46,11 @@ pub enum RuntimeConstant {
     String(Arc<StringReference>),
     MethodRef(Arc<MethodReference>),
     FieldRef(Arc<FieldReference>),
+    InvokeDynamicRef(Arc<InvokeDynamicReference>),
     InterfaceMethodRef(Arc<ReferenceInfo>), //TODO: stub
     NameAndType(Arc<NameAndTypeReference>),
+    MethodType(Arc<MethodTypeReference>),
+    MethodHandleRef(Arc<MethodHandleReference>),
 }
 
 impl RuntimeConstant {
@@ -61,6 +68,9 @@ impl RuntimeConstant {
             RuntimeConstant::FieldRef(_) => RuntimeConstantType::FieldRef,
             RuntimeConstant::InterfaceMethodRef(_) => RuntimeConstantType::InterfaceMethodRef,
             RuntimeConstant::NameAndType(_) => RuntimeConstantType::NameAndType,
+            RuntimeConstant::InvokeDynamicRef(_) => RuntimeConstantType::InvokeDynamicRef,
+            RuntimeConstant::MethodType(_) => RuntimeConstantType::MethodTypeRef,
+            RuntimeConstant::MethodHandleRef(_) => RuntimeConstantType::MethodHandleRef,
         }
     }
 }
@@ -112,6 +122,21 @@ impl RuntimeConstantPool {
                     )),
                     ConstantInfo::InterfaceMethodRef(ref_info) => {
                         RuntimeConstant::InterfaceMethodRef(Arc::new(ref_info))
+                    }
+                    ConstantInfo::InvokeDynamic(dyn_info) => {
+                        RuntimeConstant::InvokeDynamicRef(Arc::new(InvokeDynamicReference::new(
+                            dyn_info.bootstrap_method_attr_index,
+                            dyn_info.name_and_type_index,
+                        )))
+                    }
+                    ConstantInfo::MethodType(descriptor_index) => RuntimeConstant::MethodType(
+                        Arc::new(MethodTypeReference::new(descriptor_index)),
+                    ),
+                    ConstantInfo::MethodHandle(handle) => {
+                        RuntimeConstant::MethodHandleRef(Arc::new(MethodHandleReference::new(
+                            handle.reference_kind,
+                            handle.reference_index,
+                        )))
                     }
                     other => unimplemented!("{:?}", other),
                 })

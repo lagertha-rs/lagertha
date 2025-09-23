@@ -73,6 +73,8 @@ pub enum JvmError {
     NullPointerException,
     #[error("InstructionErr: {0}")]
     InstructionErr(#[from] common::InstructionErr),
+    #[error("ClassMirrorIsAlreadyCreated")]
+    ClassMirrorIsAlreadyCreated,
 }
 
 #[derive(Debug)]

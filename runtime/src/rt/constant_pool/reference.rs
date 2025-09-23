@@ -283,3 +283,88 @@ impl FieldDescriptorReference {
         &self.resolved
     }
 }
+
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub struct InvokeDynamicReference {
+    bootstrap_method_attr_index: u16,
+    name_and_type_index: u16,
+    pub(super) name_and_type: OnceCell<Arc<NameAndTypeReference>>,
+}
+
+impl InvokeDynamicReference {
+    pub fn new(bootstrap_method_attr_index: u16, name_and_type_index: u16) -> Self {
+        Self {
+            bootstrap_method_attr_index,
+            name_and_type_index,
+            name_and_type: OnceCell::new(),
+        }
+    }
+
+    pub fn bootstrap_method_idx(&self) -> u16 {
+        self.bootstrap_method_attr_index
+    }
+
+    pub fn name_and_type_index(&self) -> u16 {
+        self.name_and_type_index
+    }
+
+    pub fn name_and_type(&self) -> Result<&Arc<NameAndTypeReference>, RuntimePoolError> {
+        self.name_and_type
+            .get()
+            .ok_or(RuntimePoolError::TryingToAccessUnresolved(
+                self.name_and_type_index,
+                RuntimeConstantType::NameAndType,
+            ))
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub struct MethodTypeReference {
+    descriptor_index: u16,
+    pub(super) descriptor: OnceCell<Arc<MethodDescriptorReference>>,
+}
+
+impl MethodTypeReference {
+    pub fn new(descriptor_index: u16) -> Self {
+        Self {
+            descriptor_index,
+            descriptor: OnceCell::new(),
+        }
+    }
+
+    pub fn descriptor_index(&self) -> u16 {
+        self.descriptor_index
+    }
+
+    pub fn descriptor(&self) -> Result<&Arc<MethodDescriptorReference>, RuntimePoolError> {
+        self.descriptor
+            .get()
+            .ok_or(RuntimePoolError::TryingToAccessUnresolved(
+                self.descriptor_index,
+                RuntimeConstantType::MethodTypeRef,
+            ))
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub struct MethodHandleReference {
+    reference_kind: u8,
+    reference_index: u16,
+}
+
+impl MethodHandleReference {
+    pub fn new(reference_kind: u8, reference_index: u16) -> Self {
+        Self {
+            reference_kind,
+            reference_index,
+        }
+    }
+
+    pub fn reference_kind(&self) -> u8 {
+        self.reference_kind
+    }
+
+    pub fn reference_index(&self) -> u16 {
+        self.reference_index
+    }
+}
