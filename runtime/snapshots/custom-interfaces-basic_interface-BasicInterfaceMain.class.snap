@@ -12,11 +12,17 @@ heap:
       value:
         class: interfaces/basic_interface/BasicInterfaceMain$ClassImplementingSummable
         fields: []
+    - type: Instance
+      value:
+        class: interfaces/basic_interface/BasicInterfaceMain$ClassImplementingSummable
+        fields: []
 string_pool: []
 last_pop_frame:
   locals:
     - ~
     - Object: 0
+    - Object: 1
     - Integer: 3
+    - Integer: 7
   operands: []
-  pc: 16
+  pc: 34

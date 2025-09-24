@@ -10,6 +10,7 @@ pub enum StaticMethodType {
 }
 
 pub enum VirtualMethodType {
+    Abstract(Method),
     Java(Method),
     Native(NativeMethod),
 }

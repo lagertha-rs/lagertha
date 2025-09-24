@@ -47,7 +47,7 @@ pub enum RuntimeConstant {
     MethodRef(Arc<MethodReference>),
     FieldRef(Arc<FieldReference>),
     InvokeDynamicRef(Arc<InvokeDynamicReference>),
-    InterfaceMethodRef(Arc<ReferenceInfo>), //TODO: stub
+    InterfaceMethodRef(Arc<MethodReference>),
     NameAndType(Arc<NameAndTypeReference>),
     MethodType(Arc<MethodTypeReference>),
     MethodHandleRef(Arc<MethodHandleReference>),
@@ -120,8 +120,12 @@ impl RuntimeConstantPool {
                     ConstantInfo::NameAndType(nat) => RuntimeConstant::NameAndType(Arc::new(
                         NameAndTypeReference::new(i as u16, nat.name_index, nat.descriptor_index),
                     )),
-                    ConstantInfo::InterfaceMethodRef(ref_info) => {
-                        RuntimeConstant::InterfaceMethodRef(Arc::new(ref_info))
+                    ConstantInfo::InterfaceMethodRef(method_ref) => {
+                        RuntimeConstant::InterfaceMethodRef(Arc::new(MethodReference::new(
+                            i as u16,
+                            method_ref.class_index,
+                            method_ref.name_and_type_index,
+                        )))
                     }
                     ConstantInfo::InvokeDynamic(dyn_info) => {
                         RuntimeConstant::InvokeDynamicRef(Arc::new(InvokeDynamicReference::new(
@@ -330,6 +334,32 @@ impl RuntimeConstantPool {
             other => Err(RuntimePoolError::TypeError(
                 *idx,
                 RuntimeConstantType::MethodRef,
+                other.get_type(),
+            )),
+        }
+    }
+
+    pub fn get_interface_methodref(
+        &self,
+        idx: &u16,
+    ) -> Result<&Arc<MethodReference>, RuntimePoolError> {
+        match self.entry(idx)? {
+            RuntimeConstant::InterfaceMethodRef(method_ref) => {
+                method_ref.class.get_or_try_init(|| {
+                    Ok::<_, RuntimePoolError>(self.get_class(method_ref.class_index())?.clone())
+                })?;
+                method_ref
+                    .name_and_type
+                    .get_or_try_init::<_, RuntimePoolError>(|| {
+                        Ok(self
+                            .get_method_nat(method_ref.name_and_type_index())?
+                            .clone())
+                    })?;
+                Ok(method_ref)
+            }
+            other => Err(RuntimePoolError::TypeError(
+                *idx,
+                RuntimeConstantType::InterfaceMethodRef,
                 other.get_type(),
             )),
         }

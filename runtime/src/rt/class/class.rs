@@ -39,7 +39,6 @@ pub struct Class {
     methods: NatHashMap<VirtualMethodType>,
     static_methods: NatHashMap<StaticMethodType>,
     initializer: Option<StaticMethodType>,
-    interfaces: Vec<String>,
     attributes: Vec<ClassAttribute>,
     cp: Arc<RuntimeConstantPool>,
     state: RwLock<InitState>,
@@ -59,6 +58,10 @@ impl Class {
         for method in cf.methods {
             let flags = method.access_flags;
             let name = cp.get_utf8(&method.name_index)?;
+
+            if flags.is_native() && flags.is_abstract() {
+                unimplemented!()
+            }
 
             match (flags.is_native(), flags.is_static()) {
                 (true, true) => {
@@ -97,10 +100,15 @@ impl Class {
                     let method = Method::new(method, &cp)?;
                     let name = method.name_arc();
                     let descriptor = method.descriptor().raw_arc();
+                    let method_type = if flags.is_abstract() {
+                        VirtualMethodType::Abstract(method)
+                    } else {
+                        VirtualMethodType::Java(method)
+                    };
                     methods
                         .entry(name)
                         .or_default()
-                        .insert(descriptor, VirtualMethodType::Java(method));
+                        .insert(descriptor, method_type);
                 }
             }
         }
@@ -150,7 +158,6 @@ impl Class {
             static_methods,
             methods,
             initializer,
-            interfaces: vec![],
             attributes: cf.attributes,
             cp,
             state: initialized,
@@ -158,7 +165,7 @@ impl Class {
         });
 
         for (_, method) in class.methods.values().flatten() {
-            if let VirtualMethodType::Java(method) = method {
+            if let VirtualMethodType::Java(method) | VirtualMethodType::Abstract(method) = method {
                 method.set_class(class.clone())?;
             }
         }

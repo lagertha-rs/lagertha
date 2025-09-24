@@ -28,9 +28,6 @@ pub enum LinkageError {
     DuplicatedRuntimeVisibleAnnotationsAttr,
     #[error("DuplicatedRuntimeInvisibleAnnotationsAttr")]
     DuplicatedRuntimeInvisibleAnnotationsAttr,
-    // TODO: only for non native?
-    #[error("MissingCodeAttr")]
-    MissingCodeAttr,
     #[error("CodeAttrIsAmbiguousForNative")]
     CodeAttrIsAmbiguousForNative,
     #[error(transparent)]

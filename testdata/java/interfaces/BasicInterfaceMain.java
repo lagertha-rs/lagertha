@@ -13,8 +13,10 @@ public class BasicInterfaceMain {
     }
 
     public static void main(String[] args) {
-        var instance = new ClassImplementingSummable();
-        var res = instance.sum(1, 2);
+        Summable asInterface = new ClassImplementingSummable();
+        ClassImplementingSummable asInstance = new ClassImplementingSummable();
+        var asInterfaceRes = asInterface.sum(1, 2);
+        var asInstanceRes = asInstance.sum(3, 4);
     }
 }
 

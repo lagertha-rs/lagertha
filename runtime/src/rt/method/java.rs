@@ -1,3 +1,4 @@
+use crate::JvmError;
 use crate::rt::class::LinkageError;
 use crate::rt::class::class::Class;
 use crate::rt::constant_pool::RuntimeConstantPool;
@@ -33,7 +34,7 @@ pub struct Method {
     flags: MethodFlags,
     class: SyncOnceCell<Arc<Class>>,
     descriptor: Arc<MethodDescriptorReference>,
-    code_context: CodeContext,
+    code_context: Option<CodeContext>,
     signature: Option<Arc<str>>,
     rt_visible_annotations: Option<Vec<Annotation>>,
     rt_invisible_annotations: Option<Vec<Annotation>>,
@@ -80,7 +81,7 @@ impl Method {
             }
         }
 
-        let code_context = code_ctx.take().ok_or(LinkageError::MissingCodeAttr)?;
+        let code_context = code_ctx.take();
 
         Ok(Method {
             class: SyncOnceCell::new(),
@@ -109,16 +110,25 @@ impl Method {
             .ok_or(LinkageError::MethodClassIsNotSet)
     }
 
-    pub fn instructions(&self) -> &Vec<u8> {
-        &self.code_context.instructions
+    pub fn instructions(&self) -> Result<&Vec<u8>, JvmError> {
+        self.code_context
+            .as_ref()
+            .map(|ctx| &ctx.instructions)
+            .ok_or_else(|| JvmError::MethodIsAbstract(self.name.to_string()))
     }
 
-    pub fn max_stack(&self) -> usize {
-        self.code_context.max_stack as usize
+    pub fn max_stack(&self) -> Result<usize, JvmError> {
+        self.code_context
+            .as_ref()
+            .map(|ctx| ctx.max_stack as usize)
+            .ok_or_else(|| JvmError::MethodIsAbstract(self.name.to_string()))
     }
 
-    pub fn max_locals(&self) -> usize {
-        self.code_context.max_locals as usize
+    pub fn max_locals(&self) -> Result<usize, JvmError> {
+        self.code_context
+            .as_ref()
+            .map(|ctx| ctx.max_locals as usize)
+            .ok_or_else(|| JvmError::MethodIsAbstract(self.name.to_string()))
     }
 
     pub fn name(&self) -> &str {

@@ -79,6 +79,8 @@ pub enum JvmError {
     NegativeArraySizeException,
     #[error("ArrayIndexOutOfBoundsException")]
     ArrayIndexOutOfBoundsException,
+    #[error("Method is not expecting to be abstract `{0}`")]
+    MethodIsAbstract(String),
 }
 
 #[derive(Debug)]
