@@ -454,6 +454,12 @@ impl Interpreter {
                     }
                 }
             }
+            Instruction::Areturn => {
+                let value = self.frame_stack.cur_frame_pop_operand()?;
+                self.pop_frame()?;
+                self.frame_stack.cur_frame_push_operand(value)?;
+                return Ok(true);
+            }
             Instruction::Ireturn => {
                 let value = self.frame_stack.cur_frame_pop_operand()?;
                 self.pop_frame()?;

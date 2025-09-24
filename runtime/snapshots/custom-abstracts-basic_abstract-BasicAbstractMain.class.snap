@@ -1,0 +1,31 @@
+---
+source: runtime/src/lib.rs
+expression: "&interpreter"
+---
+frame_stack:
+  max_size: 256
+  max_operand_stack_size: 256
+  frames: []
+heap:
+  objects:
+    - type: Instance
+      value:
+        class: abstracts/basic_abstract/BasicAbstractMain$Cat
+        fields: []
+    - type: Instance
+      value:
+        class: abstracts/basic_abstract/BasicAbstractMain$Cat
+        fields: []
+    - type: String
+      value: Meow
+string_pool:
+  - Meow
+last_pop_frame:
+  locals:
+    - ~
+    - Object: 0
+    - Object: 1
+    - Object: 2
+    - Object: 2
+  operands: []
+  pc: 28
