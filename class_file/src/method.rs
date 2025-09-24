@@ -133,10 +133,7 @@ impl MethodInfo {
         } else {
             match descriptor {
                 Either::Left(signature) => {
-                    if signature.type_params.len() == 1 {
-                        write!(ind, "<{}> ", signature.type_params[0])?;
-                    }
-                    write!(ind, "{} {}", &signature.ret, method_name)
+                    write!(ind, "{signature} {method_name}")
                 }
                 Either::Right(descriptor) => write!(ind, "{} {}", &descriptor.ret, method_name),
             }

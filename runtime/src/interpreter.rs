@@ -20,8 +20,6 @@ pub struct Interpreter {
     method_area: MethodArea,
     frame_stack: FrameStack,
     #[cfg_attr(test, serde(skip_serializing))]
-    native_stack: (),
-    #[cfg_attr(test, serde(skip_serializing))]
     jni_env: JNIEnv,
     heap: Heap,
     string_pool: StringPool,
@@ -40,7 +38,6 @@ impl Interpreter {
             last_pop_frame: None,
             method_area,
             frame_stack: thread_stack,
-            native_stack: (),
             jni_env,
             heap,
             string_pool,
@@ -109,7 +106,10 @@ impl Interpreter {
         debug!("Executing instruction: {:?}", instruction);
         if !matches!(
             instruction,
-            Instruction::Goto(_) | Instruction::IfIcmpge(_) | Instruction::Ifnonnull(_)
+            Instruction::Goto(_)
+                | Instruction::IfIcmpge(_)
+                | Instruction::Ifnonnull(_)
+                | Instruction::IfNe(_)
         ) {
             *self.frame_stack.cur_frame_pc_mut()? += instruction.byte_size() as usize;
         }
@@ -179,6 +179,21 @@ impl Interpreter {
                     _ => panic!("ifnonnull on non-object value"),
                 }
             }
+            Instruction::IfNe(offset) => {
+                let pc = *self.frame_stack.cur_frame_pc()?;
+                let value = self.frame_stack.cur_frame_pop_operand()?;
+                match value {
+                    Value::Integer(i) => {
+                        let new_pc = if i != 0 {
+                            Self::branch16(pc, *offset)
+                        } else {
+                            pc + instruction.byte_size() as usize
+                        };
+                        *self.frame_stack.cur_frame_pc_mut()? = new_pc;
+                    }
+                    _ => panic!("ifne on non-integer value"),
+                }
+            }
             Instruction::Putstatic(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
                 let field_ref = cp.get_fieldref(idx)?;
@@ -236,7 +251,7 @@ impl Interpreter {
                     Value::Integer(c) if c >= 0 => {
                         let addr = self.heap.alloc_array_ref(class, c as usize);
                         self.frame_stack
-                            .cur_frame_push_operand(Value::Object(Some(addr)))?;
+                            .cur_frame_push_operand(Value::Array(Some(addr)))?;
                     }
                     Value::Integer(_) => {
                         return Err(JvmError::NegativeArraySizeException);
@@ -296,7 +311,7 @@ impl Interpreter {
                 let index = self.frame_stack.cur_frame_pop_operand()?;
                 let array_ref = self.frame_stack.cur_frame_pop_operand()?;
                 match (array_ref, index) {
-                    (Value::Object(Some(arr_addr)), Value::Integer(i)) => {
+                    (Value::Array(Some(arr_addr)), Value::Integer(i)) => {
                         let heap_obj = self.heap.get_mut(arr_addr);
                         match heap_obj {
                             crate::heap::HeapObject::ArrayRef { elements, .. } => {
@@ -313,6 +328,10 @@ impl Interpreter {
                     }
                     _ => panic!("aastore on non-array object or non-integer index"),
                 }
+            }
+            Instruction::Astore0 => {
+                let value = self.frame_stack.cur_frame_pop_operand()?;
+                self.frame_stack.cur_frame_set_local(0, value)?;
             }
             Instruction::Astore1 => {
                 let value = self.frame_stack.cur_frame_pop_operand()?;
@@ -333,7 +352,7 @@ impl Interpreter {
             Instruction::ArrayLength => {
                 let array_ref = self.frame_stack.cur_frame_pop_operand()?;
                 match array_ref {
-                    Value::Object(Some(arr_addr)) => {
+                    Value::Array(Some(arr_addr)) => {
                         let heap_obj = self.heap.get(arr_addr);
                         match heap_obj {
                             crate::heap::HeapObject::ArrayRef { elements, .. } => {
@@ -498,12 +517,18 @@ impl Interpreter {
         method: &NativeMethod,
     ) -> Result<(), JvmError> {
         debug!(
-            "Running native method {}{} of class {}",
+            "Running static native method {}{} of class {}",
             method.name(),
             method.descriptor().raw(),
             class.name()?
         );
-        // TODO: pass args, native stack?
+
+        let params_count = method.descriptor().resolved().params.len();
+        let params: Vec<_> = (0..params_count)
+            .map(|_| self.frame_stack.cur_frame_pop_operand())
+            .rev()
+            .collect::<Result<_, _>>()?;
+
         let method_key = MethodKey::new(
             class.name()?.to_string(),
             method.name().to_string(),
@@ -514,7 +539,8 @@ impl Interpreter {
             .native_registry
             .get(&method_key)
             .ok_or(JvmError::NoSuchMethod(format!("{method_key:?}")))?;
-        method(&mut self.jni_env, &[]);
+        let ret_value = method(&mut self.jni_env, params.as_slice());
+        self.frame_stack.cur_frame_push_operand(ret_value)?;
         Ok(())
     }
 

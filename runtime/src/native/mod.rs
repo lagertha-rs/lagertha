@@ -35,7 +35,7 @@ impl NativeRegistry {
                 "registerNatives".to_string(),
                 "()V".to_string(),
             ),
-            register_system_methods,
+            java_lang_system_register_natives,
         );
         instance.register(
             MethodKey::new(
@@ -43,7 +43,31 @@ impl NativeRegistry {
                 "registerNatives".to_string(),
                 "()V".to_string(),
             ),
-            register_class_methods,
+            java_lang_class_register_natives,
+        );
+        instance.register(
+            MethodKey::new(
+                "java/lang/Class".to_string(),
+                "desiredAssertionStatus0".to_string(),
+                "(Ljava/lang/Class;)Z".to_string(),
+            ),
+            java_lang_class_desired_assertion_status_0,
+        );
+        instance.register(
+            MethodKey::new(
+                "jdk/internal/util/SystemProps$Raw".to_string(),
+                "platformProperties".to_string(),
+                "()[Ljava/lang/String;".to_string(),
+            ),
+            jdk_internal_util_system_props_raw_platform_properties,
+        );
+        instance.register(
+            MethodKey::new(
+                "jdk/internal/util/SystemProps$Raw".to_string(),
+                "vmProperties".to_string(),
+                "()[Ljava/lang/String;".to_string(),
+            ),
+            jdk_internal_util_system_props_raw_vm_properties,
         );
         instance
     }
@@ -58,12 +82,30 @@ impl NativeRegistry {
     }
 }
 
-fn register_system_methods(_env: &mut JNIEnv, _args: &[Value]) -> Value {
-    debug!("Stub: Registering java.lang.System native methods");
+fn java_lang_system_register_natives(_env: &mut JNIEnv, _args: &[Value]) -> Value {
+    debug!("TODO: Stub: Registering java.lang.System native methods");
     Value::Object(None)
 }
 
-fn register_class_methods(_env: &mut JNIEnv, _args: &[Value]) -> Value {
-    debug!("Stub: Registering java.lang.Class native methods");
+fn java_lang_class_register_natives(_env: &mut JNIEnv, _args: &[Value]) -> Value {
+    debug!("TODO: Stub: Registering java.lang.Class native methods");
     Value::Object(None)
+}
+
+fn java_lang_class_desired_assertion_status_0(_env: &mut JNIEnv, _args: &[Value]) -> Value {
+    debug!("TODO: Stub: java.lang.Class.desiredAssertionStatus0");
+    Value::Integer(1)
+}
+
+fn jdk_internal_util_system_props_raw_platform_properties(
+    _env: &mut JNIEnv,
+    _args: &[Value],
+) -> Value {
+    debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.platformProperties");
+    Value::Array(None)
+}
+
+fn jdk_internal_util_system_props_raw_vm_properties(_env: &mut JNIEnv, _args: &[Value]) -> Value {
+    debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.vmProperties");
+    Value::Array(None)
 }

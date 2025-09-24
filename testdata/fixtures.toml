@@ -11,7 +11,11 @@ classes = [
     "java.io.PrintStream",
     "java.io.FilterOutputStream",
     "java.io.OutputStream",
+    "java.io.ObjectStreamField",
+    # java.util
+    "java.util.HashMap",
     # internal
     "jdk.internal.access.SharedSecrets",
-    "jdk.internal.util.SystemProps"
+    "jdk.internal.util.SystemProps",
+    "jdk.internal.util.SystemProps$Raw"
 ]

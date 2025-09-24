@@ -152,12 +152,18 @@ impl<'a> ConstantInfo {
                 let value = cursor.i32()?;
                 Self::Integer(value)
             }
-            ConstantTag::Float => todo!(),
+            ConstantTag::Float => {
+                let value = cursor.f32()?;
+                Self::Float(value)
+            }
             ConstantTag::Long => {
                 let value = cursor.i64()?;
                 Self::Long(value)
             }
-            ConstantTag::Double => todo!(),
+            ConstantTag::Double => {
+                let value = cursor.f64()?;
+                Self::Double(value)
+            }
             ConstantTag::Class => Self::Class(cursor.u16()?),
             ConstantTag::String => Self::String(cursor.u16()?),
             ConstantTag::FieldRef => {
@@ -207,6 +213,46 @@ impl<'a> ConstantInfo {
         }
     }
 
+    //TODO: check, don't want to spend too much time here, it is AI generated
+    #[cfg(feature = "pretty_print")]
+    fn format_double_minimal_javap(x: f64) -> String {
+        if x.is_finite() && x.fract() == 0.0 && x.abs() >= 1e7 {
+            return format!("{:.*E}d", 9, x);
+        }
+        if x == 0.0 {
+            return if x.is_sign_negative() {
+                "-0.0d".into()
+            } else {
+                "0.0d".into()
+            };
+        }
+        let mut s = x.to_string();
+        if !s.contains(['.', 'e', 'E']) {
+            s.push_str(".0");
+        }
+        format!("{s}d")
+    }
+
+    //TODO: check, don't want to spend too much time here, it is AI generated
+    #[cfg(feature = "pretty_print")]
+    fn format_float_minimal_javap(x: f32) -> String {
+        if x.is_finite() && x.fract() == 0.0 && x.abs() >= 1e7 {
+            return format!("{:.*E}f", 7, x);
+        }
+        if x == 0.0 {
+            return if x.is_sign_negative() {
+                "-0.0f".into()
+            } else {
+                "0.0f".into()
+            };
+        }
+        let mut s = x.to_string();
+        if !s.contains(['.', 'e', 'E']) {
+            s.push_str(".0");
+        }
+        format!("{s}f")
+    }
+
     #[cfg(feature = "pretty_print")]
     pub(crate) fn fmt_pretty(
         &self,
@@ -219,9 +265,9 @@ impl<'a> ConstantInfo {
         match self {
             ConstantInfo::Utf8(s) => writeln!(ind, "{}", s.escape_debug()),
             ConstantInfo::Integer(i) => writeln!(ind, "{i}"),
-            ConstantInfo::Float(fl) => writeln!(ind, "{fl}"),
+            ConstantInfo::Float(fl) => writeln!(ind, "{}", Self::format_float_minimal_javap(*fl)),
             ConstantInfo::Long(l) => writeln!(ind, "{l}l"),
-            ConstantInfo::Double(d) => writeln!(ind, "{d}"),
+            ConstantInfo::Double(d) => writeln!(ind, "{}", Self::format_double_minimal_javap(*d)),
             ConstantInfo::String(index) => writeln!(
                 ind,
                 "{:<op_w$} // {}",
@@ -321,9 +367,9 @@ impl<'a> ConstantInfo {
         Ok(match self {
             ConstantInfo::Utf8(s) => format!("utf8 {}", s),
             ConstantInfo::Integer(i) => format!("int {}", i),
-            ConstantInfo::Float(fl) => format!("float {}", fl),
+            ConstantInfo::Float(fl) => format!("float {}", Self::format_float_minimal_javap(*fl)),
             ConstantInfo::Long(l) => format!("long {}l", l),
-            ConstantInfo::Double(d) => format!("double {}", d),
+            ConstantInfo::Double(d) => format!("double {}", Self::format_double_minimal_javap(*d)),
             ConstantInfo::Class(index) => {
                 format!("class {}", cp.get_pretty_class_name_utf8(index)?)
             }

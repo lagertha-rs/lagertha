@@ -189,7 +189,25 @@ impl<'a> StackMapFrame {
                     Ok(())
                 })?;
             }
-            StackMapFrame::SameLocals1StackItemExtended { .. } => unimplemented!(),
+            StackMapFrame::SameLocals1StackItemExtended {
+                offset_delta,
+                stack,
+            } => {
+                writeln!(
+                    ind,
+                    "{} /* same_locals_1_stack_item_frame_extended */",
+                    offset_delta + 100
+                )?;
+                ind.with_indent(|ind| {
+                    writeln!(ind, "offset_delta = {offset_delta}")?;
+                    writeln!(
+                        ind,
+                        "stack = [ {} ]",
+                        pretty_try!(ind, stack.get_pretty_value(cp, this))
+                    )?;
+                    Ok(())
+                })?;
+            }
             StackMapFrame::Chop { k, offset_delta } => {
                 writeln!(ind, "{} /* chop */", 251 - k)?;
                 ind.with_indent(|ind| {

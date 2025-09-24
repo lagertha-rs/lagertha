@@ -8,7 +8,8 @@ frame_stack:
   frames: []
 heap:
   objects:
-    - Instance:
+    - type: Instance
+      value:
         class: classes/default_fields_values/InstanceDefaultValuesMain$ClassWithFields
         fields:
           - Object: ~

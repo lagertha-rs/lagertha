@@ -1,0 +1,493 @@
+---
+source: class_file/src/lib.rs
+expression: display
+---
+public class jdk.internal.util.SystemProps$Raw 
+  minor version: 0
+  major version: 68
+  flags: (0x0021) ACC_PUBLIC, ACC_SUPER
+  this_class: #1                       //jdk/internal/util/SystemProps$Raw
+  super_class: #4                      //java/lang/Object
+  interfaces: 0, fields: 41, methods: 5, attributes: 3
+Constant pool:
+    #1 = Class              #2               // jdk/internal/util/SystemProps$Raw
+    #2 = Utf8               jdk/internal/util/SystemProps$Raw
+    #3 = Methodref          #4.#5            // java/lang/Object."<init>":()V
+    #4 = Class              #6               // java/lang/Object
+    #5 = NameAndType        #7:#8            // "<init>":()V
+    #6 = Utf8               java/lang/Object
+    #7 = Utf8               <init>
+    #8 = Utf8               ()V
+    #9 = Methodref          #1.#10           // jdk/internal/util/SystemProps$Raw.platformProperties:()[Ljava/lang/String;
+   #10 = NameAndType        #11:#12          // platformProperties:()[Ljava/lang/String;
+   #11 = Utf8               platformProperties
+   #12 = Utf8               ()[Ljava/lang/String;
+   #13 = Fieldref           #1.#14           // jdk/internal/util/SystemProps$Raw.platformProps:[Ljava/lang/String;
+   #14 = NameAndType        #15:#16          // platformProps:[Ljava/lang/String;
+   #15 = Utf8               platformProps
+   #16 = Utf8               [Ljava/lang/String;
+   #17 = Methodref          #1.#18           // jdk/internal/util/SystemProps$Raw.vmProperties:()[Ljava/lang/String;
+   #18 = NameAndType        #19:#12          // vmProperties:()[Ljava/lang/String;
+   #19 = Utf8               vmProperties
+   #20 = Class              #21              // java/util/HashMap
+   #21 = Utf8               java/util/HashMap
+   #22 = Methodref          #20.#23          // java/util/HashMap."<init>":(I)V
+   #23 = NameAndType        #7:#24           // "<init>":(I)V
+   #24 = Utf8               (I)V
+   #25 = String             #26              // 
+   #26 = Utf8               
+   #27 = Methodref          #20.#28          // java/util/HashMap.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+   #28 = NameAndType        #29:#30          // put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+   #29 = Utf8               put
+   #30 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+   #31 = Utf8               _display_country_NDX
+   #32 = Utf8               I
+   #33 = Utf8               ConstantValue
+   #34 = Integer            0
+   #35 = Utf8               _display_language_NDX
+   #36 = Integer            1
+   #37 = Utf8               _display_script_NDX
+   #38 = Integer            2
+   #39 = Utf8               _display_variant_NDX
+   #40 = Integer            3
+   #41 = Utf8               _file_encoding_NDX
+   #42 = Integer            4
+   #43 = Utf8               _file_separator_NDX
+   #44 = Integer            5
+   #45 = Utf8               _format_country_NDX
+   #46 = Integer            6
+   #47 = Utf8               _format_language_NDX
+   #48 = Integer            7
+   #49 = Utf8               _format_script_NDX
+   #50 = Integer            8
+   #51 = Utf8               _format_variant_NDX
+   #52 = Integer            9
+   #53 = Utf8               _ftp_nonProxyHosts_NDX
+   #54 = Integer            10
+   #55 = Utf8               _ftp_proxyHost_NDX
+   #56 = Integer            11
+   #57 = Utf8               _ftp_proxyPort_NDX
+   #58 = Integer            12
+   #59 = Utf8               _http_nonProxyHosts_NDX
+   #60 = Integer            13
+   #61 = Utf8               _http_proxyHost_NDX
+   #62 = Integer            14
+   #63 = Utf8               _http_proxyPort_NDX
+   #64 = Integer            15
+   #65 = Utf8               _https_proxyHost_NDX
+   #66 = Integer            16
+   #67 = Utf8               _https_proxyPort_NDX
+   #68 = Integer            17
+   #69 = Utf8               _java_io_tmpdir_NDX
+   #70 = Integer            18
+   #71 = Utf8               _line_separator_NDX
+   #72 = Integer            19
+   #73 = Utf8               _os_arch_NDX
+   #74 = Integer            20
+   #75 = Utf8               _os_name_NDX
+   #76 = Integer            21
+   #77 = Utf8               _os_version_NDX
+   #78 = Integer            22
+   #79 = Utf8               _path_separator_NDX
+   #80 = Integer            23
+   #81 = Utf8               _socksNonProxyHosts_NDX
+   #82 = Integer            24
+   #83 = Utf8               _socksProxyHost_NDX
+   #84 = Integer            25
+   #85 = Utf8               _socksProxyPort_NDX
+   #86 = Integer            26
+   #87 = Utf8               _stderr_encoding_NDX
+   #88 = Integer            27
+   #89 = Utf8               _stdout_encoding_NDX
+   #90 = Integer            28
+   #91 = Utf8               _sun_arch_abi_NDX
+   #92 = Integer            29
+   #93 = Utf8               _sun_arch_data_model_NDX
+   #94 = Integer            30
+   #95 = Utf8               _sun_cpu_endian_NDX
+   #96 = Integer            31
+   #97 = Utf8               _sun_cpu_isalist_NDX
+   #98 = Integer            32
+   #99 = Utf8               _sun_io_unicode_encoding_NDX
+  #100 = Integer            33
+  #101 = Utf8               _sun_jnu_encoding_NDX
+  #102 = Integer            34
+  #103 = Utf8               _sun_os_patch_level_NDX
+  #104 = Integer            35
+  #105 = Utf8               _user_dir_NDX
+  #106 = Integer            36
+  #107 = Utf8               _user_home_NDX
+  #108 = Integer            37
+  #109 = Utf8               _user_name_NDX
+  #110 = Integer            38
+  #111 = Utf8               FIXED_LENGTH
+  #112 = Integer            39
+  #113 = Utf8               Code
+  #114 = Utf8               LineNumberTable
+  #115 = Utf8               LocalVariableTable
+  #116 = Utf8               this
+  #117 = Utf8               Ljdk/internal/util/SystemProps$Raw;
+  #118 = Utf8               propDefault
+  #119 = Utf8               (I)Ljava/lang/String;
+  #120 = Utf8               index
+  #121 = Utf8               cmdProperties
+  #122 = Utf8               ()Ljava/util/HashMap;
+  #123 = Utf8               v
+  #124 = Utf8               Ljava/lang/String;
+  #125 = Utf8               k
+  #126 = Utf8               i
+  #127 = Utf8               vmProps
+  #128 = Utf8               cmdProps
+  #129 = Utf8               Ljava/util/HashMap;
+  #130 = Utf8               LocalVariableTypeTable
+  #131 = Utf8               Ljava/util/HashMap<Ljava/lang/String;Ljava/lang/String;>;
+  #132 = Utf8               StackMapTable
+  #133 = Class              #16              // "[Ljava/lang/String;"
+  #134 = Class              #135             // java/lang/String
+  #135 = Utf8               java/lang/String
+  #136 = Utf8               Signature
+  #137 = Utf8               ()Ljava/util/HashMap<Ljava/lang/String;Ljava/lang/String;>;
+  #138 = Utf8               SourceFile
+  #139 = Utf8               SystemProps.java
+  #140 = Utf8               NestHost
+  #141 = Class              #142             // jdk/internal/util/SystemProps
+  #142 = Utf8               jdk/internal/util/SystemProps
+  #143 = Utf8               InnerClasses
+  #144 = Utf8               Raw
+{
+  private static final int _display_country_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 0
+  
+  private static final int _display_language_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 1
+  
+  private static final int _display_script_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 2
+  
+  private static final int _display_variant_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 3
+  
+  private static final int _file_encoding_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 4
+  
+  private static final int _file_separator_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 5
+  
+  private static final int _format_country_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 6
+  
+  private static final int _format_language_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 7
+  
+  private static final int _format_script_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 8
+  
+  private static final int _format_variant_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 9
+  
+  private static final int _ftp_nonProxyHosts_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 10
+  
+  private static final int _ftp_proxyHost_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 11
+  
+  private static final int _ftp_proxyPort_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 12
+  
+  private static final int _http_nonProxyHosts_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 13
+  
+  private static final int _http_proxyHost_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 14
+  
+  private static final int _http_proxyPort_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 15
+  
+  private static final int _https_proxyHost_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 16
+  
+  private static final int _https_proxyPort_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 17
+  
+  private static final int _java_io_tmpdir_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 18
+  
+  private static final int _line_separator_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 19
+  
+  private static final int _os_arch_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 20
+  
+  private static final int _os_name_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 21
+  
+  private static final int _os_version_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 22
+  
+  private static final int _path_separator_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 23
+  
+  private static final int _socksNonProxyHosts_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 24
+  
+  private static final int _socksProxyHost_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 25
+  
+  private static final int _socksProxyPort_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 26
+  
+  private static final int _stderr_encoding_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 27
+  
+  private static final int _stdout_encoding_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 28
+  
+  private static final int _sun_arch_abi_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 29
+  
+  private static final int _sun_arch_data_model_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 30
+  
+  private static final int _sun_cpu_endian_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 31
+  
+  private static final int _sun_cpu_isalist_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 32
+  
+  private static final int _sun_io_unicode_encoding_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 33
+  
+  private static final int _sun_jnu_encoding_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 34
+  
+  private static final int _sun_os_patch_level_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 35
+  
+  private static final int _user_dir_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 36
+  
+  private static final int _user_home_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 37
+  
+  private static final int _user_name_NDX;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 38
+  
+  private static final int FIXED_LENGTH;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 39
+  
+  private final java.lang.String[] platformProps;
+    descriptor: [Ljava/lang/String;
+    flags: (0x0012) ACC_PRIVATE, ACC_FINAL
+  
+  private jdk.internal.util.SystemProps$Raw();
+    descriptor: ()V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: aload_0                 
+         1: invokespecial #3                  // Method java/lang/Object."<init>":()V
+         4: aload_0                 
+         5: invokestatic  #9                  // Method platformProperties:()[Ljava/lang/String;
+         8: putfield      #13                 // Field platformProps:[Ljava/lang/String;
+        11: return                  
+      LineNumberTable:
+        line 262: 0
+        line 263: 4
+        line 264: 11
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       12     0  this   Ljdk/internal/util/SystemProps$Raw;
+  
+  java.lang.String propDefault(int);
+    descriptor: (I)Ljava/lang/String;
+    flags: (0x0000) 
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #13                 // Field platformProps:[Ljava/lang/String;
+         4: iload_1                 
+         5: aaload                  
+         6: areturn                 
+      LineNumberTable:
+        line 272: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        7     0  this   Ljdk/internal/util/SystemProps$Raw;
+           0        7     1  index  I
+  
+  private java.util.HashMap<java.lang.String, java.lang.String> cmdProperties();
+    descriptor: ()Ljava/util/HashMap;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=4, locals=6, args_size=1
+         0: invokestatic  #17                 // Method vmProperties:()[Ljava/lang/String;
+         3: astore_1                
+         4: new           #20                 // class java/util/HashMap
+         7: dup                     
+         8: aload_1                 
+         9: arraylength             
+        10: iconst_2                
+        11: idiv                    
+        12: bipush        39                
+        14: iadd                    
+        15: invokespecial #22                 // Method java/util/HashMap."<init>":(I)V
+        18: astore_2                
+        19: iconst_0                
+        20: istore_3                
+        21: iload_3                 
+        22: aload_1                 
+        23: arraylength             
+        24: if_icmpge     70                
+        27: aload_1                 
+        28: iload_3                 
+        29: iinc          3, 1              
+        32: aaload                  
+        33: astore        4                 
+        35: aload         4                 
+        37: ifnull        70                
+        40: aload_1                 
+        41: iload_3                 
+        42: iinc          3, 1              
+        45: aaload                  
+        46: astore        5                 
+        48: aload_2                 
+        49: aload         4                 
+        51: aload         5                 
+        53: ifnull        61                
+        56: aload         5                 
+        58: goto          63                
+        61: ldc           #25                 // String 
+        63: invokevirtual #27                 // Method java/util/HashMap.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        66: pop                     
+        67: goto          21                
+        70: aload_2                 
+        71: areturn                 
+      LineNumberTable:
+        line 283: 0
+        line 287: 4
+        line 288: 19
+        line 289: 27
+        line 290: 35
+        line 291: 40
+        line 292: 48
+        line 297: 67
+        line 298: 70
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          48       19     5  v      Ljava/lang/String;
+          35       32     4  k      Ljava/lang/String;
+          21       49     3  i      I
+           0       72     0  this   Ljdk/internal/util/SystemProps$Raw;
+           4       68     1  vmProps [Ljava/lang/String;
+          19       53     2  cmdProps Ljava/util/HashMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            19       53     2  cmdProps   Ljava/util/HashMap<Ljava/lang/String;Ljava/lang/String;>;
+      StackMapTable: number_of_entries = 4
+        frame_type = 254 /* append */
+          offset_delta = 21
+          locals = [class "[Ljava/lang/String;", class java/util/HashMap, int]
+        frame_type = 255 /* full_frame */
+          offset_delta = 39
+          locals = [class jdk/internal/util/SystemProps$Raw, class "[Ljava/lang/String;", class java/util/HashMap, int, class java/lang/String, class java/lang/String]
+          stack = [class java/util/HashMap, class java/lang/String]
+        frame_type = 255 /* full_frame */
+          offset_delta = 1
+          locals = [class jdk/internal/util/SystemProps$Raw, class "[Ljava/lang/String;", class java/util/HashMap, int, class java/lang/String, class java/lang/String]
+          stack = [class java/util/HashMap, class java/lang/String, class java/lang/String]
+        frame_type = 248 /* chop */
+          offset_delta = 6
+    Signature: #137                        // ()Ljava/util/HashMap<Ljava/lang/String;Ljava/lang/String;>;
+  
+  private static native java.lang.String[] vmProperties();
+    descriptor: ()[Ljava/lang/String;
+    flags: (0x010a) ACC_PRIVATE, ACC_STATIC, ACC_NATIVE
+  
+  private static native java.lang.String[] platformProperties();
+    descriptor: ()[Ljava/lang/String;
+    flags: (0x010a) ACC_PRIVATE, ACC_STATIC, ACC_NATIVE
+}
+SourceFile: "SystemProps.java"
+NestHost: class jdk/internal/util/SystemProps
+InnerClasses:
+  public static #144= #1 of #141;             // Raw=class jdk/internal/util/SystemProps$Raw of class jdk/internal/util/SystemProps

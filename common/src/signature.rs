@@ -226,6 +226,35 @@ impl fmt::Display for ClassSignature {
     }
 }
 
+impl fmt::Display for MethodSignature {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        if !self.type_params.is_empty() {
+            write!(f, "<")?;
+            for (i, tp) in self.type_params.iter().enumerate() {
+                if i > 0 {
+                    write!(f, ", ")?;
+                }
+                write!(f, "{tp}")?;
+            }
+            write!(f, "> ")?;
+        }
+
+        write!(f, "{}", self.ret)?;
+
+        if !self.throws.is_empty() {
+            write!(f, " throws ")?;
+            for (i, t) in self.throws.iter().enumerate() {
+                if i > 0 {
+                    write!(f, ", ")?;
+                }
+                write!(f, "{t}")?;
+            }
+        }
+
+        Ok(())
+    }
+}
+
 impl fmt::Display for FormalTypeParam {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.name)?;

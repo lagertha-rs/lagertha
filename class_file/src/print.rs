@@ -12,6 +12,10 @@ fn instruction_is_position(instruction: &Instruction) -> bool {
             | Instruction::Astore(_)
             | Instruction::Bipush(_)
             | Instruction::Goto(_)
+            | Instruction::Dload(_)
+            | Instruction::Dstore(_)
+            | Instruction::Fload(_)
+            | Instruction::Fstore(_)
             | Instruction::IfAcmpEq(_)
             | Instruction::IfAcmpNe(_)
             | Instruction::IfEq(_)
@@ -50,6 +54,10 @@ fn get_instruction_value(instruction: &Instruction, pc: i32) -> Option<String> {
         Instruction::Getfield(val) => Some(val.to_string()),
         Instruction::Getstatic(val) => Some(val.to_string()),
         Instruction::Goto(val) => Some(((*val as i32) + pc).to_string()),
+        Instruction::Dload(val) => Some(val.to_string()),
+        Instruction::Dstore(val) => Some(val.to_string()),
+        Instruction::Fload(val) => Some(val.to_string()),
+        Instruction::Fstore(val) => Some(val.to_string()),
         Instruction::Instanceof(val) => Some(val.to_string()),
         Instruction::IfAcmpEq(val) => Some(((*val as i32) + pc).to_string()),
         Instruction::IfAcmpNe(val) => Some(((*val as i32) + pc).to_string()),

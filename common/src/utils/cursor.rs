@@ -67,6 +67,14 @@ impl<'a> ByteCursor<'a> {
         Ok(i64::from_be_bytes(self.take::<8>()?))
     }
 
+    pub fn f32(&mut self) -> Result<f32, CursorError> {
+        Ok(f32::from_bits(self.u32()?))
+    }
+
+    pub fn f64(&mut self) -> Result<f64, CursorError> {
+        Ok(f64::from_bits(self.u64()?))
+    }
+
     pub fn try_u8(&mut self) -> Option<u8> {
         if self.remaining() == 0 {
             None

@@ -54,6 +54,7 @@ pub enum Value {
     Float(f32),
     Double(f64),
     Object(Option<HeapAddr>),
+    Array(Option<HeapAddr>),
 }
 
 impl Type {
@@ -64,6 +65,7 @@ impl Type {
             Type::Float => Value::Float(0.0),
             Type::Long => Value::Long(0),
             Type::Instance(_) => Value::Object(None),
+            Type::Array(_) => Value::Array(None),
             _ => panic!("No default value for type: {:?}", self), //TODO
         }
     }
@@ -79,6 +81,7 @@ impl Type {
             (Type::Float, Value::Float(_)) => true,
             (Type::Double, Value::Double(_)) => true,
             (Type::Instance(_), Value::Object(_)) => true, //TODO: check class compatibility
+            (Type::Array(_), Value::Array(_)) => true,     //TODO: check class compatibility
             _ => false,
         }
     }
