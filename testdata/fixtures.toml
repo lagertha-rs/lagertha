@@ -14,6 +14,7 @@ classes = [
     "java.io.ObjectStreamField",
     # java.util
     "java.util.HashMap",
+    "java.util.AbstractMap",
     # internal
     "jdk.internal.access.SharedSecrets",
     "jdk.internal.util.SystemProps",
