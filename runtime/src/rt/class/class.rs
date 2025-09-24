@@ -108,7 +108,7 @@ impl Class {
         let mut fields = vec![];
         let mut field_idx: NatHashMap<usize> = HashMap::new();
 
-        for (i, field) in cf.fields.into_iter().enumerate() {
+        for field in cf.fields.into_iter() {
             if field.access_flags.is_static() {
                 let resolved_field = StaticField::new(field, &cp)?;
                 let name = resolved_field.name_arc();
@@ -122,7 +122,7 @@ impl Class {
                 field_idx
                     .entry(field.name_arc())
                     .or_default()
-                    .insert(field.descriptor().raw_arc(), i);
+                    .insert(field.descriptor().raw_arc(), fields.len());
                 fields.push(field);
             }
         }
