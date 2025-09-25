@@ -1,6 +1,6 @@
 use crate::VirtualMachine;
 use crate::error::JvmError;
-use crate::heap::Heap;
+use crate::heap::{Heap, HeapObject};
 use crate::method_area::MethodArea;
 use common::jtype::{HeapAddr, Value};
 use std::collections::HashMap;
@@ -109,9 +109,18 @@ fn java_lang_class_desired_assertion_status_0(_vm: &mut VirtualMachine, _args: &
     Value::Integer(1)
 }
 
-fn java_lang_class_get_primitive_class(_vm: &mut VirtualMachine, _args: &[Value]) -> Value {
+fn java_lang_class_get_primitive_class(vm: &mut VirtualMachine, args: &[Value]) -> Value {
     debug!("TODO: Stub: java.lang.Class.getPrimitiveClass");
-    Value::Integer(1)
+    if let Value::Object(Some(h)) = &args[0] {
+        if let HeapObject::String(s) = vm.heap().borrow().get(*h) {
+            let prim = vm.method_area.get_primitive_mirror(s).unwrap();
+            Value::Object(Some(prim))
+        } else {
+            panic!("java.lang.Class.getPrimitiveClass: expected String object");
+        }
+    } else {
+        panic!("java.lang.Class.getPrimitiveClass: expected String object");
+    }
 }
 
 fn jdk_internal_util_system_props_raw_platform_properties(

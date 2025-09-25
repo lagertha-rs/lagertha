@@ -111,6 +111,7 @@ impl Interpreter {
                 | Instruction::IfNe(_)
                 | Instruction::IfGe(_)
                 | Instruction::IfLe(_)
+                | Instruction::IfEq(_)
                 | Instruction::IfIcmple(_)
         ) {
             *self.frame_stack.cur_frame_pc_mut()? += instruction.byte_size() as usize;
@@ -155,12 +156,34 @@ impl Interpreter {
                 let value = self.frame_stack.cur_frame_get_local(2)?.clone();
                 self.frame_stack.cur_frame_push_operand(value)?;
             }
+            Instruction::Fload0 => {
+                let value = self.frame_stack.cur_frame_get_local(0)?.clone();
+                self.frame_stack.cur_frame_push_operand(value)?;
+            }
             Instruction::Fload2 => {
                 let value = self.frame_stack.cur_frame_get_local(2)?.clone();
                 self.frame_stack.cur_frame_push_operand(value)?;
             }
             Instruction::Fconst0 => {
                 self.frame_stack.cur_frame_push_operand(Value::Float(0.0))?;
+            }
+            Instruction::Fcmpl => {
+                let value2 = self.frame_stack.cur_frame_pop_operand()?;
+                let value1 = self.frame_stack.cur_frame_pop_operand()?;
+                match (value1, value2) {
+                    (Value::Float(v1), Value::Float(v2)) => {
+                        let res = if v1 < v2 {
+                            -1
+                        } else if v1 == v2 {
+                            0
+                        } else {
+                            1
+                        };
+                        self.frame_stack
+                            .cur_frame_push_operand(Value::Integer(res))?;
+                    }
+                    _ => panic!("fcmpl on non-float values"),
+                }
             }
             Instruction::Fcmpg => {
                 let value2 = self.frame_stack.cur_frame_pop_operand()?;
@@ -178,6 +201,21 @@ impl Interpreter {
                             .cur_frame_push_operand(Value::Integer(res))?;
                     }
                     _ => panic!("fcmpg on non-float values"),
+                }
+            }
+            Instruction::IfEq(offset) => {
+                let pc = *self.frame_stack.cur_frame_pc()?;
+                let value = self.frame_stack.cur_frame_pop_operand()?;
+                match value {
+                    Value::Integer(i) => {
+                        let new_pc = if i == 0 {
+                            Self::branch16(pc, *offset)
+                        } else {
+                            pc + instruction.byte_size() as usize
+                        };
+                        *self.frame_stack.cur_frame_pc_mut()? = new_pc;
+                    }
+                    _ => panic!("ifeq on non-integer value"),
                 }
             }
             Instruction::IfLe(offset) => {
