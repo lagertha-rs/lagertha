@@ -1,4 +1,5 @@
 use crate::ClassFormatErr;
+use crate::attribute::method::MethodAttribute;
 use crate::attribute::{AttributeType, SharedAttribute};
 use crate::constant::pool::ConstantPool;
 use common::utils::cursor::ByteCursor;
@@ -117,7 +118,11 @@ impl<'a> ClassAttribute {
                 let method_index = cursor.u16()?;
                 Ok(ClassAttribute::EnclosingMethod(class_index, method_index))
             }
-            AttributeType::Signature => Ok(ClassAttribute::Shared(SharedAttribute::read(
+            AttributeType::RuntimeVisibleAnnotations
+            | AttributeType::Synthetic
+            | AttributeType::Deprecated
+            | AttributeType::RuntimeInvisibleAnnotations
+            | AttributeType::Signature => Ok(ClassAttribute::Shared(SharedAttribute::read(
                 attribute_type,
                 cursor,
             )?)),

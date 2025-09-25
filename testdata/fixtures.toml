@@ -7,6 +7,7 @@ classes = [
     "java.lang.System$1",
     "java.lang.System",
     "java.lang.Class",
+    "java.lang.Float",
     # java.io
     "java.io.PrintStream",
     "java.io.FilterOutputStream",

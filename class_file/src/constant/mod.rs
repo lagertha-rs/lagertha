@@ -235,22 +235,50 @@ impl<'a> ConstantInfo {
 
     //TODO: check, don't want to spend too much time here, it is AI generated
     #[cfg(feature = "pretty_print")]
-    fn format_float_minimal_javap(x: f32) -> String {
-        if x.is_finite() && x.fract() == 0.0 && x.abs() >= 1e7 {
-            return format!("{:.*E}f", 7, x);
+    #[cfg(feature = "pretty_print")]
+    pub fn format_float_minimal_javap(x: f32) -> String {
+        use std::f32;
+
+        if x.is_nan() {
+            return "NaNf".to_string();
         }
-        if x == 0.0 {
-            return if x.is_sign_negative() {
-                "-0.0f".into()
+        if x.is_infinite() {
+            return if x.is_sign_positive() {
+                "Infinityf".to_string()
             } else {
-                "0.0f".into()
+                "-Infinityf".to_string()
             };
         }
+
+        if x == 0.0 {
+            return if x.is_sign_negative() {
+                "-0.0f".to_string()
+            } else {
+                "0.0f".to_string()
+            };
+        }
+
+        let abs_x = x.abs();
+
+        if abs_x < 1e-3 || abs_x >= 1e7 {
+            let formatted;
+
+            if abs_x < f32::MIN_POSITIVE {
+                formatted = format!("{:.1E}", x);
+            } else {
+                formatted = format!("{:.7E}", x);
+            }
+
+            return format!("{}f", formatted);
+        }
+
         let mut s = x.to_string();
+
         if !s.contains(['.', 'e', 'E']) {
             s.push_str(".0");
         }
-        format!("{s}f")
+
+        format!("{}f", s)
     }
 
     #[cfg(feature = "pretty_print")]
