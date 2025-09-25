@@ -1,27 +1,40 @@
 use crate::MethodKey;
 use crate::heap::Heap;
-use common::jtype::Value;
+use crate::method_area::MethodArea;
+use common::jtype::{HeapAddr, Value};
 use std::collections::HashMap;
 use tracing_log::log::debug;
 
+//TODO: right now JNIEnv owns MethodArea and Heap for simplicity, but it should be references instead
 #[cfg_attr(test, derive(serde::Serialize))]
 pub struct JNIEnv {
     #[cfg_attr(test, serde(skip_serializing))]
     pub native_registry: NativeRegistry,
+    #[cfg_attr(test, serde(skip_serializing))]
+    method_area: MethodArea,
     heap: Heap,
 }
 
 impl JNIEnv {
-    pub fn new(heap: Heap) -> Self {
+    pub fn new(heap: Heap, method_area: MethodArea) -> Self {
         debug!("Creating new JNIEnv");
         Self {
             heap,
+            method_area,
             native_registry: NativeRegistry::new(),
         }
     }
 
+    pub fn get_mirror(&mut self, class_name: &str) -> Result<HeapAddr, crate::JvmError> {
+        self.method_area.get_mirror(class_name, &mut self.heap)
+    }
+
     pub fn heap(&mut self) -> &mut Heap {
         &mut self.heap
+    }
+
+    pub fn method_area(&self) -> &MethodArea {
+        &self.method_area
     }
 }
 
@@ -114,7 +127,9 @@ fn jdk_internal_util_system_props_raw_platform_properties(
     Value::Array(None)
 }
 
-fn jdk_internal_util_system_props_raw_vm_properties(_env: &mut JNIEnv, _args: &[Value]) -> Value {
+fn jdk_internal_util_system_props_raw_vm_properties(env: &mut JNIEnv, _args: &[Value]) -> Value {
     debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.vmProperties");
-    Value::Array(None)
+    let string_class = env.method_area().get_class("java/lang/String").unwrap();
+    let h = env.heap().alloc_array_ref(string_class, 0);
+    Value::Array(Some(h))
 }

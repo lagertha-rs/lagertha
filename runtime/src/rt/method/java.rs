@@ -10,6 +10,7 @@ use class_file::attribute::method::{CodeAttribute, MethodAttribute};
 use class_file::attribute::{Annotation, SharedAttribute};
 use class_file::flags::MethodFlags;
 use class_file::method::MethodInfo;
+use log::warn;
 use once_cell::sync::OnceCell as SyncOnceCell;
 use std::cell::OnceCell;
 use std::sync::Arc;
@@ -77,7 +78,7 @@ impl Method {
                 MethodAttribute::Exceptions(v) => exceptions
                     .set(v)
                     .map_err(|_| LinkageError::DuplicatedExceptionAttribute)?,
-                _ => unimplemented!(),
+                other => warn!("Unimplemented method attribute is ignored: {:?}", other),
             }
         }
 

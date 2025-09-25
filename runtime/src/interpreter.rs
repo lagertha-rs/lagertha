@@ -16,8 +16,6 @@ use tracing_log::log::debug;
 
 #[cfg_attr(test, derive(serde::Serialize))]
 pub struct Interpreter {
-    #[cfg_attr(test, serde(skip_serializing))]
-    method_area: MethodArea,
     frame_stack: FrameStack,
     jni_env: JNIEnv,
     #[cfg(test)]
@@ -27,11 +25,10 @@ pub struct Interpreter {
 impl Interpreter {
     pub fn new(vm_config: &VmConfig, method_area: MethodArea) -> Self {
         let thread_stack = FrameStack::new(vm_config);
-        let jni_env = JNIEnv::new(Heap::new());
+        let jni_env = JNIEnv::new(Heap::new(), method_area);
         Self {
             #[cfg(test)]
             last_pop_frame: None,
-            method_area,
             frame_stack: thread_stack,
             jni_env,
         }
@@ -39,6 +36,10 @@ impl Interpreter {
 
     fn heap(&mut self) -> &mut Heap {
         self.jni_env.heap()
+    }
+
+    fn method_area(&self) -> &MethodArea {
+        self.jni_env.method_area()
     }
 
     fn pop_frame(&mut self) -> Result<(), JvmError> {
@@ -201,7 +202,7 @@ impl Interpreter {
             Instruction::Putstatic(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
                 let field_ref = cp.get_fieldref(idx)?;
-                let class = self.method_area.get_class(field_ref.class()?.name()?)?;
+                let class = self.method_area().get_class(field_ref.class()?.name()?)?;
                 self.ensure_initialized(Some(&class))?;
                 let field_nat = field_ref.name_and_type()?;
                 class.set_static_field(field_nat, self.frame_stack.cur_frame_pop_operand()?)?;
@@ -209,7 +210,7 @@ impl Interpreter {
             Instruction::Getstatic(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
                 let field_ref = cp.get_fieldref(idx)?;
-                let class = self.method_area.get_class(field_ref.class()?.name()?)?;
+                let class = self.method_area().get_class(field_ref.class()?.name()?)?;
                 self.ensure_initialized(Some(&class))?;
                 let field_nat = field_ref.name_and_type()?;
                 let value = class.get_static_field_value(field_nat)?;
@@ -218,7 +219,7 @@ impl Interpreter {
             Instruction::InvokeStatic(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
                 let method_ref = cp.get_methodref(idx)?;
-                let class = self.method_area.get_class(method_ref.class()?.name()?)?;
+                let class = self.method_area().get_class(method_ref.class()?.name()?)?;
                 self.ensure_initialized(Some(&class))?;
                 let method = class.get_static_method_by_nat(method_ref)?;
                 self.run_static_method_type(&class, method)?;
@@ -226,7 +227,7 @@ impl Interpreter {
             Instruction::InvokeInterface(idx, _count) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
                 let method_ref = cp.get_interface_methodref(idx)?;
-                let class = self.method_area.get_class(method_ref.class()?.name()?)?;
+                let class = self.method_area().get_class(method_ref.class()?.name()?)?;
                 let method = class.get_virtual_method_by_nat(method_ref)?;
                 self.run_instance_method_type(method, method_ref)?;
             }
@@ -244,9 +245,7 @@ impl Interpreter {
                             .cur_frame_push_operand(Value::Object(Some(string_addr)))?;
                     }
                     RuntimeConstant::Class(class) => {
-                        let class_mirror = self
-                            .method_area
-                            .get_mirror(class.name()?, self.jni_env.heap())?;
+                        let class_mirror = self.jni_env.get_mirror(class.name()?)?;
                         self.frame_stack
                             .cur_frame_push_operand(Value::Object(Some(class_mirror)))?;
                     }
@@ -256,7 +255,7 @@ impl Interpreter {
             Instruction::Anewarray(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
                 let class_ref = cp.get_class(idx)?;
-                let class = self.method_area.get_class(class_ref.name()?)?;
+                let class = self.method_area().get_class(class_ref.name()?)?;
                 let count = self.frame_stack.cur_frame_pop_operand()?;
                 match count {
                     Value::Integer(c) if c >= 0 => {
@@ -273,7 +272,7 @@ impl Interpreter {
             Instruction::New(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
                 let class_ref = cp.get_class(idx)?;
-                let class = self.method_area.get_class(class_ref.name()?)?;
+                let class = self.method_area().get_class(class_ref.name()?)?;
                 self.ensure_initialized(Some(&class))?;
                 let addr = self.heap().alloc_instance(class);
                 self.frame_stack
@@ -286,14 +285,14 @@ impl Interpreter {
             Instruction::InvokeSpecial(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
                 let method_ref = cp.get_methodref(idx)?;
-                let class = self.method_area.get_class(method_ref.class()?.name()?)?;
+                let class = self.method_area().get_class(method_ref.class()?.name()?)?;
                 let method = class.get_virtual_method_by_nat(method_ref)?;
                 self.run_instance_method_type(method, method_ref)?;
             }
             Instruction::InvokeVirtual(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
                 let method_ref = cp.get_methodref(idx)?;
-                let class = self.method_area.get_class(method_ref.class()?.name()?)?;
+                let class = self.method_area().get_class(method_ref.class()?.name()?)?;
                 let method = class.get_virtual_method_by_nat(method_ref)?;
                 self.run_instance_method_type(method, method_ref)?;
             }
@@ -374,7 +373,7 @@ impl Interpreter {
                             _ => panic!("arraylength on non-array object"),
                         }
                     }
-                    Value::Object(None) => {
+                    Value::Array(None) => {
                         return Err(JvmError::NullPointerException);
                     }
                     _ => panic!("arraylength on non-array object"),
@@ -620,7 +619,7 @@ impl Interpreter {
 
     //TODO: redisign start method (maybe return Value, maybe take args)
     pub fn start(&mut self, data: Vec<u8>) -> Result<(), JvmError> {
-        let main_class = self.method_area.add_class(data)?;
+        let main_class = self.method_area().add_class(data)?;
         let main_method = main_class
             .find_main_method()
             .ok_or(JvmError::NoMainClassFound(main_class.name()?.to_string()))?;
