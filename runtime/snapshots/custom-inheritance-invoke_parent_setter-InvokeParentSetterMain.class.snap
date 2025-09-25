@@ -6,10 +6,31 @@ frame_stack:
   max_size: 256
   max_operand_stack_size: 256
   frames: []
-jni_env:
+vm:
   heap:
     objects:
       - address: 0
+        type: Instance
+        value:
+          class: java/lang/Class
+          fields:
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Integer: 0
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+      - address: 1
         type: Instance
         value:
           class: inheritance/invoke_parent_setter/InvokeParentSetterMain$Child
@@ -19,6 +40,6 @@ jni_env:
 last_pop_frame:
   locals:
     - ~
-    - Object: 0
+    - Object: 1
   operands: []
   pc: 16

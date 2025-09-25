@@ -1,5 +1,6 @@
+use crate::VmConfig;
+use crate::error::JvmError;
 use crate::rt::constant_pool::RuntimeConstantPool;
-use crate::{JvmError, VmConfig};
 use common::jtype::Value;
 use log::debug;
 use std::sync::Arc;

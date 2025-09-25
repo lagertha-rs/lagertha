@@ -1,33 +1,51 @@
+use crate::VmConfig;
 use crate::class_loader::ClassLoader;
+use crate::error::JvmError;
 use crate::heap::Heap;
 use crate::rt::class::LinkageError;
 use crate::rt::class::class::Class;
-use crate::{JvmError, VmConfig};
 use class_file::ClassFile;
 use common::jtype::HeapAddr;
 use dashmap::DashMap;
+use std::cell::RefCell;
+use std::rc::Rc;
 use std::sync::Arc;
 use tracing_log::log::debug;
-//TODO: finally need to decide to return Arc<Class> or &Arc<Class>
 
+//TODO: finally need to decide to return Arc<Class> or &Arc<Class>
+//TODO: the class loading process is working stub, need to be improved and respect the spec
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.5.4
 pub struct MethodArea {
-    vm_config: Arc<VmConfig>,
     bootstrap_class_loader: ClassLoader,
     classes: DashMap<String, Arc<Class>>,
+    primitives: DashMap<String, HeapAddr>,
+    heap: Rc<RefCell<Heap>>,
 }
 
 impl MethodArea {
-    pub fn new(vm_config: Arc<VmConfig>) -> Result<Self, JvmError> {
+    pub fn new(vm_config: &VmConfig, heap: Rc<RefCell<Heap>>) -> Result<Self, JvmError> {
         debug!("Initializing MethodArea...");
-        let bootstrap_class_loader = ClassLoader::new(vm_config.clone())?;
+        let bootstrap_class_loader = ClassLoader::new(vm_config)?;
         let classes = DashMap::new();
-        debug!("MethodArea initialized");
-        Ok(Self {
-            vm_config,
+        let primitives = DashMap::new();
+        let method_area = Self {
             classes,
+            primitives,
             bootstrap_class_loader,
-        })
+            heap,
+        };
+
+        debug!("Preloading java/lang/Class...");
+        let class = method_area.get_class("java/lang/Class")?;
+
+        debug!("Creating mirrors for primitive types...");
+        //TODO: right now just float, needed to be all and probably with strong types
+        let mirror = method_area.heap.borrow_mut().alloc_instance(class);
+
+        method_area.primitives.insert("float".to_string(), mirror);
+
+        debug!("MethodArea initialized");
+        Ok(method_area)
     }
 
     fn load_with_bytes(&self, data: Vec<u8>) -> Result<Arc<Class>, JvmError> {
@@ -57,14 +75,18 @@ impl MethodArea {
         Ok(class)
     }
 
-    pub fn get_mirror(&self, name: &str, heap: &mut Heap) -> Result<HeapAddr, JvmError> {
+    pub fn get_mirror(&self, name: &str) -> Result<HeapAddr, JvmError> {
         let target_class = self.get_class(name)?;
         if let Some(mirror) = target_class.mirror() {
             return Ok(mirror);
         }
         let class_class = self.get_class("java/lang/Class")?;
-        let mirror = heap.alloc_instance(class_class);
+        let mirror = self.heap.borrow_mut().alloc_instance(class_class);
         target_class.set_mirror(mirror)?;
         Ok(mirror)
+    }
+
+    pub fn get_primitive_mirror(&self, name: &str) -> Option<HeapAddr> {
+        self.primitives.get(name).map(|v| *v)
     }
 }

@@ -1,4 +1,4 @@
-use crate::JvmError;
+use crate::error::JvmError;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::constant_pool::reference::FieldDescriptorReference;
 use class_file::field::FieldInfo;

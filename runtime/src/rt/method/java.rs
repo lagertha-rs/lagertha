@@ -1,4 +1,4 @@
-use crate::JvmError;
+use crate::error::JvmError;
 use crate::rt::class::LinkageError;
 use crate::rt::class::class::Class;
 use crate::rt::constant_pool::RuntimeConstantPool;

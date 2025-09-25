@@ -1,6 +1,6 @@
 // TODO: very primitive implementation, ok for right now
 
-use crate::JvmError;
+use crate::error::JvmError;
 use crate::rt::class::class::Class;
 use crate::rt::constant_pool::reference::NameAndTypeReference;
 use common::jtype::{HeapAddr, Value};

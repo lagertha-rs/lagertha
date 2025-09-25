@@ -1,44 +1,26 @@
-use crate::MethodKey;
+use crate::VirtualMachine;
+use crate::error::JvmError;
 use crate::heap::Heap;
 use crate::method_area::MethodArea;
 use common::jtype::{HeapAddr, Value};
 use std::collections::HashMap;
 use tracing_log::log::debug;
 
-//TODO: right now JNIEnv owns MethodArea and Heap for simplicity, but it should be references instead
-#[cfg_attr(test, derive(serde::Serialize))]
-pub struct JNIEnv {
-    #[cfg_attr(test, serde(skip_serializing))]
-    pub native_registry: NativeRegistry,
-    #[cfg_attr(test, serde(skip_serializing))]
-    method_area: MethodArea,
-    heap: Heap,
+//TODO: avoid string allocations here
+#[derive(Hash, Eq, PartialEq, Clone, Debug)]
+pub struct MethodKey {
+    pub class: String,
+    pub name: String,
+    pub desc: String,
 }
 
-impl JNIEnv {
-    pub fn new(heap: Heap, method_area: MethodArea) -> Self {
-        debug!("Creating new JNIEnv");
-        Self {
-            heap,
-            method_area,
-            native_registry: NativeRegistry::new(),
-        }
-    }
-
-    pub fn get_mirror(&mut self, class_name: &str) -> Result<HeapAddr, crate::JvmError> {
-        self.method_area.get_mirror(class_name, &mut self.heap)
-    }
-
-    pub fn heap(&mut self) -> &mut Heap {
-        &mut self.heap
-    }
-
-    pub fn method_area(&self) -> &MethodArea {
-        &self.method_area
+impl MethodKey {
+    pub fn new(class: String, name: String, desc: String) -> Self {
+        Self { class, name, desc }
     }
 }
 
-pub type NativeFn = fn(&mut JNIEnv, &[Value]) -> Value;
+pub type NativeFn = fn(&mut VirtualMachine, &[Value]) -> Value;
 
 pub struct NativeRegistry {
     map: HashMap<MethodKey, NativeFn>,
@@ -91,6 +73,14 @@ impl NativeRegistry {
             ),
             jdk_internal_util_system_props_raw_vm_properties,
         );
+        instance.register(
+            MethodKey::new(
+                "java/lang/Class".to_string(),
+                "getPrimitiveClass".to_string(),
+                "(Ljava/lang/String;)Ljava/lang/Class;".to_string(),
+            ),
+            java_lang_class_get_primitive_class,
+        );
         instance
     }
 
@@ -104,32 +94,40 @@ impl NativeRegistry {
     }
 }
 
-fn java_lang_system_register_natives(_env: &mut JNIEnv, _args: &[Value]) -> Value {
+fn java_lang_system_register_natives(_vm: &mut VirtualMachine, _args: &[Value]) -> Value {
     debug!("TODO: Stub: Registering java.lang.System native methods");
     Value::Object(None)
 }
 
-fn java_lang_class_register_natives(_env: &mut JNIEnv, _args: &[Value]) -> Value {
+fn java_lang_class_register_natives(_vm: &mut VirtualMachine, _args: &[Value]) -> Value {
     debug!("TODO: Stub: Registering java.lang.Class native methods");
     Value::Object(None)
 }
 
-fn java_lang_class_desired_assertion_status_0(_env: &mut JNIEnv, _args: &[Value]) -> Value {
+fn java_lang_class_desired_assertion_status_0(_vm: &mut VirtualMachine, _args: &[Value]) -> Value {
     debug!("TODO: Stub: java.lang.Class.desiredAssertionStatus0");
     Value::Integer(1)
 }
 
+fn java_lang_class_get_primitive_class(_vm: &mut VirtualMachine, _args: &[Value]) -> Value {
+    debug!("TODO: Stub: java.lang.Class.getPrimitiveClass");
+    Value::Integer(1)
+}
+
 fn jdk_internal_util_system_props_raw_platform_properties(
-    _env: &mut JNIEnv,
+    _vm: &mut VirtualMachine,
     _args: &[Value],
 ) -> Value {
     debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.platformProperties");
     Value::Array(None)
 }
 
-fn jdk_internal_util_system_props_raw_vm_properties(env: &mut JNIEnv, _args: &[Value]) -> Value {
+fn jdk_internal_util_system_props_raw_vm_properties(
+    vm: &mut VirtualMachine,
+    _args: &[Value],
+) -> Value {
     debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.vmProperties");
-    let string_class = env.method_area().get_class("java/lang/String").unwrap();
-    let h = env.heap().alloc_array_ref(string_class, 0);
+    let string_class = vm.method_area().get_class("java/lang/String").unwrap();
+    let h = vm.heap().borrow_mut().alloc_array_ref(string_class, 0);
     Value::Array(Some(h))
 }

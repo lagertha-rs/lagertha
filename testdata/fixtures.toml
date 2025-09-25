@@ -8,6 +8,7 @@ classes = [
     "java.lang.System",
     "java.lang.Class",
     "java.lang.Float",
+    "java.lang.Number",
     # java.io
     "java.io.PrintStream",
     "java.io.FilterOutputStream",

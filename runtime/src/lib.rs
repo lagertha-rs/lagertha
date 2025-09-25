@@ -1,88 +1,20 @@
-use crate::class_loader::ClassLoaderErr;
+use crate::error::JvmError;
+use crate::heap::Heap;
 use crate::interpreter::Interpreter;
 use crate::method_area::MethodArea;
-use crate::rt::class::LinkageError;
-use crate::rt::constant_pool::error::RuntimePoolError;
-use common::utils::cursor::CursorError;
-use std::sync::Arc;
-use thiserror::Error;
+use crate::native::NativeRegistry;
+use std::cell::RefCell;
+use std::rc::Rc;
 use tracing_log::log::debug;
 
 mod class_loader;
+pub mod error;
 mod heap;
 mod interpreter;
 mod method_area;
 mod native;
 pub mod rt;
 pub mod stack;
-
-//TODO: avoid string allocations here
-#[derive(Hash, Eq, PartialEq, Clone, Debug)]
-pub struct MethodKey {
-    pub class: String,
-    pub name: String,
-    pub desc: String,
-}
-
-impl MethodKey {
-    pub fn new(class: String, name: String, desc: String) -> Self {
-        Self { class, name, desc }
-    }
-}
-
-#[derive(Debug, Error)]
-pub enum JvmError {
-    #[error("LinkageError: {0}")]
-    Linkage(#[from] LinkageError),
-    #[error(transparent)]
-    Cursor(#[from] CursorError),
-    #[error("RuntimeConstantPoolError: {0}")]
-    RuntimePool(#[from] RuntimePoolError),
-    #[error(transparent)]
-    ClassLoader(#[from] ClassLoaderErr),
-    #[error("MissingAttributeInConstantPoll")]
-    MissingAttributeInConstantPoll,
-    #[error("ConstantNotFoundInRuntimePool")]
-    ConstantNotFoundInRuntimePool,
-    #[error("TrailingBytes")]
-    TrailingBytes,
-    #[error("ClassNotFoundException: {0}")]
-    ClassNotFound(String),
-    #[error("stack overflow")]
-    StackOverflow,
-    #[error("Frame stack is empty")]
-    FrameStackIsEmpty,
-    #[error("Operand stack is empty")]
-    OperandStackIsEmpty,
-    #[error("OutOfMemory")]
-    OutOfMemory,
-    #[error("Could not find or load main class {0}")]
-    NoMainClassFound(String),
-    #[error("NoSuchMethod: {0}")]
-    NoSuchMethod(String),
-    #[error("NoSuchField: {0}")]
-    FieldNotFound(String),
-    #[error("LocalVariableNotFound: {0}")]
-    LocalVariableNotFound(u8),
-    #[error("LocalVariableNotInitialized: {0}")]
-    LocalVariableNotInitialized(u8),
-    #[error("TypeDescriptorErr: {0}")]
-    TypeDescriptorErr(#[from] common::TypeDescriptorErr),
-    #[error("NullPointerException")]
-    NullPointerException,
-    #[error("InstructionErr: {0}")]
-    InstructionErr(#[from] common::InstructionErr),
-    #[error("ClassMirrorIsAlreadyCreated")]
-    ClassMirrorIsAlreadyCreated,
-    #[error("NegativeArraySizeException")]
-    NegativeArraySizeException,
-    #[error("ArrayIndexOutOfBoundsException")]
-    ArrayIndexOutOfBoundsException,
-    #[error("Method is not expecting to be abstract `{0}`")]
-    MethodIsAbstract(String),
-    #[error("ArithmeticException `{0}`")]
-    ArithmeticException(String),
-}
 
 #[derive(Debug)]
 pub struct VmConfig {
@@ -107,15 +39,58 @@ impl VmConfig {
     }
 }
 
+pub struct VirtualMachine {
+    config: VmConfig,
+    method_area: MethodArea,
+    heap: Rc<RefCell<Heap>>,
+    native_registry: NativeRegistry,
+}
+
+impl VirtualMachine {
+    pub fn new(config: VmConfig) -> Result<Self, JvmError> {
+        config.validate();
+        let heap = Rc::new(RefCell::new(Heap::new()));
+        let method_area = MethodArea::new(&config, heap.clone())?;
+        let native_registry = NativeRegistry::new();
+        Ok(Self {
+            config,
+            method_area,
+            heap,
+            native_registry,
+        })
+    }
+
+    pub fn method_area(&self) -> &MethodArea {
+        &self.method_area
+    }
+
+    pub fn heap(&self) -> Rc<RefCell<Heap>> {
+        self.heap.clone()
+    }
+}
+
 pub fn start(main_class: Vec<u8>, config: VmConfig) -> Result<(), JvmError> {
     debug!("Starting VM with config: {:?}", config);
-    config.validate();
 
-    let vm_config = Arc::new(config);
-    let method_area = MethodArea::new(vm_config.clone())?;
+    let vm = VirtualMachine::new(config)?;
 
-    let mut interpreter = Interpreter::new(&vm_config, method_area);
+    let mut interpreter = Interpreter::new(vm);
     interpreter.start(main_class)
+}
+
+#[cfg(test)]
+impl serde::Serialize for VirtualMachine {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        use std::ops::Deref;
+
+        let mut state = serializer.serialize_struct("VirtualMachine", 3)?;
+        state.serialize_field("heap", self.heap.borrow().deref())?;
+        state.end()
+    }
 }
 
 #[cfg(test)]
@@ -174,9 +149,8 @@ mod tests {
         let bytes = fs::read(&path).unwrap_or_else(|_| panic!("Can't read file {:?}", path));
         let mut base_config = vm_config();
         base_config.class_path.push(main_base_package_dir(&path));
-        let vm_config = Arc::new(base_config);
-        let method_area = MethodArea::new(vm_config.clone()).expect("Failed to create MethodArea");
-        let mut interpreter = Interpreter::new(&vm_config, method_area);
+        let vm = VirtualMachine::new(base_config).unwrap();
+        let mut interpreter = Interpreter::new(vm);
 
         // When
         interpreter

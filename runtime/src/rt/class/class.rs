@@ -1,4 +1,4 @@
-use crate::JvmError;
+use crate::error::JvmError;
 use crate::method_area::MethodArea;
 use crate::rt::class::field::{Field, StaticField};
 use crate::rt::constant_pool::RuntimeConstantPool;

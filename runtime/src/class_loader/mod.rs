@@ -1,8 +1,8 @@
+use crate::VmConfig;
 use crate::class_loader::jmod::BootstrapJmodClassLoader;
 use crate::class_loader::system::SystemClassLoader;
-use crate::{JvmError, VmConfig};
+use crate::error::JvmError;
 use std::path::PathBuf;
-use std::sync::Arc;
 use thiserror::Error;
 use tracing_log::log::debug;
 
@@ -32,13 +32,12 @@ struct ClassSource {
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-5.html#jvms-5.3.1
 #[derive(Debug)]
 pub struct ClassLoader {
-    vm_config: Arc<VmConfig>,
     bootstrap: BootstrapJmodClassLoader,
     system: SystemClassLoader,
 }
 
 impl ClassLoader {
-    pub fn new(vm_config: Arc<VmConfig>) -> Result<Self, ClassLoaderErr> {
+    pub fn new(vm_config: &VmConfig) -> Result<Self, ClassLoaderErr> {
         debug!("Creating BootstrapClassLoader...");
         let java_home = &vm_config.home;
         let jmods_dir = format!("{}/jmods", java_home);
@@ -50,7 +49,6 @@ impl ClassLoader {
         debug!("Creating SystemClassLoader...");
         let system_loader = SystemClassLoader::new(&vm_config.class_path)?;
         Ok(Self {
-            vm_config,
             bootstrap: jmod_loader,
             system: system_loader,
         })
