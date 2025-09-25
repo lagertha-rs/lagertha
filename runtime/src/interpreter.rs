@@ -108,6 +108,9 @@ impl Interpreter {
                 | Instruction::IfIcmpge(_)
                 | Instruction::Ifnonnull(_)
                 | Instruction::IfNe(_)
+                | Instruction::IfGe(_)
+                | Instruction::IfLe(_)
+                | Instruction::IfIcmple(_)
         ) {
             *self.frame_stack.cur_frame_pc_mut()? += instruction.byte_size() as usize;
         }
@@ -151,6 +154,61 @@ impl Interpreter {
                 let value = self.frame_stack.cur_frame_get_local(2)?.clone();
                 self.frame_stack.cur_frame_push_operand(value)?;
             }
+            Instruction::Fload2 => {
+                let value = self.frame_stack.cur_frame_get_local(2)?.clone();
+                self.frame_stack.cur_frame_push_operand(value)?;
+            }
+            Instruction::Fconst0 => {
+                self.frame_stack.cur_frame_push_operand(Value::Float(0.0))?;
+            }
+            Instruction::Fcmpg => {
+                let value2 = self.frame_stack.cur_frame_pop_operand()?;
+                let value1 = self.frame_stack.cur_frame_pop_operand()?;
+                match (value1, value2) {
+                    (Value::Float(v1), Value::Float(v2)) => {
+                        let res = if v1 > v2 {
+                            1
+                        } else if v1 == v2 {
+                            0
+                        } else {
+                            -1
+                        };
+                        self.frame_stack
+                            .cur_frame_push_operand(Value::Integer(res))?;
+                    }
+                    _ => panic!("fcmpg on non-float values"),
+                }
+            }
+            Instruction::IfLe(offset) => {
+                let pc = *self.frame_stack.cur_frame_pc()?;
+                let value = self.frame_stack.cur_frame_pop_operand()?;
+                match value {
+                    Value::Integer(i) => {
+                        let new_pc = if i <= 0 {
+                            Self::branch16(pc, *offset)
+                        } else {
+                            pc + instruction.byte_size() as usize
+                        };
+                        *self.frame_stack.cur_frame_pc_mut()? = new_pc;
+                    }
+                    _ => panic!("ifle on non-integer value"),
+                }
+            }
+            Instruction::IfGe(offset) => {
+                let pc = *self.frame_stack.cur_frame_pc()?;
+                let value = self.frame_stack.cur_frame_pop_operand()?;
+                match value {
+                    Value::Integer(i) => {
+                        let new_pc = if i >= 0 {
+                            Self::branch16(pc, *offset)
+                        } else {
+                            pc + instruction.byte_size() as usize
+                        };
+                        *self.frame_stack.cur_frame_pc_mut()? = new_pc;
+                    }
+                    _ => panic!("ifge on non-integer value"),
+                }
+            }
             Instruction::IfIcmpge(offset) => {
                 let pc = *self.frame_stack.cur_frame_pc()?;
 
@@ -167,6 +225,24 @@ impl Interpreter {
                         *self.frame_stack.cur_frame_pc_mut()? = new_pc;
                     }
                     _ => panic!("if_icmpge on non-integer values"),
+                }
+            }
+            Instruction::IfIcmple(offset) => {
+                let pc = *self.frame_stack.cur_frame_pc()?;
+
+                let value2 = self.frame_stack.cur_frame_pop_operand()?;
+                let value1 = self.frame_stack.cur_frame_pop_operand()?;
+
+                match (value1, value2) {
+                    (Value::Integer(v1), Value::Integer(v2)) => {
+                        let new_pc = if v1 <= v2 {
+                            Self::branch16(pc, *offset)
+                        } else {
+                            pc + instruction.byte_size() as usize
+                        };
+                        *self.frame_stack.cur_frame_pc_mut()? = new_pc;
+                    }
+                    _ => panic!("if_icmple on non-integer values"),
                 }
             }
             Instruction::Ifnonnull(offset) => {
@@ -248,6 +324,14 @@ impl Interpreter {
                         let class_mirror = self.jni_env.get_mirror(class.name()?)?;
                         self.frame_stack
                             .cur_frame_push_operand(Value::Object(Some(class_mirror)))?;
+                    }
+                    RuntimeConstant::Float(value) => {
+                        self.frame_stack
+                            .cur_frame_push_operand(Value::Float(*value))?;
+                    }
+                    RuntimeConstant::Integer(value) => {
+                        self.frame_stack
+                            .cur_frame_push_operand(Value::Integer(*value))?;
                     }
                     _ => unimplemented!("Ldc for constant {:?}", raw),
                 }
@@ -413,6 +497,22 @@ impl Interpreter {
                             .cur_frame_push_operand(Value::Integer(v1 + v2))?;
                     }
                     _ => panic!("iadd on non-integer values"),
+                }
+            }
+            Instruction::Idiv => {
+                let value2 = self.frame_stack.cur_frame_pop_operand()?;
+                let value1 = self.frame_stack.cur_frame_pop_operand()?;
+                match (value1, value2) {
+                    (Value::Integer(_), Value::Integer(0)) => {
+                        return Err(JvmError::ArithmeticException(
+                            "Division by zero".to_string(),
+                        ));
+                    }
+                    (Value::Integer(v1), Value::Integer(v2)) => {
+                        self.frame_stack
+                            .cur_frame_push_operand(Value::Integer(v1 / v2))?;
+                    }
+                    _ => panic!("idiv on non-integer values"),
                 }
             }
             Instruction::Iinc(index, const_val) => {

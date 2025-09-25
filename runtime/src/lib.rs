@@ -80,6 +80,8 @@ pub enum JvmError {
     ArrayIndexOutOfBoundsException,
     #[error("Method is not expecting to be abstract `{0}`")]
     MethodIsAbstract(String),
+    #[error("ArithmeticException `{0}`")]
+    ArithmeticException(String),
 }
 
 #[derive(Debug)]
