@@ -260,14 +260,12 @@ impl<'a> ConstantInfo {
 
         let abs_x = x.abs();
 
-        if abs_x < 1e-3 || abs_x >= 1e7 {
-            let formatted;
-
-            if abs_x < f32::MIN_POSITIVE {
-                formatted = format!("{:.1E}", x);
+        if !(1e-3..1e7).contains(&abs_x) {
+            let formatted = if abs_x < f32::MIN_POSITIVE {
+                format!("{:.1E}", x)
             } else {
-                formatted = format!("{:.7E}", x);
-            }
+                format!("{:.7E}", x)
+            };
 
             return format!("{}f", formatted);
         }

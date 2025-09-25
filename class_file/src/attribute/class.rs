@@ -1,5 +1,4 @@
 use crate::ClassFormatErr;
-use crate::attribute::method::MethodAttribute;
 use crate::attribute::{AttributeType, SharedAttribute};
 use crate::constant::pool::ConstantPool;
 use common::utils::cursor::ByteCursor;
