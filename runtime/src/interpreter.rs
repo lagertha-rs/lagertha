@@ -8,7 +8,6 @@ use crate::rt::method::java::Method;
 use crate::rt::method::native::NativeMethod;
 use crate::rt::method::{StaticMethodType, VirtualMethodType};
 use crate::stack::{Frame, FrameStack};
-use crate::string_pool::StringPool;
 use crate::{JvmError, MethodKey, VmConfig};
 use common::instruction::Instruction;
 use common::jtype::Value;
@@ -20,10 +19,7 @@ pub struct Interpreter {
     #[cfg_attr(test, serde(skip_serializing))]
     method_area: MethodArea,
     frame_stack: FrameStack,
-    #[cfg_attr(test, serde(skip_serializing))]
     jni_env: JNIEnv,
-    heap: Heap,
-    string_pool: StringPool,
     #[cfg(test)]
     last_pop_frame: Option<Frame>,
 }
@@ -31,18 +27,18 @@ pub struct Interpreter {
 impl Interpreter {
     pub fn new(vm_config: &VmConfig, method_area: MethodArea) -> Self {
         let thread_stack = FrameStack::new(vm_config);
-        let jni_env = JNIEnv::new();
-        let heap = Heap::new();
-        let string_pool = StringPool::new();
+        let jni_env = JNIEnv::new(Heap::new());
         Self {
             #[cfg(test)]
             last_pop_frame: None,
             method_area,
             frame_stack: thread_stack,
             jni_env,
-            heap,
-            string_pool,
         }
+    }
+
+    fn heap(&mut self) -> &mut Heap {
+        self.jni_env.heap()
     }
 
     fn pop_frame(&mut self) -> Result<(), JvmError> {
@@ -243,14 +239,14 @@ impl Interpreter {
                 let raw = cp.get(idx)?;
                 match raw {
                     RuntimeConstant::String(data) => {
-                        let string_addr =
-                            self.string_pool.get_or_new(&mut self.heap, data.value()?);
+                        let string_addr = self.heap().get_or_new(data.value()?);
                         self.frame_stack
                             .cur_frame_push_operand(Value::Object(Some(string_addr)))?;
                     }
                     RuntimeConstant::Class(class) => {
-                        let class_mirror =
-                            self.method_area.get_mirror(class.name()?, &mut self.heap)?;
+                        let class_mirror = self
+                            .method_area
+                            .get_mirror(class.name()?, self.jni_env.heap())?;
                         self.frame_stack
                             .cur_frame_push_operand(Value::Object(Some(class_mirror)))?;
                     }
@@ -264,7 +260,7 @@ impl Interpreter {
                 let count = self.frame_stack.cur_frame_pop_operand()?;
                 match count {
                     Value::Integer(c) if c >= 0 => {
-                        let addr = self.heap.alloc_array_ref(class, c as usize);
+                        let addr = self.heap().alloc_array_ref(class, c as usize);
                         self.frame_stack
                             .cur_frame_push_operand(Value::Array(Some(addr)))?;
                     }
@@ -279,7 +275,7 @@ impl Interpreter {
                 let class_ref = cp.get_class(idx)?;
                 let class = self.method_area.get_class(class_ref.name()?)?;
                 self.ensure_initialized(Some(&class))?;
-                let addr = self.heap.alloc_instance(class);
+                let addr = self.heap().alloc_instance(class);
                 self.frame_stack
                     .cur_frame_push_operand(Value::Object(Some(addr)))?;
             }
@@ -327,7 +323,7 @@ impl Interpreter {
                 let array_ref = self.frame_stack.cur_frame_pop_operand()?;
                 match (array_ref, index) {
                     (Value::Array(Some(arr_addr)), Value::Integer(i)) => {
-                        let heap_obj = self.heap.get_mut(arr_addr);
+                        let heap_obj = self.heap().get_mut(arr_addr);
                         match heap_obj {
                             crate::heap::HeapObject::ArrayRef { elements, .. } => {
                                 if i < 0 || (i as usize) >= elements.len() {
@@ -368,7 +364,7 @@ impl Interpreter {
                 let array_ref = self.frame_stack.cur_frame_pop_operand()?;
                 match array_ref {
                     Value::Array(Some(arr_addr)) => {
-                        let heap_obj = self.heap.get(arr_addr);
+                        let heap_obj = self.heap().get(arr_addr);
                         match heap_obj {
                             crate::heap::HeapObject::ArrayRef { elements, .. } => {
                                 let length = elements.len() as i32;
@@ -398,7 +394,7 @@ impl Interpreter {
                 let object_ref = self.frame_stack.cur_frame_pop_operand()?;
                 match object_ref {
                     Value::Object(Some(o)) => {
-                        let value = self.heap.get_instance_field(&o, field_nat).clone();
+                        let value = self.heap().get_instance_field(&o, field_nat).clone();
                         self.frame_stack.cur_frame_push_operand(value)?;
                     }
                     Value::Object(None) => {
@@ -444,7 +440,7 @@ impl Interpreter {
                 let object_ref = self.frame_stack.cur_frame_pop_operand()?;
                 match object_ref {
                     Value::Object(Some(o)) => {
-                        self.heap.write_instance_field(o, field_nat, value)?;
+                        self.heap().write_instance_field(o, field_nat, value)?;
                     }
                     Value::Object(None) => {
                         return Err(JvmError::NullPointerException);
@@ -513,7 +509,7 @@ impl Interpreter {
         }
 
         let class = match &params[0] {
-            Some(Value::Object(Some(o))) => self.heap.get_instance(o).class().clone(),
+            Some(Value::Object(Some(o))) => self.heap().get_instance(o).class().clone(),
             Some(Value::Object(None)) => return Err(JvmError::NullPointerException),
             _ => panic!("Abstract method called on non-object"),
         };

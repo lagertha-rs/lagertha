@@ -6,30 +6,35 @@ frame_stack:
   max_size: 256
   max_operand_stack_size: 256
   frames: []
-heap:
-  objects:
-    - type: Instance
-      value:
+jni_env:
+  heap:
+    objects:
+      - address: 0
+        type: Instance
+        value:
+          class: arrays/reference_array/ReferenceArrayMain$ReferenceClass
+          fields:
+            - Integer: 1
+      - address: 1
+        type: Instance
+        value:
+          class: arrays/reference_array/ReferenceArrayMain$ReferenceClass
+          fields:
+            - Integer: 2
+      - address: 2
+        type: Instance
+        value:
+          class: arrays/reference_array/ReferenceArrayMain$ReferenceClass
+          fields:
+            - Integer: 3
+      - address: 3
+        type: ArrayRef
         class: arrays/reference_array/ReferenceArrayMain$ReferenceClass
-        fields:
-          - Integer: 1
-    - type: Instance
-      value:
-        class: arrays/reference_array/ReferenceArrayMain$ReferenceClass
-        fields:
-          - Integer: 2
-    - type: Instance
-      value:
-        class: arrays/reference_array/ReferenceArrayMain$ReferenceClass
-        fields:
-          - Integer: 3
-    - type: ArrayRef
-      class: arrays/reference_array/ReferenceArrayMain$ReferenceClass
-      elements:
-        - Object: 0
-        - Object: 1
-        - Object: 2
-string_pool: []
+        elements:
+          - Object: 0
+          - Object: 1
+          - Object: 2
+    string_pool: []
 last_pop_frame:
   locals:
     - ~

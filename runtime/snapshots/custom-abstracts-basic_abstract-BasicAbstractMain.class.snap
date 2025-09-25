@@ -6,20 +6,25 @@ frame_stack:
   max_size: 256
   max_operand_stack_size: 256
   frames: []
-heap:
-  objects:
-    - type: Instance
-      value:
-        class: abstracts/basic_abstract/BasicAbstractMain$Cat
-        fields: []
-    - type: Instance
-      value:
-        class: abstracts/basic_abstract/BasicAbstractMain$Cat
-        fields: []
-    - type: String
-      value: Meow
-string_pool:
-  - Meow
+jni_env:
+  heap:
+    objects:
+      - address: 0
+        type: Instance
+        value:
+          class: abstracts/basic_abstract/BasicAbstractMain$Cat
+          fields: []
+      - address: 1
+        type: Instance
+        value:
+          class: abstracts/basic_abstract/BasicAbstractMain$Cat
+          fields: []
+      - address: 2
+        type: String
+        value: Meow
+    string_pool:
+      - string: Meow
+        address: 2
 last_pop_frame:
   locals:
     - ~

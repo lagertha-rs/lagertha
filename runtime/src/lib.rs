@@ -15,7 +15,6 @@ mod method_area;
 mod native;
 pub mod rt;
 pub mod stack;
-mod string_pool;
 
 //TODO: avoid string allocations here
 #[derive(Hash, Eq, PartialEq, Clone, Debug)]

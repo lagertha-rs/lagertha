@@ -6,17 +6,20 @@ frame_stack:
   max_size: 256
   max_operand_stack_size: 256
   frames: []
-heap:
-  objects:
-    - type: Instance
-      value:
-        class: interfaces/basic_interface/BasicInterfaceMain$ClassImplementingSummable
-        fields: []
-    - type: Instance
-      value:
-        class: interfaces/basic_interface/BasicInterfaceMain$ClassImplementingSummable
-        fields: []
-string_pool: []
+jni_env:
+  heap:
+    objects:
+      - address: 0
+        type: Instance
+        value:
+          class: interfaces/basic_interface/BasicInterfaceMain$ClassImplementingSummable
+          fields: []
+      - address: 1
+        type: Instance
+        value:
+          class: interfaces/basic_interface/BasicInterfaceMain$ClassImplementingSummable
+          fields: []
+    string_pool: []
 last_pop_frame:
   locals:
     - ~

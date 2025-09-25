@@ -1,18 +1,27 @@
 use crate::MethodKey;
+use crate::heap::Heap;
 use common::jtype::Value;
 use std::collections::HashMap;
 use tracing_log::log::debug;
 
+#[cfg_attr(test, derive(serde::Serialize))]
 pub struct JNIEnv {
+    #[cfg_attr(test, serde(skip_serializing))]
     pub native_registry: NativeRegistry,
+    heap: Heap,
 }
 
 impl JNIEnv {
-    pub fn new() -> Self {
+    pub fn new(heap: Heap) -> Self {
         debug!("Creating new JNIEnv");
         Self {
+            heap,
             native_registry: NativeRegistry::new(),
         }
+    }
+
+    pub fn heap(&mut self) -> &mut Heap {
+        &mut self.heap
     }
 }
 

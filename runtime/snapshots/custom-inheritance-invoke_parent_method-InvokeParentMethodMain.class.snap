@@ -6,14 +6,16 @@ frame_stack:
   max_size: 256
   max_operand_stack_size: 256
   frames: []
-heap:
-  objects:
-    - type: Instance
-      value:
-        class: inheritance/invoke_parent_method/InvokeParentMethodMain$Child
-        fields:
-          - Integer: 42
-string_pool: []
+jni_env:
+  heap:
+    objects:
+      - address: 0
+        type: Instance
+        value:
+          class: inheritance/invoke_parent_method/InvokeParentMethodMain$Child
+          fields:
+            - Integer: 42
+    string_pool: []
 last_pop_frame:
   locals:
     - ~
