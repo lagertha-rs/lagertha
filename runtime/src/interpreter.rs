@@ -117,6 +117,10 @@ impl Interpreter {
             *self.frame_stack.cur_frame_pc_mut()? += instruction.byte_size() as usize;
         }
         match instruction {
+            Instruction::IconstM1 => {
+                self.frame_stack
+                    .cur_frame_push_operand(Value::Integer(-1))?;
+            }
             Instruction::Iconst0 => {
                 self.frame_stack.cur_frame_push_operand(Value::Integer(0))?;
             }
@@ -147,6 +151,10 @@ impl Interpreter {
             Instruction::Istore(idx) => {
                 let value = self.frame_stack.cur_frame_pop_operand()?;
                 self.frame_stack.cur_frame_set_local(*idx as usize, value)?;
+            }
+            Instruction::Iload0 => {
+                let value = self.frame_stack.cur_frame_get_local(0)?.clone();
+                self.frame_stack.cur_frame_push_operand(value)?;
             }
             Instruction::Iload1 => {
                 let value = self.frame_stack.cur_frame_get_local(1)?.clone();
@@ -536,6 +544,17 @@ impl Interpreter {
                             .cur_frame_push_operand(Value::Integer(v1 + v2))?;
                     }
                     _ => panic!("iadd on non-integer values"),
+                }
+            }
+            Instruction::Isub => {
+                let value2 = self.frame_stack.cur_frame_pop_operand()?;
+                let value1 = self.frame_stack.cur_frame_pop_operand()?;
+                match (value1, value2) {
+                    (Value::Integer(v1), Value::Integer(v2)) => {
+                        self.frame_stack
+                            .cur_frame_push_operand(Value::Integer(v1 - v2))?;
+                    }
+                    _ => panic!("isub on non-integer values"),
                 }
             }
             Instruction::Idiv => {
