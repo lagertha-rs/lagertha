@@ -33,9 +33,30 @@ vm:
       - address: 1
         type: Instance
         value:
+          class: java/lang/Class
+          fields:
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Integer: 0
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+      - address: 2
+        type: Instance
+        value:
           class: interfaces/basic_interface/BasicInterfaceMain$ClassImplementingSummable
           fields: []
-      - address: 2
+      - address: 3
         type: Instance
         value:
           class: interfaces/basic_interface/BasicInterfaceMain$ClassImplementingSummable
@@ -44,8 +65,8 @@ vm:
 last_pop_frame:
   locals:
     - ~
-    - Object: 1
     - Object: 2
+    - Object: 3
     - Integer: 3
     - Integer: 7
   operands: []

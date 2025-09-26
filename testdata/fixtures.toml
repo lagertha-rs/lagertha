@@ -10,6 +10,7 @@ classes = [
     "java.lang.Float",
     "java.lang.Number",
     "java.lang.Integer",
+    "java.lang.AssertionError",
     # java.io
     "java.io.PrintStream",
     "java.io.FilterOutputStream",

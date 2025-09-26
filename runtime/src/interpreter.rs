@@ -120,7 +120,7 @@ impl Interpreter {
             *self.frame_stack.cur_frame_pc_mut()? += instruction.byte_size() as usize;
         }
         match instruction {
-            Instruction::Checkcast(idx) => {
+            Instruction::Checkcast(_idx) => {
                 //TODO: stub
                 let object_ref = self.frame_stack.cur_frame_pop_operand()?;
                 self.frame_stack.cur_frame_push_operand(object_ref)?;

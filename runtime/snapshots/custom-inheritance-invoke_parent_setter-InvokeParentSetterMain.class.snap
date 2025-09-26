@@ -33,6 +33,27 @@ vm:
       - address: 1
         type: Instance
         value:
+          class: java/lang/Class
+          fields:
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Integer: 0
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+      - address: 2
+        type: Instance
+        value:
           class: inheritance/invoke_parent_setter/InvokeParentSetterMain$Child
           fields:
             - Integer: 224
@@ -40,6 +61,6 @@ vm:
 last_pop_frame:
   locals:
     - ~
-    - Object: 1
+    - Object: 2
   operands: []
   pc: 16

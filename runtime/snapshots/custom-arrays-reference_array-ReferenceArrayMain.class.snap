@@ -33,36 +33,57 @@ vm:
       - address: 1
         type: Instance
         value:
-          class: arrays/reference_array/ReferenceArrayMain$ReferenceClass
+          class: java/lang/Class
           fields:
-            - Integer: 1
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Integer: 0
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
       - address: 2
         type: Instance
         value:
           class: arrays/reference_array/ReferenceArrayMain$ReferenceClass
           fields:
-            - Integer: 2
+            - Integer: 1
       - address: 3
         type: Instance
         value:
           class: arrays/reference_array/ReferenceArrayMain$ReferenceClass
           fields:
-            - Integer: 3
+            - Integer: 2
       - address: 4
+        type: Instance
+        value:
+          class: arrays/reference_array/ReferenceArrayMain$ReferenceClass
+          fields:
+            - Integer: 3
+      - address: 5
         type: ArrayRef
         class: arrays/reference_array/ReferenceArrayMain$ReferenceClass
         elements:
-          - Object: 1
           - Object: 2
           - Object: 3
+          - Object: 4
     string_pool: []
 last_pop_frame:
   locals:
     - ~
-    - Object: 1
     - Object: 2
     - Object: 3
-    - Array: 4
+    - Object: 4
+    - Array: 5
     - Integer: 3
   operands: []
   pc: 51
