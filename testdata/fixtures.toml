@@ -13,6 +13,7 @@ classes = [
     "java.lang.AssertionError",
     "java.lang.Error",
     "java.lang.Throwable",
+    "java.lang.StackTraceElement",
     # java.io
     "java.io.PrintStream",
     "java.io.FilterOutputStream",
