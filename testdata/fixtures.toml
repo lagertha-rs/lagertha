@@ -11,6 +11,7 @@ classes = [
     "java.lang.Number",
     "java.lang.Integer",
     "java.lang.AssertionError",
+    "java.lang.Error",
     # java.io
     "java.io.PrintStream",
     "java.io.FilterOutputStream",
