@@ -40,9 +40,13 @@ impl MethodArea {
 
         debug!("Creating mirrors for primitive types...");
         //TODO: right now just float, needed to be all and probably with strong types
-        let mirror = method_area.heap.borrow_mut().alloc_instance(class);
+        let float_mirror = method_area.heap.borrow_mut().alloc_instance(class.clone());
+        let int_mirror = method_area.heap.borrow_mut().alloc_instance(class);
 
-        method_area.primitives.insert("float".to_string(), mirror);
+        method_area
+            .primitives
+            .insert("float".to_string(), float_mirror);
+        method_area.primitives.insert("int".to_string(), int_mirror);
 
         debug!("MethodArea initialized");
         Ok(method_area)

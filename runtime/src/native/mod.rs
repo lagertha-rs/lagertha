@@ -137,6 +137,6 @@ fn jdk_internal_util_system_props_raw_vm_properties(
 ) -> Value {
     debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.vmProperties");
     let string_class = vm.method_area().get_class("java/lang/String").unwrap();
-    let h = vm.heap().borrow_mut().alloc_array_ref(string_class, 0);
+    let h = vm.heap().borrow_mut().alloc_ref_array(string_class, 0);
     Value::Array(Some(h))
 }

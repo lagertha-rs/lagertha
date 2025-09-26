@@ -1,4 +1,5 @@
 use crate::InstructionErr;
+use crate::jtype::Value;
 use crate::utils::cursor::ByteCursor;
 use num_enum::TryFromPrimitive;
 use std::fmt::Formatter;
@@ -34,6 +35,21 @@ pub enum ArrayType {
     Short = 9,
     Int = 10,
     Long = 11,
+}
+
+impl From<&ArrayType> for Value {
+    fn from(array_type: &ArrayType) -> Self {
+        match array_type {
+            ArrayType::Boolean
+            | ArrayType::Byte
+            | ArrayType::Char
+            | ArrayType::Short
+            | ArrayType::Int => Value::Integer(0),
+            ArrayType::Long => Value::Long(0),
+            ArrayType::Float => Value::Float(0.0),
+            ArrayType::Double => Value::Double(0.0),
+        }
+    }
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-6.html

@@ -1,6 +1,6 @@
 use crate::VirtualMachine;
 use crate::error::JvmError;
-use crate::heap::Heap;
+use crate::heap::{Heap, HeapObject};
 use crate::method_area::MethodArea;
 use crate::native::MethodKey;
 use crate::rt::class::class::{Class, InitState};
@@ -83,7 +83,7 @@ impl Interpreter {
         self.frame_stack.push_frame(frame)?;
         loop {
             let instruction = Instruction::new_at(code, *self.frame_stack.cur_frame_pc()?)?;
-            if self.interpret_instruction(&instruction)? {
+            if self.interpret_instruction(instruction)? {
                 break;
             }
         }
@@ -101,22 +101,30 @@ impl Interpreter {
     }
 
     // TODO: replace return book with enum or set special cp values
-    fn interpret_instruction(&mut self, instruction: &Instruction) -> Result<bool, JvmError> {
+    fn interpret_instruction(&mut self, instruction: Instruction) -> Result<bool, JvmError> {
         debug!("Executing instruction: {:?}", instruction);
         if !matches!(
             instruction,
             Instruction::Goto(_)
                 | Instruction::IfIcmpge(_)
                 | Instruction::Ifnonnull(_)
+                | Instruction::IfIcmplt(_)
                 | Instruction::IfNe(_)
                 | Instruction::IfGe(_)
                 | Instruction::IfLe(_)
                 | Instruction::IfEq(_)
                 | Instruction::IfIcmple(_)
+                | Instruction::IfGt(_)
+                | Instruction::Ifnull(_)
         ) {
             *self.frame_stack.cur_frame_pc_mut()? += instruction.byte_size() as usize;
         }
         match instruction {
+            Instruction::Checkcast(idx) => {
+                //TODO: stub
+                let object_ref = self.frame_stack.cur_frame_pop_operand()?;
+                self.frame_stack.cur_frame_push_operand(object_ref)?;
+            }
             Instruction::IconstM1 => {
                 self.frame_stack
                     .cur_frame_push_operand(Value::Integer(-1))?;
@@ -136,6 +144,13 @@ impl Interpreter {
             Instruction::Iconst4 => {
                 self.frame_stack.cur_frame_push_operand(Value::Integer(4))?;
             }
+            Instruction::Iconst5 => {
+                self.frame_stack.cur_frame_push_operand(Value::Integer(5))?;
+            }
+            Instruction::Istore0 => {
+                let value = self.frame_stack.cur_frame_pop_operand()?;
+                self.frame_stack.cur_frame_set_local(1, value)?;
+            }
             Instruction::Istore1 => {
                 let value = self.frame_stack.cur_frame_pop_operand()?;
                 self.frame_stack.cur_frame_set_local(1, value)?;
@@ -150,7 +165,7 @@ impl Interpreter {
             }
             Instruction::Istore(idx) => {
                 let value = self.frame_stack.cur_frame_pop_operand()?;
-                self.frame_stack.cur_frame_set_local(*idx as usize, value)?;
+                self.frame_stack.cur_frame_set_local(idx as usize, value)?;
             }
             Instruction::Iload0 => {
                 let value = self.frame_stack.cur_frame_get_local(0)?.clone();
@@ -162,6 +177,10 @@ impl Interpreter {
             }
             Instruction::Iload2 => {
                 let value = self.frame_stack.cur_frame_get_local(2)?.clone();
+                self.frame_stack.cur_frame_push_operand(value)?;
+            }
+            Instruction::Iload3 => {
+                let value = self.frame_stack.cur_frame_get_local(3)?.clone();
                 self.frame_stack.cur_frame_push_operand(value)?;
             }
             Instruction::Fload0 => {
@@ -211,13 +230,28 @@ impl Interpreter {
                     _ => panic!("fcmpg on non-float values"),
                 }
             }
+            Instruction::Ifnull(offset) => {
+                let pc = *self.frame_stack.cur_frame_pc()?;
+                let value = self.frame_stack.cur_frame_pop_operand()?;
+                match value {
+                    Value::Object(o) | Value::Array(o) => {
+                        let new_pc = if o.is_none() {
+                            Self::branch16(pc, offset)
+                        } else {
+                            pc + instruction.byte_size() as usize
+                        };
+                        *self.frame_stack.cur_frame_pc_mut()? = new_pc;
+                    }
+                    _ => panic!("ifnull on non-object value"),
+                }
+            }
             Instruction::IfEq(offset) => {
                 let pc = *self.frame_stack.cur_frame_pc()?;
                 let value = self.frame_stack.cur_frame_pop_operand()?;
                 match value {
                     Value::Integer(i) => {
                         let new_pc = if i == 0 {
-                            Self::branch16(pc, *offset)
+                            Self::branch16(pc, offset)
                         } else {
                             pc + instruction.byte_size() as usize
                         };
@@ -226,13 +260,46 @@ impl Interpreter {
                     _ => panic!("ifeq on non-integer value"),
                 }
             }
+            Instruction::IfIcmplt(offset) => {
+                let pc = *self.frame_stack.cur_frame_pc()?;
+
+                let value2 = self.frame_stack.cur_frame_pop_operand()?;
+                let value1 = self.frame_stack.cur_frame_pop_operand()?;
+
+                match (value1, value2) {
+                    (Value::Integer(v1), Value::Integer(v2)) => {
+                        let new_pc = if v1 < v2 {
+                            Self::branch16(pc, offset)
+                        } else {
+                            pc + instruction.byte_size() as usize
+                        };
+                        *self.frame_stack.cur_frame_pc_mut()? = new_pc;
+                    }
+                    _ => panic!("if_icmplt on non-integer values"),
+                }
+            }
+            Instruction::IfGt(offset) => {
+                let pc = *self.frame_stack.cur_frame_pc()?;
+                let value = self.frame_stack.cur_frame_pop_operand()?;
+                match value {
+                    Value::Integer(i) => {
+                        let new_pc = if i > 0 {
+                            Self::branch16(pc, offset)
+                        } else {
+                            pc + instruction.byte_size() as usize
+                        };
+                        *self.frame_stack.cur_frame_pc_mut()? = new_pc;
+                    }
+                    _ => panic!("ifgt on non-integer value"),
+                }
+            }
             Instruction::IfLe(offset) => {
                 let pc = *self.frame_stack.cur_frame_pc()?;
                 let value = self.frame_stack.cur_frame_pop_operand()?;
                 match value {
                     Value::Integer(i) => {
                         let new_pc = if i <= 0 {
-                            Self::branch16(pc, *offset)
+                            Self::branch16(pc, offset)
                         } else {
                             pc + instruction.byte_size() as usize
                         };
@@ -247,7 +314,7 @@ impl Interpreter {
                 match value {
                     Value::Integer(i) => {
                         let new_pc = if i >= 0 {
-                            Self::branch16(pc, *offset)
+                            Self::branch16(pc, offset)
                         } else {
                             pc + instruction.byte_size() as usize
                         };
@@ -265,7 +332,7 @@ impl Interpreter {
                 match (value1, value2) {
                     (Value::Integer(v1), Value::Integer(v2)) => {
                         let new_pc = if v1 >= v2 {
-                            Self::branch16(pc, *offset)
+                            Self::branch16(pc, offset)
                         } else {
                             pc + instruction.byte_size() as usize
                         };
@@ -283,7 +350,7 @@ impl Interpreter {
                 match (value1, value2) {
                     (Value::Integer(v1), Value::Integer(v2)) => {
                         let new_pc = if v1 <= v2 {
-                            Self::branch16(pc, *offset)
+                            Self::branch16(pc, offset)
                         } else {
                             pc + instruction.byte_size() as usize
                         };
@@ -298,7 +365,7 @@ impl Interpreter {
                 match value {
                     Value::Object(o) => {
                         let new_pc = if o.is_some() {
-                            Self::branch16(pc, *offset)
+                            Self::branch16(pc, offset)
                         } else {
                             pc + instruction.byte_size() as usize
                         };
@@ -313,7 +380,7 @@ impl Interpreter {
                 match value {
                     Value::Integer(i) => {
                         let new_pc = if i != 0 {
-                            Self::branch16(pc, *offset)
+                            Self::branch16(pc, offset)
                         } else {
                             pc + instruction.byte_size() as usize
                         };
@@ -322,9 +389,22 @@ impl Interpreter {
                     _ => panic!("ifne on non-integer value"),
                 }
             }
+            Instruction::Iushr => {
+                let value2 = self.frame_stack.cur_frame_pop_operand()?;
+                let value1 = self.frame_stack.cur_frame_pop_operand()?;
+                match (value1, value2) {
+                    (Value::Integer(v1), Value::Integer(v2)) => {
+                        let shift = (v2 & 0x1F) as u32;
+                        let result = ((v1 as u32) >> shift) as i32;
+                        self.frame_stack
+                            .cur_frame_push_operand(Value::Integer(result))?;
+                    }
+                    _ => panic!("iushr on non-integer values"),
+                }
+            }
             Instruction::Putstatic(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
-                let field_ref = cp.get_fieldref(idx)?;
+                let field_ref = cp.get_fieldref(&idx)?;
                 let class = self.method_area().get_class(field_ref.class()?.name()?)?;
                 self.ensure_initialized(Some(&class))?;
                 let field_nat = field_ref.name_and_type()?;
@@ -332,7 +412,7 @@ impl Interpreter {
             }
             Instruction::Getstatic(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
-                let field_ref = cp.get_fieldref(idx)?;
+                let field_ref = cp.get_fieldref(&idx)?;
                 let class = self.method_area().get_class(field_ref.class()?.name()?)?;
                 self.ensure_initialized(Some(&class))?;
                 let field_nat = field_ref.name_and_type()?;
@@ -341,7 +421,7 @@ impl Interpreter {
             }
             Instruction::InvokeStatic(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
-                let method_ref = cp.get_methodref(idx)?;
+                let method_ref = cp.get_methodref(&idx)?;
                 let class = self.method_area().get_class(method_ref.class()?.name()?)?;
                 self.ensure_initialized(Some(&class))?;
                 let method = class.get_static_method_by_nat(method_ref)?;
@@ -349,7 +429,7 @@ impl Interpreter {
             }
             Instruction::InvokeInterface(idx, _count) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
-                let method_ref = cp.get_interface_methodref(idx)?;
+                let method_ref = cp.get_interface_methodref(&idx)?;
                 let class = self.method_area().get_class(method_ref.class()?.name()?)?;
                 let method = class.get_virtual_method_by_nat(method_ref)?;
                 self.run_instance_method_type(method, method_ref)?;
@@ -358,9 +438,9 @@ impl Interpreter {
                 self.frame_stack
                     .cur_frame_push_operand(Value::Object(None))?;
             }
-            Instruction::Ldc(idx) => {
+            Instruction::Ldc(idx) | Instruction::LdcW(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
-                let raw = cp.get(idx)?;
+                let raw = cp.get(&idx)?;
                 match raw {
                     RuntimeConstant::String(data) => {
                         let string_addr = self.heap.borrow_mut().get_or_new(data.value()?);
@@ -385,12 +465,12 @@ impl Interpreter {
             }
             Instruction::Anewarray(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
-                let class_ref = cp.get_class(idx)?;
+                let class_ref = cp.get_class(&idx)?;
                 let class = self.method_area().get_class(class_ref.name()?)?;
                 let count = self.frame_stack.cur_frame_pop_operand()?;
                 match count {
                     Value::Integer(c) if c >= 0 => {
-                        let addr = self.heap.borrow_mut().alloc_array_ref(class, c as usize);
+                        let addr = self.heap.borrow_mut().alloc_ref_array(class, c as usize);
                         self.frame_stack
                             .cur_frame_push_operand(Value::Array(Some(addr)))?;
                     }
@@ -400,9 +480,26 @@ impl Interpreter {
                     _ => panic!("anewarray with non-integer count"),
                 }
             }
+            Instruction::Newarray(array_type) => {
+                let count = self.frame_stack.cur_frame_pop_operand()?;
+                match count {
+                    Value::Integer(c) if c >= 0 => {
+                        let addr = self
+                            .heap
+                            .borrow_mut()
+                            .alloc_primitive_array(c as usize, array_type);
+                        self.frame_stack
+                            .cur_frame_push_operand(Value::Array(Some(addr)))?;
+                    }
+                    Value::Integer(_) => {
+                        return Err(JvmError::NegativeArraySizeException);
+                    }
+                    _ => panic!("newarray with non-integer count"),
+                }
+            }
             Instruction::New(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
-                let class_ref = cp.get_class(idx)?;
+                let class_ref = cp.get_class(&idx)?;
                 let class = self.method_area().get_class(class_ref.name()?)?;
                 self.ensure_initialized(Some(&class))?;
                 let addr = self.heap.borrow_mut().alloc_instance(class);
@@ -415,14 +512,14 @@ impl Interpreter {
             }
             Instruction::InvokeSpecial(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
-                let method_ref = cp.get_methodref(idx)?;
+                let method_ref = cp.get_methodref(&idx)?;
                 let class = self.method_area().get_class(method_ref.class()?.name()?)?;
                 let method = class.get_virtual_method_by_nat(method_ref)?;
                 self.run_instance_method_type(method, method_ref)?;
             }
             Instruction::InvokeVirtual(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
-                let method_ref = cp.get_methodref(idx)?;
+                let method_ref = cp.get_methodref(&idx)?;
                 let class = self.method_area().get_class(method_ref.class()?.name()?)?;
                 let method = class.get_virtual_method_by_nat(method_ref)?;
                 self.run_instance_method_type(method, method_ref)?;
@@ -444,8 +541,30 @@ impl Interpreter {
                 self.frame_stack.cur_frame_push_operand(value)?
             }
             Instruction::Aload(idx) => {
-                let value = self.frame_stack.cur_frame_get_local(*idx)?.clone();
+                let value = self.frame_stack.cur_frame_get_local(idx)?.clone();
                 self.frame_stack.cur_frame_push_operand(value)?
+            }
+            Instruction::Castore => {
+                let value = self.frame_stack.cur_frame_pop_operand()?;
+                let index = self.frame_stack.cur_frame_pop_operand()?;
+                let array_ptr = self.frame_stack.cur_frame_pop_operand()?;
+                match (array_ptr, index, value) {
+                    (Value::Array(Some(arr_addr)), Value::Integer(i), Value::Integer(v)) => {
+                        match self.heap.borrow_mut().get_mut(arr_addr) {
+                            HeapObject::PrimitiveArray { elements, .. } => {
+                                if i < 0 || (i as usize) >= elements.len() {
+                                    return Err(JvmError::ArrayIndexOutOfBoundsException);
+                                }
+                                elements[i as usize] = Value::Integer(v & 0xFF);
+                            }
+                            _ => panic!("castore on non-array object"),
+                        }
+                    }
+                    (Value::Object(None), _, _) => {
+                        return Err(JvmError::NullPointerException);
+                    }
+                    _ => panic!("castore on non-array object or non-integer index/value"),
+                }
             }
             Instruction::Aastore => {
                 let value = self.frame_stack.cur_frame_pop_operand()?;
@@ -454,7 +573,7 @@ impl Interpreter {
                 match (array_ref, index) {
                     (Value::Array(Some(arr_addr)), Value::Integer(i)) => {
                         match self.heap.borrow_mut().get_mut(arr_addr) {
-                            crate::heap::HeapObject::ArrayRef { elements, .. } => {
+                            HeapObject::RefArray { elements, .. } => {
                                 if i < 0 || (i as usize) >= elements.len() {
                                     return Err(JvmError::ArrayIndexOutOfBoundsException);
                                 }
@@ -487,13 +606,18 @@ impl Interpreter {
             }
             Instruction::Astore(idx) => {
                 let value = self.frame_stack.cur_frame_pop_operand()?;
-                self.frame_stack.cur_frame_set_local(*idx as usize, value)?;
+                self.frame_stack.cur_frame_set_local(idx as usize, value)?;
             }
             Instruction::ArrayLength => {
                 let array_ref = self.frame_stack.cur_frame_pop_operand()?;
                 match array_ref {
                     Value::Array(Some(arr_addr)) => match self.heap.borrow().get(arr_addr) {
-                        crate::heap::HeapObject::ArrayRef { elements, .. } => {
+                        HeapObject::RefArray { elements, .. } => {
+                            let length = elements.len() as i32;
+                            self.frame_stack
+                                .cur_frame_push_operand(Value::Integer(length))?;
+                        }
+                        HeapObject::PrimitiveArray { elements, .. } => {
                             let length = elements.len() as i32;
                             self.frame_stack
                                 .cur_frame_push_operand(Value::Integer(length))?;
@@ -508,15 +632,15 @@ impl Interpreter {
             }
             Instruction::Bipush(value) => {
                 self.frame_stack
-                    .cur_frame_push_operand(Value::Integer(*value as i32))?;
+                    .cur_frame_push_operand(Value::Integer(value as i32))?;
             }
             Instruction::Sipush(value) => {
                 self.frame_stack
-                    .cur_frame_push_operand(Value::Integer(*value as i32))?;
+                    .cur_frame_push_operand(Value::Integer(value as i32))?;
             }
             Instruction::Getfield(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
-                let field_nat = cp.get_fieldref(idx)?.name_and_type()?;
+                let field_nat = cp.get_fieldref(&idx)?.name_and_type()?;
                 let object_ref = self.frame_stack.cur_frame_pop_operand()?;
                 match object_ref {
                     Value::Object(Some(o)) => {
@@ -574,12 +698,12 @@ impl Interpreter {
                 }
             }
             Instruction::Iinc(index, const_val) => {
-                let value = self.frame_stack.cur_frame_get_local(*index)?.clone();
+                let value = self.frame_stack.cur_frame_get_local(index)?.clone();
                 match value {
                     Value::Integer(v) => {
                         self.frame_stack.cur_frame_set_local(
-                            *index as usize,
-                            Value::Integer(v + (*const_val as i32)),
+                            index as usize,
+                            Value::Integer(v + (const_val as i32)),
                         )?;
                     }
                     _ => panic!("iinc on non-integer value"),
@@ -587,12 +711,12 @@ impl Interpreter {
             }
             Instruction::Goto(offset) => {
                 let pc = *self.frame_stack.cur_frame_pc()?;
-                let new_pc = Self::branch16(pc, *offset);
+                let new_pc = Self::branch16(pc, offset);
                 *self.frame_stack.cur_frame_pc_mut()? = new_pc;
             }
             Instruction::Putfield(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
-                let field_nat = cp.get_fieldref(idx)?.name_and_type()?;
+                let field_nat = cp.get_fieldref(&idx)?.name_and_type()?;
                 let value = self.frame_stack.cur_frame_pop_operand()?;
                 let object_ref = self.frame_stack.cur_frame_pop_operand()?;
                 match object_ref {
