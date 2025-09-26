@@ -22,8 +22,9 @@ classes = [
     # java.util
     "java.util.HashMap",
     "java.util.AbstractMap",
+    "java.util.Collections",
     # internal
     "jdk.internal.access.SharedSecrets",
     "jdk.internal.util.SystemProps",
-    "jdk.internal.util.SystemProps$Raw"
+    "jdk.internal.util.SystemProps$Raw",
 ]
