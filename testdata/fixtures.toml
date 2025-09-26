@@ -9,6 +9,7 @@ classes = [
     "java.lang.Class",
     "java.lang.Float",
     "java.lang.Number",
+    "java.lang.Integer",
     # java.io
     "java.io.PrintStream",
     "java.io.FilterOutputStream",
