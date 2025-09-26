@@ -12,6 +12,7 @@ classes = [
     "java.lang.Integer",
     "java.lang.AssertionError",
     "java.lang.Error",
+    "java.lang.Throwable",
     # java.io
     "java.io.PrintStream",
     "java.io.FilterOutputStream",
