@@ -23,6 +23,10 @@ classes = [
     "java.util.HashMap",
     "java.util.AbstractMap",
     "java.util.Collections",
+    "java/util/Collections$EmptyList",
+    "java.util.Collections$EmptySet",
+    "java.util.AbstractSet",
+    "java.util.AbstractCollection",
     # internal
     "jdk.internal.access.SharedSecrets",
     "jdk.internal.util.SystemProps",
