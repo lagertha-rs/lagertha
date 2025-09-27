@@ -4,6 +4,8 @@ classes = [
     # java.lang
     "java.lang.Object",
     "java.lang.String",
+    "java.lang.String$CaseInsensitiveComparator",
+    "java.lang.StringBuilder",
     "java.lang.System$1",
     "java.lang.System",
     "java.lang.Class",
@@ -23,10 +25,12 @@ classes = [
     "java.util.HashMap",
     "java.util.AbstractMap",
     "java.util.Collections",
-    "java/util/Collections$EmptyList",
+    "java.util.Collections$EmptyList",
     "java.util.Collections$EmptySet",
+    "java.util.Collections$EmptyMap",
     "java.util.AbstractSet",
     "java.util.AbstractCollection",
+    "java.util.AbstractList",
     # internal
     "jdk.internal.access.SharedSecrets",
     "jdk.internal.util.SystemProps",

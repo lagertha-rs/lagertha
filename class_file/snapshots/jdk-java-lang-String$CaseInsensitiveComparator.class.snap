@@ -1,0 +1,213 @@
+---
+source: class_file/src/lib.rs
+expression: display
+---
+class java.lang.String$CaseInsensitiveComparator extends java.lang.Object implements java.util.Comparator<java.lang.String>, java.io.Serializable
+  minor version: 0
+  major version: 68
+  flags: (0x0020) ACC_SUPER
+  this_class: #37                      //java/lang/String$CaseInsensitiveComparator
+  super_class: #4                      //java/lang/Object
+  interfaces: 2, fields: 1, methods: 4, attributes: 4
+Constant pool:
+   #1 = Class              #2               // java/lang/String
+   #2 = Utf8               java/lang/String
+   #3 = Methodref          #4.#5            // java/lang/Object."<init>":()V
+   #4 = Class              #6               // java/lang/Object
+   #5 = NameAndType        #7:#8            // "<init>":()V
+   #6 = Utf8               java/lang/Object
+   #7 = Utf8               <init>
+   #8 = Utf8               ()V
+   #9 = Fieldref           #1.#10           // java/lang/String.value:[B
+  #10 = NameAndType        #11:#12          // value:[B
+  #11 = Utf8               value
+  #12 = Utf8               [B
+  #13 = Methodref          #1.#14           // java/lang/String.coder:()B
+  #14 = NameAndType        #15:#16          // coder:()B
+  #15 = Utf8               coder
+  #16 = Utf8               ()B
+  #17 = Methodref          #18.#19          // java/lang/StringLatin1.compareToCI:([B[B)I
+  #18 = Class              #20              // java/lang/StringLatin1
+  #19 = NameAndType        #21:#22          // compareToCI:([B[B)I
+  #20 = Utf8               java/lang/StringLatin1
+  #21 = Utf8               compareToCI
+  #22 = Utf8               ([B[B)I
+  #23 = Methodref          #24.#19          // java/lang/StringUTF16.compareToCI:([B[B)I
+  #24 = Class              #25              // java/lang/StringUTF16
+  #25 = Utf8               java/lang/StringUTF16
+  #26 = Methodref          #18.#27          // java/lang/StringLatin1.compareToCI_UTF16:([B[B)I
+  #27 = NameAndType        #28:#22          // compareToCI_UTF16:([B[B)I
+  #28 = Utf8               compareToCI_UTF16
+  #29 = Methodref          #24.#30          // java/lang/StringUTF16.compareToCI_Latin1:([B[B)I
+  #30 = NameAndType        #31:#22          // compareToCI_Latin1:([B[B)I
+  #31 = Utf8               compareToCI_Latin1
+  #32 = Fieldref           #1.#33           // java/lang/String.CASE_INSENSITIVE_ORDER:Ljava/util/Comparator;
+  #33 = NameAndType        #34:#35          // CASE_INSENSITIVE_ORDER:Ljava/util/Comparator;
+  #34 = Utf8               CASE_INSENSITIVE_ORDER
+  #35 = Utf8               Ljava/util/Comparator;
+  #36 = Methodref          #37.#38          // java/lang/String$CaseInsensitiveComparator.compare:(Ljava/lang/String;Ljava/lang/String;)I
+  #37 = Class              #39              // java/lang/String$CaseInsensitiveComparator
+  #38 = NameAndType        #40:#41          // compare:(Ljava/lang/String;Ljava/lang/String;)I
+  #39 = Utf8               java/lang/String$CaseInsensitiveComparator
+  #40 = Utf8               compare
+  #41 = Utf8               (Ljava/lang/String;Ljava/lang/String;)I
+  #42 = Class              #43              // java/util/Comparator
+  #43 = Utf8               java/util/Comparator
+  #44 = Class              #45              // java/io/Serializable
+  #45 = Utf8               java/io/Serializable
+  #46 = Utf8               serialVersionUID
+  #47 = Utf8               J
+  #48 = Utf8               ConstantValue
+  #49 = Long               8575799808933029326l
+  #51 = Utf8               Code
+  #52 = Utf8               LineNumberTable
+  #53 = Utf8               LocalVariableTable
+  #54 = Utf8               this
+  #55 = Utf8               Ljava/lang/String$CaseInsensitiveComparator;
+  #56 = Utf8               s1
+  #57 = Utf8               Ljava/lang/String;
+  #58 = Utf8               s2
+  #59 = Utf8               v1
+  #60 = Utf8               v2
+  #61 = Utf8               B
+  #62 = Utf8               StackMapTable
+  #63 = Class              #12              // "[B"
+  #64 = Utf8               readResolve
+  #65 = Utf8               ()Ljava/lang/Object;
+  #66 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;)I
+  #67 = Utf8               MethodParameters
+  #68 = Utf8               Signature
+  #69 = Utf8               Ljava/lang/Object;Ljava/util/Comparator<Ljava/lang/String;>;Ljava/io/Serializable;
+  #70 = Utf8               SourceFile
+  #71 = Utf8               String.java
+  #72 = Utf8               NestHost
+  #73 = Utf8               InnerClasses
+  #74 = Utf8               CaseInsensitiveComparator
+{
+  private static final long serialVersionUID;
+    descriptor: J
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: long 8575799808933029326l
+  
+  private java.lang.String$CaseInsensitiveComparator();
+    descriptor: ()V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: invokespecial #3                  // Method java/lang/Object."<init>":()V
+         4: return                  
+      LineNumberTable:
+        line 2146: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/lang/String$CaseInsensitiveComparator;
+  
+  public int compare(java.lang.String, java.lang.String);
+    descriptor: (Ljava/lang/String;Ljava/lang/String;)I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=6, args_size=3
+         0: aload_1                 
+         1: getfield      #9                  // Field java/lang/String.value:[B
+         4: astore_3                
+         5: aload_2                 
+         6: getfield      #9                  // Field java/lang/String.value:[B
+         9: astore        4                 
+        11: aload_1                 
+        12: invokevirtual #13                 // Method java/lang/String.coder:()B
+        15: istore        5                 
+        17: iload         5                 
+        19: aload_2                 
+        20: invokevirtual #13                 // Method java/lang/String.coder:()B
+        23: if_icmpne     47                
+        26: iload         5                 
+        28: ifne          40                
+        31: aload_3                 
+        32: aload         4                 
+        34: invokestatic  #17                 // Method java/lang/StringLatin1.compareToCI:([B[B)I
+        37: goto          46                
+        40: aload_3                 
+        41: aload         4                 
+        43: invokestatic  #23                 // Method java/lang/StringUTF16.compareToCI:([B[B)I
+        46: ireturn                 
+        47: iload         5                 
+        49: ifne          61                
+        52: aload_3                 
+        53: aload         4                 
+        55: invokestatic  #26                 // Method java/lang/StringLatin1.compareToCI_UTF16:([B[B)I
+        58: goto          67                
+        61: aload_3                 
+        62: aload         4                 
+        64: invokestatic  #29                 // Method java/lang/StringUTF16.compareToCI_Latin1:([B[B)I
+        67: ireturn                 
+      LineNumberTable:
+        line 2153: 0
+        line 2154: 5
+        line 2155: 11
+        line 2156: 17
+        line 2157: 26
+        line 2158: 40
+        line 2157: 46
+        line 2160: 47
+        line 2161: 61
+        line 2160: 67
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       68     0  this   Ljava/lang/String$CaseInsensitiveComparator;
+           0       68     1  s1     Ljava/lang/String;
+           0       68     2  s2     Ljava/lang/String;
+           5       63     3  v1     [B
+          11       57     4  v2     [B
+          17       51     5  coder  B
+      StackMapTable: number_of_entries = 5
+        frame_type = 254 /* append */
+          offset_delta = 40
+          locals = [class "[B", class "[B", int]
+        frame_type = 69 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 0 /* same */
+        frame_type = 13 /* same */
+        frame_type = 69 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  private java.lang.Object readResolve();
+    descriptor: ()Ljava/lang/Object;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: getstatic     #32                 // Field java/lang/String.CASE_INSENSITIVE_ORDER:Ljava/util/Comparator;
+         3: areturn                 
+      LineNumberTable:
+        line 2166: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        4     0  this   Ljava/lang/String$CaseInsensitiveComparator;
+  
+  public int compare(java.lang.Object, java.lang.Object);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;)I
+    flags: (0x1041) ACC_PUBLIC, ACC_BRIDGE, ACC_SYNTHETIC
+    Code: 
+      stack=3, locals=3, args_size=3
+         0: aload_0                 
+         1: aload_1                 
+         2: checkcast     #1                  // class java/lang/String
+         5: aload_2                 
+         6: checkcast     #1                  // class java/lang/String
+         9: invokevirtual #36                 // Method compare:(Ljava/lang/String;Ljava/lang/String;)I
+        12: ireturn                 
+      LineNumberTable:
+        line 2146: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       13     0  this   Ljava/lang/String$CaseInsensitiveComparator;
+    MethodParameters:
+      Name                             Flags
+      <no name>                        synthetic 
+      <no name>                        synthetic 
+}
+Signature: #69                         // Ljava/lang/Object;Ljava/util/Comparator<Ljava/lang/String;>;Ljava/io/Serializable;
+SourceFile: "String.java"
+NestHost: class java/lang/String
+InnerClasses:
+  private static #74= #37 of #1;              // CaseInsensitiveComparator=class java/lang/String$CaseInsensitiveComparator of class java/lang/String
