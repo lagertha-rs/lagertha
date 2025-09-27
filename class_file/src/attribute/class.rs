@@ -17,7 +17,7 @@ pub enum ClassAttribute {
     NestHost(u16),
     NestMembers(Vec<u16>),
     Record,
-    PermittedSubclasses,
+    PermittedSubclasses(Vec<u16>),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -116,6 +116,14 @@ impl<'a> ClassAttribute {
                 let class_index = cursor.u16()?;
                 let method_index = cursor.u16()?;
                 Ok(ClassAttribute::EnclosingMethod(class_index, method_index))
+            }
+            AttributeType::PermittedSubclasses => {
+                let number_of_classes = cursor.u16()? as usize;
+                let mut classes = Vec::with_capacity(number_of_classes);
+                for _ in 0..number_of_classes {
+                    classes.push(cursor.u16()?);
+                }
+                Ok(ClassAttribute::PermittedSubclasses(classes))
             }
             AttributeType::RuntimeVisibleAnnotations
             | AttributeType::Synthetic
@@ -250,7 +258,15 @@ impl<'a> ClassAttribute {
                 })?;
             }
             ClassAttribute::Record => unimplemented!(),
-            ClassAttribute::PermittedSubclasses => unimplemented!(),
+            ClassAttribute::PermittedSubclasses(classes) => {
+                writeln!(ind, "PermittedSubclasses:")?;
+                ind.with_indent(|ind| {
+                    for class in classes {
+                        writeln!(ind, "{}", pretty_try!(ind, cp.get_class_name(class)))?;
+                    }
+                    Ok(())
+                })?;
+            }
         }
 
         Ok(())

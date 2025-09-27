@@ -6,6 +6,7 @@ classes = [
     "java.lang.String",
     "java.lang.String$CaseInsensitiveComparator",
     "java.lang.StringBuilder",
+    "java.lang.AbstractStringBuilder",
     "java.lang.System$1",
     "java.lang.System",
     "java.lang.Class",
