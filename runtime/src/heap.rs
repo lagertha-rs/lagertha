@@ -11,7 +11,6 @@ use tracing_log::log::debug;
 
 pub enum HeapObject {
     Instance(ClassInstance),
-    String(String),
     RefArray {
         class: Arc<Class>,
         elements: Vec<Value>,
@@ -40,14 +39,16 @@ impl ClassInstance {
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.5.3
 pub struct Heap {
+    string_class: Arc<Class>,
     objects: Vec<HeapObject>,
     string_pool: HashMap<String, HeapAddr>,
 }
 
 impl Heap {
-    pub fn new() -> Self {
+    pub fn new(string_class: Arc<Class>) -> Self {
         debug!("Initializing Heap...");
         Self {
+            string_class,
             string_pool: HashMap::new(),
             objects: Vec::new(),
         }
@@ -73,10 +74,10 @@ impl Heap {
         })
     }
 
-    pub fn alloc_instance(&mut self, class: Arc<Class>) -> HeapAddr {
+    fn create_default_fields(class: &Arc<Class>) -> Vec<Value> {
         let mut fields = Vec::with_capacity(class.fields().len());
 
-        let mut cur_class = Some(&class);
+        let mut cur_class = Some(class);
 
         while let Some(c) = cur_class {
             for field in c.fields() {
@@ -85,10 +86,15 @@ impl Heap {
             cur_class = c.super_class();
         }
 
+        fields
+    }
+
+    pub fn alloc_instance(&mut self, class: Arc<Class>) -> HeapAddr {
+        let fields = Self::create_default_fields(&class);
         self.push(HeapObject::Instance(ClassInstance { class, fields }))
     }
 
-    pub fn get_or_new(&mut self, value: &str) -> HeapAddr {
+    pub fn get_or_new_string(&mut self, value: &str) -> HeapAddr {
         debug!("Getting or creating string in pool: {}", value);
         if let Some(&h) = self.string_pool.get(value) {
             debug!("String found in pool: {}", value);
@@ -100,8 +106,22 @@ impl Heap {
         h
     }
 
-    fn alloc_string<S: Into<String>>(&mut self, s: S) -> HeapAddr {
-        self.push(HeapObject::String(s.into()))
+    fn alloc_string(&mut self, s: &str) -> HeapAddr {
+        let mut fields = Self::create_default_fields(&self.string_class);
+
+        let chars = s.chars().map(|c| Value::Integer(c as i32)).collect();
+        let value = self.push(HeapObject::PrimitiveArray {
+            class: ArrayType::Char,
+            elements: chars,
+        });
+
+        // The "value" field is always the first field in java.lang.String, but probably should be looked up by name
+        fields[0] = Value::Array(Some(value));
+
+        self.push(HeapObject::Instance(ClassInstance {
+            class: self.string_class.clone(),
+            fields,
+        }))
     }
 
     pub fn get(&self, h: HeapAddr) -> &HeapObject {
@@ -184,13 +204,6 @@ impl serde::Serialize for Heap {
                         state.serialize_field("address", &self.address)?;
                         state.serialize_field("type", "Instance")?;
                         state.serialize_field("value", inst)?;
-                        state.end()
-                    }
-                    HeapObject::String(s) => {
-                        let mut state = serializer.serialize_struct("HeapObject", 3)?;
-                        state.serialize_field("address", &self.address)?;
-                        state.serialize_field("type", "String")?;
-                        state.serialize_field("value", s)?;
                         state.end()
                     }
                     HeapObject::RefArray { class, elements } => {

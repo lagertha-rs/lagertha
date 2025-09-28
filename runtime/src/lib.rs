@@ -3,6 +3,7 @@ use crate::heap::Heap;
 use crate::interpreter::Interpreter;
 use crate::method_area::MethodArea;
 use crate::native::NativeRegistry;
+use common::jtype::HeapAddr;
 use std::cell::RefCell;
 use std::rc::Rc;
 use tracing_log::log::debug;
@@ -49,13 +50,20 @@ pub struct VirtualMachine {
 impl VirtualMachine {
     pub fn new(config: VmConfig) -> Result<Self, JvmError> {
         config.validate();
-        let heap = Rc::new(RefCell::new(Heap::new()));
-        let method_area = MethodArea::new(&config, heap.clone())?;
+        let method_area = MethodArea::new(&config)?;
+        debug!("Preloading java/lang/Class and java/lang/String...");
+        let string_class = method_area.get_class("java/lang/String")?;
+        let class_class = method_area.get_class("java/lang/Class")?;
+        let mut heap = Heap::new(string_class);
+
+        //TODO: more like a stub right now, needed to be all and probably with strong types
+        method_area.add_primitive("float", heap.alloc_instance(class_class.clone()));
+        method_area.add_primitive("int", heap.alloc_instance(class_class.clone()));
         let native_registry = NativeRegistry::new();
         Ok(Self {
             config,
             method_area,
-            heap,
+            heap: Rc::new(RefCell::new(heap)),
             native_registry,
         })
     }
@@ -66,6 +74,17 @@ impl VirtualMachine {
 
     pub fn heap(&self) -> Rc<RefCell<Heap>> {
         self.heap.clone()
+    }
+
+    pub fn get_mirror(&self, name: &str) -> Result<HeapAddr, JvmError> {
+        let target_class = self.method_area().get_class(name)?;
+        if let Some(mirror) = target_class.mirror() {
+            return Ok(mirror);
+        }
+        let class_class = self.method_area().get_class("java/lang/Class")?;
+        let mirror = self.heap.borrow_mut().alloc_instance(class_class);
+        target_class.set_mirror(mirror)?;
+        Ok(mirror)
     }
 }
 

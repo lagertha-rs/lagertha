@@ -19,11 +19,10 @@ pub struct MethodArea {
     bootstrap_class_loader: ClassLoader,
     classes: DashMap<String, Arc<Class>>,
     primitives: DashMap<String, HeapAddr>,
-    heap: Rc<RefCell<Heap>>,
 }
 
 impl MethodArea {
-    pub fn new(vm_config: &VmConfig, heap: Rc<RefCell<Heap>>) -> Result<Self, JvmError> {
+    pub fn new(vm_config: &VmConfig) -> Result<Self, JvmError> {
         debug!("Initializing MethodArea...");
         let bootstrap_class_loader = ClassLoader::new(vm_config)?;
         let classes = DashMap::new();
@@ -32,24 +31,15 @@ impl MethodArea {
             classes,
             primitives,
             bootstrap_class_loader,
-            heap,
         };
-
-        debug!("Preloading java/lang/Class...");
-        let class = method_area.get_class("java/lang/Class")?;
-
-        debug!("Creating mirrors for primitive types...");
-        //TODO: right now just float, needed to be all and probably with strong types
-        let float_mirror = method_area.heap.borrow_mut().alloc_instance(class.clone());
-        let int_mirror = method_area.heap.borrow_mut().alloc_instance(class);
-
-        method_area
-            .primitives
-            .insert("float".to_string(), float_mirror);
-        method_area.primitives.insert("int".to_string(), int_mirror);
 
         debug!("MethodArea initialized");
         Ok(method_area)
+    }
+
+    pub fn add_primitive(&self, name: &str, addr: HeapAddr) {
+        debug!("Adding primitive mirror \"{}\" with addr {}", name, addr);
+        self.primitives.insert(name.to_string(), addr);
     }
 
     fn load_with_bytes(&self, data: Vec<u8>) -> Result<Arc<Class>, JvmError> {
@@ -77,17 +67,6 @@ impl MethodArea {
         self.classes.insert(name.to_string(), class.clone());
 
         Ok(class)
-    }
-
-    pub fn get_mirror(&self, name: &str) -> Result<HeapAddr, JvmError> {
-        let target_class = self.get_class(name)?;
-        if let Some(mirror) = target_class.mirror() {
-            return Ok(mirror);
-        }
-        let class_class = self.get_class("java/lang/Class")?;
-        let mirror = self.heap.borrow_mut().alloc_instance(class_class);
-        target_class.set_mirror(mirror)?;
-        Ok(mirror)
     }
 
     pub fn get_primitive_mirror(&self, name: &str) -> Option<HeapAddr> {

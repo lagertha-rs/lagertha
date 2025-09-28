@@ -52,41 +52,49 @@ vm:
             - Object: ~
             - Object: ~
       - address: 2
-        type: Instance
-        value:
-          class: abstracts/basic_abstract/BasicAbstractMain$Cat
-          fields: []
-      - address: 3
-        type: Instance
-        value:
-          class: abstracts/basic_abstract/BasicAbstractMain$Cat
-          fields: []
-      - address: 4
         type: ArrayPrimitive
         class: Char
         elements:
-          - Integer: 77
+          - Integer: 104
           - Integer: 101
+          - Integer: 108
+          - Integer: 108
           - Integer: 111
-          - Integer: 119
-      - address: 5
+      - address: 3
         type: Instance
         value:
           class: java/lang/String
           fields:
-            - Array: 4
+            - Array: 2
+            - Integer: 0
+            - Integer: 0
+            - Integer: 0
+      - address: 4
+        type: ArrayRef
+        class: java/io/ObjectStreamField
+        elements: []
+      - address: 5
+        type: Instance
+        value:
+          class: java/lang/String$CaseInsensitiveComparator
+          fields: []
+      - address: 6
+        type: Instance
+        value:
+          class: java/lang/String
+          fields:
+            - Array: 2
             - Integer: 0
             - Integer: 0
             - Integer: 0
     string_pool:
-      - string: Meow
-        address: 5
+      - string: hello
+        address: 3
 last_pop_frame:
   locals:
     - ~
-    - Object: 2
     - Object: 3
-    - Object: 5
-    - Object: 5
+    - Object: 3
+    - Object: 6
   operands: []
-  pc: 28
+  pc: 17

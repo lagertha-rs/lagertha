@@ -402,6 +402,19 @@ impl Interpreter {
                     _ => panic!("iushr on non-integer values"),
                 }
             }
+            Instruction::Ishr => {
+                let value2 = self.frame_stack.cur_frame_pop_operand()?;
+                let value1 = self.frame_stack.cur_frame_pop_operand()?;
+                match (value1, value2) {
+                    (Value::Integer(v1), Value::Integer(v2)) => {
+                        let shift = (v2 & 0x1F) as u32;
+                        let result = v1.wrapping_shr(shift);
+                        self.frame_stack
+                            .cur_frame_push_operand(Value::Integer(result))?;
+                    }
+                    _ => panic!("ishr on non-integer values"),
+                }
+            }
             Instruction::Putstatic(idx) => {
                 let cp = self.frame_stack.cur_frame_cp()?;
                 let field_ref = cp.get_fieldref(&idx)?;
@@ -443,12 +456,12 @@ impl Interpreter {
                 let raw = cp.get(&idx)?;
                 match raw {
                     RuntimeConstant::String(data) => {
-                        let string_addr = self.heap.borrow_mut().get_or_new(data.value()?);
+                        let string_addr = self.heap.borrow_mut().get_or_new_string(data.value()?);
                         self.frame_stack
                             .cur_frame_push_operand(Value::Object(Some(string_addr)))?;
                     }
                     RuntimeConstant::Class(class) => {
-                        let class_mirror = self.method_area().get_mirror(class.name()?)?;
+                        let class_mirror = self.vm.get_mirror(class.name()?)?;
                         self.frame_stack
                             .cur_frame_push_operand(Value::Object(Some(class_mirror)))?;
                     }
