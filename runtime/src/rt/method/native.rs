@@ -1,17 +1,18 @@
 use crate::rt::class::LinkageError;
+use crate::rt::class::class::Class;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::constant_pool::reference::MethodDescriptorReference;
-use class_file::attribute::{Annotation, SharedAttribute};
+use class_file::attribute::Annotation;
 use class_file::flags::MethodFlags;
 use class_file::method::MethodInfo;
+use once_cell::sync::OnceCell as SyncOnceCell;
 use std::cell::OnceCell;
 use std::sync::Arc;
 
-// TODO:
-#[derive(Debug)]
 pub struct NativeMethod {
     name: Arc<str>,
     flags: MethodFlags,
+    class: SyncOnceCell<Arc<Class>>,
     descriptor: Arc<MethodDescriptorReference>,
     signature: Option<Arc<str>>,
     rt_visible_annotations: Option<Vec<Annotation>>,
@@ -30,9 +31,24 @@ impl NativeMethod {
             name,
             flags,
             descriptor,
+            class: SyncOnceCell::new(),
             signature: signature.into_inner(),
             rt_visible_annotations: rt_vis_ann.into_inner(),
         })
+    }
+
+    pub fn set_class(&self, class: Arc<Class>) -> Result<(), LinkageError> {
+        self.class
+            .set(class)
+            .map_err(|_| LinkageError::DuplicatedClassInMethod)?;
+        Ok(())
+    }
+
+    pub fn class(&self) -> Result<Arc<Class>, LinkageError> {
+        self.class
+            .get()
+            .cloned()
+            .ok_or(LinkageError::MethodClassIsNotSet)
     }
 
     pub fn name(&self) -> &str {

@@ -165,9 +165,7 @@ impl Class {
         });
 
         for (_, method) in class.methods.values().flatten() {
-            if let VirtualMethodType::Java(method) | VirtualMethodType::Abstract(method) = method {
-                method.set_class(class.clone())?;
-            }
+            method.set_class(class.clone())?;
         }
 
         Ok(class)

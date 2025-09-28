@@ -754,6 +754,32 @@ impl Interpreter {
         Ok(false)
     }
 
+    fn run_instance_native_method(&mut self, method: &NativeMethod) -> Result<(), JvmError> {
+        let class = method.class()?;
+
+        // TODO: delete
+        let debug_msg = format!(
+            "instance native method {}{} of class {}",
+            method.name(),
+            method.descriptor().raw(),
+            class.name()?
+        );
+        debug!("Running {debug_msg}");
+
+        /*
+        let mut params = vec![None; method.max_locals()?];
+        let params_count = method.descriptor().resolved().params.len() + 1; // +1 for this
+        for i in (0..params_count).rev() {
+            params[i] = Some(self.frame_stack.cur_frame_pop_operand()?);
+        }
+
+        let frame = Frame::new(class.cp().clone(), params, method.max_stack()?, debug_msg);
+
+        self.interpret_method_code(method.instructions()?, frame)?;
+         */
+        Ok(())
+    }
+
     fn run_instance_method(&mut self, method: &Method) -> Result<(), JvmError> {
         let class = method.class()?;
 
@@ -827,9 +853,7 @@ impl Interpreter {
         match method {
             VirtualMethodType::Java(method) => self.run_instance_method(method)?,
             VirtualMethodType::Abstract(method) => self.run_abstract_method(method, method_ref)?,
-            VirtualMethodType::Native(_method) => {
-                unimplemented!("Native instance methods not implemented yet");
-            }
+            VirtualMethodType::Native(method) => self.run_instance_native_method(method)?,
         }
         Ok(())
     }
