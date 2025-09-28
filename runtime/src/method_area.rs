@@ -18,7 +18,7 @@ use tracing_log::log::debug;
 pub struct MethodArea {
     bootstrap_class_loader: ClassLoader,
     classes: DashMap<String, Arc<Class>>,
-    primitives: DashMap<String, HeapAddr>,
+    primitives: DashMap<HeapAddr, HeapAddr>,
 }
 
 impl MethodArea {
@@ -37,9 +37,8 @@ impl MethodArea {
         Ok(method_area)
     }
 
-    pub fn add_primitive(&self, name: &str, addr: HeapAddr) {
-        debug!("Adding primitive mirror \"{}\" with addr {}", name, addr);
-        self.primitives.insert(name.to_string(), addr);
+    pub fn add_primitive(&self, name: HeapAddr, addr: HeapAddr) {
+        self.primitives.insert(name, addr);
     }
 
     fn load_with_bytes(&self, data: Vec<u8>) -> Result<Arc<Class>, JvmError> {
@@ -69,7 +68,7 @@ impl MethodArea {
         Ok(class)
     }
 
-    pub fn get_primitive_mirror(&self, name: &str) -> Option<HeapAddr> {
+    pub fn get_primitive_mirror(&self, name: &HeapAddr) -> Option<HeapAddr> {
         self.primitives.get(name).map(|v| *v)
     }
 }

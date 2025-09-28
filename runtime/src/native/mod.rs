@@ -111,20 +111,15 @@ fn java_lang_class_desired_assertion_status_0(_vm: &mut VirtualMachine, _args: &
 
 fn java_lang_class_get_primitive_class(vm: &mut VirtualMachine, args: &[Value]) -> Value {
     debug!("TODO: Stub: java.lang.Class.getPrimitiveClass");
-    /*
     if let Value::Object(Some(h)) = &args[0] {
-        if let HeapObject::String(s) = vm.heap().borrow().get(*h) {
-            let prim = vm.method_area.get_primitive_mirror(s).unwrap();
-            Value::Object(Some(prim))
+        if let Some(v) = vm.method_area.get_primitive_mirror(h) {
+            Value::Object(Some(v))
         } else {
-            panic!("java.lang.Class.getPrimitiveClass: expected String object");
+            panic!("java.lang.Class.getPrimitiveClass: expected to be a primitive type name");
         }
     } else {
         panic!("java.lang.Class.getPrimitiveClass: expected String object");
     }
-
-     */
-    todo!()
 }
 
 fn jdk_internal_util_system_props_raw_platform_properties(

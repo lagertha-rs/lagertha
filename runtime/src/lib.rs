@@ -56,9 +56,10 @@ impl VirtualMachine {
         let class_class = method_area.get_class("java/lang/Class")?;
         let mut heap = Heap::new(string_class);
 
-        //TODO: more like a stub right now, needed to be all and probably with strong types
-        method_area.add_primitive("float", heap.alloc_instance(class_class.clone()));
-        method_area.add_primitive("int", heap.alloc_instance(class_class.clone()));
+        let float_name = heap.get_or_new_string("float");
+        let int_name = heap.get_or_new_string("int");
+        method_area.add_primitive(float_name, heap.alloc_instance(class_class.clone()));
+        method_area.add_primitive(int_name, heap.alloc_instance(class_class.clone()));
         let native_registry = NativeRegistry::new();
         Ok(Self {
             config,
