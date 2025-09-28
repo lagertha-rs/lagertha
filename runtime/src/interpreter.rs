@@ -737,7 +737,7 @@ impl Interpreter {
                     Value::Object(Some(o)) => {
                         self.heap
                             .borrow_mut()
-                            .write_instance_field(o, field_nat, value)?;
+                            .write_instance_field_by_nat(o, field_nat, value)?;
                     }
                     Value::Object(None) => {
                         return Err(JvmError::NullPointerException);

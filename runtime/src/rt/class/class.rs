@@ -271,14 +271,18 @@ impl Class {
         }
     }
 
-    pub fn get_field_index(&self, nat: &NameAndTypeReference) -> Result<usize, JvmError> {
-        let name = nat.name()?;
-        let descriptor = nat.field_descriptor()?.raw();
-
+    pub fn get_field_index(&self, name: &str, descriptor: &str) -> Result<usize, JvmError> {
         match self.get_field_index_recursive(name, descriptor) {
             ControlFlow::Break(idx) => Ok(idx),
             ControlFlow::Continue(_) => Err(JvmError::FieldNotFound(name.to_string())),
         }
+    }
+
+    pub fn get_field_index_by_nat(&self, nat: &NameAndTypeReference) -> Result<usize, JvmError> {
+        let name = nat.name()?;
+        let descriptor = nat.field_descriptor()?.raw();
+
+        self.get_field_index(name, descriptor)
     }
 
     pub fn get_static_field_value(&self, nat: &NameAndTypeReference) -> Result<Value, JvmError> {

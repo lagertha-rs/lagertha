@@ -10,56 +10,30 @@ vm:
   heap:
     objects:
       - address: 0
-        type: Instance
-        value:
-          class: java/lang/Class
-          fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+        type: ArrayPrimitive
+        class: Char
+        elements:
+          - Integer: 102
+          - Integer: 108
+          - Integer: 111
+          - Integer: 97
+          - Integer: 116
       - address: 1
         type: Instance
         value:
-          class: java/lang/Class
+          class: java/lang/String
           fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - Array: 0
             - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - Integer: 0
+            - Integer: 0
       - address: 2
         type: ArrayPrimitive
         class: Char
         elements:
-          - Integer: 104
-          - Integer: 101
-          - Integer: 108
-          - Integer: 108
-          - Integer: 111
+          - Integer: 105
+          - Integer: 110
+          - Integer: 116
       - address: 3
         type: Instance
         value:
@@ -70,31 +44,95 @@ vm:
             - Integer: 0
             - Integer: 0
       - address: 4
-        type: ArrayRef
-        class: java/io/ObjectStreamField
-        elements: []
+        type: Instance
+        value:
+          class: java/lang/Class
+          fields:
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Integer: 0
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
       - address: 5
         type: Instance
         value:
-          class: java/lang/String$CaseInsensitiveComparator
-          fields: []
+          class: java/lang/Class
+          fields:
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Integer: 0
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
       - address: 6
+        type: ArrayPrimitive
+        class: Char
+        elements:
+          - Integer: 104
+          - Integer: 101
+          - Integer: 108
+          - Integer: 108
+          - Integer: 111
+      - address: 7
         type: Instance
         value:
           class: java/lang/String
           fields:
-            - Array: 2
+            - Array: 6
+            - Integer: 0
+            - Integer: 0
+            - Integer: 0
+      - address: 8
+        type: ArrayRef
+        class: java/io/ObjectStreamField
+        elements: []
+      - address: 9
+        type: Instance
+        value:
+          class: java/lang/String$CaseInsensitiveComparator
+          fields: []
+      - address: 10
+        type: Instance
+        value:
+          class: java/lang/String
+          fields:
+            - Array: 6
             - Integer: 0
             - Integer: 0
             - Integer: 0
     string_pool:
+      - string: float
+        address: 1
       - string: hello
+        address: 7
+      - string: int
         address: 3
 last_pop_frame:
   locals:
     - ~
-    - Object: 3
-    - Object: 3
-    - Object: 6
+    - Object: 7
+    - Object: 7
+    - Object: 10
   operands: []
   pc: 17

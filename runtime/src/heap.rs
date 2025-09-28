@@ -140,7 +140,7 @@ impl Heap {
 
     pub fn get_instance_field(&mut self, h: &HeapAddr, nat: &NameAndTypeReference) -> &Value {
         let instance = self.get_instance(h);
-        let slot = instance.class.get_field_index(nat).unwrap();
+        let slot = instance.class.get_field_index_by_nat(nat).unwrap();
         instance.fields.get(slot).unwrap()
     }
 
@@ -153,12 +153,31 @@ impl Heap {
     pub fn write_instance_field(
         &mut self,
         h: HeapAddr,
+        field_name: &str,
+        field_descriptor: &str,
+        val: Value,
+    ) -> Result<(), JvmError> {
+        match self.get_mut(h) {
+            HeapObject::Instance(instance) => {
+                let slot = instance
+                    .class
+                    .get_field_index(field_name, field_descriptor)?;
+                instance.fields[slot] = val;
+            }
+            _ => panic!("heap: write_instance_field on non-instance"),
+        }
+        Ok(())
+    }
+
+    pub fn write_instance_field_by_nat(
+        &mut self,
+        h: HeapAddr,
         field_nat: &NameAndTypeReference,
         val: Value,
     ) -> Result<(), JvmError> {
         match self.get_mut(h) {
             HeapObject::Instance(instance) => {
-                let slot = instance.class.get_field_index(field_nat)?;
+                let slot = instance.class.get_field_index_by_nat(field_nat)?;
                 instance.fields[slot] = val;
             }
             _ => panic!("heap: write_instance_field on non-instance"),

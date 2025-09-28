@@ -89,6 +89,14 @@ impl NativeRegistry {
             ),
             java_lang_object_get_class,
         );
+        instance.register(
+            MethodKey::new(
+                "java/lang/Class".to_string(),
+                "initClassName".to_string(),
+                "()Ljava/lang/String;".to_string(),
+            ),
+            java_lang_object_init_class_name,
+        );
         instance
     }
 
@@ -146,6 +154,26 @@ fn java_lang_object_get_class(vm: &mut VirtualMachine, args: &[Value]) -> Value 
         Value::Object(Some(res))
     } else {
         panic!("java.lang.Class.getClass: expected String object as argument");
+    }
+}
+
+fn java_lang_object_init_class_name(vm: &mut VirtualMachine, args: &[Value]) -> Value {
+    debug!("TODO: Stub: java.lang.Class.initClassName");
+    if let Value::Object(Some(h)) = &args[0] {
+        let class_name = vm
+            .get_class_by_mirror(h)
+            .unwrap()
+            .name()
+            .unwrap()
+            .replace('/', ".");
+        let val = Value::Object(Some(vm.heap().borrow_mut().get_or_new_string(&class_name)));
+        vm.heap()
+            .borrow_mut()
+            .write_instance_field(*h, "name", "Ljava/lang/String;", val)
+            .unwrap();
+        val
+    } else {
+        panic!("java.lang.Class.initClassName: expected String object as argument");
     }
 }
 

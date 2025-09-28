@@ -86,45 +86,92 @@ vm:
             - Object: ~
             - Object: ~
       - address: 6
-        type: Instance
-        value:
-          class: abstracts/basic_abstract/BasicAbstractMain$Cat
-          fields: []
-      - address: 7
-        type: Instance
-        value:
-          class: abstracts/basic_abstract/BasicAbstractMain$Cat
-          fields: []
-      - address: 8
         type: ArrayPrimitive
         class: Char
         elements:
-          - Integer: 77
+          - Integer: 104
           - Integer: 101
+          - Integer: 108
+          - Integer: 108
           - Integer: 111
+          - Integer: 32
           - Integer: 119
-      - address: 9
+          - Integer: 111
+          - Integer: 114
+          - Integer: 108
+          - Integer: 100
+      - address: 7
         type: Instance
         value:
           class: java/lang/String
           fields:
-            - Array: 8
+            - Array: 6
+            - Integer: 0
+            - Integer: 0
+            - Integer: 0
+      - address: 8
+        type: Instance
+        value:
+          class: java/lang/Class
+          fields:
+            - Object: ~
+            - Object: 10
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Integer: 0
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+      - address: 9
+        type: ArrayPrimitive
+        class: Char
+        elements:
+          - Integer: 106
+          - Integer: 97
+          - Integer: 118
+          - Integer: 97
+          - Integer: 46
+          - Integer: 108
+          - Integer: 97
+          - Integer: 110
+          - Integer: 103
+          - Integer: 46
+          - Integer: 83
+          - Integer: 116
+          - Integer: 114
+          - Integer: 105
+          - Integer: 110
+          - Integer: 103
+      - address: 10
+        type: Instance
+        value:
+          class: java/lang/String
+          fields:
+            - Array: 9
             - Integer: 0
             - Integer: 0
             - Integer: 0
     string_pool:
-      - string: Meow
-        address: 9
       - string: float
         address: 1
+      - string: hello world
+        address: 7
       - string: int
         address: 3
+      - string: java.lang.String
+        address: 10
 last_pop_frame:
   locals:
     - ~
-    - Object: 6
     - Object: 7
-    - Object: 9
-    - Object: 9
+    - Object: 10
   operands: []
-  pc: 28
+  pc: 12
