@@ -13,6 +13,7 @@ use crate::stack::{Frame, FrameStack};
 use common::instruction::Instruction;
 use common::jtype::Value;
 use std::cell::RefCell;
+use std::cmp::Ordering;
 use std::rc::Rc;
 use std::sync::Arc;
 use tracing_log::log::debug;
@@ -82,7 +83,7 @@ impl Interpreter {
     fn interpret_method_code(&mut self, code: &Vec<u8>, frame: Frame) -> Result<(), JvmError> {
         self.frame_stack.push_frame(frame)?;
         loop {
-            let instruction = Instruction::new_at(code, *self.frame_stack.cur_frame_pc()?)?;
+            let instruction = Instruction::new_at(code, *self.frame_stack.pc()?)?;
             if self.interpret_instruction(instruction)? {
                 break;
             }
@@ -107,6 +108,8 @@ impl Interpreter {
             instruction,
             Instruction::Goto(_)
                 | Instruction::IfIcmpge(_)
+                | Instruction::IfIcmpeq(_)
+                | Instruction::IfIcmpne(_)
                 | Instruction::Ifnonnull(_)
                 | Instruction::IfIcmplt(_)
                 | Instruction::IfNe(_)
@@ -117,323 +120,261 @@ impl Interpreter {
                 | Instruction::IfGt(_)
                 | Instruction::Ifnull(_)
         ) {
-            *self.frame_stack.cur_frame_pc_mut()? += instruction.byte_size() as usize;
+            *self.frame_stack.pc_mut()? += instruction.byte_size() as usize;
         }
         match instruction {
             Instruction::Checkcast(_idx) => {
                 //TODO: stub
-                let object_ref = self.frame_stack.cur_frame_pop_operand()?;
-                self.frame_stack.cur_frame_push_operand(object_ref)?;
+                let object_ref = self.frame_stack.pop_operand()?;
+                self.frame_stack.push_operand(object_ref)?;
             }
             Instruction::IconstM1 => {
-                self.frame_stack
-                    .cur_frame_push_operand(Value::Integer(-1))?;
+                self.frame_stack.push_operand(Value::Integer(-1))?;
             }
             Instruction::Iconst0 => {
-                self.frame_stack.cur_frame_push_operand(Value::Integer(0))?;
+                self.frame_stack.push_operand(Value::Integer(0))?;
             }
             Instruction::Iconst1 => {
-                self.frame_stack.cur_frame_push_operand(Value::Integer(1))?;
+                self.frame_stack.push_operand(Value::Integer(1))?;
             }
             Instruction::Iconst2 => {
-                self.frame_stack.cur_frame_push_operand(Value::Integer(2))?;
+                self.frame_stack.push_operand(Value::Integer(2))?;
             }
             Instruction::Iconst3 => {
-                self.frame_stack.cur_frame_push_operand(Value::Integer(3))?;
+                self.frame_stack.push_operand(Value::Integer(3))?;
             }
             Instruction::Iconst4 => {
-                self.frame_stack.cur_frame_push_operand(Value::Integer(4))?;
+                self.frame_stack.push_operand(Value::Integer(4))?;
             }
             Instruction::Iconst5 => {
-                self.frame_stack.cur_frame_push_operand(Value::Integer(5))?;
+                self.frame_stack.push_operand(Value::Integer(5))?;
             }
             Instruction::Istore0 => {
-                let value = self.frame_stack.cur_frame_pop_operand()?;
-                self.frame_stack.cur_frame_set_local(1, value)?;
+                let value = self.frame_stack.pop_operand()?;
+                self.frame_stack.set_local(1, value)?;
             }
             Instruction::Istore1 => {
-                let value = self.frame_stack.cur_frame_pop_operand()?;
-                self.frame_stack.cur_frame_set_local(1, value)?;
+                let value = self.frame_stack.pop_operand()?;
+                self.frame_stack.set_local(1, value)?;
             }
             Instruction::Istore2 => {
-                let value = self.frame_stack.cur_frame_pop_operand()?;
-                self.frame_stack.cur_frame_set_local(2, value)?;
+                let value = self.frame_stack.pop_operand()?;
+                self.frame_stack.set_local(2, value)?;
             }
             Instruction::Istore3 => {
-                let value = self.frame_stack.cur_frame_pop_operand()?;
-                self.frame_stack.cur_frame_set_local(3, value)?;
+                let value = self.frame_stack.pop_operand()?;
+                self.frame_stack.set_local(3, value)?;
             }
             Instruction::Istore(idx) => {
-                let value = self.frame_stack.cur_frame_pop_operand()?;
-                self.frame_stack.cur_frame_set_local(idx as usize, value)?;
+                let value = self.frame_stack.pop_operand()?;
+                self.frame_stack.set_local(idx as usize, value)?;
             }
             Instruction::Iload0 => {
-                let value = self.frame_stack.cur_frame_get_local(0)?.clone();
-                self.frame_stack.cur_frame_push_operand(value)?;
+                let value = self.frame_stack.get_local(0)?;
+                self.frame_stack.push_operand(*value)?;
             }
             Instruction::Iload1 => {
-                let value = self.frame_stack.cur_frame_get_local(1)?.clone();
-                self.frame_stack.cur_frame_push_operand(value)?;
+                let value = self.frame_stack.get_local(1)?;
+                self.frame_stack.push_operand(*value)?;
             }
             Instruction::Iload2 => {
-                let value = self.frame_stack.cur_frame_get_local(2)?.clone();
-                self.frame_stack.cur_frame_push_operand(value)?;
+                let value = self.frame_stack.get_local(2)?;
+                self.frame_stack.push_operand(*value)?;
             }
             Instruction::Iload3 => {
-                let value = self.frame_stack.cur_frame_get_local(3)?.clone();
-                self.frame_stack.cur_frame_push_operand(value)?;
+                let value = self.frame_stack.get_local(3)?;
+                self.frame_stack.push_operand(*value)?;
             }
             Instruction::Fload0 => {
-                let value = self.frame_stack.cur_frame_get_local(0)?.clone();
-                self.frame_stack.cur_frame_push_operand(value)?;
+                let value = self.frame_stack.get_local(0)?;
+                self.frame_stack.push_operand(*value)?;
             }
             Instruction::Fload2 => {
-                let value = self.frame_stack.cur_frame_get_local(2)?.clone();
-                self.frame_stack.cur_frame_push_operand(value)?;
+                let value = self.frame_stack.get_local(2)?;
+                self.frame_stack.push_operand(*value)?;
             }
             Instruction::Fconst0 => {
-                self.frame_stack.cur_frame_push_operand(Value::Float(0.0))?;
+                self.frame_stack.push_operand(Value::Float(0.0))?;
             }
             Instruction::Fcmpl => {
-                let value2 = self.frame_stack.cur_frame_pop_operand()?;
-                let value1 = self.frame_stack.cur_frame_pop_operand()?;
-                match (value1, value2) {
-                    (Value::Float(v1), Value::Float(v2)) => {
-                        let res = if v1 < v2 {
-                            -1
-                        } else if v1 == v2 {
-                            0
-                        } else {
-                            1
-                        };
-                        self.frame_stack
-                            .cur_frame_push_operand(Value::Integer(res))?;
-                    }
-                    _ => panic!("fcmpl on non-float values"),
-                }
+                let v2 = self.frame_stack.pop_float()?;
+                let v1 = self.frame_stack.pop_float()?;
+                let res = match v1.total_cmp(&v2) {
+                    Ordering::Less => -1,
+                    Ordering::Equal => 0,
+                    Ordering::Greater => 1,
+                };
+                self.frame_stack.push_operand(Value::Integer(res))?;
             }
             Instruction::Fcmpg => {
-                let value2 = self.frame_stack.cur_frame_pop_operand()?;
-                let value1 = self.frame_stack.cur_frame_pop_operand()?;
-                match (value1, value2) {
-                    (Value::Float(v1), Value::Float(v2)) => {
-                        let res = if v1 > v2 {
-                            1
-                        } else if v1 == v2 {
-                            0
-                        } else {
-                            -1
-                        };
-                        self.frame_stack
-                            .cur_frame_push_operand(Value::Integer(res))?;
-                    }
-                    _ => panic!("fcmpg on non-float values"),
-                }
+                let v2 = self.frame_stack.pop_float()?;
+                let v1 = self.frame_stack.pop_float()?;
+                let res = match v1.total_cmp(&v2) {
+                    Ordering::Less => -1,
+                    Ordering::Equal => 0,
+                    Ordering::Greater => 1,
+                };
+                self.frame_stack.push_operand(Value::Integer(res))?;
             }
             Instruction::Ifnull(offset) => {
-                let pc = *self.frame_stack.cur_frame_pc()?;
-                let value = self.frame_stack.cur_frame_pop_operand()?;
-                match value {
-                    Value::Object(o) | Value::Array(o) => {
-                        let new_pc = if o.is_none() {
-                            Self::branch16(pc, offset)
-                        } else {
-                            pc + instruction.byte_size() as usize
-                        };
-                        *self.frame_stack.cur_frame_pc_mut()? = new_pc;
-                    }
-                    _ => panic!("ifnull on non-object value"),
-                }
+                let pc = *self.frame_stack.pc()?;
+                let value = self.frame_stack.pop_ref()?;
+                let new_pc = if value.is_none() {
+                    Self::branch16(pc, offset)
+                } else {
+                    pc + instruction.byte_size() as usize
+                };
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::IfEq(offset) => {
-                let pc = *self.frame_stack.cur_frame_pc()?;
-                let value = self.frame_stack.cur_frame_pop_operand()?;
-                match value {
-                    Value::Integer(i) => {
-                        let new_pc = if i == 0 {
-                            Self::branch16(pc, offset)
-                        } else {
-                            pc + instruction.byte_size() as usize
-                        };
-                        *self.frame_stack.cur_frame_pc_mut()? = new_pc;
-                    }
-                    _ => panic!("ifeq on non-integer value"),
-                }
+                let pc = *self.frame_stack.pc()?;
+                let value = self.frame_stack.pop_int()?;
+                let new_pc = if value == 0 {
+                    Self::branch16(pc, offset)
+                } else {
+                    pc + instruction.byte_size() as usize
+                };
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::IfIcmplt(offset) => {
-                let pc = *self.frame_stack.cur_frame_pc()?;
+                let pc = *self.frame_stack.pc()?;
+                let v2 = self.frame_stack.pop_int()?;
+                let v1 = self.frame_stack.pop_int()?;
 
-                let value2 = self.frame_stack.cur_frame_pop_operand()?;
-                let value1 = self.frame_stack.cur_frame_pop_operand()?;
-
-                match (value1, value2) {
-                    (Value::Integer(v1), Value::Integer(v2)) => {
-                        let new_pc = if v1 < v2 {
-                            Self::branch16(pc, offset)
-                        } else {
-                            pc + instruction.byte_size() as usize
-                        };
-                        *self.frame_stack.cur_frame_pc_mut()? = new_pc;
-                    }
-                    _ => panic!("if_icmplt on non-integer values"),
-                }
+                let new_pc = if v1 < v2 {
+                    Self::branch16(pc, offset)
+                } else {
+                    pc + instruction.byte_size() as usize
+                };
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::IfGt(offset) => {
-                let pc = *self.frame_stack.cur_frame_pc()?;
-                let value = self.frame_stack.cur_frame_pop_operand()?;
-                match value {
-                    Value::Integer(i) => {
-                        let new_pc = if i > 0 {
-                            Self::branch16(pc, offset)
-                        } else {
-                            pc + instruction.byte_size() as usize
-                        };
-                        *self.frame_stack.cur_frame_pc_mut()? = new_pc;
-                    }
-                    _ => panic!("ifgt on non-integer value"),
-                }
+                let pc = *self.frame_stack.pc()?;
+                let value = self.frame_stack.pop_int()?;
+                let new_pc = if value > 0 {
+                    Self::branch16(pc, offset)
+                } else {
+                    pc + instruction.byte_size() as usize
+                };
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::IfLe(offset) => {
-                let pc = *self.frame_stack.cur_frame_pc()?;
-                let value = self.frame_stack.cur_frame_pop_operand()?;
-                match value {
-                    Value::Integer(i) => {
-                        let new_pc = if i <= 0 {
-                            Self::branch16(pc, offset)
-                        } else {
-                            pc + instruction.byte_size() as usize
-                        };
-                        *self.frame_stack.cur_frame_pc_mut()? = new_pc;
-                    }
-                    _ => panic!("ifle on non-integer value"),
-                }
+                let pc = *self.frame_stack.pc()?;
+                let value = self.frame_stack.pop_int()?;
+                let new_pc = if value <= 0 {
+                    Self::branch16(pc, offset)
+                } else {
+                    pc + instruction.byte_size() as usize
+                };
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::IfGe(offset) => {
-                let pc = *self.frame_stack.cur_frame_pc()?;
-                let value = self.frame_stack.cur_frame_pop_operand()?;
-                match value {
-                    Value::Integer(i) => {
-                        let new_pc = if i >= 0 {
-                            Self::branch16(pc, offset)
-                        } else {
-                            pc + instruction.byte_size() as usize
-                        };
-                        *self.frame_stack.cur_frame_pc_mut()? = new_pc;
-                    }
-                    _ => panic!("ifge on non-integer value"),
-                }
+                let pc = *self.frame_stack.pc()?;
+                let value = self.frame_stack.pop_int()?;
+                let new_pc = if value >= 0 {
+                    Self::branch16(pc, offset)
+                } else {
+                    pc + instruction.byte_size() as usize
+                };
+                *self.frame_stack.pc_mut()? = new_pc;
+            }
+            Instruction::IfIcmpne(offset) => {
+                let pc = *self.frame_stack.pc()?;
+                let v2 = self.frame_stack.pop_int()?;
+                let v1 = self.frame_stack.pop_int()?;
+                let new_pc = if v1 != v2 {
+                    Self::branch16(pc, offset)
+                } else {
+                    pc + instruction.byte_size() as usize
+                };
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::IfIcmpge(offset) => {
-                let pc = *self.frame_stack.cur_frame_pc()?;
-
-                let value2 = self.frame_stack.cur_frame_pop_operand()?;
-                let value1 = self.frame_stack.cur_frame_pop_operand()?;
-
-                match (value1, value2) {
-                    (Value::Integer(v1), Value::Integer(v2)) => {
-                        let new_pc = if v1 >= v2 {
-                            Self::branch16(pc, offset)
-                        } else {
-                            pc + instruction.byte_size() as usize
-                        };
-                        *self.frame_stack.cur_frame_pc_mut()? = new_pc;
-                    }
-                    _ => panic!("if_icmpge on non-integer values"),
-                }
+                let pc = *self.frame_stack.pc()?;
+                let v2 = self.frame_stack.pop_int()?;
+                let v1 = self.frame_stack.pop_int()?;
+                let new_pc = if v1 >= v2 {
+                    Self::branch16(pc, offset)
+                } else {
+                    pc + instruction.byte_size() as usize
+                };
+                *self.frame_stack.pc_mut()? = new_pc;
+            }
+            Instruction::IfIcmpeq(offset) => {
+                let pc = *self.frame_stack.pc()?;
+                let v2 = self.frame_stack.pop_int()?;
+                let v1 = self.frame_stack.pop_int()?;
+                let new_pc = if v1 == v2 {
+                    Self::branch16(pc, offset)
+                } else {
+                    pc + instruction.byte_size() as usize
+                };
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::IfIcmple(offset) => {
-                let pc = *self.frame_stack.cur_frame_pc()?;
-
-                let value2 = self.frame_stack.cur_frame_pop_operand()?;
-                let value1 = self.frame_stack.cur_frame_pop_operand()?;
-
-                match (value1, value2) {
-                    (Value::Integer(v1), Value::Integer(v2)) => {
-                        let new_pc = if v1 <= v2 {
-                            Self::branch16(pc, offset)
-                        } else {
-                            pc + instruction.byte_size() as usize
-                        };
-                        *self.frame_stack.cur_frame_pc_mut()? = new_pc;
-                    }
-                    _ => panic!("if_icmple on non-integer values"),
-                }
+                let pc = *self.frame_stack.pc()?;
+                let v2 = self.frame_stack.pop_int()?;
+                let v1 = self.frame_stack.pop_int()?;
+                let new_pc = if v1 <= v2 {
+                    Self::branch16(pc, offset)
+                } else {
+                    pc + instruction.byte_size() as usize
+                };
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::Ifnonnull(offset) => {
-                let pc = *self.frame_stack.cur_frame_pc()?;
-                let value = self.frame_stack.cur_frame_pop_operand()?;
-                match value {
-                    Value::Object(o) => {
-                        let new_pc = if o.is_some() {
-                            Self::branch16(pc, offset)
-                        } else {
-                            pc + instruction.byte_size() as usize
-                        };
-                        *self.frame_stack.cur_frame_pc_mut()? = new_pc;
-                    }
-                    _ => panic!("ifnonnull on non-object value"),
-                }
+                let pc = *self.frame_stack.pc()?;
+                let obj = self.frame_stack.pop_nullable_obj_ref()?;
+                let new_pc = if obj.is_some() {
+                    Self::branch16(pc, offset)
+                } else {
+                    pc + instruction.byte_size() as usize
+                };
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::IfNe(offset) => {
-                let pc = *self.frame_stack.cur_frame_pc()?;
-                let value = self.frame_stack.cur_frame_pop_operand()?;
-                match value {
-                    Value::Integer(i) => {
-                        let new_pc = if i != 0 {
-                            Self::branch16(pc, offset)
-                        } else {
-                            pc + instruction.byte_size() as usize
-                        };
-                        *self.frame_stack.cur_frame_pc_mut()? = new_pc;
-                    }
-                    _ => panic!("ifne on non-integer value"),
-                }
+                let pc = *self.frame_stack.pc()?;
+                let i = self.frame_stack.pop_int()?;
+                let new_pc = if i != 0 {
+                    Self::branch16(pc, offset)
+                } else {
+                    pc + instruction.byte_size() as usize
+                };
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::Iushr => {
-                let value2 = self.frame_stack.cur_frame_pop_operand()?;
-                let value1 = self.frame_stack.cur_frame_pop_operand()?;
-                match (value1, value2) {
-                    (Value::Integer(v1), Value::Integer(v2)) => {
-                        let shift = (v2 & 0x1F) as u32;
-                        let result = ((v1 as u32) >> shift) as i32;
-                        self.frame_stack
-                            .cur_frame_push_operand(Value::Integer(result))?;
-                    }
-                    _ => panic!("iushr on non-integer values"),
-                }
+                let v2 = self.frame_stack.pop_int()?;
+                let v1 = self.frame_stack.pop_int()?;
+                let shift = (v2 & 0x1F) as u32;
+                let result = ((v1 as u32) >> shift) as i32;
+                self.frame_stack.push_operand(Value::Integer(result))?;
             }
             Instruction::Ishr => {
-                let value2 = self.frame_stack.cur_frame_pop_operand()?;
-                let value1 = self.frame_stack.cur_frame_pop_operand()?;
-                match (value1, value2) {
-                    (Value::Integer(v1), Value::Integer(v2)) => {
-                        let shift = (v2 & 0x1F) as u32;
-                        let result = v1.wrapping_shr(shift);
-                        self.frame_stack
-                            .cur_frame_push_operand(Value::Integer(result))?;
-                    }
-                    _ => panic!("ishr on non-integer values"),
-                }
+                let v2 = self.frame_stack.pop_int()?;
+                let v1 = self.frame_stack.pop_int()?;
+                let shift = (v2 & 0x1F) as u32;
+                let result = v1.wrapping_shr(shift);
+                self.frame_stack.push_operand(Value::Integer(result))?;
             }
             Instruction::Putstatic(idx) => {
-                let cp = self.frame_stack.cur_frame_cp()?;
+                let cp = self.frame_stack.cp()?;
                 let field_ref = cp.get_fieldref(&idx)?;
                 let class = self.method_area().get_class(field_ref.class()?.name()?)?;
                 self.ensure_initialized(Some(&class))?;
                 let field_nat = field_ref.name_and_type()?;
-                class.set_static_field(field_nat, self.frame_stack.cur_frame_pop_operand()?)?;
+                class.set_static_field(field_nat, self.frame_stack.pop_operand()?)?;
             }
             Instruction::Getstatic(idx) => {
-                let cp = self.frame_stack.cur_frame_cp()?;
+                let cp = self.frame_stack.cp()?;
                 let field_ref = cp.get_fieldref(&idx)?;
                 let class = self.method_area().get_class(field_ref.class()?.name()?)?;
                 self.ensure_initialized(Some(&class))?;
                 let field_nat = field_ref.name_and_type()?;
                 let value = class.get_static_field_value(field_nat)?;
-                self.frame_stack.cur_frame_push_operand(value)?;
+                self.frame_stack.push_operand(value)?;
             }
             Instruction::InvokeStatic(idx) => {
-                let cp = self.frame_stack.cur_frame_cp()?;
+                let cp = self.frame_stack.cp()?;
                 let method_ref = cp.get_methodref(&idx)?;
                 let class = self.method_area().get_class(method_ref.class()?.name()?)?;
                 self.ensure_initialized(Some(&class))?;
@@ -441,68 +382,59 @@ impl Interpreter {
                 self.run_static_method_type(&class, method)?;
             }
             Instruction::InvokeInterface(idx, _count) => {
-                let cp = self.frame_stack.cur_frame_cp()?;
+                let cp = self.frame_stack.cp()?;
                 let method_ref = cp.get_interface_methodref(&idx)?;
                 let class = self.method_area().get_class(method_ref.class()?.name()?)?;
                 let method = class.get_virtual_method_by_nat(method_ref)?;
                 self.run_instance_method_type(method, method_ref)?;
             }
             Instruction::AconstNull => {
-                self.frame_stack
-                    .cur_frame_push_operand(Value::Object(None))?;
+                self.frame_stack.push_operand(Value::Object(None))?;
             }
             Instruction::Ldc(idx) | Instruction::LdcW(idx) => {
-                let cp = self.frame_stack.cur_frame_cp()?;
+                let cp = self.frame_stack.cp()?;
                 let raw = cp.get(&idx)?;
                 match raw {
                     RuntimeConstant::String(data) => {
                         let string_addr = self.heap.borrow_mut().get_or_new_string(data.value()?);
                         self.frame_stack
-                            .cur_frame_push_operand(Value::Object(Some(string_addr)))?;
+                            .push_operand(Value::Object(Some(string_addr)))?;
                     }
                     RuntimeConstant::Class(class) => {
                         let class_mirror = self.vm.get_mirror_by_name(class.name()?)?;
                         self.frame_stack
-                            .cur_frame_push_operand(Value::Object(Some(class_mirror)))?;
+                            .push_operand(Value::Object(Some(class_mirror)))?;
                     }
                     RuntimeConstant::Float(value) => {
-                        self.frame_stack
-                            .cur_frame_push_operand(Value::Float(*value))?;
+                        self.frame_stack.push_operand(Value::Float(*value))?;
                     }
                     RuntimeConstant::Integer(value) => {
-                        self.frame_stack
-                            .cur_frame_push_operand(Value::Integer(*value))?;
+                        self.frame_stack.push_operand(Value::Integer(*value))?;
                     }
                     _ => unimplemented!("Ldc for constant {:?}", raw),
                 }
             }
             Instruction::Anewarray(idx) => {
-                let cp = self.frame_stack.cur_frame_cp()?;
+                let cp = self.frame_stack.cp()?;
                 let class_ref = cp.get_class(&idx)?;
                 let class = self.method_area().get_class(class_ref.name()?)?;
-                let count = self.frame_stack.cur_frame_pop_operand()?;
-                match count {
-                    Value::Integer(c) if c >= 0 => {
-                        let addr = self.heap.borrow_mut().alloc_ref_array(class, c as usize);
-                        self.frame_stack
-                            .cur_frame_push_operand(Value::Array(Some(addr)))?;
-                    }
-                    Value::Integer(_) => {
-                        return Err(JvmError::NegativeArraySizeException);
-                    }
-                    _ => panic!("anewarray with non-integer count"),
+                let size = self.frame_stack.pop_int()?;
+                if size >= 0 {
+                    let addr = self.heap.borrow_mut().alloc_ref_array(class, size as usize);
+                    self.frame_stack.push_operand(Value::Array(Some(addr)))?;
+                } else {
+                    return Err(JvmError::NegativeArraySizeException)?;
                 }
             }
             Instruction::Newarray(array_type) => {
-                let count = self.frame_stack.cur_frame_pop_operand()?;
+                let count = self.frame_stack.pop_operand()?;
                 match count {
                     Value::Integer(c) if c >= 0 => {
                         let addr = self
                             .heap
                             .borrow_mut()
                             .alloc_primitive_array(c as usize, array_type);
-                        self.frame_stack
-                            .cur_frame_push_operand(Value::Array(Some(addr)))?;
+                        self.frame_stack.push_operand(Value::Array(Some(addr)))?;
                     }
                     Value::Integer(_) => {
                         return Err(JvmError::NegativeArraySizeException);
@@ -511,252 +443,182 @@ impl Interpreter {
                 }
             }
             Instruction::New(idx) => {
-                let cp = self.frame_stack.cur_frame_cp()?;
+                let cp = self.frame_stack.cp()?;
                 let class_ref = cp.get_class(&idx)?;
                 let class = self.method_area().get_class(class_ref.name()?)?;
                 self.ensure_initialized(Some(&class))?;
                 let addr = self.heap.borrow_mut().alloc_instance(class);
-                self.frame_stack
-                    .cur_frame_push_operand(Value::Object(Some(addr)))?;
+                self.frame_stack.push_operand(Value::Object(Some(addr)))?;
             }
             Instruction::Dup => {
-                let value = self.frame_stack.cur_frame_top_operand()?;
-                self.frame_stack.cur_frame_push_operand(value.clone())?;
+                let value = self.frame_stack.top_operand()?;
+                self.frame_stack.push_operand(*value)?;
             }
             Instruction::InvokeSpecial(idx) => {
-                let cp = self.frame_stack.cur_frame_cp()?;
+                let cp = self.frame_stack.cp()?;
                 let method_ref = cp.get_methodref(&idx)?;
                 let class = self.method_area().get_class(method_ref.class()?.name()?)?;
                 let method = class.get_virtual_method_by_nat(method_ref)?;
                 self.run_instance_method_type(method, method_ref)?;
             }
             Instruction::InvokeVirtual(idx) => {
-                let cp = self.frame_stack.cur_frame_cp()?;
+                let cp = self.frame_stack.cp()?;
                 let method_ref = cp.get_methodref(&idx)?;
                 let class = self.method_area().get_class(method_ref.class()?.name()?)?;
                 let method = class.get_virtual_method_by_nat(method_ref)?;
                 self.run_instance_method_type(method, method_ref)?;
             }
             Instruction::Aload0 => {
-                let value = self.frame_stack.cur_frame_get_local(0)?.clone();
-                self.frame_stack.cur_frame_push_operand(value)?
+                let value = self.frame_stack.get_local(0)?;
+                self.frame_stack.push_operand(*value)?
             }
             Instruction::Aload1 => {
-                let value = self.frame_stack.cur_frame_get_local(1)?.clone();
-                self.frame_stack.cur_frame_push_operand(value)?
+                let value = self.frame_stack.get_local(1)?;
+                self.frame_stack.push_operand(*value)?
             }
             Instruction::Aload2 => {
-                let value = self.frame_stack.cur_frame_get_local(2)?.clone();
-                self.frame_stack.cur_frame_push_operand(value)?
+                let value = self.frame_stack.get_local(2)?;
+                self.frame_stack.push_operand(*value)?
             }
             Instruction::Aload3 => {
-                let value = self.frame_stack.cur_frame_get_local(3)?.clone();
-                self.frame_stack.cur_frame_push_operand(value)?
+                let value = self.frame_stack.get_local(3)?;
+                self.frame_stack.push_operand(*value)?
             }
             Instruction::Aload(idx) => {
-                let value = self.frame_stack.cur_frame_get_local(idx)?.clone();
-                self.frame_stack.cur_frame_push_operand(value)?
+                let value = self.frame_stack.get_local(idx)?;
+                self.frame_stack.push_operand(*value)?
             }
             Instruction::Castore => {
-                let value = self.frame_stack.cur_frame_pop_operand()?;
-                let index = self.frame_stack.cur_frame_pop_operand()?;
-                let array_ptr = self.frame_stack.cur_frame_pop_operand()?;
-                match (array_ptr, index, value) {
-                    (Value::Array(Some(arr_addr)), Value::Integer(i), Value::Integer(v)) => {
-                        match self.heap.borrow_mut().get_mut(arr_addr) {
-                            HeapObject::PrimitiveArray { elements, .. } => {
-                                if i < 0 || (i as usize) >= elements.len() {
-                                    return Err(JvmError::ArrayIndexOutOfBoundsException);
-                                }
-                                elements[i as usize] = Value::Integer(v & 0xFF);
-                            }
-                            _ => panic!("castore on non-array object"),
+                let value = self.frame_stack.pop_int()?;
+                let index = self.frame_stack.pop_int()?;
+                let array_addr = self.frame_stack.pop_array_ref()?;
+                match self.heap.borrow_mut().get_mut(array_addr) {
+                    HeapObject::PrimitiveArray { elements, .. } => {
+                        if index < 0 || (index as usize) >= elements.len() {
+                            return Err(JvmError::ArrayIndexOutOfBoundsException);
                         }
+                        elements[index as usize] = Value::Integer(value & 0xFF);
                     }
-                    (Value::Object(None), _, _) => {
-                        return Err(JvmError::NullPointerException);
-                    }
-                    _ => panic!("castore on non-array object or non-integer index/value"),
+                    _ => panic!("castore on non-array object"),
                 }
             }
             Instruction::Aastore => {
-                let value = self.frame_stack.cur_frame_pop_operand()?;
-                let index = self.frame_stack.cur_frame_pop_operand()?;
-                let array_ref = self.frame_stack.cur_frame_pop_operand()?;
-                match (array_ref, index) {
-                    (Value::Array(Some(arr_addr)), Value::Integer(i)) => {
-                        match self.heap.borrow_mut().get_mut(arr_addr) {
-                            HeapObject::RefArray { elements, .. } => {
-                                if i < 0 || (i as usize) >= elements.len() {
-                                    return Err(JvmError::ArrayIndexOutOfBoundsException);
-                                }
-                                elements[i as usize] = value;
-                            }
-                            _ => panic!("aastore on non-array object"),
+                let value = self.frame_stack.pop_nullable_obj_ref()?;
+                let index = self.frame_stack.pop_int()?;
+                let array_addr = self.frame_stack.pop_array_ref()?;
+                match self.heap.borrow_mut().get_mut(array_addr) {
+                    HeapObject::RefArray { elements, .. } => {
+                        if index < 0 || (index as usize) >= elements.len() {
+                            return Err(JvmError::ArrayIndexOutOfBoundsException);
                         }
+                        elements[index as usize] = Value::Object(value);
                     }
-                    (Value::Object(None), _) => {
-                        return Err(JvmError::NullPointerException);
-                    }
-                    _ => panic!("aastore on non-array object or non-integer index"),
+                    _ => panic!("aastore on non-array object"),
                 }
             }
             Instruction::Astore0 => {
-                let value = self.frame_stack.cur_frame_pop_operand()?;
-                self.frame_stack.cur_frame_set_local(0, value)?;
+                let value = self.frame_stack.pop_operand()?;
+                self.frame_stack.set_local(0, value)?;
             }
             Instruction::Astore1 => {
-                let value = self.frame_stack.cur_frame_pop_operand()?;
-                self.frame_stack.cur_frame_set_local(1, value)?;
+                let value = self.frame_stack.pop_operand()?;
+                self.frame_stack.set_local(1, value)?;
             }
             Instruction::Astore2 => {
-                let value = self.frame_stack.cur_frame_pop_operand()?;
-                self.frame_stack.cur_frame_set_local(2, value)?;
+                let value = self.frame_stack.pop_operand()?;
+                self.frame_stack.set_local(2, value)?;
             }
             Instruction::Astore3 => {
-                let value = self.frame_stack.cur_frame_pop_operand()?;
-                self.frame_stack.cur_frame_set_local(3, value)?;
+                let value = self.frame_stack.pop_operand()?;
+                self.frame_stack.set_local(3, value)?;
             }
             Instruction::Astore(idx) => {
-                let value = self.frame_stack.cur_frame_pop_operand()?;
-                self.frame_stack.cur_frame_set_local(idx as usize, value)?;
+                let value = self.frame_stack.pop_operand()?;
+                self.frame_stack.set_local(idx as usize, value)?;
             }
             Instruction::ArrayLength => {
-                let array_ref = self.frame_stack.cur_frame_pop_operand()?;
-                match array_ref {
-                    Value::Array(Some(arr_addr)) => match self.heap.borrow().get(arr_addr).unwrap()
-                    {
-                        HeapObject::RefArray { elements, .. } => {
-                            let length = elements.len() as i32;
-                            self.frame_stack
-                                .cur_frame_push_operand(Value::Integer(length))?;
-                        }
-                        HeapObject::PrimitiveArray { elements, .. } => {
-                            let length = elements.len() as i32;
-                            self.frame_stack
-                                .cur_frame_push_operand(Value::Integer(length))?;
-                        }
-                        _ => panic!("arraylength on non-array object"),
-                    },
-                    Value::Array(None) => {
-                        return Err(JvmError::NullPointerException);
+                let array_addr = self.frame_stack.pop_array_ref()?;
+                match self.heap.borrow().get(array_addr).unwrap() {
+                    HeapObject::RefArray { elements, .. } => {
+                        let length = elements.len() as i32;
+                        self.frame_stack.push_operand(Value::Integer(length))?;
+                    }
+                    HeapObject::PrimitiveArray { elements, .. } => {
+                        let length = elements.len() as i32;
+                        self.frame_stack.push_operand(Value::Integer(length))?;
                     }
                     _ => panic!("arraylength on non-array object"),
                 }
             }
             Instruction::Bipush(value) => {
                 self.frame_stack
-                    .cur_frame_push_operand(Value::Integer(value as i32))?;
+                    .push_operand(Value::Integer(value as i32))?;
             }
             Instruction::Sipush(value) => {
                 self.frame_stack
-                    .cur_frame_push_operand(Value::Integer(value as i32))?;
+                    .push_operand(Value::Integer(value as i32))?;
             }
             Instruction::Getfield(idx) => {
-                let cp = self.frame_stack.cur_frame_cp()?;
+                let cp = self.frame_stack.cp()?;
                 let field_nat = cp.get_fieldref(&idx)?.name_and_type()?;
-                let object_ref = self.frame_stack.cur_frame_pop_operand()?;
-                match object_ref {
-                    Value::Object(Some(o)) => {
-                        let value = self
-                            .heap
-                            .borrow_mut()
-                            .get_instance_field(&o, field_nat)
-                            .clone();
-                        self.frame_stack.cur_frame_push_operand(value)?;
-                    }
-                    Value::Object(None) => {
-                        return Err(JvmError::NullPointerException);
-                    }
-                    _ => {
-                        panic!("getfield on non-object");
-                    }
-                }
+                let object_addr = self.frame_stack.pop_obj_ref()?;
+                let value = *self
+                    .heap
+                    .borrow_mut()
+                    .get_instance_field(&object_addr, field_nat);
+                self.frame_stack.push_operand(value)?;
             }
             Instruction::Iadd => {
-                let value2 = self.frame_stack.cur_frame_pop_operand()?;
-                let value1 = self.frame_stack.cur_frame_pop_operand()?;
-                match (value1, value2) {
-                    (Value::Integer(v1), Value::Integer(v2)) => {
-                        self.frame_stack
-                            .cur_frame_push_operand(Value::Integer(v1 + v2))?;
-                    }
-                    _ => panic!("iadd on non-integer values"),
-                }
+                let v2 = self.frame_stack.pop_int()?;
+                let v1 = self.frame_stack.pop_int()?;
+                self.frame_stack.push_operand(Value::Integer(v1 + v2))?;
             }
             Instruction::Isub => {
-                let value2 = self.frame_stack.cur_frame_pop_operand()?;
-                let value1 = self.frame_stack.cur_frame_pop_operand()?;
-                match (value1, value2) {
-                    (Value::Integer(v1), Value::Integer(v2)) => {
-                        self.frame_stack
-                            .cur_frame_push_operand(Value::Integer(v1 - v2))?;
-                    }
-                    _ => panic!("isub on non-integer values"),
-                }
+                let v2 = self.frame_stack.pop_int()?;
+                let v1 = self.frame_stack.pop_int()?;
+                self.frame_stack.push_operand(Value::Integer(v1 - v2))?;
             }
             Instruction::Idiv => {
-                let value2 = self.frame_stack.cur_frame_pop_operand()?;
-                let value1 = self.frame_stack.cur_frame_pop_operand()?;
-                match (value1, value2) {
-                    (Value::Integer(_), Value::Integer(0)) => {
-                        return Err(JvmError::ArithmeticException(
-                            "Division by zero".to_string(),
-                        ));
-                    }
-                    (Value::Integer(v1), Value::Integer(v2)) => {
-                        self.frame_stack
-                            .cur_frame_push_operand(Value::Integer(v1 / v2))?;
-                    }
-                    _ => panic!("idiv on non-integer values"),
+                let v2 = self.frame_stack.pop_int()?;
+                let v1 = self.frame_stack.pop_int()?;
+                if v2 == 0 {
+                    Err(JvmError::ArithmeticException(
+                        "Division by zero".to_string(),
+                    ))?
                 }
+                self.frame_stack.push_operand(Value::Integer(v1 / v2))?;
             }
             Instruction::Iinc(index, const_val) => {
-                let value = self.frame_stack.cur_frame_get_local(index)?.clone();
-                match value {
-                    Value::Integer(v) => {
-                        self.frame_stack.cur_frame_set_local(
-                            index as usize,
-                            Value::Integer(v + (const_val as i32)),
-                        )?;
-                    }
-                    _ => panic!("iinc on non-integer value"),
-                }
+                let value = self.frame_stack.get_local_int(index)?;
+                self.frame_stack
+                    .set_local(index as usize, Value::Integer(value + (const_val as i32)))?;
             }
             Instruction::Goto(offset) => {
-                let pc = *self.frame_stack.cur_frame_pc()?;
+                let pc = *self.frame_stack.pc()?;
                 let new_pc = Self::branch16(pc, offset);
-                *self.frame_stack.cur_frame_pc_mut()? = new_pc;
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::Putfield(idx) => {
-                let cp = self.frame_stack.cur_frame_cp()?;
+                let cp = self.frame_stack.cp()?;
                 let field_nat = cp.get_fieldref(&idx)?.name_and_type()?;
-                let value = self.frame_stack.cur_frame_pop_operand()?;
-                let object_ref = self.frame_stack.cur_frame_pop_operand()?;
-                match object_ref {
-                    Value::Object(Some(o)) => {
-                        self.heap
-                            .borrow_mut()
-                            .write_instance_field_by_nat(o, field_nat, value)?;
-                    }
-                    Value::Object(None) => {
-                        return Err(JvmError::NullPointerException);
-                    }
-                    _ => {
-                        panic!("putfield on non-object");
-                    }
-                }
+                let value = self.frame_stack.pop_operand()?;
+                let object_addr = self.frame_stack.pop_obj_ref()?;
+                self.heap.borrow_mut().write_instance_field_by_nat(
+                    object_addr,
+                    field_nat,
+                    value,
+                )?;
             }
             Instruction::Areturn => {
-                let value = self.frame_stack.cur_frame_pop_operand()?;
+                let value = self.frame_stack.pop_operand()?;
                 self.pop_frame()?;
-                self.frame_stack.cur_frame_push_operand(value)?;
+                self.frame_stack.push_operand(value)?;
                 return Ok(true);
             }
             Instruction::Ireturn => {
-                let value = self.frame_stack.cur_frame_pop_operand()?;
+                let value = self.frame_stack.pop_operand()?;
                 self.pop_frame()?;
-                self.frame_stack.cur_frame_push_operand(value)?;
+                self.frame_stack.push_operand(value)?;
                 return Ok(true);
             }
             Instruction::Return => {
@@ -782,7 +644,7 @@ impl Interpreter {
 
         let params_count = method.descriptor().resolved().params.len() + 1; // +1 for this
         let params: Vec<_> = (0..params_count)
-            .map(|_| self.frame_stack.cur_frame_pop_operand())
+            .map(|_| self.frame_stack.pop_operand())
             .rev()
             .collect::<Result<_, _>>()?;
 
@@ -798,7 +660,7 @@ impl Interpreter {
             .ok_or(JvmError::NoSuchMethod(format!("{method_key:?}")))?;
 
         let ret_value = method(&mut self.vm, params.as_slice());
-        self.frame_stack.cur_frame_push_operand(ret_value)?;
+        self.frame_stack.push_operand(ret_value)?;
 
         Ok(())
     }
@@ -818,7 +680,7 @@ impl Interpreter {
         let mut params = vec![None; method.max_locals()?];
         let params_count = method.descriptor().resolved().params.len() + 1; // +1 for this
         for i in (0..params_count).rev() {
-            params[i] = Some(self.frame_stack.cur_frame_pop_operand()?);
+            params[i] = Some(self.frame_stack.pop_operand()?);
         }
 
         let frame = Frame::new(class.cp().clone(), params, method.max_stack()?, debug_msg);
@@ -837,7 +699,7 @@ impl Interpreter {
         let params_count = abstract_method.descriptor().resolved().params.len() + 1;
         let mut params = vec![None; params_count];
         for i in (0..params_count).rev() {
-            params[i] = Some(self.frame_stack.cur_frame_pop_operand()?);
+            params[i] = Some(self.frame_stack.pop_operand()?);
         }
 
         let class = match &params[0] {
@@ -894,7 +756,7 @@ impl Interpreter {
         let params_count = method.descriptor().resolved().params.len();
 
         for i in (0..params_count).rev() {
-            params[i] = Some(self.frame_stack.cur_frame_pop_operand()?);
+            params[i] = Some(self.frame_stack.pop_operand()?);
         }
 
         let frame = Frame::new(class.cp().clone(), params, method.max_stack()?, debug_msg);
@@ -918,7 +780,7 @@ impl Interpreter {
 
         let params_count = method.descriptor().resolved().params.len();
         let params: Vec<_> = (0..params_count)
-            .map(|_| self.frame_stack.cur_frame_pop_operand())
+            .map(|_| self.frame_stack.pop_operand())
             .rev()
             .collect::<Result<_, _>>()?;
 
@@ -933,7 +795,7 @@ impl Interpreter {
             .get(&method_key)
             .ok_or(JvmError::NoSuchMethod(format!("{method_key:?}")))?;
         let ret_value = method(&mut self.vm, params.as_slice());
-        self.frame_stack.cur_frame_push_operand(ret_value)?;
+        self.frame_stack.push_operand(ret_value)?;
         Ok(())
     }
 

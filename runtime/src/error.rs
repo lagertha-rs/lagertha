@@ -56,4 +56,6 @@ pub enum JvmError {
     MethodIsAbstract(String),
     #[error("ArithmeticException `{0}`")]
     ArithmeticException(String),
+    #[error("UnexpectedType: `{0}`")]
+    UnexpectedType(String),
 }

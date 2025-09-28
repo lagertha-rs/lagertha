@@ -1,7 +1,7 @@
 use crate::VmConfig;
 use crate::error::JvmError;
 use crate::rt::constant_pool::RuntimeConstantPool;
-use common::jtype::Value;
+use common::jtype::{HeapAddr, Value};
 use log::debug;
 use std::sync::Arc;
 
@@ -62,25 +62,34 @@ impl FrameStack {
         self.frames.last().ok_or(JvmError::FrameStackIsEmpty)
     }
 
-    pub fn cur_frame_pc(&self) -> Result<&usize, JvmError> {
+    pub fn pc(&self) -> Result<&usize, JvmError> {
         self.cur_frame().map(|v| &v.pc)
     }
 
-    pub fn cur_frame_pc_mut(&mut self) -> Result<&mut usize, JvmError> {
+    pub fn pc_mut(&mut self) -> Result<&mut usize, JvmError> {
         self.cur_frame_mut().map(|v| &mut v.pc)
     }
 
-    pub fn cur_frame_get_local(&self, index: u8) -> Result<&Value, JvmError> {
+    pub fn get_local(&self, index: u8) -> Result<&Value, JvmError> {
         self.cur_frame()?.get_local(index)
     }
 
+    pub fn get_local_int(&self, index: u8) -> Result<i32, JvmError> {
+        match self.get_local(index)? {
+            Value::Integer(v) => Ok(*v),
+            _ => Err(JvmError::UnexpectedType(
+                "Expected Integer in local variable".to_string(),
+            )),
+        }
+    }
+
     // TODO: check index bounds
-    pub fn cur_frame_set_local(&mut self, idx: usize, value: Value) -> Result<(), JvmError> {
+    pub fn set_local(&mut self, idx: usize, value: Value) -> Result<(), JvmError> {
         self.cur_frame_mut()?.locals[idx] = Some(value);
         Ok(())
     }
 
-    pub fn cur_frame_push_operand(&mut self, value: Value) -> Result<(), JvmError> {
+    pub fn push_operand(&mut self, value: Value) -> Result<(), JvmError> {
         if self.cur_frame()?.operands.len() >= self.max_operand_stack_size {
             return Err(JvmError::StackOverflow);
         }
@@ -88,16 +97,71 @@ impl FrameStack {
         Ok(())
     }
 
-    pub fn cur_frame_pop_operand(&mut self) -> Result<Value, JvmError> {
+    pub fn pop_int(&mut self) -> Result<i32, JvmError> {
+        match self.pop_operand()? {
+            Value::Integer(v) => Ok(v),
+            _ => Err(JvmError::UnexpectedType(
+                "Expected Integer on operand stack".to_string(),
+            )),
+        }
+    }
+
+    pub fn pop_float(&mut self) -> Result<f32, JvmError> {
+        match self.pop_operand()? {
+            Value::Float(v) => Ok(v),
+            _ => Err(JvmError::UnexpectedType(
+                "Expected Float on operand stack".to_string(),
+            )),
+        }
+    }
+
+    pub fn pop_nullable_obj_ref(&mut self) -> Result<Option<HeapAddr>, JvmError> {
+        match self.pop_operand()? {
+            Value::Object(v) => Ok(v),
+            _ => Err(JvmError::UnexpectedType(
+                "Expected Object on operand stack".to_string(),
+            )),
+        }
+    }
+
+    pub fn pop_obj_ref(&mut self) -> Result<HeapAddr, JvmError> {
+        self.pop_nullable_obj_ref()?
+            .ok_or(JvmError::NullPointerException)
+    }
+
+    pub fn pop_nullable_array_ref(&mut self) -> Result<Option<HeapAddr>, JvmError> {
+        match self.pop_operand()? {
+            Value::Array(v) => Ok(v),
+            _ => Err(JvmError::UnexpectedType(
+                "Expected Array on operand stack".to_string(),
+            )),
+        }
+    }
+
+    pub fn pop_array_ref(&mut self) -> Result<HeapAddr, JvmError> {
+        self.pop_nullable_array_ref()?
+            .ok_or(JvmError::NullPointerException)
+    }
+
+    pub fn pop_ref(&mut self) -> Result<Option<HeapAddr>, JvmError> {
+        match self.pop_operand()? {
+            Value::Object(o) | Value::Array(o) => Ok(o),
+            _ => Err(JvmError::UnexpectedType(
+                "Expected reference (Object or Array) on operand stack".to_string(),
+            )),
+        }
+    }
+
+    pub fn pop_operand(&mut self) -> Result<Value, JvmError> {
         self.cur_frame_mut()?.pop_operand()
     }
 
-    //TODO: cloning cp every time may be inefficient
-    pub fn cur_frame_cp(&self) -> Result<Arc<RuntimeConstantPool>, JvmError> {
+    //TODO: cloning cp every time may be inefficient, even if it's Arc
+    pub fn cp(&self) -> Result<Arc<RuntimeConstantPool>, JvmError> {
         self.cur_frame().map(|v| v.cp.clone())
     }
 
-    pub fn cur_frame_top_operand(&self) -> Result<&Value, JvmError> {
+    pub fn top_operand(&self) -> Result<&Value, JvmError> {
         self.cur_frame()?.get_top_operand()
     }
 }
