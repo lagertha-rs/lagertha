@@ -349,6 +349,13 @@ impl Interpreter {
                 let result = ((v1 as u32) >> shift) as i32;
                 self.frame_stack.push_operand(Value::Integer(result))?;
             }
+            Instruction::Ishl => {
+                let v2 = self.frame_stack.pop_int()?;
+                let v1 = self.frame_stack.pop_int()?;
+                let shift = (v2 & 0x1F) as u32;
+                let result = v1.wrapping_shl(shift);
+                self.frame_stack.push_operand(Value::Integer(result))?;
+            }
             Instruction::Ishr => {
                 let v2 = self.frame_stack.pop_int()?;
                 let v1 = self.frame_stack.pop_int()?;
