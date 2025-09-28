@@ -124,12 +124,14 @@ impl Heap {
         }))
     }
 
-    pub fn get(&self, h: HeapAddr) -> &HeapObject {
-        self.objects.get(h).expect("heap: invalid handle (get)")
+    // TODO: return Result and handle errors
+    pub fn get(&self, h: HeapAddr) -> Option<&HeapObject> {
+        self.objects.get(h)
     }
 
+    // TODO: return Result and handle errors
     pub fn get_instance(&mut self, h: &HeapAddr) -> &ClassInstance {
-        let heap_obj = self.get(*h);
+        let heap_obj = self.get(*h).unwrap();
         match heap_obj {
             HeapObject::Instance(inst) => inst,
             _ => panic!("get_by_ref called with non-instance HeapObject",),

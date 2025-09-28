@@ -81,6 +81,14 @@ impl NativeRegistry {
             ),
             java_lang_class_get_primitive_class,
         );
+        instance.register(
+            MethodKey::new(
+                "java/lang/Object".to_string(),
+                "getClass".to_string(),
+                "()Ljava/lang/Class;".to_string(),
+            ),
+            java_lang_object_get_class,
+        );
         instance
     }
 
@@ -119,6 +127,25 @@ fn java_lang_class_get_primitive_class(vm: &mut VirtualMachine, args: &[Value]) 
         }
     } else {
         panic!("java.lang.Class.getPrimitiveClass: expected String object");
+    }
+}
+
+fn java_lang_object_get_class(vm: &mut VirtualMachine, args: &[Value]) -> Value {
+    debug!("TODO: Stub: java.lang.Class.getClass");
+    if let Value::Object(Some(h)) = &args[0] {
+        let target_class = if let Some(obj) = vm.heap().borrow().get(*h) {
+            if let HeapObject::Instance(instance) = obj {
+                instance.class().clone()
+            } else {
+                panic!("java.lang.Class.getClass: expected String object as argument");
+            }
+        } else {
+            panic!("java.lang.Class.getClass: invalid heap address");
+        };
+        let res = vm.get_mirror_by_class(&target_class).unwrap();
+        Value::Object(Some(res))
+    } else {
+        panic!("java.lang.Class.getClass: expected String object as argument");
     }
 }
 

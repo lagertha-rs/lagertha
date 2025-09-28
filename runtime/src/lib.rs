@@ -3,9 +3,11 @@ use crate::heap::Heap;
 use crate::interpreter::Interpreter;
 use crate::method_area::MethodArea;
 use crate::native::NativeRegistry;
+use crate::rt::class::class::Class;
 use common::jtype::HeapAddr;
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::sync::Arc;
 use tracing_log::log::debug;
 
 mod class_loader;
@@ -77,8 +79,18 @@ impl VirtualMachine {
         self.heap.clone()
     }
 
-    pub fn get_mirror(&self, name: &str) -> Result<HeapAddr, JvmError> {
+    pub fn get_mirror_by_name(&self, name: &str) -> Result<HeapAddr, JvmError> {
         let target_class = self.method_area().get_class(name)?;
+        if let Some(mirror) = target_class.mirror() {
+            return Ok(mirror);
+        }
+        let class_class = self.method_area().get_class("java/lang/Class")?;
+        let mirror = self.heap.borrow_mut().alloc_instance(class_class);
+        target_class.set_mirror(mirror)?;
+        Ok(mirror)
+    }
+
+    pub fn get_mirror_by_class(&self, target_class: &Arc<Class>) -> Result<HeapAddr, JvmError> {
         if let Some(mirror) = target_class.mirror() {
             return Ok(mirror);
         }

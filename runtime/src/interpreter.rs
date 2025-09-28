@@ -461,7 +461,7 @@ impl Interpreter {
                             .cur_frame_push_operand(Value::Object(Some(string_addr)))?;
                     }
                     RuntimeConstant::Class(class) => {
-                        let class_mirror = self.vm.get_mirror(class.name()?)?;
+                        let class_mirror = self.vm.get_mirror_by_name(class.name()?)?;
                         self.frame_stack
                             .cur_frame_push_operand(Value::Object(Some(class_mirror)))?;
                     }
@@ -624,7 +624,8 @@ impl Interpreter {
             Instruction::ArrayLength => {
                 let array_ref = self.frame_stack.cur_frame_pop_operand()?;
                 match array_ref {
-                    Value::Array(Some(arr_addr)) => match self.heap.borrow().get(arr_addr) {
+                    Value::Array(Some(arr_addr)) => match self.heap.borrow().get(arr_addr).unwrap()
+                    {
                         HeapObject::RefArray { elements, .. } => {
                             let length = elements.len() as i32;
                             self.frame_stack
@@ -779,17 +780,26 @@ impl Interpreter {
         );
         debug!("Running {debug_msg}");
 
-        /*
-        let mut params = vec![None; method.max_locals()?];
         let params_count = method.descriptor().resolved().params.len() + 1; // +1 for this
-        for i in (0..params_count).rev() {
-            params[i] = Some(self.frame_stack.cur_frame_pop_operand()?);
-        }
+        let params: Vec<_> = (0..params_count)
+            .map(|_| self.frame_stack.cur_frame_pop_operand())
+            .rev()
+            .collect::<Result<_, _>>()?;
 
-        let frame = Frame::new(class.cp().clone(), params, method.max_stack()?, debug_msg);
+        let method_key = MethodKey::new(
+            class.name()?.to_string(),
+            method.name().to_string(),
+            method.descriptor().raw().to_string(),
+        );
+        let method = self
+            .vm
+            .native_registry
+            .get(&method_key)
+            .ok_or(JvmError::NoSuchMethod(format!("{method_key:?}")))?;
 
-        self.interpret_method_code(method.instructions()?, frame)?;
-         */
+        let ret_value = method(&mut self.vm, params.as_slice());
+        self.frame_stack.cur_frame_push_operand(ret_value)?;
+
         Ok(())
     }
 
