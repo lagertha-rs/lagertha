@@ -185,6 +185,10 @@ impl Interpreter {
                 let value = self.frame_stack.get_local(3)?;
                 self.frame_stack.push_operand(*value)?;
             }
+            Instruction::Iload(n) => {
+                let value = self.frame_stack.get_local(n)?;
+                self.frame_stack.push_operand(*value)?;
+            }
             Instruction::Fload0 => {
                 let value = self.frame_stack.get_local(0)?;
                 self.frame_stack.push_operand(*value)?;
@@ -509,6 +513,20 @@ impl Interpreter {
                     _ => panic!("castore on non-array object"),
                 }
             }
+            Instruction::Iastore => {
+                let value = self.frame_stack.pop_int()?;
+                let index = self.frame_stack.pop_int()?;
+                let array_addr = self.frame_stack.pop_array_ref()?;
+                match self.heap.borrow_mut().get_mut(array_addr) {
+                    HeapObject::PrimitiveArray { elements, .. } => {
+                        if index < 0 || (index as usize) >= elements.len() {
+                            return Err(JvmError::ArrayIndexOutOfBoundsException);
+                        }
+                        elements[index as usize] = Value::Integer(value);
+                    }
+                    _ => panic!("iastore on non-array object"),
+                }
+            }
             Instruction::Aastore => {
                 let value = self.frame_stack.pop_nullable_obj_ref()?;
                 let index = self.frame_stack.pop_int()?;
@@ -632,6 +650,9 @@ impl Interpreter {
                 self.pop_frame()?;
                 return Ok(true);
             }
+            Instruction::Pop => {
+                self.frame_stack.pop_operand()?;
+            }
             unimp => unimplemented!("Instruction {:?} not implemented", unimp),
         }
         Ok(false)
@@ -650,10 +671,11 @@ impl Interpreter {
         debug!("Running {debug_msg}");
 
         let params_count = method.descriptor().resolved().params.len() + 1; // +1 for this
-        let params: Vec<_> = (0..params_count)
-            .map(|_| self.frame_stack.pop_operand())
-            .rev()
-            .collect::<Result<_, _>>()?;
+        let mut params = Vec::with_capacity(params_count);
+        for _ in 0..params_count {
+            params.push(self.frame_stack.pop_operand()?);
+        }
+        params.reverse();
 
         let method_key = MethodKey::new(
             class.name()?.to_string(),
@@ -786,10 +808,11 @@ impl Interpreter {
         );
 
         let params_count = method.descriptor().resolved().params.len();
-        let params: Vec<_> = (0..params_count)
-            .map(|_| self.frame_stack.pop_operand())
-            .rev()
-            .collect::<Result<_, _>>()?;
+        let mut params = Vec::with_capacity(params_count);
+        for _ in 0..params_count {
+            params.push(self.frame_stack.pop_operand()?);
+        }
+        params.reverse();
 
         let method_key = MethodKey::new(
             class.name()?.to_string(),
