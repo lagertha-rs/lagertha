@@ -57,8 +57,8 @@ fn main() {
                     return;
                 }
             };
-            if let Err(e) = runtime::start(bytes, vm_config) {
-                eprintln!("Error during JVM execution: {}", e);
+            if let Err(_) = runtime::start(bytes, vm_config) {
+                std::process::exit(1);
             }
         }
         Err(e) => {

@@ -1,6 +1,7 @@
 use crate::class_loader::ClassLoaderErr;
 use crate::rt::class::LinkageError;
 use crate::rt::constant_pool::error::RuntimePoolError;
+use common::jtype::HeapAddr;
 use common::utils::cursor::CursorError;
 use thiserror::Error;
 
@@ -58,4 +59,6 @@ pub enum JvmError {
     ArithmeticException(String),
     #[error("UnexpectedType: `{0}`")]
     UnexpectedType(String),
+    #[error("JavaExceptionThrown: `{0}`")]
+    JavaExceptionThrown(HeapAddr),
 }

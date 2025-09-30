@@ -116,6 +116,14 @@ impl NativeRegistry {
             ),
             jdk_internal_misc_unsafe_register_natives,
         );
+        instance.register(
+            MethodKey::new(
+                "java/lang/Throwable".to_string(),
+                "fillInStackTrace".to_string(),
+                "(I)Ljava/lang/Throwable;".to_string(),
+            ),
+            java_lang_throwable_fill_in_stack_trace,
+        );
         instance
     }
 
@@ -292,5 +300,10 @@ fn jdk_internal_util_system_props_raw_vm_properties(
 
 fn jdk_internal_misc_unsafe_register_natives(_vm: &mut VirtualMachine, _args: &[Value]) -> Value {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.registerNatives");
+    Value::Object(None)
+}
+
+fn java_lang_throwable_fill_in_stack_trace(_vm: &mut VirtualMachine, _args: &[Value]) -> Value {
+    debug!("TODO: Stub: java.lang.Throwable.fillInStackTrace");
     Value::Object(None)
 }

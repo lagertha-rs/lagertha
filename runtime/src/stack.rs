@@ -1,11 +1,12 @@
 use crate::VmConfig;
 use crate::error::JvmError;
 use crate::rt::constant_pool::RuntimeConstantPool;
+use crate::rt::method::java::Method;
 use common::jtype::{HeapAddr, Value};
 use log::debug;
 use std::sync::Arc;
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 #[cfg_attr(test, derive(serde::Serialize))]
 pub struct FrameStack {
     max_size: usize,
@@ -24,6 +25,11 @@ impl FrameStack {
     }
 
     pub fn push_frame(&mut self, frame: Frame) -> Result<(), JvmError> {
+        debug!(
+            "🚀 Executing {}.{}",
+            frame.method.class()?.name()?,
+            frame.method.name()
+        );
         if self.frames.len() >= self.max_size {
             return Err(JvmError::StackOverflow);
         }
@@ -32,18 +38,20 @@ impl FrameStack {
     }
 
     pub fn pop_frame(&mut self) -> Result<Frame, JvmError> {
-        let res = self
-            .frames
-            .pop()
-            .and_then(|frame| {
-                debug!("Execution finished of {}", frame.debug_msg);
-                Some(frame)
-            })
-            .ok_or(JvmError::FrameStackIsEmpty);
+        let res = self.frames.pop().ok_or(JvmError::FrameStackIsEmpty)?;
+        debug!(
+            "🏁 Execution finished of {}.{}",
+            res.method.class()?.name()?,
+            res.method.name()
+        );
         if let Some(frame) = self.frames.last() {
-            debug!("Resuming execution of {}", frame.debug_msg);
+            debug!(
+                "🔄 Resuming execution of {}.{}",
+                frame.method.class()?.name()?,
+                frame.method.name()
+            );
         }
-        res
+        Ok(res)
     }
 
     fn cur_frame_mut(&mut self) -> Result<&mut Frame, JvmError> {
@@ -117,7 +125,7 @@ impl FrameStack {
 
     pub fn pop_nullable_obj_ref(&mut self) -> Result<Option<HeapAddr>, JvmError> {
         match self.pop_operand()? {
-            Value::Object(v) => Ok(v),
+            Value::Object(v) | Value::Array(v) => Ok(v),
             _ => Err(JvmError::UnexpectedType(
                 "Expected Object on operand stack".to_string(),
             )),
@@ -167,7 +175,7 @@ impl FrameStack {
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.6
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 #[cfg_attr(test, derive(serde::Serialize))]
 pub struct Frame {
     locals: Vec<Option<Value>>,
@@ -175,24 +183,23 @@ pub struct Frame {
     #[cfg_attr(test, serde(skip_serializing))]
     cp: Arc<RuntimeConstantPool>,
     pc: usize,
-    // TODO: delete
     #[cfg_attr(test, serde(skip_serializing))]
-    pub debug_msg: String,
+    method: Arc<Method>,
 }
 
 impl Frame {
     pub fn new(
         cp: Arc<RuntimeConstantPool>,
+        method: Arc<Method>,
         locals: Vec<Option<Value>>,
         max_stack: usize,
-        debug_msg: String,
     ) -> Self {
         Self {
             locals,
             operands: Vec::with_capacity(max_stack),
             cp,
             pc: 0,
-            debug_msg,
+            method,
         }
     }
 

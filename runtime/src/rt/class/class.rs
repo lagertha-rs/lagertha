@@ -84,7 +84,8 @@ impl Class {
                 }
                 (false, true) => {
                     if name == "<clinit>" {
-                        initializer = Some(StaticMethodType::Java(Method::new(method, &cp)?));
+                        initializer =
+                            Some(StaticMethodType::Java(Arc::new(Method::new(method, &cp)?)));
                     } else {
                         let method = Method::new(method, &cp)?;
                         let name = method.name_arc();
@@ -92,7 +93,7 @@ impl Class {
                         static_methods
                             .entry(name)
                             .or_default()
-                            .insert(descriptor, StaticMethodType::Java(method));
+                            .insert(descriptor, StaticMethodType::Java(Arc::new(method)));
                     }
                 }
                 (false, false) => {
@@ -101,9 +102,9 @@ impl Class {
                     let name = method.name_arc();
                     let descriptor = method.descriptor().raw_arc();
                     let method_type = if flags.is_abstract() {
-                        VirtualMethodType::Abstract(method)
+                        VirtualMethodType::Abstract(Arc::new(method))
                     } else {
-                        VirtualMethodType::Java(method)
+                        VirtualMethodType::Java(Arc::new(method))
                     };
                     methods
                         .entry(name)
@@ -167,6 +168,12 @@ impl Class {
         for (_, method) in class.methods.values().flatten() {
             method.set_class(class.clone())?;
         }
+        for (_, method) in class.static_methods.values().flatten() {
+            method.set_class(class.clone())?;
+        }
+        if let Some(init) = &class.initializer {
+            init.set_class(class.clone())?;
+        }
 
         Ok(class)
     }
@@ -175,7 +182,7 @@ impl Class {
         self.this.name().map_err(Into::into)
     }
 
-    pub fn find_main_method(&self) -> Option<&Method> {
+    pub fn find_main_method(&self) -> Option<&Arc<Method>> {
         self.static_methods
             .get("main")
             .and_then(|m| m.get("([Ljava/lang/String;)V"))

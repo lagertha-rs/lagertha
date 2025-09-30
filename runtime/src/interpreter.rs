@@ -12,6 +12,7 @@ use crate::rt::method::{StaticMethodType, VirtualMethodType};
 use crate::stack::{Frame, FrameStack};
 use common::instruction::Instruction;
 use common::jtype::Value;
+use log::error;
 use std::cell::RefCell;
 use std::cmp::Ordering;
 use std::rc::Rc;
@@ -123,6 +124,10 @@ impl Interpreter {
             *self.frame_stack.pc_mut()? += instruction.byte_size() as usize;
         }
         match instruction {
+            Instruction::Athrow => {
+                let exception_ref = self.frame_stack.pop_obj_ref()?;
+                Err(JvmError::JavaExceptionThrown(exception_ref))?
+            }
             Instruction::Checkcast(_idx) => {
                 //TODO: stub
                 let object_ref = self.frame_stack.pop_operand()?;
@@ -696,25 +701,20 @@ impl Interpreter {
         Ok(())
     }
 
-    fn run_instance_method(&mut self, method: &Method) -> Result<(), JvmError> {
+    fn run_instance_method(&mut self, method: &Arc<Method>) -> Result<(), JvmError> {
         let class = method.class()?;
-
-        // TODO: delete
-        let debug_msg = format!(
-            "instance method {}{} of class {}",
-            method.name(),
-            method.descriptor().raw(),
-            class.name()?
-        );
-        debug!("Running {debug_msg}");
-
         let mut params = vec![None; method.max_locals()?];
         let params_count = method.descriptor().resolved().params.len() + 1; // +1 for this
         for i in (0..params_count).rev() {
             params[i] = Some(self.frame_stack.pop_operand()?);
         }
 
-        let frame = Frame::new(class.cp().clone(), params, method.max_stack()?, debug_msg);
+        let frame = Frame::new(
+            class.cp().clone(),
+            method.clone(),
+            params,
+            method.max_stack()?,
+        );
 
         self.interpret_method_code(method.instructions()?, frame)?;
         Ok(())
@@ -722,11 +722,9 @@ impl Interpreter {
 
     fn run_abstract_method(
         &mut self,
-        abstract_method: &Method,
+        abstract_method: &Arc<Method>,
         method_ref: &MethodReference,
     ) -> Result<(), JvmError> {
-        let interface = abstract_method.class()?;
-
         let params_count = abstract_method.descriptor().resolved().params.len() + 1;
         let mut params = vec![None; params_count];
         for i in (0..params_count).rev() {
@@ -744,15 +742,12 @@ impl Interpreter {
             for _ in 0..(method.max_locals()? - params_count) {
                 params.push(None);
             }
-            let debug_msg = format!(
-                "abstract method {}{} of {} that is implemented by class {}",
-                abstract_method.name(),
-                abstract_method.descriptor().raw(),
-                interface.name()?,
-                class.name()?
+            let frame = Frame::new(
+                class.cp().clone(),
+                method.clone(),
+                params,
+                method.max_stack()?,
             );
-            debug!("Running {debug_msg}");
-            let frame = Frame::new(class.cp().clone(), params, method.max_stack()?, debug_msg);
 
             self.interpret_method_code(method.instructions()?, frame)?;
         } else {
@@ -774,15 +769,11 @@ impl Interpreter {
         Ok(())
     }
 
-    fn run_static_method(&mut self, class: &Arc<Class>, method: &Method) -> Result<(), JvmError> {
-        let debug_msg = format!(
-            "static method {}{} of class {}",
-            method.name(),
-            method.descriptor().raw(),
-            class.name()?
-        );
-        debug!("Running {debug_msg}");
-
+    fn run_static_method(
+        &mut self,
+        class: &Arc<Class>,
+        method: &Arc<Method>,
+    ) -> Result<(), JvmError> {
         let mut params = vec![None; method.max_locals()?];
         let params_count = method.descriptor().resolved().params.len();
 
@@ -790,7 +781,12 @@ impl Interpreter {
             params[i] = Some(self.frame_stack.pop_operand()?);
         }
 
-        let frame = Frame::new(class.cp().clone(), params, method.max_stack()?, debug_msg);
+        let frame = Frame::new(
+            class.cp().clone(),
+            method.clone(),
+            params,
+            method.max_stack()?,
+        );
 
         self.interpret_method_code(method.instructions()?, frame)?;
 
@@ -848,19 +844,21 @@ impl Interpreter {
         let main_method = main_class
             .find_main_method()
             .ok_or(JvmError::NoMainClassFound(main_class.name()?.to_string()))?;
-        let debug_msg = format!("main method of class {}", main_class.name()?);
-        debug!("Found {debug_msg}");
+        debug!("Found main method of class {}", main_class.name()?);
         self.ensure_initialized(Some(&main_class))?;
         let instructions = main_method.instructions()?;
         //TODO: handle args
         let frame = Frame::new(
             main_class.cp().clone(),
+            main_method.clone(),
             vec![None; main_method.max_locals()?],
             main_method.max_stack()?,
-            debug_msg,
         );
         debug!("Executing main method...");
-        self.interpret_method_code(instructions, frame)?;
+        if let Err(e) = self.interpret_method_code(instructions, frame) {
+            error!("Error during execution: {}", e);
+            return Err(e);
+        }
         debug!("Main method finished.");
 
         //TODO: delete, since I don't have return in main and tests for it
