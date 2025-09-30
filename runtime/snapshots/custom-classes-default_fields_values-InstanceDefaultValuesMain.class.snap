@@ -10,82 +10,6 @@ vm:
   heap:
     objects:
       - address: 0
-        type: ArrayPrimitive
-        class: Char
-        elements:
-          - Integer: 102
-          - Integer: 108
-          - Integer: 111
-          - Integer: 97
-          - Integer: 116
-      - address: 1
-        type: Instance
-        value:
-          class: java/lang/String
-          fields:
-            - Array: 0
-            - Integer: 0
-            - Integer: 0
-            - Integer: 0
-      - address: 2
-        type: ArrayPrimitive
-        class: Char
-        elements:
-          - Integer: 105
-          - Integer: 110
-          - Integer: 116
-      - address: 3
-        type: Instance
-        value:
-          class: java/lang/String
-          fields:
-            - Array: 2
-            - Integer: 0
-            - Integer: 0
-            - Integer: 0
-      - address: 4
-        type: Instance
-        value:
-          class: java/lang/Class
-          fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-      - address: 5
-        type: Instance
-        value:
-          class: java/lang/Class
-          fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-      - address: 6
         type: Instance
         value:
           class: classes/default_fields_values/InstanceDefaultValuesMain$ClassWithFields
@@ -101,14 +25,10 @@ vm:
             - Long: 0
             - Float: 0
             - Double: 0
-    string_pool:
-      - string: float
-        address: 1
-      - string: int
-        address: 3
+    string_pool: []
 last_pop_frame:
   locals:
     - ~
-    - Object: 6
+    - Object: 0
   operands: []
   pc: 9

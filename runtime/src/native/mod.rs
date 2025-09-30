@@ -220,32 +220,34 @@ fn java_lang_class_desired_assertion_status_0(_vm: &mut VirtualMachine, _args: &
 fn java_lang_class_get_primitive_class(vm: &mut VirtualMachine, args: &[Value]) -> Value {
     debug!("TODO: Stub: java.lang.Class.getPrimitiveClass");
     if let Value::Object(Some(h)) = &args[0] {
-        if let Some(v) = vm.method_area.get_primitive_mirror(h) {
-            Value::Object(Some(v))
-        } else {
-            panic!("java.lang.Class.getPrimitiveClass: expected to be a primitive type name");
-        }
+        let v = vm.method_area().get_primitive_mirror_addr(h);
+        Value::Object(Some(v))
     } else {
-        panic!("java.lang.Class.getPrimitiveClass: expected String object");
+        panic!("java.lang.Class.getPrimitiveClass: expected object");
     }
 }
 
 fn java_lang_object_get_class(vm: &mut VirtualMachine, args: &[Value]) -> Value {
     debug!("TODO: Stub: java.lang.Class.getClass");
-    if let Value::Object(Some(h)) = &args[0] {
+    if let Value::Object(Some(h)) | Value::Array(Some(h)) = &args[0] {
         let target_class = if let Some(obj) = vm.heap().borrow().get(*h) {
-            if let HeapObject::Instance(instance) = obj {
-                instance.class().clone()
-            } else {
-                panic!("java.lang.Class.getClass: expected String object as argument");
+            match obj {
+                HeapObject::Instance(instance) => instance.class().name().unwrap().to_string(),
+                HeapObject::PrimitiveArray { class, .. } => class.descriptor().to_string(),
+                HeapObject::RefArray { .. } => {
+                    panic!("java.lang.Class.getClass: array types not supported yet")
+                }
             }
         } else {
             panic!("java.lang.Class.getClass: invalid heap address");
         };
-        let res = vm.get_mirror_by_class(&target_class).unwrap();
+        let res = vm
+            .method_area
+            .get_mirror_addr_by_name(&target_class)
+            .unwrap();
         Value::Object(Some(res))
     } else {
-        panic!("java.lang.Class.getClass: expected String object as argument");
+        panic!("java.lang.Class.getClass: expected object as argument");
     }
 }
 
@@ -253,6 +255,7 @@ fn java_lang_object_init_class_name(vm: &mut VirtualMachine, args: &[Value]) -> 
     debug!("TODO: Stub: java.lang.Class.initClassName");
     if let Value::Object(Some(h)) = &args[0] {
         let class_name = vm
+            .method_area()
             .get_class_by_mirror(h)
             .unwrap()
             .name()
@@ -265,7 +268,7 @@ fn java_lang_object_init_class_name(vm: &mut VirtualMachine, args: &[Value]) -> 
             .unwrap();
         val
     } else {
-        panic!("java.lang.Class.initClassName: expected String object as argument");
+        panic!("java.lang.Class.initClassName: expected object as argument");
     }
 }
 

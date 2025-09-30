@@ -40,7 +40,7 @@ impl Interpreter {
         }
     }
 
-    fn method_area(&self) -> &MethodArea {
+    fn method_area(&mut self) -> &mut MethodArea {
         self.vm.method_area()
     }
 
@@ -412,7 +412,10 @@ impl Interpreter {
                             .push_operand(Value::Object(Some(string_addr)))?;
                     }
                     RuntimeConstant::Class(class) => {
-                        let class_mirror = self.vm.get_mirror_by_name(class.name()?)?;
+                        let class_mirror = self
+                            .vm
+                            .method_area()
+                            .get_mirror_addr_by_name(class.name()?)?;
                         self.frame_stack
                             .push_operand(Value::Object(Some(class_mirror)))?;
                     }
@@ -438,19 +441,18 @@ impl Interpreter {
                 }
             }
             Instruction::Newarray(array_type) => {
-                let count = self.frame_stack.pop_operand()?;
-                match count {
-                    Value::Integer(c) if c >= 0 => {
-                        let addr = self
-                            .heap
-                            .borrow_mut()
-                            .alloc_primitive_array(c as usize, array_type);
-                        self.frame_stack.push_operand(Value::Array(Some(addr)))?;
-                    }
-                    Value::Integer(_) => {
-                        return Err(JvmError::NegativeArraySizeException);
-                    }
-                    _ => panic!("newarray with non-integer count"),
+                let count = self.frame_stack.pop_int()?;
+                if count >= 0 {
+                    let array_mirror = self
+                        .method_area()
+                        .get_mirror_addr_by_name(array_type.descriptor())?;
+                    let addr = self
+                        .heap
+                        .borrow_mut()
+                        .alloc_primitive_array(count as usize, array_type);
+                    self.frame_stack.push_operand(Value::Array(Some(addr)))?;
+                } else {
+                    Err(JvmError::NegativeArraySizeException)?
                 }
             }
             Instruction::New(idx) => {

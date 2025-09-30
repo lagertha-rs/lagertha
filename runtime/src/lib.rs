@@ -48,58 +48,32 @@ pub struct VirtualMachine {
     method_area: MethodArea,
     heap: Rc<RefCell<Heap>>,
     native_registry: NativeRegistry,
-    mirrors: HashMap<HeapAddr, Arc<Class>>,
 }
 
 impl VirtualMachine {
     pub fn new(config: VmConfig) -> Result<Self, JvmError> {
         config.validate();
-        let method_area = MethodArea::new(&config)?;
-        debug!("Preloading java/lang/Class and java/lang/String...");
+        let heap = Rc::new(RefCell::new(Heap::new()));
+        let mut method_area = MethodArea::new(&config, heap.clone())?;
+        debug!("Preloading java/lang/String...");
         let string_class = method_area.get_class("java/lang/String")?;
-        let class_class = method_area.get_class("java/lang/Class")?;
-        let mut heap = Heap::new(string_class);
+        heap.borrow().initialize(string_class);
 
-        let float_name = heap.get_or_new_string("float");
-        let int_name = heap.get_or_new_string("int");
-        method_area.add_primitive(float_name, heap.alloc_instance(class_class.clone()));
-        method_area.add_primitive(int_name, heap.alloc_instance(class_class.clone()));
         let native_registry = NativeRegistry::new();
         Ok(Self {
-            mirrors: HashMap::new(),
             config,
             method_area,
-            heap: Rc::new(RefCell::new(heap)),
+            heap,
             native_registry,
         })
     }
 
-    pub fn method_area(&self) -> &MethodArea {
-        &self.method_area
+    pub fn method_area(&mut self) -> &mut MethodArea {
+        &mut self.method_area
     }
 
     pub fn heap(&self) -> Rc<RefCell<Heap>> {
         self.heap.clone()
-    }
-
-    pub fn get_class_by_mirror(&self, mirror: &HeapAddr) -> Option<&Arc<Class>> {
-        self.mirrors.get(mirror)
-    }
-
-    pub fn get_mirror_by_name(&mut self, name: &str) -> Result<HeapAddr, JvmError> {
-        let target_class = self.method_area().get_class(name)?;
-        self.get_mirror_by_class(&target_class)
-    }
-
-    pub fn get_mirror_by_class(&mut self, target_class: &Arc<Class>) -> Result<HeapAddr, JvmError> {
-        if let Some(mirror) = target_class.mirror() {
-            return Ok(mirror);
-        }
-        let class_class = self.method_area().get_class("java/lang/Class")?;
-        let mirror = self.heap.borrow_mut().alloc_instance(class_class);
-        target_class.set_mirror(mirror)?;
-        self.mirrors.insert(mirror, target_class.clone());
-        Ok(mirror)
     }
 }
 

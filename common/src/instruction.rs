@@ -37,6 +37,21 @@ pub enum ArrayType {
     Long = 11,
 }
 
+impl ArrayType {
+    pub fn descriptor(&self) -> &str {
+        match self {
+            ArrayType::Boolean => "[Z",
+            ArrayType::Byte => "[B",
+            ArrayType::Char => "[C",
+            ArrayType::Short => "[S",
+            ArrayType::Int => "[I",
+            ArrayType::Long => "[J",
+            ArrayType::Float => "[F",
+            ArrayType::Double => "[D",
+        }
+    }
+}
+
 impl From<&ArrayType> for Value {
     fn from(array_type: &ArrayType) -> Self {
         match array_type {

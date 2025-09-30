@@ -5,6 +5,7 @@ use crate::rt::class::class::Class;
 use crate::rt::constant_pool::reference::NameAndTypeReference;
 use common::instruction::ArrayType;
 use common::jtype::{HeapAddr, Value};
+use std::cell::OnceCell;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tracing_log::log::debug;
@@ -39,19 +40,26 @@ impl ClassInstance {
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.5.3
 pub struct Heap {
-    string_class: Arc<Class>,
+    string_class: OnceCell<Arc<Class>>,
     objects: Vec<HeapObject>,
     string_pool: HashMap<String, HeapAddr>,
 }
 
 impl Heap {
-    pub fn new(string_class: Arc<Class>) -> Self {
-        debug!("Initializing Heap...");
+    pub fn new() -> Self {
+        debug!("Creating Heap...");
         Self {
-            string_class,
+            string_class: OnceCell::new(),
             string_pool: HashMap::new(),
             objects: Vec::new(),
         }
+    }
+
+    pub fn initialize(&self, string_class: Arc<Class>) {
+        if self.string_class.set(string_class).is_err() {
+            panic!("Heap: string_class is already set");
+        }
+        debug!("Heap initialized");
     }
 
     fn push(&mut self, obj: HeapObject) -> HeapAddr {
@@ -107,7 +115,7 @@ impl Heap {
     }
 
     fn alloc_string(&mut self, s: &str) -> HeapAddr {
-        let mut fields = Self::create_default_fields(&self.string_class);
+        let mut fields = Self::create_default_fields(&self.string_class.get().unwrap());
 
         let chars = s.chars().map(|c| Value::Integer(c as i32)).collect();
         let value = self.push(HeapObject::PrimitiveArray {
@@ -119,7 +127,7 @@ impl Heap {
         fields[0] = Value::Array(Some(value));
 
         self.push(HeapObject::Instance(ClassInstance {
-            class: self.string_class.clone(),
+            class: self.string_class.get().unwrap().clone(),
             fields,
         }))
     }

@@ -36,6 +36,6 @@ classes = [
     "jdk.internal.access.SharedSecrets",
     "jdk.internal.util.SystemProps",
     "jdk.internal.util.SystemProps$Raw",
-    #"jdk.internal.util.ArraysSupport",
-    #"jdk.internal.misc.Unsafe"
+    "jdk.internal.util.ArraysSupport",
+    "jdk.internal.misc.Unsafe"
 ]

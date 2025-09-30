@@ -1,0 +1,62 @@
+---
+source: runtime/src/lib.rs
+expression: "&interpreter"
+---
+frame_stack:
+  max_size: 256
+  max_operand_stack_size: 256
+  frames: []
+vm:
+  heap:
+    objects:
+      - address: 0
+        type: Instance
+        value:
+          class: java/lang/Class
+          fields:
+            - Object: ~
+            - Object: 2
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Integer: 0
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+      - address: 1
+        type: ArrayPrimitive
+        class: Char
+        elements:
+          - Integer: 91
+          - Integer: 73
+      - address: 2
+        type: Instance
+        value:
+          class: java/lang/String
+          fields:
+            - Array: 1
+            - Integer: 0
+            - Integer: 0
+            - Integer: 0
+      - address: 3
+        type: ArrayPrimitive
+        class: Int
+        elements:
+          - Integer: 0
+    string_pool:
+      - string: "[I"
+        address: 2
+last_pop_frame:
+  locals:
+    - ~
+    - Array: 3
+    - Object: 2
+  operands: []
+  pc: 13

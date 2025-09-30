@@ -10,118 +10,38 @@ vm:
   heap:
     objects:
       - address: 0
-        type: ArrayPrimitive
-        class: Char
-        elements:
-          - Integer: 102
-          - Integer: 108
-          - Integer: 111
-          - Integer: 97
-          - Integer: 116
-      - address: 1
-        type: Instance
-        value:
-          class: java/lang/String
-          fields:
-            - Array: 0
-            - Integer: 0
-            - Integer: 0
-            - Integer: 0
-      - address: 2
-        type: ArrayPrimitive
-        class: Char
-        elements:
-          - Integer: 105
-          - Integer: 110
-          - Integer: 116
-      - address: 3
-        type: Instance
-        value:
-          class: java/lang/String
-          fields:
-            - Array: 2
-            - Integer: 0
-            - Integer: 0
-            - Integer: 0
-      - address: 4
-        type: Instance
-        value:
-          class: java/lang/Class
-          fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-      - address: 5
-        type: Instance
-        value:
-          class: java/lang/Class
-          fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-      - address: 6
         type: Instance
         value:
           class: arrays/reference_array/ReferenceArrayMain$ReferenceClass
           fields:
             - Integer: 1
-      - address: 7
+      - address: 1
         type: Instance
         value:
           class: arrays/reference_array/ReferenceArrayMain$ReferenceClass
           fields:
             - Integer: 2
-      - address: 8
+      - address: 2
         type: Instance
         value:
           class: arrays/reference_array/ReferenceArrayMain$ReferenceClass
           fields:
             - Integer: 3
-      - address: 9
+      - address: 3
         type: ArrayRef
         class: arrays/reference_array/ReferenceArrayMain$ReferenceClass
         elements:
-          - Object: 6
-          - Object: 7
-          - Object: 8
-    string_pool:
-      - string: float
-        address: 1
-      - string: int
-        address: 3
+          - Object: 0
+          - Object: 1
+          - Object: 2
+    string_pool: []
 last_pop_frame:
   locals:
     - ~
-    - Object: 6
-    - Object: 7
-    - Object: 8
-    - Array: 9
+    - Object: 0
+    - Object: 1
+    - Object: 2
+    - Array: 3
     - Integer: 3
   operands: []
   pc: 51

@@ -13,82 +13,6 @@ vm:
         type: ArrayPrimitive
         class: Char
         elements:
-          - Integer: 102
-          - Integer: 108
-          - Integer: 111
-          - Integer: 97
-          - Integer: 116
-      - address: 1
-        type: Instance
-        value:
-          class: java/lang/String
-          fields:
-            - Array: 0
-            - Integer: 0
-            - Integer: 0
-            - Integer: 0
-      - address: 2
-        type: ArrayPrimitive
-        class: Char
-        elements:
-          - Integer: 105
-          - Integer: 110
-          - Integer: 116
-      - address: 3
-        type: Instance
-        value:
-          class: java/lang/String
-          fields:
-            - Array: 2
-            - Integer: 0
-            - Integer: 0
-            - Integer: 0
-      - address: 4
-        type: Instance
-        value:
-          class: java/lang/Class
-          fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-      - address: 5
-        type: Instance
-        value:
-          class: java/lang/Class
-          fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-      - address: 6
-        type: ArrayPrimitive
-        class: Char
-        elements:
           - Integer: 104
           - Integer: 101
           - Integer: 108
@@ -100,22 +24,22 @@ vm:
           - Integer: 114
           - Integer: 108
           - Integer: 100
-      - address: 7
+      - address: 1
         type: Instance
         value:
           class: java/lang/String
           fields:
-            - Array: 6
+            - Array: 0
             - Integer: 0
             - Integer: 0
             - Integer: 0
-      - address: 8
+      - address: 2
         type: Instance
         value:
           class: java/lang/Class
           fields:
             - Object: ~
-            - Object: 10
+            - Object: 4
             - Object: ~
             - Object: ~
             - Object: ~
@@ -130,7 +54,7 @@ vm:
             - Object: ~
             - Object: ~
             - Object: ~
-      - address: 9
+      - address: 3
         type: ArrayPrimitive
         class: Char
         elements:
@@ -150,28 +74,24 @@ vm:
           - Integer: 105
           - Integer: 110
           - Integer: 103
-      - address: 10
+      - address: 4
         type: Instance
         value:
           class: java/lang/String
           fields:
-            - Array: 9
+            - Array: 3
             - Integer: 0
             - Integer: 0
             - Integer: 0
     string_pool:
-      - string: float
-        address: 1
       - string: hello world
-        address: 7
-      - string: int
-        address: 3
+        address: 1
       - string: java.lang.String
-        address: 10
+        address: 4
 last_pop_frame:
   locals:
     - ~
-    - Object: 7
-    - Object: 10
+    - Object: 1
+    - Object: 4
   operands: []
   pc: 12

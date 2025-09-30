@@ -46,7 +46,7 @@ pub struct Class {
 }
 
 impl Class {
-    pub fn new(cf: ClassFile, method_area: &MethodArea) -> Result<Arc<Self>, JvmError> {
+    pub fn new(cf: ClassFile, method_area: &mut MethodArea) -> Result<Arc<Self>, JvmError> {
         let cp = Arc::new(RuntimeConstantPool::new(cf.cp.inner));
         let minor_version = cf.minor_version;
         let major_version = cf.major_version;
