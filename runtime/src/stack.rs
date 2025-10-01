@@ -24,6 +24,10 @@ impl FrameStack {
         }
     }
 
+    pub fn frames(&self) -> &Vec<Frame> {
+        &self.frames
+    }
+
     pub fn push_frame(&mut self, frame: Frame) -> Result<(), JvmError> {
         debug!(
             "🚀 Executing {}.{}",
@@ -201,6 +205,10 @@ impl Frame {
             pc: 0,
             method,
         }
+    }
+
+    pub fn method(&self) -> &Arc<Method> {
+        &self.method
     }
 
     pub fn get_local(&self, index: u8) -> Result<&Value, JvmError> {

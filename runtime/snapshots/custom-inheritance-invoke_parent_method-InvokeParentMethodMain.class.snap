@@ -2,10 +2,6 @@
 source: runtime/src/lib.rs
 expression: "&interpreter"
 ---
-frame_stack:
-  max_size: 256
-  max_operand_stack_size: 256
-  frames: []
 vm:
   heap:
     objects:

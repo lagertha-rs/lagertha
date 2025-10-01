@@ -303,7 +303,62 @@ fn jdk_internal_misc_unsafe_register_natives(_vm: &mut VirtualMachine, _args: &[
     Value::Object(None)
 }
 
-fn java_lang_throwable_fill_in_stack_trace(_vm: &mut VirtualMachine, _args: &[Value]) -> Value {
+fn java_lang_throwable_fill_in_stack_trace(vm: &mut VirtualMachine, args: &[Value]) -> Value {
     debug!("TODO: Stub: java.lang.Throwable.fillInStackTrace");
-    Value::Object(None)
+    let frames = vm.frame_stack.frames();
+    let class_idx = vm
+        .heap
+        .borrow_mut()
+        .alloc_primitive_array(frames.len(), common::instruction::ArrayType::Int);
+    let name_idx = vm
+        .heap
+        .borrow_mut()
+        .alloc_primitive_array(frames.len(), common::instruction::ArrayType::Int);
+    let descriptor_idx = vm
+        .heap
+        .borrow_mut()
+        .alloc_primitive_array(frames.len(), common::instruction::ArrayType::Int);
+    for frame in frames {
+        let mut heap = vm.heap.borrow_mut();
+        {
+            let class_idx_ref = heap.get_mut(class_idx);
+            if let HeapObject::PrimitiveArray { elements, .. } = class_idx_ref {
+                elements.push(Value::Integer(frame.method().class_id().unwrap() as i32));
+            }
+        }
+        {
+            let name_idx_ref = heap.get_mut(name_idx);
+            if let HeapObject::PrimitiveArray { elements, .. } = name_idx_ref {
+                elements.push(Value::Integer(frame.method().name_idx() as i32));
+            }
+        }
+        {
+            let descriptor_idx_ref = heap.get_mut(descriptor_idx);
+            if let HeapObject::PrimitiveArray { elements, .. } = descriptor_idx_ref {
+                elements.push(Value::Integer(frame.method().descriptor().idx() as i32));
+            }
+        }
+    }
+    let obj_class = vm.method_area.get_class("java/lang/Object").unwrap();
+    let backtrace_addr = vm.heap.borrow_mut().alloc_ref_array(obj_class, 3);
+    if let HeapObject::RefArray { elements, .. } = vm.heap.borrow_mut().get_mut(backtrace_addr) {
+        elements.push(Value::Array(Some(class_idx)));
+        elements.push(Value::Array(Some(name_idx)));
+        elements.push(Value::Array(Some(descriptor_idx)));
+    }
+    let throwable_addr = match args[0] {
+        Value::Object(Some(h)) => h,
+        _ => panic!("java.lang.Throwable.fillInStackTrace: expected object"),
+    };
+    vm.heap
+        .borrow_mut()
+        .write_instance_field(
+            throwable_addr,
+            "backtrace",
+            "Ljava/lang/Object;",
+            Value::Array(Some(backtrace_addr)),
+        )
+        .unwrap();
+
+    Value::Object(Some(throwable_addr))
 }

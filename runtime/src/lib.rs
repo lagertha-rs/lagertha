@@ -3,12 +3,9 @@ use crate::heap::Heap;
 use crate::interpreter::Interpreter;
 use crate::method_area::MethodArea;
 use crate::native::NativeRegistry;
-use crate::rt::class::class::Class;
-use common::jtype::HeapAddr;
+use crate::stack::FrameStack;
 use std::cell::RefCell;
-use std::collections::HashMap;
 use std::rc::Rc;
-use std::sync::Arc;
 use tracing_log::log::debug;
 
 mod class_loader;
@@ -19,6 +16,8 @@ mod method_area;
 mod native;
 pub mod rt;
 pub mod stack;
+
+pub type ClassId = usize;
 
 #[derive(Debug)]
 pub struct VmConfig {
@@ -48,6 +47,7 @@ pub struct VirtualMachine {
     method_area: MethodArea,
     heap: Rc<RefCell<Heap>>,
     native_registry: NativeRegistry,
+    frame_stack: FrameStack,
 }
 
 impl VirtualMachine {
@@ -61,6 +61,7 @@ impl VirtualMachine {
 
         let native_registry = NativeRegistry::new();
         Ok(Self {
+            frame_stack: FrameStack::new(&config),
             config,
             method_area,
             heap,

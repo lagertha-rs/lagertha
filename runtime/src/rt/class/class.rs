@@ -1,3 +1,4 @@
+use crate::ClassId;
 use crate::error::JvmError;
 use crate::method_area::MethodArea;
 use crate::rt::class::field::{Field, StaticField};
@@ -28,6 +29,7 @@ pub enum InitState {
 }
 
 pub struct Class {
+    id: OnceCell<ClassId>,
     this: Arc<ClassReference>,
     access: ClassFlags,
     minor_version: u16,
@@ -163,6 +165,7 @@ impl Class {
             cp,
             state: initialized,
             mirror: OnceCell::new(),
+            id: OnceCell::new(),
         });
 
         for (_, method) in class.methods.values().flatten() {
@@ -176,6 +179,15 @@ impl Class {
         }
 
         Ok(class)
+    }
+
+    pub fn id(&self) -> Result<ClassId, JvmError> {
+        self.id.get().copied().ok_or(JvmError::Uninitialized)
+    }
+
+    // TODO: proper error
+    pub fn set_id(&self, id: ClassId) -> Result<(), JvmError> {
+        self.id.set(id).map_err(|_| JvmError::Uninitialized)
     }
 
     pub fn name(&self) -> Result<&str, JvmError> {

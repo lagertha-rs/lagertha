@@ -1,9 +1,9 @@
-use crate::VmConfig;
 use crate::class_loader::ClassLoader;
 use crate::error::JvmError;
 use crate::heap::Heap;
 use crate::rt::class::LinkageError;
 use crate::rt::class::class::Class;
+use crate::{ClassId, VmConfig};
 use class_file::ClassFile;
 use common::jtype::{HeapAddr, Value};
 use dashmap::DashMap;
@@ -19,7 +19,10 @@ use tracing_log::log::debug;
 pub struct MethodArea {
     heap: Rc<RefCell<Heap>>,
     bootstrap_class_loader: ClassLoader,
-    classes: HashMap<String, Arc<Class>>,
+    // TODO: make class name Arc<str>?
+    classes_idx: HashMap<String, ClassId>,
+    classes: Vec<Arc<Class>>,
+
     mirrors: HashMap<HeapAddr, Arc<Class>>,
     primitives: HashMap<HeapAddr, HeapAddr>,
     array_primitives: HashMap<String, HeapAddr>,
@@ -31,7 +34,8 @@ impl MethodArea {
         let bootstrap_class_loader = ClassLoader::new(vm_config)?;
         let method_area = Self {
             heap,
-            classes: HashMap::new(),
+            classes_idx: HashMap::new(),
+            classes: Vec::new(),
             bootstrap_class_loader,
             mirrors: HashMap::new(),
             primitives: HashMap::new(),
@@ -42,31 +46,37 @@ impl MethodArea {
         Ok(method_area)
     }
 
-    fn load_with_bytes(&mut self, data: Vec<u8>) -> Result<Arc<Class>, JvmError> {
-        let cf = ClassFile::try_from(data).map_err(LinkageError::from)?;
-        let class = Class::new(cf, self)?;
-        Ok(class)
+    pub fn get_class_by_id(&self, class_id: ClassId) -> Result<Arc<Class>, JvmError> {
+        self.classes
+            .get(class_id)
+            .cloned()
+            .ok_or(JvmError::ClassNotFound2(class_id))
     }
 
-    pub fn add_class(&mut self, raw_class: Vec<u8>) -> Result<Arc<Class>, JvmError> {
-        debug!("Adding class from bytes...");
-        let class = self.load_with_bytes(raw_class)?;
-        let name = class.name()?.to_string();
-        debug!("Class \"{}\" added", name);
-        self.classes.insert(name, class.clone());
+    pub fn add_class(&mut self, data: Vec<u8>) -> Result<Arc<Class>, JvmError> {
+        let cf = ClassFile::try_from(data).map_err(LinkageError::from)?;
+        let class = Class::new(cf, self)?;
+        let id = self.classes.len();
+        class.set_id(id)?;
+        self.classes.push(class.clone());
+        self.classes_idx.insert(class.name()?.to_string(), id);
         Ok(class)
     }
 
     pub fn get_class(&mut self, name: &str) -> Result<Arc<Class>, JvmError> {
-        if let Some(class) = self.classes.get(name) {
-            return Ok(class.clone());
+        if let Some(class_id) = self.classes_idx.get(name) {
+            self.get_class_by_id(*class_id)
+        } else {
+            let class_data = self.bootstrap_class_loader.load(name)?;
+            self.add_class(class_data)
         }
-        let class_data = self.bootstrap_class_loader.load(name)?;
-        let class = self.load_with_bytes(class_data)?;
+    }
 
-        self.classes.insert(name.to_string(), class.clone());
-
-        Ok(class)
+    pub fn get_class_id(&self, name: &str) -> Result<ClassId, JvmError> {
+        if let Some(class_id) = self.classes_idx.get(name) {
+            return Ok(*class_id);
+        }
+        Err(JvmError::ClassNotFound(name.to_string()))
     }
 
     pub fn get_class_by_mirror(&self, mirror: &HeapAddr) -> Option<&Arc<Class>> {

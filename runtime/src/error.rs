@@ -1,3 +1,4 @@
+use crate::ClassId;
 use crate::class_loader::ClassLoaderErr;
 use crate::rt::class::LinkageError;
 use crate::rt::constant_pool::error::RuntimePoolError;
@@ -23,6 +24,8 @@ pub enum JvmError {
     TrailingBytes,
     #[error("ClassNotFoundException: {0}")]
     ClassNotFound(String),
+    #[error("ClassNotFoundException: {0}")]
+    ClassNotFound2(ClassId),
     #[error("stack overflow")]
     StackOverflow,
     #[error("Frame stack is empty")]
@@ -61,4 +64,6 @@ pub enum JvmError {
     UnexpectedType(String),
     #[error("JavaExceptionThrown: `{0}`")]
     JavaExceptionThrown(HeapAddr),
+    #[error("Uninitialized")]
+    Uninitialized,
 }

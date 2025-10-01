@@ -1,3 +1,4 @@
+use crate::ClassId;
 use crate::error::JvmError;
 use crate::rt::class::LinkageError;
 use crate::rt::class::class::Class;
@@ -31,6 +32,7 @@ pub struct CodeContext {
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.6
 pub struct Method {
+    name_idx: u16,
     name: Arc<str>,
     flags: MethodFlags,
     class: SyncOnceCell<Arc<Class>>,
@@ -44,7 +46,8 @@ pub struct Method {
 
 impl Method {
     pub fn new(method_info: MethodInfo, cp: &RuntimeConstantPool) -> Result<Self, LinkageError> {
-        let name = cp.get_utf8_arc(&method_info.name_index)?;
+        let name_idx = method_info.name_index;
+        let name = cp.get_utf8_arc(&name_idx)?;
         let flags = method_info.access_flags;
         let descriptor = cp.get_method_descriptor(&method_info.descriptor_index)?;
 
@@ -85,6 +88,7 @@ impl Method {
         let code_context = code_ctx.take();
 
         Ok(Method {
+            name_idx,
             class: SyncOnceCell::new(),
             name,
             flags,
@@ -95,6 +99,10 @@ impl Method {
             rt_visible_annotations: rt_vis_ann.into_inner(),
             rt_invisible_annotations: rt_invis_ann.into_inner(),
         })
+    }
+
+    pub fn name_idx(&self) -> u16 {
+        self.name_idx
     }
 
     pub fn set_class(&self, class: Arc<Class>) -> Result<(), LinkageError> {
@@ -109,6 +117,10 @@ impl Method {
             .get()
             .cloned()
             .ok_or(LinkageError::MethodClassIsNotSet)
+    }
+
+    pub fn class_id(&self) -> Result<ClassId, JvmError> {
+        self.class()?.id()
     }
 
     pub fn instructions(&self) -> Result<&Vec<u8>, JvmError> {
