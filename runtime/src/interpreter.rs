@@ -9,10 +9,9 @@ use crate::rt::constant_pool::reference::MethodReference;
 use crate::rt::method::java::Method;
 use crate::rt::method::native::NativeMethod;
 use crate::rt::method::{StaticMethodType, VirtualMethodType};
-use crate::stack::{Frame, FrameStack};
+use crate::stack::Frame;
 use common::instruction::Instruction;
 use common::jtype::Value;
-use log::error;
 use std::cell::RefCell;
 use std::cmp::Ordering;
 use std::rc::Rc;
@@ -60,19 +59,19 @@ impl Interpreter {
                 && let Some(initializer) = class.initializer()
             {
                 class.set_state(InitState::Initializing);
-                debug!("Initializing class {}", class.name()?);
+                debug!("Initializing class {}", class.name());
 
                 self.run_static_method_type(class, initializer)?;
 
                 // TODO: need to be placed in better place
                 // https://stackoverflow.com/questions/78321427/initialization-of-static-final-fields-in-javas-system-class-in-jdk-14-and-beyon
-                if class.name()? == "java/lang/System" {
+                if class.name() == "java/lang/System" {
                     let init = class.get_static_method("initPhase1", "()V")?;
                     self.run_static_method_type(class, init)?;
                 }
 
                 class.set_state(InitState::Initialized);
-                debug!("Class {} initialized", class.name()?);
+                debug!("Class {} initialized", class.name());
             }
         }
         Ok(())
@@ -438,7 +437,7 @@ impl Interpreter {
                 let class = self.method_area().get_class(class_ref.name()?)?;
                 let size = self.vm.frame_stack.pop_int()?;
                 if size >= 0 {
-                    let addr = self.heap.borrow_mut().alloc_ref_array(class, size as usize);
+                    let addr = self.heap.borrow_mut().alloc_array(class, size as usize);
                     self.vm.frame_stack.push_operand(Value::Array(Some(addr)))?;
                 } else {
                     return Err(JvmError::NegativeArraySizeException)?;
@@ -447,13 +446,12 @@ impl Interpreter {
             Instruction::Newarray(array_type) => {
                 let count = self.vm.frame_stack.pop_int()?;
                 if count >= 0 {
-                    let array_mirror = self
-                        .method_area()
-                        .get_mirror_addr_by_name(array_type.descriptor())?;
+                    let primitive_type_name = array_type.descriptor();
+                    let primitive_class = self.method_area().get_class(primitive_type_name)?;
                     let addr = self
                         .heap
                         .borrow_mut()
-                        .alloc_primitive_array(count as usize, array_type);
+                        .alloc_array(primitive_class, count as usize);
                     self.vm.frame_stack.push_operand(Value::Array(Some(addr)))?;
                 } else {
                     Err(JvmError::NegativeArraySizeException)?
@@ -512,7 +510,7 @@ impl Interpreter {
                 let index = self.vm.frame_stack.pop_int()?;
                 let array_addr = self.vm.frame_stack.pop_array_ref()?;
                 match self.heap.borrow_mut().get_mut(array_addr) {
-                    HeapObject::PrimitiveArray { elements, .. } => {
+                    HeapObject::Array { elements, .. } => {
                         if index < 0 || (index as usize) >= elements.len() {
                             return Err(JvmError::ArrayIndexOutOfBoundsException);
                         }
@@ -526,7 +524,7 @@ impl Interpreter {
                 let index = self.vm.frame_stack.pop_int()?;
                 let array_addr = self.vm.frame_stack.pop_array_ref()?;
                 match self.heap.borrow_mut().get_mut(array_addr) {
-                    HeapObject::PrimitiveArray { elements, .. } => {
+                    HeapObject::Array { elements, .. } => {
                         if index < 0 || (index as usize) >= elements.len() {
                             return Err(JvmError::ArrayIndexOutOfBoundsException);
                         }
@@ -540,7 +538,7 @@ impl Interpreter {
                 let index = self.vm.frame_stack.pop_int()?;
                 let array_addr = self.vm.frame_stack.pop_array_ref()?;
                 match self.heap.borrow_mut().get_mut(array_addr) {
-                    HeapObject::RefArray { elements, .. } => {
+                    HeapObject::Array { elements, .. } => {
                         if index < 0 || (index as usize) >= elements.len() {
                             return Err(JvmError::ArrayIndexOutOfBoundsException);
                         }
@@ -572,11 +570,11 @@ impl Interpreter {
             Instruction::ArrayLength => {
                 let array_addr = self.vm.frame_stack.pop_array_ref()?;
                 match self.heap.borrow().get(array_addr).unwrap() {
-                    HeapObject::RefArray { elements, .. } => {
+                    HeapObject::Array { elements, .. } => {
                         let length = elements.len() as i32;
                         self.vm.frame_stack.push_operand(Value::Integer(length))?;
                     }
-                    HeapObject::PrimitiveArray { elements, .. } => {
+                    HeapObject::Array { elements, .. } => {
                         let length = elements.len() as i32;
                         self.vm.frame_stack.push_operand(Value::Integer(length))?;
                     }
@@ -677,7 +675,7 @@ impl Interpreter {
             "instance native method {}{} of class {}",
             method.name(),
             method.descriptor().raw(),
-            class.name()?
+            class.name()
         );
         debug!("Running {debug_msg}");
 
@@ -689,7 +687,7 @@ impl Interpreter {
         params.reverse();
 
         let method_key = MethodKey::new(
-            class.name()?.to_string(),
+            class.name().to_string(),
             method.name().to_string(),
             method.descriptor().raw().to_string(),
         );
@@ -806,7 +804,7 @@ impl Interpreter {
             "Running static native method {}{} of class {}",
             method.name(),
             method.descriptor().raw(),
-            class.name()?
+            class.name()
         );
 
         let params_count = method.descriptor().resolved().params.len();
@@ -817,7 +815,7 @@ impl Interpreter {
         params.reverse();
 
         let method_key = MethodKey::new(
-            class.name()?.to_string(),
+            class.name().to_string(),
             method.name().to_string(),
             method.descriptor().raw().to_string(),
         );
@@ -844,11 +842,11 @@ impl Interpreter {
 
     //TODO: redisign start method (maybe return Value, maybe take args)
     pub fn start(&mut self, data: Vec<u8>) -> Result<(), JvmError> {
-        let main_class = self.method_area().add_class(data)?;
+        let main_class = self.method_area().add_raw_bytecode(data)?;
         let main_method = main_class
             .find_main_method()
-            .ok_or(JvmError::NoMainClassFound(main_class.name()?.to_string()))?;
-        debug!("Found main method of class {}", main_class.name()?);
+            .ok_or(JvmError::NoMainClassFound(main_class.name().to_string()))?;
+        debug!("Found main method of class {}", main_class.name());
         self.ensure_initialized(Some(&main_class))?;
         let instructions = main_method.instructions()?;
         //TODO: handle args
@@ -859,10 +857,7 @@ impl Interpreter {
             main_method.max_stack()?,
         );
         debug!("Executing main method...");
-        if let Err(e) = self.interpret_method_code(instructions, frame) {
-            error!("Error during execution: {}", e);
-            return Err(e);
-        }
+        self.interpret_method_code(instructions, frame)?;
         debug!("Main method finished.");
 
         //TODO: delete, since I don't have return in main and tests for it

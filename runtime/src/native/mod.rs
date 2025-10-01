@@ -1,8 +1,7 @@
 use crate::VirtualMachine;
 use crate::error::JvmError;
-use crate::heap::{Heap, HeapObject};
-use crate::method_area::MethodArea;
-use common::jtype::{HeapAddr, Value};
+use crate::heap::HeapObject;
+use common::jtype::Value;
 use std::collections::HashMap;
 use tracing_log::log::debug;
 
@@ -124,6 +123,14 @@ impl NativeRegistry {
             ),
             java_lang_throwable_fill_in_stack_trace,
         );
+        instance.register(
+            MethodKey::new(
+                "java/lang/Class".to_string(),
+                "isPrimitive".to_string(),
+                "()Z".to_string(),
+            ),
+            java_lang_class_is_primitive,
+        );
         instance
     }
 
@@ -168,11 +175,7 @@ fn java_lang_system_arraycopy(vm: &mut VirtualMachine, args: &[Value]) -> Result
         let heap = vm.heap.borrow();
         let src_array_len;
         let slice: &[Value] = match heap.get(src) {
-            Some(HeapObject::PrimitiveArray { elements, .. }) => {
-                src_array_len = elements.len();
-                elements
-            }
-            Some(HeapObject::RefArray { elements, .. }) => {
+            Some(HeapObject::Array { elements, .. }) => {
                 src_array_len = elements.len();
                 elements
             }
@@ -191,11 +194,7 @@ fn java_lang_system_arraycopy(vm: &mut VirtualMachine, args: &[Value]) -> Result
         let mut heap = vm.heap.borrow_mut();
         let dest_array_len;
         let dest_slice: &mut [Value] = match heap.get_mut(dest) {
-            HeapObject::PrimitiveArray { elements, .. } => {
-                dest_array_len = elements.len();
-                elements
-            }
-            HeapObject::RefArray { elements, .. } => {
+            HeapObject::Array { elements, .. } => {
                 dest_array_len = elements.len();
                 elements
             }
@@ -225,6 +224,16 @@ fn java_lang_class_desired_assertion_status_0(_vm: &mut VirtualMachine, _args: &
     Value::Integer(1)
 }
 
+fn java_lang_class_is_primitive(vm: &mut VirtualMachine, args: &[Value]) -> Value {
+    debug!("TODO: Stub: java.lang.Class.isPrimitive");
+    if let Value::Object(Some(h)) = &args[0] {
+        let is_primitive = vm.method_area().addr_is_primitive(h);
+        Value::Integer(if is_primitive { 1 } else { 0 })
+    } else {
+        panic!("java.lang.Class.isPrimitive: expected object");
+    }
+}
+
 fn java_lang_class_get_primitive_class(vm: &mut VirtualMachine, args: &[Value]) -> Value {
     debug!("TODO: Stub: java.lang.Class.getPrimitiveClass");
     if let Value::Object(Some(h)) = &args[0] {
@@ -240,18 +249,15 @@ fn java_lang_object_get_class(vm: &mut VirtualMachine, args: &[Value]) -> Value 
     if let Value::Object(Some(h)) | Value::Array(Some(h)) = &args[0] {
         let target_class = if let Some(obj) = vm.heap().borrow().get(*h) {
             match obj {
-                HeapObject::Instance(instance) => instance.class().name().unwrap().to_string(),
-                HeapObject::PrimitiveArray { class, .. } => class.descriptor().to_string(),
-                HeapObject::RefArray { .. } => {
-                    panic!("java.lang.Class.getClass: array types not supported yet")
-                }
+                HeapObject::Instance(instance) => instance.class().clone(),
+                HeapObject::Array { class, .. } => class.clone(),
             }
         } else {
             panic!("java.lang.Class.getClass: invalid heap address");
         };
         let res = vm
             .method_area
-            .get_mirror_addr_by_name(&target_class)
+            .get_mirror_addr_by_class(&target_class)
             .unwrap();
         Value::Object(Some(res))
     } else {
@@ -267,7 +273,6 @@ fn java_lang_object_init_class_name(vm: &mut VirtualMachine, args: &[Value]) -> 
             .get_class_by_mirror(h)
             .unwrap()
             .name()
-            .unwrap()
             .replace('/', ".");
         let val = Value::Object(Some(vm.heap().borrow_mut().get_or_new_string(&class_name)));
         vm.heap()
@@ -294,7 +299,7 @@ fn jdk_internal_util_system_props_raw_vm_properties(
 ) -> Value {
     debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.vmProperties");
     let string_class = vm.method_area().get_class("java/lang/String").unwrap();
-    let h = vm.heap().borrow_mut().alloc_ref_array(string_class, 0);
+    let h = vm.heap().borrow_mut().alloc_array(string_class, 0);
     Value::Array(Some(h))
 }
 
@@ -305,6 +310,7 @@ fn jdk_internal_misc_unsafe_register_natives(_vm: &mut VirtualMachine, _args: &[
 
 fn java_lang_throwable_fill_in_stack_trace(vm: &mut VirtualMachine, args: &[Value]) -> Value {
     debug!("TODO: Stub: java.lang.Throwable.fillInStackTrace");
+    /*
     let frames = vm.frame_stack.frames();
     let class_idx = vm
         .heap
@@ -340,8 +346,8 @@ fn java_lang_throwable_fill_in_stack_trace(vm: &mut VirtualMachine, args: &[Valu
         }
     }
     let obj_class = vm.method_area.get_class("java/lang/Object").unwrap();
-    let backtrace_addr = vm.heap.borrow_mut().alloc_ref_array(obj_class, 3);
-    if let HeapObject::RefArray { elements, .. } = vm.heap.borrow_mut().get_mut(backtrace_addr) {
+    let backtrace_addr = vm.heap.borrow_mut().alloc_array(obj_class, 3);
+    if let HeapObject::Array { elements, .. } = vm.heap.borrow_mut().get_mut(backtrace_addr) {
         elements.push(Value::Array(Some(class_idx)));
         elements.push(Value::Array(Some(name_idx)));
         elements.push(Value::Array(Some(descriptor_idx)));
@@ -361,4 +367,7 @@ fn java_lang_throwable_fill_in_stack_trace(vm: &mut VirtualMachine, args: &[Valu
         .unwrap();
 
     Value::Object(Some(throwable_addr))
+
+     */
+    todo!()
 }

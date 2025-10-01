@@ -39,6 +39,10 @@ impl ClassReference {
                 RuntimeConstantType::Class,
             ))
     }
+
+    pub fn name_arc(&self) -> Result<Arc<str>, RuntimePoolError> {
+        self.name().map(|s| Arc::from(s))
+    }
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]

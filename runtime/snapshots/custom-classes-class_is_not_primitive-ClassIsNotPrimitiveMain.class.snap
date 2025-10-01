@@ -7,16 +7,24 @@ vm:
     objects:
       - address: 0
         type: Array
-        class: "[I"
-        elements:
-          - Object: ~
+        class: "[C"
+        elements: []
       - address: 1
+        type: Instance
+        value:
+          class: java/lang/String
+          fields:
+            - Array: 0
+            - Integer: 0
+            - Integer: 0
+            - Integer: 0
+      - address: 2
         type: Instance
         value:
           class: java/lang/Class
           fields:
             - Object: ~
-            - Object: 3
+            - Object: ~
             - Object: ~
             - Object: ~
             - Object: ~
@@ -31,28 +39,13 @@ vm:
             - Object: ~
             - Object: ~
             - Object: ~
-      - address: 2
-        type: Array
-        class: "[C"
-        elements:
-          - Integer: 91
-          - Integer: 73
-      - address: 3
-        type: Instance
-        value:
-          class: java/lang/String
-          fields:
-            - Array: 2
-            - Integer: 0
-            - Integer: 0
-            - Integer: 0
     string_pool:
-      - string: "[I"
-        address: 3
+      - string: ""
+        address: 1
 last_pop_frame:
   locals:
     - ~
-    - Array: 0
-    - Object: 3
+    - Object: 2
+    - Integer: 0
   operands: []
-  pc: 13
+  pc: 12

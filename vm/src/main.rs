@@ -1,7 +1,7 @@
 use clap::Parser;
 use common::utils::telemetry::init_tracing;
 use runtime::VmConfig;
-use tracing_log::log::debug;
+use tracing_log::log::{debug, error};
 
 #[derive(Parser, Debug)]
 #[command(version, about)]
@@ -57,7 +57,8 @@ fn main() {
                     return;
                 }
             };
-            if let Err(_) = runtime::start(bytes, vm_config) {
+            if let Err(err) = runtime::start(bytes, vm_config) {
+                error!("VM execution failed: {err}");
                 std::process::exit(1);
             }
         }

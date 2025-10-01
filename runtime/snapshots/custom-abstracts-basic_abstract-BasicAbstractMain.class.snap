@@ -16,8 +16,8 @@ vm:
           class: abstracts/basic_abstract/BasicAbstractMain$Cat
           fields: []
       - address: 2
-        type: ArrayPrimitive
-        class: Char
+        type: Array
+        class: "[C"
         elements:
           - Integer: 77
           - Integer: 101

@@ -6,8 +6,8 @@ vm:
   heap:
     objects:
       - address: 0
-        type: ArrayPrimitive
-        class: Char
+        type: Array
+        class: "[C"
         elements:
           - Integer: 104
           - Integer: 101
@@ -51,8 +51,8 @@ vm:
             - Object: ~
             - Object: ~
       - address: 3
-        type: ArrayPrimitive
-        class: Char
+        type: Array
+        class: "[C"
         elements:
           - Integer: 106
           - Integer: 97

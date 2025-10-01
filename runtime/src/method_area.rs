@@ -5,8 +5,7 @@ use crate::rt::class::LinkageError;
 use crate::rt::class::class::Class;
 use crate::{ClassId, VmConfig};
 use class_file::ClassFile;
-use common::jtype::{HeapAddr, Value};
-use dashmap::DashMap;
+use common::jtype::HeapAddr;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -22,10 +21,8 @@ pub struct MethodArea {
     // TODO: make class name Arc<str>?
     classes_idx: HashMap<String, ClassId>,
     classes: Vec<Arc<Class>>,
-
     mirrors: HashMap<HeapAddr, Arc<Class>>,
     primitives: HashMap<HeapAddr, HeapAddr>,
-    array_primitives: HashMap<String, HeapAddr>,
 }
 
 impl MethodArea {
@@ -39,7 +36,6 @@ impl MethodArea {
             bootstrap_class_loader,
             mirrors: HashMap::new(),
             primitives: HashMap::new(),
-            array_primitives: HashMap::new(),
         };
 
         debug!("MethodArea initialized");
@@ -53,23 +49,40 @@ impl MethodArea {
             .ok_or(JvmError::ClassNotFound2(class_id))
     }
 
-    pub fn add_class(&mut self, data: Vec<u8>) -> Result<Arc<Class>, JvmError> {
+    pub fn add_raw_bytecode(&mut self, data: Vec<u8>) -> Result<Arc<Class>, JvmError> {
         let cf = ClassFile::try_from(data).map_err(LinkageError::from)?;
         let class = Class::new(cf, self)?;
+        self.add_class(class.clone())?;
+        Ok(class)
+    }
+
+    fn add_class(&mut self, class: Arc<Class>) -> Result<(), JvmError> {
         let id = self.classes.len();
         class.set_id(id)?;
         self.classes.push(class.clone());
-        self.classes_idx.insert(class.name()?.to_string(), id);
-        Ok(class)
+        self.classes_idx.insert(class.name().to_string(), id);
+        Ok(())
     }
 
     pub fn get_class(&mut self, name: &str) -> Result<Arc<Class>, JvmError> {
         if let Some(class_id) = self.classes_idx.get(name) {
-            self.get_class_by_id(*class_id)
+            return self.get_class_by_id(*class_id);
+        }
+        if name.starts_with("[") {
+            self.create_primitive_class(name)
         } else {
             let class_data = self.bootstrap_class_loader.load(name)?;
-            self.add_class(class_data)
+            self.add_raw_bytecode(class_data)
         }
+    }
+
+    fn create_primitive_class(&mut self, name: &str) -> Result<Arc<Class>, JvmError> {
+        if let Some(class_id) = self.classes_idx.get(name) {
+            return self.get_class_by_id(*class_id);
+        }
+        let class = Class::new_primitive(name)?;
+        self.add_class(class.clone())?;
+        Ok(class)
     }
 
     pub fn get_class_id(&self, name: &str) -> Result<ClassId, JvmError> {
@@ -84,22 +97,6 @@ impl MethodArea {
     }
 
     pub fn get_mirror_addr_by_name(&mut self, name: &str) -> Result<HeapAddr, JvmError> {
-        if name.starts_with('[') {
-            if let Some(addr) = self.array_primitives.get(name) {
-                return Ok(*addr);
-            }
-            let class_class = self.get_class("java/lang/Class")?;
-            let mirror_addr = {
-                let mut heap = self.heap.borrow_mut();
-                let mirror_addr = heap.alloc_instance(class_class.clone());
-                let val = Value::Object(Some(heap.get_or_new_string(name)));
-                heap.write_instance_field(mirror_addr, "name", "Ljava/lang/String;", val)?;
-                self.mirrors.insert(mirror_addr, class_class);
-                mirror_addr
-            };
-            self.array_primitives.insert(name.to_string(), mirror_addr);
-            return Ok(mirror_addr);
-        }
         let target_class = self.get_class(name)?;
         self.get_mirror_addr_by_class(&target_class)
     }
@@ -127,5 +124,9 @@ impl MethodArea {
             self.primitives.insert(*name, mirror_addr);
             mirror_addr
         }
+    }
+
+    pub fn addr_is_primitive(&self, addr: &HeapAddr) -> bool {
+        self.primitives.values().any(|v| v == addr)
     }
 }

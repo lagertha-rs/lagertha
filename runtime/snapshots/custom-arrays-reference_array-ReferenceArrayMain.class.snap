@@ -24,7 +24,7 @@ vm:
           fields:
             - Integer: 3
       - address: 3
-        type: ArrayRef
+        type: Array
         class: arrays/reference_array/ReferenceArrayMain$ReferenceClass
         elements:
           - Object: 0

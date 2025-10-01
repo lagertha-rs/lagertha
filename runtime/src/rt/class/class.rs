@@ -30,7 +30,7 @@ pub enum InitState {
 
 pub struct Class {
     id: OnceCell<ClassId>,
-    this: Arc<ClassReference>,
+    name: Arc<str>,
     access: ClassFlags,
     minor_version: u16,
     major_version: u16,
@@ -52,7 +52,7 @@ impl Class {
         let cp = Arc::new(RuntimeConstantPool::new(cf.cp.inner));
         let minor_version = cf.minor_version;
         let major_version = cf.major_version;
-        let this = cp.get_class(&cf.this_class)?.clone();
+        let name = cp.get_class(&cf.this_class)?.name_arc()?;
         let access = cf.access_flags;
         let mut methods: NatHashMap<VirtualMethodType> = HashMap::new();
         let mut static_methods: NatHashMap<StaticMethodType> = HashMap::new();
@@ -150,7 +150,7 @@ impl Class {
         };
 
         let class = Arc::new(Class {
-            this,
+            name,
             access,
             super_class,
             minor_version,
@@ -181,6 +181,43 @@ impl Class {
         Ok(class)
     }
 
+    pub fn new_primitive(name: &str) -> Result<Arc<Self>, JvmError> {
+        let cp = Arc::new(RuntimeConstantPool::new(vec![]));
+        let name = Arc::from(name);
+        let access = ClassFlags::new(0);
+        let minor_version = 0;
+        let major_version = 0;
+        let fields = vec![];
+        let field_idx = HashMap::new();
+        let static_fields = HashMap::new();
+        let static_methods = HashMap::new();
+        let methods = HashMap::new();
+        let initializer = None;
+        let super_class = None;
+        let initialized = RwLock::new(InitState::Initialized);
+
+        let class = Arc::new(Class {
+            name,
+            access,
+            super_class,
+            minor_version,
+            major_version,
+            fields,
+            field_idx,
+            static_fields,
+            static_methods,
+            methods,
+            initializer,
+            attributes: vec![],
+            cp,
+            state: initialized,
+            mirror: OnceCell::new(),
+            id: OnceCell::new(),
+        });
+
+        Ok(class)
+    }
+
     pub fn id(&self) -> Result<ClassId, JvmError> {
         self.id.get().copied().ok_or(JvmError::Uninitialized)
     }
@@ -190,8 +227,8 @@ impl Class {
         self.id.set(id).map_err(|_| JvmError::Uninitialized)
     }
 
-    pub fn name(&self) -> Result<&str, JvmError> {
-        self.this.name().map_err(Into::into)
+    pub fn name(&self) -> &str {
+        &self.name
     }
 
     pub fn find_main_method(&self) -> Option<&Arc<Method>> {
@@ -216,10 +253,6 @@ impl Class {
 
     pub fn cp(&self) -> &Arc<RuntimeConstantPool> {
         &self.cp
-    }
-
-    pub fn idx(&self) -> u16 {
-        *self.this.cp_index()
     }
 
     pub fn fields(&self) -> &Vec<Field> {

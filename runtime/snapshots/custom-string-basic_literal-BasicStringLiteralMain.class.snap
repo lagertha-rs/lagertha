@@ -6,8 +6,8 @@ vm:
   heap:
     objects:
       - address: 0
-        type: ArrayPrimitive
-        class: Char
+        type: Array
+        class: "[C"
         elements:
           - Integer: 104
           - Integer: 101
@@ -24,7 +24,7 @@ vm:
             - Integer: 0
             - Integer: 0
       - address: 2
-        type: ArrayRef
+        type: Array
         class: java/io/ObjectStreamField
         elements: []
       - address: 3

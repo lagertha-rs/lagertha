@@ -3,7 +3,6 @@
 use crate::error::JvmError;
 use crate::rt::class::class::Class;
 use crate::rt::constant_pool::reference::NameAndTypeReference;
-use common::instruction::ArrayType;
 use common::jtype::{HeapAddr, Value};
 use std::cell::OnceCell;
 use std::collections::HashMap;
@@ -12,12 +11,8 @@ use tracing_log::log::debug;
 
 pub enum HeapObject {
     Instance(ClassInstance),
-    RefArray {
+    Array {
         class: Arc<Class>,
-        elements: Vec<Value>,
-    },
-    PrimitiveArray {
-        class: ArrayType,
         elements: Vec<Value>,
     },
 }
@@ -43,6 +38,7 @@ pub struct Heap {
     string_class: OnceCell<Arc<Class>>,
     objects: Vec<HeapObject>,
     string_pool: HashMap<String, HeapAddr>,
+    char_class: OnceCell<Arc<Class>>,
 }
 
 impl Heap {
@@ -52,7 +48,15 @@ impl Heap {
             string_class: OnceCell::new(),
             string_pool: HashMap::new(),
             objects: Vec::new(),
+            char_class: OnceCell::new(),
         }
+    }
+
+    pub fn set_char_class(&self, char_class: Arc<Class>) {
+        if self.char_class.set(char_class).is_err() {
+            panic!("Heap: char_class is already set");
+        }
+        debug!("Heap char_class set");
     }
 
     pub fn initialize(&self, string_class: Arc<Class>) {
@@ -68,11 +72,12 @@ impl Heap {
         idx
     }
 
-    pub fn alloc_ref_array(&mut self, class: Arc<Class>, length: usize) -> HeapAddr {
+    pub fn alloc_array(&mut self, class: Arc<Class>, length: usize) -> HeapAddr {
         let elements = vec![Value::Object(None); length];
-        self.push(HeapObject::RefArray { class, elements })
+        self.push(HeapObject::Array { class, elements })
     }
 
+    /*
     pub fn alloc_primitive_array(&mut self, length: usize, array_type: ArrayType) -> HeapAddr {
         let default_value: Value = Value::from(&array_type);
         let elements: Vec<Value> = vec![default_value; length];
@@ -81,6 +86,7 @@ impl Heap {
             elements,
         })
     }
+     */
 
     fn create_default_fields(class: &Arc<Class>) -> Vec<Value> {
         let mut fields = Vec::with_capacity(class.fields().len());
@@ -118,8 +124,8 @@ impl Heap {
         let mut fields = Self::create_default_fields(&self.string_class.get().unwrap());
 
         let chars = s.chars().map(|c| Value::Integer(c as i32)).collect();
-        let value = self.push(HeapObject::PrimitiveArray {
-            class: ArrayType::Char,
+        let value = self.push(HeapObject::Array {
+            class: self.char_class.get().unwrap().clone(),
             elements: chars,
         });
 
@@ -203,7 +209,7 @@ impl serde::Serialize for ClassInstance {
         use serde::ser::SerializeStruct;
 
         let mut state = serializer.serialize_struct("ClassInstance", 2)?;
-        state.serialize_field("class", &self.class.name().unwrap())?;
+        state.serialize_field("class", &self.class.name())?;
         state.serialize_field("fields", &self.fields)?;
         state.end()
     }
@@ -235,19 +241,11 @@ impl serde::Serialize for Heap {
                         state.serialize_field("value", inst)?;
                         state.end()
                     }
-                    HeapObject::RefArray { class, elements } => {
+                    HeapObject::Array { class, elements } => {
                         let mut state = serializer.serialize_struct("HeapObject", 4)?;
                         state.serialize_field("address", &self.address)?;
-                        state.serialize_field("type", "ArrayRef")?;
-                        state.serialize_field("class", &class.name().unwrap())?;
-                        state.serialize_field("elements", elements)?;
-                        state.end()
-                    }
-                    HeapObject::PrimitiveArray { class, elements } => {
-                        let mut state = serializer.serialize_struct("HeapObject", 4)?;
-                        state.serialize_field("address", &self.address)?;
-                        state.serialize_field("type", "ArrayPrimitive")?;
-                        state.serialize_field("class", &format!("{:?}", class))?;
+                        state.serialize_field("type", "Array")?;
+                        state.serialize_field("class", &class.name())?;
                         state.serialize_field("elements", elements)?;
                         state.end()
                     }

@@ -55,7 +55,8 @@ impl VirtualMachine {
         config.validate();
         let heap = Rc::new(RefCell::new(Heap::new()));
         let mut method_area = MethodArea::new(&config, heap.clone())?;
-        debug!("Preloading java/lang/String...");
+        let char_class = method_area.get_class("[C")?;
+        heap.borrow().set_char_class(char_class);
         let string_class = method_area.get_class("java/lang/String")?;
         heap.borrow().initialize(string_class);
 
