@@ -1,0 +1,105 @@
+---
+source: class_file/src/lib.rs
+expression: display
+---
+final class jdk.internal.misc.UnsafeConstants 
+  minor version: 0
+  major version: 68
+  flags: (0x0030) ACC_FINAL, ACC_SUPER
+  this_class: #8                       //jdk/internal/misc/UnsafeConstants
+  super_class: #2                      //java/lang/Object
+  interfaces: 0, fields: 5, methods: 2, attributes: 1
+Constant pool:
+   #1 = Methodref          #2.#3            // java/lang/Object."<init>":()V
+   #2 = Class              #4               // java/lang/Object
+   #3 = NameAndType        #5:#6            // "<init>":()V
+   #4 = Utf8               java/lang/Object
+   #5 = Utf8               <init>
+   #6 = Utf8               ()V
+   #7 = Fieldref           #8.#9            // jdk/internal/misc/UnsafeConstants.ADDRESS_SIZE0:I
+   #8 = Class              #10              // jdk/internal/misc/UnsafeConstants
+   #9 = NameAndType        #11:#12          // ADDRESS_SIZE0:I
+  #10 = Utf8               jdk/internal/misc/UnsafeConstants
+  #11 = Utf8               ADDRESS_SIZE0
+  #12 = Utf8               I
+  #13 = Fieldref           #8.#14           // jdk/internal/misc/UnsafeConstants.PAGE_SIZE:I
+  #14 = NameAndType        #15:#12          // PAGE_SIZE:I
+  #15 = Utf8               PAGE_SIZE
+  #16 = Fieldref           #8.#17           // jdk/internal/misc/UnsafeConstants.BIG_ENDIAN:Z
+  #17 = NameAndType        #18:#19          // BIG_ENDIAN:Z
+  #18 = Utf8               BIG_ENDIAN
+  #19 = Utf8               Z
+  #20 = Fieldref           #8.#21           // jdk/internal/misc/UnsafeConstants.UNALIGNED_ACCESS:Z
+  #21 = NameAndType        #22:#19          // UNALIGNED_ACCESS:Z
+  #22 = Utf8               UNALIGNED_ACCESS
+  #23 = Fieldref           #8.#24           // jdk/internal/misc/UnsafeConstants.DATA_CACHE_LINE_FLUSH_SIZE:I
+  #24 = NameAndType        #25:#12          // DATA_CACHE_LINE_FLUSH_SIZE:I
+  #25 = Utf8               DATA_CACHE_LINE_FLUSH_SIZE
+  #26 = Utf8               Code
+  #27 = Utf8               LineNumberTable
+  #28 = Utf8               LocalVariableTable
+  #29 = Utf8               this
+  #30 = Utf8               Ljdk/internal/misc/UnsafeConstants;
+  #31 = Utf8               <clinit>
+  #32 = Utf8               SourceFile
+  #33 = Utf8               UnsafeConstants.java
+{
+  static final int ADDRESS_SIZE0;
+    descriptor: I
+    flags: (0x0018) ACC_STATIC, ACC_FINAL
+  
+  static final int PAGE_SIZE;
+    descriptor: I
+    flags: (0x0018) ACC_STATIC, ACC_FINAL
+  
+  static final boolean BIG_ENDIAN;
+    descriptor: Z
+    flags: (0x0018) ACC_STATIC, ACC_FINAL
+  
+  static final boolean UNALIGNED_ACCESS;
+    descriptor: Z
+    flags: (0x0018) ACC_STATIC, ACC_FINAL
+  
+  static final int DATA_CACHE_LINE_FLUSH_SIZE;
+    descriptor: I
+    flags: (0x0018) ACC_STATIC, ACC_FINAL
+  
+  private jdk.internal.misc.UnsafeConstants();
+    descriptor: ()V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return                  
+      LineNumberTable:
+        line 54: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljdk/internal/misc/UnsafeConstants;
+  
+  static {};
+    descriptor: ()V
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=1, locals=0, args_size=0
+         0: iconst_0                
+         1: putstatic     #7                  // Field ADDRESS_SIZE0:I
+         4: iconst_0                
+         5: putstatic     #13                 // Field PAGE_SIZE:I
+         8: iconst_0                
+         9: putstatic     #16                 // Field BIG_ENDIAN:Z
+        12: iconst_0                
+        13: putstatic     #20                 // Field UNALIGNED_ACCESS:Z
+        16: iconst_0                
+        17: putstatic     #23                 // Field DATA_CACHE_LINE_FLUSH_SIZE:I
+        20: return                  
+      LineNumberTable:
+        line 116: 0
+        line 117: 4
+        line 118: 8
+        line 119: 12
+        line 120: 16
+        line 121: 20
+}
+SourceFile: "UnsafeConstants.java"

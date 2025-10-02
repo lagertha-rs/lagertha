@@ -184,42 +184,21 @@ impl Class {
         Ok(class)
     }
 
-    pub fn new_primitive(primitive: ArrayType) -> Result<Arc<Self>, JvmError> {
-        let cp = Arc::new(RuntimeConstantPool::new(vec![]));
-        let name = Arc::from(primitive.descriptor());
-        let access = ClassFlags::new(0);
-        let minor_version = 0;
-        let major_version = 0;
-        let fields = vec![];
-        let field_idx = HashMap::new();
-        let static_fields = HashMap::new();
-        let static_methods = HashMap::new();
-        let methods = HashMap::new();
-        let initializer = None;
-        let super_class = None;
-        let initialized = RwLock::new(InitState::Initialized);
+    pub fn new_array(class_name: &str) -> Result<Arc<Self>, JvmError> {
+        let res = Class {
+            name: Arc::from(class_name),
+            ..Default::default()
+        };
+        Ok(Arc::new(res))
+    }
 
-        let class = Arc::new(Class {
-            name,
+    pub fn new_primitive_array(primitive: ArrayType) -> Result<Arc<Self>, JvmError> {
+        let res = Class {
+            name: Arc::from(primitive.descriptor()),
             primitive: Some(primitive),
-            access,
-            super_class,
-            minor_version,
-            major_version,
-            fields,
-            field_idx,
-            static_fields,
-            static_methods,
-            methods,
-            initializer,
-            attributes: vec![],
-            cp,
-            state: initialized,
-            mirror: OnceCell::new(),
-            id: OnceCell::new(),
-        });
-
-        Ok(class)
+            ..Default::default()
+        };
+        Ok(Arc::new(res))
     }
 
     pub fn id(&self) -> Result<ClassId, JvmError> {
@@ -411,5 +390,29 @@ impl Class {
     ) -> Result<&VirtualMethodType, JvmError> {
         self.get_virtual_method_recursive(name, descriptor)
             .ok_or(JvmError::NoSuchMethod(format!("{}.{}", name, descriptor)))
+    }
+}
+
+impl Default for Class {
+    fn default() -> Self {
+        Self {
+            id: OnceCell::new(),
+            primitive: None,
+            name: Arc::from("java/lang/Object"),
+            access: ClassFlags::new(0),
+            minor_version: 0,
+            major_version: 0,
+            super_class: None,
+            fields: vec![],
+            field_idx: HashMap::new(),
+            static_fields: HashMap::new(),
+            methods: HashMap::new(),
+            static_methods: HashMap::new(),
+            initializer: None,
+            attributes: vec![],
+            cp: Arc::new(RuntimeConstantPool::new(vec![])),
+            state: RwLock::new(InitState::Initialized),
+            mirror: OnceCell::new(),
+        }
     }
 }

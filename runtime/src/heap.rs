@@ -40,6 +40,10 @@ impl ArrayInstance {
     pub fn length(&self) -> usize {
         self.elements.len()
     }
+
+    pub fn get_element(&self, index: usize) -> &Value {
+        self.elements.get(index).expect("invalid array index")
+    }
 }
 
 #[derive(Clone)]

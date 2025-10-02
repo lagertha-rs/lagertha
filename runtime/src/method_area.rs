@@ -70,19 +70,22 @@ impl MethodArea {
             return self.get_class_by_id(*class_id);
         }
         if name.starts_with("[") {
-            self.create_primitive_class(name)
+            self.create_array_class(name)
         } else {
             let class_data = self.bootstrap_class_loader.load(name)?;
             self.add_raw_bytecode(class_data)
         }
     }
 
-    fn create_primitive_class(&mut self, name: &str) -> Result<Arc<Class>, JvmError> {
+    fn create_array_class(&mut self, name: &str) -> Result<Arc<Class>, JvmError> {
         if let Some(class_id) = self.classes_idx.get(name) {
             return self.get_class_by_id(*class_id);
         }
-        let primitive = ArrayType::try_from(name).unwrap();
-        let class = Class::new_primitive(primitive)?;
+        let class = if let Ok(primitive) = ArrayType::try_from(name) {
+            Class::new_primitive_array(primitive)?
+        } else {
+            Class::new_array(name)?
+        };
         self.add_class(class.clone())?;
         Ok(class)
     }

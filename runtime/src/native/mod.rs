@@ -133,6 +133,46 @@ impl NativeRegistry {
             ),
             java_lang_class_is_primitive,
         );
+        instance.register(
+            MethodKey::new(
+                "jdk/internal/misc/Unsafe".to_string(),
+                "arrayBaseOffset0".to_string(),
+                "(Ljava/lang/Class;)I".to_string(),
+            ),
+            jdk_internal_misc_unsafe_array_base_offset_0,
+        );
+        instance.register(
+            MethodKey::new(
+                "jdk/internal/misc/Unsafe".to_string(),
+                "arrayIndexScale0".to_string(),
+                "(Ljava/lang/Class;)I".to_string(),
+            ),
+            jdk_internal_misc_unsafe_array_index_scale_0,
+        );
+        instance.register(
+            MethodKey::new(
+                "java/lang/Float".to_string(),
+                "floatToRawIntBits".to_string(),
+                "(F)I".to_string(),
+            ),
+            java_lang_float_float_to_raw_int_bits,
+        );
+        instance.register(
+            MethodKey::new(
+                "java/lang/Double".to_string(),
+                "doubleToRawLongBits".to_string(),
+                "(D)J".to_string(),
+            ),
+            java_lang_double_double_to_raw_long_bits,
+        );
+        instance.register(
+            MethodKey::new(
+                "java/lang/Object".to_string(),
+                "hashCode".to_string(),
+                "()I".to_string(),
+            ),
+            java_lang_object_hash_code,
+        );
         instance
     }
 
@@ -255,6 +295,15 @@ fn java_lang_object_get_class(vm: &mut VirtualMachine, args: &[Value]) -> Value 
     }
 }
 
+fn java_lang_object_hash_code(_vm: &mut VirtualMachine, args: &[Value]) -> Value {
+    debug!("TODO: Stub: java.lang.Object.hashCode");
+    if let Value::Object(Some(h)) = &args[0] {
+        Value::Integer(*h as i32)
+    } else {
+        panic!("java.lang.Object.hashCode: expected object as argument");
+    }
+}
+
 fn java_lang_object_init_class_name(vm: &mut VirtualMachine, args: &[Value]) -> Value {
     debug!("TODO: Stub: java.lang.Class.initClassName");
     if let Value::Object(Some(h)) = &args[0] {
@@ -373,4 +422,38 @@ fn java_lang_throwable_fill_in_stack_trace(vm: &mut VirtualMachine, args: &[Valu
         .unwrap();
 
     Value::Object(Some(throwable_addr))
+}
+
+fn jdk_internal_misc_unsafe_array_base_offset_0(
+    _vm: &mut VirtualMachine,
+    _args: &[Value],
+) -> Value {
+    debug!("TODO: Stub: jdk.internal.misc.Unsafe.arrayBaseOffset0");
+    Value::Integer(0)
+}
+
+fn jdk_internal_misc_unsafe_array_index_scale_0(
+    _vm: &mut VirtualMachine,
+    _args: &[Value],
+) -> Value {
+    debug!("TODO: Stub: jdk.internal.misc.Unsafe.arrayIndexScale0");
+    Value::Integer(1)
+}
+
+fn java_lang_float_float_to_raw_int_bits(_vm: &mut VirtualMachine, args: &[Value]) -> Value {
+    debug!("TODO: Stub: java.lang.Float.floatToRawIntBits");
+    if let Value::Float(f) = args[0] {
+        Value::Integer(f.to_bits() as i32)
+    } else {
+        panic!("java.lang.Float.floatToRawIntBits: expected float argument");
+    }
+}
+
+fn java_lang_double_double_to_raw_long_bits(_vm: &mut VirtualMachine, args: &[Value]) -> Value {
+    debug!("TODO: Stub: java.lang.Double.doubleToRawLongBits");
+    if let Value::Double(d) = args[0] {
+        Value::Long(d.to_bits() as i64)
+    } else {
+        panic!("java.lang.Double.doubleToRawLongBits: expected double argument");
+    }
 }

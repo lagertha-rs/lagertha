@@ -20,12 +20,15 @@ classes = [
     "java.lang.RuntimeException",
     "java.lang.NullPointerException",
     "java.lang.StackTraceElement",
+    "java.lang.Math",
+    "java.lang.Double",
     # java.io
     "java.io.PrintStream",
     "java.io.FilterOutputStream",
     "java.io.OutputStream",
     "java.io.ObjectStreamField",
     # java.util
+    "java.util.Arrays",
     "java.util.HashMap",
     "java.util.AbstractMap",
     "java.util.Collections",
@@ -40,5 +43,6 @@ classes = [
     "jdk.internal.util.SystemProps",
     "jdk.internal.util.SystemProps$Raw",
     "jdk.internal.util.ArraysSupport",
-    "jdk.internal.misc.Unsafe"
+    "jdk.internal.misc.Unsafe",
+    "jdk.internal.misc.UnsafeConstants"
 ]
