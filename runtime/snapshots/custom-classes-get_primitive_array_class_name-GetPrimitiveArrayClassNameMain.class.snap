@@ -9,7 +9,7 @@ vm:
         type: Array
         class: "[I"
         elements:
-          - Object: ~
+          - Integer: 0
       - address: 1
         type: Instance
         value:

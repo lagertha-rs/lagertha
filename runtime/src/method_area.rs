@@ -5,6 +5,7 @@ use crate::rt::class::LinkageError;
 use crate::rt::class::class::Class;
 use crate::{ClassId, VmConfig};
 use class_file::ClassFile;
+use common::instruction::ArrayType;
 use common::jtype::HeapAddr;
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -80,7 +81,8 @@ impl MethodArea {
         if let Some(class_id) = self.classes_idx.get(name) {
             return self.get_class_by_id(*class_id);
         }
-        let class = Class::new_primitive(name)?;
+        let primitive = ArrayType::try_from(name).unwrap();
+        let class = Class::new_primitive(primitive)?;
         self.add_class(class.clone())?;
         Ok(class)
     }

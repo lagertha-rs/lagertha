@@ -10,6 +10,7 @@ use crate::rt::method::{StaticMethodType, VirtualMethodType};
 use class_file::ClassFile;
 use class_file::attribute::class::ClassAttribute;
 use class_file::flags::ClassFlags;
+use common::instruction::ArrayType;
 use common::jtype::{HeapAddr, Value};
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
@@ -30,6 +31,7 @@ pub enum InitState {
 
 pub struct Class {
     id: OnceCell<ClassId>,
+    primitive: Option<ArrayType>,
     name: Arc<str>,
     access: ClassFlags,
     minor_version: u16,
@@ -162,6 +164,7 @@ impl Class {
             methods,
             initializer,
             attributes: cf.attributes,
+            primitive: None,
             cp,
             state: initialized,
             mirror: OnceCell::new(),
@@ -181,9 +184,9 @@ impl Class {
         Ok(class)
     }
 
-    pub fn new_primitive(name: &str) -> Result<Arc<Self>, JvmError> {
+    pub fn new_primitive(primitive: ArrayType) -> Result<Arc<Self>, JvmError> {
         let cp = Arc::new(RuntimeConstantPool::new(vec![]));
-        let name = Arc::from(name);
+        let name = Arc::from(primitive.descriptor());
         let access = ClassFlags::new(0);
         let minor_version = 0;
         let major_version = 0;
@@ -198,6 +201,7 @@ impl Class {
 
         let class = Arc::new(Class {
             name,
+            primitive: Some(primitive),
             access,
             super_class,
             minor_version,
@@ -220,6 +224,10 @@ impl Class {
 
     pub fn id(&self) -> Result<ClassId, JvmError> {
         self.id.get().copied().ok_or(JvmError::Uninitialized)
+    }
+
+    pub fn primitive(&self) -> Option<ArrayType> {
+        self.primitive
     }
 
     // TODO: proper error

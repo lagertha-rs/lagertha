@@ -509,43 +509,31 @@ impl Interpreter {
                 let value = self.vm.frame_stack.pop_int()?;
                 let index = self.vm.frame_stack.pop_int()?;
                 let array_addr = self.vm.frame_stack.pop_array_ref()?;
-                match self.heap.borrow_mut().get_mut(array_addr) {
-                    HeapObject::Array { elements, .. } => {
-                        if index < 0 || (index as usize) >= elements.len() {
-                            return Err(JvmError::ArrayIndexOutOfBoundsException);
-                        }
-                        elements[index as usize] = Value::Integer(value & 0xFF);
-                    }
-                    _ => panic!("castore on non-array object"),
-                }
+                self.heap.borrow_mut().write_array_element(
+                    array_addr,
+                    index as usize,
+                    Value::Integer(value & 0xFF),
+                )?;
             }
             Instruction::Iastore => {
                 let value = self.vm.frame_stack.pop_int()?;
                 let index = self.vm.frame_stack.pop_int()?;
                 let array_addr = self.vm.frame_stack.pop_array_ref()?;
-                match self.heap.borrow_mut().get_mut(array_addr) {
-                    HeapObject::Array { elements, .. } => {
-                        if index < 0 || (index as usize) >= elements.len() {
-                            return Err(JvmError::ArrayIndexOutOfBoundsException);
-                        }
-                        elements[index as usize] = Value::Integer(value);
-                    }
-                    _ => panic!("iastore on non-array object"),
-                }
+                self.heap.borrow_mut().write_array_element(
+                    array_addr,
+                    index as usize,
+                    Value::Integer(value),
+                )?;
             }
             Instruction::Aastore => {
                 let value = self.vm.frame_stack.pop_nullable_obj_ref()?;
                 let index = self.vm.frame_stack.pop_int()?;
                 let array_addr = self.vm.frame_stack.pop_array_ref()?;
-                match self.heap.borrow_mut().get_mut(array_addr) {
-                    HeapObject::Array { elements, .. } => {
-                        if index < 0 || (index as usize) >= elements.len() {
-                            return Err(JvmError::ArrayIndexOutOfBoundsException);
-                        }
-                        elements[index as usize] = Value::Object(value);
-                    }
-                    _ => panic!("aastore on non-array object"),
-                }
+                self.heap.borrow_mut().write_array_element(
+                    array_addr,
+                    index as usize,
+                    Value::Object(value),
+                )?;
             }
             Instruction::Astore0 => {
                 let value = self.vm.frame_stack.pop_operand()?;
@@ -569,17 +557,10 @@ impl Interpreter {
             }
             Instruction::ArrayLength => {
                 let array_addr = self.vm.frame_stack.pop_array_ref()?;
-                match self.heap.borrow().get(array_addr).unwrap() {
-                    HeapObject::Array { elements, .. } => {
-                        let length = elements.len() as i32;
-                        self.vm.frame_stack.push_operand(Value::Integer(length))?;
-                    }
-                    HeapObject::Array { elements, .. } => {
-                        let length = elements.len() as i32;
-                        self.vm.frame_stack.push_operand(Value::Integer(length))?;
-                    }
-                    _ => panic!("arraylength on non-array object"),
-                }
+                let length = self.heap.borrow().get_array(&array_addr).length();
+                self.vm
+                    .frame_stack
+                    .push_operand(Value::Integer(length as i32))?;
             }
             Instruction::Bipush(value) => {
                 self.vm

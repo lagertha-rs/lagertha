@@ -1,8 +1,10 @@
 use crate::VirtualMachine;
 use crate::error::JvmError;
 use crate::heap::HeapObject;
+use common::instruction::ArrayType;
 use common::jtype::Value;
 use std::collections::HashMap;
+use std::ffi::c_char;
 use tracing_log::log::debug;
 
 //TODO: avoid string allocations here
@@ -173,14 +175,9 @@ fn java_lang_system_arraycopy(vm: &mut VirtualMachine, args: &[Value]) -> Result
     };
     let tmp: Vec<Value> = {
         let heap = vm.heap.borrow();
-        let src_array_len;
-        let slice: &[Value] = match heap.get(src) {
-            Some(HeapObject::Array { elements, .. }) => {
-                src_array_len = elements.len();
-                elements
-            }
-            _ => panic!("java.lang.System.arraycopy: source is not an array"),
-        };
+        let arr = heap.get_array(&src);
+        let src_array_len = arr.length();
+        let slice: &[Value] = arr.elements();
         if src_pos
             .checked_add(length)
             .map_or(true, |end| end > src_array_len)
@@ -192,14 +189,7 @@ fn java_lang_system_arraycopy(vm: &mut VirtualMachine, args: &[Value]) -> Result
 
     {
         let mut heap = vm.heap.borrow_mut();
-        let dest_array_len;
-        let dest_slice: &mut [Value] = match heap.get_mut(dest) {
-            HeapObject::Array { elements, .. } => {
-                dest_array_len = elements.len();
-                elements
-            }
-            _ => panic!("java.lang.System.arraycopy: destination is not an array"),
-        };
+        let dest_array_len = heap.get_array(&dest).length();
         if dest_pos
             .checked_add(length)
             .map_or(true, |end| end > dest_array_len)
@@ -208,7 +198,7 @@ fn java_lang_system_arraycopy(vm: &mut VirtualMachine, args: &[Value]) -> Result
         }
 
         for i in 0..length {
-            dest_slice[dest_pos + i] = tmp[i].clone();
+            heap.write_array_element(dest, dest_pos + i, tmp[i].clone())?;
         }
     }
     Ok(())
@@ -250,7 +240,7 @@ fn java_lang_object_get_class(vm: &mut VirtualMachine, args: &[Value]) -> Value 
         let target_class = if let Some(obj) = vm.heap().borrow().get(*h) {
             match obj {
                 HeapObject::Instance(instance) => instance.class().clone(),
-                HeapObject::Array { class, .. } => class.clone(),
+                HeapObject::Array(array) => array.class().clone(),
             }
         } else {
             panic!("java.lang.Class.getClass: invalid heap address");
@@ -310,48 +300,55 @@ fn jdk_internal_misc_unsafe_register_natives(_vm: &mut VirtualMachine, _args: &[
 
 fn java_lang_throwable_fill_in_stack_trace(vm: &mut VirtualMachine, args: &[Value]) -> Value {
     debug!("TODO: Stub: java.lang.Throwable.fillInStackTrace");
-    /*
     let frames = vm.frame_stack.frames();
+    let int_class = vm
+        .method_area
+        .get_class(ArrayType::Int.descriptor())
+        .unwrap();
     let class_idx = vm
         .heap
         .borrow_mut()
-        .alloc_primitive_array(frames.len(), common::instruction::ArrayType::Int);
+        .alloc_array(int_class.clone(), frames.len());
     let name_idx = vm
         .heap
         .borrow_mut()
-        .alloc_primitive_array(frames.len(), common::instruction::ArrayType::Int);
-    let descriptor_idx = vm
-        .heap
-        .borrow_mut()
-        .alloc_primitive_array(frames.len(), common::instruction::ArrayType::Int);
-    for frame in frames {
+        .alloc_array(int_class.clone(), frames.len());
+    let descriptor_idx = vm.heap.borrow_mut().alloc_array(int_class, frames.len());
+    for (pos, frame) in frames.iter().enumerate() {
         let mut heap = vm.heap.borrow_mut();
-        {
-            let class_idx_ref = heap.get_mut(class_idx);
-            if let HeapObject::PrimitiveArray { elements, .. } = class_idx_ref {
-                elements.push(Value::Integer(frame.method().class_id().unwrap() as i32));
-            }
-        }
-        {
-            let name_idx_ref = heap.get_mut(name_idx);
-            if let HeapObject::PrimitiveArray { elements, .. } = name_idx_ref {
-                elements.push(Value::Integer(frame.method().name_idx() as i32));
-            }
-        }
-        {
-            let descriptor_idx_ref = heap.get_mut(descriptor_idx);
-            if let HeapObject::PrimitiveArray { elements, .. } = descriptor_idx_ref {
-                elements.push(Value::Integer(frame.method().descriptor().idx() as i32));
-            }
-        }
+        heap.write_array_element(
+            class_idx,
+            pos,
+            Value::Integer(frame.method().class_id().unwrap() as i32),
+        )
+        .unwrap();
+        heap.write_array_element(
+            name_idx,
+            pos,
+            Value::Integer(frame.method().name_idx() as i32),
+        )
+        .unwrap();
+        heap.write_array_element(
+            descriptor_idx,
+            pos,
+            Value::Integer(frame.method().descriptor().idx() as i32),
+        )
+        .unwrap();
     }
     let obj_class = vm.method_area.get_class("java/lang/Object").unwrap();
     let backtrace_addr = vm.heap.borrow_mut().alloc_array(obj_class, 3);
-    if let HeapObject::Array { elements, .. } = vm.heap.borrow_mut().get_mut(backtrace_addr) {
-        elements.push(Value::Array(Some(class_idx)));
-        elements.push(Value::Array(Some(name_idx)));
-        elements.push(Value::Array(Some(descriptor_idx)));
-    }
+    vm.heap
+        .borrow_mut()
+        .write_array_element(backtrace_addr, 0, Value::Array(Some(class_idx)))
+        .unwrap();
+    vm.heap
+        .borrow_mut()
+        .write_array_element(backtrace_addr, 1, Value::Array(Some(name_idx)))
+        .unwrap();
+    vm.heap
+        .borrow_mut()
+        .write_array_element(backtrace_addr, 2, Value::Array(Some(descriptor_idx)))
+        .unwrap();
     let throwable_addr = match args[0] {
         Value::Object(Some(h)) => h,
         _ => panic!("java.lang.Throwable.fillInStackTrace: expected object"),
@@ -367,7 +364,4 @@ fn java_lang_throwable_fill_in_stack_trace(vm: &mut VirtualMachine, args: &[Valu
         .unwrap();
 
     Value::Object(Some(throwable_addr))
-
-     */
-    todo!()
 }

@@ -11,10 +11,35 @@ use tracing_log::log::debug;
 
 pub enum HeapObject {
     Instance(ClassInstance),
-    Array {
-        class: Arc<Class>,
-        elements: Vec<Value>,
-    },
+    Array(ArrayInstance),
+}
+
+#[derive(Clone)]
+pub struct ArrayInstance {
+    class: Arc<Class>,
+    elements: Vec<Value>,
+}
+
+impl ArrayInstance {
+    pub fn new(class: Arc<Class>, elements: Vec<Value>) -> Self {
+        Self { class, elements }
+    }
+
+    pub fn class(&self) -> &Arc<Class> {
+        &self.class
+    }
+
+    pub fn elements(&self) -> &Vec<Value> {
+        &self.elements
+    }
+
+    pub fn elements_mut(&mut self) -> &mut Vec<Value> {
+        &mut self.elements
+    }
+
+    pub fn length(&self) -> usize {
+        self.elements.len()
+    }
 }
 
 #[derive(Clone)]
@@ -24,6 +49,10 @@ pub struct ClassInstance {
 }
 
 impl ClassInstance {
+    pub fn new(class: Arc<Class>, fields: Vec<Value>) -> Self {
+        Self { class, fields }
+    }
+
     pub fn get_field(&mut self, index: usize) -> &mut Value {
         self.fields.get_mut(index).expect("invalid field index")
     }
@@ -73,8 +102,13 @@ impl Heap {
     }
 
     pub fn alloc_array(&mut self, class: Arc<Class>, length: usize) -> HeapAddr {
-        let elements = vec![Value::Object(None); length];
-        self.push(HeapObject::Array { class, elements })
+        let default_value = if let Some(primitive_type) = class.primitive() {
+            Value::from(&primitive_type)
+        } else {
+            Value::Object(None)
+        };
+        let elements = vec![default_value; length];
+        self.push(HeapObject::Array(ArrayInstance::new(class, elements)))
     }
 
     /*
@@ -124,10 +158,10 @@ impl Heap {
         let mut fields = Self::create_default_fields(&self.string_class.get().unwrap());
 
         let chars = s.chars().map(|c| Value::Integer(c as i32)).collect();
-        let value = self.push(HeapObject::Array {
-            class: self.char_class.get().unwrap().clone(),
-            elements: chars,
-        });
+        let value = self.push(HeapObject::Array(ArrayInstance::new(
+            self.char_class.get().unwrap().clone(),
+            chars,
+        )));
 
         // The "value" field is always the first field in java.lang.String, but probably should be looked up by name
         fields[0] = Value::Array(Some(value));
@@ -152,6 +186,14 @@ impl Heap {
         }
     }
 
+    pub fn get_array(&self, h: &HeapAddr) -> &ArrayInstance {
+        let heap_obj = self.get(*h).unwrap();
+        match heap_obj {
+            HeapObject::Array(arr) => arr,
+            _ => panic!("get_array called with non-array HeapObject",),
+        }
+    }
+
     pub fn get_instance_field(&mut self, h: &HeapAddr, nat: &NameAndTypeReference) -> &Value {
         let instance = self.get_instance(h);
         let slot = instance.class.get_field_index_by_nat(nat).unwrap();
@@ -162,6 +204,24 @@ impl Heap {
         self.objects
             .get_mut(h)
             .expect("heap: invalid handle (get_mut)")
+    }
+
+    pub fn write_array_element(
+        &mut self,
+        h: HeapAddr,
+        index: usize,
+        val: Value,
+    ) -> Result<(), JvmError> {
+        match self.get_mut(h) {
+            HeapObject::Array(array) => {
+                if index >= array.elements.len() {
+                    return Err(JvmError::ArrayIndexOutOfBoundsException);
+                }
+                array.elements[index] = val;
+            }
+            _ => panic!("heap: write_array_element on non-array"),
+        }
+        Ok(())
     }
 
     pub fn write_instance_field(
@@ -241,12 +301,12 @@ impl serde::Serialize for Heap {
                         state.serialize_field("value", inst)?;
                         state.end()
                     }
-                    HeapObject::Array { class, elements } => {
+                    HeapObject::Array(arr) => {
                         let mut state = serializer.serialize_struct("HeapObject", 4)?;
                         state.serialize_field("address", &self.address)?;
                         state.serialize_field("type", "Array")?;
-                        state.serialize_field("class", &class.name())?;
-                        state.serialize_field("elements", elements)?;
+                        state.serialize_field("class", arr.class().name())?;
+                        state.serialize_field("elements", arr.elements())?;
                         state.end()
                     }
                 }

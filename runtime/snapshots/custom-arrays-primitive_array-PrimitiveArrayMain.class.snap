@@ -1,0 +1,33 @@
+---
+source: runtime/src/lib.rs
+expression: "&interpreter"
+---
+vm:
+  heap:
+    objects:
+      - address: 0
+        type: Array
+        class: "[I"
+        elements:
+          - Integer: 0
+          - Integer: 0
+          - Integer: 0
+          - Integer: 0
+          - Integer: 0
+      - address: 1
+        type: Array
+        class: "[F"
+        elements:
+          - Float: 0
+          - Float: 0
+          - Float: 0
+          - Float: 0
+          - Float: 0
+    string_pool: []
+last_pop_frame:
+  locals:
+    - ~
+    - Array: 0
+    - Array: 1
+  operands: []
+  pc: 9

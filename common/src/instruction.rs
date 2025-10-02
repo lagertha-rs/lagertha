@@ -52,6 +52,24 @@ impl ArrayType {
     }
 }
 
+impl TryFrom<&str> for ArrayType {
+    type Error = ();
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        match value {
+            "[Z" => Ok(ArrayType::Boolean),
+            "[B" => Ok(ArrayType::Byte),
+            "[C" => Ok(ArrayType::Char),
+            "[S" => Ok(ArrayType::Short),
+            "[I" => Ok(ArrayType::Int),
+            "[J" => Ok(ArrayType::Long),
+            "[F" => Ok(ArrayType::Float),
+            "[D" => Ok(ArrayType::Double),
+            _ => Err(()),
+        }
+    }
+}
+
 impl From<&ArrayType> for Value {
     fn from(array_type: &ArrayType) -> Self {
         match array_type {
