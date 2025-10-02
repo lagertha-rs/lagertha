@@ -362,6 +362,15 @@ fn java_lang_throwable_fill_in_stack_trace(vm: &mut VirtualMachine, args: &[Valu
             Value::Array(Some(backtrace_addr)),
         )
         .unwrap();
+    vm.heap
+        .borrow_mut()
+        .write_instance_field(
+            throwable_addr,
+            "depth",
+            "I",
+            Value::Integer(frames.len() as i32),
+        )
+        .unwrap();
 
     Value::Object(Some(throwable_addr))
 }

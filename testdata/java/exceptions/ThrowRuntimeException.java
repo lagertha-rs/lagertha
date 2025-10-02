@@ -1,6 +1,6 @@
 package exception.runtime_exception;
 
-public class ThrowRuntimeExceptionMain {
+public class ThrowRuntimeException {
     static void secondCall() {
         throw new NullPointerException();
     }

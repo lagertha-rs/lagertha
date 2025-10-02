@@ -178,7 +178,7 @@ impl Heap {
     }
 
     // TODO: return Result and handle errors
-    pub fn get_instance(&mut self, h: &HeapAddr) -> &ClassInstance {
+    pub fn get_instance(&self, h: &HeapAddr) -> &ClassInstance {
         let heap_obj = self.get(*h).unwrap();
         match heap_obj {
             HeapObject::Instance(inst) => inst,

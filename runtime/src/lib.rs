@@ -4,6 +4,7 @@ use crate::interpreter::Interpreter;
 use crate::method_area::MethodArea;
 use crate::native::NativeRegistry;
 use crate::stack::FrameStack;
+use log::error;
 use std::cell::RefCell;
 use std::rc::Rc;
 use tracing_log::log::debug;
@@ -85,7 +86,25 @@ pub fn start(main_class: Vec<u8>, config: VmConfig) -> Result<(), JvmError> {
     let vm = VirtualMachine::new(config)?;
 
     let mut interpreter = Interpreter::new(vm);
-    interpreter.start(main_class)
+    match interpreter.start(main_class) {
+        Ok(_) => {
+            debug!("VM execution finished successfully");
+            Ok(())
+        }
+        Err(e) => match e {
+            JvmError::JavaExceptionThrown(addr) => {
+                let heap = interpreter.vm().heap();
+                let heap_borrow = heap.borrow();
+                let exception = heap_borrow.get_instance(&addr);
+                error!("Java exception thrown: {:?}", exception.class().name());
+                Err(e)
+            }
+            _ => {
+                eprintln!("VM execution failed with error: {:?}", e);
+                Err(e)
+            }
+        },
+    }
 }
 
 #[cfg(test)]

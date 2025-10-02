@@ -37,6 +37,10 @@ impl Interpreter {
         }
     }
 
+    pub fn vm(&mut self) -> &mut VirtualMachine {
+        &mut self.vm
+    }
+
     fn method_area(&mut self) -> &mut MethodArea {
         self.vm.method_area()
     }
