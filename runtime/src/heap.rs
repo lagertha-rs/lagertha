@@ -64,6 +64,11 @@ impl ClassInstance {
     pub fn class(&self) -> &Arc<Class> {
         &self.class
     }
+
+    pub fn get_field_value(&self, name: &str, descriptor: &str) -> Option<&Value> {
+        let index = self.class.get_field_index(name, descriptor).ok()?;
+        self.fields.get(index)
+    }
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.5.3
@@ -208,6 +213,27 @@ impl Heap {
         self.objects
             .get_mut(h)
             .expect("heap: invalid handle (get_mut)")
+    }
+
+    pub fn get_string(&self, h: HeapAddr) -> Result<String, JvmError> {
+        let instance = self.get_instance(&h);
+        let value_field = instance.get_field_value("value", "[B").unwrap();
+        let array_addr = match value_field {
+            Value::Array(Some(addr)) => *addr,
+            _ => {
+                return Err(JvmError::NullPointerException);
+            }
+        };
+        let char_array = self.get_array(&array_addr);
+        let chars: String = char_array
+            .elements()
+            .iter()
+            .map(|v| match v {
+                Value::Integer(i) => std::char::from_u32(*i as u32).unwrap_or('*'),
+                _ => '*',
+            })
+            .collect();
+        Ok(chars)
     }
 
     pub fn write_array_element(

@@ -558,6 +558,23 @@ impl Interpreter {
                     Value::Integer(value & 0xFF),
                 )?;
             }
+            Instruction::Instanceof(idx) => {
+                let cp = self.vm.frame_stack.cp()?;
+                let class_ref = cp.get_class(&idx)?;
+                let other_class = self.method_area().get_class(class_ref.name()?)?;
+                let obj_addr = self.vm.frame_stack.pop_obj_ref()?;
+                let heap = self.heap.borrow();
+                let target_class = heap.get_instance(&obj_addr).class();
+                debug!(
+                    "Instanceof check: target_class={}, other_class={}",
+                    target_class.name(),
+                    other_class.name()
+                );
+                let result = target_class.instance_of(&other_class);
+                self.vm
+                    .frame_stack
+                    .push_operand(Value::Integer(if result { 1 } else { 0 }))?;
+            }
             Instruction::Iastore => {
                 let value = self.vm.frame_stack.pop_int()?;
                 let index = self.vm.frame_stack.pop_int()?;

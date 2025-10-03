@@ -209,6 +209,16 @@ impl Class {
         self.primitive
     }
 
+    pub fn instance_of(&self, class: &Arc<Class>) -> bool {
+        if self.name == class.name {
+            return true;
+        }
+        match &self.super_class {
+            Some(super_class) => super_class.instance_of(class),
+            None => false,
+        }
+    }
+
     // TODO: proper error
     pub fn set_id(&self, id: ClassId) -> Result<(), JvmError> {
         self.id.set(id).map_err(|_| JvmError::Uninitialized)

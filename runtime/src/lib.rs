@@ -4,6 +4,7 @@ use crate::interpreter::Interpreter;
 use crate::method_area::MethodArea;
 use crate::native::NativeRegistry;
 use crate::stack::FrameStack;
+use common::jtype::Value;
 use log::error;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -93,10 +94,25 @@ pub fn start(main_class: Vec<u8>, config: VmConfig) -> Result<(), JvmError> {
         }
         Err(e) => match e {
             JvmError::JavaExceptionThrown(addr) => {
-                let heap = interpreter.vm().heap();
-                let heap_borrow = heap.borrow();
-                let exception = heap_borrow.get_instance(&addr);
-                error!("Java exception thrown: {:?}", exception.class().name());
+                let heap = interpreter.vm().heap.borrow();
+                let exception = heap.get_instance(&addr);
+                let message_field_ref = exception
+                    .get_field_value("detailMessage", "Ljava/lang/String;")
+                    .unwrap();
+                let msg = match message_field_ref {
+                    Value::Object(obj) => match obj {
+                        Some(o) => heap.get_string(*o)?,
+                        None => "Exception message is null".to_string(),
+                    },
+                    _ => {
+                        panic!("detailMessage field is not an object reference");
+                    }
+                };
+                error!(
+                    "Java exception thrown: {} with message: {}",
+                    exception.class().name(),
+                    msg
+                );
                 Err(e)
             }
             _ => {

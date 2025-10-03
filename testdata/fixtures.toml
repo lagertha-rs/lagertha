@@ -19,6 +19,7 @@ classes = [
     "java.lang.Exception",
     "java.lang.RuntimeException",
     "java.lang.NullPointerException",
+    "java.lang.IndexOutOfBoundsException",
     "java.lang.StackTraceElement",
     "java.lang.Math",
     "java.lang.Double",
