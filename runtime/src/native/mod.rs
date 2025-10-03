@@ -1,6 +1,7 @@
 use crate::VirtualMachine;
 use crate::error::JvmError;
 use crate::heap::HeapObject;
+use crate::rt::constant_pool::reference::NameAndTypeReference;
 use common::instruction::ArrayType;
 use common::jtype::Value;
 use std::collections::HashMap;
@@ -173,6 +174,22 @@ impl NativeRegistry {
             ),
             java_lang_object_hash_code,
         );
+        instance.register(
+            MethodKey::new(
+                "jdk/internal/misc/VM".to_string(),
+                "initialize".to_string(),
+                "()V".to_string(),
+            ),
+            jdk_internal_misc_vm_initialize,
+        );
+        instance.register(
+            MethodKey::new(
+                "java/lang/Runtime".to_string(),
+                "maxMemory".to_string(),
+                "()J".to_string(),
+            ),
+            java_lang_runtime_max_memory,
+        );
         instance
     }
 
@@ -325,11 +342,18 @@ fn java_lang_object_init_class_name(vm: &mut VirtualMachine, args: &[Value]) -> 
 }
 
 fn jdk_internal_util_system_props_raw_platform_properties(
-    _vm: &mut VirtualMachine,
+    vm: &mut VirtualMachine,
     _args: &[Value],
 ) -> Value {
     debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.platformProperties");
-    Value::Array(None)
+    let string_class = vm.method_area().get_class("java/lang/String").unwrap();
+    let empty_string_stub = vm.heap().borrow_mut().get_or_new_string("");
+    let h = vm.heap().borrow_mut().alloc_array_with_value(
+        string_class,
+        40,
+        Value::Object(Some(empty_string_stub)),
+    );
+    Value::Array(Some(h))
 }
 
 fn jdk_internal_util_system_props_raw_vm_properties(
@@ -338,7 +362,20 @@ fn jdk_internal_util_system_props_raw_vm_properties(
 ) -> Value {
     debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.vmProperties");
     let string_class = vm.method_area().get_class("java/lang/String").unwrap();
-    let h = vm.heap().borrow_mut().alloc_array(string_class, 0);
+    let h = vm.heap().borrow_mut().alloc_array(string_class, 4);
+    let mut heap = vm.heap.borrow_mut();
+    let java_home_key = heap.get_or_new_string("java.home");
+    let java_home_value = heap.get_or_new_string(&vm.config.home);
+    let sun_page_align_stub = heap.get_or_new_string("sun.nio.PageAlignDirectMemory");
+    let false_str = heap.get_or_new_string("false");
+    heap.write_array_element(h, 0, Value::Object(Some(java_home_key)))
+        .unwrap();
+    heap.write_array_element(h, 1, Value::Object(Some(java_home_value)))
+        .unwrap();
+    heap.write_array_element(h, 2, Value::Object(Some(sun_page_align_stub)))
+        .unwrap();
+    heap.write_array_element(h, 3, Value::Object(Some(false_str)))
+        .unwrap();
     Value::Array(Some(h))
 }
 
@@ -440,6 +477,11 @@ fn jdk_internal_misc_unsafe_array_index_scale_0(
     Value::Integer(1)
 }
 
+fn jdk_internal_misc_vm_initialize(_vm: &mut VirtualMachine, _args: &[Value]) -> Value {
+    debug!("TODO: Stub: jdk.internal.misc.VM.initialize");
+    Value::Object(None)
+}
+
 fn java_lang_float_float_to_raw_int_bits(_vm: &mut VirtualMachine, args: &[Value]) -> Value {
     debug!("TODO: Stub: java.lang.Float.floatToRawIntBits");
     if let Value::Float(f) = args[0] {
@@ -456,4 +498,9 @@ fn java_lang_double_double_to_raw_long_bits(_vm: &mut VirtualMachine, args: &[Va
     } else {
         panic!("java.lang.Double.doubleToRawLongBits: expected double argument");
     }
+}
+
+fn java_lang_runtime_max_memory(vm: &mut VirtualMachine, _args: &[Value]) -> Value {
+    debug!("TODO: Stub: java.lang.Runtime.maxMemory");
+    Value::Long(vm.config.max_heap_size as i64)
 }

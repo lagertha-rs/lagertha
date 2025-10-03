@@ -120,6 +120,16 @@ impl Heap {
         self.push(HeapObject::Array(ArrayInstance::new(class, elements)))
     }
 
+    pub fn alloc_array_with_value(
+        &mut self,
+        class: Arc<Class>,
+        length: usize,
+        value: Value,
+    ) -> HeapAddr {
+        let elements = vec![value; length];
+        self.push(HeapObject::Array(ArrayInstance::new(class, elements)))
+    }
+
     /*
     pub fn alloc_primitive_array(&mut self, length: usize, array_type: ArrayType) -> HeapAddr {
         let default_value: Value = Value::from(&array_type);

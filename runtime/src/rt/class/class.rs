@@ -334,10 +334,17 @@ impl Class {
         self.get_field_index(name, descriptor)
     }
 
-    pub fn get_static_field_value(&self, nat: &NameAndTypeReference) -> Result<Value, JvmError> {
+    pub fn get_static_field_value_by_nat(
+        &self,
+        nat: &NameAndTypeReference,
+    ) -> Result<Value, JvmError> {
         let name = nat.name()?;
         let descriptor = nat.field_descriptor()?.raw();
 
+        self.get_static_field_value(name, descriptor)
+    }
+
+    pub fn get_static_field_value(&self, name: &str, descriptor: &str) -> Result<Value, JvmError> {
         self.static_fields
             .get(name)
             .and_then(|m| m.get(descriptor))
