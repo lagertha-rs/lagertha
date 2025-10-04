@@ -118,6 +118,24 @@ impl FrameStack {
         }
     }
 
+    pub fn pop_long(&mut self) -> Result<i64, JvmError> {
+        match self.pop_operand()? {
+            Value::Long(v) => Ok(v),
+            _ => Err(JvmError::UnexpectedType(
+                "Expected Long on operand stack".to_string(),
+            )),
+        }
+    }
+
+    pub fn pop_double(&mut self) -> Result<f64, JvmError> {
+        match self.pop_operand()? {
+            Value::Double(v) => Ok(v),
+            _ => Err(JvmError::UnexpectedType(
+                "Expected Double on operand stack".to_string(),
+            )),
+        }
+    }
+
     pub fn pop_float(&mut self) -> Result<f32, JvmError> {
         match self.pop_operand()? {
             Value::Float(v) => Ok(v),

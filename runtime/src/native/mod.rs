@@ -190,6 +190,30 @@ impl NativeRegistry {
             ),
             java_lang_runtime_max_memory,
         );
+        instance.register(
+            MethodKey::new(
+                "java/lang/Runtime".to_string(),
+                "availableProcessors".to_string(),
+                "()I".to_string(),
+            ),
+            java_lang_runtime_available_processors,
+        );
+        instance.register(
+            MethodKey::new(
+                "jdk/internal/misc/Unsafe".to_string(),
+                "objectFieldOffset1".to_string(),
+                "(Ljava/lang/Class;Ljava/lang/String;)J".to_string(),
+            ),
+            jdk_internal_misc_unsafe_object_field_offset_1,
+        );
+        instance.register(
+            MethodKey::new(
+                "jdk/internal/misc/Unsafe".to_string(),
+                "fullFence".to_string(),
+                "()V".to_string(),
+            ),
+            jdk_internal_misc_unsafe_full_fence,
+        );
         instance
     }
 
@@ -469,12 +493,33 @@ fn jdk_internal_misc_unsafe_array_base_offset_0(
     Value::Integer(0)
 }
 
+fn jdk_internal_misc_unsafe_object_field_offset_1(
+    _vm: &mut VirtualMachine,
+    args: &[Value],
+) -> Value {
+    debug!("TODO: Stub: jdk.internal.misc.Unsafe.objectFieldOffset");
+    if let Value::Object(Some(_h)) = &args[0] {
+        if let Value::Object(Some(_name_and_type_addr)) = &args[1] {
+            Value::Long(0) // Stub value
+        } else {
+            panic!("jdk.internal.misc.Unsafe.objectFieldOffset: expected NameAndType object");
+        }
+    } else {
+        panic!("jdk.internal.misc.Unsafe.objectFieldOffset: expected Class object");
+    }
+}
+
 fn jdk_internal_misc_unsafe_array_index_scale_0(
     _vm: &mut VirtualMachine,
     _args: &[Value],
 ) -> Value {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.arrayIndexScale0");
     Value::Integer(1)
+}
+
+fn jdk_internal_misc_unsafe_full_fence(_vm: &mut VirtualMachine, _args: &[Value]) -> Value {
+    debug!("TODO: Stub: jdk.internal.misc.Unsafe.fullFence");
+    Value::Object(None)
 }
 
 fn jdk_internal_misc_vm_initialize(_vm: &mut VirtualMachine, _args: &[Value]) -> Value {
@@ -503,4 +548,9 @@ fn java_lang_double_double_to_raw_long_bits(_vm: &mut VirtualMachine, args: &[Va
 fn java_lang_runtime_max_memory(vm: &mut VirtualMachine, _args: &[Value]) -> Value {
     debug!("TODO: Stub: java.lang.Runtime.maxMemory");
     Value::Long(vm.config.max_heap_size as i64)
+}
+
+fn java_lang_runtime_available_processors(_vm: &mut VirtualMachine, _args: &[Value]) -> Value {
+    debug!("TODO: Stub: java.lang.Runtime.availableProcessors");
+    Value::Integer(1)
 }

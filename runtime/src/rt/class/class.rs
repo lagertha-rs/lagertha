@@ -385,13 +385,26 @@ impl Class {
         self.get_virtual_method(name, descriptor)
     }
 
+    // Returns method and the constant pool of the class where the method was found
+    pub fn get_virtual_method_and_cp_by_nat(
+        &self,
+        method_ref: &MethodReference,
+    ) -> Result<(&VirtualMethodType, &Arc<RuntimeConstantPool>), JvmError> {
+        let nat = method_ref.name_and_type()?;
+        let name = nat.name()?;
+        let descriptor = nat.method_descriptor()?.raw();
+
+        self.get_virtual_method_recursive(name, descriptor)
+            .ok_or(JvmError::NoSuchMethod(format!("{}.{}", name, descriptor)))
+    }
+
     fn get_virtual_method_recursive(
         &self,
         name: &str,
         descriptor: &str,
-    ) -> Option<&VirtualMethodType> {
+    ) -> Option<(&VirtualMethodType, &Arc<RuntimeConstantPool>)> {
         if let Some(m) = self.methods.get(name).and_then(|m| m.get(descriptor)) {
-            return Some(m);
+            return Some((m, &self.cp));
         }
 
         match &self.super_class {
@@ -406,6 +419,7 @@ impl Class {
         descriptor: &str,
     ) -> Result<&VirtualMethodType, JvmError> {
         self.get_virtual_method_recursive(name, descriptor)
+            .map(|(m, _)| m)
             .ok_or(JvmError::NoSuchMethod(format!("{}.{}", name, descriptor)))
     }
 }

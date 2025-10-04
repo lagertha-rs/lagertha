@@ -137,6 +137,17 @@ impl Interpreter {
                 let object_ref = self.vm.frame_stack.pop_operand()?;
                 self.vm.frame_stack.push_operand(object_ref)?;
             }
+            Instruction::Dadd => {
+                let v2 = self.vm.frame_stack.pop_double()?;
+                let v1 = self.vm.frame_stack.pop_double()?;
+                self.vm.frame_stack.push_operand(Value::Double(v1 + v2))?;
+            }
+            Instruction::Dconst0 => {
+                self.vm.frame_stack.push_operand(Value::Double(0.0))?;
+            }
+            Instruction::Dconst1 => {
+                self.vm.frame_stack.push_operand(Value::Double(1.0))?;
+            }
             Instruction::IconstM1 => {
                 self.vm.frame_stack.push_operand(Value::Integer(-1))?;
             }
@@ -158,13 +169,17 @@ impl Interpreter {
             Instruction::Iconst5 => {
                 self.vm.frame_stack.push_operand(Value::Integer(5))?;
             }
+            Instruction::Lstore(n) => {
+                let value = self.vm.frame_stack.pop_operand()?;
+                self.vm.frame_stack.set_local(n as usize, value)?;
+            }
             Instruction::Fstore(n) => {
                 let value = self.vm.frame_stack.pop_operand()?;
                 self.vm.frame_stack.set_local(n as usize, value)?;
             }
             Instruction::Istore0 => {
                 let value = self.vm.frame_stack.pop_operand()?;
-                self.vm.frame_stack.set_local(1, value)?;
+                self.vm.frame_stack.set_local(0, value)?;
             }
             Instruction::Istore1 => {
                 let value = self.vm.frame_stack.pop_operand()?;
@@ -181,6 +196,10 @@ impl Interpreter {
             Instruction::Istore(idx) => {
                 let value = self.vm.frame_stack.pop_operand()?;
                 self.vm.frame_stack.set_local(idx as usize, value)?;
+            }
+            Instruction::Lload(n) => {
+                let value = self.vm.frame_stack.get_local(n)?;
+                self.vm.frame_stack.push_operand(*value)?;
             }
             Instruction::Aaload => {
                 let index = self.vm.frame_stack.pop_int()?;
@@ -252,6 +271,16 @@ impl Interpreter {
             }
             Instruction::Fconst0 => {
                 self.vm.frame_stack.push_operand(Value::Float(0.0))?;
+            }
+            Instruction::Lcmp => {
+                let v2 = self.vm.frame_stack.pop_long()?;
+                let v1 = self.vm.frame_stack.pop_long()?;
+                let res = match v1.cmp(&v2) {
+                    Ordering::Less => -1,
+                    Ordering::Equal => 0,
+                    Ordering::Greater => 1,
+                };
+                self.vm.frame_stack.push_operand(Value::Integer(res))?;
             }
             Instruction::Fcmpl => {
                 let v2 = self.vm.frame_stack.pop_float()?;
@@ -732,9 +761,25 @@ impl Interpreter {
                 let v1 = self.vm.frame_stack.pop_int()?;
                 self.vm.frame_stack.push_operand(Value::Integer(v1 ^ v2))?;
             }
+            Instruction::L2i => {
+                let v = self.vm.frame_stack.pop_long()?;
+                self.vm.frame_stack.push_operand(Value::Integer(v as i32))?;
+            }
+            Instruction::L2f => {
+                let v = self.vm.frame_stack.pop_long()?;
+                self.vm.frame_stack.push_operand(Value::Float(v as f32))?;
+            }
+            Instruction::D2l => {
+                let v = self.vm.frame_stack.pop_double()?;
+                self.vm.frame_stack.push_operand(Value::Long(v as i64))?;
+            }
             Instruction::F2i => {
                 let v = self.vm.frame_stack.pop_float()?;
                 self.vm.frame_stack.push_operand(Value::Integer(v as i32))?;
+            }
+            Instruction::F2d => {
+                let v = self.vm.frame_stack.pop_float()?;
+                self.vm.frame_stack.push_operand(Value::Double(v as f64))?;
             }
             Instruction::I2l => {
                 let v = self.vm.frame_stack.pop_int()?;
@@ -754,6 +799,16 @@ impl Interpreter {
                 let v2 = self.vm.frame_stack.pop_float()?;
                 let v1 = self.vm.frame_stack.pop_float()?;
                 self.vm.frame_stack.push_operand(Value::Float(v1 * v2))?;
+            }
+            Instruction::Fdiv => {
+                let v2 = self.vm.frame_stack.pop_float()?;
+                let v1 = self.vm.frame_stack.pop_float()?;
+                if v2 == 0.0 {
+                    Err(JvmError::ArithmeticException(
+                        "Division by zero".to_string(),
+                    ))?
+                }
+                self.vm.frame_stack.push_operand(Value::Float(v1 / v2))?;
             }
             Instruction::Iadd => {
                 let v2 = self.vm.frame_stack.pop_int()?;
@@ -803,7 +858,7 @@ impl Interpreter {
                 self.vm.frame_stack.push_operand(value)?;
                 return Ok(true);
             }
-            Instruction::Ireturn => {
+            Instruction::Ireturn | Instruction::Lreturn => {
                 let value = self.vm.frame_stack.pop_operand()?;
                 self.pop_frame()?;
                 self.vm.frame_stack.push_operand(value)?;
@@ -892,18 +947,13 @@ impl Interpreter {
             Some(Value::Object(None)) => return Err(JvmError::NullPointerException),
             _ => panic!("Abstract method called on non-object"),
         };
-        let method = class.get_virtual_method_by_nat(method_ref)?;
+        let (method, cp) = class.get_virtual_method_and_cp_by_nat(method_ref)?;
 
         if let VirtualMethodType::Java(method) = method {
             for _ in 0..(method.max_locals()? - params_count) {
                 params.push(None);
             }
-            let frame = Frame::new(
-                class.cp().clone(),
-                method.clone(),
-                params,
-                method.max_stack()?,
-            );
+            let frame = Frame::new(cp.clone(), method.clone(), params, method.max_stack()?);
 
             self.interpret_method_code(method.instructions()?, frame)?;
         } else {
