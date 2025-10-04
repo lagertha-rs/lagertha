@@ -183,6 +183,7 @@ impl MethodInfo {
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &ConstantPool,
         this: &u16,
+        class_flags: &crate::flags::ClassFlags,
     ) -> std::fmt::Result {
         use common::descriptor::MethodDescriptor;
         use common::pretty_try;
@@ -190,8 +191,18 @@ impl MethodInfo {
 
         let raw_descriptor = pretty_try!(ind, cp.get_utf8(&self.descriptor_index));
         let descriptor = pretty_try!(ind, self.get_descriptor(cp, raw_descriptor));
-
+        let is_default = class_flags.is_interface()
+            && !self.access_flags.is_abstract()
+            && !self.access_flags.is_static()
+            && !self.access_flags.is_private()
+            && self
+                .attributes
+                .iter()
+                .any(|attr| matches!(attr, MethodAttribute::Code { .. }));
         self.access_flags.fmt_pretty_java_like_prefix(ind)?;
+        if is_default {
+            write!(ind, "default ")?;
+        }
         self.fmt_pretty_name_and_ret_type(ind, cp, this, &descriptor)?;
         if pretty_try!(ind, cp.get_utf8(&self.name_index)) != "<clinit>" {
             self.fmt_pretty_params(ind, &descriptor)?;

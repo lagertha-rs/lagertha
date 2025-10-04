@@ -16,3 +16,7 @@ This directory contains test data files used for testing various functionalities
 
 To prepare the test fixtures, run the `prepare_fixtures.py` script. This will compile the Java files and set up
 the necessary directory structure for testing. The target directory for the compiled classes is `target/test-classes`.
+
+## TODO:
+
+- delete snapshots for custom cases without Main postfix

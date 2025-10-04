@@ -153,7 +153,10 @@ impl ClassFile {
             }
         }) {
             let raw_sig = pretty_try!(ind, self.cp.get_utf8(sig_index));
-            let sig = pretty_try!(ind, ClassSignature::try_from(raw_sig));
+            let sig = pretty_try!(
+                ind,
+                ClassSignature::new(raw_sig, self.access_flags.is_interface())
+            );
             write!(ind, "{}", sig)
         } else if !super_is_object || !self.interfaces.is_empty() {
             let interfaces_names = pretty_try!(
@@ -164,7 +167,7 @@ impl ClassFile {
                     .collect::<Result<Vec<_>, _>>()
             );
 
-            if !super_is_object {
+            if !super_is_object && !self.access_flags.is_interface() {
                 write!(ind, "extends {}", super_class_name)?;
                 if !interfaces_names.is_empty() {
                     write!(ind, " ")?;
@@ -280,7 +283,7 @@ impl std::fmt::Display for ClassFile {
                 }
 
                 for (i, method) in self.methods.iter().enumerate() {
-                    method.fmt_pretty(ind, &self.cp, &self.this_class)?;
+                    method.fmt_pretty(ind, &self.cp, &self.this_class, &self.access_flags)?;
                     if i + 1 < self.methods.len() {
                         writeln!(ind)?;
                     }
@@ -316,32 +319,6 @@ mod tests {
         }
         let tail: Vec<String> = iter.collect();
         tail.join("-")
-    }
-
-    #[rstest]
-    #[trace]
-    // Requires `testdata/compile-fixtures.sh` to be run to generate the .class files
-    fn test_display(
-        #[base_dir = "../target/test-classes/"]
-        #[files("**/*.class")]
-        path: PathBuf,
-    ) {
-        // Given
-        let bytes = fs::read(&path).unwrap_or_else(|_| panic!("Can't read file {:?}", path));
-
-        // When
-        let display = format!("{}", ClassFile::try_from(bytes).unwrap());
-
-        // Then
-        with_settings!(
-            {
-                snapshot_path => DISPLAY_SNAPSHOT_PATH,
-                prepend_module_to_snapshot => false,
-            },
-            {
-                insta::assert_snapshot!(to_snapshot_name(&path), display);
-            }
-        );
     }
 
     #[rstest]
@@ -385,5 +362,31 @@ mod tests {
                 javap
             );
         }
+    }
+
+    #[rstest]
+    #[trace]
+    // Requires `testdata/compile-fixtures.sh` to be run to generate the .class files
+    fn test_display(
+        #[base_dir = "../target/test-classes/"]
+        #[files("**/*.class")]
+        path: PathBuf,
+    ) {
+        // Given
+        let bytes = fs::read(&path).unwrap_or_else(|_| panic!("Can't read file {:?}", path));
+
+        // When
+        let display = format!("{}", ClassFile::try_from(bytes).unwrap());
+
+        // Then
+        with_settings!(
+            {
+                snapshot_path => DISPLAY_SNAPSHOT_PATH,
+                prepend_module_to_snapshot => false,
+            },
+            {
+                insta::assert_snapshot!(to_snapshot_name(&path), display);
+            }
+        );
     }
 }

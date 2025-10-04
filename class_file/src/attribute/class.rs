@@ -168,7 +168,7 @@ impl<'a> ClassAttribute {
                                 ind,
                                 "#{:<42} // {}",
                                 format!("{};", entry.inner_class_info_index),
-                                pretty_try!(ind, inner_class.get_pretty_value(cp, &0)),
+                                pretty_try!(ind, inner_class.get_pretty_type_and_value(cp, &0)),
                             )?;
                         } else {
                             let inner_access_flags =
@@ -186,8 +186,8 @@ impl<'a> ClassAttribute {
                                     entry.outer_class_info_index
                                 ),
                                 pretty_try!(ind, cp.get_utf8(&entry.inner_name_index)),
-                                pretty_try!(ind, inner_class.get_pretty_value(cp, &0)),
-                                pretty_try!(ind, outer_class.get_pretty_value(cp, &0))
+                                pretty_try!(ind, inner_class.get_pretty_type_and_value(cp, &0)),
+                                pretty_try!(ind, outer_class.get_pretty_type_and_value(cp, &0))
                             )?;
                         }
                     }
@@ -215,7 +215,7 @@ impl<'a> ClassAttribute {
                             "{}: #{} {}",
                             i,
                             method.bootstrap_method_ref,
-                            pretty_try!(ind, method_handle.get_pretty_value(cp, &0))
+                            pretty_try!(ind, method_handle.get_pretty_type_and_value(cp, &0))
                         )?;
                         ind.with_indent(|ind| {
                             writeln!(ind, "Method arguments:")?;
@@ -245,7 +245,7 @@ impl<'a> ClassAttribute {
                 writeln!(
                     ind,
                     "NestHost: {}",
-                    pretty_try!(ind, constant.get_pretty_value(cp, &0))
+                    pretty_try!(ind, constant.get_pretty_type_and_value(cp, &0))
                 )?;
             }
             ClassAttribute::NestMembers(members) => {

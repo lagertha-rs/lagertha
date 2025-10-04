@@ -17,6 +17,7 @@ pub struct ClassSignature {
     pub type_params: Vec<FormalTypeParam>,
     pub super_class: Type,
     pub interfaces: Vec<Type>,
+    pub is_interface: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -154,10 +155,8 @@ where
     Ok(res)
 }
 
-impl TryFrom<&str> for ClassSignature {
-    type Error = SignatureErr;
-
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
+impl ClassSignature {
+    pub fn new(s: &str, is_interface: bool) -> Result<Self, SignatureErr> {
         let mut it = s.chars().peekable();
 
         let type_params = if it.peek() == Some(&'<') {
@@ -176,6 +175,7 @@ impl TryFrom<&str> for ClassSignature {
         }
 
         Ok(ClassSignature {
+            is_interface,
             type_params,
             super_class,
             interfaces,
@@ -211,10 +211,18 @@ impl fmt::Display for ClassSignature {
         }
 
         // extends Super
-        write!(f, "extends {}", self.super_class)?;
+        let is_object = self.super_class == Type::Instance("java/lang/Object".to_string());
+        if !(self.is_interface && is_object) {
+            write!(f, "extends {}", self.super_class)?;
+        }
 
         if !self.interfaces.is_empty() {
-            write!(f, " implements ")?;
+            //TODO: probably makes sense to split interfaces and classes structures?
+            if self.is_interface {
+                write!(f, " extends ")?;
+            } else {
+                write!(f, " implements ")?;
+            }
             for (i, itf) in self.interfaces.iter().enumerate() {
                 if i > 0 {
                     write!(f, ", ")?;

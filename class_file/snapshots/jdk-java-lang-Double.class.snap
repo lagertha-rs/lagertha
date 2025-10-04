@@ -1,0 +1,1190 @@
+---
+source: class_file/src/lib.rs
+expression: display
+---
+public final class java.lang.Double extends java.lang.Number implements java.lang.Comparable<java.lang.Double>, java.lang.constant.Constable, java.lang.constant.ConstantDesc
+  minor version: 0
+  major version: 68
+  flags: (0x0031) ACC_PUBLIC, ACC_FINAL, ACC_SUPER
+  this_class: #1                       //java/lang/Double
+  super_class: #114                    //java/lang/Number
+  interfaces: 3, fields: 14, methods: 35, attributes: 4
+Constant pool:
+    #1 = Class              #2               // java/lang/Double
+    #2 = Utf8               java/lang/Double
+    #3 = Class              #4               // java/lang/Byte
+    #4 = Utf8               java/lang/Byte
+    #5 = Methodref          #6.#7            // jdk/internal/math/DoubleToDecimal.toString:(D)Ljava/lang/String;
+    #6 = Class              #8               // jdk/internal/math/DoubleToDecimal
+    #7 = NameAndType        #9:#10           // toString:(D)Ljava/lang/String;
+    #8 = Utf8               jdk/internal/math/DoubleToDecimal
+    #9 = Utf8               toString
+   #10 = Utf8               (D)Ljava/lang/String;
+   #11 = Methodref          #1.#12           // java/lang/Double.isFinite:(D)Z
+   #12 = NameAndType        #13:#14          // isFinite:(D)Z
+   #13 = Utf8               isFinite
+   #14 = Utf8               (D)Z
+   #15 = Methodref          #1.#7            // java/lang/Double.toString:(D)Ljava/lang/String;
+   #16 = Class              #17              // java/lang/StringBuilder
+   #17 = Utf8               java/lang/StringBuilder
+   #18 = Methodref          #16.#19          // java/lang/StringBuilder."<init>":(I)V
+   #19 = NameAndType        #20:#21          // "<init>":(I)V
+   #20 = Utf8               <init>
+   #21 = Utf8               (I)V
+   #22 = Methodref          #23.#24          // java/lang/Math.copySign:(DD)D
+   #23 = Class              #25              // java/lang/Math
+   #24 = NameAndType        #26:#27          // copySign:(DD)D
+   #25 = Utf8               java/lang/Math
+   #26 = Utf8               copySign
+   #27 = Utf8               (DD)D
+   #28 = Double             -1.0d
+   #30 = String             #31              // -
+   #31 = Utf8               -
+   #32 = Methodref          #16.#33          // java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+   #33 = NameAndType        #34:#35          // append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+   #34 = Utf8               append
+   #35 = Utf8               (Ljava/lang/String;)Ljava/lang/StringBuilder;
+   #36 = String             #37              // 0x
+   #37 = Utf8               0x
+   #38 = Methodref          #23.#39          // java/lang/Math.abs:(D)D
+   #39 = NameAndType        #40:#41          // abs:(D)D
+   #40 = Utf8               abs
+   #41 = Utf8               (D)D
+   #42 = String             #43              // 0.0p0
+   #43 = Utf8               0.0p0
+   #44 = Double             2.2250738585072014E-308d
+   #46 = Methodref          #1.#47           // java/lang/Double.doubleToLongBits:(D)J
+   #47 = NameAndType        #48:#49          // doubleToLongBits:(D)J
+   #48 = Utf8               doubleToLongBits
+   #49 = Utf8               (D)J
+   #50 = Class              #51              // jdk/internal/math/DoubleConsts
+   #51 = Utf8               jdk/internal/math/DoubleConsts
+   #52 = Long               4503599627370495l
+   #54 = Long               1152921504606846976l
+   #56 = String             #57              // 0.
+   #57 = Utf8               0.
+   #58 = String             #59              // 1.
+   #59 = Utf8               1.
+   #60 = Methodref          #61.#62          // java/lang/Long.toHexString:(J)Ljava/lang/String;
+   #61 = Class              #63              // java/lang/Long
+   #62 = NameAndType        #64:#65          // toHexString:(J)Ljava/lang/String;
+   #63 = Utf8               java/lang/Long
+   #64 = Utf8               toHexString
+   #65 = Utf8               (J)Ljava/lang/String;
+   #66 = Methodref          #67.#68          // java/lang/String.substring:(II)Ljava/lang/String;
+   #67 = Class              #69              // java/lang/String
+   #68 = NameAndType        #70:#71          // substring:(II)Ljava/lang/String;
+   #69 = Utf8               java/lang/String
+   #70 = Utf8               substring
+   #71 = Utf8               (II)Ljava/lang/String;
+   #72 = String             #73              // 0000000000000
+   #73 = Utf8               0000000000000
+   #74 = Methodref          #67.#75          // java/lang/String.equals:(Ljava/lang/Object;)Z
+   #75 = NameAndType        #76:#77          // equals:(Ljava/lang/Object;)Z
+   #76 = Utf8               equals
+   #77 = Utf8               (Ljava/lang/Object;)Z
+   #78 = String             #79              // 0
+   #79 = Utf8               0
+   #80 = String             #81              // 0{1,12}$
+   #81 = Utf8               0{1,12}$
+   #82 = String             #83              // 
+   #83 = Utf8               
+   #84 = Methodref          #67.#85          // java/lang/String.replaceFirst:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+   #85 = NameAndType        #86:#87          // replaceFirst:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+   #86 = Utf8               replaceFirst
+   #87 = Utf8               (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+   #88 = Methodref          #16.#89          // java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+   #89 = NameAndType        #34:#90          // append:(C)Ljava/lang/StringBuilder;
+   #90 = Utf8               (C)Ljava/lang/StringBuilder;
+   #91 = Methodref          #23.#92          // java/lang/Math.getExponent:(D)I
+   #92 = NameAndType        #93:#94          // getExponent:(D)I
+   #93 = Utf8               getExponent
+   #94 = Utf8               (D)I
+   #95 = Methodref          #16.#96          // java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+   #96 = NameAndType        #34:#97          // append:(I)Ljava/lang/StringBuilder;
+   #97 = Utf8               (I)Ljava/lang/StringBuilder;
+   #98 = Methodref          #16.#99          // java/lang/StringBuilder.toString:()Ljava/lang/String;
+   #99 = NameAndType        #9:#100          // toString:()Ljava/lang/String;
+  #100 = Utf8               ()Ljava/lang/String;
+  #101 = Methodref          #1.#102          // java/lang/Double.parseDouble:(Ljava/lang/String;)D
+  #102 = NameAndType        #103:#104        // parseDouble:(Ljava/lang/String;)D
+  #103 = Utf8               parseDouble
+  #104 = Utf8               (Ljava/lang/String;)D
+  #105 = Methodref          #1.#106          // java/lang/Double."<init>":(D)V
+  #106 = NameAndType        #20:#107         // "<init>":(D)V
+  #107 = Utf8               (D)V
+  #108 = Methodref          #109.#102        // jdk/internal/math/FloatingDecimal.parseDouble:(Ljava/lang/String;)D
+  #109 = Class              #110             // jdk/internal/math/FloatingDecimal
+  #110 = Utf8               jdk/internal/math/FloatingDecimal
+  #111 = Double             1.7976931348623157E308d
+  #113 = Methodref          #114.#115        // java/lang/Number."<init>":()V
+  #114 = Class              #116             // java/lang/Number
+  #115 = NameAndType        #20:#117         // "<init>":()V
+  #116 = Utf8               java/lang/Number
+  #117 = Utf8               ()V
+  #118 = Fieldref           #1.#119          // java/lang/Double.value:D
+  #119 = NameAndType        #120:#121        // value:D
+  #120 = Utf8               value
+  #121 = Utf8               D
+  #122 = Methodref          #1.#123          // java/lang/Double.isNaN:(D)Z
+  #123 = NameAndType        #124:#14         // isNaN:(D)Z
+  #124 = Utf8               isNaN
+  #125 = Methodref          #1.#126          // java/lang/Double.isInfinite:(D)Z
+  #126 = NameAndType        #127:#14         // isInfinite:(D)Z
+  #127 = Utf8               isInfinite
+  #128 = Methodref          #1.#129          // java/lang/Double.hashCode:(D)I
+  #129 = NameAndType        #130:#94         // hashCode:(D)I
+  #130 = Utf8               hashCode
+  #131 = Methodref          #61.#132         // java/lang/Long.hashCode:(J)I
+  #132 = NameAndType        #130:#133        // hashCode:(J)I
+  #133 = Utf8               (J)I
+  #134 = Methodref          #1.#135          // java/lang/Double.doubleToRawLongBits:(D)J
+  #135 = NameAndType        #136:#49         // doubleToRawLongBits:(D)J
+  #136 = Utf8               doubleToRawLongBits
+  #137 = Long               9221120237041090560l
+  #139 = Methodref          #1.#140          // java/lang/Double.compare:(DD)I
+  #140 = NameAndType        #141:#142        // compare:(DD)I
+  #141 = Utf8               compare
+  #142 = Utf8               (DD)I
+  #143 = Methodref          #23.#144         // java/lang/Math.max:(DD)D
+  #144 = NameAndType        #145:#27         // max:(DD)D
+  #145 = Utf8               max
+  #146 = Methodref          #23.#147         // java/lang/Math.min:(DD)D
+  #147 = NameAndType        #148:#27         // min:(DD)D
+  #148 = Utf8               min
+  #149 = Methodref          #150.#151        // java/util/Optional.of:(Ljava/lang/Object;)Ljava/util/Optional;
+  #150 = Class              #152             // java/util/Optional
+  #151 = NameAndType        #153:#154        // of:(Ljava/lang/Object;)Ljava/util/Optional;
+  #152 = Utf8               java/util/Optional
+  #153 = Utf8               of
+  #154 = Utf8               (Ljava/lang/Object;)Ljava/util/Optional;
+  #155 = Methodref          #1.#156          // java/lang/Double.compareTo:(Ljava/lang/Double;)I
+  #156 = NameAndType        #157:#158        // compareTo:(Ljava/lang/Double;)I
+  #157 = Utf8               compareTo
+  #158 = Utf8               (Ljava/lang/Double;)I
+  #159 = Methodref          #1.#160          // java/lang/Double.resolveConstantDesc:(Ljava/lang/invoke/MethodHandles$Lookup;)Ljava/lang/Double;
+  #160 = NameAndType        #161:#162        // resolveConstantDesc:(Ljava/lang/invoke/MethodHandles$Lookup;)Ljava/lang/Double;
+  #161 = Utf8               resolveConstantDesc
+  #162 = Utf8               (Ljava/lang/invoke/MethodHandles$Lookup;)Ljava/lang/Double;
+  #163 = String             #164             // double
+  #164 = Utf8               double
+  #165 = Methodref          #166.#167        // java/lang/Class.getPrimitiveClass:(Ljava/lang/String;)Ljava/lang/Class;
+  #166 = Class              #168             // java/lang/Class
+  #167 = NameAndType        #169:#170        // getPrimitiveClass:(Ljava/lang/String;)Ljava/lang/Class;
+  #168 = Utf8               java/lang/Class
+  #169 = Utf8               getPrimitiveClass
+  #170 = Utf8               (Ljava/lang/String;)Ljava/lang/Class;
+  #171 = Fieldref           #1.#172          // java/lang/Double.TYPE:Ljava/lang/Class;
+  #172 = NameAndType        #173:#174        // TYPE:Ljava/lang/Class;
+  #173 = Utf8               TYPE
+  #174 = Utf8               Ljava/lang/Class;
+  #175 = Class              #176             // java/lang/Comparable
+  #176 = Utf8               java/lang/Comparable
+  #177 = Class              #178             // java/lang/constant/Constable
+  #178 = Utf8               java/lang/constant/Constable
+  #179 = Class              #180             // java/lang/constant/ConstantDesc
+  #180 = Utf8               java/lang/constant/ConstantDesc
+  #181 = Utf8               POSITIVE_INFINITY
+  #182 = Utf8               ConstantValue
+  #183 = Double             Infinityd
+  #185 = Utf8               NEGATIVE_INFINITY
+  #186 = Double             -Infinityd
+  #188 = Utf8               NaN
+  #189 = Double             NaNd
+  #191 = Utf8               MAX_VALUE
+  #192 = Utf8               MIN_NORMAL
+  #193 = Utf8               MIN_VALUE
+  #194 = Double             4.9E-324d
+  #196 = Utf8               SIZE
+  #197 = Utf8               I
+  #198 = Integer            64
+  #199 = Utf8               PRECISION
+  #200 = Integer            53
+  #201 = Utf8               MAX_EXPONENT
+  #202 = Integer            1023
+  #203 = Utf8               MIN_EXPONENT
+  #204 = Integer            -1022
+  #205 = Utf8               BYTES
+  #206 = Integer            8
+  #207 = Utf8               Signature
+  #208 = Utf8               Ljava/lang/Class<Ljava/lang/Double;>;
+  #209 = Utf8               serialVersionUID
+  #210 = Utf8               J
+  #211 = Long               -9172774392245257468l
+  #213 = Utf8               Code
+  #214 = Utf8               LineNumberTable
+  #215 = Utf8               LocalVariableTable
+  #216 = Utf8               d
+  #217 = Utf8               subnormal
+  #218 = Utf8               Z
+  #219 = Utf8               signifBits
+  #220 = Utf8               signif
+  #221 = Utf8               Ljava/lang/String;
+  #222 = Utf8               answer
+  #223 = Utf8               Ljava/lang/StringBuilder;
+  #224 = Utf8               StackMapTable
+  #225 = Utf8               valueOf
+  #226 = Utf8               (Ljava/lang/String;)Ljava/lang/Double;
+  #227 = Utf8               s
+  #228 = Utf8               Exceptions
+  #229 = Class              #230             // java/lang/NumberFormatException
+  #230 = Utf8               java/lang/NumberFormatException
+  #231 = Utf8               (D)Ljava/lang/Double;
+  #232 = Utf8               RuntimeVisibleAnnotations
+  #233 = Utf8               Ljdk/internal/vm/annotation/IntrinsicCandidate;
+  #234 = Utf8               v
+  #235 = Utf8               this
+  #236 = Utf8               Ljava/lang/Double;
+  #237 = Utf8               Deprecated
+  #238 = Utf8               Ljava/lang/Deprecated;
+  #239 = Utf8               since
+  #240 = Utf8               9
+  #241 = Utf8               forRemoval
+  #242 = Integer            1
+  #243 = Utf8               (Ljava/lang/String;)V
+  #244 = Utf8               ()Z
+  #245 = Utf8               byteValue
+  #246 = Utf8               ()B
+  #247 = Utf8               shortValue
+  #248 = Utf8               ()S
+  #249 = Utf8               intValue
+  #250 = Utf8               ()I
+  #251 = Utf8               longValue
+  #252 = Utf8               ()J
+  #253 = Utf8               floatValue
+  #254 = Utf8               ()F
+  #255 = Utf8               doubleValue
+  #256 = Utf8               ()D
+  #257 = Utf8               obj
+  #258 = Utf8               Ljava/lang/Object;
+  #259 = Utf8               longBitsToDouble
+  #260 = Utf8               (J)D
+  #261 = Utf8               anotherDouble
+  #262 = Utf8               d1
+  #263 = Utf8               d2
+  #264 = Utf8               thisBits
+  #265 = Utf8               anotherBits
+  #266 = Utf8               sum
+  #267 = Utf8               a
+  #268 = Utf8               b
+  #269 = Utf8               describeConstable
+  #270 = Utf8               ()Ljava/util/Optional;
+  #271 = Utf8               ()Ljava/util/Optional<Ljava/lang/Double;>;
+  #272 = Utf8               lookup
+  #273 = Utf8               Ljava/lang/invoke/MethodHandles$Lookup;
+  #274 = Utf8               (Ljava/lang/Object;)I
+  #275 = Utf8               MethodParameters
+  #276 = Utf8               (Ljava/lang/invoke/MethodHandles$Lookup;)Ljava/lang/Object;
+  #277 = Class              #278             // java/lang/ReflectiveOperationException
+  #278 = Utf8               java/lang/ReflectiveOperationException
+  #279 = Utf8               <clinit>
+  #280 = Utf8               Ljava/lang/Number;Ljava/lang/Comparable<Ljava/lang/Double;>;Ljava/lang/constant/Constable;Ljava/lang/constant/ConstantDesc;
+  #281 = Utf8               SourceFile
+  #282 = Utf8               Double.java
+  #283 = Utf8               Ljdk/internal/ValueBased;
+  #284 = Utf8               InnerClasses
+  #285 = Class              #286             // java/lang/invoke/MethodHandles$Lookup
+  #286 = Utf8               java/lang/invoke/MethodHandles$Lookup
+  #287 = Class              #288             // java/lang/invoke/MethodHandles
+  #288 = Utf8               java/lang/invoke/MethodHandles
+  #289 = Utf8               Lookup
+{
+  public static final double POSITIVE_INFINITY;
+    descriptor: D
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+    ConstantValue: double Infinityd
+  
+  public static final double NEGATIVE_INFINITY;
+    descriptor: D
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+    ConstantValue: double -Infinityd
+  
+  public static final double NaN;
+    descriptor: D
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+    ConstantValue: double NaNd
+  
+  public static final double MAX_VALUE;
+    descriptor: D
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+    ConstantValue: double 1.7976931348623157E308d
+  
+  public static final double MIN_NORMAL;
+    descriptor: D
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+    ConstantValue: double 2.2250738585072014E-308d
+  
+  public static final double MIN_VALUE;
+    descriptor: D
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+    ConstantValue: double 4.9E-324d
+  
+  public static final int SIZE;
+    descriptor: I
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 64
+  
+  public static final int PRECISION;
+    descriptor: I
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 53
+  
+  public static final int MAX_EXPONENT;
+    descriptor: I
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 1023
+  
+  public static final int MIN_EXPONENT;
+    descriptor: I
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+    ConstantValue: int -1022
+  
+  public static final int BYTES;
+    descriptor: I
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 8
+  
+  public static final java.lang.Class<java.lang.Double> TYPE;
+    descriptor: Ljava/lang/Class;
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+    Signature: #208                        // Ljava/lang/Class<Ljava/lang/Double;>;
+  
+  private final double value;
+    descriptor: D
+    flags: (0x0012) ACC_PRIVATE, ACC_FINAL
+  
+  private static final long serialVersionUID;
+    descriptor: J
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: long -9172774392245257468l
+  
+  public static java.lang.String toString(double);
+    descriptor: (D)Ljava/lang/String;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=2, locals=2, args_size=1
+         0: dload_0                 
+         1: invokestatic  #5                  // Method jdk/internal/math/DoubleToDecimal.toString:(D)Ljava/lang/String;
+         4: areturn                 
+      LineNumberTable:
+        line 614: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  d      D
+  
+  public static java.lang.String toHexString(double);
+    descriptor: (D)Ljava/lang/String;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=4, locals=7, args_size=1
+         0: dload_0                 
+         1: invokestatic  #11                 // Method isFinite:(D)Z
+         4: ifne          12                
+         7: dload_0                 
+         8: invokestatic  #15                 // Method toString:(D)Ljava/lang/String;
+        11: areturn                 
+        12: new           #16                 // class java/lang/StringBuilder
+        15: dup                     
+        16: bipush        24                
+        18: invokespecial #18                 // Method java/lang/StringBuilder."<init>":(I)V
+        21: astore_2                
+        22: dconst_1                
+        23: dload_0                 
+        24: invokestatic  #22                 // Method java/lang/Math.copySign:(DD)D
+        27: ldc2_w        #28                 // double -1.0d
+        30: dcmpl                   
+        31: ifne          41                
+        34: aload_2                 
+        35: ldc           #30                 // String -
+        37: invokevirtual #32                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        40: pop                     
+        41: aload_2                 
+        42: ldc           #36                 // String 0x
+        44: invokevirtual #32                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        47: pop                     
+        48: dload_0                 
+        49: invokestatic  #38                 // Method java/lang/Math.abs:(D)D
+        52: dstore_0                
+        53: dload_0                 
+        54: dconst_0                
+        55: dcmpl                   
+        56: ifne          69                
+        59: aload_2                 
+        60: ldc           #42                 // String 0.0p0
+        62: invokevirtual #32                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        65: pop                     
+        66: goto          181               
+        69: dload_0                 
+        70: ldc2_w        #44                 // double 2.2250738585072014E-308d
+        73: dcmpg                   
+        74: ifge          81                
+        77: iconst_1                
+        78: goto          82                
+        81: iconst_0                
+        82: istore_3                
+        83: dload_0                 
+        84: invokestatic  #46                 // Method doubleToLongBits:(D)J
+        87: ldc2_w        #52                 // long 4503599627370495l
+        90: land                    
+        91: ldc2_w        #54                 // long 1152921504606846976l
+        94: lor                     
+        95: lstore        4                 
+        97: aload_2                 
+        98: iload_3                 
+        99: ifeq          107               
+       102: ldc           #56                 // String 0.
+       104: goto          109               
+       107: ldc           #58                 // String 1.
+       109: invokevirtual #32                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+       112: pop                     
+       113: lload         4                 
+       115: invokestatic  #60                 // Method java/lang/Long.toHexString:(J)Ljava/lang/String;
+       118: iconst_3                
+       119: bipush        16                
+       121: invokevirtual #66                 // Method java/lang/String.substring:(II)Ljava/lang/String;
+       124: astore        6                 
+       126: aload_2                 
+       127: aload         6                 
+       129: ldc           #72                 // String 0000000000000
+       131: invokevirtual #74                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       134: ifeq          142               
+       137: ldc           #78                 // String 0
+       139: goto          151               
+       142: aload         6                 
+       144: ldc           #80                 // String 0{1,12}$
+       146: ldc           #82                 // String 
+       148: invokevirtual #84                 // Method java/lang/String.replaceFirst:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+       151: invokevirtual #32                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+       154: pop                     
+       155: aload_2                 
+       156: bipush        112               
+       158: invokevirtual #88                 // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+       161: pop                     
+       162: aload_2                 
+       163: iload_3                 
+       164: ifeq          173               
+       167: sipush        -1022             
+       170: goto          177               
+       173: dload_0                 
+       174: invokestatic  #91                 // Method java/lang/Math.getExponent:(D)I
+       177: invokevirtual #95                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+       180: pop                     
+       181: aload_2                 
+       182: invokevirtual #98                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+       185: areturn                 
+      LineNumberTable:
+        line 706: 0
+        line 708: 7
+        line 711: 12
+        line 713: 22
+        line 714: 34
+        line 716: 41
+        line 718: 48
+        line 720: 53
+        line 721: 59
+        line 723: 69
+        line 728: 83
+        line 734: 97
+        line 740: 113
+        line 741: 126
+        line 742: 137
+        line 743: 142
+        line 741: 151
+        line 745: 155
+        line 750: 162
+        line 751: 167
+        line 752: 173
+        line 750: 177
+        line 754: 181
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          83       98     3  subnormal Z
+          97       84     4  signifBits J
+         126       55     6  signif Ljava/lang/String;
+          22      164     2  answer Ljava/lang/StringBuilder;
+           0      186     0  d      D
+      StackMapTable: number_of_entries = 12
+        frame_type = 12 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 28
+          locals = [class java/lang/StringBuilder]
+        frame_type = 27 /* same */
+        frame_type = 11 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 255 /* full_frame */
+          offset_delta = 24
+          locals = [double, class java/lang/StringBuilder, int, long]
+          stack = [class java/lang/StringBuilder]
+        frame_type = 255 /* full_frame */
+          offset_delta = 1
+          locals = [double, class java/lang/StringBuilder, int, long]
+          stack = [class java/lang/StringBuilder, class java/lang/String]
+        frame_type = 255 /* full_frame */
+          offset_delta = 32
+          locals = [double, class java/lang/StringBuilder, int, long, class java/lang/String]
+          stack = [class java/lang/StringBuilder]
+        frame_type = 255 /* full_frame */
+          offset_delta = 8
+          locals = [double, class java/lang/StringBuilder, int, long, class java/lang/String]
+          stack = [class java/lang/StringBuilder, class java/lang/String]
+        frame_type = 85 /* same_locals_1_stack_item */
+          stack = [ class java/lang/StringBuilder ]
+        frame_type = 255 /* full_frame */
+          offset_delta = 3
+          locals = [double, class java/lang/StringBuilder, int, long, class java/lang/String]
+          stack = [class java/lang/StringBuilder, int]
+        frame_type = 248 /* chop */
+          offset_delta = 3
+  
+  public static java.lang.Double valueOf(java.lang.String) throws java.lang.NumberFormatException;
+    descriptor: (Ljava/lang/String;)Ljava/lang/Double;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=4, locals=1, args_size=1
+         0: new           #1                  // class java/lang/Double
+         3: dup                     
+         4: aload_0                 
+         5: invokestatic  #101                // Method parseDouble:(Ljava/lang/String;)D
+         8: invokespecial #105                // Method "<init>":(D)V
+        11: areturn                 
+      LineNumberTable:
+        line 933: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       12     0  s      Ljava/lang/String;
+    Exceptions:
+      throws java.lang.NumberFormatException
+  
+  public static java.lang.Double valueOf(double);
+    descriptor: (D)Ljava/lang/Double;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=4, locals=2, args_size=1
+         0: new           #1                  // class java/lang/Double
+         3: dup                     
+         4: dload_0                 
+         5: invokespecial #105                // Method "<init>":(D)V
+         8: areturn                 
+      LineNumberTable:
+        line 951: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  d      D
+    RuntimeVisibleAnnotations:
+      0: #233()
+        jdk.internal.vm.annotation.IntrinsicCandidate
+  
+  public static double parseDouble(java.lang.String) throws java.lang.NumberFormatException;
+    descriptor: (Ljava/lang/String;)D
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: aload_0                 
+         1: invokestatic  #108                // Method jdk/internal/math/FloatingDecimal.parseDouble:(Ljava/lang/String;)D
+         4: dreturn                 
+      LineNumberTable:
+        line 971: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  s      Ljava/lang/String;
+    Exceptions:
+      throws java.lang.NumberFormatException
+  
+  public static boolean isNaN(double);
+    descriptor: (D)Z
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=4, locals=2, args_size=1
+         0: dload_0                 
+         1: dload_0                 
+         2: dcmpl                   
+         3: ifeq          10                
+         6: iconst_1                
+         7: goto          11                
+        10: iconst_0                
+        11: ireturn                 
+      LineNumberTable:
+        line 987: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       12     0  v      D
+      StackMapTable: number_of_entries = 2
+        frame_type = 10 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  public static boolean isInfinite(double);
+    descriptor: (D)Z
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=4, locals=2, args_size=1
+         0: dload_0                 
+         1: invokestatic  #38                 // Method java/lang/Math.abs:(D)D
+         4: ldc2_w        #111                // double 1.7976931348623157E308d
+         7: dcmpl                   
+         8: ifle          15                
+        11: iconst_1                
+        12: goto          16                
+        15: iconst_0                
+        16: ireturn                 
+      LineNumberTable:
+        line 1004: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       17     0  v      D
+      StackMapTable: number_of_entries = 2
+        frame_type = 15 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+    RuntimeVisibleAnnotations:
+      0: #233()
+        jdk.internal.vm.annotation.IntrinsicCandidate
+  
+  public static boolean isFinite(double);
+    descriptor: (D)Z
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=4, locals=2, args_size=1
+         0: dload_0                 
+         1: invokestatic  #38                 // Method java/lang/Math.abs:(D)D
+         4: ldc2_w        #111                // double 1.7976931348623157E308d
+         7: dcmpg                   
+         8: ifgt          15                
+        11: iconst_1                
+        12: goto          16                
+        15: iconst_0                
+        16: ireturn                 
+      LineNumberTable:
+        line 1023: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       17     0  d      D
+      StackMapTable: number_of_entries = 2
+        frame_type = 15 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+    RuntimeVisibleAnnotations:
+      0: #233()
+        jdk.internal.vm.annotation.IntrinsicCandidate
+  
+  public java.lang.Double(double);
+    descriptor: (D)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=3, args_size=2
+         0: aload_0                 
+         1: invokespecial #113                // Method java/lang/Number."<init>":()V
+         4: aload_0                 
+         5: dload_1                 
+         6: putfield      #118                // Field value:D
+         9: return                  
+      LineNumberTable:
+        line 1045: 0
+        line 1046: 4
+        line 1047: 9
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/lang/Double;
+           0       10     1  value  D
+    Deprecated: true
+    RuntimeVisibleAnnotations:
+      0: #238(#239=s#240,#241=Z#242)
+        java.lang.Deprecated(
+          since="9"
+          forRemoval=true
+        )
+  
+  public java.lang.Double(java.lang.String) throws java.lang.NumberFormatException;
+    descriptor: (Ljava/lang/String;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=2, args_size=2
+         0: aload_0                 
+         1: invokespecial #113                // Method java/lang/Number."<init>":()V
+         4: aload_0                 
+         5: aload_1                 
+         6: invokestatic  #101                // Method parseDouble:(Ljava/lang/String;)D
+         9: putfield      #118                // Field value:D
+        12: return                  
+      LineNumberTable:
+        line 1066: 0
+        line 1067: 4
+        line 1068: 12
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       13     0  this   Ljava/lang/Double;
+           0       13     1  s      Ljava/lang/String;
+    Exceptions:
+      throws java.lang.NumberFormatException
+    Deprecated: true
+    RuntimeVisibleAnnotations:
+      0: #238(#239=s#240,#241=Z#242)
+        java.lang.Deprecated(
+          since="9"
+          forRemoval=true
+        )
+  
+  public boolean isNaN();
+    descriptor: ()Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #118                // Field value:D
+         4: invokestatic  #122                // Method isNaN:(D)Z
+         7: ireturn                 
+      LineNumberTable:
+        line 1078: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/lang/Double;
+  
+  public boolean isInfinite();
+    descriptor: ()Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #118                // Field value:D
+         4: invokestatic  #125                // Method isInfinite:(D)Z
+         7: ireturn                 
+      LineNumberTable:
+        line 1090: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/lang/Double;
+  
+  public java.lang.String toString();
+    descriptor: ()Ljava/lang/String;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #118                // Field value:D
+         4: invokestatic  #15                 // Method toString:(D)Ljava/lang/String;
+         7: areturn                 
+      LineNumberTable:
+        line 1103: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/lang/Double;
+  
+  public byte byteValue();
+    descriptor: ()B
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #118                // Field value:D
+         4: d2i                     
+         5: i2b                     
+         6: ireturn                 
+      LineNumberTable:
+        line 1117: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        7     0  this   Ljava/lang/Double;
+  
+  public short shortValue();
+    descriptor: ()S
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #118                // Field value:D
+         4: d2i                     
+         5: i2s                     
+         6: ireturn                 
+      LineNumberTable:
+        line 1131: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        7     0  this   Ljava/lang/Double;
+  
+  public int intValue();
+    descriptor: ()I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #118                // Field value:D
+         4: d2i                     
+         5: ireturn                 
+      LineNumberTable:
+        line 1148: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        6     0  this   Ljava/lang/Double;
+  
+  public long longValue();
+    descriptor: ()J
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #118                // Field value:D
+         4: d2l                     
+         5: lreturn                 
+      LineNumberTable:
+        line 1165: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        6     0  this   Ljava/lang/Double;
+  
+  public float floatValue();
+    descriptor: ()F
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #118                // Field value:D
+         4: d2f                     
+         5: freturn                 
+      LineNumberTable:
+        line 1183: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        6     0  this   Ljava/lang/Double;
+  
+  public double doubleValue();
+    descriptor: ()D
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #118                // Field value:D
+         4: dreturn                 
+      LineNumberTable:
+        line 1194: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/lang/Double;
+    RuntimeVisibleAnnotations:
+      0: #233()
+        jdk.internal.vm.annotation.IntrinsicCandidate
+  
+  public int hashCode();
+    descriptor: ()I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #118                // Field value:D
+         4: invokestatic  #128                // Method hashCode:(D)I
+         7: ireturn                 
+      LineNumberTable:
+        line 1220: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/lang/Double;
+  
+  public static int hashCode(double);
+    descriptor: (D)I
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=2, locals=2, args_size=1
+         0: dload_0                 
+         1: invokestatic  #46                 // Method doubleToLongBits:(D)J
+         4: invokestatic  #131                // Method java/lang/Long.hashCode:(J)I
+         7: ireturn                 
+      LineNumberTable:
+        line 1232: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  value  D
+  
+  public boolean equals(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=3, args_size=2
+         0: aload_1                 
+         1: instanceof    #1                  // class java/lang/Double
+         4: ifeq          34                
+         7: aload_1                 
+         8: checkcast     #1                  // class java/lang/Double
+        11: astore_2                
+        12: aload_2                 
+        13: getfield      #118                // Field value:D
+        16: invokestatic  #46                 // Method doubleToLongBits:(D)J
+        19: aload_0                 
+        20: getfield      #118                // Field value:D
+        23: invokestatic  #46                 // Method doubleToLongBits:(D)J
+        26: lcmp                    
+        27: ifne          34                
+        30: iconst_1                
+        31: goto          35                
+        34: iconst_0                
+        35: ireturn                 
+      LineNumberTable:
+        line 1259: 0
+        line 1260: 16
+        line 1259: 35
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          12       22     2  d      Ljava/lang/Double;
+           0       36     0  this   Ljava/lang/Double;
+           0       36     1  obj    Ljava/lang/Object;
+      StackMapTable: number_of_entries = 2
+        frame_type = 34 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  public static long doubleToLongBits(double);
+    descriptor: (D)J
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=2, locals=2, args_size=1
+         0: dload_0                 
+         1: invokestatic  #122                // Method isNaN:(D)Z
+         4: ifne          12                
+         7: dload_0                 
+         8: invokestatic  #134                // Method doubleToRawLongBits:(D)J
+        11: lreturn                 
+        12: ldc2_w        #137                // long 9221120237041090560l
+        15: lreturn                 
+      LineNumberTable:
+        line 1297: 0
+        line 1298: 7
+        line 1300: 12
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       16     0  value  D
+      StackMapTable: number_of_entries = 1
+        frame_type = 12 /* same */
+    RuntimeVisibleAnnotations:
+      0: #233()
+        jdk.internal.vm.annotation.IntrinsicCandidate
+  
+  public static native long doubleToRawLongBits(double);
+    descriptor: (D)J
+    flags: (0x0109) ACC_PUBLIC, ACC_STATIC, ACC_NATIVE
+    RuntimeVisibleAnnotations:
+      0: #233()
+        jdk.internal.vm.annotation.IntrinsicCandidate
+  
+  public static native double longBitsToDouble(long);
+    descriptor: (J)D
+    flags: (0x0109) ACC_PUBLIC, ACC_STATIC, ACC_NATIVE
+    RuntimeVisibleAnnotations:
+      0: #233()
+        jdk.internal.vm.annotation.IntrinsicCandidate
+  
+  public int compareTo(java.lang.Double);
+    descriptor: (Ljava/lang/Double;)I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #118                // Field value:D
+         4: aload_1                 
+         5: getfield      #118                // Field value:D
+         8: invokestatic  #139                // Method compare:(DD)I
+        11: ireturn                 
+      LineNumberTable:
+        line 1447: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       12     0  this   Ljava/lang/Double;
+           0       12     1  anotherDouble Ljava/lang/Double;
+  
+  public static int compare(double, double);
+    descriptor: (DD)I
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=4, locals=8, args_size=2
+         0: dload_0                 
+         1: dload_2                 
+         2: dcmpg                   
+         3: ifge          8                 
+         6: iconst_m1               
+         7: ireturn                 
+         8: dload_0                 
+         9: dload_2                 
+        10: dcmpl                   
+        11: ifle          16                
+        14: iconst_1                
+        15: ireturn                 
+        16: dload_0                 
+        17: invokestatic  #46                 // Method doubleToLongBits:(D)J
+        20: lstore        4                 
+        22: dload_2                 
+        23: invokestatic  #46                 // Method doubleToLongBits:(D)J
+        26: lstore        6                 
+        28: lload         4                 
+        30: lload         6                 
+        32: lcmp                    
+        33: ifne          40                
+        36: iconst_0                
+        37: goto          53                
+        40: lload         4                 
+        42: lload         6                 
+        44: lcmp                    
+        45: ifge          52                
+        48: iconst_m1               
+        49: goto          53                
+        52: iconst_1                
+        53: ireturn                 
+      LineNumberTable:
+        line 1469: 0
+        line 1470: 6
+        line 1471: 8
+        line 1472: 14
+        line 1475: 16
+        line 1476: 22
+        line 1478: 28
+        line 1479: 40
+        line 1480: 52
+        line 1478: 53
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       54     0  d1     D
+           0       54     2  d2     D
+          22       32     4  thisBits J
+          28       26     6  anotherBits J
+      StackMapTable: number_of_entries = 5
+        frame_type = 8 /* same */
+        frame_type = 7 /* same */
+        frame_type = 253 /* append */
+          offset_delta = 23
+          locals = [long, long]
+        frame_type = 11 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  public static double sum(double, double);
+    descriptor: (DD)D
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=4, locals=4, args_size=2
+         0: dload_0                 
+         1: dload_2                 
+         2: dadd                    
+         3: dreturn                 
+      LineNumberTable:
+        line 1497: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        4     0  a      D
+           0        4     2  b      D
+  
+  public static double max(double, double);
+    descriptor: (DD)D
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=4, locals=4, args_size=2
+         0: dload_0                 
+         1: dload_2                 
+         2: invokestatic  #143                // Method java/lang/Math.max:(DD)D
+         5: dreturn                 
+      LineNumberTable:
+        line 1515: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        6     0  a      D
+           0        6     2  b      D
+  
+  public static double min(double, double);
+    descriptor: (DD)D
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=4, locals=4, args_size=2
+         0: dload_0                 
+         1: dload_2                 
+         2: invokestatic  #146                // Method java/lang/Math.min:(DD)D
+         5: dreturn                 
+      LineNumberTable:
+        line 1533: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        6     0  a      D
+           0        6     2  b      D
+  
+  public java.util.Optional<java.lang.Double> describeConstable();
+    descriptor: ()Ljava/util/Optional;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: invokestatic  #149                // Method java/util/Optional.of:(Ljava/lang/Object;)Ljava/util/Optional;
+         4: areturn                 
+      LineNumberTable:
+        line 1545: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/lang/Double;
+    Signature: #271                        // ()Ljava/util/Optional<Ljava/lang/Double;>;
+  
+  public java.lang.Double resolveConstantDesc(java.lang.invoke.MethodHandles$Lookup);
+    descriptor: (Ljava/lang/invoke/MethodHandles$Lookup;)Ljava/lang/Double;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: aload_0                 
+         1: areturn                 
+      LineNumberTable:
+        line 1558: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        2     0  this   Ljava/lang/Double;
+           0        2     1  lookup Ljava/lang/invoke/MethodHandles$Lookup;
+  
+  public int compareTo(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)I
+    flags: (0x1041) ACC_PUBLIC, ACC_BRIDGE, ACC_SYNTHETIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: aload_1                 
+         2: checkcast     #1                  // class java/lang/Double
+         5: invokevirtual #155                // Method compareTo:(Ljava/lang/Double;)I
+         8: ireturn                 
+      LineNumberTable:
+        line 360: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  this   Ljava/lang/Double;
+    MethodParameters:
+      Name                             Flags
+      <no name>                        synthetic 
+  
+  public java.lang.Object resolveConstantDesc(java.lang.invoke.MethodHandles$Lookup) throws java.lang.ReflectiveOperationException;
+    descriptor: (Ljava/lang/invoke/MethodHandles$Lookup;)Ljava/lang/Object;
+    flags: (0x1041) ACC_PUBLIC, ACC_BRIDGE, ACC_SYNTHETIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: aload_1                 
+         2: invokevirtual #159                // Method resolveConstantDesc:(Ljava/lang/invoke/MethodHandles$Lookup;)Ljava/lang/Double;
+         5: areturn                 
+      LineNumberTable:
+        line 360: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        6     0  this   Ljava/lang/Double;
+    Exceptions:
+      throws java.lang.ReflectiveOperationException
+    MethodParameters:
+      Name                             Flags
+      <no name>                        synthetic 
+  
+  static {};
+    descriptor: ()V
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=1, locals=0, args_size=0
+         0: ldc           #163                // String double
+         2: invokestatic  #165                // Method java/lang/Class.getPrimitiveClass:(Ljava/lang/String;)Ljava/lang/Class;
+         5: putstatic     #171                // Field TYPE:Ljava/lang/Class;
+         8: return                  
+      LineNumberTable:
+        line 462: 0
+}
+Signature: #280                        // Ljava/lang/Number;Ljava/lang/Comparable<Ljava/lang/Double;>;Ljava/lang/constant/Constable;Ljava/lang/constant/ConstantDesc;
+SourceFile: "Double.java"
+RuntimeVisibleAnnotations:
+  0: #283()
+    jdk.internal.ValueBased
+InnerClasses:
+  public static final #289= #285 of #287;     // Lookup=class java/lang/invoke/MethodHandles$Lookup of class java/lang/invoke/MethodHandles

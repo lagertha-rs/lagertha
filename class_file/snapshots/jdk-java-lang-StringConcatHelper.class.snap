@@ -1,0 +1,2141 @@
+---
+source: class_file/src/lib.rs
+expression: display
+---
+final class java.lang.StringConcatHelper 
+  minor version: 0
+  major version: 68
+  flags: (0x0030) ACC_FINAL, ACC_SUPER
+  this_class: #15                      //java/lang/StringConcatHelper
+  super_class: #4                      //java/lang/Object
+  interfaces: 0, fields: 3, methods: 41, attributes: 3
+Constant pool:
+    #1 = Class              #2               // java/lang/String
+    #2 = Utf8               java/lang/String
+    #3 = Methodref          #4.#5            // java/lang/Object."<init>":()V
+    #4 = Class              #6               // java/lang/Object
+    #5 = NameAndType        #7:#8            // "<init>":()V
+    #6 = Utf8               java/lang/Object
+    #7 = Utf8               <init>
+    #8 = Utf8               ()V
+    #9 = Methodref          #10.#11          // java/lang/StringLatin1.canEncode:(C)Z
+   #10 = Class              #12              // java/lang/StringLatin1
+   #11 = NameAndType        #13:#14          // canEncode:(C)Z
+   #12 = Utf8               java/lang/StringLatin1
+   #13 = Utf8               canEncode
+   #14 = Utf8               (C)Z
+   #15 = Class              #16              // java/lang/StringConcatHelper
+   #16 = Utf8               java/lang/StringConcatHelper
+   #17 = Long               4294967296l
+   #19 = Class              #20              // java/lang/OutOfMemoryError
+   #20 = Utf8               java/lang/OutOfMemoryError
+   #21 = String             #22              // Overflow: String length out of range
+   #22 = Utf8               Overflow: String length out of range
+   #23 = Methodref          #19.#24          // java/lang/OutOfMemoryError."<init>":(Ljava/lang/String;)V
+   #24 = NameAndType        #7:#25           // "<init>":(Ljava/lang/String;)V
+   #25 = Utf8               (Ljava/lang/String;)V
+   #26 = Methodref          #15.#27          // java/lang/StringConcatHelper.checkOverflow:(J)J
+   #27 = NameAndType        #28:#29          // checkOverflow:(J)J
+   #28 = Utf8               checkOverflow
+   #29 = Utf8               (J)J
+   #30 = Methodref          #15.#31          // java/lang/StringConcatHelper.coder:(C)J
+   #31 = NameAndType        #32:#33          // coder:(C)J
+   #32 = Utf8               coder
+   #33 = Utf8               (C)J
+   #34 = Methodref          #35.#36          // jdk/internal/util/DecimalDigits.stringSize:(I)I
+   #35 = Class              #37              // jdk/internal/util/DecimalDigits
+   #36 = NameAndType        #38:#39          // stringSize:(I)I
+   #37 = Utf8               jdk/internal/util/DecimalDigits
+   #38 = Utf8               stringSize
+   #39 = Utf8               (I)I
+   #40 = Methodref          #35.#41          // jdk/internal/util/DecimalDigits.stringSize:(J)I
+   #41 = NameAndType        #38:#42          // stringSize:(J)I
+   #42 = Utf8               (J)I
+   #43 = Methodref          #1.#44           // java/lang/String.length:()I
+   #44 = NameAndType        #45:#46          // length:()I
+   #45 = Utf8               length
+   #46 = Utf8               ()I
+   #47 = Methodref          #1.#48           // java/lang/String.isLatin1:()Z
+   #48 = NameAndType        #49:#50          // isLatin1:()Z
+   #49 = Utf8               isLatin1
+   #50 = Utf8               ()Z
+   #51 = Methodref          #1.#52           // java/lang/String.getBytes:([BIB)V
+   #52 = NameAndType        #53:#54          // getBytes:([BIB)V
+   #53 = Utf8               getBytes
+   #54 = Utf8               ([BIB)V
+   #55 = Methodref          #56.#57          // java/lang/StringUTF16.putChar:([BII)V
+   #56 = Class              #58              // java/lang/StringUTF16
+   #57 = NameAndType        #59:#60          // putChar:([BII)V
+   #58 = Utf8               java/lang/StringUTF16
+   #59 = Utf8               putChar
+   #60 = Utf8               ([BII)V
+   #61 = Methodref          #10.#62          // java/lang/StringLatin1.getChars:(II[B)I
+   #62 = NameAndType        #63:#64          // getChars:(II[B)I
+   #63 = Utf8               getChars
+   #64 = Utf8               (II[B)I
+   #65 = Methodref          #56.#62          // java/lang/StringUTF16.getChars:(II[B)I
+   #66 = Methodref          #10.#67          // java/lang/StringLatin1.getChars:(JI[B)I
+   #67 = NameAndType        #63:#68          // getChars:(JI[B)I
+   #68 = Utf8               (JI[B)I
+   #69 = Methodref          #56.#67          // java/lang/StringUTF16.getChars:(JI[B)I
+   #70 = Methodref          #1.#71           // java/lang/String."<init>":([BB)V
+   #71 = NameAndType        #7:#72           // "<init>":([BB)V
+   #72 = Utf8               ([BB)V
+   #73 = Class              #74              // java/lang/InternalError
+   #74 = Utf8               java/lang/InternalError
+   #75 = Class              #76              // java/lang/StringBuilder
+   #76 = Utf8               java/lang/StringBuilder
+   #77 = Methodref          #75.#5           // java/lang/StringBuilder."<init>":()V
+   #78 = String             #79              // Storage is not completely initialized, 
+   #79 = Utf8               Storage is not completely initialized, 
+   #80 = Methodref          #75.#81          // java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+   #81 = NameAndType        #82:#83          // append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+   #82 = Utf8               append
+   #83 = Utf8               (Ljava/lang/String;)Ljava/lang/StringBuilder;
+   #84 = Methodref          #75.#85          // java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+   #85 = NameAndType        #82:#86          // append:(I)Ljava/lang/StringBuilder;
+   #86 = Utf8               (I)Ljava/lang/StringBuilder;
+   #87 = String             #88              //  bytes left
+   #88 = Utf8                bytes left
+   #89 = Methodref          #75.#90          // java/lang/StringBuilder.toString:()Ljava/lang/String;
+   #90 = NameAndType        #91:#92          // toString:()Ljava/lang/String;
+   #91 = Utf8               toString
+   #92 = Utf8               ()Ljava/lang/String;
+   #93 = Methodref          #73.#24          // java/lang/InternalError."<init>":(Ljava/lang/String;)V
+   #94 = Methodref          #15.#95          // java/lang/StringConcatHelper.stringOf:(Ljava/lang/Object;)Ljava/lang/String;
+   #95 = NameAndType        #96:#97          // stringOf:(Ljava/lang/Object;)Ljava/lang/String;
+   #96 = Utf8               stringOf
+   #97 = Utf8               (Ljava/lang/Object;)Ljava/lang/String;
+   #98 = Methodref          #1.#99           // java/lang/String.isEmpty:()Z
+   #99 = NameAndType        #100:#50         // isEmpty:()Z
+  #100 = Utf8               isEmpty
+  #101 = Methodref          #1.#24           // java/lang/String."<init>":(Ljava/lang/String;)V
+  #102 = Methodref          #15.#103         // java/lang/StringConcatHelper.doConcat:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+  #103 = NameAndType        #104:#105        // doConcat:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+  #104 = Utf8               doConcat
+  #105 = Utf8               (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+  #106 = Methodref          #1.#107          // java/lang/String.coder:()B
+  #107 = NameAndType        #32:#108         // coder:()B
+  #108 = Utf8               ()B
+  #109 = Methodref          #15.#110         // java/lang/StringConcatHelper.newArray:(I)[B
+  #110 = NameAndType        #111:#112        // newArray:(I)[B
+  #111 = Utf8               newArray
+  #112 = Utf8               (I)[B
+  #113 = Methodref          #4.#90           // java/lang/Object.toString:()Ljava/lang/String;
+  #114 = String             #115             // null
+  #115 = Utf8               null
+  #116 = Methodref          #117.#118        // java/lang/Float.toString:(F)Ljava/lang/String;
+  #117 = Class              #119             // java/lang/Float
+  #118 = NameAndType        #91:#120         // toString:(F)Ljava/lang/String;
+  #119 = Utf8               java/lang/Float
+  #120 = Utf8               (F)Ljava/lang/String;
+  #121 = Methodref          #122.#123        // java/lang/Double.toString:(D)Ljava/lang/String;
+  #122 = Class              #124             // java/lang/Double
+  #123 = NameAndType        #91:#125         // toString:(D)Ljava/lang/String;
+  #124 = Utf8               java/lang/Double
+  #125 = Utf8               (D)Ljava/lang/String;
+  #126 = Methodref          #15.#127         // java/lang/StringConcatHelper.checkOverflow:(I)I
+  #127 = NameAndType        #28:#39          // checkOverflow:(I)I
+  #128 = Methodref          #15.#129         // java/lang/StringConcatHelper.newArray:(J)[B
+  #129 = NameAndType        #111:#130        // newArray:(J)[B
+  #130 = Utf8               (J)[B
+  #131 = Fieldref           #15.#132         // java/lang/StringConcatHelper.UNSAFE:Ljdk/internal/misc/Unsafe;
+  #132 = NameAndType        #133:#134        // UNSAFE:Ljdk/internal/misc/Unsafe;
+  #133 = Utf8               UNSAFE
+  #134 = Utf8               Ljdk/internal/misc/Unsafe;
+  #135 = Fieldref           #136.#137        // java/lang/Byte.TYPE:Ljava/lang/Class;
+  #136 = Class              #138             // java/lang/Byte
+  #137 = NameAndType        #139:#140        // TYPE:Ljava/lang/Class;
+  #138 = Utf8               java/lang/Byte
+  #139 = Utf8               TYPE
+  #140 = Utf8               Ljava/lang/Class;
+  #141 = Methodref          #142.#143        // jdk/internal/misc/Unsafe.allocateUninitializedArray:(Ljava/lang/Class;I)Ljava/lang/Object;
+  #142 = Class              #144             // jdk/internal/misc/Unsafe
+  #143 = NameAndType        #145:#146        // allocateUninitializedArray:(Ljava/lang/Class;I)Ljava/lang/Object;
+  #144 = Utf8               jdk/internal/misc/Unsafe
+  #145 = Utf8               allocateUninitializedArray
+  #146 = Utf8               (Ljava/lang/Class;I)Ljava/lang/Object;
+  #147 = Class              #148             // "[B"
+  #148 = Utf8               [B
+  #149 = Fieldref           #1.#150          // java/lang/String.COMPACT_STRINGS:Z
+  #150 = NameAndType        #151:#152        // COMPACT_STRINGS:Z
+  #151 = Utf8               COMPACT_STRINGS
+  #152 = Utf8               Z
+  #153 = Methodref          #154.#155        // java/lang/invoke/MethodHandles.lookup:()Ljava/lang/invoke/MethodHandles$Lookup;
+  #154 = Class              #156             // java/lang/invoke/MethodHandles
+  #155 = NameAndType        #157:#158        // lookup:()Ljava/lang/invoke/MethodHandles$Lookup;
+  #156 = Utf8               java/lang/invoke/MethodHandles
+  #157 = Utf8               lookup
+  #158 = Utf8               ()Ljava/lang/invoke/MethodHandles$Lookup;
+  #159 = Methodref          #160.#161        // java/lang/invoke/MethodHandles$Lookup.findStatic:(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/MethodHandle;
+  #160 = Class              #162             // java/lang/invoke/MethodHandles$Lookup
+  #161 = NameAndType        #163:#164        // findStatic:(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/MethodHandle;
+  #162 = Utf8               java/lang/invoke/MethodHandles$Lookup
+  #163 = Utf8               findStatic
+  #164 = Utf8               (Ljava/lang/Class;Ljava/lang/String;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/MethodHandle;
+  #165 = Class              #166             // java/lang/NoSuchMethodException
+  #166 = Utf8               java/lang/NoSuchMethodException
+  #167 = Class              #168             // java/lang/IllegalAccessException
+  #168 = Utf8               java/lang/IllegalAccessException
+  #169 = Class              #170             // java/lang/AssertionError
+  #170 = Utf8               java/lang/AssertionError
+  #171 = Methodref          #169.#172        // java/lang/AssertionError."<init>":(Ljava/lang/Object;)V
+  #172 = NameAndType        #7:#173          // "<init>":(Ljava/lang/Object;)V
+  #173 = Utf8               (Ljava/lang/Object;)V
+  #174 = Methodref          #15.#175         // java/lang/StringConcatHelper.newArrayWithSuffix:(Ljava/lang/String;IB)[B
+  #175 = NameAndType        #176:#177        // newArrayWithSuffix:(Ljava/lang/String;IB)[B
+  #176 = Utf8               newArrayWithSuffix
+  #177 = Utf8               (Ljava/lang/String;IB)[B
+  #178 = Methodref          #15.#179         // java/lang/StringConcatHelper.prepend:(IB[BLjava/lang/String;Ljava/lang/String;)I
+  #179 = NameAndType        #180:#181        // prepend:(IB[BLjava/lang/String;Ljava/lang/String;)I
+  #180 = Utf8               prepend
+  #181 = Utf8               (IB[BLjava/lang/String;Ljava/lang/String;)I
+  #182 = Methodref          #15.#183         // java/lang/StringConcatHelper.concat0:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+  #183 = NameAndType        #184:#185        // concat0:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+  #184 = Utf8               concat0
+  #185 = Utf8               (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+  #186 = Methodref          #142.#187        // jdk/internal/misc/Unsafe.getUnsafe:()Ljdk/internal/misc/Unsafe;
+  #187 = NameAndType        #188:#189        // getUnsafe:()Ljdk/internal/misc/Unsafe;
+  #188 = Utf8               getUnsafe
+  #189 = Utf8               ()Ljdk/internal/misc/Unsafe;
+  #190 = Utf8               LATIN1
+  #191 = Utf8               J
+  #192 = Utf8               ConstantValue
+  #193 = Long               0l
+  #195 = Utf8               UTF16
+  #196 = Utf8               Code
+  #197 = Utf8               LineNumberTable
+  #198 = Utf8               LocalVariableTable
+  #199 = Utf8               this
+  #200 = Utf8               Ljava/lang/StringConcatHelper;
+  #201 = Utf8               value
+  #202 = Utf8               C
+  #203 = Utf8               StackMapTable
+  #204 = Utf8               lengthCoder
+  #205 = Utf8               mix
+  #206 = Utf8               (JZ)J
+  #207 = Utf8               (JC)J
+  #208 = Utf8               (JI)J
+  #209 = Utf8               I
+  #210 = Utf8               (JJ)J
+  #211 = Utf8               (JLjava/lang/String;)J
+  #212 = Utf8               Ljava/lang/String;
+  #213 = Utf8               (J[BZLjava/lang/String;)J
+  #214 = Utf8               indexCoder
+  #215 = Utf8               buf
+  #216 = Utf8               prefix
+  #217 = Utf8               index
+  #218 = Utf8               (J[BCLjava/lang/String;)J
+  #219 = Utf8               (J[BILjava/lang/String;)J
+  #220 = Utf8               (J[BJLjava/lang/String;)J
+  #221 = Utf8               (J[BLjava/lang/String;Ljava/lang/String;)J
+  #222 = Utf8               newString
+  #223 = Utf8               ([BJ)Ljava/lang/String;
+  #224 = Utf8               simpleConcat
+  #225 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/String;
+  #226 = Utf8               first
+  #227 = Utf8               Ljava/lang/Object;
+  #228 = Utf8               second
+  #229 = Utf8               s1
+  #230 = Utf8               s2
+  #231 = Utf8               RuntimeVisibleAnnotations
+  #232 = Utf8               Ljdk/internal/vm/annotation/ForceInline;
+  #233 = Utf8               B
+  #234 = Utf8               newLength
+  #235 = Utf8               newStringOf
+  #236 = Utf8               arg
+  #237 = Utf8               s
+  #238 = Utf8               F
+  #239 = Utf8               D
+  #240 = Utf8               (IC)I
+  #241 = Utf8               (IZ)I
+  #242 = Utf8               (II)I
+  #243 = Utf8               (IJ)I
+  #244 = Utf8               (ILjava/lang/String;)I
+  #245 = Utf8               (Ljava/lang/String;J)[B
+  #246 = Utf8               suffix
+  #247 = Utf8               initialCoder
+  #248 = Utf8               ()J
+  #249 = Utf8               lookupStatic
+  #250 = Utf8               (Ljava/lang/String;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/MethodHandle;
+  #251 = Utf8               e
+  #252 = Utf8               Ljava/lang/ReflectiveOperationException;
+  #253 = Utf8               name
+  #254 = Utf8               methodType
+  #255 = Utf8               Ljava/lang/invoke/MethodType;
+  #256 = Class              #257             // java/lang/ReflectiveOperationException
+  #257 = Utf8               java/lang/ReflectiveOperationException
+  #258 = Utf8               stringCoder
+  #259 = Utf8               (C)B
+  #260 = Utf8               (IB[BZLjava/lang/String;)I
+  #261 = Utf8               (IB[BCLjava/lang/String;)I
+  #262 = Utf8               (IB[BILjava/lang/String;)I
+  #263 = Utf8               (IB[BJLjava/lang/String;)I
+  #264 = Utf8               str
+  #265 = Utf8               len
+  #266 = Utf8               concat
+  #267 = Utf8               (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/String;
+  #268 = Utf8               <clinit>
+  #269 = Utf8               SourceFile
+  #270 = Utf8               StringConcatHelper.java
+  #271 = Utf8               NestMembers
+  #272 = Class              #273             // java/lang/StringConcatHelper$Concat1
+  #273 = Utf8               java/lang/StringConcatHelper$Concat1
+  #274 = Class              #275             // java/lang/StringConcatHelper$StringConcatBase
+  #275 = Utf8               java/lang/StringConcatHelper$StringConcatBase
+  #276 = Utf8               InnerClasses
+  #277 = Utf8               Lookup
+  #278 = Utf8               Concat1
+  #279 = Utf8               StringConcatBase
+{
+  private static final long LATIN1;
+    descriptor: J
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: long 0l
+  
+  private static final long UTF16;
+    descriptor: J
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: long 4294967296l
+  
+  private static final jdk.internal.misc.Unsafe UNSAFE;
+    descriptor: Ljdk/internal/misc/Unsafe;
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+  
+  private java.lang.StringConcatHelper();
+    descriptor: ()V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: invokespecial #3                  // Method java/lang/Object."<init>":()V
+         4: return                  
+      LineNumberTable:
+        line 137: 0
+        line 139: 4
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/lang/StringConcatHelper;
+  
+  static long coder(char);
+    descriptor: (C)J
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: iload_0                 
+         1: invokestatic  #9                  // Method java/lang/StringLatin1.canEncode:(C)Z
+         4: ifeq          11                
+         7: lconst_0                
+         8: goto          14                
+        11: ldc2_w        #17                 // long 4294967296l
+        14: lreturn                 
+      LineNumberTable:
+        line 147: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       15     0  value  C
+      StackMapTable: number_of_entries = 2
+        frame_type = 11 /* same */
+        frame_type = 66 /* same_locals_1_stack_item */
+          stack = [ long ]
+  
+  private static long checkOverflow(long);
+    descriptor: (J)J
+    flags: (0x000a) ACC_PRIVATE, ACC_STATIC
+    Code: 
+      stack=3, locals=2, args_size=1
+         0: lload_0                 
+         1: l2i                     
+         2: iflt          7                 
+         5: lload_0                 
+         6: lreturn                 
+         7: new           #19                 // class java/lang/OutOfMemoryError
+        10: dup                     
+        11: ldc           #21                 // String Overflow: String length out of range
+        13: invokespecial #23                 // Method java/lang/OutOfMemoryError."<init>":(Ljava/lang/String;)V
+        16: athrow                  
+      LineNumberTable:
+        line 158: 0
+        line 159: 5
+        line 161: 7
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       17     0  lengthCoder J
+      StackMapTable: number_of_entries = 1
+        frame_type = 7 /* same */
+  
+  static long mix(long, boolean);
+    descriptor: (JZ)J
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=4, locals=3, args_size=2
+         0: lload_0                 
+         1: iload_2                 
+         2: ifeq          9                 
+         5: iconst_4                
+         6: goto          10                
+         9: iconst_5                
+        10: i2l                     
+        11: ladd                    
+        12: invokestatic  #26                 // Method checkOverflow:(J)J
+        15: lreturn                 
+      LineNumberTable:
+        line 172: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       16     0  lengthCoder J
+           0       16     2  value  Z
+      StackMapTable: number_of_entries = 2
+        frame_type = 73 /* same_locals_1_stack_item */
+          stack = [ long ]
+        frame_type = 255 /* full_frame */
+          offset_delta = 0
+          locals = [long, int]
+          stack = [long, int]
+  
+  static long mix(long, char);
+    descriptor: (JC)J
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=4, locals=3, args_size=2
+         0: lload_0                 
+         1: lconst_1                
+         2: ladd                    
+         3: invokestatic  #26                 // Method checkOverflow:(J)J
+         6: iload_2                 
+         7: invokestatic  #30                 // Method coder:(C)J
+        10: lor                     
+        11: lreturn                 
+      LineNumberTable:
+        line 183: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       12     0  lengthCoder J
+           0       12     2  value  C
+  
+  static long mix(long, int);
+    descriptor: (JI)J
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=4, locals=3, args_size=2
+         0: lload_0                 
+         1: iload_2                 
+         2: invokestatic  #34                 // Method jdk/internal/util/DecimalDigits.stringSize:(I)I
+         5: i2l                     
+         6: ladd                    
+         7: invokestatic  #26                 // Method checkOverflow:(J)J
+        10: lreturn                 
+      LineNumberTable:
+        line 194: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       11     0  lengthCoder J
+           0       11     2  value  I
+  
+  static long mix(long, long);
+    descriptor: (JJ)J
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=4, locals=4, args_size=2
+         0: lload_0                 
+         1: lload_2                 
+         2: invokestatic  #40                 // Method jdk/internal/util/DecimalDigits.stringSize:(J)I
+         5: i2l                     
+         6: ladd                    
+         7: invokestatic  #26                 // Method checkOverflow:(J)J
+        10: lreturn                 
+      LineNumberTable:
+        line 205: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       11     0  lengthCoder J
+           0       11     2  value  J
+  
+  static long mix(long, java.lang.String);
+    descriptor: (JLjava/lang/String;)J
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=4, locals=3, args_size=2
+         0: lload_0                 
+         1: aload_2                 
+         2: invokevirtual #43                 // Method java/lang/String.length:()I
+         5: i2l                     
+         6: ladd                    
+         7: lstore_0                
+         8: aload_2                 
+         9: invokevirtual #47                 // Method java/lang/String.isLatin1:()Z
+        12: ifne          21                
+        15: lload_0                 
+        16: ldc2_w        #17                 // long 4294967296l
+        19: lor                     
+        20: lstore_0                
+        21: lload_0                 
+        22: invokestatic  #26                 // Method checkOverflow:(J)J
+        25: lreturn                 
+      LineNumberTable:
+        line 216: 0
+        line 217: 8
+        line 218: 15
+        line 220: 21
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       26     0  lengthCoder J
+           0       26     2  value  Ljava/lang/String;
+      StackMapTable: number_of_entries = 1
+        frame_type = 21 /* same */
+  
+  static long prepend(long, byte[], boolean, java.lang.String);
+    descriptor: (J[BZLjava/lang/String;)J
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=4, locals=6, args_size=4
+         0: lload_0                 
+         1: l2i                     
+         2: istore        5                 
+         4: lload_0                 
+         5: ldc2_w        #17                 // long 4294967296l
+         8: lcmp                    
+         9: ifge          116               
+        12: iload_3                 
+        13: ifeq          52                
+        16: iinc          5, -4             
+        19: aload_2                 
+        20: iload         5                 
+        22: bipush        116               
+        24: bastore                 
+        25: aload_2                 
+        26: iload         5                 
+        28: iconst_1                
+        29: iadd                    
+        30: bipush        114               
+        32: bastore                 
+        33: aload_2                 
+        34: iload         5                 
+        36: iconst_2                
+        37: iadd                    
+        38: bipush        117               
+        40: bastore                 
+        41: aload_2                 
+        42: iload         5                 
+        44: iconst_3                
+        45: iadd                    
+        46: bipush        101               
+        48: bastore                 
+        49: goto          93                
+        52: iinc          5, -5             
+        55: aload_2                 
+        56: iload         5                 
+        58: bipush        102               
+        60: bastore                 
+        61: aload_2                 
+        62: iload         5                 
+        64: iconst_1                
+        65: iadd                    
+        66: bipush        97                
+        68: bastore                 
+        69: aload_2                 
+        70: iload         5                 
+        72: iconst_2                
+        73: iadd                    
+        74: bipush        108               
+        76: bastore                 
+        77: aload_2                 
+        78: iload         5                 
+        80: iconst_3                
+        81: iadd                    
+        82: bipush        115               
+        84: bastore                 
+        85: aload_2                 
+        86: iload         5                 
+        88: iconst_4                
+        89: iadd                    
+        90: bipush        101               
+        92: bastore                 
+        93: iload         5                 
+        95: aload         4                 
+        97: invokevirtual #43                 // Method java/lang/String.length:()I
+       100: isub                    
+       101: istore        5                 
+       103: aload         4                 
+       105: aload_2                 
+       106: iload         5                 
+       108: iconst_0                
+       109: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+       112: iload         5                 
+       114: i2l                     
+       115: lreturn                 
+       116: iload_3                 
+       117: ifeq          164               
+       120: iinc          5, -4             
+       123: aload_2                 
+       124: iload         5                 
+       126: bipush        116               
+       128: invokestatic  #55                 // Method java/lang/StringUTF16.putChar:([BII)V
+       131: aload_2                 
+       132: iload         5                 
+       134: iconst_1                
+       135: iadd                    
+       136: bipush        114               
+       138: invokestatic  #55                 // Method java/lang/StringUTF16.putChar:([BII)V
+       141: aload_2                 
+       142: iload         5                 
+       144: iconst_2                
+       145: iadd                    
+       146: bipush        117               
+       148: invokestatic  #55                 // Method java/lang/StringUTF16.putChar:([BII)V
+       151: aload_2                 
+       152: iload         5                 
+       154: iconst_3                
+       155: iadd                    
+       156: bipush        101               
+       158: invokestatic  #55                 // Method java/lang/StringUTF16.putChar:([BII)V
+       161: goto          215               
+       164: iinc          5, -5             
+       167: aload_2                 
+       168: iload         5                 
+       170: bipush        102               
+       172: invokestatic  #55                 // Method java/lang/StringUTF16.putChar:([BII)V
+       175: aload_2                 
+       176: iload         5                 
+       178: iconst_1                
+       179: iadd                    
+       180: bipush        97                
+       182: invokestatic  #55                 // Method java/lang/StringUTF16.putChar:([BII)V
+       185: aload_2                 
+       186: iload         5                 
+       188: iconst_2                
+       189: iadd                    
+       190: bipush        108               
+       192: invokestatic  #55                 // Method java/lang/StringUTF16.putChar:([BII)V
+       195: aload_2                 
+       196: iload         5                 
+       198: iconst_3                
+       199: iadd                    
+       200: bipush        115               
+       202: invokestatic  #55                 // Method java/lang/StringUTF16.putChar:([BII)V
+       205: aload_2                 
+       206: iload         5                 
+       208: iconst_4                
+       209: iadd                    
+       210: bipush        101               
+       212: invokestatic  #55                 // Method java/lang/StringUTF16.putChar:([BII)V
+       215: iload         5                 
+       217: aload         4                 
+       219: invokevirtual #43                 // Method java/lang/String.length:()I
+       222: isub                    
+       223: istore        5                 
+       225: aload         4                 
+       227: aload_2                 
+       228: iload         5                 
+       230: iconst_1                
+       231: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+       234: iload         5                 
+       236: i2l                     
+       237: ldc2_w        #17                 // long 4294967296l
+       240: lor                     
+       241: lreturn                 
+      LineNumberTable:
+        line 235: 0
+        line 236: 4
+        line 237: 12
+        line 238: 16
+        line 239: 19
+        line 240: 25
+        line 241: 33
+        line 242: 41
+        line 244: 52
+        line 245: 55
+        line 246: 61
+        line 247: 69
+        line 248: 77
+        line 249: 85
+        line 251: 93
+        line 252: 103
+        line 253: 112
+        line 255: 116
+        line 256: 120
+        line 257: 123
+        line 258: 131
+        line 259: 141
+        line 260: 151
+        line 262: 164
+        line 263: 167
+        line 264: 175
+        line 265: 185
+        line 266: 195
+        line 267: 205
+        line 269: 215
+        line 270: 225
+        line 271: 234
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0      242     0  indexCoder J
+           0      242     2  buf    [B
+           0      242     3  value  Z
+           0      242     4  prefix Ljava/lang/String;
+           4      238     5  index  I
+      StackMapTable: number_of_entries = 5
+        frame_type = 252 /* append */
+          offset_delta = 52
+          locals = [int]
+        frame_type = 40 /* same */
+        frame_type = 22 /* same */
+        frame_type = 47 /* same */
+        frame_type = 50 /* same */
+  
+  static long prepend(long, byte[], char, java.lang.String);
+    descriptor: (J[BCLjava/lang/String;)J
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=4, locals=6, args_size=4
+         0: lload_0                 
+         1: l2i                     
+         2: istore        5                 
+         4: lload_0                 
+         5: ldc2_w        #17                 // long 4294967296l
+         8: lcmp                    
+         9: ifge          48                
+        12: aload_2                 
+        13: iinc          5, -1             
+        16: iload         5                 
+        18: iload_3                 
+        19: sipush        255               
+        22: iand                    
+        23: i2b                     
+        24: bastore                 
+        25: iload         5                 
+        27: aload         4                 
+        29: invokevirtual #43                 // Method java/lang/String.length:()I
+        32: isub                    
+        33: istore        5                 
+        35: aload         4                 
+        37: aload_2                 
+        38: iload         5                 
+        40: iconst_0                
+        41: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        44: iload         5                 
+        46: i2l                     
+        47: lreturn                 
+        48: aload_2                 
+        49: iinc          5, -1             
+        52: iload         5                 
+        54: iload_3                 
+        55: invokestatic  #55                 // Method java/lang/StringUTF16.putChar:([BII)V
+        58: iload         5                 
+        60: aload         4                 
+        62: invokevirtual #43                 // Method java/lang/String.length:()I
+        65: isub                    
+        66: istore        5                 
+        68: aload         4                 
+        70: aload_2                 
+        71: iload         5                 
+        73: iconst_1                
+        74: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        77: iload         5                 
+        79: i2l                     
+        80: ldc2_w        #17                 // long 4294967296l
+        83: lor                     
+        84: lreturn                 
+      LineNumberTable:
+        line 287: 0
+        line 288: 4
+        line 289: 12
+        line 290: 25
+        line 291: 35
+        line 292: 44
+        line 294: 48
+        line 295: 58
+        line 296: 68
+        line 297: 77
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       85     0  indexCoder J
+           0       85     2  buf    [B
+           0       85     3  value  C
+           0       85     4  prefix Ljava/lang/String;
+           4       81     5  index  I
+      StackMapTable: number_of_entries = 1
+        frame_type = 252 /* append */
+          offset_delta = 48
+          locals = [int]
+  
+  static long prepend(long, byte[], int, java.lang.String);
+    descriptor: (J[BILjava/lang/String;)J
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=4, locals=6, args_size=4
+         0: lload_0                 
+         1: l2i                     
+         2: istore        5                 
+         4: lload_0                 
+         5: ldc2_w        #17                 // long 4294967296l
+         8: lcmp                    
+         9: ifge          44                
+        12: iload_3                 
+        13: iload         5                 
+        15: aload_2                 
+        16: invokestatic  #61                 // Method java/lang/StringLatin1.getChars:(II[B)I
+        19: istore        5                 
+        21: iload         5                 
+        23: aload         4                 
+        25: invokevirtual #43                 // Method java/lang/String.length:()I
+        28: isub                    
+        29: istore        5                 
+        31: aload         4                 
+        33: aload_2                 
+        34: iload         5                 
+        36: iconst_0                
+        37: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        40: iload         5                 
+        42: i2l                     
+        43: lreturn                 
+        44: iload_3                 
+        45: iload         5                 
+        47: aload_2                 
+        48: invokestatic  #65                 // Method java/lang/StringUTF16.getChars:(II[B)I
+        51: istore        5                 
+        53: iload         5                 
+        55: aload         4                 
+        57: invokevirtual #43                 // Method java/lang/String.length:()I
+        60: isub                    
+        61: istore        5                 
+        63: aload         4                 
+        65: aload_2                 
+        66: iload         5                 
+        68: iconst_1                
+        69: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        72: iload         5                 
+        74: i2l                     
+        75: ldc2_w        #17                 // long 4294967296l
+        78: lor                     
+        79: lreturn                 
+      LineNumberTable:
+        line 313: 0
+        line 314: 4
+        line 315: 12
+        line 316: 21
+        line 317: 31
+        line 318: 40
+        line 320: 44
+        line 321: 53
+        line 322: 63
+        line 323: 72
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       80     0  indexCoder J
+           0       80     2  buf    [B
+           0       80     3  value  I
+           0       80     4  prefix Ljava/lang/String;
+           4       76     5  index  I
+      StackMapTable: number_of_entries = 1
+        frame_type = 252 /* append */
+          offset_delta = 44
+          locals = [int]
+  
+  static long prepend(long, byte[], long, java.lang.String);
+    descriptor: (J[BJLjava/lang/String;)J
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=4, locals=7, args_size=4
+         0: lload_0                 
+         1: l2i                     
+         2: istore        6                 
+         4: lload_0                 
+         5: ldc2_w        #17                 // long 4294967296l
+         8: lcmp                    
+         9: ifge          44                
+        12: lload_3                 
+        13: iload         6                 
+        15: aload_2                 
+        16: invokestatic  #66                 // Method java/lang/StringLatin1.getChars:(JI[B)I
+        19: istore        6                 
+        21: iload         6                 
+        23: aload         5                 
+        25: invokevirtual #43                 // Method java/lang/String.length:()I
+        28: isub                    
+        29: istore        6                 
+        31: aload         5                 
+        33: aload_2                 
+        34: iload         6                 
+        36: iconst_0                
+        37: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        40: iload         6                 
+        42: i2l                     
+        43: lreturn                 
+        44: lload_3                 
+        45: iload         6                 
+        47: aload_2                 
+        48: invokestatic  #69                 // Method java/lang/StringUTF16.getChars:(JI[B)I
+        51: istore        6                 
+        53: iload         6                 
+        55: aload         5                 
+        57: invokevirtual #43                 // Method java/lang/String.length:()I
+        60: isub                    
+        61: istore        6                 
+        63: aload         5                 
+        65: aload_2                 
+        66: iload         6                 
+        68: iconst_1                
+        69: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        72: iload         6                 
+        74: i2l                     
+        75: ldc2_w        #17                 // long 4294967296l
+        78: lor                     
+        79: lreturn                 
+      LineNumberTable:
+        line 339: 0
+        line 340: 4
+        line 341: 12
+        line 342: 21
+        line 343: 31
+        line 344: 40
+        line 346: 44
+        line 347: 53
+        line 348: 63
+        line 349: 72
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       80     0  indexCoder J
+           0       80     2  buf    [B
+           0       80     3  value  J
+           0       80     5  prefix Ljava/lang/String;
+           4       76     6  index  I
+      StackMapTable: number_of_entries = 1
+        frame_type = 252 /* append */
+          offset_delta = 44
+          locals = [int]
+  
+  static long prepend(long, byte[], java.lang.String, java.lang.String);
+    descriptor: (J[BLjava/lang/String;Ljava/lang/String;)J
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=4, locals=6, args_size=4
+         0: lload_0                 
+         1: l2i                     
+         2: aload_3                 
+         3: invokevirtual #43                 // Method java/lang/String.length:()I
+         6: isub                    
+         7: istore        5                 
+         9: lload_0                 
+        10: ldc2_w        #17                 // long 4294967296l
+        13: lcmp                    
+        14: ifge          48                
+        17: aload_3                 
+        18: aload_2                 
+        19: iload         5                 
+        21: iconst_0                
+        22: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        25: iload         5                 
+        27: aload         4                 
+        29: invokevirtual #43                 // Method java/lang/String.length:()I
+        32: isub                    
+        33: istore        5                 
+        35: aload         4                 
+        37: aload_2                 
+        38: iload         5                 
+        40: iconst_0                
+        41: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        44: iload         5                 
+        46: i2l                     
+        47: lreturn                 
+        48: aload_3                 
+        49: aload_2                 
+        50: iload         5                 
+        52: iconst_1                
+        53: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        56: iload         5                 
+        58: aload         4                 
+        60: invokevirtual #43                 // Method java/lang/String.length:()I
+        63: isub                    
+        64: istore        5                 
+        66: aload         4                 
+        68: aload_2                 
+        69: iload         5                 
+        71: iconst_1                
+        72: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        75: iload         5                 
+        77: i2l                     
+        78: ldc2_w        #17                 // long 4294967296l
+        81: lor                     
+        82: lreturn                 
+      LineNumberTable:
+        line 365: 0
+        line 366: 9
+        line 367: 17
+        line 368: 25
+        line 369: 35
+        line 370: 44
+        line 372: 48
+        line 373: 56
+        line 374: 66
+        line 375: 75
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       83     0  indexCoder J
+           0       83     2  buf    [B
+           0       83     3  value  Ljava/lang/String;
+           0       83     4  prefix Ljava/lang/String;
+           9       74     5  index  I
+      StackMapTable: number_of_entries = 1
+        frame_type = 252 /* append */
+          offset_delta = 48
+          locals = [int]
+  
+  static java.lang.String newString(byte[], long);
+    descriptor: ([BJ)Ljava/lang/String;
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=5, locals=3, args_size=2
+         0: lload_1                 
+         1: lconst_0                
+         2: lcmp                    
+         3: ifne          16                
+         6: new           #1                  // class java/lang/String
+         9: dup                     
+        10: aload_0                 
+        11: iconst_0                
+        12: invokespecial #70                 // Method java/lang/String."<init>":([BB)V
+        15: areturn                 
+        16: lload_1                 
+        17: ldc2_w        #17                 // long 4294967296l
+        20: lcmp                    
+        21: ifne          34                
+        24: new           #1                  // class java/lang/String
+        27: dup                     
+        28: aload_0                 
+        29: iconst_1                
+        30: invokespecial #70                 // Method java/lang/String."<init>":([BB)V
+        33: areturn                 
+        34: new           #73                 // class java/lang/InternalError
+        37: dup                     
+        38: new           #75                 // class java/lang/StringBuilder
+        41: dup                     
+        42: invokespecial #77                 // Method java/lang/StringBuilder."<init>":()V
+        45: ldc           #78                 // String Storage is not completely initialized, 
+        47: invokevirtual #80                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        50: lload_1                 
+        51: l2i                     
+        52: invokevirtual #84                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+        55: ldc           #87                 // String  bytes left
+        57: invokevirtual #80                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        60: invokevirtual #89                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        63: invokespecial #93                 // Method java/lang/InternalError."<init>":(Ljava/lang/String;)V
+        66: athrow                  
+      LineNumberTable:
+        line 387: 0
+        line 388: 6
+        line 389: 16
+        line 390: 24
+        line 392: 34
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       67     0  buf    [B
+           0       67     1  indexCoder J
+      StackMapTable: number_of_entries = 2
+        frame_type = 16 /* same */
+        frame_type = 17 /* same */
+  
+  static java.lang.String simpleConcat(java.lang.Object, java.lang.Object);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/String;
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=3, locals=4, args_size=2
+         0: aload_0                 
+         1: invokestatic  #94                 // Method stringOf:(Ljava/lang/Object;)Ljava/lang/String;
+         4: astore_2                
+         5: aload_1                 
+         6: invokestatic  #94                 // Method stringOf:(Ljava/lang/Object;)Ljava/lang/String;
+         9: astore_3                
+        10: aload_2                 
+        11: invokevirtual #98                 // Method java/lang/String.isEmpty:()Z
+        14: ifeq          26                
+        17: new           #1                  // class java/lang/String
+        20: dup                     
+        21: aload_3                 
+        22: invokespecial #101                // Method java/lang/String."<init>":(Ljava/lang/String;)V
+        25: areturn                 
+        26: aload_3                 
+        27: invokevirtual #98                 // Method java/lang/String.isEmpty:()Z
+        30: ifeq          42                
+        33: new           #1                  // class java/lang/String
+        36: dup                     
+        37: aload_2                 
+        38: invokespecial #101                // Method java/lang/String."<init>":(Ljava/lang/String;)V
+        41: areturn                 
+        42: aload_2                 
+        43: aload_3                 
+        44: invokestatic  #102                // Method doConcat:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+        47: areturn                 
+      LineNumberTable:
+        line 409: 0
+        line 410: 5
+        line 411: 10
+        line 413: 17
+        line 415: 26
+        line 417: 33
+        line 419: 42
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       48     0  first  Ljava/lang/Object;
+           0       48     1  second Ljava/lang/Object;
+           5       43     2  s1     Ljava/lang/String;
+          10       38     3  s2     Ljava/lang/String;
+      StackMapTable: number_of_entries = 2
+        frame_type = 253 /* append */
+          offset_delta = 26
+          locals = [class java/lang/String, class java/lang/String]
+        frame_type = 15 /* same */
+    RuntimeVisibleAnnotations:
+      0: #232()
+        jdk.internal.vm.annotation.ForceInline
+  
+  static java.lang.String doConcat(java.lang.String, java.lang.String);
+    descriptor: (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=4, locals=5, args_size=2
+         0: aload_0                 
+         1: invokevirtual #106                // Method java/lang/String.coder:()B
+         4: aload_1                 
+         5: invokevirtual #106                // Method java/lang/String.coder:()B
+         8: ior                     
+         9: i2b                     
+        10: istore_2                
+        11: aload_0                 
+        12: invokevirtual #43                 // Method java/lang/String.length:()I
+        15: aload_1                 
+        16: invokevirtual #43                 // Method java/lang/String.length:()I
+        19: iadd                    
+        20: iload_2                 
+        21: ishl                    
+        22: istore_3                
+        23: iload_3                 
+        24: invokestatic  #109                // Method newArray:(I)[B
+        27: astore        4                 
+        29: aload_0                 
+        30: aload         4                 
+        32: iconst_0                
+        33: iload_2                 
+        34: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        37: aload_1                 
+        38: aload         4                 
+        40: aload_0                 
+        41: invokevirtual #43                 // Method java/lang/String.length:()I
+        44: iload_2                 
+        45: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        48: new           #1                  // class java/lang/String
+        51: dup                     
+        52: aload         4                 
+        54: iload_2                 
+        55: invokespecial #70                 // Method java/lang/String."<init>":([BB)V
+        58: areturn                 
+      LineNumberTable:
+        line 431: 0
+        line 432: 11
+        line 433: 23
+        line 434: 29
+        line 435: 37
+        line 436: 48
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       59     0  s1     Ljava/lang/String;
+           0       59     1  s2     Ljava/lang/String;
+          11       48     2  coder  B
+          23       36     3  newLength I
+          29       30     4  buf    [B
+    RuntimeVisibleAnnotations:
+      0: #232()
+        jdk.internal.vm.annotation.ForceInline
+  
+  static java.lang.String newStringOf(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Ljava/lang/String;
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=3, locals=1, args_size=1
+         0: new           #1                  // class java/lang/String
+         3: dup                     
+         4: aload_0                 
+         5: invokestatic  #94                 // Method stringOf:(Ljava/lang/Object;)Ljava/lang/String;
+         8: invokespecial #101                // Method java/lang/String."<init>":(Ljava/lang/String;)V
+        11: areturn                 
+      LineNumberTable:
+        line 452: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       12     0  arg    Ljava/lang/Object;
+    RuntimeVisibleAnnotations:
+      0: #232()
+        jdk.internal.vm.annotation.ForceInline
+  
+  static java.lang.String stringOf(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Ljava/lang/String;
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=2, locals=2, args_size=1
+         0: aload_0                 
+         1: ifnull        13                
+         4: aload_0                 
+         5: invokevirtual #113                // Method java/lang/Object.toString:()Ljava/lang/String;
+         8: dup                     
+         9: astore_1                
+        10: ifnonnull     18                
+        13: ldc           #114                // String null
+        15: goto          19                
+        18: aload_1                 
+        19: areturn                 
+      LineNumberTable:
+        line 463: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          10        3     1  s      Ljava/lang/String;
+          18        1     1  s      Ljava/lang/String;
+           0       20     0  value  Ljava/lang/Object;
+      StackMapTable: number_of_entries = 3
+        frame_type = 13 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 4
+          locals = [class java/lang/String]
+        frame_type = 255 /* full_frame */
+          offset_delta = 0
+          locals = [class java/lang/Object]
+          stack = [class java/lang/String]
+  
+  static java.lang.String stringOf(float);
+    descriptor: (F)Ljava/lang/String;
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: fload_0                 
+         1: invokestatic  #116                // Method java/lang/Float.toString:(F)Ljava/lang/String;
+         4: areturn                 
+      LineNumberTable:
+        line 473: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  value  F
+  
+  static java.lang.String stringOf(double);
+    descriptor: (D)Ljava/lang/String;
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=2, locals=2, args_size=1
+         0: dload_0                 
+         1: invokestatic  #121                // Method java/lang/Double.toString:(D)Ljava/lang/String;
+         4: areturn                 
+      LineNumberTable:
+        line 477: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  value  D
+  
+  static int stringSize(int, char);
+    descriptor: (IC)I
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: iload_0                 
+         1: iconst_1                
+         2: iadd                    
+         3: invokestatic  #126                // Method checkOverflow:(I)I
+         6: ireturn                 
+      LineNumberTable:
+        line 487: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        7     0  length I
+           0        7     1  value  C
+  
+  static int stringSize(int, boolean);
+    descriptor: (IZ)I
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: iload_0                 
+         1: iload_1                 
+         2: ifeq          9                 
+         5: iconst_4                
+         6: goto          10                
+         9: iconst_5                
+        10: iadd                    
+        11: invokestatic  #126                // Method checkOverflow:(I)I
+        14: ireturn                 
+      LineNumberTable:
+        line 497: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       15     0  length I
+           0       15     1  value  Z
+      StackMapTable: number_of_entries = 2
+        frame_type = 73 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 255 /* full_frame */
+          offset_delta = 0
+          locals = [int, int]
+          stack = [int, int]
+  
+  static int stringSize(int, int);
+    descriptor: (II)I
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: iload_0                 
+         1: iload_1                 
+         2: invokestatic  #34                 // Method jdk/internal/util/DecimalDigits.stringSize:(I)I
+         5: iadd                    
+         6: invokestatic  #126                // Method checkOverflow:(I)I
+         9: ireturn                 
+      LineNumberTable:
+        line 507: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  length I
+           0       10     1  value  I
+  
+  static int stringSize(int, long);
+    descriptor: (IJ)I
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=3, locals=3, args_size=2
+         0: iload_0                 
+         1: lload_1                 
+         2: invokestatic  #40                 // Method jdk/internal/util/DecimalDigits.stringSize:(J)I
+         5: iadd                    
+         6: invokestatic  #126                // Method checkOverflow:(I)I
+         9: ireturn                 
+      LineNumberTable:
+        line 517: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  length I
+           0       10     1  value  J
+  
+  static int stringSize(int, java.lang.String);
+    descriptor: (ILjava/lang/String;)I
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: iload_0                 
+         1: aload_1                 
+         2: invokevirtual #43                 // Method java/lang/String.length:()I
+         5: iadd                    
+         6: invokestatic  #126                // Method checkOverflow:(I)I
+         9: ireturn                 
+      LineNumberTable:
+        line 527: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  length I
+           0       10     1  value  Ljava/lang/String;
+  
+  static byte[] newArrayWithSuffix(java.lang.String, long);
+    descriptor: (Ljava/lang/String;J)[B
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=4, locals=4, args_size=2
+         0: lload_1                 
+         1: aload_0                 
+         2: invokevirtual #43                 // Method java/lang/String.length:()I
+         5: i2l                     
+         6: ladd                    
+         7: invokestatic  #128                // Method newArray:(J)[B
+        10: astore_3                
+        11: lload_1                 
+        12: ldc2_w        #17                 // long 4294967296l
+        15: lcmp                    
+        16: ifge          30                
+        19: aload_0                 
+        20: aload_3                 
+        21: lload_1                 
+        22: l2i                     
+        23: iconst_0                
+        24: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        27: goto          38                
+        30: aload_0                 
+        31: aload_3                 
+        32: lload_1                 
+        33: l2i                     
+        34: iconst_1                
+        35: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        38: aload_3                 
+        39: areturn                 
+      LineNumberTable:
+        line 543: 0
+        line 544: 11
+        line 545: 19
+        line 547: 30
+        line 549: 38
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       40     0  suffix Ljava/lang/String;
+           0       40     1  indexCoder J
+          11       29     3  buf    [B
+      StackMapTable: number_of_entries = 2
+        frame_type = 252 /* append */
+          offset_delta = 30
+          locals = [class "[B"]
+        frame_type = 7 /* same */
+    RuntimeVisibleAnnotations:
+      0: #232()
+        jdk.internal.vm.annotation.ForceInline
+  
+  static byte[] newArray(long);
+    descriptor: (J)[B
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=3, locals=4, args_size=1
+         0: lload_0                 
+         1: bipush        32                
+         3: lshr                    
+         4: l2i                     
+         5: i2b                     
+         6: istore_2                
+         7: lload_0                 
+         8: l2i                     
+         9: iload_2                 
+        10: ishl                    
+        11: istore_3                
+        12: iload_3                 
+        13: invokestatic  #109                // Method newArray:(I)[B
+        16: areturn                 
+      LineNumberTable:
+        line 560: 0
+        line 561: 7
+        line 562: 12
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       17     0  indexCoder J
+           7       10     2  coder  B
+          12        5     3  index  I
+    RuntimeVisibleAnnotations:
+      0: #232()
+        jdk.internal.vm.annotation.ForceInline
+  
+  static byte[] newArray(int);
+    descriptor: (I)[B
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=3, locals=1, args_size=1
+         0: iload_0                 
+         1: ifge          14                
+         4: new           #19                 // class java/lang/OutOfMemoryError
+         7: dup                     
+         8: ldc           #21                 // String Overflow: String length out of range
+        10: invokespecial #23                 // Method java/lang/OutOfMemoryError."<init>":(Ljava/lang/String;)V
+        13: athrow                  
+        14: getstatic     #131                // Field UNSAFE:Ljdk/internal/misc/Unsafe;
+        17: getstatic     #135                // Field java/lang/Byte.TYPE:Ljava/lang/Class;
+        20: iload_0                 
+        21: invokevirtual #141                // Method jdk/internal/misc/Unsafe.allocateUninitializedArray:(Ljava/lang/Class;I)Ljava/lang/Object;
+        24: checkcast     #147                // class "[B"
+        27: areturn                 
+      LineNumberTable:
+        line 572: 0
+        line 573: 4
+        line 575: 14
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       28     0  length I
+      StackMapTable: number_of_entries = 1
+        frame_type = 14 /* same */
+    RuntimeVisibleAnnotations:
+      0: #232()
+        jdk.internal.vm.annotation.ForceInline
+  
+  static long initialCoder();
+    descriptor: ()J
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=2, locals=0, args_size=0
+         0: getstatic     #149                // Field java/lang/String.COMPACT_STRINGS:Z
+         3: ifeq          10                
+         6: lconst_0                
+         7: goto          13                
+        10: ldc2_w        #17                 // long 4294967296l
+        13: lreturn                 
+      LineNumberTable:
+        line 583: 0
+      StackMapTable: number_of_entries = 2
+        frame_type = 10 /* same */
+        frame_type = 66 /* same_locals_1_stack_item */
+          stack = [ long ]
+  
+  static java.lang.invoke.MethodHandle lookupStatic(java.lang.String, java.lang.invoke.MethodType);
+    descriptor: (Ljava/lang/String;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/MethodHandle;
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=4, locals=3, args_size=2
+         0: invokestatic  #153                // Method java/lang/invoke/MethodHandles.lookup:()Ljava/lang/invoke/MethodHandles$Lookup;
+         3: ldc           #15                 // class java/lang/StringConcatHelper
+         5: aload_0                 
+         6: aload_1                 
+         7: invokevirtual #159                // Method java/lang/invoke/MethodHandles$Lookup.findStatic:(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/MethodHandle;
+        10: areturn                 
+        11: astore_2                
+        12: new           #169                // class java/lang/AssertionError
+        15: dup                     
+        16: aload_2                 
+        17: invokespecial #171                // Method java/lang/AssertionError."<init>":(Ljava/lang/Object;)V
+        20: athrow                  
+      Exception table:
+          from       to target type
+             0       10    11  Class java/lang/NoSuchMethodException
+             0       10    11  Class java/lang/IllegalAccessException
+      LineNumberTable:
+        line 588: 0
+        line 589: 7
+        line 588: 10
+        line 590: 11
+        line 591: 12
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          12        9     2  e      Ljava/lang/ReflectiveOperationException;
+           0       21     0  name   Ljava/lang/String;
+           0       21     1  methodType Ljava/lang/invoke/MethodType;
+      StackMapTable: number_of_entries = 1
+        frame_type = 75 /* same_locals_1_stack_item */
+          stack = [ class java/lang/ReflectiveOperationException ]
+  
+  static byte[] newArrayWithSuffix(java.lang.String, int, byte);
+    descriptor: (Ljava/lang/String;IB)[B
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=4, locals=4, args_size=3
+         0: iload_1                 
+         1: aload_0                 
+         2: invokevirtual #43                 // Method java/lang/String.length:()I
+         5: iadd                    
+         6: iload_2                 
+         7: ishl                    
+         8: invokestatic  #109                // Method newArray:(I)[B
+        11: astore_3                
+        12: iload_2                 
+        13: ifne          26                
+        16: aload_0                 
+        17: aload_3                 
+        18: iload_1                 
+        19: iconst_0                
+        20: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        23: goto          33                
+        26: aload_0                 
+        27: aload_3                 
+        28: iload_1                 
+        29: iconst_1                
+        30: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        33: aload_3                 
+        34: areturn                 
+      LineNumberTable:
+        line 608: 0
+        line 609: 12
+        line 610: 16
+        line 612: 26
+        line 614: 33
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       35     0  suffix Ljava/lang/String;
+           0       35     1  index  I
+           0       35     2  coder  B
+          12       23     3  buf    [B
+      StackMapTable: number_of_entries = 2
+        frame_type = 252 /* append */
+          offset_delta = 26
+          locals = [class "[B"]
+        frame_type = 6 /* same */
+    RuntimeVisibleAnnotations:
+      0: #232()
+        jdk.internal.vm.annotation.ForceInline
+  
+  static byte stringCoder(char);
+    descriptor: (C)B
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: iload_0                 
+         1: invokestatic  #9                  // Method java/lang/StringLatin1.canEncode:(C)Z
+         4: ifeq          11                
+         7: iconst_0                
+         8: goto          12                
+        11: iconst_1                
+        12: ireturn                 
+      LineNumberTable:
+        line 623: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       13     0  value  C
+      StackMapTable: number_of_entries = 2
+        frame_type = 11 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  static int prepend(int, byte, byte[], boolean, java.lang.String);
+    descriptor: (IB[BZLjava/lang/String;)I
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=4, locals=5, args_size=5
+         0: iload_1                 
+         1: ifne          95                
+         4: iload_3                 
+         5: ifeq          40                
+         8: iinc          0, -4             
+        11: aload_2                 
+        12: iload_0                 
+        13: bipush        116               
+        15: bastore                 
+        16: aload_2                 
+        17: iload_0                 
+        18: iconst_1                
+        19: iadd                    
+        20: bipush        114               
+        22: bastore                 
+        23: aload_2                 
+        24: iload_0                 
+        25: iconst_2                
+        26: iadd                    
+        27: bipush        117               
+        29: bastore                 
+        30: aload_2                 
+        31: iload_0                 
+        32: iconst_3                
+        33: iadd                    
+        34: bipush        101               
+        36: bastore                 
+        37: goto          76                
+        40: iinc          0, -5             
+        43: aload_2                 
+        44: iload_0                 
+        45: bipush        102               
+        47: bastore                 
+        48: aload_2                 
+        49: iload_0                 
+        50: iconst_1                
+        51: iadd                    
+        52: bipush        97                
+        54: bastore                 
+        55: aload_2                 
+        56: iload_0                 
+        57: iconst_2                
+        58: iadd                    
+        59: bipush        108               
+        61: bastore                 
+        62: aload_2                 
+        63: iload_0                 
+        64: iconst_3                
+        65: iadd                    
+        66: bipush        115               
+        68: bastore                 
+        69: aload_2                 
+        70: iload_0                 
+        71: iconst_4                
+        72: iadd                    
+        73: bipush        101               
+        75: bastore                 
+        76: iload_0                 
+        77: aload         4                 
+        79: invokevirtual #43                 // Method java/lang/String.length:()I
+        82: isub                    
+        83: istore_0                
+        84: aload         4                 
+        86: aload_2                 
+        87: iload_0                 
+        88: iconst_0                
+        89: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        92: goto          201               
+        95: iload_3                 
+        96: ifeq          139               
+        99: iinc          0, -4             
+       102: aload_2                 
+       103: iload_0                 
+       104: bipush        116               
+       106: invokestatic  #55                 // Method java/lang/StringUTF16.putChar:([BII)V
+       109: aload_2                 
+       110: iload_0                 
+       111: iconst_1                
+       112: iadd                    
+       113: bipush        114               
+       115: invokestatic  #55                 // Method java/lang/StringUTF16.putChar:([BII)V
+       118: aload_2                 
+       119: iload_0                 
+       120: iconst_2                
+       121: iadd                    
+       122: bipush        117               
+       124: invokestatic  #55                 // Method java/lang/StringUTF16.putChar:([BII)V
+       127: aload_2                 
+       128: iload_0                 
+       129: iconst_3                
+       130: iadd                    
+       131: bipush        101               
+       133: invokestatic  #55                 // Method java/lang/StringUTF16.putChar:([BII)V
+       136: goto          185               
+       139: iinc          0, -5             
+       142: aload_2                 
+       143: iload_0                 
+       144: bipush        102               
+       146: invokestatic  #55                 // Method java/lang/StringUTF16.putChar:([BII)V
+       149: aload_2                 
+       150: iload_0                 
+       151: iconst_1                
+       152: iadd                    
+       153: bipush        97                
+       155: invokestatic  #55                 // Method java/lang/StringUTF16.putChar:([BII)V
+       158: aload_2                 
+       159: iload_0                 
+       160: iconst_2                
+       161: iadd                    
+       162: bipush        108               
+       164: invokestatic  #55                 // Method java/lang/StringUTF16.putChar:([BII)V
+       167: aload_2                 
+       168: iload_0                 
+       169: iconst_3                
+       170: iadd                    
+       171: bipush        115               
+       173: invokestatic  #55                 // Method java/lang/StringUTF16.putChar:([BII)V
+       176: aload_2                 
+       177: iload_0                 
+       178: iconst_4                
+       179: iadd                    
+       180: bipush        101               
+       182: invokestatic  #55                 // Method java/lang/StringUTF16.putChar:([BII)V
+       185: iload_0                 
+       186: aload         4                 
+       188: invokevirtual #43                 // Method java/lang/String.length:()I
+       191: isub                    
+       192: istore_0                
+       193: aload         4                 
+       195: aload_2                 
+       196: iload_0                 
+       197: iconst_1                
+       198: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+       201: iload_0                 
+       202: ireturn                 
+      LineNumberTable:
+        line 638: 0
+        line 639: 4
+        line 640: 8
+        line 641: 11
+        line 642: 16
+        line 643: 23
+        line 644: 30
+        line 646: 40
+        line 647: 43
+        line 648: 48
+        line 649: 55
+        line 650: 62
+        line 651: 69
+        line 653: 76
+        line 654: 84
+        line 656: 95
+        line 657: 99
+        line 658: 102
+        line 659: 109
+        line 660: 118
+        line 661: 127
+        line 663: 139
+        line 664: 142
+        line 665: 149
+        line 666: 158
+        line 667: 167
+        line 668: 176
+        line 670: 185
+        line 671: 193
+        line 673: 201
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0      203     0  index  I
+           0      203     1  coder  B
+           0      203     2  buf    [B
+           0      203     3  value  Z
+           0      203     4  prefix Ljava/lang/String;
+      StackMapTable: number_of_entries = 6
+        frame_type = 40 /* same */
+        frame_type = 35 /* same */
+        frame_type = 18 /* same */
+        frame_type = 43 /* same */
+        frame_type = 45 /* same */
+        frame_type = 15 /* same */
+  
+  static int prepend(int, byte, byte[], char, java.lang.String);
+    descriptor: (IB[BCLjava/lang/String;)I
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=4, locals=5, args_size=5
+         0: iload_1                 
+         1: ifne          35                
+         4: aload_2                 
+         5: iinc          0, -1             
+         8: iload_0                 
+         9: iload_3                 
+        10: sipush        255               
+        13: iand                    
+        14: i2b                     
+        15: bastore                 
+        16: iload_0                 
+        17: aload         4                 
+        19: invokevirtual #43                 // Method java/lang/String.length:()I
+        22: isub                    
+        23: istore_0                
+        24: aload         4                 
+        26: aload_2                 
+        27: iload_0                 
+        28: iconst_0                
+        29: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        32: goto          60                
+        35: aload_2                 
+        36: iinc          0, -1             
+        39: iload_0                 
+        40: iload_3                 
+        41: invokestatic  #55                 // Method java/lang/StringUTF16.putChar:([BII)V
+        44: iload_0                 
+        45: aload         4                 
+        47: invokevirtual #43                 // Method java/lang/String.length:()I
+        50: isub                    
+        51: istore_0                
+        52: aload         4                 
+        54: aload_2                 
+        55: iload_0                 
+        56: iconst_1                
+        57: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        60: iload_0                 
+        61: ireturn                 
+      LineNumberTable:
+        line 688: 0
+        line 689: 4
+        line 690: 16
+        line 691: 24
+        line 693: 35
+        line 694: 44
+        line 695: 52
+        line 697: 60
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       62     0  index  I
+           0       62     1  coder  B
+           0       62     2  buf    [B
+           0       62     3  value  C
+           0       62     4  prefix Ljava/lang/String;
+      StackMapTable: number_of_entries = 2
+        frame_type = 35 /* same */
+        frame_type = 24 /* same */
+  
+  static int prepend(int, byte, byte[], int, java.lang.String);
+    descriptor: (IB[BILjava/lang/String;)I
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=4, locals=5, args_size=5
+         0: iload_1                 
+         1: ifne          30                
+         4: iload_3                 
+         5: iload_0                 
+         6: aload_2                 
+         7: invokestatic  #61                 // Method java/lang/StringLatin1.getChars:(II[B)I
+        10: istore_0                
+        11: iload_0                 
+        12: aload         4                 
+        14: invokevirtual #43                 // Method java/lang/String.length:()I
+        17: isub                    
+        18: istore_0                
+        19: aload         4                 
+        21: aload_2                 
+        22: iload_0                 
+        23: iconst_0                
+        24: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        27: goto          53                
+        30: iload_3                 
+        31: iload_0                 
+        32: aload_2                 
+        33: invokestatic  #65                 // Method java/lang/StringUTF16.getChars:(II[B)I
+        36: istore_0                
+        37: iload_0                 
+        38: aload         4                 
+        40: invokevirtual #43                 // Method java/lang/String.length:()I
+        43: isub                    
+        44: istore_0                
+        45: aload         4                 
+        47: aload_2                 
+        48: iload_0                 
+        49: iconst_1                
+        50: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        53: iload_0                 
+        54: ireturn                 
+      LineNumberTable:
+        line 712: 0
+        line 713: 4
+        line 714: 11
+        line 715: 19
+        line 717: 30
+        line 718: 37
+        line 719: 45
+        line 721: 53
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       55     0  index  I
+           0       55     1  coder  B
+           0       55     2  buf    [B
+           0       55     3  value  I
+           0       55     4  prefix Ljava/lang/String;
+      StackMapTable: number_of_entries = 2
+        frame_type = 30 /* same */
+        frame_type = 22 /* same */
+  
+  static int prepend(int, byte, byte[], long, java.lang.String);
+    descriptor: (IB[BJLjava/lang/String;)I
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=4, locals=6, args_size=5
+         0: iload_1                 
+         1: ifne          30                
+         4: lload_3                 
+         5: iload_0                 
+         6: aload_2                 
+         7: invokestatic  #66                 // Method java/lang/StringLatin1.getChars:(JI[B)I
+        10: istore_0                
+        11: iload_0                 
+        12: aload         5                 
+        14: invokevirtual #43                 // Method java/lang/String.length:()I
+        17: isub                    
+        18: istore_0                
+        19: aload         5                 
+        21: aload_2                 
+        22: iload_0                 
+        23: iconst_0                
+        24: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        27: goto          53                
+        30: lload_3                 
+        31: iload_0                 
+        32: aload_2                 
+        33: invokestatic  #69                 // Method java/lang/StringUTF16.getChars:(JI[B)I
+        36: istore_0                
+        37: iload_0                 
+        38: aload         5                 
+        40: invokevirtual #43                 // Method java/lang/String.length:()I
+        43: isub                    
+        44: istore_0                
+        45: aload         5                 
+        47: aload_2                 
+        48: iload_0                 
+        49: iconst_1                
+        50: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        53: iload_0                 
+        54: ireturn                 
+      LineNumberTable:
+        line 736: 0
+        line 737: 4
+        line 738: 11
+        line 739: 19
+        line 741: 30
+        line 742: 37
+        line 743: 45
+        line 745: 53
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       55     0  index  I
+           0       55     1  coder  B
+           0       55     2  buf    [B
+           0       55     3  value  J
+           0       55     5  prefix Ljava/lang/String;
+      StackMapTable: number_of_entries = 2
+        frame_type = 30 /* same */
+        frame_type = 22 /* same */
+  
+  static int prepend(int, byte, byte[], java.lang.String, java.lang.String);
+    descriptor: (IB[BLjava/lang/String;Ljava/lang/String;)I
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=4, locals=5, args_size=5
+         0: iload_0                 
+         1: aload_3                 
+         2: invokevirtual #43                 // Method java/lang/String.length:()I
+         5: isub                    
+         6: istore_0                
+         7: iload_1                 
+         8: ifne          37                
+        11: aload_3                 
+        12: aload_2                 
+        13: iload_0                 
+        14: iconst_0                
+        15: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        18: iload_0                 
+        19: aload         4                 
+        21: invokevirtual #43                 // Method java/lang/String.length:()I
+        24: isub                    
+        25: istore_0                
+        26: aload         4                 
+        28: aload_2                 
+        29: iload_0                 
+        30: iconst_0                
+        31: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        34: goto          60                
+        37: aload_3                 
+        38: aload_2                 
+        39: iload_0                 
+        40: iconst_1                
+        41: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        44: iload_0                 
+        45: aload         4                 
+        47: invokevirtual #43                 // Method java/lang/String.length:()I
+        50: isub                    
+        51: istore_0                
+        52: aload         4                 
+        54: aload_2                 
+        55: iload_0                 
+        56: iconst_1                
+        57: invokevirtual #51                 // Method java/lang/String.getBytes:([BIB)V
+        60: iload_0                 
+        61: ireturn                 
+      LineNumberTable:
+        line 760: 0
+        line 761: 7
+        line 762: 11
+        line 763: 18
+        line 764: 26
+        line 766: 37
+        line 767: 44
+        line 768: 52
+        line 770: 60
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       62     0  index  I
+           0       62     1  coder  B
+           0       62     2  buf    [B
+           0       62     3  value  Ljava/lang/String;
+           0       62     4  prefix Ljava/lang/String;
+      StackMapTable: number_of_entries = 2
+        frame_type = 37 /* same */
+        frame_type = 22 /* same */
+  
+  static int checkOverflow(int);
+    descriptor: (I)I
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=3, locals=1, args_size=1
+         0: iload_0                 
+         1: iflt          6                 
+         4: iload_0                 
+         5: ireturn                 
+         6: new           #19                 // class java/lang/OutOfMemoryError
+         9: dup                     
+        10: ldc           #21                 // String Overflow: String length out of range
+        12: invokespecial #23                 // Method java/lang/OutOfMemoryError."<init>":(Ljava/lang/String;)V
+        15: athrow                  
+      LineNumberTable:
+        line 781: 0
+        line 782: 4
+        line 784: 6
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       16     0  value  I
+      StackMapTable: number_of_entries = 1
+        frame_type = 6 /* same */
+    RuntimeVisibleAnnotations:
+      0: #232()
+        jdk.internal.vm.annotation.ForceInline
+  
+  private static java.lang.String concat0(java.lang.String, java.lang.String, java.lang.String);
+    descriptor: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    flags: (0x000a) ACC_PRIVATE, ACC_STATIC
+    Code: 
+      stack=5, locals=6, args_size=3
+         0: aload_0                 
+         1: invokevirtual #106                // Method java/lang/String.coder:()B
+         4: aload_1                 
+         5: invokevirtual #106                // Method java/lang/String.coder:()B
+         8: ior                     
+         9: aload_2                 
+        10: invokevirtual #106                // Method java/lang/String.coder:()B
+        13: ior                     
+        14: i2b                     
+        15: istore_3                
+        16: aload_0                 
+        17: invokevirtual #43                 // Method java/lang/String.length:()I
+        20: aload_1                 
+        21: invokevirtual #43                 // Method java/lang/String.length:()I
+        24: iadd                    
+        25: istore        4                 
+        27: aload_2                 
+        28: iload         4                 
+        30: iload_3                 
+        31: invokestatic  #174                // Method newArrayWithSuffix:(Ljava/lang/String;IB)[B
+        34: astore        5                 
+        36: iload         4                 
+        38: iload_3                 
+        39: aload         5                 
+        41: aload_1                 
+        42: aload_0                 
+        43: invokestatic  #178                // Method prepend:(IB[BLjava/lang/String;Ljava/lang/String;)I
+        46: pop                     
+        47: new           #1                  // class java/lang/String
+        50: dup                     
+        51: aload         5                 
+        53: iload_3                 
+        54: invokespecial #70                 // Method java/lang/String."<init>":([BB)V
+        57: areturn                 
+      LineNumberTable:
+        line 789: 0
+        line 790: 16
+        line 791: 27
+        line 792: 36
+        line 793: 47
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       58     0  prefix Ljava/lang/String;
+           0       58     1  str    Ljava/lang/String;
+           0       58     2  suffix Ljava/lang/String;
+          16       42     3  coder  B
+          27       31     4  len    I
+          36       22     5  buf    [B
+    RuntimeVisibleAnnotations:
+      0: #232()
+        jdk.internal.vm.annotation.ForceInline
+  
+  static java.lang.String concat(java.lang.String, java.lang.Object, java.lang.String);
+    descriptor: (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/String;
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=3, locals=3, args_size=3
+         0: aload_0                 
+         1: ifnonnull     7                 
+         4: ldc           #114                // String null
+         6: astore_0                
+         7: aload_2                 
+         8: ifnonnull     14                
+        11: ldc           #114                // String null
+        13: astore_2                
+        14: aload_0                 
+        15: aload_1                 
+        16: invokestatic  #94                 // Method stringOf:(Ljava/lang/Object;)Ljava/lang/String;
+        19: aload_2                 
+        20: invokestatic  #182                // Method concat0:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+        23: areturn                 
+      LineNumberTable:
+        line 798: 0
+        line 799: 7
+        line 800: 14
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       24     0  prefix Ljava/lang/String;
+           0       24     1  value  Ljava/lang/Object;
+           0       24     2  suffix Ljava/lang/String;
+      StackMapTable: number_of_entries = 2
+        frame_type = 7 /* same */
+        frame_type = 6 /* same */
+    RuntimeVisibleAnnotations:
+      0: #232()
+        jdk.internal.vm.annotation.ForceInline
+  
+  static {};
+    descriptor: ()V
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=1, locals=0, args_size=0
+         0: invokestatic  #186                // Method jdk/internal/misc/Unsafe.getUnsafe:()Ljdk/internal/misc/Unsafe;
+         3: putstatic     #131                // Field UNSAFE:Ljdk/internal/misc/Unsafe;
+         6: return                  
+      LineNumberTable:
+        line 470: 0
+}
+SourceFile: "StringConcatHelper.java"
+NestMembers:
+  java/lang/StringConcatHelper$Concat1
+  java/lang/StringConcatHelper$StringConcatBase
+InnerClasses:
+  public static final #277= #160 of #154;     // Lookup=class java/lang/invoke/MethodHandles$Lookup of class java/lang/invoke/MethodHandles
+  static final #278= #272 of #15;             // Concat1=class java/lang/StringConcatHelper$Concat1 of class java/lang/StringConcatHelper
+  static abstract #279= #274 of #15;          // StringConcatBase=class java/lang/StringConcatHelper$StringConcatBase of class java/lang/StringConcatHelper

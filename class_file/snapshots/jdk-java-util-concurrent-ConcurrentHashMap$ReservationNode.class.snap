@@ -1,0 +1,92 @@
+---
+source: class_file/src/lib.rs
+expression: display
+---
+final class java.util.concurrent.ConcurrentHashMap$ReservationNode <K extends java.lang.Object, V extends java.lang.Object> extends java.util.concurrent.ConcurrentHashMap$Node<K, V>
+  minor version: 0
+  major version: 68
+  flags: (0x0030) ACC_FINAL, ACC_SUPER
+  this_class: #9                       //java/util/concurrent/ConcurrentHashMap$ReservationNode
+  super_class: #4                      //java/util/concurrent/ConcurrentHashMap$Node
+  interfaces: 0, fields: 0, methods: 2, attributes: 4
+Constant pool:
+   #1 = Class              #2               // java/util/concurrent/ConcurrentHashMap
+   #2 = Utf8               java/util/concurrent/ConcurrentHashMap
+   #3 = Methodref          #4.#5            // java/util/concurrent/ConcurrentHashMap$Node."<init>":(ILjava/lang/Object;Ljava/lang/Object;)V
+   #4 = Class              #6               // java/util/concurrent/ConcurrentHashMap$Node
+   #5 = NameAndType        #7:#8            // "<init>":(ILjava/lang/Object;Ljava/lang/Object;)V
+   #6 = Utf8               java/util/concurrent/ConcurrentHashMap$Node
+   #7 = Utf8               <init>
+   #8 = Utf8               (ILjava/lang/Object;Ljava/lang/Object;)V
+   #9 = Class              #10              // java/util/concurrent/ConcurrentHashMap$ReservationNode
+  #10 = Utf8               java/util/concurrent/ConcurrentHashMap$ReservationNode
+  #11 = Utf8               ()V
+  #12 = Utf8               Code
+  #13 = Utf8               LineNumberTable
+  #14 = Utf8               LocalVariableTable
+  #15 = Utf8               this
+  #16 = Utf8               Ljava/util/concurrent/ConcurrentHashMap$ReservationNode;
+  #17 = Utf8               LocalVariableTypeTable
+  #18 = Utf8               Ljava/util/concurrent/ConcurrentHashMap$ReservationNode<TK;TV;>;
+  #19 = Utf8               find
+  #20 = Utf8               (ILjava/lang/Object;)Ljava/util/concurrent/ConcurrentHashMap$Node;
+  #21 = Utf8               h
+  #22 = Utf8               I
+  #23 = Utf8               k
+  #24 = Utf8               Ljava/lang/Object;
+  #25 = Utf8               Signature
+  #26 = Utf8               (ILjava/lang/Object;)Ljava/util/concurrent/ConcurrentHashMap$Node<TK;TV;>;
+  #27 = Utf8               <K:Ljava/lang/Object;V:Ljava/lang/Object;>Ljava/util/concurrent/ConcurrentHashMap$Node<TK;TV;>;
+  #28 = Utf8               SourceFile
+  #29 = Utf8               ConcurrentHashMap.java
+  #30 = Utf8               NestHost
+  #31 = Utf8               InnerClasses
+  #32 = Utf8               Node
+  #33 = Utf8               ReservationNode
+{
+  java.util.concurrent.ConcurrentHashMap$ReservationNode();
+    descriptor: ()V
+    flags: (0x0000) 
+    Code: 
+      stack=4, locals=1, args_size=1
+         0: aload_0                 
+         1: bipush        -3                
+         3: aconst_null             
+         4: aconst_null             
+         5: invokespecial #3                  // Method java/util/concurrent/ConcurrentHashMap$Node."<init>":(ILjava/lang/Object;Ljava/lang/Object;)V
+         8: return                  
+      LineNumberTable:
+        line 2286: 0
+        line 2287: 8
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  this   Ljava/util/concurrent/ConcurrentHashMap$ReservationNode;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        9     0  this   Ljava/util/concurrent/ConcurrentHashMap$ReservationNode<TK;TV;>;
+  
+  java.util.concurrent.ConcurrentHashMap$Node<K, V> find(int, java.lang.Object);
+    descriptor: (ILjava/lang/Object;)Ljava/util/concurrent/ConcurrentHashMap$Node;
+    flags: (0x0000) 
+    Code: 
+      stack=1, locals=3, args_size=3
+         0: aconst_null             
+         1: areturn                 
+      LineNumberTable:
+        line 2290: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        2     0  this   Ljava/util/concurrent/ConcurrentHashMap$ReservationNode;
+           0        2     1  h      I
+           0        2     2  k      Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        2     0  this   Ljava/util/concurrent/ConcurrentHashMap$ReservationNode<TK;TV;>;
+    Signature: #26                         // (ILjava/lang/Object;)Ljava/util/concurrent/ConcurrentHashMap$Node<TK;TV;>;
+}
+Signature: #27                         // <K:Ljava/lang/Object;V:Ljava/lang/Object;>Ljava/util/concurrent/ConcurrentHashMap$Node<TK;TV;>;
+SourceFile: "ConcurrentHashMap.java"
+NestHost: class java/util/concurrent/ConcurrentHashMap
+InnerClasses:
+  static #32= #4 of #1;                       // Node=class java/util/concurrent/ConcurrentHashMap$Node of class java/util/concurrent/ConcurrentHashMap
+  static final #33= #9 of #1;                 // ReservationNode=class java/util/concurrent/ConcurrentHashMap$ReservationNode of class java/util/concurrent/ConcurrentHashMap

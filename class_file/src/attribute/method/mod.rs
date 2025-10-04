@@ -100,7 +100,7 @@ impl<'a> MethodAttribute {
         this: &u16,
         is_static: bool,
     ) -> std::fmt::Result {
-        use crate::flags::MethodFlags;
+        use crate::flags::MethodParamFlags;
         use common::pretty_try;
         use std::fmt::Write as _;
 
@@ -139,7 +139,7 @@ impl<'a> MethodAttribute {
                             pretty_try!(ind, cp.get_utf8(&param.name_index)).to_string()
                         };
                         write!(ind, "{:<W_NAME$} ", name)?;
-                        MethodFlags::new(param.access_flags).fmt_pretty_everything(ind)?;
+                        MethodParamFlags::new(param.access_flags).fmt_pretty(ind)?;
                         writeln!(ind)?;
                     }
                     Ok(())

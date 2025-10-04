@@ -1,6 +1,6 @@
 package arrays.system_array_copy_primitives;
 
-public class SystemArrayCopyPrimitivesMain {
+public class SystemArrayCopyPrimitives {
     public static void main(String[] args) {
         int[] src = {1, 2, 3, 4, 5};
         int[] dest = new int[5];

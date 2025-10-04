@@ -15,6 +15,10 @@ pub struct InnerClassFlags(u16);
 #[derive(Debug, Clone, Copy)]
 pub struct MethodFlags(u16);
 
+/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.24
+#[derive(Debug, Clone, Copy)]
+pub struct MethodParamFlags(u16);
+
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.5-200-A.1
 /// Table 4.5-A. Field access and property flags
 #[derive(Debug, Clone, Copy)]
@@ -167,6 +171,28 @@ impl MethodFlags {
 
     pub fn is_synthetic(&self) -> bool {
         self.0 & 0x1000 != 0
+    }
+
+    pub fn get_raw(&self) -> &u16 {
+        &self.0
+    }
+}
+
+impl MethodParamFlags {
+    pub fn new(value: u16) -> Self {
+        Self(value)
+    }
+
+    pub fn is_final(&self) -> bool {
+        self.0 & 0x0010 != 0
+    }
+
+    pub fn is_synthetic(&self) -> bool {
+        self.0 & 0x1000 != 0
+    }
+
+    pub fn is_mandated(&self) -> bool {
+        self.0 & 0x8000 != 0
     }
 
     pub fn get_raw(&self) -> &u16 {
@@ -361,51 +387,6 @@ impl MethodFlags {
         Ok(())
     }
 
-    pub fn fmt_pretty_everything(
-        &self,
-        ind: &mut common::utils::indent_write::Indented<'_>,
-    ) -> std::fmt::Result {
-        use std::fmt::Write as _;
-
-        if self.is_public() {
-            write!(ind, "public ")?;
-        } else if self.is_protected() {
-            write!(ind, "protected ")?;
-        } else if self.is_private() {
-            write!(ind, "private ")?;
-        }
-
-        if self.is_static() {
-            write!(ind, "static ")?;
-        }
-        if self.is_final() {
-            write!(ind, "final ")?;
-        }
-        if self.is_synchronized() {
-            write!(ind, "synchronized ")?;
-        }
-        if self.is_bridge() {
-            write!(ind, "bridge ")?;
-        }
-        if self.is_varargs() {
-            write!(ind, "varargs ")?;
-        }
-        if self.is_native() {
-            write!(ind, "native ")?;
-        }
-        if self.is_abstract() {
-            write!(ind, "abstract ")?;
-        }
-        if self.is_strict() {
-            write!(ind, "strictfp ")?;
-        }
-        if self.is_synthetic() {
-            write!(ind, "synthetic ")?;
-        }
-
-        Ok(())
-    }
-
     /// prints javap-like list of flags like "ACC_PUBLIC, ACC_FINAL, ACC_SUPER"
     pub fn fmt_class_javap_like_list(
         &self,
@@ -438,6 +419,28 @@ impl MethodFlags {
                 first = false;
             }
         }
+        Ok(())
+    }
+}
+
+#[cfg(feature = "pretty_print")]
+impl MethodParamFlags {
+    pub fn fmt_pretty(
+        &self,
+        ind: &mut common::utils::indent_write::Indented<'_>,
+    ) -> std::fmt::Result {
+        use std::fmt::Write as _;
+
+        if self.is_final() {
+            write!(ind, "final ")?;
+        }
+        if self.is_synthetic() {
+            write!(ind, "synthetic ")?;
+        }
+        if self.is_mandated() {
+            write!(ind, "mandated ")?;
+        }
+
         Ok(())
     }
 }

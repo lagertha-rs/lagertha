@@ -297,9 +297,9 @@ impl<'a> VerificationTypeInfo {
             VerificationTypeInfo::Null => "null".to_string(),
             VerificationTypeInfo::UninitializedThis => unimplemented!(),
             VerificationTypeInfo::Object(cp_index) => {
-                cp.get_raw(cp_index)?.get_pretty_value(cp, this)?
+                cp.get_raw(cp_index)?.get_pretty_type_and_value(cp, this)?
             }
-            VerificationTypeInfo::Uninitialized(_) => unimplemented!(),
+            VerificationTypeInfo::Uninitialized(idx) => format!("uninitialized {idx}"),
         })
     }
 }

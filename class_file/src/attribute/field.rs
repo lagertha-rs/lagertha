@@ -47,7 +47,7 @@ impl<'a> FieldAttribute {
                 writeln!(
                     ind,
                     "ConstantValue: {}",
-                    pretty_try!(ind, constant.get_pretty_value(cp, &0))
+                    pretty_try!(ind, constant.get_pretty_type_and_value(cp, &0))
                 )?;
             }
         }

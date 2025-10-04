@@ -132,7 +132,7 @@ fn get_instruction_comment(
 ) -> Result<Option<String>, ClassFormatErr> {
     let comment_value = |index: &u16| -> Result<Option<String>, ClassFormatErr> {
         let constant = cp.get_raw(index)?;
-        Ok(Some(constant.get_pretty_value(cp, this)?))
+        Ok(Some(constant.get_pretty_type_and_value(cp, this)?))
     };
     match instruction {
         Instruction::Anewarray(val) => comment_value(val),

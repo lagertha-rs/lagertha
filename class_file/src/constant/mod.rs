@@ -216,8 +216,22 @@ impl<'a> ConstantInfo {
     //TODO: check, don't want to spend too much time here, it is AI generated
     #[cfg(feature = "pretty_print")]
     fn format_double_minimal_javap(x: f64) -> String {
-        if x.is_finite() && x.fract() == 0.0 && x.abs() >= 1e7 {
-            return format!("{:.*E}d", 9, x);
+        let bits = x.to_bits();
+        if bits == 0x0000_0000_0000_0001 {
+            return "4.9E-324d".into();
+        }
+        if bits == 0x8000_0000_0000_0001 {
+            return "-4.9E-324d".into();
+        }
+        if x.is_nan() {
+            return "NaNd".into();
+        }
+        if x.is_infinite() {
+            return if x.is_sign_negative() {
+                "-Infinityd".into()
+            } else {
+                "Infinityd".into()
+            };
         }
         if x == 0.0 {
             return if x.is_sign_negative() {
@@ -226,8 +240,62 @@ impl<'a> ConstantInfo {
                 "0.0d".into()
             };
         }
+
+        let abs = x.abs();
         let mut s = x.to_string();
-        if !s.contains(['.', 'e', 'E']) {
+
+        if s.contains('e') || s.contains('E') {
+            s = s.replace('e', "E");
+            return format!("{s}d");
+        }
+
+        if !(1e-3..1e7).contains(&abs) {
+            let neg = x.is_sign_negative();
+            let s = s.trim_start_matches('-');
+
+            let (int_part, frac_part) = match s.find('.') {
+                Some(p) => (&s[..p], &s[p + 1..]),
+                None => (s, ""),
+            };
+
+            let int_no_lead = int_part.trim_start_matches('0');
+
+            let (digits, exp): (String, i32) = if !int_no_lead.is_empty() {
+                let mut d = String::with_capacity(int_no_lead.len() + frac_part.len());
+                d.push_str(int_no_lead);
+                d.push_str(frac_part);
+                (d, int_no_lead.len() as i32 - 1)
+            } else {
+                let mut k = 0usize;
+                for ch in frac_part.chars() {
+                    if ch == '0' {
+                        k += 1;
+                    } else {
+                        break;
+                    }
+                }
+                let d = frac_part[k..].to_string();
+                (d, -(k as i32 + 1))
+            };
+
+            let mut chars = digits.chars();
+            let first = chars.next().unwrap(); // safe: x != 0
+            let mut rest: String = chars.collect();
+            while rest.ends_with('0') {
+                rest.pop();
+            }
+
+            let mantissa = if rest.is_empty() {
+                format!("{first}.0")
+            } else {
+                format!("{first}.{rest}")
+            };
+
+            let sign = if neg { "-" } else { "" };
+            return format!("{sign}{mantissa}E{exp}d");
+        }
+
+        if !s.contains('.') {
             s.push_str(".0");
         }
         format!("{s}d")
@@ -386,6 +454,18 @@ impl<'a> ConstantInfo {
 
     #[cfg(feature = "pretty_print")]
     pub(crate) fn get_pretty_value(
+        &self,
+        cp: &pool::ConstantPool,
+        this_class_name: &u16,
+    ) -> Result<String, ClassFormatErr> {
+        Ok(match self {
+            ConstantInfo::Integer(i) => format!("{}", i),
+            _ => self.get_pretty_type_and_value(cp, this_class_name)?,
+        })
+    }
+
+    #[cfg(feature = "pretty_print")]
+    pub(crate) fn get_pretty_type_and_value(
         &self,
         cp: &pool::ConstantPool,
         this_class_name: &u16,

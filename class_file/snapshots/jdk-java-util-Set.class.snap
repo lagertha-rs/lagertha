@@ -1,0 +1,870 @@
+---
+source: class_file/src/lib.rs
+expression: display
+---
+public interface java.util.Set <E extends java.lang.Object>  extends java.util.Collection<E>
+  minor version: 0
+  major version: 68
+  flags: (0x0601) ACC_PUBLIC, ACC_INTERFACE, ACC_ABSTRACT
+  this_class: #33                      //java/util/Set
+  super_class: #26                     //java/lang/Object
+  interfaces: 1, fields: 0, methods: 29, attributes: 3
+Constant pool:
+    #1 = Class              #2               // java/util/Spliterator
+    #2 = Utf8               java/util/Spliterator
+    #3 = Methodref          #4.#5            // java/util/Spliterators.spliterator:(Ljava/util/Collection;I)Ljava/util/Spliterator;
+    #4 = Class              #6               // java/util/Spliterators
+    #5 = NameAndType        #7:#8            // spliterator:(Ljava/util/Collection;I)Ljava/util/Spliterator;
+    #6 = Utf8               java/util/Spliterators
+    #7 = Utf8               spliterator
+    #8 = Utf8               (Ljava/util/Collection;I)Ljava/util/Spliterator;
+    #9 = Fieldref           #10.#11          // java/util/ImmutableCollections.EMPTY_SET:Ljava/util/ImmutableCollections$SetN;
+   #10 = Class              #12              // java/util/ImmutableCollections
+   #11 = NameAndType        #13:#14          // EMPTY_SET:Ljava/util/ImmutableCollections$SetN;
+   #12 = Utf8               java/util/ImmutableCollections
+   #13 = Utf8               EMPTY_SET
+   #14 = Utf8               Ljava/util/ImmutableCollections$SetN;
+   #15 = Class              #16              // java/util/ImmutableCollections$Set12
+   #16 = Utf8               java/util/ImmutableCollections$Set12
+   #17 = Methodref          #15.#18          // java/util/ImmutableCollections$Set12."<init>":(Ljava/lang/Object;)V
+   #18 = NameAndType        #19:#20          // "<init>":(Ljava/lang/Object;)V
+   #19 = Utf8               <init>
+   #20 = Utf8               (Ljava/lang/Object;)V
+   #21 = Methodref          #15.#22          // java/util/ImmutableCollections$Set12."<init>":(Ljava/lang/Object;Ljava/lang/Object;)V
+   #22 = NameAndType        #19:#23          // "<init>":(Ljava/lang/Object;Ljava/lang/Object;)V
+   #23 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;)V
+   #24 = Class              #25              // java/util/ImmutableCollections$SetN
+   #25 = Utf8               java/util/ImmutableCollections$SetN
+   #26 = Class              #27              // java/lang/Object
+   #27 = Utf8               java/lang/Object
+   #28 = Methodref          #24.#29          // java/util/ImmutableCollections$SetN."<init>":([Ljava/lang/Object;)V
+   #29 = NameAndType        #19:#30          // "<init>":([Ljava/lang/Object;)V
+   #30 = Utf8               ([Ljava/lang/Object;)V
+   #31 = Class              #32              // java/util/ImmutableCollections$AbstractImmutableSet
+   #32 = Utf8               java/util/ImmutableCollections$AbstractImmutableSet
+   #33 = Class              #34              // java/util/Set
+   #34 = Utf8               java/util/Set
+   #35 = InterfaceMethodref #36.#37          // java/util/Collection.isEmpty:()Z
+   #36 = Class              #38              // java/util/Collection
+   #37 = NameAndType        #39:#40          // isEmpty:()Z
+   #38 = Utf8               java/util/Collection
+   #39 = Utf8               isEmpty
+   #40 = Utf8               ()Z
+   #41 = InterfaceMethodref #33.#42          // java/util/Set.of:()Ljava/util/Set;
+   #42 = NameAndType        #43:#44          // of:()Ljava/util/Set;
+   #43 = Utf8               of
+   #44 = Utf8               ()Ljava/util/Set;
+   #45 = Class              #46              // java/util/HashSet
+   #46 = Utf8               java/util/HashSet
+   #47 = Methodref          #45.#48          // java/util/HashSet."<init>":(Ljava/util/Collection;)V
+   #48 = NameAndType        #19:#49          // "<init>":(Ljava/util/Collection;)V
+   #49 = Utf8               (Ljava/util/Collection;)V
+   #50 = Methodref          #45.#51          // java/util/HashSet.toArray:()[Ljava/lang/Object;
+   #51 = NameAndType        #52:#53          // toArray:()[Ljava/lang/Object;
+   #52 = Utf8               toArray
+   #53 = Utf8               ()[Ljava/lang/Object;
+   #54 = InterfaceMethodref #33.#55          // java/util/Set.of:([Ljava/lang/Object;)Ljava/util/Set;
+   #55 = NameAndType        #43:#56          // of:([Ljava/lang/Object;)Ljava/util/Set;
+   #56 = Utf8               ([Ljava/lang/Object;)Ljava/util/Set;
+   #57 = Utf8               size
+   #58 = Utf8               ()I
+   #59 = Utf8               contains
+   #60 = Utf8               (Ljava/lang/Object;)Z
+   #61 = Utf8               iterator
+   #62 = Utf8               ()Ljava/util/Iterator;
+   #63 = Utf8               Signature
+   #64 = Utf8               ()Ljava/util/Iterator<TE;>;
+   #65 = Utf8               ([Ljava/lang/Object;)[Ljava/lang/Object;
+   #66 = Utf8               <T:Ljava/lang/Object;>([TT;)[TT;
+   #67 = Utf8               add
+   #68 = Utf8               (TE;)Z
+   #69 = Utf8               remove
+   #70 = Utf8               containsAll
+   #71 = Utf8               (Ljava/util/Collection;)Z
+   #72 = Utf8               (Ljava/util/Collection<*>;)Z
+   #73 = Utf8               addAll
+   #74 = Utf8               (Ljava/util/Collection<+TE;>;)Z
+   #75 = Utf8               retainAll
+   #76 = Utf8               removeAll
+   #77 = Utf8               clear
+   #78 = Utf8               ()V
+   #79 = Utf8               equals
+   #80 = Utf8               hashCode
+   #81 = Utf8               ()Ljava/util/Spliterator;
+   #82 = Utf8               Code
+   #83 = Utf8               LineNumberTable
+   #84 = Utf8               LocalVariableTable
+   #85 = Utf8               this
+   #86 = Utf8               Ljava/util/Set;
+   #87 = Utf8               LocalVariableTypeTable
+   #88 = Utf8               Ljava/util/Set<TE;>;
+   #89 = Utf8               ()Ljava/util/Spliterator<TE;>;
+   #90 = Utf8               <E:Ljava/lang/Object;>()Ljava/util/Set<TE;>;
+   #91 = Utf8               (Ljava/lang/Object;)Ljava/util/Set;
+   #92 = Utf8               e1
+   #93 = Utf8               Ljava/lang/Object;
+   #94 = Utf8               TE;
+   #95 = Utf8               <E:Ljava/lang/Object;>(TE;)Ljava/util/Set<TE;>;
+   #96 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;)Ljava/util/Set;
+   #97 = Utf8               e2
+   #98 = Utf8               <E:Ljava/lang/Object;>(TE;TE;)Ljava/util/Set<TE;>;
+   #99 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/util/Set;
+  #100 = Utf8               e3
+  #101 = Utf8               <E:Ljava/lang/Object;>(TE;TE;TE;)Ljava/util/Set<TE;>;
+  #102 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/util/Set;
+  #103 = Utf8               e4
+  #104 = Utf8               <E:Ljava/lang/Object;>(TE;TE;TE;TE;)Ljava/util/Set<TE;>;
+  #105 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/util/Set;
+  #106 = Utf8               e5
+  #107 = Utf8               <E:Ljava/lang/Object;>(TE;TE;TE;TE;TE;)Ljava/util/Set<TE;>;
+  #108 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/util/Set;
+  #109 = Utf8               e6
+  #110 = Utf8               <E:Ljava/lang/Object;>(TE;TE;TE;TE;TE;TE;)Ljava/util/Set<TE;>;
+  #111 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/util/Set;
+  #112 = Utf8               e7
+  #113 = Utf8               <E:Ljava/lang/Object;>(TE;TE;TE;TE;TE;TE;TE;)Ljava/util/Set<TE;>;
+  #114 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/util/Set;
+  #115 = Utf8               e8
+  #116 = Utf8               <E:Ljava/lang/Object;>(TE;TE;TE;TE;TE;TE;TE;TE;)Ljava/util/Set<TE;>;
+  #117 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/util/Set;
+  #118 = Utf8               e9
+  #119 = Utf8               <E:Ljava/lang/Object;>(TE;TE;TE;TE;TE;TE;TE;TE;TE;)Ljava/util/Set<TE;>;
+  #120 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/util/Set;
+  #121 = Utf8               e10
+  #122 = Utf8               <E:Ljava/lang/Object;>(TE;TE;TE;TE;TE;TE;TE;TE;TE;TE;)Ljava/util/Set<TE;>;
+  #123 = Utf8               set
+  #124 = Utf8               elements
+  #125 = Utf8               [Ljava/lang/Object;
+  #126 = Utf8               [TE;
+  #127 = Utf8               StackMapTable
+  #128 = Utf8               <E:Ljava/lang/Object;>([TE;)Ljava/util/Set<TE;>;
+  #129 = Utf8               RuntimeVisibleAnnotations
+  #130 = Utf8               Ljava/lang/SafeVarargs;
+  #131 = Utf8               copyOf
+  #132 = Utf8               (Ljava/util/Collection;)Ljava/util/Set;
+  #133 = Utf8               coll
+  #134 = Utf8               Ljava/util/Collection;
+  #135 = Utf8               Ljava/util/Collection<+TE;>;
+  #136 = Utf8               <E:Ljava/lang/Object;>(Ljava/util/Collection<+TE;>;)Ljava/util/Set<TE;>;
+  #137 = Utf8               <E:Ljava/lang/Object;>Ljava/lang/Object;Ljava/util/Collection<TE;>;
+  #138 = Utf8               SourceFile
+  #139 = Utf8               Set.java
+  #140 = Utf8               InnerClasses
+  #141 = Utf8               SetN
+  #142 = Utf8               Set12
+  #143 = Utf8               AbstractImmutableSet
+{
+  public abstract int size();
+    descriptor: ()I
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+  
+  public abstract boolean isEmpty();
+    descriptor: ()Z
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+  
+  public abstract boolean contains(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Z
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+  
+  public abstract java.util.Iterator<E> iterator();
+    descriptor: ()Ljava/util/Iterator;
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+    Signature: #64                         // ()Ljava/util/Iterator<TE;>;
+  
+  public abstract java.lang.Object[] toArray();
+    descriptor: ()[Ljava/lang/Object;
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+  
+  public abstract <T extends java.lang.Object> T[] toArray(T[]);
+    descriptor: ([Ljava/lang/Object;)[Ljava/lang/Object;
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+    Signature: #66                         // <T:Ljava/lang/Object;>([TT;)[TT;
+  
+  public abstract boolean add(E);
+    descriptor: (Ljava/lang/Object;)Z
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+    Signature: #68                         // (TE;)Z
+  
+  public abstract boolean remove(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Z
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+  
+  public abstract boolean containsAll(java.util.Collection<?>);
+    descriptor: (Ljava/util/Collection;)Z
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+    Signature: #72                         // (Ljava/util/Collection<*>;)Z
+  
+  public abstract boolean addAll(java.util.Collection<? extends E>);
+    descriptor: (Ljava/util/Collection;)Z
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+    Signature: #74                         // (Ljava/util/Collection<+TE;>;)Z
+  
+  public abstract boolean retainAll(java.util.Collection<?>);
+    descriptor: (Ljava/util/Collection;)Z
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+    Signature: #72                         // (Ljava/util/Collection<*>;)Z
+  
+  public abstract boolean removeAll(java.util.Collection<?>);
+    descriptor: (Ljava/util/Collection;)Z
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+    Signature: #72                         // (Ljava/util/Collection<*>;)Z
+  
+  public abstract void clear();
+    descriptor: ()V
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+  
+  public abstract boolean equals(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Z
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+  
+  public abstract int hashCode();
+    descriptor: ()I
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+  
+  public default java.util.Spliterator<E> spliterator();
+    descriptor: ()Ljava/util/Spliterator;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: aload_0                 
+         1: iconst_1                
+         2: invokestatic  #3                  // Method java/util/Spliterators.spliterator:(Ljava/util/Collection;I)Ljava/util/Spliterator;
+         5: areturn                 
+      LineNumberTable:
+        line 441: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        6     0  this   Ljava/util/Set;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        6     0  this   Ljava/util/Set<TE;>;
+    Signature: #89                         // ()Ljava/util/Spliterator<TE;>;
+  
+  public static <E extends java.lang.Object> java.util.Set<E> of();
+    descriptor: ()Ljava/util/Set;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=1, locals=0, args_size=0
+         0: getstatic     #9                  // Field java/util/ImmutableCollections.EMPTY_SET:Ljava/util/ImmutableCollections$SetN;
+         3: areturn                 
+      LineNumberTable:
+        line 455: 0
+    Signature: #90                         // <E:Ljava/lang/Object;>()Ljava/util/Set<TE;>;
+  
+  public static <E extends java.lang.Object> java.util.Set<E> of(E);
+    descriptor: (Ljava/lang/Object;)Ljava/util/Set;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=3, locals=1, args_size=1
+         0: new           #15                 // class java/util/ImmutableCollections$Set12
+         3: dup                     
+         4: aload_0                 
+         5: invokespecial #17                 // Method java/util/ImmutableCollections$Set12."<init>":(Ljava/lang/Object;)V
+         8: areturn                 
+      LineNumberTable:
+        line 470: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  e1     Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        9     0  e1     TE;
+    Signature: #95                         // <E:Ljava/lang/Object;>(TE;)Ljava/util/Set<TE;>;
+  
+  public static <E extends java.lang.Object> java.util.Set<E> of(E, E);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;)Ljava/util/Set;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=4, locals=2, args_size=2
+         0: new           #15                 // class java/util/ImmutableCollections$Set12
+         3: dup                     
+         4: aload_0                 
+         5: aload_1                 
+         6: invokespecial #21                 // Method java/util/ImmutableCollections$Set12."<init>":(Ljava/lang/Object;Ljava/lang/Object;)V
+         9: areturn                 
+      LineNumberTable:
+        line 487: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  e1     Ljava/lang/Object;
+           0       10     1  e2     Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       10     0  e1     TE;
+             0       10     1  e2     TE;
+    Signature: #98                         // <E:Ljava/lang/Object;>(TE;TE;)Ljava/util/Set<TE;>;
+  
+  public static <E extends java.lang.Object> java.util.Set<E> of(E, E, E);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/util/Set;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=6, locals=3, args_size=3
+         0: new           #24                 // class java/util/ImmutableCollections$SetN
+         3: dup                     
+         4: iconst_3                
+         5: anewarray     #26                 // class java/lang/Object
+         8: dup                     
+         9: iconst_0                
+        10: aload_0                 
+        11: aastore                 
+        12: dup                     
+        13: iconst_1                
+        14: aload_1                 
+        15: aastore                 
+        16: dup                     
+        17: iconst_2                
+        18: aload_2                 
+        19: aastore                 
+        20: invokespecial #28                 // Method java/util/ImmutableCollections$SetN."<init>":([Ljava/lang/Object;)V
+        23: areturn                 
+      LineNumberTable:
+        line 505: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       24     0  e1     Ljava/lang/Object;
+           0       24     1  e2     Ljava/lang/Object;
+           0       24     2  e3     Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       24     0  e1     TE;
+             0       24     1  e2     TE;
+             0       24     2  e3     TE;
+    Signature: #101                        // <E:Ljava/lang/Object;>(TE;TE;TE;)Ljava/util/Set<TE;>;
+  
+  public static <E extends java.lang.Object> java.util.Set<E> of(E, E, E, E);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/util/Set;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=6, locals=4, args_size=4
+         0: new           #24                 // class java/util/ImmutableCollections$SetN
+         3: dup                     
+         4: iconst_4                
+         5: anewarray     #26                 // class java/lang/Object
+         8: dup                     
+         9: iconst_0                
+        10: aload_0                 
+        11: aastore                 
+        12: dup                     
+        13: iconst_1                
+        14: aload_1                 
+        15: aastore                 
+        16: dup                     
+        17: iconst_2                
+        18: aload_2                 
+        19: aastore                 
+        20: dup                     
+        21: iconst_3                
+        22: aload_3                 
+        23: aastore                 
+        24: invokespecial #28                 // Method java/util/ImmutableCollections$SetN."<init>":([Ljava/lang/Object;)V
+        27: areturn                 
+      LineNumberTable:
+        line 524: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       28     0  e1     Ljava/lang/Object;
+           0       28     1  e2     Ljava/lang/Object;
+           0       28     2  e3     Ljava/lang/Object;
+           0       28     3  e4     Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       28     0  e1     TE;
+             0       28     1  e2     TE;
+             0       28     2  e3     TE;
+             0       28     3  e4     TE;
+    Signature: #104                        // <E:Ljava/lang/Object;>(TE;TE;TE;TE;)Ljava/util/Set<TE;>;
+  
+  public static <E extends java.lang.Object> java.util.Set<E> of(E, E, E, E, E);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/util/Set;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=6, locals=5, args_size=5
+         0: new           #24                 // class java/util/ImmutableCollections$SetN
+         3: dup                     
+         4: iconst_5                
+         5: anewarray     #26                 // class java/lang/Object
+         8: dup                     
+         9: iconst_0                
+        10: aload_0                 
+        11: aastore                 
+        12: dup                     
+        13: iconst_1                
+        14: aload_1                 
+        15: aastore                 
+        16: dup                     
+        17: iconst_2                
+        18: aload_2                 
+        19: aastore                 
+        20: dup                     
+        21: iconst_3                
+        22: aload_3                 
+        23: aastore                 
+        24: dup                     
+        25: iconst_4                
+        26: aload         4                 
+        28: aastore                 
+        29: invokespecial #28                 // Method java/util/ImmutableCollections$SetN."<init>":([Ljava/lang/Object;)V
+        32: areturn                 
+      LineNumberTable:
+        line 544: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       33     0  e1     Ljava/lang/Object;
+           0       33     1  e2     Ljava/lang/Object;
+           0       33     2  e3     Ljava/lang/Object;
+           0       33     3  e4     Ljava/lang/Object;
+           0       33     4  e5     Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       33     0  e1     TE;
+             0       33     1  e2     TE;
+             0       33     2  e3     TE;
+             0       33     3  e4     TE;
+             0       33     4  e5     TE;
+    Signature: #107                        // <E:Ljava/lang/Object;>(TE;TE;TE;TE;TE;)Ljava/util/Set<TE;>;
+  
+  public static <E extends java.lang.Object> java.util.Set<E> of(E, E, E, E, E, E);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/util/Set;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=6, locals=6, args_size=6
+         0: new           #24                 // class java/util/ImmutableCollections$SetN
+         3: dup                     
+         4: bipush        6                 
+         6: anewarray     #26                 // class java/lang/Object
+         9: dup                     
+        10: iconst_0                
+        11: aload_0                 
+        12: aastore                 
+        13: dup                     
+        14: iconst_1                
+        15: aload_1                 
+        16: aastore                 
+        17: dup                     
+        18: iconst_2                
+        19: aload_2                 
+        20: aastore                 
+        21: dup                     
+        22: iconst_3                
+        23: aload_3                 
+        24: aastore                 
+        25: dup                     
+        26: iconst_4                
+        27: aload         4                 
+        29: aastore                 
+        30: dup                     
+        31: iconst_5                
+        32: aload         5                 
+        34: aastore                 
+        35: invokespecial #28                 // Method java/util/ImmutableCollections$SetN."<init>":([Ljava/lang/Object;)V
+        38: areturn                 
+      LineNumberTable:
+        line 565: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       39     0  e1     Ljava/lang/Object;
+           0       39     1  e2     Ljava/lang/Object;
+           0       39     2  e3     Ljava/lang/Object;
+           0       39     3  e4     Ljava/lang/Object;
+           0       39     4  e5     Ljava/lang/Object;
+           0       39     5  e6     Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       39     0  e1     TE;
+             0       39     1  e2     TE;
+             0       39     2  e3     TE;
+             0       39     3  e4     TE;
+             0       39     4  e5     TE;
+             0       39     5  e6     TE;
+    Signature: #110                        // <E:Ljava/lang/Object;>(TE;TE;TE;TE;TE;TE;)Ljava/util/Set<TE;>;
+  
+  public static <E extends java.lang.Object> java.util.Set<E> of(E, E, E, E, E, E, E);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/util/Set;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=6, locals=7, args_size=7
+         0: new           #24                 // class java/util/ImmutableCollections$SetN
+         3: dup                     
+         4: bipush        7                 
+         6: anewarray     #26                 // class java/lang/Object
+         9: dup                     
+        10: iconst_0                
+        11: aload_0                 
+        12: aastore                 
+        13: dup                     
+        14: iconst_1                
+        15: aload_1                 
+        16: aastore                 
+        17: dup                     
+        18: iconst_2                
+        19: aload_2                 
+        20: aastore                 
+        21: dup                     
+        22: iconst_3                
+        23: aload_3                 
+        24: aastore                 
+        25: dup                     
+        26: iconst_4                
+        27: aload         4                 
+        29: aastore                 
+        30: dup                     
+        31: iconst_5                
+        32: aload         5                 
+        34: aastore                 
+        35: dup                     
+        36: bipush        6                 
+        38: aload         6                 
+        40: aastore                 
+        41: invokespecial #28                 // Method java/util/ImmutableCollections$SetN."<init>":([Ljava/lang/Object;)V
+        44: areturn                 
+      LineNumberTable:
+        line 588: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       45     0  e1     Ljava/lang/Object;
+           0       45     1  e2     Ljava/lang/Object;
+           0       45     2  e3     Ljava/lang/Object;
+           0       45     3  e4     Ljava/lang/Object;
+           0       45     4  e5     Ljava/lang/Object;
+           0       45     5  e6     Ljava/lang/Object;
+           0       45     6  e7     Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       45     0  e1     TE;
+             0       45     1  e2     TE;
+             0       45     2  e3     TE;
+             0       45     3  e4     TE;
+             0       45     4  e5     TE;
+             0       45     5  e6     TE;
+             0       45     6  e7     TE;
+    Signature: #113                        // <E:Ljava/lang/Object;>(TE;TE;TE;TE;TE;TE;TE;)Ljava/util/Set<TE;>;
+  
+  public static <E extends java.lang.Object> java.util.Set<E> of(E, E, E, E, E, E, E, E);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/util/Set;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=6, locals=8, args_size=8
+         0: new           #24                 // class java/util/ImmutableCollections$SetN
+         3: dup                     
+         4: bipush        8                 
+         6: anewarray     #26                 // class java/lang/Object
+         9: dup                     
+        10: iconst_0                
+        11: aload_0                 
+        12: aastore                 
+        13: dup                     
+        14: iconst_1                
+        15: aload_1                 
+        16: aastore                 
+        17: dup                     
+        18: iconst_2                
+        19: aload_2                 
+        20: aastore                 
+        21: dup                     
+        22: iconst_3                
+        23: aload_3                 
+        24: aastore                 
+        25: dup                     
+        26: iconst_4                
+        27: aload         4                 
+        29: aastore                 
+        30: dup                     
+        31: iconst_5                
+        32: aload         5                 
+        34: aastore                 
+        35: dup                     
+        36: bipush        6                 
+        38: aload         6                 
+        40: aastore                 
+        41: dup                     
+        42: bipush        7                 
+        44: aload         7                 
+        46: aastore                 
+        47: invokespecial #28                 // Method java/util/ImmutableCollections$SetN."<init>":([Ljava/lang/Object;)V
+        50: areturn                 
+      LineNumberTable:
+        line 612: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       51     0  e1     Ljava/lang/Object;
+           0       51     1  e2     Ljava/lang/Object;
+           0       51     2  e3     Ljava/lang/Object;
+           0       51     3  e4     Ljava/lang/Object;
+           0       51     4  e5     Ljava/lang/Object;
+           0       51     5  e6     Ljava/lang/Object;
+           0       51     6  e7     Ljava/lang/Object;
+           0       51     7  e8     Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       51     0  e1     TE;
+             0       51     1  e2     TE;
+             0       51     2  e3     TE;
+             0       51     3  e4     TE;
+             0       51     4  e5     TE;
+             0       51     5  e6     TE;
+             0       51     6  e7     TE;
+             0       51     7  e8     TE;
+    Signature: #116                        // <E:Ljava/lang/Object;>(TE;TE;TE;TE;TE;TE;TE;TE;)Ljava/util/Set<TE;>;
+  
+  public static <E extends java.lang.Object> java.util.Set<E> of(E, E, E, E, E, E, E, E, E);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/util/Set;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=6, locals=9, args_size=9
+         0: new           #24                 // class java/util/ImmutableCollections$SetN
+         3: dup                     
+         4: bipush        9                 
+         6: anewarray     #26                 // class java/lang/Object
+         9: dup                     
+        10: iconst_0                
+        11: aload_0                 
+        12: aastore                 
+        13: dup                     
+        14: iconst_1                
+        15: aload_1                 
+        16: aastore                 
+        17: dup                     
+        18: iconst_2                
+        19: aload_2                 
+        20: aastore                 
+        21: dup                     
+        22: iconst_3                
+        23: aload_3                 
+        24: aastore                 
+        25: dup                     
+        26: iconst_4                
+        27: aload         4                 
+        29: aastore                 
+        30: dup                     
+        31: iconst_5                
+        32: aload         5                 
+        34: aastore                 
+        35: dup                     
+        36: bipush        6                 
+        38: aload         6                 
+        40: aastore                 
+        41: dup                     
+        42: bipush        7                 
+        44: aload         7                 
+        46: aastore                 
+        47: dup                     
+        48: bipush        8                 
+        50: aload         8                 
+        52: aastore                 
+        53: invokespecial #28                 // Method java/util/ImmutableCollections$SetN."<init>":([Ljava/lang/Object;)V
+        56: areturn                 
+      LineNumberTable:
+        line 637: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       57     0  e1     Ljava/lang/Object;
+           0       57     1  e2     Ljava/lang/Object;
+           0       57     2  e3     Ljava/lang/Object;
+           0       57     3  e4     Ljava/lang/Object;
+           0       57     4  e5     Ljava/lang/Object;
+           0       57     5  e6     Ljava/lang/Object;
+           0       57     6  e7     Ljava/lang/Object;
+           0       57     7  e8     Ljava/lang/Object;
+           0       57     8  e9     Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       57     0  e1     TE;
+             0       57     1  e2     TE;
+             0       57     2  e3     TE;
+             0       57     3  e4     TE;
+             0       57     4  e5     TE;
+             0       57     5  e6     TE;
+             0       57     6  e7     TE;
+             0       57     7  e8     TE;
+             0       57     8  e9     TE;
+    Signature: #119                        // <E:Ljava/lang/Object;>(TE;TE;TE;TE;TE;TE;TE;TE;TE;)Ljava/util/Set<TE;>;
+  
+  public static <E extends java.lang.Object> java.util.Set<E> of(E, E, E, E, E, E, E, E, E, E);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/util/Set;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=6, locals=10, args_size=10
+         0: new           #24                 // class java/util/ImmutableCollections$SetN
+         3: dup                     
+         4: bipush        10                
+         6: anewarray     #26                 // class java/lang/Object
+         9: dup                     
+        10: iconst_0                
+        11: aload_0                 
+        12: aastore                 
+        13: dup                     
+        14: iconst_1                
+        15: aload_1                 
+        16: aastore                 
+        17: dup                     
+        18: iconst_2                
+        19: aload_2                 
+        20: aastore                 
+        21: dup                     
+        22: iconst_3                
+        23: aload_3                 
+        24: aastore                 
+        25: dup                     
+        26: iconst_4                
+        27: aload         4                 
+        29: aastore                 
+        30: dup                     
+        31: iconst_5                
+        32: aload         5                 
+        34: aastore                 
+        35: dup                     
+        36: bipush        6                 
+        38: aload         6                 
+        40: aastore                 
+        41: dup                     
+        42: bipush        7                 
+        44: aload         7                 
+        46: aastore                 
+        47: dup                     
+        48: bipush        8                 
+        50: aload         8                 
+        52: aastore                 
+        53: dup                     
+        54: bipush        9                 
+        56: aload         9                 
+        58: aastore                 
+        59: invokespecial #28                 // Method java/util/ImmutableCollections$SetN."<init>":([Ljava/lang/Object;)V
+        62: areturn                 
+      LineNumberTable:
+        line 663: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       63     0  e1     Ljava/lang/Object;
+           0       63     1  e2     Ljava/lang/Object;
+           0       63     2  e3     Ljava/lang/Object;
+           0       63     3  e4     Ljava/lang/Object;
+           0       63     4  e5     Ljava/lang/Object;
+           0       63     5  e6     Ljava/lang/Object;
+           0       63     6  e7     Ljava/lang/Object;
+           0       63     7  e8     Ljava/lang/Object;
+           0       63     8  e9     Ljava/lang/Object;
+           0       63     9  e10    Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       63     0  e1     TE;
+             0       63     1  e2     TE;
+             0       63     2  e3     TE;
+             0       63     3  e4     TE;
+             0       63     4  e5     TE;
+             0       63     5  e6     TE;
+             0       63     6  e7     TE;
+             0       63     7  e8     TE;
+             0       63     8  e9     TE;
+             0       63     9  e10    TE;
+    Signature: #122                        // <E:Ljava/lang/Object;>(TE;TE;TE;TE;TE;TE;TE;TE;TE;TE;)Ljava/util/Set<TE;>;
+  
+  public static <E extends java.lang.Object> java.util.Set<E> of(E...);
+    descriptor: ([Ljava/lang/Object;)Ljava/util/Set;
+    flags: (0x0089) ACC_PUBLIC, ACC_STATIC, ACC_VARARGS
+    Code: 
+      stack=5, locals=2, args_size=1
+         0: aload_0                 
+         1: arraylength             
+         2: tableswitch   { // 0 to 2
+                         0: 28
+                         1: 34
+                         2: 45
+                   default: 59
+            }
+        28: getstatic     #9                  // Field java/util/ImmutableCollections.EMPTY_SET:Ljava/util/ImmutableCollections$SetN;
+        31: astore_1                
+        32: aload_1                 
+        33: areturn                 
+        34: new           #15                 // class java/util/ImmutableCollections$Set12
+        37: dup                     
+        38: aload_0                 
+        39: iconst_0                
+        40: aaload                  
+        41: invokespecial #17                 // Method java/util/ImmutableCollections$Set12."<init>":(Ljava/lang/Object;)V
+        44: areturn                 
+        45: new           #15                 // class java/util/ImmutableCollections$Set12
+        48: dup                     
+        49: aload_0                 
+        50: iconst_0                
+        51: aaload                  
+        52: aload_0                 
+        53: iconst_1                
+        54: aaload                  
+        55: invokespecial #21                 // Method java/util/ImmutableCollections$Set12."<init>":(Ljava/lang/Object;Ljava/lang/Object;)V
+        58: areturn                 
+        59: new           #24                 // class java/util/ImmutableCollections$SetN
+        62: dup                     
+        63: aload_0                 
+        64: invokespecial #28                 // Method java/util/ImmutableCollections$SetN."<init>":([Ljava/lang/Object;)V
+        67: areturn                 
+      LineNumberTable:
+        line 696: 0
+        line 699: 28
+        line 700: 32
+        line 702: 34
+        line 704: 45
+        line 706: 59
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          32        2     1  set    Ljava/util/Set;
+           0       68     0  elements [Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            32        2     1  set    Ljava/util/Set<TE;>;
+             0       68     0  elements   [TE;
+      StackMapTable: number_of_entries = 4
+        frame_type = 28 /* same */
+        frame_type = 5 /* same */
+        frame_type = 10 /* same */
+        frame_type = 13 /* same */
+    Signature: #128                        // <E:Ljava/lang/Object;>([TE;)Ljava/util/Set<TE;>;
+    RuntimeVisibleAnnotations:
+      0: #130()
+        java.lang.SafeVarargs
+  
+  public static <E extends java.lang.Object> java.util.Set<E> copyOf(java.util.Collection<? extends E>);
+    descriptor: (Ljava/util/Collection;)Ljava/util/Set;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=3, locals=1, args_size=1
+         0: aload_0                 
+         1: instanceof    #31                 // class java/util/ImmutableCollections$AbstractImmutableSet
+         4: ifeq          12                
+         7: aload_0                 
+         8: checkcast     #33                 // class java/util/Set
+        11: areturn                 
+        12: aload_0                 
+        13: invokeinterface #35, 1              // InterfaceMethod java/util/Collection.isEmpty:()Z
+        18: ifeq          25                
+        21: invokestatic  #41                 // InterfaceMethod of:()Ljava/util/Set;
+        24: areturn                 
+        25: new           #45                 // class java/util/HashSet
+        28: dup                     
+        29: aload_0                 
+        30: invokespecial #47                 // Method java/util/HashSet."<init>":(Ljava/util/Collection;)V
+        33: invokevirtual #50                 // Method java/util/HashSet.toArray:()[Ljava/lang/Object;
+        36: invokestatic  #54                 // InterfaceMethod of:([Ljava/lang/Object;)Ljava/util/Set;
+        39: areturn                 
+      LineNumberTable:
+        line 729: 0
+        line 730: 7
+        line 731: 12
+        line 732: 21
+        line 734: 25
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       40     0  coll   Ljava/util/Collection;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       40     0  coll   Ljava/util/Collection<+TE;>;
+      StackMapTable: number_of_entries = 2
+        frame_type = 12 /* same */
+        frame_type = 12 /* same */
+    Signature: #136                        // <E:Ljava/lang/Object;>(Ljava/util/Collection<+TE;>;)Ljava/util/Set<TE;>;
+}
+Signature: #137                        // <E:Ljava/lang/Object;>Ljava/lang/Object;Ljava/util/Collection<TE;>;
+SourceFile: "Set.java"
+InnerClasses:
+  static final #141= #24 of #10;              // SetN=class java/util/ImmutableCollections$SetN of class java/util/ImmutableCollections
+  static final #142= #15 of #10;              // Set12=class java/util/ImmutableCollections$Set12 of class java/util/ImmutableCollections
+  static abstract #143= #31 of #10;           // AbstractImmutableSet=class java/util/ImmutableCollections$AbstractImmutableSet of class java/util/ImmutableCollections
