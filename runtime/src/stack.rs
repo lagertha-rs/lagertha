@@ -82,15 +82,56 @@ impl FrameStack {
         self.cur_frame_mut().map(|v| &mut v.pc)
     }
 
-    pub fn get_local(&self, index: u8) -> Result<&Value, JvmError> {
+    fn get_local(&self, index: u8) -> Result<&Value, JvmError> {
         self.cur_frame()?.get_local(index)
     }
 
-    pub fn get_local_int(&self, index: u8) -> Result<i32, JvmError> {
-        match self.get_local(index)? {
+    pub fn get_local_long(&self, index: u8) -> Result<&Value, JvmError> {
+        let local = self.get_local(index)?;
+        match local {
+            Value::Long(_) => Ok(local),
+            _ => Err(JvmError::UnexpectedType(
+                "Expected Long in local variable".to_string(),
+            )),
+        }
+    }
+
+    pub fn get_local_int(&self, index: u8) -> Result<&Value, JvmError> {
+        let local = self.get_local(index)?;
+        match local {
+            Value::Integer(_) => Ok(local),
+            _ => Err(JvmError::UnexpectedType(
+                "Expected Integer in local variable".to_string(),
+            )),
+        }
+    }
+
+    pub fn get_local_int_val(&self, index: u8) -> Result<i32, JvmError> {
+        let local = self.get_local(index)?;
+        match local {
             Value::Integer(v) => Ok(*v),
             _ => Err(JvmError::UnexpectedType(
                 "Expected Integer in local variable".to_string(),
+            )),
+        }
+    }
+
+    pub fn get_local_float(&self, index: u8) -> Result<&Value, JvmError> {
+        let local = self.get_local(index)?;
+        match local {
+            Value::Float(_) => Ok(local),
+            _ => Err(JvmError::UnexpectedType(
+                "Expected Float in local variable".to_string(),
+            )),
+        }
+    }
+
+    pub fn get_local_ref(&self, index: u8) -> Result<&Value, JvmError> {
+        let local = self.get_local(index)?;
+        match local {
+            Value::Object(_) | Value::Array(_) => Ok(local),
+            _ => Err(JvmError::UnexpectedType(
+                "Expected Object or Array in local variable".to_string(),
             )),
         }
     }
@@ -109,7 +150,16 @@ impl FrameStack {
         Ok(())
     }
 
-    pub fn pop_int(&mut self) -> Result<i32, JvmError> {
+    pub fn pop_int(&mut self) -> Result<Value, JvmError> {
+        match self.pop_operand()? {
+            Value::Integer(v) => Ok(Value::Integer(v)),
+            _ => Err(JvmError::UnexpectedType(
+                "Expected Integer on operand stack".to_string(),
+            )),
+        }
+    }
+
+    pub fn pop_int_val(&mut self) -> Result<i32, JvmError> {
         match self.pop_operand()? {
             Value::Integer(v) => Ok(v),
             _ => Err(JvmError::UnexpectedType(
@@ -118,7 +168,16 @@ impl FrameStack {
         }
     }
 
-    pub fn pop_long(&mut self) -> Result<i64, JvmError> {
+    pub fn pop_long(&mut self) -> Result<Value, JvmError> {
+        match self.pop_operand()? {
+            Value::Long(v) => Ok(Value::Long(v)),
+            _ => Err(JvmError::UnexpectedType(
+                "Expected Long on operand stack".to_string(),
+            )),
+        }
+    }
+
+    pub fn pop_long_val(&mut self) -> Result<i64, JvmError> {
         match self.pop_operand()? {
             Value::Long(v) => Ok(v),
             _ => Err(JvmError::UnexpectedType(
@@ -127,7 +186,16 @@ impl FrameStack {
         }
     }
 
-    pub fn pop_double(&mut self) -> Result<f64, JvmError> {
+    pub fn pop_double(&mut self) -> Result<Value, JvmError> {
+        match self.pop_operand()? {
+            Value::Double(v) => Ok(Value::Double(v)),
+            _ => Err(JvmError::UnexpectedType(
+                "Expected Double on operand stack".to_string(),
+            )),
+        }
+    }
+
+    pub fn pop_double_val(&mut self) -> Result<f64, JvmError> {
         match self.pop_operand()? {
             Value::Double(v) => Ok(v),
             _ => Err(JvmError::UnexpectedType(
@@ -136,7 +204,16 @@ impl FrameStack {
         }
     }
 
-    pub fn pop_float(&mut self) -> Result<f32, JvmError> {
+    pub fn pop_float(&mut self) -> Result<Value, JvmError> {
+        match self.pop_operand()? {
+            Value::Float(v) => Ok(Value::Float(v)),
+            _ => Err(JvmError::UnexpectedType(
+                "Expected Float on operand stack".to_string(),
+            )),
+        }
+    }
+
+    pub fn pop_float_val(&mut self) -> Result<f32, JvmError> {
         match self.pop_operand()? {
             Value::Float(v) => Ok(v),
             _ => Err(JvmError::UnexpectedType(
@@ -145,7 +222,17 @@ impl FrameStack {
         }
     }
 
-    pub fn pop_nullable_obj_ref(&mut self) -> Result<Option<HeapAddr>, JvmError> {
+    pub fn pop_nullable_obj_ref(&mut self) -> Result<Value, JvmError> {
+        match self.pop_operand()? {
+            Value::Object(v) => Ok(Value::Object(v)),
+            Value::Array(v) => Ok(Value::Array(v)),
+            _ => Err(JvmError::UnexpectedType(
+                "Expected Object on operand stack".to_string(),
+            )),
+        }
+    }
+
+    pub fn pop_nullable_obj_ref_val(&mut self) -> Result<Option<HeapAddr>, JvmError> {
         match self.pop_operand()? {
             Value::Object(v) | Value::Array(v) => Ok(v),
             _ => Err(JvmError::UnexpectedType(
@@ -154,8 +241,8 @@ impl FrameStack {
         }
     }
 
-    pub fn pop_obj_ref(&mut self) -> Result<HeapAddr, JvmError> {
-        self.pop_nullable_obj_ref()?
+    pub fn pop_obj_ref_val(&mut self) -> Result<HeapAddr, JvmError> {
+        self.pop_nullable_obj_ref_val()?
             .ok_or(JvmError::NullPointerException)
     }
 
@@ -191,8 +278,8 @@ impl FrameStack {
         self.cur_frame().map(|v| v.cp.clone())
     }
 
-    pub fn top_operand(&self) -> Result<&Value, JvmError> {
-        self.cur_frame()?.get_top_operand()
+    pub fn peek(&self) -> Result<&Value, JvmError> {
+        self.cur_frame()?.peek()
     }
 }
 
@@ -236,7 +323,7 @@ impl Frame {
             .ok_or(JvmError::LocalVariableNotInitialized(index))
     }
 
-    pub fn get_top_operand(&self) -> Result<&Value, JvmError> {
+    pub fn peek(&self) -> Result<&Value, JvmError> {
         self.operands.last().ok_or(JvmError::OperandStackIsEmpty)
     }
 

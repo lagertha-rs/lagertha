@@ -1,6 +1,6 @@
 use crate::VirtualMachine;
 use crate::error::JvmError;
-use crate::heap::{Heap, HeapObject};
+use crate::heap::Heap;
 use crate::method_area::MethodArea;
 use crate::native::MethodKey;
 use crate::rt::class::class::{Class, InitState};
@@ -105,9 +105,12 @@ impl Interpreter {
     // TODO: replace return book with enum or set special cp values
     fn interpret_instruction(&mut self, instruction: Instruction) -> Result<bool, JvmError> {
         debug!("Executing instruction: {:?}", instruction);
+        let instruction_byte_size = instruction.byte_size();
         if !matches!(
             instruction,
             Instruction::Goto(_)
+                | Instruction::Lookupswitch(_)
+                | Instruction::TableSwitch(_)
                 | Instruction::IfLt(_)
                 | Instruction::IfAcmpEq(_)
                 | Instruction::IfAcmpNe(_)
@@ -129,7 +132,7 @@ impl Interpreter {
         }
         match instruction {
             Instruction::Athrow => {
-                let exception_ref = self.vm.frame_stack.pop_obj_ref()?;
+                let exception_ref = self.vm.frame_stack.pop_obj_ref_val()?;
                 Err(JvmError::JavaExceptionThrown(exception_ref))?
             }
             Instruction::Checkcast(_idx) => {
@@ -138,8 +141,8 @@ impl Interpreter {
                 self.vm.frame_stack.push_operand(object_ref)?;
             }
             Instruction::Dadd => {
-                let v2 = self.vm.frame_stack.pop_double()?;
-                let v1 = self.vm.frame_stack.pop_double()?;
+                let v2 = self.vm.frame_stack.pop_double_val()?;
+                let v1 = self.vm.frame_stack.pop_double_val()?;
                 self.vm.frame_stack.push_operand(Value::Double(v1 + v2))?;
             }
             Instruction::Dconst0 => {
@@ -147,6 +150,12 @@ impl Interpreter {
             }
             Instruction::Dconst1 => {
                 self.vm.frame_stack.push_operand(Value::Double(1.0))?;
+            }
+            Instruction::Lconst0 => {
+                self.vm.frame_stack.push_operand(Value::Long(0))?;
+            }
+            Instruction::Lconst1 => {
+                self.vm.frame_stack.push_operand(Value::Long(1))?;
             }
             Instruction::IconstM1 => {
                 self.vm.frame_stack.push_operand(Value::Integer(-1))?;
@@ -170,39 +179,55 @@ impl Interpreter {
                 self.vm.frame_stack.push_operand(Value::Integer(5))?;
             }
             Instruction::Lstore(n) => {
-                let value = self.vm.frame_stack.pop_operand()?;
+                let value = self.vm.frame_stack.pop_long()?;
                 self.vm.frame_stack.set_local(n as usize, value)?;
             }
             Instruction::Fstore(n) => {
-                let value = self.vm.frame_stack.pop_operand()?;
+                let value = self.vm.frame_stack.pop_float()?;
                 self.vm.frame_stack.set_local(n as usize, value)?;
             }
             Instruction::Istore0 => {
-                let value = self.vm.frame_stack.pop_operand()?;
+                let value = self.vm.frame_stack.pop_int()?;
                 self.vm.frame_stack.set_local(0, value)?;
             }
             Instruction::Istore1 => {
-                let value = self.vm.frame_stack.pop_operand()?;
+                let value = self.vm.frame_stack.pop_int()?;
                 self.vm.frame_stack.set_local(1, value)?;
             }
             Instruction::Istore2 => {
-                let value = self.vm.frame_stack.pop_operand()?;
+                let value = self.vm.frame_stack.pop_int()?;
                 self.vm.frame_stack.set_local(2, value)?;
             }
             Instruction::Istore3 => {
-                let value = self.vm.frame_stack.pop_operand()?;
+                let value = self.vm.frame_stack.pop_int()?;
                 self.vm.frame_stack.set_local(3, value)?;
             }
             Instruction::Istore(idx) => {
-                let value = self.vm.frame_stack.pop_operand()?;
+                let value = self.vm.frame_stack.pop_int()?;
                 self.vm.frame_stack.set_local(idx as usize, value)?;
             }
+            Instruction::Lload0 => {
+                let value = self.vm.frame_stack.get_local_long(0)?;
+                self.vm.frame_stack.push_operand(*value)?;
+            }
+            Instruction::Lload1 => {
+                let value = self.vm.frame_stack.get_local_long(1)?;
+                self.vm.frame_stack.push_operand(*value)?;
+            }
+            Instruction::Lload2 => {
+                let value = self.vm.frame_stack.get_local_long(2)?;
+                self.vm.frame_stack.push_operand(*value)?;
+            }
+            Instruction::Lload3 => {
+                let value = self.vm.frame_stack.get_local_long(3)?;
+                self.vm.frame_stack.push_operand(*value)?;
+            }
             Instruction::Lload(n) => {
-                let value = self.vm.frame_stack.get_local(n)?;
+                let value = self.vm.frame_stack.get_local_long(n)?;
                 self.vm.frame_stack.push_operand(*value)?;
             }
             Instruction::Aaload => {
-                let index = self.vm.frame_stack.pop_int()?;
+                let index = self.vm.frame_stack.pop_int_val()?;
                 let array_addr = self.vm.frame_stack.pop_array_ref()?;
                 let value = *self
                     .heap
@@ -215,8 +240,8 @@ impl Interpreter {
                     panic!("Expected object reference in aaload");
                 }
             }
-            Instruction::Caload => {
-                let index = self.vm.frame_stack.pop_int()?;
+            Instruction::Caload | Instruction::Baload | Instruction::Iaload => {
+                let index = self.vm.frame_stack.pop_int_val()?;
                 let array_addr = self.vm.frame_stack.pop_array_ref()?;
                 let value = *self
                     .heap
@@ -230,51 +255,51 @@ impl Interpreter {
                 }
             }
             Instruction::Fload0 => {
-                let value = self.vm.frame_stack.get_local(0)?;
+                let value = self.vm.frame_stack.get_local_float(0)?;
                 self.vm.frame_stack.push_operand(*value)?;
             }
             Instruction::Fload1 => {
-                let value = self.vm.frame_stack.get_local(1)?;
+                let value = self.vm.frame_stack.get_local_float(1)?;
                 self.vm.frame_stack.push_operand(*value)?;
             }
             Instruction::Fload2 => {
-                let value = self.vm.frame_stack.get_local(2)?;
+                let value = self.vm.frame_stack.get_local_float(2)?;
                 self.vm.frame_stack.push_operand(*value)?;
             }
             Instruction::Fload3 => {
-                let value = self.vm.frame_stack.get_local(3)?;
+                let value = self.vm.frame_stack.get_local_float(3)?;
                 self.vm.frame_stack.push_operand(*value)?;
             }
             Instruction::Fload(n) => {
-                let value = self.vm.frame_stack.get_local(n)?;
+                let value = self.vm.frame_stack.get_local_float(n)?;
                 self.vm.frame_stack.push_operand(*value)?;
             }
             Instruction::Iload0 => {
-                let value = self.vm.frame_stack.get_local(0)?;
+                let value = self.vm.frame_stack.get_local_int(0)?;
                 self.vm.frame_stack.push_operand(*value)?;
             }
             Instruction::Iload1 => {
-                let value = self.vm.frame_stack.get_local(1)?;
+                let value = self.vm.frame_stack.get_local_int(1)?;
                 self.vm.frame_stack.push_operand(*value)?;
             }
             Instruction::Iload2 => {
-                let value = self.vm.frame_stack.get_local(2)?;
+                let value = self.vm.frame_stack.get_local_int(2)?;
                 self.vm.frame_stack.push_operand(*value)?;
             }
             Instruction::Iload3 => {
-                let value = self.vm.frame_stack.get_local(3)?;
+                let value = self.vm.frame_stack.get_local_int(3)?;
                 self.vm.frame_stack.push_operand(*value)?;
             }
             Instruction::Iload(n) => {
-                let value = self.vm.frame_stack.get_local(n)?;
+                let value = self.vm.frame_stack.get_local_int(n)?;
                 self.vm.frame_stack.push_operand(*value)?;
             }
             Instruction::Fconst0 => {
                 self.vm.frame_stack.push_operand(Value::Float(0.0))?;
             }
             Instruction::Lcmp => {
-                let v2 = self.vm.frame_stack.pop_long()?;
-                let v1 = self.vm.frame_stack.pop_long()?;
+                let v2 = self.vm.frame_stack.pop_long_val()?;
+                let v1 = self.vm.frame_stack.pop_long_val()?;
                 let res = match v1.cmp(&v2) {
                     Ordering::Less => -1,
                     Ordering::Equal => 0,
@@ -283,8 +308,8 @@ impl Interpreter {
                 self.vm.frame_stack.push_operand(Value::Integer(res))?;
             }
             Instruction::Fcmpl => {
-                let v2 = self.vm.frame_stack.pop_float()?;
-                let v1 = self.vm.frame_stack.pop_float()?;
+                let v2 = self.vm.frame_stack.pop_float_val()?;
+                let v1 = self.vm.frame_stack.pop_float_val()?;
                 let res = match v1.total_cmp(&v2) {
                     Ordering::Less => -1,
                     Ordering::Equal => 0,
@@ -293,8 +318,8 @@ impl Interpreter {
                 self.vm.frame_stack.push_operand(Value::Integer(res))?;
             }
             Instruction::Fcmpg => {
-                let v2 = self.vm.frame_stack.pop_float()?;
-                let v1 = self.vm.frame_stack.pop_float()?;
+                let v2 = self.vm.frame_stack.pop_float_val()?;
+                let v1 = self.vm.frame_stack.pop_float_val()?;
                 let res = match v1.total_cmp(&v2) {
                     Ordering::Less => -1,
                     Ordering::Equal => 0,
@@ -314,7 +339,7 @@ impl Interpreter {
             }
             Instruction::IfEq(offset) => {
                 let pc = *self.vm.frame_stack.pc()?;
-                let value = self.vm.frame_stack.pop_int()?;
+                let value = self.vm.frame_stack.pop_int_val()?;
                 let new_pc = if value == 0 {
                     Self::branch16(pc, offset)
                 } else {
@@ -324,8 +349,8 @@ impl Interpreter {
             }
             Instruction::IfIcmplt(offset) => {
                 let pc = *self.vm.frame_stack.pc()?;
-                let v2 = self.vm.frame_stack.pop_int()?;
-                let v1 = self.vm.frame_stack.pop_int()?;
+                let v2 = self.vm.frame_stack.pop_int_val()?;
+                let v1 = self.vm.frame_stack.pop_int_val()?;
 
                 let new_pc = if v1 < v2 {
                     Self::branch16(pc, offset)
@@ -336,7 +361,7 @@ impl Interpreter {
             }
             Instruction::IfGt(offset) => {
                 let pc = *self.vm.frame_stack.pc()?;
-                let value = self.vm.frame_stack.pop_int()?;
+                let value = self.vm.frame_stack.pop_int_val()?;
                 let new_pc = if value > 0 {
                     Self::branch16(pc, offset)
                 } else {
@@ -346,7 +371,7 @@ impl Interpreter {
             }
             Instruction::IfLe(offset) => {
                 let pc = *self.vm.frame_stack.pc()?;
-                let value = self.vm.frame_stack.pop_int()?;
+                let value = self.vm.frame_stack.pop_int_val()?;
                 let new_pc = if value <= 0 {
                     Self::branch16(pc, offset)
                 } else {
@@ -356,7 +381,7 @@ impl Interpreter {
             }
             Instruction::IfLt(offset) => {
                 let pc = *self.vm.frame_stack.pc()?;
-                let value = self.vm.frame_stack.pop_int()?;
+                let value = self.vm.frame_stack.pop_int_val()?;
                 let new_pc = if value < 0 {
                     Self::branch16(pc, offset)
                 } else {
@@ -366,7 +391,7 @@ impl Interpreter {
             }
             Instruction::IfGe(offset) => {
                 let pc = *self.vm.frame_stack.pc()?;
-                let value = self.vm.frame_stack.pop_int()?;
+                let value = self.vm.frame_stack.pop_int_val()?;
                 let new_pc = if value >= 0 {
                     Self::branch16(pc, offset)
                 } else {
@@ -398,8 +423,8 @@ impl Interpreter {
             }
             Instruction::IfIcmpne(offset) => {
                 let pc = *self.vm.frame_stack.pc()?;
-                let v2 = self.vm.frame_stack.pop_int()?;
-                let v1 = self.vm.frame_stack.pop_int()?;
+                let v2 = self.vm.frame_stack.pop_int_val()?;
+                let v1 = self.vm.frame_stack.pop_int_val()?;
                 let new_pc = if v1 != v2 {
                     Self::branch16(pc, offset)
                 } else {
@@ -409,8 +434,8 @@ impl Interpreter {
             }
             Instruction::IfIcmpge(offset) => {
                 let pc = *self.vm.frame_stack.pc()?;
-                let v2 = self.vm.frame_stack.pop_int()?;
-                let v1 = self.vm.frame_stack.pop_int()?;
+                let v2 = self.vm.frame_stack.pop_int_val()?;
+                let v1 = self.vm.frame_stack.pop_int_val()?;
                 let new_pc = if v1 >= v2 {
                     Self::branch16(pc, offset)
                 } else {
@@ -420,8 +445,8 @@ impl Interpreter {
             }
             Instruction::IfIcmpgt(offset) => {
                 let pc = *self.vm.frame_stack.pc()?;
-                let v2 = self.vm.frame_stack.pop_int()?;
-                let v1 = self.vm.frame_stack.pop_int()?;
+                let v2 = self.vm.frame_stack.pop_int_val()?;
+                let v1 = self.vm.frame_stack.pop_int_val()?;
                 let new_pc = if v1 > v2 {
                     Self::branch16(pc, offset)
                 } else {
@@ -431,8 +456,8 @@ impl Interpreter {
             }
             Instruction::IfIcmpeq(offset) => {
                 let pc = *self.vm.frame_stack.pc()?;
-                let v2 = self.vm.frame_stack.pop_int()?;
-                let v1 = self.vm.frame_stack.pop_int()?;
+                let v2 = self.vm.frame_stack.pop_int_val()?;
+                let v1 = self.vm.frame_stack.pop_int_val()?;
                 let new_pc = if v1 == v2 {
                     Self::branch16(pc, offset)
                 } else {
@@ -442,8 +467,8 @@ impl Interpreter {
             }
             Instruction::IfIcmple(offset) => {
                 let pc = *self.vm.frame_stack.pc()?;
-                let v2 = self.vm.frame_stack.pop_int()?;
-                let v1 = self.vm.frame_stack.pop_int()?;
+                let v2 = self.vm.frame_stack.pop_int_val()?;
+                let v1 = self.vm.frame_stack.pop_int_val()?;
                 let new_pc = if v1 <= v2 {
                     Self::branch16(pc, offset)
                 } else {
@@ -453,7 +478,7 @@ impl Interpreter {
             }
             Instruction::Ifnonnull(offset) => {
                 let pc = *self.vm.frame_stack.pc()?;
-                let obj = self.vm.frame_stack.pop_nullable_obj_ref()?;
+                let obj = self.vm.frame_stack.pop_nullable_obj_ref_val()?;
                 let new_pc = if obj.is_some() {
                     Self::branch16(pc, offset)
                 } else {
@@ -463,7 +488,7 @@ impl Interpreter {
             }
             Instruction::IfNe(offset) => {
                 let pc = *self.vm.frame_stack.pc()?;
-                let i = self.vm.frame_stack.pop_int()?;
+                let i = self.vm.frame_stack.pop_int_val()?;
                 let new_pc = if i != 0 {
                     Self::branch16(pc, offset)
                 } else {
@@ -472,22 +497,29 @@ impl Interpreter {
                 *self.vm.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::Iushr => {
-                let v2 = self.vm.frame_stack.pop_int()?;
-                let v1 = self.vm.frame_stack.pop_int()?;
+                let v2 = self.vm.frame_stack.pop_int_val()?;
+                let v1 = self.vm.frame_stack.pop_int_val()?;
                 let shift = (v2 & 0x1F) as u32;
                 let result = ((v1 as u32) >> shift) as i32;
                 self.vm.frame_stack.push_operand(Value::Integer(result))?;
             }
+            Instruction::Lshl => {
+                let v2 = self.vm.frame_stack.pop_int_val()?;
+                let v1 = self.vm.frame_stack.pop_long_val()?;
+                let shift = (v2 & 0x3F) as u32;
+                let result = v1.wrapping_shl(shift);
+                self.vm.frame_stack.push_operand(Value::Long(result))?;
+            }
             Instruction::Ishl => {
-                let v2 = self.vm.frame_stack.pop_int()?;
-                let v1 = self.vm.frame_stack.pop_int()?;
+                let v2 = self.vm.frame_stack.pop_int_val()?;
+                let v1 = self.vm.frame_stack.pop_int_val()?;
                 let shift = (v2 & 0x1F) as u32;
                 let result = v1.wrapping_shl(shift);
                 self.vm.frame_stack.push_operand(Value::Integer(result))?;
             }
             Instruction::Ishr => {
-                let v2 = self.vm.frame_stack.pop_int()?;
-                let v1 = self.vm.frame_stack.pop_int()?;
+                let v2 = self.vm.frame_stack.pop_int_val()?;
+                let v1 = self.vm.frame_stack.pop_int_val()?;
                 let shift = (v2 & 0x1F) as u32;
                 let result = v1.wrapping_shr(shift);
                 self.vm.frame_stack.push_operand(Value::Integer(result))?;
@@ -565,7 +597,7 @@ impl Interpreter {
                 let cp = self.vm.frame_stack.cp()?;
                 let class_ref = cp.get_class(&idx)?;
                 let class = self.method_area().get_class(class_ref.name()?)?;
-                let size = self.vm.frame_stack.pop_int()?;
+                let size = self.vm.frame_stack.pop_int_val()?;
                 if size >= 0 {
                     let addr = self.heap.borrow_mut().alloc_array(class, size as usize);
                     self.vm.frame_stack.push_operand(Value::Array(Some(addr)))?;
@@ -574,7 +606,7 @@ impl Interpreter {
                 }
             }
             Instruction::Newarray(array_type) => {
-                let count = self.vm.frame_stack.pop_int()?;
+                let count = self.vm.frame_stack.pop_int_val()?;
                 if count >= 0 {
                     let primitive_type_name = array_type.descriptor();
                     let primitive_class = self.method_area().get_class(primitive_type_name)?;
@@ -598,9 +630,29 @@ impl Interpreter {
                     .push_operand(Value::Object(Some(addr)))?;
             }
             Instruction::Dup => {
-                let value = self.vm.frame_stack.top_operand()?;
+                let value = self.vm.frame_stack.peek()?;
                 self.vm.frame_stack.push_operand(*value)?;
             }
+            Instruction::Dup2 => match self.vm.frame_stack.peek()? {
+                Value::Long(_) => {
+                    let value = self.vm.frame_stack.pop_long()?;
+                    self.vm.frame_stack.push_operand(value)?;
+                    self.vm.frame_stack.push_operand(value)?;
+                }
+                Value::Double(_) => {
+                    let value = self.vm.frame_stack.pop_double()?;
+                    self.vm.frame_stack.push_operand(value)?;
+                    self.vm.frame_stack.push_operand(value)?;
+                }
+                _ => {
+                    let value1 = self.vm.frame_stack.pop_operand()?;
+                    let value2 = self.vm.frame_stack.pop_operand()?;
+                    self.vm.frame_stack.push_operand(value2)?;
+                    self.vm.frame_stack.push_operand(value1)?;
+                    self.vm.frame_stack.push_operand(value2)?;
+                    self.vm.frame_stack.push_operand(value1)?;
+                }
+            },
             Instruction::DupX1 => {
                 let value1 = self.vm.frame_stack.pop_operand()?;
                 let value2 = self.vm.frame_stack.pop_operand()?;
@@ -623,28 +675,28 @@ impl Interpreter {
                 self.run_instance_method_type(method, method_ref)?;
             }
             Instruction::Aload0 => {
-                let value = self.vm.frame_stack.get_local(0)?;
+                let value = self.vm.frame_stack.get_local_ref(0)?;
                 self.vm.frame_stack.push_operand(*value)?
             }
             Instruction::Aload1 => {
-                let value = self.vm.frame_stack.get_local(1)?;
+                let value = self.vm.frame_stack.get_local_ref(1)?;
                 self.vm.frame_stack.push_operand(*value)?
             }
             Instruction::Aload2 => {
-                let value = self.vm.frame_stack.get_local(2)?;
+                let value = self.vm.frame_stack.get_local_ref(2)?;
                 self.vm.frame_stack.push_operand(*value)?
             }
             Instruction::Aload3 => {
-                let value = self.vm.frame_stack.get_local(3)?;
+                let value = self.vm.frame_stack.get_local_ref(3)?;
                 self.vm.frame_stack.push_operand(*value)?
             }
             Instruction::Aload(idx) => {
-                let value = self.vm.frame_stack.get_local(idx)?;
+                let value = self.vm.frame_stack.get_local_ref(idx)?;
                 self.vm.frame_stack.push_operand(*value)?
             }
             Instruction::Bastore => {
-                let value = self.vm.frame_stack.pop_int()?;
-                let index = self.vm.frame_stack.pop_int()?;
+                let value = self.vm.frame_stack.pop_int_val()?;
+                let index = self.vm.frame_stack.pop_int_val()?;
                 let array_addr = self.vm.frame_stack.pop_array_ref()?;
                 self.heap.borrow_mut().write_array_element(
                     array_addr,
@@ -653,8 +705,8 @@ impl Interpreter {
                 )?;
             }
             Instruction::Castore => {
-                let value = self.vm.frame_stack.pop_int()?;
-                let index = self.vm.frame_stack.pop_int()?;
+                let value = self.vm.frame_stack.pop_int_val()?;
+                let index = self.vm.frame_stack.pop_int_val()?;
                 let array_addr = self.vm.frame_stack.pop_array_ref()?;
                 self.heap.borrow_mut().write_array_element(
                     array_addr,
@@ -666,7 +718,7 @@ impl Interpreter {
                 let cp = self.vm.frame_stack.cp()?;
                 let class_ref = cp.get_class(&idx)?;
                 let other_class = self.method_area().get_class(class_ref.name()?)?;
-                let obj_addr = self.vm.frame_stack.pop_obj_ref()?;
+                let obj_addr = self.vm.frame_stack.pop_obj_ref_val()?;
                 let heap = self.heap.borrow();
                 let target_class = heap.get_instance(&obj_addr).class();
                 debug!(
@@ -680,8 +732,8 @@ impl Interpreter {
                     .push_operand(Value::Integer(if result { 1 } else { 0 }))?;
             }
             Instruction::Iastore => {
-                let value = self.vm.frame_stack.pop_int()?;
-                let index = self.vm.frame_stack.pop_int()?;
+                let value = self.vm.frame_stack.pop_int_val()?;
+                let index = self.vm.frame_stack.pop_int_val()?;
                 let array_addr = self.vm.frame_stack.pop_array_ref()?;
                 self.heap.borrow_mut().write_array_element(
                     array_addr,
@@ -690,8 +742,8 @@ impl Interpreter {
                 )?;
             }
             Instruction::Aastore => {
-                let value = self.vm.frame_stack.pop_nullable_obj_ref()?;
-                let index = self.vm.frame_stack.pop_int()?;
+                let value = self.vm.frame_stack.pop_nullable_obj_ref_val()?;
+                let index = self.vm.frame_stack.pop_int_val()?;
                 let array_addr = self.vm.frame_stack.pop_array_ref()?;
                 self.heap.borrow_mut().write_array_element(
                     array_addr,
@@ -700,23 +752,23 @@ impl Interpreter {
                 )?;
             }
             Instruction::Astore0 => {
-                let value = self.vm.frame_stack.pop_operand()?;
+                let value = self.vm.frame_stack.pop_nullable_obj_ref()?;
                 self.vm.frame_stack.set_local(0, value)?;
             }
             Instruction::Astore1 => {
-                let value = self.vm.frame_stack.pop_operand()?;
+                let value = self.vm.frame_stack.pop_nullable_obj_ref()?;
                 self.vm.frame_stack.set_local(1, value)?;
             }
             Instruction::Astore2 => {
-                let value = self.vm.frame_stack.pop_operand()?;
+                let value = self.vm.frame_stack.pop_nullable_obj_ref()?;
                 self.vm.frame_stack.set_local(2, value)?;
             }
             Instruction::Astore3 => {
-                let value = self.vm.frame_stack.pop_operand()?;
+                let value = self.vm.frame_stack.pop_nullable_obj_ref()?;
                 self.vm.frame_stack.set_local(3, value)?;
             }
             Instruction::Astore(idx) => {
-                let value = self.vm.frame_stack.pop_operand()?;
+                let value = self.vm.frame_stack.pop_nullable_obj_ref()?;
                 self.vm.frame_stack.set_local(idx as usize, value)?;
             }
             Instruction::ArrayLength => {
@@ -739,7 +791,7 @@ impl Interpreter {
             Instruction::Getfield(idx) => {
                 let cp = self.vm.frame_stack.cp()?;
                 let field_nat = cp.get_fieldref(&idx)?.name_and_type()?;
-                let object_addr = self.vm.frame_stack.pop_obj_ref()?;
+                let object_addr = self.vm.frame_stack.pop_obj_ref_val()?;
                 let value = *self
                     .heap
                     .borrow_mut()
@@ -747,62 +799,62 @@ impl Interpreter {
                 self.vm.frame_stack.push_operand(value)?;
             }
             Instruction::Iand => {
-                let v2 = self.vm.frame_stack.pop_int()?;
-                let v1 = self.vm.frame_stack.pop_int()?;
+                let v2 = self.vm.frame_stack.pop_int_val()?;
+                let v1 = self.vm.frame_stack.pop_int_val()?;
                 self.vm.frame_stack.push_operand(Value::Integer(v1 & v2))?;
             }
             Instruction::Ior => {
-                let v2 = self.vm.frame_stack.pop_int()?;
-                let v1 = self.vm.frame_stack.pop_int()?;
+                let v2 = self.vm.frame_stack.pop_int_val()?;
+                let v1 = self.vm.frame_stack.pop_int_val()?;
                 self.vm.frame_stack.push_operand(Value::Integer(v1 | v2))?;
             }
             Instruction::Ixor => {
-                let v2 = self.vm.frame_stack.pop_int()?;
-                let v1 = self.vm.frame_stack.pop_int()?;
+                let v2 = self.vm.frame_stack.pop_int_val()?;
+                let v1 = self.vm.frame_stack.pop_int_val()?;
                 self.vm.frame_stack.push_operand(Value::Integer(v1 ^ v2))?;
             }
             Instruction::L2i => {
-                let v = self.vm.frame_stack.pop_long()?;
+                let v = self.vm.frame_stack.pop_long_val()?;
                 self.vm.frame_stack.push_operand(Value::Integer(v as i32))?;
             }
             Instruction::L2f => {
-                let v = self.vm.frame_stack.pop_long()?;
+                let v = self.vm.frame_stack.pop_long_val()?;
                 self.vm.frame_stack.push_operand(Value::Float(v as f32))?;
             }
             Instruction::D2l => {
-                let v = self.vm.frame_stack.pop_double()?;
+                let v = self.vm.frame_stack.pop_double_val()?;
                 self.vm.frame_stack.push_operand(Value::Long(v as i64))?;
             }
             Instruction::F2i => {
-                let v = self.vm.frame_stack.pop_float()?;
+                let v = self.vm.frame_stack.pop_float_val()?;
                 self.vm.frame_stack.push_operand(Value::Integer(v as i32))?;
             }
             Instruction::F2d => {
-                let v = self.vm.frame_stack.pop_float()?;
+                let v = self.vm.frame_stack.pop_float_val()?;
                 self.vm.frame_stack.push_operand(Value::Double(v as f64))?;
             }
             Instruction::I2l => {
-                let v = self.vm.frame_stack.pop_int()?;
+                let v = self.vm.frame_stack.pop_int_val()?;
                 self.vm.frame_stack.push_operand(Value::Long(v as i64))?;
             }
             Instruction::I2f => {
-                let v = self.vm.frame_stack.pop_int()?;
+                let v = self.vm.frame_stack.pop_int_val()?;
                 self.vm.frame_stack.push_operand(Value::Float(v as f32))?;
             }
             Instruction::I2b => {
-                let v = self.vm.frame_stack.pop_int()?;
+                let v = self.vm.frame_stack.pop_int_val()?;
                 self.vm
                     .frame_stack
                     .push_operand(Value::Integer((v as i8) as i32))?;
             }
             Instruction::Fmul => {
-                let v2 = self.vm.frame_stack.pop_float()?;
-                let v1 = self.vm.frame_stack.pop_float()?;
+                let v2 = self.vm.frame_stack.pop_float_val()?;
+                let v1 = self.vm.frame_stack.pop_float_val()?;
                 self.vm.frame_stack.push_operand(Value::Float(v1 * v2))?;
             }
             Instruction::Fdiv => {
-                let v2 = self.vm.frame_stack.pop_float()?;
-                let v1 = self.vm.frame_stack.pop_float()?;
+                let v2 = self.vm.frame_stack.pop_float_val()?;
+                let v1 = self.vm.frame_stack.pop_float_val()?;
                 if v2 == 0.0 {
                     Err(JvmError::ArithmeticException(
                         "Division by zero".to_string(),
@@ -811,18 +863,32 @@ impl Interpreter {
                 self.vm.frame_stack.push_operand(Value::Float(v1 / v2))?;
             }
             Instruction::Iadd => {
-                let v2 = self.vm.frame_stack.pop_int()?;
-                let v1 = self.vm.frame_stack.pop_int()?;
+                let v2 = self.vm.frame_stack.pop_int_val()?;
+                let v1 = self.vm.frame_stack.pop_int_val()?;
                 self.vm.frame_stack.push_operand(Value::Integer(v1 + v2))?;
             }
+            Instruction::Ladd => {
+                let v2 = self.vm.frame_stack.pop_long_val()?;
+                let v1 = self.vm.frame_stack.pop_long_val()?;
+                self.vm
+                    .frame_stack
+                    .push_operand(Value::Long(v1.wrapping_add(v2)))?;
+            }
             Instruction::Isub => {
-                let v2 = self.vm.frame_stack.pop_int()?;
-                let v1 = self.vm.frame_stack.pop_int()?;
+                let v2 = self.vm.frame_stack.pop_int_val()?;
+                let v1 = self.vm.frame_stack.pop_int_val()?;
                 self.vm.frame_stack.push_operand(Value::Integer(v1 - v2))?;
             }
+            Instruction::Imul => {
+                let v2 = self.vm.frame_stack.pop_int_val()?;
+                let v1 = self.vm.frame_stack.pop_int_val()?;
+                self.vm
+                    .frame_stack
+                    .push_operand(Value::Integer(v1.wrapping_mul(v2)))?;
+            }
             Instruction::Idiv => {
-                let v2 = self.vm.frame_stack.pop_int()?;
-                let v1 = self.vm.frame_stack.pop_int()?;
+                let v2 = self.vm.frame_stack.pop_int_val()?;
+                let v1 = self.vm.frame_stack.pop_int_val()?;
                 if v2 == 0 {
                     Err(JvmError::ArithmeticException(
                         "Division by zero".to_string(),
@@ -831,7 +897,7 @@ impl Interpreter {
                 self.vm.frame_stack.push_operand(Value::Integer(v1 / v2))?;
             }
             Instruction::Iinc(index, const_val) => {
-                let value = self.vm.frame_stack.get_local_int(index)?;
+                let value = self.vm.frame_stack.get_local_int_val(index)?;
                 self.vm
                     .frame_stack
                     .set_local(index as usize, Value::Integer(value + (const_val as i32)))?;
@@ -845,21 +911,49 @@ impl Interpreter {
                 let cp = self.vm.frame_stack.cp()?;
                 let field_nat = cp.get_fieldref(&idx)?.name_and_type()?;
                 let value = self.vm.frame_stack.pop_operand()?;
-                let object_addr = self.vm.frame_stack.pop_obj_ref()?;
+                let object_addr = self.vm.frame_stack.pop_obj_ref_val()?;
                 self.heap.borrow_mut().write_instance_field_by_nat(
                     object_addr,
                     field_nat,
                     value,
                 )?;
             }
+            Instruction::Lookupswitch(switch) => {
+                let key = self.vm.frame_stack.pop_int_val()?;
+                let pc = *self.vm.frame_stack.pc()?;
+                let target_offset = match switch.pairs.binary_search_by_key(&key, |p| p.0) {
+                    Ok(i) => switch.pairs[i].1,
+                    Err(_) => switch.default_offset,
+                };
+                let new_pc = Self::branch32(pc, target_offset);
+                *self.vm.frame_stack.pc_mut()? = new_pc;
+            }
+            Instruction::TableSwitch(switch) => {
+                let index = self.vm.frame_stack.pop_int_val()?;
+                let pc = *self.vm.frame_stack.pc()?;
+                let target_offset = if index < switch.low || index > switch.high {
+                    switch.default_offset
+                } else {
+                    let idx = (index - switch.low) as usize;
+                    switch.offsets[idx]
+                };
+                let new_pc = Self::branch32(pc, target_offset);
+                *self.vm.frame_stack.pc_mut()? = new_pc;
+            }
             Instruction::Areturn => {
-                let value = self.vm.frame_stack.pop_operand()?;
+                let value = self.vm.frame_stack.pop_nullable_obj_ref()?;
                 self.pop_frame()?;
                 self.vm.frame_stack.push_operand(value)?;
                 return Ok(true);
             }
-            Instruction::Ireturn | Instruction::Lreturn => {
-                let value = self.vm.frame_stack.pop_operand()?;
+            Instruction::Ireturn => {
+                let value = self.vm.frame_stack.pop_int()?;
+                self.pop_frame()?;
+                self.vm.frame_stack.push_operand(value)?;
+                return Ok(true);
+            }
+            Instruction::Lreturn => {
+                let value = self.vm.frame_stack.pop_long()?;
                 self.pop_frame()?;
                 self.vm.frame_stack.push_operand(value)?;
                 return Ok(true);

@@ -214,6 +214,38 @@ impl NativeRegistry {
             ),
             jdk_internal_misc_unsafe_full_fence,
         );
+        instance.register(
+            MethodKey::new(
+                "jdk/internal/misc/Unsafe".to_string(),
+                "compareAndSetInt".to_string(),
+                "(Ljava/lang/Object;JII)Z".to_string(),
+            ),
+            jdk_internal_misc_unsafe_compare_and_set_int,
+        );
+        instance.register(
+            MethodKey::new(
+                "jdk/internal/misc/Unsafe".to_string(),
+                "getReferenceVolatile".to_string(),
+                "(Ljava/lang/Object;J)Ljava/lang/Object;".to_string(),
+            ),
+            jdk_internal_misc_unsafe_get_reference_volatile,
+        );
+        instance.register(
+            MethodKey::new(
+                "jdk/internal/misc/Unsafe".to_string(),
+                "compareAndSetReference".to_string(),
+                "(Ljava/lang/Object;JLjava/lang/Object;Ljava/lang/Object;)Z".to_string(),
+            ),
+            jdk_internal_misc_unsafe_compare_and_set_reference,
+        );
+        instance.register(
+            MethodKey::new(
+                "jdk/internal/misc/Unsafe".to_string(),
+                "compareAndSetLong".to_string(),
+                "(Ljava/lang/Object;JJJ)Z".to_string(),
+            ),
+            jdk_internal_misc_unsafe_compare_and_set_long,
+        );
         instance
     }
 
@@ -493,20 +525,100 @@ fn jdk_internal_misc_unsafe_array_base_offset_0(
     Value::Integer(0)
 }
 
-fn jdk_internal_misc_unsafe_object_field_offset_1(
+fn jdk_internal_misc_unsafe_compare_and_set_int(vm: &mut VirtualMachine, args: &[Value]) -> Value {
+    debug!("TODO: Stub: jdk.internal.misc.Unsafe.compareAndSetInt");
+    let object = match &args[1] {
+        Value::Object(Some(h)) => h,
+        _ => panic!("jdk.internal.misc.Unsafe.compareAndSetLong: expected object"),
+    };
+    let offset = match args[2] {
+        Value::Long(l) if l >= 0 => l as usize,
+        _ => panic!("jdk.internal.misc.Unsafe.compareAndSetLong: expected non-negative offset"),
+    };
+    let expected = match args[3] {
+        Value::Integer(l) => l,
+        _ => panic!("jdk.internal.misc.Unsafe.compareAndSetLong: expected long expected value"),
+    };
+    let new_value = match args[4] {
+        Value::Integer(l) => l,
+        _ => panic!("jdk.internal.misc.Unsafe.compareAndSetLong: expected long new value"),
+    };
+    let mut heap = vm.heap.borrow_mut();
+    let instance = heap.get_instance_mut(object);
+    let field = instance.get_field(offset);
+    if let Value::Integer(current_value) = field {
+        if *current_value == expected {
+            *field = Value::Integer(new_value);
+            Value::Integer(1)
+        } else {
+            Value::Integer(0)
+        }
+    } else {
+        panic!("jdk.internal.misc.Unsafe.compareAndSetLong: field at offset is not long");
+    }
+}
+
+fn jdk_internal_misc_unsafe_compare_and_set_long(vm: &mut VirtualMachine, args: &[Value]) -> Value {
+    debug!("TODO: Stub: jdk.internal.misc.Unsafe.compareAndSetLong");
+    let object = match &args[1] {
+        Value::Object(Some(h)) => h,
+        _ => panic!("jdk.internal.misc.Unsafe.compareAndSetLong: expected object"),
+    };
+    let offset = match args[2] {
+        Value::Long(l) if l >= 0 => l as usize,
+        _ => panic!("jdk.internal.misc.Unsafe.compareAndSetLong: expected non-negative offset"),
+    };
+    let expected = match args[3] {
+        Value::Long(l) => l,
+        _ => panic!("jdk.internal.misc.Unsafe.compareAndSetLong: expected long expected value"),
+    };
+    let new_value = match args[4] {
+        Value::Long(l) => l,
+        _ => panic!("jdk.internal.misc.Unsafe.compareAndSetLong: expected long new value"),
+    };
+    let mut heap = vm.heap.borrow_mut();
+    let instance = heap.get_instance_mut(object);
+    let field = instance.get_field(offset);
+    if let Value::Long(current_value) = field {
+        if *current_value == expected {
+            *field = Value::Long(new_value);
+            Value::Integer(1)
+        } else {
+            Value::Integer(0)
+        }
+    } else {
+        panic!("jdk.internal.misc.Unsafe.compareAndSetLong: field at offset is not long");
+    }
+}
+
+fn jdk_internal_misc_unsafe_get_reference_volatile(
     _vm: &mut VirtualMachine,
+    _args: &[Value],
+) -> Value {
+    debug!("TODO: Stub: jdk.internal.misc.Unsafe.getReferenceVolatile");
+    Value::Object(None)
+}
+
+fn jdk_internal_misc_unsafe_object_field_offset_1(
+    vm: &mut VirtualMachine,
     args: &[Value],
 ) -> Value {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.objectFieldOffset");
-    if let Value::Object(Some(_h)) = &args[0] {
-        if let Value::Object(Some(_name_and_type_addr)) = &args[1] {
-            Value::Long(0) // Stub value
-        } else {
-            panic!("jdk.internal.misc.Unsafe.objectFieldOffset: expected NameAndType object");
+    let class_addr = match &args[1] {
+        Value::Object(Some(h)) => h,
+        _ => panic!("jdk.internal.misc.Unsafe.objectFieldOffset: expected class object"),
+    };
+    let field_name = match &args[2] {
+        Value::Object(Some(h)) => {
+            let heap = vm.heap.borrow();
+            let s = heap.get_string(*h).unwrap();
+            s.to_string()
         }
-    } else {
-        panic!("jdk.internal.misc.Unsafe.objectFieldOffset: expected Class object");
-    }
+        _ => panic!("jdk.internal.misc.Unsafe.objectFieldOffset: expected field name string"),
+    };
+    let class = vm.method_area().get_class_by_mirror(class_addr).unwrap();
+    let offset = class.get_field_index_by_name(&field_name).unwrap();
+    Value::Long(offset as i64)
 }
 
 fn jdk_internal_misc_unsafe_array_index_scale_0(
@@ -520,6 +632,14 @@ fn jdk_internal_misc_unsafe_array_index_scale_0(
 fn jdk_internal_misc_unsafe_full_fence(_vm: &mut VirtualMachine, _args: &[Value]) -> Value {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.fullFence");
     Value::Object(None)
+}
+
+fn jdk_internal_misc_unsafe_compare_and_set_reference(
+    _vm: &mut VirtualMachine,
+    _args: &[Value],
+) -> Value {
+    debug!("TODO: Stub: jdk.internal.misc.Unsafe.compareAndSetReference");
+    Value::Integer(1)
 }
 
 fn jdk_internal_misc_vm_initialize(_vm: &mut VirtualMachine, _args: &[Value]) -> Value {

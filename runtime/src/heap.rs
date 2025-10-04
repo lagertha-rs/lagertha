@@ -130,17 +130,6 @@ impl Heap {
         self.push(HeapObject::Array(ArrayInstance::new(class, elements)))
     }
 
-    /*
-    pub fn alloc_primitive_array(&mut self, length: usize, array_type: ArrayType) -> HeapAddr {
-        let default_value: Value = Value::from(&array_type);
-        let elements: Vec<Value> = vec![default_value; length];
-        self.push(HeapObject::PrimitiveArray {
-            class: array_type,
-            elements,
-        })
-    }
-     */
-
     fn create_default_fields(class: &Arc<Class>) -> Vec<Value> {
         let mut fields = Vec::with_capacity(class.fields().len());
 
@@ -205,6 +194,14 @@ impl Heap {
         }
     }
 
+    pub fn get_instance_mut(&mut self, h: &HeapAddr) -> &mut ClassInstance {
+        let heap_obj = self.get_mut(*h);
+        match heap_obj {
+            HeapObject::Instance(inst) => inst,
+            _ => panic!("get_by_ref called with non-instance HeapObject",),
+        }
+    }
+
     pub fn get_array(&self, h: &HeapAddr) -> &ArrayInstance {
         let heap_obj = self.get(*h).unwrap();
         match heap_obj {
@@ -225,6 +222,7 @@ impl Heap {
             .expect("heap: invalid handle (get_mut)")
     }
 
+    //TODO: design it lightweight
     pub fn get_string(&self, h: HeapAddr) -> Result<String, JvmError> {
         let instance = self.get_instance(&h);
         let value_field = instance.get_field_value("value", "[B").unwrap();

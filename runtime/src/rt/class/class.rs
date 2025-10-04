@@ -320,6 +320,21 @@ impl Class {
         }
     }
 
+    //TODO: probably I don't need to index fields by descriptor, because field overloading is not allowed in Java
+    pub fn get_field_index_by_name(&self, name: &str) -> Result<usize, JvmError> {
+        let descriptors = self.field_idx.get(name);
+        if let Some(descriptors) = descriptors {
+            if descriptors.len() == 1 {
+                if let Some(idx) = descriptors.values().next() {
+                    return Ok(*idx);
+                }
+            } else {
+                panic!("More than one field with name {}", name);
+            }
+        }
+        Err(JvmError::FieldNotFound(name.to_string()))
+    }
+
     pub fn get_field_index(&self, name: &str, descriptor: &str) -> Result<usize, JvmError> {
         match self.get_field_index_recursive(name, descriptor) {
             ControlFlow::Break(idx) => Ok(idx),

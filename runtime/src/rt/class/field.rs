@@ -42,6 +42,10 @@ impl Field {
         self.name.clone()
     }
 
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
     pub fn descriptor(&self) -> &Arc<FieldDescriptorReference> {
         &self.descriptor
     }
