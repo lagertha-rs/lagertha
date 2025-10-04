@@ -1006,18 +1006,44 @@ impl Interpreter {
         Ok(())
     }
 
+    fn prepare_frame_locals(
+        &mut self,
+        method: &Arc<Method>,
+    ) -> Result<Vec<Option<Value>>, JvmError> {
+        let mut locals = vec![None; method.max_locals()?];
+        let params_count =
+            method.descriptor().resolved().params.len() + if method.is_static() { 0 } else { 1 };
+
+        let mut params = Vec::with_capacity(params_count);
+        for _ in 0..params_count {
+            params.push(self.vm.frame_stack.pop_operand()?);
+        }
+        params.reverse();
+
+        let mut pos = 0;
+        for v in params {
+            match v {
+                Value::Long(_) | Value::Double(_) => {
+                    locals[pos] = Some(v);
+                    pos += 2;
+                }
+                _ => {
+                    locals[pos] = Some(v);
+                    pos += 1;
+                }
+            }
+        }
+        Ok(locals)
+    }
+
     fn run_instance_method(&mut self, method: &Arc<Method>) -> Result<(), JvmError> {
         let class = method.class()?;
-        let mut params = vec![None; method.max_locals()?];
-        let params_count = method.descriptor().resolved().params.len() + 1; // +1 for this
-        for i in (0..params_count).rev() {
-            params[i] = Some(self.vm.frame_stack.pop_operand()?);
-        }
+        let locals = self.prepare_frame_locals(method)?;
 
         let frame = Frame::new(
             class.cp().clone(),
             method.clone(),
-            params,
+            locals,
             method.max_stack()?,
         );
 
@@ -1030,11 +1056,17 @@ impl Interpreter {
         abstract_method: &Arc<Method>,
         method_ref: &MethodReference,
     ) -> Result<(), JvmError> {
+        // TODO: params is messy here, need to refactor the method and handle double and long correctly
         let params_count = abstract_method.descriptor().resolved().params.len() + 1;
         let mut params = vec![None; params_count];
-        for i in (0..params_count).rev() {
-            params[i] = Some(self.vm.frame_stack.pop_operand()?);
+        for i in 0..params_count {
+            let param = self.vm.frame_stack.pop_operand()?;
+            if matches!(param, Value::Long(_) | Value::Double(_)) {
+                panic!("Abstract method with long or double parameter is not supported");
+            }
+            params[i] = Some(param);
         }
+        params.reverse();
 
         let class = match &params[0] {
             Some(Value::Object(Some(o))) => self.heap.borrow_mut().get_instance(o).class().clone(),
@@ -1074,17 +1106,12 @@ impl Interpreter {
         class: &Arc<Class>,
         method: &Arc<Method>,
     ) -> Result<(), JvmError> {
-        let mut params = vec![None; method.max_locals()?];
-        let params_count = method.descriptor().resolved().params.len();
-
-        for i in (0..params_count).rev() {
-            params[i] = Some(self.vm.frame_stack.pop_operand()?);
-        }
+        let locals = self.prepare_frame_locals(method)?;
 
         let frame = Frame::new(
             class.cp().clone(),
             method.clone(),
-            params,
+            locals,
             method.max_stack()?,
         );
 

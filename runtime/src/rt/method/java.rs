@@ -155,6 +155,10 @@ impl Method {
     pub fn descriptor(&self) -> &Arc<MethodDescriptorReference> {
         &self.descriptor
     }
+
+    pub fn is_static(&self) -> bool {
+        self.flags.is_static()
+    }
 }
 
 impl TryFrom<CodeAttribute> for CodeContext {
