@@ -8,7 +8,7 @@ use crate::rt::constant_pool::RuntimeConstant;
 use crate::rt::constant_pool::reference::MethodReference;
 use crate::rt::method::java::Method;
 use crate::rt::method::native::NativeMethod;
-use crate::rt::method::{StaticMethodType, VirtualMethodType};
+use crate::rt::method::{MethodType, StaticMethodType};
 use crate::stack::Frame;
 use common::instruction::Instruction;
 use common::jtype::Value;
@@ -105,7 +105,6 @@ impl Interpreter {
     // TODO: replace return book with enum or set special cp values
     fn interpret_instruction(&mut self, instruction: Instruction) -> Result<bool, JvmError> {
         debug!("Executing instruction: {:?}", instruction);
-        let instruction_byte_size = instruction.byte_size();
         if !matches!(
             instruction,
             Instruction::Goto(_)
@@ -665,13 +664,32 @@ impl Interpreter {
                 let method_ref = cp.get_methodref(&idx)?;
                 let class = self.method_area().get_class(method_ref.class()?.name()?)?;
                 let method = class.get_virtual_method_by_nat(method_ref)?;
-                self.run_instance_method_type(method, method_ref)?;
+                match method {
+                    MethodType::Java(method) => {
+                        self.run_constructor(method)?;
+                    }
+                    _ => unimplemented!("InvokeSpecial for native or abstract methods"),
+                }
             }
             Instruction::InvokeVirtual(idx) => {
                 let cp = self.vm.frame_stack.cp()?;
                 let method_ref = cp.get_methodref(&idx)?;
                 let class = self.method_area().get_class(method_ref.class()?.name()?)?;
                 let method = class.get_virtual_method_by_nat(method_ref)?;
+
+                let params = self.prepare_method_params(method)?;
+                let this = match params.first() {
+                    Some(Value::Object(obj)) => obj.ok_or(JvmError::NullPointerException)?,
+                    _ => panic!("First parameter of instance method must be object reference"),
+                };
+                let heap = self.heap.borrow();
+                let this_class = heap.get_instance(&this).class();
+                if let Ok(dyn_method) = this_class.get_virtual_method_by_nat(method_ref) {
+                    (dyn_cp.clone(), dyn_method.clone())
+                } else {
+                    (class.cp().clone(), method.clone())
+                };
+                drop(heap);
                 self.run_instance_method_type(method, method_ref)?;
             }
             Instruction::Aload0 => {
@@ -718,18 +736,22 @@ impl Interpreter {
                 let cp = self.vm.frame_stack.cp()?;
                 let class_ref = cp.get_class(&idx)?;
                 let other_class = self.method_area().get_class(class_ref.name()?)?;
-                let obj_addr = self.vm.frame_stack.pop_obj_ref_val()?;
-                let heap = self.heap.borrow();
-                let target_class = heap.get_instance(&obj_addr).class();
-                debug!(
-                    "Instanceof check: target_class={}, other_class={}",
-                    target_class.name(),
-                    other_class.name()
-                );
-                let result = target_class.instance_of(&other_class);
-                self.vm
-                    .frame_stack
-                    .push_operand(Value::Integer(if result { 1 } else { 0 }))?;
+                let obj_addr = self.vm.frame_stack.pop_nullable_obj_ref_val()?;
+                if let Some(addr) = &obj_addr {
+                    let heap = self.heap.borrow();
+                    let target_class = heap.get_instance(addr).class();
+                    debug!(
+                        "Instanceof check: target_class={}, other_class={}",
+                        target_class.name(),
+                        other_class.name()
+                    );
+                    let result = target_class.instance_of(&other_class);
+                    self.vm
+                        .frame_stack
+                        .push_operand(Value::Integer(if result { 1 } else { 0 }))?;
+                } else {
+                    self.vm.frame_stack.push_operand(Value::Integer(0))?;
+                }
             }
             Instruction::Iastore => {
                 let value = self.vm.frame_stack.pop_int_val()?;
@@ -970,7 +992,7 @@ impl Interpreter {
         Ok(false)
     }
 
-    fn run_instance_native_method(&mut self, method: &NativeMethod) -> Result<(), JvmError> {
+    fn run_instance_native_method(&mut self, method: &Arc<NativeMethod>) -> Result<(), JvmError> {
         let class = method.class()?;
 
         // TODO: delete
@@ -1006,6 +1028,16 @@ impl Interpreter {
         Ok(())
     }
 
+    fn prepare_method_params(&mut self, method_type: &MethodType) -> Result<Vec<Value>, JvmError> {
+        let params_count = method_type.params_count();
+        let mut params = Vec::with_capacity(params_count);
+        for _ in 0..params_count {
+            params.push(self.vm.frame_stack.pop_operand()?);
+        }
+        params.reverse();
+        Ok(params)
+    }
+
     fn prepare_frame_locals(
         &mut self,
         method: &Arc<Method>,
@@ -1036,16 +1068,48 @@ impl Interpreter {
         Ok(locals)
     }
 
-    fn run_instance_method(&mut self, method: &Arc<Method>) -> Result<(), JvmError> {
+    fn run_constructor(&mut self, method: &Arc<Method>) -> Result<(), JvmError> {
         let class = method.class()?;
         let locals = self.prepare_frame_locals(method)?;
 
-        let frame = Frame::new(
-            class.cp().clone(),
-            method.clone(),
-            locals,
-            method.max_stack()?,
-        );
+        let frame = Frame::new(class.cp().clone(), method.clone(), locals)?;
+
+        self.interpret_method_code(method.instructions()?, frame)?;
+        Ok(())
+    }
+
+    fn run_instance_method(
+        &mut self,
+        method: &Arc<Method>,
+        method_ref: &MethodReference,
+    ) -> Result<(), JvmError> {
+        let class = method.class()?;
+        let locals = self.prepare_frame_locals(method)?;
+
+        let this = locals[0]
+            .as_ref()
+            .and_then(|v| match v {
+                Value::Object(o) => *o,
+                _ => None,
+            })
+            .ok_or(JvmError::NullPointerException)?;
+        let heap = self.heap.borrow();
+        let this_class = heap.get_instance(&this).class();
+        let (cp, method) = if let Ok((dyn_method, dyn_cp)) =
+            this_class.get_virtual_method_and_cp_by_nat(method_ref)
+        {
+            match dyn_method {
+                MethodType::Java(m) => (dyn_cp.clone(), m.clone()),
+                _ => unimplemented!(
+                    "idk, need to refactor everything, almost the whole file looks like shit"
+                ),
+            }
+        } else {
+            (class.cp().clone(), method.clone())
+        };
+        drop(heap);
+
+        let frame = Frame::new(cp, method.clone(), locals)?;
 
         self.interpret_method_code(method.instructions()?, frame)?;
         Ok(())
@@ -1075,11 +1139,11 @@ impl Interpreter {
         };
         let (method, cp) = class.get_virtual_method_and_cp_by_nat(method_ref)?;
 
-        if let VirtualMethodType::Java(method) = method {
+        if let MethodType::Java(method) = method {
             for _ in 0..(method.max_locals()? - params_count) {
                 params.push(None);
             }
-            let frame = Frame::new(cp.clone(), method.clone(), params, method.max_stack()?);
+            let frame = Frame::new(cp.clone(), method.clone(), params)?;
 
             self.interpret_method_code(method.instructions()?, frame)?;
         } else {
@@ -1090,13 +1154,13 @@ impl Interpreter {
 
     fn run_instance_method_type(
         &mut self,
-        method: &VirtualMethodType,
+        method: &MethodType,
         method_ref: &MethodReference,
     ) -> Result<(), JvmError> {
         match method {
-            VirtualMethodType::Java(method) => self.run_instance_method(method)?,
-            VirtualMethodType::Abstract(method) => self.run_abstract_method(method, method_ref)?,
-            VirtualMethodType::Native(method) => self.run_instance_native_method(method)?,
+            MethodType::Java(method) => self.run_instance_method(method, method_ref)?,
+            MethodType::Abstract(method) => self.run_abstract_method(method, method_ref)?,
+            MethodType::Native(method) => self.run_instance_native_method(method)?,
         }
         Ok(())
     }
@@ -1108,12 +1172,7 @@ impl Interpreter {
     ) -> Result<(), JvmError> {
         let locals = self.prepare_frame_locals(method)?;
 
-        let frame = Frame::new(
-            class.cp().clone(),
-            method.clone(),
-            locals,
-            method.max_stack()?,
-        );
+        let frame = Frame::new(class.cp().clone(), method.clone(), locals)?;
 
         self.interpret_method_code(method.instructions()?, frame)?;
 
@@ -1179,8 +1238,7 @@ impl Interpreter {
             main_class.cp().clone(),
             main_method.clone(),
             vec![None; main_method.max_locals()?],
-            main_method.max_stack()?,
-        );
+        )?;
         debug!("Executing main method...");
         self.interpret_method_code(instructions, frame)?;
         debug!("Main method finished.");

@@ -28,6 +28,8 @@ classes = [
     "java.lang.Double",
     "java.lang.VersionProps",
     "java.lang.Runtime",
+    "java.lang.InternalError",
+    "java.lang.VirtualMachineError",
     # java.io
     "java.io.PrintStream",
     "java.io.FilterOutputStream",
@@ -64,6 +66,7 @@ classes = [
     "java.util.concurrent.locks.LockSupport",
     # internal
     "jdk.internal.access.SharedSecrets",
+    "jdk.internal.util.StaticProperty",
     "jdk.internal.util.SystemProps",
     "jdk.internal.util.SystemProps$Raw",
     "jdk.internal.util.ArraysSupport",

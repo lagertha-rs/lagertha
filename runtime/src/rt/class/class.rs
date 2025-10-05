@@ -3,10 +3,8 @@ use crate::error::JvmError;
 use crate::method_area::MethodArea;
 use crate::rt::class::field::{Field, StaticField};
 use crate::rt::constant_pool::RuntimeConstantPool;
-use crate::rt::constant_pool::reference::{ClassReference, MethodReference, NameAndTypeReference};
-use crate::rt::method::java::Method;
-use crate::rt::method::native::NativeMethod;
-use crate::rt::method::{StaticMethodType, VirtualMethodType};
+use crate::rt::constant_pool::reference::{MethodReference, NameAndTypeReference};
+use crate::rt::method::{Method, MethodType};
 use class_file::ClassFile;
 use class_file::attribute::class::ClassAttribute;
 use class_file::flags::ClassFlags;
@@ -40,9 +38,9 @@ pub struct Class {
     fields: Vec<Field>,
     field_idx: NatHashMap<usize>,
     static_fields: NatHashMap<StaticField>,
-    methods: NatHashMap<VirtualMethodType>,
-    static_methods: NatHashMap<StaticMethodType>,
-    initializer: Option<StaticMethodType>,
+    methods: NatHashMap<Arc<Method>>,
+    static_methods: NatHashMap<Arc<Method>>,
+    initializer: Option<Arc<Method>>,
     attributes: Vec<ClassAttribute>,
     cp: Arc<RuntimeConstantPool>,
     state: RwLock<InitState>,
@@ -56,8 +54,8 @@ impl Class {
         let major_version = cf.major_version;
         let name = cp.get_class(&cf.this_class)?.name_arc()?;
         let access = cf.access_flags;
-        let mut methods: NatHashMap<VirtualMethodType> = HashMap::new();
-        let mut static_methods: NatHashMap<StaticMethodType> = HashMap::new();
+        let mut methods: NatHashMap<Arc<Method>> = HashMap::new();
+        let mut static_methods: NatHashMap<Arc<Method>> = HashMap::new();
         let mut initializer = None;
         for method in cf.methods {
             let flags = method.access_flags;
@@ -69,51 +67,49 @@ impl Class {
 
             match (flags.is_native(), flags.is_static()) {
                 (true, true) => {
-                    let method = NativeMethod::new(method, &cp)?;
+                    let method = Method::new(method, MethodType::Native, &cp)?;
                     let name = method.name_arc();
                     let descriptor = method.descriptor().raw_arc();
                     static_methods
                         .entry(name)
                         .or_default()
-                        .insert(descriptor, StaticMethodType::Native(method));
+                        .insert(descriptor, Arc::new(method));
                 }
                 (true, false) => {
-                    let method = NativeMethod::new(method, &cp)?;
+                    let method = Method::new(method, MethodType::Native, &cp)?;
                     let name = method.name_arc();
                     let descriptor = method.descriptor().raw_arc();
                     methods
                         .entry(name)
                         .or_default()
-                        .insert(descriptor, VirtualMethodType::Native(method));
+                        .insert(descriptor, Arc::new(method));
                 }
                 (false, true) => {
                     if name == "<clinit>" {
-                        initializer =
-                            Some(StaticMethodType::Java(Arc::new(Method::new(method, &cp)?)));
+                        initializer = Some(Arc::new(Method::new(method, MethodType::Java, &cp)?));
                     } else {
-                        let method = Method::new(method, &cp)?;
+                        let method = Method::new(method, MethodType::Java, &cp)?;
                         let name = method.name_arc();
                         let descriptor = method.descriptor().raw_arc();
                         static_methods
                             .entry(name)
                             .or_default()
-                            .insert(descriptor, StaticMethodType::Java(Arc::new(method)));
+                            .insert(descriptor, Arc::new(method));
                     }
                 }
                 (false, false) => {
                     // TODO: probably need to put constructor methods in separate list
-                    let method = Method::new(method, &cp)?;
+                    let method = if flags.is_abstract() {
+                        Method::new(method, MethodType::Abstract, &cp)?
+                    } else {
+                        Method::new(method, MethodType::Java, &cp)?
+                    };
                     let name = method.name_arc();
                     let descriptor = method.descriptor().raw_arc();
-                    let method_type = if flags.is_abstract() {
-                        VirtualMethodType::Abstract(Arc::new(method))
-                    } else {
-                        VirtualMethodType::Java(Arc::new(method))
-                    };
                     methods
                         .entry(name)
                         .or_default()
-                        .insert(descriptor, method_type);
+                        .insert(descriptor, Arc::new(method));
                 }
             }
         }
@@ -232,10 +228,6 @@ impl Class {
         self.static_methods
             .get("main")
             .and_then(|m| m.get("([Ljava/lang/String;)V"))
-            .and_then(|m| match m {
-                StaticMethodType::Java(method) => Some(method),
-                _ => None,
-            })
     }
 
     pub fn mirror(&self) -> Option<HeapAddr> {
@@ -272,7 +264,7 @@ impl Class {
         self.super_class.as_ref()
     }
 
-    pub fn initializer(&self) -> Option<&StaticMethodType> {
+    pub fn initializer(&self) -> Option<&Arc<Method>> {
         self.initializer.as_ref()
     }
 
@@ -370,7 +362,7 @@ impl Class {
     pub fn get_static_method_by_nat(
         &self,
         method_ref: &MethodReference,
-    ) -> Result<&StaticMethodType, JvmError> {
+    ) -> Result<&Arc<Method>, JvmError> {
         let nat = method_ref.name_and_type()?;
         let name = nat.name()?;
         let descriptor = nat.method_descriptor()?.raw();
@@ -382,7 +374,7 @@ impl Class {
         &self,
         name: &str,
         descriptor: &str,
-    ) -> Result<&StaticMethodType, JvmError> {
+    ) -> Result<&Arc<Method>, JvmError> {
         self.static_methods
             .get(name)
             .and_then(|m| m.get(descriptor))
@@ -392,7 +384,7 @@ impl Class {
     pub fn get_virtual_method_by_nat(
         &self,
         method_ref: &MethodReference,
-    ) -> Result<&VirtualMethodType, JvmError> {
+    ) -> Result<&Arc<Method>, JvmError> {
         let nat = method_ref.name_and_type()?;
         let name = nat.name()?;
         let descriptor = nat.method_descriptor()?.raw();
@@ -404,20 +396,25 @@ impl Class {
     pub fn get_virtual_method_and_cp_by_nat(
         &self,
         method_ref: &MethodReference,
-    ) -> Result<(&VirtualMethodType, &Arc<RuntimeConstantPool>), JvmError> {
+    ) -> Result<(&Arc<Method>, &Arc<RuntimeConstantPool>), JvmError> {
         let nat = method_ref.name_and_type()?;
         let name = nat.name()?;
         let descriptor = nat.method_descriptor()?.raw();
 
         self.get_virtual_method_recursive(name, descriptor)
-            .ok_or(JvmError::NoSuchMethod(format!("{}.{}", name, descriptor)))
+            .ok_or(JvmError::NoSuchMethod(format!(
+                "{}.{}{}",
+                self.name(),
+                name,
+                descriptor
+            )))
     }
 
     fn get_virtual_method_recursive(
         &self,
         name: &str,
         descriptor: &str,
-    ) -> Option<(&VirtualMethodType, &Arc<RuntimeConstantPool>)> {
+    ) -> Option<(&Arc<Method>, &Arc<RuntimeConstantPool>)> {
         if let Some(m) = self.methods.get(name).and_then(|m| m.get(descriptor)) {
             return Some((m, &self.cp));
         }
@@ -432,10 +429,15 @@ impl Class {
         &self,
         name: &str,
         descriptor: &str,
-    ) -> Result<&VirtualMethodType, JvmError> {
+    ) -> Result<&Arc<Method>, JvmError> {
         self.get_virtual_method_recursive(name, descriptor)
             .map(|(m, _)| m)
-            .ok_or(JvmError::NoSuchMethod(format!("{}.{}", name, descriptor)))
+            .ok_or(JvmError::NoSuchMethod(format!(
+                "{}.{}{}",
+                self.name(),
+                name,
+                descriptor
+            )))
     }
 }
 

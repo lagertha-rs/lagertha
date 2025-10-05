@@ -28,11 +28,22 @@ impl FrameStack {
         &self.frames
     }
 
+    fn debug_fn_parameters(frame: &Frame) -> String {
+        frame
+            .locals
+            .iter()
+            .flatten()
+            .map(|v| format!("{:?}", v))
+            .collect::<Vec<_>>()
+            .join(", ")
+    }
+
     pub fn push_frame(&mut self, frame: Frame) -> Result<(), JvmError> {
         debug!(
-            "🚀 Executing {}.{}",
+            "🚀 Executing {}.{}({})",
             frame.method.class()?.name(),
-            frame.method.name()
+            frame.method.name(),
+            Self::debug_fn_parameters(&frame)
         );
         if self.frames.len() >= self.max_size {
             return Err(JvmError::StackOverflow);
@@ -281,6 +292,16 @@ impl FrameStack {
     pub fn peek(&self) -> Result<&Value, JvmError> {
         self.cur_frame()?.peek()
     }
+
+    pub fn peek_obj_ref_val(&self) -> Result<HeapAddr, JvmError> {
+        match self.peek()? {
+            Value::Object(Some(v)) => Ok(*v),
+            Value::Object(None) => Err(JvmError::NullPointerException),
+            _ => Err(JvmError::UnexpectedType(
+                "Expected Object or Array on operand stack".to_string(),
+            )),
+        }
+    }
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.6
@@ -301,15 +322,15 @@ impl Frame {
         cp: Arc<RuntimeConstantPool>,
         method: Arc<Method>,
         locals: Vec<Option<Value>>,
-        max_stack: usize,
-    ) -> Self {
-        Self {
+    ) -> Result<Self, JvmError> {
+        let max_stack = method.max_stack()?;
+        Ok(Self {
             locals,
             operands: Vec::with_capacity(max_stack),
             cp,
             pc: 0,
             method,
-        }
+        })
     }
 
     pub fn method(&self) -> &Arc<Method> {
