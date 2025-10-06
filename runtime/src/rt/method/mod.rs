@@ -113,6 +113,10 @@ impl Method {
         })
     }
 
+    pub fn type_of(&self) -> &MethodType {
+        &self.method_type
+    }
+
     pub fn name_idx(&self) -> u16 {
         self.name_idx
     }
