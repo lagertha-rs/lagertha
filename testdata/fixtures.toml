@@ -30,6 +30,16 @@ classes = [
     "java.lang.Runtime",
     "java.lang.InternalError",
     "java.lang.VirtualMachineError",
+    # java.nio
+    "java.nio.charset.Charset",
+    "java.nio.charset.spi.CharsetProvider",
+    # sun
+    "sun.nio.cs.StandardCharsets",
+    "sun.nio.cs.StandardCharsets$Aliases",
+    "sun.nio.cs.StandardCharsets$Cache",
+    "sun.util.PreHashedMap",
+    "sun.nio.cs.UTF_8",
+    "sun.nio.cs.Unicode",
     # java.io
     "java.io.PrintStream",
     "java.io.FilterOutputStream",

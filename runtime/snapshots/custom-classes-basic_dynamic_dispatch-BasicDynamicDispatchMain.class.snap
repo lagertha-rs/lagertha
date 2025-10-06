@@ -1,0 +1,393 @@
+---
+source: runtime/src/lib.rs
+expression: "&interpreter"
+---
+vm:
+  heap:
+    objects:
+      - address: 0
+        type: Array
+        class: "[C"
+        elements:
+          - Integer: 106
+          - Integer: 97
+          - Integer: 118
+          - Integer: 97
+          - Integer: 46
+          - Integer: 118
+          - Integer: 101
+          - Integer: 114
+          - Integer: 115
+          - Integer: 105
+          - Integer: 111
+          - Integer: 110
+      - address: 1
+        type: Instance
+        value:
+          class: java/lang/String
+          fields:
+            - Array: 0
+            - Integer: 0
+            - Integer: 560567564
+            - Integer: 0
+      - address: 2
+        type: Array
+        class: java/io/ObjectStreamField
+        elements: []
+      - address: 3
+        type: Instance
+        value:
+          class: java/lang/String$CaseInsensitiveComparator
+          fields: []
+      - address: 4
+        type: Instance
+        value:
+          class: java/lang/Class
+          fields:
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Integer: 0
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+      - address: 5
+        type: Array
+        class: java/lang/Class
+        elements: []
+      - address: 6
+        type: Array
+        class: java/io/ObjectStreamField
+        elements: []
+      - address: 7
+        type: Instance
+        value:
+          class: jdk/internal/misc/Unsafe
+          fields: []
+      - address: 8
+        type: Instance
+        value:
+          class: java/lang/Class
+          fields:
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Integer: 0
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+      - address: 9
+        type: Instance
+        value:
+          class: java/lang/Class
+          fields:
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Integer: 0
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+      - address: 10
+        type: Instance
+        value:
+          class: java/lang/Class
+          fields:
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Integer: 0
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+      - address: 11
+        type: Instance
+        value:
+          class: java/lang/Class
+          fields:
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Integer: 0
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+      - address: 12
+        type: Instance
+        value:
+          class: java/lang/Class
+          fields:
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Integer: 0
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+      - address: 13
+        type: Instance
+        value:
+          class: java/lang/Class
+          fields:
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Integer: 0
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+      - address: 14
+        type: Instance
+        value:
+          class: java/lang/Class
+          fields:
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Integer: 0
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+      - address: 15
+        type: Instance
+        value:
+          class: java/lang/Class
+          fields:
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Integer: 0
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+      - address: 16
+        type: Instance
+        value:
+          class: java/lang/Class
+          fields:
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Integer: 0
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+      - address: 17
+        type: Array
+        class: "[C"
+        elements:
+          - Integer: 105
+          - Integer: 110
+          - Integer: 116
+      - address: 18
+        type: Instance
+        value:
+          class: java/lang/String
+          fields:
+            - Array: 17
+            - Integer: 0
+            - Integer: 0
+            - Integer: 0
+      - address: 19
+        type: Instance
+        value:
+          class: java/lang/Class
+          fields:
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Integer: 0
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+      - address: 20
+        type: Array
+        class: "[C"
+        elements:
+          - Integer: 48
+          - Integer: 49
+          - Integer: 50
+          - Integer: 51
+          - Integer: 52
+          - Integer: 53
+          - Integer: 54
+          - Integer: 55
+          - Integer: 56
+          - Integer: 57
+          - Integer: 97
+          - Integer: 98
+          - Integer: 99
+          - Integer: 100
+          - Integer: 101
+          - Integer: 102
+          - Integer: 103
+          - Integer: 104
+          - Integer: 105
+          - Integer: 106
+          - Integer: 107
+          - Integer: 108
+          - Integer: 109
+          - Integer: 110
+          - Integer: 111
+          - Integer: 112
+          - Integer: 113
+          - Integer: 114
+          - Integer: 115
+          - Integer: 116
+          - Integer: 117
+          - Integer: 118
+          - Integer: 119
+          - Integer: 120
+          - Integer: 121
+          - Integer: 122
+      - address: 21
+        type: Array
+        class: "[C"
+        elements:
+          - Integer: 98
+          - Integer: 121
+          - Integer: 116
+          - Integer: 101
+      - address: 22
+        type: Instance
+        value:
+          class: java/lang/String
+          fields:
+            - Array: 21
+            - Integer: 0
+            - Integer: 0
+            - Integer: 0
+      - address: 23
+        type: Instance
+        value:
+          class: java/lang/Class
+          fields:
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Integer: 0
+            - Object: ~
+            - Array: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+            - Object: ~
+    string_pool:
+      - string: byte
+        address: 22
+      - string: int
+        address: 18
+      - string: java.version
+        address: 1
+last_pop_frame:
+  locals:
+    - ~
+    - Object: 1
+    - Integer: 560567564
+  operands: []
+  pc: 9

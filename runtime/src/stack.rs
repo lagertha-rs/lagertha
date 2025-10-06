@@ -260,9 +260,9 @@ impl FrameStack {
     pub fn pop_nullable_array_ref(&mut self) -> Result<Option<HeapAddr>, JvmError> {
         match self.pop_operand()? {
             Value::Array(v) => Ok(v),
-            _ => Err(JvmError::UnexpectedType(
-                "Expected Array on operand stack".to_string(),
-            )),
+            e => Err(JvmError::UnexpectedType(format!(
+                "Expected Array on operand stack, found {e:?}"
+            ))),
         }
     }
 

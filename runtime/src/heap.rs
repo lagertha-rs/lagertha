@@ -57,8 +57,12 @@ impl ClassInstance {
         Self { class, fields }
     }
 
-    pub fn get_field(&mut self, index: usize) -> &mut Value {
+    pub fn get_field_mut(&mut self, index: usize) -> &mut Value {
         self.fields.get_mut(index).expect("invalid field index")
+    }
+
+    pub fn get_field(&self, index: usize) -> &Value {
+        self.fields.get(index).expect("invalid field index")
     }
 
     pub fn class(&self) -> &Arc<Class> {
@@ -107,6 +111,9 @@ impl Heap {
     fn push(&mut self, obj: HeapObject) -> HeapAddr {
         let idx = self.objects.len();
         self.objects.push(obj);
+        if idx == 1451 {
+            print!("")
+        }
         idx
     }
 

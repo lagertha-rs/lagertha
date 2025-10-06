@@ -545,7 +545,7 @@ fn jdk_internal_misc_unsafe_compare_and_set_int(vm: &mut VirtualMachine, args: &
     };
     let mut heap = vm.heap.borrow_mut();
     let instance = heap.get_instance_mut(object);
-    let field = instance.get_field(offset);
+    let field = instance.get_field_mut(offset);
     if let Value::Integer(current_value) = field {
         if *current_value == expected {
             *field = Value::Integer(new_value);
@@ -578,7 +578,7 @@ fn jdk_internal_misc_unsafe_compare_and_set_long(vm: &mut VirtualMachine, args: 
     };
     let mut heap = vm.heap.borrow_mut();
     let instance = heap.get_instance_mut(object);
-    let field = instance.get_field(offset);
+    let field = instance.get_field_mut(offset);
     if let Value::Long(current_value) = field {
         if *current_value == expected {
             *field = Value::Long(new_value);
@@ -592,11 +592,43 @@ fn jdk_internal_misc_unsafe_compare_and_set_long(vm: &mut VirtualMachine, args: 
 }
 
 fn jdk_internal_misc_unsafe_get_reference_volatile(
-    _vm: &mut VirtualMachine,
-    _args: &[Value],
+    vm: &mut VirtualMachine,
+    args: &[Value],
 ) -> Value {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.getReferenceVolatile");
-    Value::Object(None)
+    let base = match &args[1] {
+        Value::Object(Some(h)) => *h,
+        Value::Array(Some(h)) => *h,
+        Value::Object(None) => panic!("Unsafe.getReferenceVolatile base is null"),
+        _ => panic!("Unsafe.getReferenceVolatile expects an object base"),
+    };
+
+    let off = match args[2] {
+        Value::Long(x) => x,
+        _ => panic!("Unsafe.getReferenceVolatile expects a long offset"),
+    };
+    let heap = vm.heap.borrow();
+    match heap.get(base) {
+        Some(HeapObject::Instance(instance)) => {
+            let field = instance.get_field(off as usize);
+            match field {
+                Value::Object(h) => Value::Object(*h),
+                _ => panic!("Unsafe.getReferenceVolatile field is not an object"),
+            }
+        }
+        Some(HeapObject::Array(array)) => {
+            let idx = off as usize;
+            if idx >= array.length() {
+                panic!("Unsafe.getReferenceVolatile array index out of bounds");
+            }
+            let element = &array.elements()[idx];
+            match element {
+                Value::Object(h) => Value::Object(*h),
+                _ => panic!("Unsafe.getReferenceVolatile array element is not an object"),
+            }
+        }
+        None => panic!("Unsafe.getReferenceVolatile base address is invalid"),
+    }
 }
 
 fn jdk_internal_misc_unsafe_object_field_offset_1(
@@ -634,12 +666,71 @@ fn jdk_internal_misc_unsafe_full_fence(_vm: &mut VirtualMachine, _args: &[Value]
     Value::Object(None)
 }
 
+// TODO: pure mess
 fn jdk_internal_misc_unsafe_compare_and_set_reference(
-    _vm: &mut VirtualMachine,
-    _args: &[Value],
+    vm: &mut VirtualMachine,
+    args: &[Value],
 ) -> Value {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.compareAndSetReference");
-    Value::Integer(1)
+    let object = match &args[1] {
+        Value::Object(Some(h)) => h,
+        Value::Array(Some(h)) => h,
+        _ => panic!("jdk.internal.misc.Unsafe.compareAndSetReference: expected object"),
+    };
+    let offset = match args[2] {
+        Value::Long(l) if l >= 0 => l as usize,
+        _ => {
+            panic!("jdk.internal.misc.Unsafe.compareAndSetReference: expected non-negative offset")
+        }
+    };
+    let expected = match args[3] {
+        Value::Object(h) | Value::Array(h) => h,
+        _ => {
+            panic!("jdk.internal.misc.Unsafe.compareAndSetReference: expected long expected value")
+        }
+    };
+    let mut heap = vm.heap.borrow_mut();
+    let new_value = match args[4] {
+        Value::Object(h) | Value::Array(h) => h,
+        _ => panic!("jdk.internal.misc.Unsafe.compareAndSetReference: expected long new value"),
+    };
+    match heap.get_mut(*object) {
+        HeapObject::Array(array) => {
+            if offset >= array.length() {
+                panic!(
+                    "jdk.internal.misc.Unsafe.compareAndSetReference: array index out of bounds"
+                );
+            }
+            let field = &mut array.elements_mut()[offset];
+            if let Value::Object(current_value) | Value::Array(current_value) = field {
+                if *current_value == expected {
+                    *field = Value::Object(new_value);
+                    Value::Integer(1)
+                } else {
+                    Value::Integer(0)
+                }
+            } else {
+                panic!(
+                    "jdk.internal.misc.Unsafe.compareAndSetReference: field at offset is not long"
+                );
+            }
+        }
+        HeapObject::Instance(instance) => {
+            let field = instance.get_field_mut(offset);
+            if let Value::Object(current_value) | Value::Array(current_value) = field {
+                if *current_value == expected {
+                    *field = Value::Object(new_value);
+                    Value::Integer(1)
+                } else {
+                    Value::Integer(0)
+                }
+            } else {
+                panic!(
+                    "jdk.internal.misc.Unsafe.compareAndSetReference: field at offset is not long"
+                );
+            }
+        }
+    }
 }
 
 fn jdk_internal_misc_vm_initialize(_vm: &mut VirtualMachine, _args: &[Value]) -> Value {
