@@ -231,7 +231,7 @@ impl Interpreter {
                     .borrow()
                     .get_array(&array_addr)
                     .get_element(index as usize);
-                if matches!(value, Value::Ref(_)) {
+                if matches!(value, Value::Ref(_) | Value::Null) {
                     self.vm.frame_stack.push_operand(value)?;
                 } else {
                     panic!("Expected object reference in aaload");
@@ -856,6 +856,12 @@ impl Interpreter {
                 let v = self.vm.frame_stack.pop_float_val()?;
                 self.vm.frame_stack.push_operand(Value::Double(v as f64))?;
             }
+            Instruction::I2c => {
+                let v = self.vm.frame_stack.pop_int_val()?;
+                self.vm
+                    .frame_stack
+                    .push_operand(Value::Integer((v as u16) as i32))?;
+            }
             Instruction::I2l => {
                 let v = self.vm.frame_stack.pop_int_val()?;
                 self.vm.frame_stack.push_operand(Value::Long(v as i64))?;
@@ -1121,6 +1127,11 @@ impl Interpreter {
         params: Vec<Value>,
     ) -> Result<(), JvmError> {
         let locals = self.params_to_frame_locals(method, params)?;
+
+        if method.name() == "checkName" && locals[0] == Some(Value::Ref(6)) {
+            let val = self.heap.borrow().get_string(6);
+            print!("")
+        }
 
         let frame = Frame::new(class.cp().clone(), method.clone(), locals)?;
 

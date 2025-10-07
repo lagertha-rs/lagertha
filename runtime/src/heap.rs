@@ -233,7 +233,9 @@ impl Heap {
     //TODO: design it lightweight
     pub fn get_string(&self, h: HeapAddr) -> Result<String, JvmError> {
         let instance = self.get_instance(&h);
-        let value_field = instance.get_field_value("value", "[B").unwrap();
+        let value_field = instance
+            .get_field_value("value", "[B")
+            .ok_or(JvmError::Uninitialized)?;
         let array_addr = match value_field {
             Value::Ref(addr) => *addr,
             _ => {

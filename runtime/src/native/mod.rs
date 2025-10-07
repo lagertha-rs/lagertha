@@ -1,5 +1,4 @@
 use crate::VirtualMachine;
-use crate::error::JvmError;
 use crate::heap::HeapObject;
 use common::instruction::ArrayType;
 use common::jtype::Value;
@@ -242,6 +241,55 @@ impl NativeRegistry {
             ),
             jdk_internal_misc_unsafe_compare_and_set_long,
         );
+        instance.register(
+            MethodKey::new(
+                "java/io/FileInputStream".to_string(),
+                "initIDs".to_string(),
+                "()V".to_string(),
+            ),
+            java_io_file_input_stream_init_ids,
+        );
+        instance.register(
+            MethodKey::new(
+                "java/io/FileDescriptor".to_string(),
+                "initIDs".to_string(),
+                "()V".to_string(),
+            ),
+            java_io_file_descriptor_init_ids,
+        );
+        instance.register(
+            MethodKey::new(
+                "java/io/FileDescriptor".to_string(),
+                "getHandle".to_string(),
+                "(I)J".to_string(),
+            ),
+            java_io_file_descriptor_get_handle,
+        );
+        instance.register(
+            MethodKey::new(
+                "java/io/FileDescriptor".to_string(),
+                "getAppend".to_string(),
+                "(I)Z".to_string(),
+            ),
+            java_io_file_descriptor_get_append,
+        );
+        instance.register(
+            MethodKey::new(
+                "java/io/FileOutputStream".to_string(),
+                "initIDs".to_string(),
+                "()V".to_string(),
+            ),
+            java_io_file_output_stream_init_ids,
+        );
+        instance.register(
+            MethodKey::new(
+                "java/lang/System".to_string(),
+                "setIn0".to_string(),
+                "(Ljava/io/InputStream;)V".to_string(),
+            ),
+            java_lang_system_set_in_0,
+        );
+
         instance
     }
 
@@ -403,12 +451,14 @@ fn jdk_internal_util_system_props_raw_platform_properties(
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.platformProperties");
     let string_class = vm.method_area().get_class("java/lang/String").unwrap();
-    let empty_string_stub = vm.heap().borrow_mut().get_or_new_string("");
-    let h = vm.heap().borrow_mut().alloc_array_with_value(
-        string_class,
-        40,
-        Value::Ref(empty_string_stub),
-    );
+    let mut heap = vm.heap.borrow_mut();
+    let empty_string_stub = heap.get_or_new_string("");
+    let h = heap.alloc_array_with_value(string_class, 40, Value::Ref(empty_string_stub));
+    let enc = heap.get_or_new_string("UTF-8");
+    heap.write_array_element(h, 27, Value::Ref(enc)).unwrap();
+    heap.write_array_element(h, 28, Value::Ref(enc)).unwrap();
+    heap.write_array_element(h, 34, Value::Ref(enc)).unwrap();
+
     Some(Value::Ref(h))
 }
 
@@ -759,4 +809,34 @@ fn java_lang_runtime_max_memory(vm: &mut VirtualMachine, _args: &[Value]) -> Nat
 fn java_lang_runtime_available_processors(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Runtime.availableProcessors");
     Some(Value::Integer(1))
+}
+
+fn java_io_file_input_stream_init_ids(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
+    debug!("TODO: Stub: java.io.FileInputStream.initIDs");
+    None
+}
+
+fn java_io_file_descriptor_init_ids(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
+    debug!("TODO: Stub: java.io.FileDescriptor.initIDs");
+    None
+}
+
+fn java_io_file_descriptor_get_handle(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
+    debug!("TODO: Stub: java.io.FileDescriptor.getHandle");
+    Some(Value::Long(0))
+}
+
+fn java_io_file_descriptor_get_append(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
+    debug!("TODO: Stub: java.io.FileDescriptor.getAppend");
+    Some(Value::Integer(0))
+}
+
+fn java_io_file_output_stream_init_ids(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
+    debug!("TODO: Stub: java.io.FileInputStream.initIDs");
+    None
+}
+
+fn java_lang_system_set_in_0(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
+    debug!("TODO: Stub: java.lang.System.setIn0");
+    None
 }
