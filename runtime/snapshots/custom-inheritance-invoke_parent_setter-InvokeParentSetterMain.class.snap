@@ -15,6 +15,6 @@ vm:
 last_pop_frame:
   locals:
     - ~
-    - Object: 0
+    - Ref: 0
   operands: []
   pc: 16

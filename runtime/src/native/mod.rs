@@ -1,11 +1,9 @@
 use crate::VirtualMachine;
 use crate::error::JvmError;
 use crate::heap::HeapObject;
-use crate::rt::constant_pool::reference::NameAndTypeReference;
 use common::instruction::ArrayType;
 use common::jtype::Value;
 use std::collections::HashMap;
-use std::ffi::c_char;
 use tracing_log::log::debug;
 
 //TODO: avoid string allocations here
@@ -22,7 +20,8 @@ impl MethodKey {
     }
 }
 
-pub type NativeFn = fn(&mut VirtualMachine, &[Value]) -> Value;
+pub type NativeRet = Option<Value>;
+pub type NativeFn = fn(&mut VirtualMachine, &[Value]) -> NativeRet;
 
 pub struct NativeRegistry {
     map: HashMap<MethodKey, NativeFn>,
@@ -105,10 +104,7 @@ impl NativeRegistry {
                 "arraycopy".to_string(),
                 "(Ljava/lang/Object;ILjava/lang/Object;II)V".to_string(),
             ),
-            |vm, args| {
-                java_lang_system_arraycopy(vm, args).unwrap();
-                Value::Object(None)
-            },
+            java_lang_system_arraycopy,
         );
         instance.register(
             MethodKey::new(
@@ -259,15 +255,15 @@ impl NativeRegistry {
     }
 }
 
-fn java_lang_system_register_natives(_vm: &mut VirtualMachine, _args: &[Value]) -> Value {
+fn java_lang_system_register_natives(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: Registering java.lang.System native methods");
-    Value::Object(None)
+    None
 }
 
-fn java_lang_system_arraycopy(vm: &mut VirtualMachine, args: &[Value]) -> Result<(), JvmError> {
+fn java_lang_system_arraycopy(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.System.arraycopy");
     let src = match &args[0] {
-        Value::Array(Some(h)) => *h,
+        Value::Ref(h) => *h,
         _ => panic!("java.lang.System.arraycopy: expected source array object"),
     };
     let src_pos = match args[1] {
@@ -275,7 +271,7 @@ fn java_lang_system_arraycopy(vm: &mut VirtualMachine, args: &[Value]) -> Result
         _ => panic!("java.lang.System.arraycopy: expected non-negative source position"),
     };
     let dest = match &args[2] {
-        Value::Array(Some(h)) => *h,
+        Value::Ref(h) => *h,
         _ => panic!("java.lang.System.arraycopy: expected destination array object"),
     };
     let dest_pos = match args[3] {
@@ -311,45 +307,49 @@ fn java_lang_system_arraycopy(vm: &mut VirtualMachine, args: &[Value]) -> Result
         }
 
         for i in 0..length {
-            heap.write_array_element(dest, dest_pos + i, tmp[i].clone())?;
+            heap.write_array_element(dest, dest_pos + i, tmp[i].clone())
+                .unwrap();
         }
     }
-    Ok(())
+    None
 }
 
-fn java_lang_class_register_natives(_vm: &mut VirtualMachine, _args: &[Value]) -> Value {
+fn java_lang_class_register_natives(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: Registering java.lang.Class native methods");
-    Value::Object(None)
+    None
 }
 
-fn java_lang_class_desired_assertion_status_0(_vm: &mut VirtualMachine, _args: &[Value]) -> Value {
+fn java_lang_class_desired_assertion_status_0(
+    _vm: &mut VirtualMachine,
+    _args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.desiredAssertionStatus0");
-    Value::Integer(1)
+    Some(Value::Integer(1))
 }
 
-fn java_lang_class_is_primitive(vm: &mut VirtualMachine, args: &[Value]) -> Value {
+fn java_lang_class_is_primitive(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.isPrimitive");
-    if let Value::Object(Some(h)) = &args[0] {
+    if let Value::Ref(h) = &args[0] {
         let is_primitive = vm.method_area().addr_is_primitive(h);
-        Value::Integer(if is_primitive { 1 } else { 0 })
+        Some(Value::Integer(if is_primitive { 1 } else { 0 }))
     } else {
         panic!("java.lang.Class.isPrimitive: expected object");
     }
 }
 
-fn java_lang_class_get_primitive_class(vm: &mut VirtualMachine, args: &[Value]) -> Value {
+fn java_lang_class_get_primitive_class(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.getPrimitiveClass");
-    if let Value::Object(Some(h)) = &args[0] {
+    if let Value::Ref(h) = &args[0] {
         let v = vm.method_area().get_primitive_mirror_addr(h);
-        Value::Object(Some(v))
+        Some(Value::Ref(v))
     } else {
         panic!("java.lang.Class.getPrimitiveClass: expected object");
     }
 }
 
-fn java_lang_object_get_class(vm: &mut VirtualMachine, args: &[Value]) -> Value {
+fn java_lang_object_get_class(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.getClass");
-    if let Value::Object(Some(h)) | Value::Array(Some(h)) = &args[0] {
+    if let Value::Ref(h) = &args[0] {
         let target_class = if let Some(obj) = vm.heap().borrow().get(*h) {
             match obj {
                 HeapObject::Instance(instance) => instance.class().clone(),
@@ -362,36 +362,36 @@ fn java_lang_object_get_class(vm: &mut VirtualMachine, args: &[Value]) -> Value 
             .method_area
             .get_mirror_addr_by_class(&target_class)
             .unwrap();
-        Value::Object(Some(res))
+        Some(Value::Ref(res))
     } else {
         panic!("java.lang.Class.getClass: expected object as argument");
     }
 }
 
-fn java_lang_object_hash_code(_vm: &mut VirtualMachine, args: &[Value]) -> Value {
+fn java_lang_object_hash_code(_vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Object.hashCode");
-    if let Value::Object(Some(h)) = &args[0] {
-        Value::Integer(*h as i32)
+    if let Value::Ref(h) = &args[0] {
+        Some(Value::Integer(*h as i32))
     } else {
         panic!("java.lang.Object.hashCode: expected object as argument");
     }
 }
 
-fn java_lang_object_init_class_name(vm: &mut VirtualMachine, args: &[Value]) -> Value {
+fn java_lang_object_init_class_name(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.initClassName");
-    if let Value::Object(Some(h)) = &args[0] {
+    if let Value::Ref(h) = &args[0] {
         let class_name = vm
             .method_area()
             .get_class_by_mirror(h)
             .unwrap()
             .name()
             .replace('/', ".");
-        let val = Value::Object(Some(vm.heap().borrow_mut().get_or_new_string(&class_name)));
+        let val = Value::Ref(vm.heap().borrow_mut().get_or_new_string(&class_name));
         vm.heap()
             .borrow_mut()
             .write_instance_field(*h, "name", "Ljava/lang/String;", val)
             .unwrap();
-        val
+        Some(val)
     } else {
         panic!("java.lang.Class.initClassName: expected object as argument");
     }
@@ -400,22 +400,22 @@ fn java_lang_object_init_class_name(vm: &mut VirtualMachine, args: &[Value]) -> 
 fn jdk_internal_util_system_props_raw_platform_properties(
     vm: &mut VirtualMachine,
     _args: &[Value],
-) -> Value {
+) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.platformProperties");
     let string_class = vm.method_area().get_class("java/lang/String").unwrap();
     let empty_string_stub = vm.heap().borrow_mut().get_or_new_string("");
     let h = vm.heap().borrow_mut().alloc_array_with_value(
         string_class,
         40,
-        Value::Object(Some(empty_string_stub)),
+        Value::Ref(empty_string_stub),
     );
-    Value::Array(Some(h))
+    Some(Value::Ref(h))
 }
 
 fn jdk_internal_util_system_props_raw_vm_properties(
     vm: &mut VirtualMachine,
     _args: &[Value],
-) -> Value {
+) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.vmProperties");
     let string_class = vm.method_area().get_class("java/lang/String").unwrap();
     let h = vm.heap().borrow_mut().alloc_array(string_class, 4);
@@ -424,23 +424,26 @@ fn jdk_internal_util_system_props_raw_vm_properties(
     let java_home_value = heap.get_or_new_string(&vm.config.home);
     let sun_page_align_stub = heap.get_or_new_string("sun.nio.PageAlignDirectMemory");
     let false_str = heap.get_or_new_string("false");
-    heap.write_array_element(h, 0, Value::Object(Some(java_home_key)))
+    heap.write_array_element(h, 0, Value::Ref(java_home_key))
         .unwrap();
-    heap.write_array_element(h, 1, Value::Object(Some(java_home_value)))
+    heap.write_array_element(h, 1, Value::Ref(java_home_value))
         .unwrap();
-    heap.write_array_element(h, 2, Value::Object(Some(sun_page_align_stub)))
+    heap.write_array_element(h, 2, Value::Ref(sun_page_align_stub))
         .unwrap();
-    heap.write_array_element(h, 3, Value::Object(Some(false_str)))
+    heap.write_array_element(h, 3, Value::Ref(false_str))
         .unwrap();
-    Value::Array(Some(h))
+    Some(Value::Ref(h))
 }
 
-fn jdk_internal_misc_unsafe_register_natives(_vm: &mut VirtualMachine, _args: &[Value]) -> Value {
+fn jdk_internal_misc_unsafe_register_natives(
+    _vm: &mut VirtualMachine,
+    _args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.registerNatives");
-    Value::Object(None)
+    None
 }
 
-fn java_lang_throwable_fill_in_stack_trace(vm: &mut VirtualMachine, args: &[Value]) -> Value {
+fn java_lang_throwable_fill_in_stack_trace(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Throwable.fillInStackTrace");
     let frames = vm.frame_stack.frames();
     let int_class = vm
@@ -481,18 +484,18 @@ fn java_lang_throwable_fill_in_stack_trace(vm: &mut VirtualMachine, args: &[Valu
     let backtrace_addr = vm.heap.borrow_mut().alloc_array(obj_class, 3);
     vm.heap
         .borrow_mut()
-        .write_array_element(backtrace_addr, 0, Value::Array(Some(class_idx)))
+        .write_array_element(backtrace_addr, 0, Value::Ref(class_idx))
         .unwrap();
     vm.heap
         .borrow_mut()
-        .write_array_element(backtrace_addr, 1, Value::Array(Some(name_idx)))
+        .write_array_element(backtrace_addr, 1, Value::Ref(name_idx))
         .unwrap();
     vm.heap
         .borrow_mut()
-        .write_array_element(backtrace_addr, 2, Value::Array(Some(descriptor_idx)))
+        .write_array_element(backtrace_addr, 2, Value::Ref(descriptor_idx))
         .unwrap();
     let throwable_addr = match args[0] {
-        Value::Object(Some(h)) => h,
+        Value::Ref(h) => h,
         _ => panic!("java.lang.Throwable.fillInStackTrace: expected object"),
     };
     vm.heap
@@ -501,7 +504,7 @@ fn java_lang_throwable_fill_in_stack_trace(vm: &mut VirtualMachine, args: &[Valu
             throwable_addr,
             "backtrace",
             "Ljava/lang/Object;",
-            Value::Array(Some(backtrace_addr)),
+            Value::Ref(backtrace_addr),
         )
         .unwrap();
     vm.heap
@@ -514,21 +517,24 @@ fn java_lang_throwable_fill_in_stack_trace(vm: &mut VirtualMachine, args: &[Valu
         )
         .unwrap();
 
-    Value::Object(Some(throwable_addr))
+    Some(Value::Ref(throwable_addr))
 }
 
 fn jdk_internal_misc_unsafe_array_base_offset_0(
     _vm: &mut VirtualMachine,
     _args: &[Value],
-) -> Value {
+) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.arrayBaseOffset0");
-    Value::Integer(0)
+    Some(Value::Integer(0))
 }
 
-fn jdk_internal_misc_unsafe_compare_and_set_int(vm: &mut VirtualMachine, args: &[Value]) -> Value {
+fn jdk_internal_misc_unsafe_compare_and_set_int(
+    vm: &mut VirtualMachine,
+    args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.compareAndSetInt");
     let object = match &args[1] {
-        Value::Object(Some(h)) => h,
+        Value::Ref(h) => h,
         _ => panic!("jdk.internal.misc.Unsafe.compareAndSetLong: expected object"),
     };
     let offset = match args[2] {
@@ -549,19 +555,22 @@ fn jdk_internal_misc_unsafe_compare_and_set_int(vm: &mut VirtualMachine, args: &
     if let Value::Integer(current_value) = field {
         if *current_value == expected {
             *field = Value::Integer(new_value);
-            Value::Integer(1)
+            Some(Value::Integer(1))
         } else {
-            Value::Integer(0)
+            Some(Value::Integer(0))
         }
     } else {
         panic!("jdk.internal.misc.Unsafe.compareAndSetLong: field at offset is not long");
     }
 }
 
-fn jdk_internal_misc_unsafe_compare_and_set_long(vm: &mut VirtualMachine, args: &[Value]) -> Value {
+fn jdk_internal_misc_unsafe_compare_and_set_long(
+    vm: &mut VirtualMachine,
+    args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.compareAndSetLong");
     let object = match &args[1] {
-        Value::Object(Some(h)) => h,
+        Value::Ref(h) => h,
         _ => panic!("jdk.internal.misc.Unsafe.compareAndSetLong: expected object"),
     };
     let offset = match args[2] {
@@ -582,9 +591,9 @@ fn jdk_internal_misc_unsafe_compare_and_set_long(vm: &mut VirtualMachine, args: 
     if let Value::Long(current_value) = field {
         if *current_value == expected {
             *field = Value::Long(new_value);
-            Value::Integer(1)
+            Some(Value::Integer(1))
         } else {
-            Value::Integer(0)
+            Some(Value::Integer(0))
         }
     } else {
         panic!("jdk.internal.misc.Unsafe.compareAndSetLong: field at offset is not long");
@@ -594,12 +603,11 @@ fn jdk_internal_misc_unsafe_compare_and_set_long(vm: &mut VirtualMachine, args: 
 fn jdk_internal_misc_unsafe_get_reference_volatile(
     vm: &mut VirtualMachine,
     args: &[Value],
-) -> Value {
+) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.getReferenceVolatile");
     let base = match &args[1] {
-        Value::Object(Some(h)) => *h,
-        Value::Array(Some(h)) => *h,
-        Value::Object(None) => panic!("Unsafe.getReferenceVolatile base is null"),
+        Value::Ref(h) => *h,
+        Value::Null => panic!("Unsafe.getReferenceVolatile base is null"),
         _ => panic!("Unsafe.getReferenceVolatile expects an object base"),
     };
 
@@ -612,7 +620,7 @@ fn jdk_internal_misc_unsafe_get_reference_volatile(
         Some(HeapObject::Instance(instance)) => {
             let field = instance.get_field(off as usize);
             match field {
-                Value::Object(h) => Value::Object(*h),
+                Value::Ref(_) => Some(*field),
                 _ => panic!("Unsafe.getReferenceVolatile field is not an object"),
             }
         }
@@ -623,7 +631,7 @@ fn jdk_internal_misc_unsafe_get_reference_volatile(
             }
             let element = &array.elements()[idx];
             match element {
-                Value::Object(h) => Value::Object(*h),
+                Value::Ref(_) | Value::Null => Some(*element),
                 _ => panic!("Unsafe.getReferenceVolatile array element is not an object"),
             }
         }
@@ -634,14 +642,14 @@ fn jdk_internal_misc_unsafe_get_reference_volatile(
 fn jdk_internal_misc_unsafe_object_field_offset_1(
     vm: &mut VirtualMachine,
     args: &[Value],
-) -> Value {
+) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.objectFieldOffset");
     let class_addr = match &args[1] {
-        Value::Object(Some(h)) => h,
+        Value::Ref(h) => h,
         _ => panic!("jdk.internal.misc.Unsafe.objectFieldOffset: expected class object"),
     };
     let field_name = match &args[2] {
-        Value::Object(Some(h)) => {
+        Value::Ref(h) => {
             let heap = vm.heap.borrow();
             let s = heap.get_string(*h).unwrap();
             s.to_string()
@@ -650,31 +658,30 @@ fn jdk_internal_misc_unsafe_object_field_offset_1(
     };
     let class = vm.method_area().get_class_by_mirror(class_addr).unwrap();
     let offset = class.get_field_index_by_name(&field_name).unwrap();
-    Value::Long(offset as i64)
+    Some(Value::Long(offset as i64))
 }
 
 fn jdk_internal_misc_unsafe_array_index_scale_0(
     _vm: &mut VirtualMachine,
     _args: &[Value],
-) -> Value {
+) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.arrayIndexScale0");
-    Value::Integer(1)
+    Some(Value::Integer(1))
 }
 
-fn jdk_internal_misc_unsafe_full_fence(_vm: &mut VirtualMachine, _args: &[Value]) -> Value {
+fn jdk_internal_misc_unsafe_full_fence(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.fullFence");
-    Value::Object(None)
+    None
 }
 
 // TODO: pure mess
 fn jdk_internal_misc_unsafe_compare_and_set_reference(
     vm: &mut VirtualMachine,
     args: &[Value],
-) -> Value {
+) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.compareAndSetReference");
     let object = match &args[1] {
-        Value::Object(Some(h)) => h,
-        Value::Array(Some(h)) => h,
+        Value::Ref(h) => h,
         _ => panic!("jdk.internal.misc.Unsafe.compareAndSetReference: expected object"),
     };
     let offset = match args[2] {
@@ -684,14 +691,14 @@ fn jdk_internal_misc_unsafe_compare_and_set_reference(
         }
     };
     let expected = match args[3] {
-        Value::Object(h) | Value::Array(h) => h,
+        Value::Ref(_) | Value::Null => args[3],
         _ => {
-            panic!("jdk.internal.misc.Unsafe.compareAndSetReference: expected long expected value")
+            panic!("jdk.internal.misc.Unsafe.compareAndSetReference: expected object")
         }
     };
     let mut heap = vm.heap.borrow_mut();
     let new_value = match args[4] {
-        Value::Object(h) | Value::Array(h) => h,
+        Value::Ref(h) => h,
         _ => panic!("jdk.internal.misc.Unsafe.compareAndSetReference: expected long new value"),
     };
     match heap.get_mut(*object) {
@@ -702,66 +709,54 @@ fn jdk_internal_misc_unsafe_compare_and_set_reference(
                 );
             }
             let field = &mut array.elements_mut()[offset];
-            if let Value::Object(current_value) | Value::Array(current_value) = field {
-                if *current_value == expected {
-                    *field = Value::Object(new_value);
-                    Value::Integer(1)
-                } else {
-                    Value::Integer(0)
-                }
+            if *field == expected {
+                *field = Value::Ref(new_value);
+                Some(Value::Integer(1))
             } else {
-                panic!(
-                    "jdk.internal.misc.Unsafe.compareAndSetReference: field at offset is not long"
-                );
+                Some(Value::Integer(0))
             }
         }
         HeapObject::Instance(instance) => {
             let field = instance.get_field_mut(offset);
-            if let Value::Object(current_value) | Value::Array(current_value) = field {
-                if *current_value == expected {
-                    *field = Value::Object(new_value);
-                    Value::Integer(1)
-                } else {
-                    Value::Integer(0)
-                }
+            if *field == expected {
+                *field = Value::Ref(new_value);
+                Some(Value::Integer(1))
             } else {
-                panic!(
-                    "jdk.internal.misc.Unsafe.compareAndSetReference: field at offset is not long"
-                );
+                Some(Value::Integer(0))
             }
         }
     }
 }
 
-fn jdk_internal_misc_vm_initialize(_vm: &mut VirtualMachine, _args: &[Value]) -> Value {
+fn jdk_internal_misc_vm_initialize(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.VM.initialize");
-    Value::Object(None)
+    None
 }
 
-fn java_lang_float_float_to_raw_int_bits(_vm: &mut VirtualMachine, args: &[Value]) -> Value {
+fn java_lang_float_float_to_raw_int_bits(_vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Float.floatToRawIntBits");
     if let Value::Float(f) = args[0] {
-        Value::Integer(f.to_bits() as i32)
+        Some(Value::Integer(f.to_bits() as i32))
     } else {
         panic!("java.lang.Float.floatToRawIntBits: expected float argument");
     }
 }
 
-fn java_lang_double_double_to_raw_long_bits(_vm: &mut VirtualMachine, args: &[Value]) -> Value {
+fn java_lang_double_double_to_raw_long_bits(_vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Double.doubleToRawLongBits");
     if let Value::Double(d) = args[0] {
-        Value::Long(d.to_bits() as i64)
+        Some(Value::Long(d.to_bits() as i64))
     } else {
         panic!("java.lang.Double.doubleToRawLongBits: expected double argument");
     }
 }
 
-fn java_lang_runtime_max_memory(vm: &mut VirtualMachine, _args: &[Value]) -> Value {
+fn java_lang_runtime_max_memory(vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Runtime.maxMemory");
-    Value::Long(vm.config.max_heap_size as i64)
+    Some(Value::Long(vm.config.max_heap_size as i64))
 }
 
-fn java_lang_runtime_available_processors(_vm: &mut VirtualMachine, _args: &[Value]) -> Value {
+fn java_lang_runtime_available_processors(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Runtime.availableProcessors");
-    Value::Integer(1)
+    Some(Value::Integer(1))
 }

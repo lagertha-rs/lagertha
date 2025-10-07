@@ -129,7 +129,7 @@ impl Interpreter {
         }
         match instruction {
             Instruction::Athrow => {
-                let exception_ref = self.vm.frame_stack.pop_obj_ref_val()?;
+                let exception_ref = self.vm.frame_stack.pop_obj_val()?;
                 Err(JvmError::JavaExceptionThrown(exception_ref))?
             }
             Instruction::Checkcast(_idx) => {
@@ -225,26 +225,21 @@ impl Interpreter {
             }
             Instruction::Aaload => {
                 let index = self.vm.frame_stack.pop_int_val()?;
-                if self.vm.frame_stack.peek()? == &Value::Object(Some(1451)) {
-                    let heap = self.heap.borrow();
-                    let a = heap.get(1451).unwrap();
-                    print!("")
-                }
-                let array_addr = self.vm.frame_stack.pop_array_ref()?;
+                let array_addr = self.vm.frame_stack.pop_obj_val()?;
                 let value = *self
                     .heap
                     .borrow()
                     .get_array(&array_addr)
                     .get_element(index as usize);
-                if let Value::Object(obj) = value {
-                    self.vm.frame_stack.push_operand(Value::Object(obj))?;
+                if matches!(value, Value::Ref(_)) {
+                    self.vm.frame_stack.push_operand(value)?;
                 } else {
                     panic!("Expected object reference in aaload");
                 }
             }
             Instruction::Caload | Instruction::Baload | Instruction::Iaload => {
                 let index = self.vm.frame_stack.pop_int_val()?;
-                let array_addr = self.vm.frame_stack.pop_array_ref()?;
+                let array_addr = self.vm.frame_stack.pop_obj_val()?;
                 let value = *self
                     .heap
                     .borrow()
@@ -331,7 +326,7 @@ impl Interpreter {
             }
             Instruction::Ifnull(offset) => {
                 let pc = *self.vm.frame_stack.pc()?;
-                let value = self.vm.frame_stack.pop_ref()?;
+                let value = self.vm.frame_stack.pop_nullable_ref_val()?;
                 let new_pc = if value.is_none() {
                     Self::branch16(pc, offset)
                 } else {
@@ -403,8 +398,8 @@ impl Interpreter {
             }
             Instruction::IfAcmpEq(offset) => {
                 let pc = *self.vm.frame_stack.pc()?;
-                let v2 = self.vm.frame_stack.pop_ref()?;
-                let v1 = self.vm.frame_stack.pop_ref()?;
+                let v2 = self.vm.frame_stack.pop_nullable_ref_val()?;
+                let v1 = self.vm.frame_stack.pop_nullable_ref_val()?;
                 let new_pc = if v1 == v2 {
                     Self::branch16(pc, offset)
                 } else {
@@ -414,8 +409,8 @@ impl Interpreter {
             }
             Instruction::IfAcmpNe(offset) => {
                 let pc = *self.vm.frame_stack.pc()?;
-                let v2 = self.vm.frame_stack.pop_ref()?;
-                let v1 = self.vm.frame_stack.pop_ref()?;
+                let v2 = self.vm.frame_stack.pop_nullable_ref_val()?;
+                let v1 = self.vm.frame_stack.pop_nullable_ref_val()?;
                 let new_pc = if v1 != v2 {
                     Self::branch16(pc, offset)
                 } else {
@@ -480,7 +475,7 @@ impl Interpreter {
             }
             Instruction::Ifnonnull(offset) => {
                 let pc = *self.vm.frame_stack.pc()?;
-                let obj = self.vm.frame_stack.pop_nullable_obj_ref_val()?;
+                let obj = self.vm.frame_stack.pop_nullable_ref_val()?;
                 let new_pc = if obj.is_some() {
                     Self::branch16(pc, offset)
                 } else {
@@ -561,7 +556,7 @@ impl Interpreter {
                 self.run_instance_method_type(method, method_ref, params)?;
             }
             Instruction::AconstNull => {
-                self.vm.frame_stack.push_operand(Value::Object(None))?;
+                self.vm.frame_stack.push_operand(Value::Null)?;
             }
             Instruction::Ldc(idx) | Instruction::LdcW(idx) | Instruction::Ldc2W(idx) => {
                 let cp = self.vm.frame_stack.cp()?;
@@ -569,18 +564,14 @@ impl Interpreter {
                 match raw {
                     RuntimeConstant::String(data) => {
                         let string_addr = self.heap.borrow_mut().get_or_new_string(data.value()?);
-                        self.vm
-                            .frame_stack
-                            .push_operand(Value::Object(Some(string_addr)))?;
+                        self.vm.frame_stack.push_operand(Value::Ref(string_addr))?;
                     }
                     RuntimeConstant::Class(class) => {
                         let class_mirror = self
                             .vm
                             .method_area()
                             .get_mirror_addr_by_name(class.name()?)?;
-                        self.vm
-                            .frame_stack
-                            .push_operand(Value::Object(Some(class_mirror)))?;
+                        self.vm.frame_stack.push_operand(Value::Ref(class_mirror))?;
                     }
                     RuntimeConstant::Double(value) => {
                         self.vm.frame_stack.push_operand(Value::Double(*value))?;
@@ -604,7 +595,7 @@ impl Interpreter {
                 let size = self.vm.frame_stack.pop_int_val()?;
                 if size >= 0 {
                     let addr = self.heap.borrow_mut().alloc_array(class, size as usize);
-                    self.vm.frame_stack.push_operand(Value::Array(Some(addr)))?;
+                    self.vm.frame_stack.push_operand(Value::Ref(addr))?;
                 } else {
                     return Err(JvmError::NegativeArraySizeException)?;
                 }
@@ -618,7 +609,7 @@ impl Interpreter {
                         .heap
                         .borrow_mut()
                         .alloc_array(primitive_class, count as usize);
-                    self.vm.frame_stack.push_operand(Value::Array(Some(addr)))?;
+                    self.vm.frame_stack.push_operand(Value::Ref(addr))?;
                 } else {
                     Err(JvmError::NegativeArraySizeException)?
                 }
@@ -629,9 +620,7 @@ impl Interpreter {
                 let class = self.method_area().get_class(class_ref.name()?)?;
                 self.ensure_initialized(Some(&class))?;
                 let addr = self.heap.borrow_mut().alloc_instance(class);
-                self.vm
-                    .frame_stack
-                    .push_operand(Value::Object(Some(addr)))?;
+                self.vm.frame_stack.push_operand(Value::Ref(addr))?;
             }
             Instruction::Dup => {
                 let value = self.vm.frame_stack.peek()?;
@@ -687,10 +676,10 @@ impl Interpreter {
                 let method = class.get_virtual_method_by_nat(method_ref)?;
 
                 let params = self.prepare_method_params(method)?;
+                let heap = self.heap.borrow();
                 match params.first() {
                     // try to dynamically dispatch the method
-                    Some(Value::Object(Some(obj))) => {
-                        let heap = self.heap.borrow();
+                    Some(Value::Ref(obj)) if heap.addr_is_instance(obj) => {
                         let instance = heap.get_instance(obj);
                         let class_id = instance.class().id()?;
                         drop(heap);
@@ -698,10 +687,11 @@ impl Interpreter {
                         let method = this_class.get_virtual_method_by_nat(method_ref)?;
                         self.run_instance_method_type(method, method_ref, params)
                     }
-                    Some(Value::Array(_)) => {
+                    Some(Value::Ref(_)) => {
+                        drop(heap);
                         self.run_instance_method_type(method, method_ref, params)
                     }
-                    Some(Value::Object(None)) => Err(JvmError::NullPointerException),
+                    Some(Value::Null) => Err(JvmError::NullPointerException),
                     _ => panic!("First parameter of instance method must be object reference"),
                 }?;
             }
@@ -728,7 +718,7 @@ impl Interpreter {
             Instruction::Bastore => {
                 let value = self.vm.frame_stack.pop_int_val()?;
                 let index = self.vm.frame_stack.pop_int_val()?;
-                let array_addr = self.vm.frame_stack.pop_array_ref()?;
+                let array_addr = self.vm.frame_stack.pop_obj_val()?;
                 self.heap.borrow_mut().write_array_element(
                     array_addr,
                     index as usize,
@@ -738,7 +728,7 @@ impl Interpreter {
             Instruction::Castore => {
                 let value = self.vm.frame_stack.pop_int_val()?;
                 let index = self.vm.frame_stack.pop_int_val()?;
-                let array_addr = self.vm.frame_stack.pop_array_ref()?;
+                let array_addr = self.vm.frame_stack.pop_obj_val()?;
                 self.heap.borrow_mut().write_array_element(
                     array_addr,
                     index as usize,
@@ -749,7 +739,7 @@ impl Interpreter {
                 let cp = self.vm.frame_stack.cp()?;
                 let class_ref = cp.get_class(&idx)?;
                 let other_class = self.method_area().get_class(class_ref.name()?)?;
-                let obj_addr = self.vm.frame_stack.pop_nullable_obj_ref_val()?;
+                let obj_addr = self.vm.frame_stack.pop_nullable_ref_val()?;
                 if let Some(addr) = &obj_addr {
                     let heap = self.heap.borrow();
                     let target_class = heap.get_instance(addr).class();
@@ -769,7 +759,7 @@ impl Interpreter {
             Instruction::Iastore => {
                 let value = self.vm.frame_stack.pop_int_val()?;
                 let index = self.vm.frame_stack.pop_int_val()?;
-                let array_addr = self.vm.frame_stack.pop_array_ref()?;
+                let array_addr = self.vm.frame_stack.pop_obj_val()?;
                 self.heap.borrow_mut().write_array_element(
                     array_addr,
                     index as usize,
@@ -777,37 +767,35 @@ impl Interpreter {
                 )?;
             }
             Instruction::Aastore => {
-                let value = self.vm.frame_stack.pop_nullable_obj_ref_val()?;
+                let value = self.vm.frame_stack.pop_nullable_ref()?;
                 let index = self.vm.frame_stack.pop_int_val()?;
-                let array_addr = self.vm.frame_stack.pop_array_ref()?;
-                self.heap.borrow_mut().write_array_element(
-                    array_addr,
-                    index as usize,
-                    Value::Object(value),
-                )?;
+                let array_addr = self.vm.frame_stack.pop_obj_val()?;
+                self.heap
+                    .borrow_mut()
+                    .write_array_element(array_addr, index as usize, value)?;
             }
             Instruction::Astore0 => {
-                let value = self.vm.frame_stack.pop_nullable_obj_ref()?;
+                let value = self.vm.frame_stack.pop_nullable_ref()?;
                 self.vm.frame_stack.set_local(0, value)?;
             }
             Instruction::Astore1 => {
-                let value = self.vm.frame_stack.pop_nullable_obj_ref()?;
+                let value = self.vm.frame_stack.pop_nullable_ref()?;
                 self.vm.frame_stack.set_local(1, value)?;
             }
             Instruction::Astore2 => {
-                let value = self.vm.frame_stack.pop_nullable_obj_ref()?;
+                let value = self.vm.frame_stack.pop_nullable_ref()?;
                 self.vm.frame_stack.set_local(2, value)?;
             }
             Instruction::Astore3 => {
-                let value = self.vm.frame_stack.pop_nullable_obj_ref()?;
+                let value = self.vm.frame_stack.pop_nullable_ref()?;
                 self.vm.frame_stack.set_local(3, value)?;
             }
             Instruction::Astore(idx) => {
-                let value = self.vm.frame_stack.pop_nullable_obj_ref()?;
+                let value = self.vm.frame_stack.pop_nullable_ref()?;
                 self.vm.frame_stack.set_local(idx as usize, value)?;
             }
             Instruction::ArrayLength => {
-                let array_addr = self.vm.frame_stack.pop_array_ref()?;
+                let array_addr = self.vm.frame_stack.pop_obj_val()?;
                 let length = self.heap.borrow().get_array(&array_addr).length();
                 self.vm
                     .frame_stack
@@ -826,7 +814,7 @@ impl Interpreter {
             Instruction::Getfield(idx) => {
                 let cp = self.vm.frame_stack.cp()?;
                 let field_nat = cp.get_fieldref(&idx)?.name_and_type()?;
-                let object_addr = self.vm.frame_stack.pop_obj_ref_val()?;
+                let object_addr = self.vm.frame_stack.pop_obj_val()?;
                 let value = *self
                     .heap
                     .borrow_mut()
@@ -946,7 +934,7 @@ impl Interpreter {
                 let cp = self.vm.frame_stack.cp()?;
                 let field_nat = cp.get_fieldref(&idx)?.name_and_type()?;
                 let value = self.vm.frame_stack.pop_operand()?;
-                let object_addr = self.vm.frame_stack.pop_obj_ref_val()?;
+                let object_addr = self.vm.frame_stack.pop_obj_val()?;
                 self.heap.borrow_mut().write_instance_field_by_nat(
                     object_addr,
                     field_nat,
@@ -976,7 +964,7 @@ impl Interpreter {
                 *self.vm.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::Areturn => {
-                let value = self.vm.frame_stack.pop_nullable_obj_ref()?;
+                let value = self.vm.frame_stack.pop_nullable_ref()?;
                 self.pop_frame()?;
                 self.vm.frame_stack.push_operand(value)?;
                 return Ok(true);
@@ -1001,10 +989,10 @@ impl Interpreter {
                 self.vm.frame_stack.pop_operand()?;
             }
             Instruction::Monitorenter => {
-                let _obj = self.vm.frame_stack.pop_obj_ref_val()?;
+                let _obj = self.vm.frame_stack.pop_obj_val()?;
             }
             Instruction::Monitorexit => {
-                let _obj = self.vm.frame_stack.pop_obj_ref_val()?;
+                let _obj = self.vm.frame_stack.pop_obj_val()?;
             }
             unimp => unimplemented!("Instruction {:?} not implemented", unimp),
         }
@@ -1038,8 +1026,9 @@ impl Interpreter {
             .get(&method_key)
             .ok_or(JvmError::NoSuchMethod(format!("{method_key:?}")))?;
 
-        let ret_value = method(&mut self.vm, params.as_slice());
-        self.vm.frame_stack.push_operand(ret_value)?;
+        if let Some(ret_value) = method(&mut self.vm, params.as_slice()) {
+            self.vm.frame_stack.push_operand(ret_value)?;
+        }
 
         Ok(())
     }
@@ -1098,8 +1087,8 @@ impl Interpreter {
         params: Vec<Value>,
     ) -> Result<(), JvmError> {
         let class = match &params[0] {
-            Value::Object(Some(o)) => self.heap.borrow_mut().get_instance(o).class().clone(),
-            Value::Object(None) => return Err(JvmError::NullPointerException),
+            Value::Ref(o) => self.heap.borrow_mut().get_instance(o).class().clone(),
+            Value::Null => return Err(JvmError::NullPointerException),
             _ => panic!("Abstract method called on non-object"),
         };
         let (method, cp) = class.get_virtual_method_and_cp_by_nat(method_ref)?;
@@ -1163,8 +1152,9 @@ impl Interpreter {
             .native_registry
             .get(&method_key)
             .ok_or(JvmError::NoSuchMethod(format!("{method_key:?}")))?;
-        let ret_value = method(&mut self.vm, params.as_slice());
-        self.vm.frame_stack.push_operand(ret_value)?;
+        if let Some(ret_value) = method(&mut self.vm, params.as_slice()) {
+            self.vm.frame_stack.push_operand(ret_value)?;
+        }
         Ok(())
     }
 

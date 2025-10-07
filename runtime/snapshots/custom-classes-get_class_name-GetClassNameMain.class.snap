@@ -25,7 +25,7 @@ vm:
         value:
           class: java/lang/String
           fields:
-            - Array: 0
+            - Ref: 0
             - Integer: 0
             - Integer: 0
             - Integer: 0
@@ -34,22 +34,22 @@ vm:
         value:
           class: java/lang/Class
           fields:
-            - Object: ~
-            - Object: 4
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - Ref: 4
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
             - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
       - address: 3
         type: Array
         class: "[C"
@@ -75,7 +75,7 @@ vm:
         value:
           class: java/lang/String
           fields:
-            - Array: 3
+            - Ref: 3
             - Integer: 0
             - Integer: 0
             - Integer: 0
@@ -87,7 +87,7 @@ vm:
 last_pop_frame:
   locals:
     - ~
-    - Object: 1
-    - Object: 4
+    - Ref: 1
+    - Ref: 4
   operands: []
   pc: 12

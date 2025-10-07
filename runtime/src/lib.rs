@@ -100,10 +100,8 @@ pub fn start(main_class: Vec<u8>, config: VmConfig) -> Result<(), JvmError> {
                     .get_field_value("detailMessage", "Ljava/lang/String;")
                     .unwrap();
                 let msg = match message_field_ref {
-                    Value::Object(obj) => match obj {
-                        Some(o) => heap.get_string(*o)?,
-                        None => "Exception message is null".to_string(),
-                    },
+                    Value::Ref(obj) => heap.get_string(*obj)?,
+                    Value::Null => "Exception message is null".to_string(),
                     _ => {
                         panic!("detailMessage field is not an object reference");
                     }

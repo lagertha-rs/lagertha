@@ -1,0 +1,515 @@
+---
+source: class_file/src/lib.rs
+expression: display
+---
+abstract class sun.nio.cs.Unicode extends java.nio.charset.Charset implements sun.nio.cs.HistoricallyNamedCharset
+  minor version: 0
+  major version: 68
+  flags: (0x0420) ACC_SUPER, ACC_ABSTRACT
+  this_class: #135                     //sun/nio/cs/Unicode
+  super_class: #2                      //java/nio/charset/Charset
+  interfaces: 1, fields: 0, methods: 2, attributes: 1
+Constant pool:
+    #1 = Methodref          #2.#3            // java/nio/charset/Charset."<init>":(Ljava/lang/String;[Ljava/lang/String;)V
+    #2 = Class              #4               // java/nio/charset/Charset
+    #3 = NameAndType        #5:#6            // "<init>":(Ljava/lang/String;[Ljava/lang/String;)V
+    #4 = Utf8               java/nio/charset/Charset
+    #5 = Utf8               <init>
+    #6 = Utf8               (Ljava/lang/String;[Ljava/lang/String;)V
+    #7 = Class              #8               // sun/nio/cs/US_ASCII
+    #8 = Utf8               sun/nio/cs/US_ASCII
+    #9 = Class              #10              // sun/nio/cs/ISO_8859_1
+   #10 = Utf8               sun/nio/cs/ISO_8859_1
+   #11 = Class              #12              // sun/nio/cs/ISO_8859_15
+   #12 = Utf8               sun/nio/cs/ISO_8859_15
+   #13 = Class              #14              // sun/nio/cs/ISO_8859_16
+   #14 = Utf8               sun/nio/cs/ISO_8859_16
+   #15 = Class              #16              // sun/nio/cs/MS1252
+   #16 = Utf8               sun/nio/cs/MS1252
+   #17 = Class              #18              // sun/nio/cs/UTF_8
+   #18 = Utf8               sun/nio/cs/UTF_8
+   #19 = Class              #20              // sun/nio/cs/UTF_16
+   #20 = Utf8               sun/nio/cs/UTF_16
+   #21 = Class              #22              // sun/nio/cs/UTF_16BE
+   #22 = Utf8               sun/nio/cs/UTF_16BE
+   #23 = Class              #24              // sun/nio/cs/UTF_16LE
+   #24 = Utf8               sun/nio/cs/UTF_16LE
+   #25 = Class              #26              // sun/nio/cs/UTF_16LE_BOM
+   #26 = Utf8               sun/nio/cs/UTF_16LE_BOM
+   #27 = Class              #28              // sun/nio/cs/CESU_8
+   #28 = Utf8               sun/nio/cs/CESU_8
+   #29 = Class              #30              // sun/nio/cs/UTF_32
+   #30 = Utf8               sun/nio/cs/UTF_32
+   #31 = Class              #32              // sun/nio/cs/UTF_32BE
+   #32 = Utf8               sun/nio/cs/UTF_32BE
+   #33 = Class              #34              // sun/nio/cs/UTF_32BE_BOM
+   #34 = Utf8               sun/nio/cs/UTF_32BE_BOM
+   #35 = Class              #36              // sun/nio/cs/UTF_32LE
+   #36 = Utf8               sun/nio/cs/UTF_32LE
+   #37 = Class              #38              // sun/nio/cs/UTF_32LE_BOM
+   #38 = Utf8               sun/nio/cs/UTF_32LE_BOM
+   #39 = Methodref          #2.#40           // java/nio/charset/Charset.name:()Ljava/lang/String;
+   #40 = NameAndType        #41:#42          // name:()Ljava/lang/String;
+   #41 = Utf8               name
+   #42 = Utf8               ()Ljava/lang/String;
+   #43 = String             #44              // GBK
+   #44 = Utf8               GBK
+   #45 = Methodref          #46.#47          // java/lang/String.equals:(Ljava/lang/Object;)Z
+   #46 = Class              #48              // java/lang/String
+   #47 = NameAndType        #49:#50          // equals:(Ljava/lang/Object;)Z
+   #48 = Utf8               java/lang/String
+   #49 = Utf8               equals
+   #50 = Utf8               (Ljava/lang/Object;)Z
+   #51 = String             #52              // GB18030
+   #52 = Utf8               GB18030
+   #53 = String             #54              // ISO-8859-2
+   #54 = Utf8               ISO-8859-2
+   #55 = String             #56              // ISO-8859-3
+   #56 = Utf8               ISO-8859-3
+   #57 = String             #58              // ISO-8859-4
+   #58 = Utf8               ISO-8859-4
+   #59 = String             #60              // ISO-8859-5
+   #60 = Utf8               ISO-8859-5
+   #61 = String             #62              // ISO-8859-6
+   #62 = Utf8               ISO-8859-6
+   #63 = String             #64              // ISO-8859-7
+   #64 = Utf8               ISO-8859-7
+   #65 = String             #66              // ISO-8859-8
+   #66 = Utf8               ISO-8859-8
+   #67 = String             #68              // ISO-8859-9
+   #68 = Utf8               ISO-8859-9
+   #69 = String             #70              // ISO-8859-13
+   #70 = Utf8               ISO-8859-13
+   #71 = String             #72              // JIS_X0201
+   #72 = Utf8               JIS_X0201
+   #73 = String             #74              // x-JIS0208
+   #74 = Utf8               x-JIS0208
+   #75 = String             #76              // JIS_X0212-1990
+   #76 = Utf8               JIS_X0212-1990
+   #77 = String             #78              // GB2312
+   #78 = Utf8               GB2312
+   #79 = String             #80              // EUC-KR
+   #80 = Utf8               EUC-KR
+   #81 = String             #82              // x-EUC-TW
+   #82 = Utf8               x-EUC-TW
+   #83 = String             #84              // EUC-JP
+   #84 = Utf8               EUC-JP
+   #85 = String             #86              // x-euc-jp-linux
+   #86 = Utf8               x-euc-jp-linux
+   #87 = String             #88              // KOI8-R
+   #88 = Utf8               KOI8-R
+   #89 = String             #90              // TIS-620
+   #90 = Utf8               TIS-620
+   #91 = String             #92              // x-ISCII91
+   #92 = Utf8               x-ISCII91
+   #93 = String             #94              // windows-1251
+   #94 = Utf8               windows-1251
+   #95 = String             #96              // windows-1253
+   #96 = Utf8               windows-1253
+   #97 = String             #98              // windows-1254
+   #98 = Utf8               windows-1254
+   #99 = String             #100             // windows-1255
+  #100 = Utf8               windows-1255
+  #101 = String             #102             // windows-1256
+  #102 = Utf8               windows-1256
+  #103 = String             #104             // windows-1257
+  #104 = Utf8               windows-1257
+  #105 = String             #106             // windows-1258
+  #106 = Utf8               windows-1258
+  #107 = String             #108             // windows-932
+  #108 = Utf8               windows-932
+  #109 = String             #110             // x-mswin-936
+  #110 = Utf8               x-mswin-936
+  #111 = String             #112             // x-windows-949
+  #112 = Utf8               x-windows-949
+  #113 = String             #114             // x-windows-950
+  #114 = Utf8               x-windows-950
+  #115 = String             #116             // windows-31j
+  #116 = Utf8               windows-31j
+  #117 = String             #118             // Big5
+  #118 = Utf8               Big5
+  #119 = String             #120             // Big5-HKSCS
+  #120 = Utf8               Big5-HKSCS
+  #121 = String             #122             // x-MS950-HKSCS
+  #122 = Utf8               x-MS950-HKSCS
+  #123 = String             #124             // ISO-2022-JP
+  #124 = Utf8               ISO-2022-JP
+  #125 = String             #126             // ISO-2022-KR
+  #126 = Utf8               ISO-2022-KR
+  #127 = String             #128             // x-ISO-2022-CN-CNS
+  #128 = Utf8               x-ISO-2022-CN-CNS
+  #129 = String             #130             // x-ISO-2022-CN-GB
+  #130 = Utf8               x-ISO-2022-CN-GB
+  #131 = String             #132             // x-Johab
+  #132 = Utf8               x-Johab
+  #133 = String             #134             // Shift_JIS
+  #134 = Utf8               Shift_JIS
+  #135 = Class              #136             // sun/nio/cs/Unicode
+  #136 = Utf8               sun/nio/cs/Unicode
+  #137 = Class              #138             // sun/nio/cs/HistoricallyNamedCharset
+  #138 = Utf8               sun/nio/cs/HistoricallyNamedCharset
+  #139 = Utf8               Code
+  #140 = Utf8               LineNumberTable
+  #141 = Utf8               LocalVariableTable
+  #142 = Utf8               this
+  #143 = Utf8               Lsun/nio/cs/Unicode;
+  #144 = Utf8               Ljava/lang/String;
+  #145 = Utf8               aliases
+  #146 = Utf8               [Ljava/lang/String;
+  #147 = Utf8               contains
+  #148 = Utf8               (Ljava/nio/charset/Charset;)Z
+  #149 = Utf8               cs
+  #150 = Utf8               Ljava/nio/charset/Charset;
+  #151 = Utf8               StackMapTable
+  #152 = Utf8               SourceFile
+  #153 = Utf8               Unicode.java
+{
+  public sun.nio.cs.Unicode(java.lang.String, java.lang.String[]);
+    descriptor: (Ljava/lang/String;[Ljava/lang/String;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=3, args_size=3
+         0: aload_0                 
+         1: aload_1                 
+         2: aload_2                 
+         3: invokespecial #1                  // Method java/nio/charset/Charset."<init>":(Ljava/lang/String;[Ljava/lang/String;)V
+         6: return                  
+      LineNumberTable:
+        line 34: 0
+        line 35: 6
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        7     0  this   Lsun/nio/cs/Unicode;
+           0        7     1  name   Ljava/lang/String;
+           0        7     2  aliases [Ljava/lang/String;
+  
+  public boolean contains(java.nio.charset.Charset);
+    descriptor: (Ljava/nio/charset/Charset;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_1                 
+         1: instanceof    #7                  // class sun/nio/cs/US_ASCII
+         4: ifne          628               
+         7: aload_1                 
+         8: instanceof    #9                  // class sun/nio/cs/ISO_8859_1
+        11: ifne          628               
+        14: aload_1                 
+        15: instanceof    #11                 // class sun/nio/cs/ISO_8859_15
+        18: ifne          628               
+        21: aload_1                 
+        22: instanceof    #13                 // class sun/nio/cs/ISO_8859_16
+        25: ifne          628               
+        28: aload_1                 
+        29: instanceof    #15                 // class sun/nio/cs/MS1252
+        32: ifne          628               
+        35: aload_1                 
+        36: instanceof    #17                 // class sun/nio/cs/UTF_8
+        39: ifne          628               
+        42: aload_1                 
+        43: instanceof    #19                 // class sun/nio/cs/UTF_16
+        46: ifne          628               
+        49: aload_1                 
+        50: instanceof    #21                 // class sun/nio/cs/UTF_16BE
+        53: ifne          628               
+        56: aload_1                 
+        57: instanceof    #23                 // class sun/nio/cs/UTF_16LE
+        60: ifne          628               
+        63: aload_1                 
+        64: instanceof    #25                 // class sun/nio/cs/UTF_16LE_BOM
+        67: ifne          628               
+        70: aload_1                 
+        71: instanceof    #27                 // class sun/nio/cs/CESU_8
+        74: ifne          628               
+        77: aload_1                 
+        78: instanceof    #29                 // class sun/nio/cs/UTF_32
+        81: ifne          628               
+        84: aload_1                 
+        85: instanceof    #31                 // class sun/nio/cs/UTF_32BE
+        88: ifne          628               
+        91: aload_1                 
+        92: instanceof    #33                 // class sun/nio/cs/UTF_32BE_BOM
+        95: ifne          628               
+        98: aload_1                 
+        99: instanceof    #35                 // class sun/nio/cs/UTF_32LE
+       102: ifne          628               
+       105: aload_1                 
+       106: instanceof    #37                 // class sun/nio/cs/UTF_32LE_BOM
+       109: ifne          628               
+       112: aload_1                 
+       113: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       116: ldc           #43                 // String GBK
+       118: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       121: ifne          628               
+       124: aload_1                 
+       125: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       128: ldc           #51                 // String GB18030
+       130: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       133: ifne          628               
+       136: aload_1                 
+       137: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       140: ldc           #53                 // String ISO-8859-2
+       142: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       145: ifne          628               
+       148: aload_1                 
+       149: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       152: ldc           #55                 // String ISO-8859-3
+       154: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       157: ifne          628               
+       160: aload_1                 
+       161: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       164: ldc           #57                 // String ISO-8859-4
+       166: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       169: ifne          628               
+       172: aload_1                 
+       173: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       176: ldc           #59                 // String ISO-8859-5
+       178: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       181: ifne          628               
+       184: aload_1                 
+       185: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       188: ldc           #61                 // String ISO-8859-6
+       190: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       193: ifne          628               
+       196: aload_1                 
+       197: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       200: ldc           #63                 // String ISO-8859-7
+       202: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       205: ifne          628               
+       208: aload_1                 
+       209: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       212: ldc           #65                 // String ISO-8859-8
+       214: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       217: ifne          628               
+       220: aload_1                 
+       221: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       224: ldc           #67                 // String ISO-8859-9
+       226: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       229: ifne          628               
+       232: aload_1                 
+       233: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       236: ldc           #69                 // String ISO-8859-13
+       238: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       241: ifne          628               
+       244: aload_1                 
+       245: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       248: ldc           #71                 // String JIS_X0201
+       250: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       253: ifne          628               
+       256: aload_1                 
+       257: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       260: ldc           #73                 // String x-JIS0208
+       262: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       265: ifne          628               
+       268: aload_1                 
+       269: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       272: ldc           #75                 // String JIS_X0212-1990
+       274: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       277: ifne          628               
+       280: aload_1                 
+       281: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       284: ldc           #77                 // String GB2312
+       286: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       289: ifne          628               
+       292: aload_1                 
+       293: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       296: ldc           #79                 // String EUC-KR
+       298: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       301: ifne          628               
+       304: aload_1                 
+       305: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       308: ldc           #81                 // String x-EUC-TW
+       310: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       313: ifne          628               
+       316: aload_1                 
+       317: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       320: ldc           #83                 // String EUC-JP
+       322: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       325: ifne          628               
+       328: aload_1                 
+       329: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       332: ldc           #85                 // String x-euc-jp-linux
+       334: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       337: ifne          628               
+       340: aload_1                 
+       341: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       344: ldc           #87                 // String KOI8-R
+       346: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       349: ifne          628               
+       352: aload_1                 
+       353: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       356: ldc           #89                 // String TIS-620
+       358: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       361: ifne          628               
+       364: aload_1                 
+       365: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       368: ldc           #91                 // String x-ISCII91
+       370: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       373: ifne          628               
+       376: aload_1                 
+       377: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       380: ldc           #93                 // String windows-1251
+       382: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       385: ifne          628               
+       388: aload_1                 
+       389: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       392: ldc           #95                 // String windows-1253
+       394: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       397: ifne          628               
+       400: aload_1                 
+       401: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       404: ldc           #97                 // String windows-1254
+       406: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       409: ifne          628               
+       412: aload_1                 
+       413: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       416: ldc           #99                 // String windows-1255
+       418: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       421: ifne          628               
+       424: aload_1                 
+       425: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       428: ldc           #101                // String windows-1256
+       430: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       433: ifne          628               
+       436: aload_1                 
+       437: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       440: ldc           #103                // String windows-1257
+       442: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       445: ifne          628               
+       448: aload_1                 
+       449: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       452: ldc           #105                // String windows-1258
+       454: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       457: ifne          628               
+       460: aload_1                 
+       461: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       464: ldc           #107                // String windows-932
+       466: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       469: ifne          628               
+       472: aload_1                 
+       473: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       476: ldc           #109                // String x-mswin-936
+       478: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       481: ifne          628               
+       484: aload_1                 
+       485: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       488: ldc           #111                // String x-windows-949
+       490: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       493: ifne          628               
+       496: aload_1                 
+       497: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       500: ldc           #113                // String x-windows-950
+       502: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       505: ifne          628               
+       508: aload_1                 
+       509: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       512: ldc           #115                // String windows-31j
+       514: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       517: ifne          628               
+       520: aload_1                 
+       521: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       524: ldc           #117                // String Big5
+       526: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       529: ifne          628               
+       532: aload_1                 
+       533: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       536: ldc           #119                // String Big5-HKSCS
+       538: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       541: ifne          628               
+       544: aload_1                 
+       545: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       548: ldc           #121                // String x-MS950-HKSCS
+       550: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       553: ifne          628               
+       556: aload_1                 
+       557: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       560: ldc           #123                // String ISO-2022-JP
+       562: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       565: ifne          628               
+       568: aload_1                 
+       569: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       572: ldc           #125                // String ISO-2022-KR
+       574: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       577: ifne          628               
+       580: aload_1                 
+       581: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       584: ldc           #127                // String x-ISO-2022-CN-CNS
+       586: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       589: ifne          628               
+       592: aload_1                 
+       593: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       596: ldc           #129                // String x-ISO-2022-CN-GB
+       598: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       601: ifne          628               
+       604: aload_1                 
+       605: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       608: ldc           #131                // String x-Johab
+       610: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       613: ifne          628               
+       616: aload_1                 
+       617: invokevirtual #39                 // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+       620: ldc           #133                // String Shift_JIS
+       622: invokevirtual #45                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       625: ifeq          632               
+       628: iconst_1                
+       629: goto          633               
+       632: iconst_0                
+       633: ireturn                 
+      LineNumberTable:
+        line 38: 0
+        line 54: 113
+        line 55: 125
+        line 56: 137
+        line 57: 149
+        line 58: 161
+        line 59: 173
+        line 60: 185
+        line 61: 197
+        line 62: 209
+        line 63: 221
+        line 64: 233
+        line 65: 245
+        line 66: 257
+        line 67: 269
+        line 68: 281
+        line 69: 293
+        line 70: 305
+        line 71: 317
+        line 72: 329
+        line 73: 341
+        line 74: 353
+        line 75: 365
+        line 76: 377
+        line 77: 389
+        line 78: 401
+        line 79: 413
+        line 80: 425
+        line 81: 437
+        line 82: 449
+        line 83: 461
+        line 84: 473
+        line 85: 485
+        line 86: 497
+        line 87: 509
+        line 88: 521
+        line 89: 533
+        line 90: 545
+        line 91: 557
+        line 92: 569
+        line 93: 581
+        line 94: 593
+        line 95: 605
+        line 96: 617
+        line 38: 633
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0      634     0  this   Lsun/nio/cs/Unicode;
+           0      634     1  cs     Ljava/nio/charset/Charset;
+      StackMapTable: number_of_entries = 3
+        frame_type = 251 /* same_frame_extended */
+          offset_delta = 628
+        frame_type = 3 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+}
+SourceFile: "Unicode.java"

@@ -19,7 +19,7 @@ vm:
         value:
           class: java/lang/String
           fields:
-            - Array: 0
+            - Ref: 0
             - Integer: 0
             - Integer: 0
             - Integer: 0
@@ -38,7 +38,7 @@ vm:
 last_pop_frame:
   locals:
     - ~
-    - Object: 1
+    - Ref: 1
     - Integer: 5
   operands: []
   pc: 9

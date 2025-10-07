@@ -140,7 +140,7 @@ impl FrameStack {
     pub fn get_local_ref(&self, index: u8) -> Result<&Value, JvmError> {
         let local = self.get_local(index)?;
         match local {
-            Value::Object(_) | Value::Array(_) => Ok(local),
+            Value::Ref(_) | Value::Null => Ok(local),
             _ => Err(JvmError::UnexpectedType(
                 "Expected Object or Array in local variable".to_string(),
             )),
@@ -233,51 +233,29 @@ impl FrameStack {
         }
     }
 
-    pub fn pop_nullable_obj_ref(&mut self) -> Result<Value, JvmError> {
-        match self.pop_operand()? {
-            Value::Object(v) => Ok(Value::Object(v)),
-            Value::Array(v) => Ok(Value::Array(v)),
+    pub fn pop_nullable_ref(&mut self) -> Result<Value, JvmError> {
+        let value = self.pop_operand()?;
+        match &value {
+            Value::Ref(_) | Value::Null => Ok(value),
             _ => Err(JvmError::UnexpectedType(
                 "Expected Object on operand stack".to_string(),
             )),
         }
     }
 
-    pub fn pop_nullable_obj_ref_val(&mut self) -> Result<Option<HeapAddr>, JvmError> {
+    pub fn pop_nullable_ref_val(&mut self) -> Result<Option<HeapAddr>, JvmError> {
         match self.pop_operand()? {
-            Value::Object(v) | Value::Array(v) => Ok(v),
+            Value::Ref(v) => Ok(Some(v)),
+            Value::Null => Ok(None),
             _ => Err(JvmError::UnexpectedType(
                 "Expected Object on operand stack".to_string(),
             )),
         }
     }
 
-    pub fn pop_obj_ref_val(&mut self) -> Result<HeapAddr, JvmError> {
-        self.pop_nullable_obj_ref_val()?
+    pub fn pop_obj_val(&mut self) -> Result<HeapAddr, JvmError> {
+        self.pop_nullable_ref_val()?
             .ok_or(JvmError::NullPointerException)
-    }
-
-    pub fn pop_nullable_array_ref(&mut self) -> Result<Option<HeapAddr>, JvmError> {
-        match self.pop_operand()? {
-            Value::Array(v) => Ok(v),
-            e => Err(JvmError::UnexpectedType(format!(
-                "Expected Array on operand stack, found {e:?}"
-            ))),
-        }
-    }
-
-    pub fn pop_array_ref(&mut self) -> Result<HeapAddr, JvmError> {
-        self.pop_nullable_array_ref()?
-            .ok_or(JvmError::NullPointerException)
-    }
-
-    pub fn pop_ref(&mut self) -> Result<Option<HeapAddr>, JvmError> {
-        match self.pop_operand()? {
-            Value::Object(o) | Value::Array(o) => Ok(o),
-            _ => Err(JvmError::UnexpectedType(
-                "Expected reference (Object or Array) on operand stack".to_string(),
-            )),
-        }
     }
 
     pub fn pop_operand(&mut self) -> Result<Value, JvmError> {
@@ -291,16 +269,6 @@ impl FrameStack {
 
     pub fn peek(&self) -> Result<&Value, JvmError> {
         self.cur_frame()?.peek()
-    }
-
-    pub fn peek_obj_ref_val(&self) -> Result<HeapAddr, JvmError> {
-        match self.peek()? {
-            Value::Object(Some(v)) => Ok(*v),
-            Value::Object(None) => Err(JvmError::NullPointerException),
-            _ => Err(JvmError::UnexpectedType(
-                "Expected Object or Array on operand stack".to_string(),
-            )),
-        }
     }
 }
 

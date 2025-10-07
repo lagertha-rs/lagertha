@@ -28,7 +28,7 @@ vm:
         value:
           class: java/lang/String
           fields:
-            - Array: 2
+            - Ref: 2
             - Integer: 0
             - Integer: 0
             - Integer: 0
@@ -38,9 +38,9 @@ vm:
 last_pop_frame:
   locals:
     - ~
-    - Object: 0
-    - Object: 1
-    - Object: 3
-    - Object: 3
+    - Ref: 0
+    - Ref: 1
+    - Ref: 3
+    - Ref: 3
   operands: []
   pc: 28

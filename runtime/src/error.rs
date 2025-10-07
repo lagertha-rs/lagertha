@@ -66,4 +66,6 @@ pub enum JvmError {
     JavaExceptionThrown(HeapAddr),
     #[error("Uninitialized")]
     Uninitialized,
+    #[error("WrongHeapAddress: `{0}`")]
+    WrongHeapAddress(HeapAddr),
 }

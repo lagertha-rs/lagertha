@@ -27,17 +27,17 @@ vm:
         type: Array
         class: arrays/reference_array/ReferenceArrayMain$ReferenceClass
         elements:
-          - Object: 0
-          - Object: 1
-          - Object: 2
+          - Ref: 0
+          - Ref: 1
+          - Ref: 2
     string_pool: []
 last_pop_frame:
   locals:
     - ~
-    - Object: 0
-    - Object: 1
-    - Object: 2
-    - Array: 3
+    - Ref: 0
+    - Ref: 1
+    - Ref: 2
+    - Ref: 3
     - Integer: 3
   operands: []
   pc: 51

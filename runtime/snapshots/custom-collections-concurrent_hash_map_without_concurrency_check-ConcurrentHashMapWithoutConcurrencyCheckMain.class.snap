@@ -14,20 +14,20 @@ vm:
         type: Array
         class: java/io/ObjectStreamField
         elements:
-          - Object: 2
-          - Object: 6
-          - Object: 15
+          - Ref: 2
+          - Ref: 6
+          - Ref: 15
       - address: 2
         type: Instance
         value:
           class: java/io/ObjectStreamField
           fields:
-            - Object: 4
-            - Object: ~
-            - Object: 5
-            - Object: ~
+            - Ref: 4
+            - "Null"
+            - Ref: 5
+            - "Null"
             - Integer: 0
-            - Object: ~
+            - "Null"
             - Integer: 0
       - address: 3
         type: Array
@@ -46,7 +46,7 @@ vm:
         value:
           class: java/lang/String
           fields:
-            - Array: 3
+            - Ref: 3
             - Integer: 0
             - Integer: 0
             - Integer: 0
@@ -55,33 +55,33 @@ vm:
         value:
           class: java/lang/Class
           fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
             - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
       - address: 6
         type: Instance
         value:
           class: java/io/ObjectStreamField
           fields:
-            - Object: 8
-            - Object: ~
-            - Object: 13
-            - Object: ~
+            - Ref: 8
+            - "Null"
+            - Ref: 13
+            - "Null"
             - Integer: 0
-            - Object: ~
+            - "Null"
             - Integer: 0
       - address: 7
         type: Array
@@ -103,7 +103,7 @@ vm:
         value:
           class: java/lang/String
           fields:
-            - Array: 7
+            - Ref: 7
             - Integer: 0
             - Integer: 0
             - Integer: 0
@@ -119,7 +119,7 @@ vm:
         value:
           class: java/lang/String
           fields:
-            - Array: 9
+            - Ref: 9
             - Integer: 0
             - Integer: 0
             - Integer: 0
@@ -136,22 +136,22 @@ vm:
         value:
           class: java/lang/Class
           fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
             - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
       - address: 14
         type: Array
         class: "[C"
@@ -197,12 +197,12 @@ vm:
         value:
           class: java/io/ObjectStreamField
           fields:
-            - Object: 17
-            - Object: ~
-            - Object: 13
-            - Object: ~
+            - Ref: 17
+            - "Null"
+            - Ref: 13
+            - "Null"
             - Integer: 0
-            - Object: ~
+            - "Null"
             - Integer: 0
       - address: 16
         type: Array
@@ -225,7 +225,7 @@ vm:
         value:
           class: java/lang/String
           fields:
-            - Array: 16
+            - Ref: 16
             - Integer: 0
             - Integer: 0
             - Integer: 0
@@ -239,211 +239,211 @@ vm:
         value:
           class: java/lang/Class
           fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
             - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
       - address: 20
         type: Instance
         value:
           class: java/lang/Class
           fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
             - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
       - address: 21
         type: Instance
         value:
           class: java/lang/Class
           fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
             - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
       - address: 22
         type: Instance
         value:
           class: java/lang/Class
           fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
             - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
       - address: 23
         type: Instance
         value:
           class: java/lang/Class
           fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
             - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
       - address: 24
         type: Instance
         value:
           class: java/lang/Class
           fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
             - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
       - address: 25
         type: Instance
         value:
           class: java/lang/Class
           fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
             - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
       - address: 26
         type: Instance
         value:
           class: java/lang/Class
           fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
             - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
       - address: 27
         type: Instance
         value:
           class: java/lang/Class
           fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
             - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
       - address: 28
         type: Instance
         value:
           class: java/lang/Class
           fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
             - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
       - address: 29
         type: Array
         class: "[C"
@@ -460,7 +460,7 @@ vm:
         value:
           class: java/lang/String
           fields:
-            - Array: 29
+            - Ref: 29
             - Integer: 0
             - Integer: 0
             - Integer: 0
@@ -486,7 +486,7 @@ vm:
         value:
           class: java/lang/String
           fields:
-            - Array: 31
+            - Ref: 31
             - Integer: 0
             - Integer: 0
             - Integer: 0
@@ -508,7 +508,7 @@ vm:
         value:
           class: java/lang/String
           fields:
-            - Array: 33
+            - Ref: 33
             - Integer: 0
             - Integer: 0
             - Integer: 0
@@ -530,7 +530,7 @@ vm:
         value:
           class: java/lang/String
           fields:
-            - Array: 35
+            - Ref: 35
             - Integer: 0
             - Integer: 0
             - Integer: 0
@@ -539,22 +539,22 @@ vm:
         value:
           class: java/lang/Class
           fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
             - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
       - address: 38
         type: Array
         class: "[C"
@@ -569,7 +569,7 @@ vm:
         value:
           class: java/lang/String
           fields:
-            - Array: 38
+            - Ref: 38
             - Integer: 0
             - Integer: 0
             - Integer: 0
@@ -578,81 +578,81 @@ vm:
         value:
           class: java/lang/Class
           fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
             - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
       - address: 41
         type: Instance
         value:
           class: java/lang/Class
           fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
             - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
       - address: 42
         type: Instance
         value:
           class: java/lang/Class
           fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
             - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
       - address: 43
         type: Instance
         value:
           class: java/util/concurrent/ConcurrentHashMap
           fields:
-            - Array: 54
-            - Array: ~
+            - Ref: 54
+            - "Null"
             - Long: 1
             - Integer: 12
             - Integer: 0
             - Integer: 0
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
       - address: 44
         type: Array
         class: "[C"
@@ -674,7 +674,7 @@ vm:
         value:
           class: java/lang/String
           fields:
-            - Array: 44
+            - Ref: 44
             - Integer: 0
             - Integer: 560567564
             - Integer: 0
@@ -689,7 +689,7 @@ vm:
         value:
           class: java/lang/String
           fields:
-            - Array: 46
+            - Ref: 46
             - Integer: 0
             - Integer: 0
             - Integer: 0
@@ -707,22 +707,22 @@ vm:
         value:
           class: java/lang/Class
           fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
             - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
       - address: 51
         type: Array
         class: "[C"
@@ -736,7 +736,7 @@ vm:
         value:
           class: java/lang/String
           fields:
-            - Array: 51
+            - Ref: 51
             - Integer: 0
             - Integer: 0
             - Integer: 0
@@ -745,51 +745,51 @@ vm:
         value:
           class: java/lang/Class
           fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
             - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
       - address: 54
         type: Array
         class: java/util/concurrent/ConcurrentHashMap$Node
         elements:
-          - Object: ~
-          - Object: ~
-          - Object: ~
-          - Object: ~
-          - Object: ~
-          - Object: 55
-          - Object: ~
-          - Object: ~
-          - Object: ~
-          - Object: ~
-          - Object: ~
-          - Object: ~
-          - Object: ~
-          - Object: ~
-          - Object: ~
-          - Object: ~
+          - "Null"
+          - "Null"
+          - "Null"
+          - "Null"
+          - "Null"
+          - Ref: 55
+          - "Null"
+          - "Null"
+          - "Null"
+          - "Null"
+          - "Null"
+          - "Null"
+          - "Null"
+          - "Null"
+          - "Null"
+          - "Null"
       - address: 55
         type: Instance
         value:
           class: java/util/concurrent/ConcurrentHashMap$Node
           fields:
             - Integer: 560575589
-            - Object: 45
-            - Object: 47
-            - Object: ~
+            - Ref: 45
+            - Ref: 47
+            - "Null"
     string_pool:
       - string: "24"
         address: 47
@@ -818,7 +818,7 @@ vm:
 last_pop_frame:
   locals:
     - ~
-    - Object: 43
-    - Object: 47
+    - Ref: 43
+    - Ref: 47
   operands: []
   pc: 28

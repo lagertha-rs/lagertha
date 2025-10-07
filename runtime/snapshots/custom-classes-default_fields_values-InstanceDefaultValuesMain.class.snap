@@ -10,9 +10,9 @@ vm:
         value:
           class: classes/default_fields_values/InstanceDefaultValuesMain$ClassWithFields
           fields:
-            - Object: ~
-            - Object: ~
-            - Array: ~
+            - "Null"
+            - "Null"
+            - "Null"
             - Integer: 0
             - Integer: 0
             - Integer: 0
@@ -25,6 +25,6 @@ vm:
 last_pop_frame:
   locals:
     - ~
-    - Object: 0
+    - Ref: 0
   operands: []
   pc: 9

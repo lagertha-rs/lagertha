@@ -14,7 +14,7 @@ vm:
         value:
           class: java/lang/String
           fields:
-            - Array: 0
+            - Ref: 0
             - Integer: 0
             - Integer: 0
             - Integer: 0
@@ -23,29 +23,29 @@ vm:
         value:
           class: java/lang/Class
           fields:
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
             - Integer: 0
-            - Object: ~
-            - Array: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
-            - Object: ~
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
+            - "Null"
     string_pool:
       - string: ""
         address: 1
 last_pop_frame:
   locals:
     - ~
-    - Object: 2
+    - Ref: 2
     - Integer: 0
   operands: []
   pc: 12

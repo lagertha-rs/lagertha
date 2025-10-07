@@ -111,9 +111,6 @@ impl Heap {
     fn push(&mut self, obj: HeapObject) -> HeapAddr {
         let idx = self.objects.len();
         self.objects.push(obj);
-        if idx == 1451 {
-            print!("")
-        }
         idx
     }
 
@@ -121,7 +118,7 @@ impl Heap {
         let default_value = if let Some(primitive_type) = class.primitive() {
             Value::from(&primitive_type)
         } else {
-            Value::Object(None)
+            Value::Null
         };
         let elements = vec![default_value; length];
         self.push(HeapObject::Array(ArrayInstance::new(class, elements)))
@@ -179,7 +176,7 @@ impl Heap {
         )));
 
         // The "value" field is always the first field in java.lang.String, but probably should be looked up by name
-        fields[0] = Value::Array(Some(value));
+        fields[0] = Value::Ref(value);
 
         self.push(HeapObject::Instance(ClassInstance {
             class: self.string_class.get().unwrap().clone(),
@@ -229,12 +226,16 @@ impl Heap {
             .expect("heap: invalid handle (get_mut)")
     }
 
+    pub fn addr_is_instance(&self, h: &HeapAddr) -> bool {
+        matches!(self.get(*h), Some(HeapObject::Instance(_)))
+    }
+
     //TODO: design it lightweight
     pub fn get_string(&self, h: HeapAddr) -> Result<String, JvmError> {
         let instance = self.get_instance(&h);
         let value_field = instance.get_field_value("value", "[B").unwrap();
         let array_addr = match value_field {
-            Value::Array(Some(addr)) => *addr,
+            Value::Ref(addr) => *addr,
             _ => {
                 return Err(JvmError::NullPointerException);
             }

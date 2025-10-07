@@ -27,7 +27,7 @@ vm:
 last_pop_frame:
   locals:
     - ~
-    - Array: 0
-    - Array: 1
+    - Ref: 0
+    - Ref: 1
   operands: []
   pc: 9
