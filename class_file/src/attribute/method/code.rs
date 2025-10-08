@@ -295,7 +295,7 @@ impl<'a> VerificationTypeInfo {
             VerificationTypeInfo::Double => "double".to_string(),
             VerificationTypeInfo::Long => "long".to_string(),
             VerificationTypeInfo::Null => "null".to_string(),
-            VerificationTypeInfo::UninitializedThis => unimplemented!(),
+            VerificationTypeInfo::UninitializedThis => "this".to_string(),
             VerificationTypeInfo::Object(cp_index) => {
                 cp.get_raw(cp_index)?.get_pretty_type_and_value(cp, this)?
             }

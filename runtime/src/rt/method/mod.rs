@@ -52,6 +52,26 @@ pub struct Method {
 }
 
 impl Method {
+    pub fn new_native(
+        name: Arc<str>,
+        descriptor: Arc<MethodDescriptorReference>,
+        flags: MethodFlags,
+    ) -> Self {
+        Method {
+            name_idx: 0,
+            name,
+            flags,
+            class: SyncOnceCell::new(),
+            descriptor,
+            code_context: None,
+            signature: None,
+            rt_visible_annotations: None,
+            rt_invisible_annotations: None,
+            is_deprecated: false,
+            method_type: MethodType::Native,
+        }
+    }
+
     pub fn new(
         method_info: MethodInfo,
         method_type: MethodType,

@@ -306,6 +306,28 @@ impl Heap {
         }
         Ok(())
     }
+
+    pub fn clone_object(&mut self, h: HeapAddr) -> HeapAddr {
+        let obj = self.get(h).expect("heap: invalid handle (clone_object)");
+        match obj {
+            HeapObject::Instance(inst) => {
+                let new_fields = inst.fields.clone();
+                let new_instance = ClassInstance {
+                    class: inst.class.clone(),
+                    fields: new_fields,
+                };
+                self.push(HeapObject::Instance(new_instance))
+            }
+            HeapObject::Array(arr) => {
+                let new_elements = arr.elements.clone();
+                let new_array = ArrayInstance {
+                    class: arr.class.clone(),
+                    elements: new_elements,
+                };
+                self.push(HeapObject::Array(new_array))
+            }
+        }
+    }
 }
 
 #[cfg(test)]

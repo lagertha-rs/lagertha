@@ -1,0 +1,983 @@
+---
+source: class_file/src/lib.rs
+expression: display
+---
+final class sun.nio.cs.UTF_8$Encoder extends java.nio.charset.CharsetEncoder
+  minor version: 0
+  major version: 68
+  flags: (0x0030) ACC_FINAL, ACC_SUPER
+  this_class: #75                      //sun/nio/cs/UTF_8$Encoder
+  super_class: #4                      //java/nio/charset/CharsetEncoder
+  interfaces: 0, fields: 1, methods: 9, attributes: 3
+Constant pool:
+    #1 = Float              1.1f
+    #2 = Float              3.0f
+    #3 = Methodref          #4.#5            // java/nio/charset/CharsetEncoder."<init>":(Ljava/nio/charset/Charset;FF)V
+    #4 = Class              #6               // java/nio/charset/CharsetEncoder
+    #5 = NameAndType        #7:#8            // "<init>":(Ljava/nio/charset/Charset;FF)V
+    #6 = Utf8               java/nio/charset/CharsetEncoder
+    #7 = Utf8               <init>
+    #8 = Utf8               (Ljava/nio/charset/Charset;FF)V
+    #9 = Methodref          #10.#11          // java/lang/Character.isSurrogate:(C)Z
+   #10 = Class              #12              // java/lang/Character
+   #11 = NameAndType        #13:#14          // isSurrogate:(C)Z
+   #12 = Utf8               java/lang/Character
+   #13 = Utf8               isSurrogate
+   #14 = Utf8               (C)Z
+   #15 = Methodref          #4.#16           // java/nio/charset/CharsetEncoder.isLegalReplacement:([B)Z
+   #16 = NameAndType        #17:#18          // isLegalReplacement:([B)Z
+   #17 = Utf8               isLegalReplacement
+   #18 = Utf8               ([B)Z
+   #19 = Methodref          #20.#21          // sun/nio/cs/UTF_8.updatePositions:(Ljava/nio/Buffer;ILjava/nio/Buffer;I)V
+   #20 = Class              #22              // sun/nio/cs/UTF_8
+   #21 = NameAndType        #23:#24          // updatePositions:(Ljava/nio/Buffer;ILjava/nio/Buffer;I)V
+   #22 = Utf8               sun/nio/cs/UTF_8
+   #23 = Utf8               updatePositions
+   #24 = Utf8               (Ljava/nio/Buffer;ILjava/nio/Buffer;I)V
+   #25 = Fieldref           #26.#27          // java/nio/charset/CoderResult.OVERFLOW:Ljava/nio/charset/CoderResult;
+   #26 = Class              #28              // java/nio/charset/CoderResult
+   #27 = NameAndType        #29:#30          // OVERFLOW:Ljava/nio/charset/CoderResult;
+   #28 = Utf8               java/nio/charset/CoderResult
+   #29 = Utf8               OVERFLOW
+   #30 = Utf8               Ljava/nio/charset/CoderResult;
+   #31 = Methodref          #32.#33          // java/nio/CharBuffer.position:(I)Ljava/nio/CharBuffer;
+   #32 = Class              #34              // java/nio/CharBuffer
+   #33 = NameAndType        #35:#36          // position:(I)Ljava/nio/CharBuffer;
+   #34 = Utf8               java/nio/CharBuffer
+   #35 = Utf8               position
+   #36 = Utf8               (I)Ljava/nio/CharBuffer;
+   #37 = Methodref          #32.#38          // java/nio/CharBuffer.array:()[C
+   #38 = NameAndType        #39:#40          // array:()[C
+   #39 = Utf8               array
+   #40 = Utf8               ()[C
+   #41 = Methodref          #32.#42          // java/nio/CharBuffer.arrayOffset:()I
+   #42 = NameAndType        #43:#44          // arrayOffset:()I
+   #43 = Utf8               arrayOffset
+   #44 = Utf8               ()I
+   #45 = Methodref          #32.#46          // java/nio/CharBuffer.position:()I
+   #46 = NameAndType        #35:#44          // position:()I
+   #47 = Methodref          #32.#48          // java/nio/CharBuffer.limit:()I
+   #48 = NameAndType        #49:#44          // limit:()I
+   #49 = Utf8               limit
+   #50 = Methodref          #51.#52          // java/nio/ByteBuffer.array:()[B
+   #51 = Class              #53              // java/nio/ByteBuffer
+   #52 = NameAndType        #39:#54          // array:()[B
+   #53 = Utf8               java/nio/ByteBuffer
+   #54 = Utf8               ()[B
+   #55 = Methodref          #51.#42          // java/nio/ByteBuffer.arrayOffset:()I
+   #56 = Methodref          #51.#46          // java/nio/ByteBuffer.position:()I
+   #57 = Methodref          #51.#48          // java/nio/ByteBuffer.limit:()I
+   #58 = Fieldref           #20.#59          // sun/nio/cs/UTF_8.JLA:Ljdk/internal/access/JavaLangAccess;
+   #59 = NameAndType        #60:#61          // JLA:Ljdk/internal/access/JavaLangAccess;
+   #60 = Utf8               JLA
+   #61 = Utf8               Ljdk/internal/access/JavaLangAccess;
+   #62 = Methodref          #63.#64          // java/lang/Math.min:(II)I
+   #63 = Class              #65              // java/lang/Math
+   #64 = NameAndType        #66:#67          // min:(II)I
+   #65 = Utf8               java/lang/Math
+   #66 = Utf8               min
+   #67 = Utf8               (II)I
+   #68 = InterfaceMethodref #69.#70          // jdk/internal/access/JavaLangAccess.encodeASCII:([CI[BII)I
+   #69 = Class              #71              // jdk/internal/access/JavaLangAccess
+   #70 = NameAndType        #72:#73          // encodeASCII:([CI[BII)I
+   #71 = Utf8               jdk/internal/access/JavaLangAccess
+   #72 = Utf8               encodeASCII
+   #73 = Utf8               ([CI[BII)I
+   #74 = Methodref          #75.#76          // sun/nio/cs/UTF_8$Encoder.encodeArrayLoopSlow:(Ljava/nio/CharBuffer;[CIILjava/nio/ByteBuffer;[BII)Ljava/nio/charset/CoderResult;
+   #75 = Class              #77              // sun/nio/cs/UTF_8$Encoder
+   #76 = NameAndType        #78:#79          // encodeArrayLoopSlow:(Ljava/nio/CharBuffer;[CIILjava/nio/ByteBuffer;[BII)Ljava/nio/charset/CoderResult;
+   #77 = Utf8               sun/nio/cs/UTF_8$Encoder
+   #78 = Utf8               encodeArrayLoopSlow
+   #79 = Utf8               (Ljava/nio/CharBuffer;[CIILjava/nio/ByteBuffer;[BII)Ljava/nio/charset/CoderResult;
+   #80 = Fieldref           #26.#81          // java/nio/charset/CoderResult.UNDERFLOW:Ljava/nio/charset/CoderResult;
+   #81 = NameAndType        #82:#30          // UNDERFLOW:Ljava/nio/charset/CoderResult;
+   #82 = Utf8               UNDERFLOW
+   #83 = Methodref          #75.#84          // sun/nio/cs/UTF_8$Encoder.overflow:(Ljava/nio/CharBuffer;ILjava/nio/ByteBuffer;I)Ljava/nio/charset/CoderResult;
+   #84 = NameAndType        #85:#86          // overflow:(Ljava/nio/CharBuffer;ILjava/nio/ByteBuffer;I)Ljava/nio/charset/CoderResult;
+   #85 = Utf8               overflow
+   #86 = Utf8               (Ljava/nio/CharBuffer;ILjava/nio/ByteBuffer;I)Ljava/nio/charset/CoderResult;
+   #87 = Fieldref           #75.#88          // sun/nio/cs/UTF_8$Encoder.sgp:Lsun/nio/cs/Surrogate$Parser;
+   #88 = NameAndType        #89:#90          // sgp:Lsun/nio/cs/Surrogate$Parser;
+   #89 = Utf8               sgp
+   #90 = Utf8               Lsun/nio/cs/Surrogate$Parser;
+   #91 = Class              #92              // sun/nio/cs/Surrogate$Parser
+   #92 = Utf8               sun/nio/cs/Surrogate$Parser
+   #93 = Methodref          #91.#94          // sun/nio/cs/Surrogate$Parser."<init>":()V
+   #94 = NameAndType        #7:#95           // "<init>":()V
+   #95 = Utf8               ()V
+   #96 = Methodref          #91.#97          // sun/nio/cs/Surrogate$Parser.parse:(C[CII)I
+   #97 = NameAndType        #98:#99          // parse:(C[CII)I
+   #98 = Utf8               parse
+   #99 = Utf8               (C[CII)I
+  #100 = Methodref          #91.#101         // sun/nio/cs/Surrogate$Parser.error:()Ljava/nio/charset/CoderResult;
+  #101 = NameAndType        #102:#103        // error:()Ljava/nio/charset/CoderResult;
+  #102 = Utf8               error
+  #103 = Utf8               ()Ljava/nio/charset/CoderResult;
+  #104 = Methodref          #32.#105         // java/nio/CharBuffer.hasRemaining:()Z
+  #105 = NameAndType        #106:#107        // hasRemaining:()Z
+  #106 = Utf8               hasRemaining
+  #107 = Utf8               ()Z
+  #108 = Methodref          #32.#109         // java/nio/CharBuffer.get:()C
+  #109 = NameAndType        #110:#111        // get:()C
+  #110 = Utf8               get
+  #111 = Utf8               ()C
+  #112 = Methodref          #51.#105         // java/nio/ByteBuffer.hasRemaining:()Z
+  #113 = Methodref          #75.#114         // sun/nio/cs/UTF_8$Encoder.overflow:(Ljava/nio/CharBuffer;I)Ljava/nio/charset/CoderResult;
+  #114 = NameAndType        #85:#115         // overflow:(Ljava/nio/CharBuffer;I)Ljava/nio/charset/CoderResult;
+  #115 = Utf8               (Ljava/nio/CharBuffer;I)Ljava/nio/charset/CoderResult;
+  #116 = Methodref          #51.#117         // java/nio/ByteBuffer.put:(B)Ljava/nio/ByteBuffer;
+  #117 = NameAndType        #118:#119        // put:(B)Ljava/nio/ByteBuffer;
+  #118 = Utf8               put
+  #119 = Utf8               (B)Ljava/nio/ByteBuffer;
+  #120 = Methodref          #51.#121         // java/nio/ByteBuffer.remaining:()I
+  #121 = NameAndType        #122:#44         // remaining:()I
+  #122 = Utf8               remaining
+  #123 = Methodref          #91.#124         // sun/nio/cs/Surrogate$Parser.parse:(CLjava/nio/CharBuffer;)I
+  #124 = NameAndType        #98:#125         // parse:(CLjava/nio/CharBuffer;)I
+  #125 = Utf8               (CLjava/nio/CharBuffer;)I
+  #126 = Methodref          #32.#127         // java/nio/CharBuffer.hasArray:()Z
+  #127 = NameAndType        #128:#107        // hasArray:()Z
+  #128 = Utf8               hasArray
+  #129 = Methodref          #51.#127         // java/nio/ByteBuffer.hasArray:()Z
+  #130 = Methodref          #75.#131         // sun/nio/cs/UTF_8$Encoder.encodeArrayLoop:(Ljava/nio/CharBuffer;Ljava/nio/ByteBuffer;)Ljava/nio/charset/CoderResult;
+  #131 = NameAndType        #132:#133        // encodeArrayLoop:(Ljava/nio/CharBuffer;Ljava/nio/ByteBuffer;)Ljava/nio/charset/CoderResult;
+  #132 = Utf8               encodeArrayLoop
+  #133 = Utf8               (Ljava/nio/CharBuffer;Ljava/nio/ByteBuffer;)Ljava/nio/charset/CoderResult;
+  #134 = Methodref          #75.#135         // sun/nio/cs/UTF_8$Encoder.encodeBufferLoop:(Ljava/nio/CharBuffer;Ljava/nio/ByteBuffer;)Ljava/nio/charset/CoderResult;
+  #135 = NameAndType        #136:#133        // encodeBufferLoop:(Ljava/nio/CharBuffer;Ljava/nio/ByteBuffer;)Ljava/nio/charset/CoderResult;
+  #136 = Utf8               encodeBufferLoop
+  #137 = Utf8               (Ljava/nio/charset/Charset;)V
+  #138 = Utf8               Code
+  #139 = Utf8               LineNumberTable
+  #140 = Utf8               LocalVariableTable
+  #141 = Utf8               this
+  #142 = Utf8               Lsun/nio/cs/UTF_8$Encoder;
+  #143 = Utf8               cs
+  #144 = Utf8               Ljava/nio/charset/Charset;
+  #145 = Utf8               canEncode
+  #146 = Utf8               c
+  #147 = Utf8               C
+  #148 = Utf8               StackMapTable
+  #149 = Utf8               repl
+  #150 = Utf8               [B
+  #151 = Utf8               src
+  #152 = Utf8               Ljava/nio/CharBuffer;
+  #153 = Utf8               sp
+  #154 = Utf8               I
+  #155 = Utf8               dst
+  #156 = Utf8               Ljava/nio/ByteBuffer;
+  #157 = Utf8               dp
+  #158 = Utf8               mark
+  #159 = Utf8               sa
+  #160 = Utf8               [C
+  #161 = Utf8               sl
+  #162 = Utf8               da
+  #163 = Utf8               dl
+  #164 = Utf8               n
+  #165 = Class              #160             // "[C"
+  #166 = Class              #150             // "[B"
+  #167 = Utf8               uc
+  #168 = Utf8               encodeLoop
+  #169 = Utf8               SourceFile
+  #170 = Utf8               UTF_8.java
+  #171 = Utf8               NestHost
+  #172 = Utf8               InnerClasses
+  #173 = Utf8               Encoder
+  #174 = Class              #175             // sun/nio/cs/Surrogate
+  #175 = Utf8               sun/nio/cs/Surrogate
+  #176 = Utf8               Parser
+{
+  private sun.nio.cs.Surrogate$Parser sgp;
+    descriptor: Lsun/nio/cs/Surrogate$Parser;
+    flags: (0x0002) ACC_PRIVATE
+  
+  private sun.nio.cs.UTF_8$Encoder(java.nio.charset.Charset);
+    descriptor: (Ljava/nio/charset/Charset;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=4, locals=2, args_size=2
+         0: aload_0                 
+         1: aload_1                 
+         2: ldc           #1                  // float 1.1f
+         4: ldc           #2                  // float 3.0f
+         6: invokespecial #3                  // Method java/nio/charset/CharsetEncoder."<init>":(Ljava/nio/charset/Charset;FF)V
+         9: return                  
+      LineNumberTable:
+        line 421: 0
+        line 422: 9
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Lsun/nio/cs/UTF_8$Encoder;
+           0       10     1  cs     Ljava/nio/charset/Charset;
+  
+  public boolean canEncode(char);
+    descriptor: (C)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: iload_1                 
+         1: invokestatic  #9                  // Method java/lang/Character.isSurrogate:(C)Z
+         4: ifne          11                
+         7: iconst_1                
+         8: goto          12                
+        11: iconst_0                
+        12: ireturn                 
+      LineNumberTable:
+        line 425: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       13     0  this   Lsun/nio/cs/UTF_8$Encoder;
+           0       13     1  c      C
+      StackMapTable: number_of_entries = 2
+        frame_type = 11 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  public boolean isLegalReplacement(byte[]);
+    descriptor: ([B)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_1                 
+         1: arraylength             
+         2: iconst_1                
+         3: if_icmpne     12                
+         6: aload_1                 
+         7: iconst_0                
+         8: baload                  
+         9: ifge          20                
+        12: aload_0                 
+        13: aload_1                 
+        14: invokespecial #15                 // Method java/nio/charset/CharsetEncoder.isLegalReplacement:([B)Z
+        17: ifeq          24                
+        20: iconst_1                
+        21: goto          25                
+        24: iconst_0                
+        25: ireturn                 
+      LineNumberTable:
+        line 429: 0
+        line 430: 14
+        line 429: 25
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       26     0  this   Lsun/nio/cs/UTF_8$Encoder;
+           0       26     1  repl   [B
+      StackMapTable: number_of_entries = 4
+        frame_type = 12 /* same */
+        frame_type = 7 /* same */
+        frame_type = 3 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  private static java.nio.charset.CoderResult overflow(java.nio.CharBuffer, int, java.nio.ByteBuffer, int);
+    descriptor: (Ljava/nio/CharBuffer;ILjava/nio/ByteBuffer;I)Ljava/nio/charset/CoderResult;
+    flags: (0x000a) ACC_PRIVATE, ACC_STATIC
+    Code: 
+      stack=4, locals=4, args_size=4
+         0: aload_0                 
+         1: iload_1                 
+         2: aload_2                 
+         3: iload_3                 
+         4: invokestatic  #19                 // Method sun/nio/cs/UTF_8.updatePositions:(Ljava/nio/Buffer;ILjava/nio/Buffer;I)V
+         7: getstatic     #25                 // Field java/nio/charset/CoderResult.OVERFLOW:Ljava/nio/charset/CoderResult;
+        10: areturn                 
+      LineNumberTable:
+        line 435: 0
+        line 436: 7
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       11     0  src    Ljava/nio/CharBuffer;
+           0       11     1  sp     I
+           0       11     2  dst    Ljava/nio/ByteBuffer;
+           0       11     3  dp     I
+  
+  private static java.nio.charset.CoderResult overflow(java.nio.CharBuffer, int);
+    descriptor: (Ljava/nio/CharBuffer;I)Ljava/nio/charset/CoderResult;
+    flags: (0x000a) ACC_PRIVATE, ACC_STATIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: iload_1                 
+         2: invokevirtual #31                 // Method java/nio/CharBuffer.position:(I)Ljava/nio/CharBuffer;
+         5: pop                     
+         6: getstatic     #25                 // Field java/nio/charset/CoderResult.OVERFLOW:Ljava/nio/charset/CoderResult;
+         9: areturn                 
+      LineNumberTable:
+        line 440: 0
+        line 441: 6
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  src    Ljava/nio/CharBuffer;
+           0       10     1  mark   I
+  
+  private java.nio.charset.CoderResult encodeArrayLoop(java.nio.CharBuffer, java.nio.ByteBuffer);
+    descriptor: (Ljava/nio/CharBuffer;Ljava/nio/ByteBuffer;)Ljava/nio/charset/CoderResult;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=9, locals=10, args_size=3
+         0: aload_1                 
+         1: invokevirtual #37                 // Method java/nio/CharBuffer.array:()[C
+         4: astore_3                
+         5: aload_1                 
+         6: invokevirtual #41                 // Method java/nio/CharBuffer.arrayOffset:()I
+         9: aload_1                 
+        10: invokevirtual #45                 // Method java/nio/CharBuffer.position:()I
+        13: iadd                    
+        14: istore        4                 
+        16: aload_1                 
+        17: invokevirtual #41                 // Method java/nio/CharBuffer.arrayOffset:()I
+        20: aload_1                 
+        21: invokevirtual #47                 // Method java/nio/CharBuffer.limit:()I
+        24: iadd                    
+        25: istore        5                 
+        27: aload_2                 
+        28: invokevirtual #50                 // Method java/nio/ByteBuffer.array:()[B
+        31: astore        6                 
+        33: aload_2                 
+        34: invokevirtual #55                 // Method java/nio/ByteBuffer.arrayOffset:()I
+        37: aload_2                 
+        38: invokevirtual #56                 // Method java/nio/ByteBuffer.position:()I
+        41: iadd                    
+        42: istore        7                 
+        44: aload_2                 
+        45: invokevirtual #55                 // Method java/nio/ByteBuffer.arrayOffset:()I
+        48: aload_2                 
+        49: invokevirtual #57                 // Method java/nio/ByteBuffer.limit:()I
+        52: iadd                    
+        53: istore        8                 
+        55: getstatic     #58                 // Field sun/nio/cs/UTF_8.JLA:Ljdk/internal/access/JavaLangAccess;
+        58: aload_3                 
+        59: iload         4                 
+        61: aload         6                 
+        63: iload         7                 
+        65: iload         5                 
+        67: iload         4                 
+        69: isub                    
+        70: iload         8                 
+        72: iload         7                 
+        74: isub                    
+        75: invokestatic  #62                 // Method java/lang/Math.min:(II)I
+        78: invokeinterface #68, 6              // InterfaceMethod jdk/internal/access/JavaLangAccess.encodeASCII:([CI[BII)I
+        83: istore        9                 
+        85: iload         4                 
+        87: iload         9                 
+        89: iadd                    
+        90: istore        4                 
+        92: iload         7                 
+        94: iload         9                 
+        96: iadd                    
+        97: istore        7                 
+        99: iload         4                 
+       101: iload         5                 
+       103: if_icmpge     124               
+       106: aload_0                 
+       107: aload_1                 
+       108: aload_3                 
+       109: iload         4                 
+       111: iload         5                 
+       113: aload_2                 
+       114: aload         6                 
+       116: iload         7                 
+       118: iload         8                 
+       120: invokevirtual #74                 // Method encodeArrayLoopSlow:(Ljava/nio/CharBuffer;[CIILjava/nio/ByteBuffer;[BII)Ljava/nio/charset/CoderResult;
+       123: areturn                 
+       124: aload_1                 
+       125: iload         4                 
+       127: aload_2                 
+       128: iload         7                 
+       130: invokestatic  #19                 // Method sun/nio/cs/UTF_8.updatePositions:(Ljava/nio/Buffer;ILjava/nio/Buffer;I)V
+       133: getstatic     #80                 // Field java/nio/charset/CoderResult.UNDERFLOW:Ljava/nio/charset/CoderResult;
+       136: areturn                 
+      LineNumberTable:
+        line 447: 0
+        line 448: 5
+        line 449: 16
+        line 451: 27
+        line 452: 33
+        line 453: 44
+        line 456: 55
+        line 457: 85
+        line 458: 92
+        line 460: 99
+        line 461: 106
+        line 463: 124
+        line 464: 133
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0      137     0  this   Lsun/nio/cs/UTF_8$Encoder;
+           0      137     1  src    Ljava/nio/CharBuffer;
+           0      137     2  dst    Ljava/nio/ByteBuffer;
+           5      132     3  sa     [C
+          16      121     4  sp     I
+          27      110     5  sl     I
+          33      104     6  da     [B
+          44       93     7  dp     I
+          55       82     8  dl     I
+          85       52     9  n      I
+      StackMapTable: number_of_entries = 1
+        frame_type = 255 /* full_frame */
+          offset_delta = 124
+          locals = [class sun/nio/cs/UTF_8$Encoder, class java/nio/CharBuffer, class java/nio/ByteBuffer, class "[C", int, int, class "[B", int, int, int]
+          stack = []
+  
+  private java.nio.charset.CoderResult encodeArrayLoopSlow(java.nio.CharBuffer, char[], int, int, java.nio.ByteBuffer, byte[], int, int);
+    descriptor: (Ljava/nio/CharBuffer;[CIILjava/nio/ByteBuffer;[BII)Ljava/nio/charset/CoderResult;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=5, locals=11, args_size=9
+         0: iload_3                 
+         1: iload         4                 
+         3: if_icmpge     364               
+         6: aload_2                 
+         7: iload_3                 
+         8: caload                  
+         9: istore        9                 
+        11: iload         9                 
+        13: sipush        128               
+        16: if_icmpge     50                
+        19: iload         7                 
+        21: iload         8                 
+        23: if_icmplt     36                
+        26: aload_1                 
+        27: iload_3                 
+        28: aload         5                 
+        30: iload         7                 
+        32: invokestatic  #83                 // Method overflow:(Ljava/nio/CharBuffer;ILjava/nio/ByteBuffer;I)Ljava/nio/charset/CoderResult;
+        35: areturn                 
+        36: aload         6                 
+        38: iload         7                 
+        40: iinc          7, 1              
+        43: iload         9                 
+        45: i2b                     
+        46: bastore                 
+        47: goto          358               
+        50: iload         9                 
+        52: sipush        2048              
+        55: if_icmpge     116               
+        58: iload         8                 
+        60: iload         7                 
+        62: isub                    
+        63: iconst_2                
+        64: if_icmpge     77                
+        67: aload_1                 
+        68: iload_3                 
+        69: aload         5                 
+        71: iload         7                 
+        73: invokestatic  #83                 // Method overflow:(Ljava/nio/CharBuffer;ILjava/nio/ByteBuffer;I)Ljava/nio/charset/CoderResult;
+        76: areturn                 
+        77: aload         6                 
+        79: iload         7                 
+        81: iinc          7, 1              
+        84: sipush        192               
+        87: iload         9                 
+        89: bipush        6                 
+        91: ishr                    
+        92: ior                     
+        93: i2b                     
+        94: bastore                 
+        95: aload         6                 
+        97: iload         7                 
+        99: iinc          7, 1              
+       102: sipush        128               
+       105: iload         9                 
+       107: bipush        63                
+       109: iand                    
+       110: ior                     
+       111: i2b                     
+       112: bastore                 
+       113: goto          358               
+       116: iload         9                 
+       118: invokestatic  #9                  // Method java/lang/Character.isSurrogate:(C)Z
+       121: ifeq          282               
+       124: aload_0                 
+       125: getfield      #87                 // Field sgp:Lsun/nio/cs/Surrogate$Parser;
+       128: ifnonnull     142               
+       131: aload_0                 
+       132: new           #91                 // class sun/nio/cs/Surrogate$Parser
+       135: dup                     
+       136: invokespecial #93                 // Method sun/nio/cs/Surrogate$Parser."<init>":()V
+       139: putfield      #87                 // Field sgp:Lsun/nio/cs/Surrogate$Parser;
+       142: aload_0                 
+       143: getfield      #87                 // Field sgp:Lsun/nio/cs/Surrogate$Parser;
+       146: iload         9                 
+       148: aload_2                 
+       149: iload_3                 
+       150: iload         4                 
+       152: invokevirtual #96                 // Method sun/nio/cs/Surrogate$Parser.parse:(C[CII)I
+       155: istore        10                
+       157: iload         10                
+       159: ifge          179               
+       162: aload_1                 
+       163: iload_3                 
+       164: aload         5                 
+       166: iload         7                 
+       168: invokestatic  #19                 // Method sun/nio/cs/UTF_8.updatePositions:(Ljava/nio/Buffer;ILjava/nio/Buffer;I)V
+       171: aload_0                 
+       172: getfield      #87                 // Field sgp:Lsun/nio/cs/Surrogate$Parser;
+       175: invokevirtual #100                // Method sun/nio/cs/Surrogate$Parser.error:()Ljava/nio/charset/CoderResult;
+       178: areturn                 
+       179: iload         8                 
+       181: iload         7                 
+       183: isub                    
+       184: iconst_4                
+       185: if_icmpge     198               
+       188: aload_1                 
+       189: iload_3                 
+       190: aload         5                 
+       192: iload         7                 
+       194: invokestatic  #83                 // Method overflow:(Ljava/nio/CharBuffer;ILjava/nio/ByteBuffer;I)Ljava/nio/charset/CoderResult;
+       197: areturn                 
+       198: aload         6                 
+       200: iload         7                 
+       202: iinc          7, 1              
+       205: sipush        240               
+       208: iload         10                
+       210: bipush        18                
+       212: ishr                    
+       213: ior                     
+       214: i2b                     
+       215: bastore                 
+       216: aload         6                 
+       218: iload         7                 
+       220: iinc          7, 1              
+       223: sipush        128               
+       226: iload         10                
+       228: bipush        12                
+       230: ishr                    
+       231: bipush        63                
+       233: iand                    
+       234: ior                     
+       235: i2b                     
+       236: bastore                 
+       237: aload         6                 
+       239: iload         7                 
+       241: iinc          7, 1              
+       244: sipush        128               
+       247: iload         10                
+       249: bipush        6                 
+       251: ishr                    
+       252: bipush        63                
+       254: iand                    
+       255: ior                     
+       256: i2b                     
+       257: bastore                 
+       258: aload         6                 
+       260: iload         7                 
+       262: iinc          7, 1              
+       265: sipush        128               
+       268: iload         10                
+       270: bipush        63                
+       272: iand                    
+       273: ior                     
+       274: i2b                     
+       275: bastore                 
+       276: iinc          3, 1              
+       279: goto          358               
+       282: iload         8                 
+       284: iload         7                 
+       286: isub                    
+       287: iconst_3                
+       288: if_icmpge     301               
+       291: aload_1                 
+       292: iload_3                 
+       293: aload         5                 
+       295: iload         7                 
+       297: invokestatic  #83                 // Method overflow:(Ljava/nio/CharBuffer;ILjava/nio/ByteBuffer;I)Ljava/nio/charset/CoderResult;
+       300: areturn                 
+       301: aload         6                 
+       303: iload         7                 
+       305: iinc          7, 1              
+       308: sipush        224               
+       311: iload         9                 
+       313: bipush        12                
+       315: ishr                    
+       316: ior                     
+       317: i2b                     
+       318: bastore                 
+       319: aload         6                 
+       321: iload         7                 
+       323: iinc          7, 1              
+       326: sipush        128               
+       329: iload         9                 
+       331: bipush        6                 
+       333: ishr                    
+       334: bipush        63                
+       336: iand                    
+       337: ior                     
+       338: i2b                     
+       339: bastore                 
+       340: aload         6                 
+       342: iload         7                 
+       344: iinc          7, 1              
+       347: sipush        128               
+       350: iload         9                 
+       352: bipush        63                
+       354: iand                    
+       355: ior                     
+       356: i2b                     
+       357: bastore                 
+       358: iinc          3, 1              
+       361: goto          0                 
+       364: aload_1                 
+       365: iload_3                 
+       366: aload         5                 
+       368: iload         7                 
+       370: invokestatic  #19                 // Method sun/nio/cs/UTF_8.updatePositions:(Ljava/nio/Buffer;ILjava/nio/Buffer;I)V
+       373: getstatic     #80                 // Field java/nio/charset/CoderResult.UNDERFLOW:Ljava/nio/charset/CoderResult;
+       376: areturn                 
+      LineNumberTable:
+        line 470: 0
+        line 471: 6
+        line 472: 11
+        line 474: 19
+        line 475: 26
+        line 476: 36
+        line 477: 50
+        line 479: 58
+        line 480: 67
+        line 481: 77
+        line 482: 95
+        line 483: 116
+        line 485: 124
+        line 486: 131
+        line 487: 142
+        line 488: 157
+        line 489: 162
+        line 490: 171
+        line 492: 179
+        line 493: 188
+        line 494: 198
+        line 495: 216
+        line 496: 237
+        line 497: 258
+        line 498: 276
+        line 499: 279
+        line 501: 282
+        line 502: 291
+        line 503: 301
+        line 504: 319
+        line 505: 340
+        line 507: 358
+        line 508: 361
+        line 509: 364
+        line 510: 373
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+         157      122    10  uc     I
+          11      350     9  c      C
+           0      377     0  this   Lsun/nio/cs/UTF_8$Encoder;
+           0      377     1  src    Ljava/nio/CharBuffer;
+           0      377     2  sa     [C
+           0      377     3  sp     I
+           0      377     4  sl     I
+           0      377     5  dst    Ljava/nio/ByteBuffer;
+           0      377     6  da     [B
+           0      377     7  dp     I
+           0      377     8  dl     I
+      StackMapTable: number_of_entries = 12
+        frame_type = 0 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 35
+          locals = [int]
+        frame_type = 13 /* same */
+        frame_type = 26 /* same */
+        frame_type = 38 /* same */
+        frame_type = 25 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 36
+          locals = [int]
+        frame_type = 18 /* same */
+        frame_type = 250 /* chop */
+          offset_delta = 83
+        frame_type = 18 /* same */
+        frame_type = 56 /* same */
+        frame_type = 250 /* chop */
+          offset_delta = 5
+  
+  private java.nio.charset.CoderResult encodeBufferLoop(java.nio.CharBuffer, java.nio.ByteBuffer);
+    descriptor: (Ljava/nio/CharBuffer;Ljava/nio/ByteBuffer;)Ljava/nio/charset/CoderResult;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=4, locals=6, args_size=3
+         0: aload_1                 
+         1: invokevirtual #45                 // Method java/nio/CharBuffer.position:()I
+         4: istore_3                
+         5: aload_1                 
+         6: invokevirtual #104                // Method java/nio/CharBuffer.hasRemaining:()Z
+         9: ifeq          316               
+        12: aload_1                 
+        13: invokevirtual #108                // Method java/nio/CharBuffer.get:()C
+        16: istore        4                 
+        18: iload         4                 
+        20: sipush        128               
+        23: if_icmpge     50                
+        26: aload_2                 
+        27: invokevirtual #112                // Method java/nio/ByteBuffer.hasRemaining:()Z
+        30: ifne          39                
+        33: aload_1                 
+        34: iload_3                 
+        35: invokestatic  #113                // Method overflow:(Ljava/nio/CharBuffer;I)Ljava/nio/charset/CoderResult;
+        38: areturn                 
+        39: aload_2                 
+        40: iload         4                 
+        42: i2b                     
+        43: invokevirtual #116                // Method java/nio/ByteBuffer.put:(B)Ljava/nio/ByteBuffer;
+        46: pop                     
+        47: goto          310               
+        50: iload         4                 
+        52: sipush        2048              
+        55: if_icmpge     105               
+        58: aload_2                 
+        59: invokevirtual #120                // Method java/nio/ByteBuffer.remaining:()I
+        62: iconst_2                
+        63: if_icmpge     72                
+        66: aload_1                 
+        67: iload_3                 
+        68: invokestatic  #113                // Method overflow:(Ljava/nio/CharBuffer;I)Ljava/nio/charset/CoderResult;
+        71: areturn                 
+        72: aload_2                 
+        73: sipush        192               
+        76: iload         4                 
+        78: bipush        6                 
+        80: ishr                    
+        81: ior                     
+        82: i2b                     
+        83: invokevirtual #116                // Method java/nio/ByteBuffer.put:(B)Ljava/nio/ByteBuffer;
+        86: pop                     
+        87: aload_2                 
+        88: sipush        128               
+        91: iload         4                 
+        93: bipush        63                
+        95: iand                    
+        96: ior                     
+        97: i2b                     
+        98: invokevirtual #116                // Method java/nio/ByteBuffer.put:(B)Ljava/nio/ByteBuffer;
+       101: pop                     
+       102: goto          310               
+       105: iload         4                 
+       107: invokestatic  #9                  // Method java/lang/Character.isSurrogate:(C)Z
+       110: ifeq          248               
+       113: aload_0                 
+       114: getfield      #87                 // Field sgp:Lsun/nio/cs/Surrogate$Parser;
+       117: ifnonnull     131               
+       120: aload_0                 
+       121: new           #91                 // class sun/nio/cs/Surrogate$Parser
+       124: dup                     
+       125: invokespecial #93                 // Method sun/nio/cs/Surrogate$Parser."<init>":()V
+       128: putfield      #87                 // Field sgp:Lsun/nio/cs/Surrogate$Parser;
+       131: aload_0                 
+       132: getfield      #87                 // Field sgp:Lsun/nio/cs/Surrogate$Parser;
+       135: iload         4                 
+       137: aload_1                 
+       138: invokevirtual #123                // Method sun/nio/cs/Surrogate$Parser.parse:(CLjava/nio/CharBuffer;)I
+       141: istore        5                 
+       143: iload         5                 
+       145: ifge          162               
+       148: aload_1                 
+       149: iload_3                 
+       150: invokevirtual #31                 // Method java/nio/CharBuffer.position:(I)Ljava/nio/CharBuffer;
+       153: pop                     
+       154: aload_0                 
+       155: getfield      #87                 // Field sgp:Lsun/nio/cs/Surrogate$Parser;
+       158: invokevirtual #100                // Method sun/nio/cs/Surrogate$Parser.error:()Ljava/nio/charset/CoderResult;
+       161: areturn                 
+       162: aload_2                 
+       163: invokevirtual #120                // Method java/nio/ByteBuffer.remaining:()I
+       166: iconst_4                
+       167: if_icmpge     176               
+       170: aload_1                 
+       171: iload_3                 
+       172: invokestatic  #113                // Method overflow:(Ljava/nio/CharBuffer;I)Ljava/nio/charset/CoderResult;
+       175: areturn                 
+       176: aload_2                 
+       177: sipush        240               
+       180: iload         5                 
+       182: bipush        18                
+       184: ishr                    
+       185: ior                     
+       186: i2b                     
+       187: invokevirtual #116                // Method java/nio/ByteBuffer.put:(B)Ljava/nio/ByteBuffer;
+       190: pop                     
+       191: aload_2                 
+       192: sipush        128               
+       195: iload         5                 
+       197: bipush        12                
+       199: ishr                    
+       200: bipush        63                
+       202: iand                    
+       203: ior                     
+       204: i2b                     
+       205: invokevirtual #116                // Method java/nio/ByteBuffer.put:(B)Ljava/nio/ByteBuffer;
+       208: pop                     
+       209: aload_2                 
+       210: sipush        128               
+       213: iload         5                 
+       215: bipush        6                 
+       217: ishr                    
+       218: bipush        63                
+       220: iand                    
+       221: ior                     
+       222: i2b                     
+       223: invokevirtual #116                // Method java/nio/ByteBuffer.put:(B)Ljava/nio/ByteBuffer;
+       226: pop                     
+       227: aload_2                 
+       228: sipush        128               
+       231: iload         5                 
+       233: bipush        63                
+       235: iand                    
+       236: ior                     
+       237: i2b                     
+       238: invokevirtual #116                // Method java/nio/ByteBuffer.put:(B)Ljava/nio/ByteBuffer;
+       241: pop                     
+       242: iinc          3, 1              
+       245: goto          310               
+       248: aload_2                 
+       249: invokevirtual #120                // Method java/nio/ByteBuffer.remaining:()I
+       252: iconst_3                
+       253: if_icmpge     262               
+       256: aload_1                 
+       257: iload_3                 
+       258: invokestatic  #113                // Method overflow:(Ljava/nio/CharBuffer;I)Ljava/nio/charset/CoderResult;
+       261: areturn                 
+       262: aload_2                 
+       263: sipush        224               
+       266: iload         4                 
+       268: bipush        12                
+       270: ishr                    
+       271: ior                     
+       272: i2b                     
+       273: invokevirtual #116                // Method java/nio/ByteBuffer.put:(B)Ljava/nio/ByteBuffer;
+       276: pop                     
+       277: aload_2                 
+       278: sipush        128               
+       281: iload         4                 
+       283: bipush        6                 
+       285: ishr                    
+       286: bipush        63                
+       288: iand                    
+       289: ior                     
+       290: i2b                     
+       291: invokevirtual #116                // Method java/nio/ByteBuffer.put:(B)Ljava/nio/ByteBuffer;
+       294: pop                     
+       295: aload_2                 
+       296: sipush        128               
+       299: iload         4                 
+       301: bipush        63                
+       303: iand                    
+       304: ior                     
+       305: i2b                     
+       306: invokevirtual #116                // Method java/nio/ByteBuffer.put:(B)Ljava/nio/ByteBuffer;
+       309: pop                     
+       310: iinc          3, 1              
+       313: goto          5                 
+       316: aload_1                 
+       317: iload_3                 
+       318: invokevirtual #31                 // Method java/nio/CharBuffer.position:(I)Ljava/nio/CharBuffer;
+       321: pop                     
+       322: getstatic     #80                 // Field java/nio/charset/CoderResult.UNDERFLOW:Ljava/nio/charset/CoderResult;
+       325: areturn                 
+      LineNumberTable:
+        line 516: 0
+        line 517: 5
+        line 518: 12
+        line 519: 18
+        line 521: 26
+        line 522: 33
+        line 523: 39
+        line 524: 50
+        line 526: 58
+        line 527: 66
+        line 528: 72
+        line 529: 87
+        line 530: 105
+        line 532: 113
+        line 533: 120
+        line 534: 131
+        line 535: 143
+        line 536: 148
+        line 537: 154
+        line 539: 162
+        line 540: 170
+        line 541: 176
+        line 542: 191
+        line 543: 209
+        line 544: 227
+        line 545: 242
+        line 546: 245
+        line 548: 248
+        line 549: 256
+        line 550: 262
+        line 551: 277
+        line 552: 295
+        line 554: 310
+        line 555: 313
+        line 556: 316
+        line 557: 322
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+         143      102     5  uc     I
+          18      295     4  c      C
+           0      326     0  this   Lsun/nio/cs/UTF_8$Encoder;
+           0      326     1  src    Ljava/nio/CharBuffer;
+           0      326     2  dst    Ljava/nio/ByteBuffer;
+           5      321     3  mark   I
+      StackMapTable: number_of_entries = 12
+        frame_type = 252 /* append */
+          offset_delta = 5
+          locals = [int]
+        frame_type = 252 /* append */
+          offset_delta = 33
+          locals = [int]
+        frame_type = 10 /* same */
+        frame_type = 21 /* same */
+        frame_type = 32 /* same */
+        frame_type = 25 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 30
+          locals = [int]
+        frame_type = 13 /* same */
+        frame_type = 250 /* chop */
+          offset_delta = 71
+        frame_type = 13 /* same */
+        frame_type = 47 /* same */
+        frame_type = 250 /* chop */
+          offset_delta = 5
+  
+  protected final java.nio.charset.CoderResult encodeLoop(java.nio.CharBuffer, java.nio.ByteBuffer);
+    descriptor: (Ljava/nio/CharBuffer;Ljava/nio/ByteBuffer;)Ljava/nio/charset/CoderResult;
+    flags: (0x0014) ACC_PROTECTED, ACC_FINAL
+    Code: 
+      stack=3, locals=3, args_size=3
+         0: aload_1                 
+         1: invokevirtual #126                // Method java/nio/CharBuffer.hasArray:()Z
+         4: ifeq          21                
+         7: aload_2                 
+         8: invokevirtual #129                // Method java/nio/ByteBuffer.hasArray:()Z
+        11: ifeq          21                
+        14: aload_0                 
+        15: aload_1                 
+        16: aload_2                 
+        17: invokevirtual #130                // Method encodeArrayLoop:(Ljava/nio/CharBuffer;Ljava/nio/ByteBuffer;)Ljava/nio/charset/CoderResult;
+        20: areturn                 
+        21: aload_0                 
+        22: aload_1                 
+        23: aload_2                 
+        24: invokevirtual #134                // Method encodeBufferLoop:(Ljava/nio/CharBuffer;Ljava/nio/ByteBuffer;)Ljava/nio/charset/CoderResult;
+        27: areturn                 
+      LineNumberTable:
+        line 563: 0
+        line 564: 14
+        line 566: 21
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       28     0  this   Lsun/nio/cs/UTF_8$Encoder;
+           0       28     1  src    Ljava/nio/CharBuffer;
+           0       28     2  dst    Ljava/nio/ByteBuffer;
+      StackMapTable: number_of_entries = 1
+        frame_type = 21 /* same */
+}
+SourceFile: "UTF_8.java"
+NestHost: class sun/nio/cs/UTF_8
+InnerClasses:
+  private static final #173= #75 of #20;      // Encoder=class sun/nio/cs/UTF_8$Encoder of class sun/nio/cs/UTF_8
+  public static #176= #91 of #174;            // Parser=class sun/nio/cs/Surrogate$Parser of class sun/nio/cs/Surrogate

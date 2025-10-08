@@ -3,11 +3,14 @@ use crate::error::JvmError;
 use crate::method_area::MethodArea;
 use crate::rt::class::field::{Field, StaticField};
 use crate::rt::constant_pool::RuntimeConstantPool;
-use crate::rt::constant_pool::reference::{MethodReference, NameAndTypeReference};
+use crate::rt::constant_pool::reference::{
+    MethodDescriptorReference, MethodReference, NameAndTypeReference,
+};
 use crate::rt::method::{Method, MethodType};
 use class_file::ClassFile;
 use class_file::attribute::class::ClassAttribute;
-use class_file::flags::ClassFlags;
+use class_file::flags::{ClassFlags, MethodFlags};
+use common::descriptor::MethodDescriptor;
 use common::instruction::ArrayType;
 use common::jtype::{HeapAddr, Value};
 use once_cell::sync::OnceCell;
@@ -181,20 +184,14 @@ impl Class {
     }
 
     pub fn new_array(class_name: &str) -> Result<Arc<Self>, JvmError> {
-        let res = Class {
-            name: Arc::from(class_name),
-            ..Default::default()
-        };
-        Ok(Arc::new(res))
+        Ok(Self::default(Arc::from(class_name), None))
     }
 
     pub fn new_primitive_array(primitive: ArrayType) -> Result<Arc<Self>, JvmError> {
-        let res = Class {
-            name: Arc::from(primitive.descriptor()),
-            primitive: Some(primitive),
-            ..Default::default()
-        };
-        Ok(Arc::new(res))
+        Ok(Self::default(
+            Arc::from(primitive.descriptor()),
+            Some(primitive),
+        ))
     }
 
     pub fn id(&self) -> Result<ClassId, JvmError> {
@@ -439,14 +436,30 @@ impl Class {
                 descriptor
             )))
     }
-}
 
-impl Default for Class {
-    fn default() -> Self {
-        Self {
+    //TODO: stub, need to cleanup
+    pub fn default(class_name: Arc<str>, primitive: Option<ArrayType>) -> Arc<Self> {
+        let clone_method_name: Arc<str> = Arc::from("clone");
+        let raw_descriptor: &str = "()Ljava/lang/Object;";
+
+        let resolved_descriptor = MethodDescriptor::try_from(raw_descriptor).unwrap();
+        let clone_native_descriptor =
+            MethodDescriptorReference::new(0, Arc::from(raw_descriptor), resolved_descriptor);
+
+        let clone_method = Arc::new(Method::new_native(
+            clone_method_name.clone(),
+            Arc::new(clone_native_descriptor),
+            MethodFlags::new(0),
+        ));
+
+        let methods: NatHashMap<Arc<Method>> = HashMap::from([(
+            clone_method_name.clone(),
+            HashMap::from([(Arc::from(raw_descriptor), clone_method.clone())]),
+        )]);
+        let class = Arc::new(Self {
             id: OnceCell::new(),
-            primitive: None,
-            name: Arc::from("java/lang/Object"),
+            primitive,
+            name: class_name,
             access: ClassFlags::new(0),
             minor_version: 0,
             major_version: 0,
@@ -454,13 +467,17 @@ impl Default for Class {
             fields: vec![],
             field_idx: HashMap::new(),
             static_fields: HashMap::new(),
-            methods: HashMap::new(),
+            methods,
             static_methods: HashMap::new(),
             initializer: None,
             attributes: vec![],
             cp: Arc::new(RuntimeConstantPool::new(vec![])),
             state: RwLock::new(InitState::Initialized),
             mirror: OnceCell::new(),
+        });
+        for (_, method) in class.methods.values().flatten() {
+            method.set_class(class.clone()).unwrap();
         }
+        class
     }
 }

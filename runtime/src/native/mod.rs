@@ -5,7 +5,7 @@ use common::jtype::Value;
 use std::collections::HashMap;
 use tracing_log::log::debug;
 
-//TODO: avoid string allocations here
+//TODO: redesign, avoid string allocations here
 #[derive(Hash, Eq, PartialEq, Clone, Debug)]
 pub struct MethodKey {
     pub class: String,
@@ -19,11 +19,25 @@ impl MethodKey {
     }
 }
 
+//TODO: redesign, avoid string allocations here
+#[derive(Hash, Eq, PartialEq, Clone, Debug)]
+pub struct InternalMethodKey {
+    pub name: String,
+    pub desc: String,
+}
+
+impl InternalMethodKey {
+    pub fn new(name: String, desc: String) -> Self {
+        Self { name, desc }
+    }
+}
+
 pub type NativeRet = Option<Value>;
 pub type NativeFn = fn(&mut VirtualMachine, &[Value]) -> NativeRet;
 
 pub struct NativeRegistry {
     map: HashMap<MethodKey, NativeFn>,
+    internal: HashMap<InternalMethodKey, NativeFn>,
 }
 
 impl NativeRegistry {
@@ -31,7 +45,13 @@ impl NativeRegistry {
         debug!("Initializing NativeRegistry...");
         let mut instance = Self {
             map: HashMap::new(),
+            internal: HashMap::new(),
         };
+
+        instance.register_internal(
+            InternalMethodKey::new("clone".to_string(), "()Ljava/lang/Object;".to_string()),
+            vm_internal_clone,
+        );
 
         instance.register(
             MethodKey::new(
@@ -293,13 +313,24 @@ impl NativeRegistry {
         instance
     }
 
-    pub fn register(&mut self, key: MethodKey, f: NativeFn) {
+    fn register(&mut self, key: MethodKey, f: NativeFn) {
         debug!("Registering native method: {:?}", key);
         self.map.insert(key, f);
     }
 
+    fn register_internal(&mut self, key: InternalMethodKey, f: NativeFn) {
+        debug!("Registering internal native method: {:?}", key);
+        self.internal.insert(key, f);
+    }
+
     pub fn get(&self, key: &MethodKey) -> Option<&NativeFn> {
-        self.map.get(key)
+        if key.class.starts_with("[") {
+            //TODO: redesign, avoid string allocations here
+            let internal_key = InternalMethodKey::new(key.name.clone(), key.desc.clone());
+            self.internal.get(&internal_key)
+        } else {
+            self.map.get(key)
+        }
     }
 }
 
@@ -839,4 +870,15 @@ fn java_io_file_output_stream_init_ids(_vm: &mut VirtualMachine, _args: &[Value]
 fn java_lang_system_set_in_0(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.System.setIn0");
     None
+}
+
+fn vm_internal_clone(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
+    debug!("TODO: Stub: internal clone");
+    let obj = match &args[0] {
+        Value::Ref(h) => *h,
+        _ => panic!("internal clone: expected object"),
+    };
+    let mut borrowed_heap = vm.heap.borrow_mut();
+    let cloned = borrowed_heap.clone_object(obj);
+    Some(Value::Ref(cloned))
 }

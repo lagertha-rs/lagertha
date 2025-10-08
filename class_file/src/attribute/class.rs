@@ -195,12 +195,18 @@ impl<'a> ClassAttribute {
                 })?;
             }
             ClassAttribute::EnclosingMethod(class_idx, method_idx) => {
+                let method = if *method_idx == 0 {
+                    ""
+                } else {
+                    pretty_try!(ind, cp.get_method_or_field_name_by_nat_idx(method_idx))
+                };
                 writeln!(
                     ind,
-                    "{:<24} // {}.{}",
+                    "{:<24} // {}{}{}",
                     format!("EnclosingMethod: #{}.#{}", class_idx, method_idx),
                     pretty_try!(ind, cp.get_pretty_class_name(class_idx)),
-                    pretty_try!(ind, cp.get_method_or_field_name_by_nat_idx(method_idx)),
+                    if method.is_empty() { "" } else { "." },
+                    method
                 )?;
             }
             ClassAttribute::SourceDebugExtension => unimplemented!(),

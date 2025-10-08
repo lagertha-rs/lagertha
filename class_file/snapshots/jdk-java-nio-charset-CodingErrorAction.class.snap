@@ -1,0 +1,127 @@
+---
+source: class_file/src/lib.rs
+expression: display
+---
+public class java.nio.charset.CodingErrorAction 
+  minor version: 0
+  major version: 68
+  flags: (0x0021) ACC_PUBLIC, ACC_SUPER
+  this_class: #8                       //java/nio/charset/CodingErrorAction
+  super_class: #2                      //java/lang/Object
+  interfaces: 0, fields: 4, methods: 3, attributes: 1
+Constant pool:
+   #1 = Methodref          #2.#3            // java/lang/Object."<init>":()V
+   #2 = Class              #4               // java/lang/Object
+   #3 = NameAndType        #5:#6            // "<init>":()V
+   #4 = Utf8               java/lang/Object
+   #5 = Utf8               <init>
+   #6 = Utf8               ()V
+   #7 = Fieldref           #8.#9            // java/nio/charset/CodingErrorAction.name:Ljava/lang/String;
+   #8 = Class              #10              // java/nio/charset/CodingErrorAction
+   #9 = NameAndType        #11:#12          // name:Ljava/lang/String;
+  #10 = Utf8               java/nio/charset/CodingErrorAction
+  #11 = Utf8               name
+  #12 = Utf8               Ljava/lang/String;
+  #13 = String             #14              // IGNORE
+  #14 = Utf8               IGNORE
+  #15 = Methodref          #8.#16           // java/nio/charset/CodingErrorAction."<init>":(Ljava/lang/String;)V
+  #16 = NameAndType        #5:#17           // "<init>":(Ljava/lang/String;)V
+  #17 = Utf8               (Ljava/lang/String;)V
+  #18 = Fieldref           #8.#19           // java/nio/charset/CodingErrorAction.IGNORE:Ljava/nio/charset/CodingErrorAction;
+  #19 = NameAndType        #14:#20          // IGNORE:Ljava/nio/charset/CodingErrorAction;
+  #20 = Utf8               Ljava/nio/charset/CodingErrorAction;
+  #21 = String             #22              // REPLACE
+  #22 = Utf8               REPLACE
+  #23 = Fieldref           #8.#24           // java/nio/charset/CodingErrorAction.REPLACE:Ljava/nio/charset/CodingErrorAction;
+  #24 = NameAndType        #22:#20          // REPLACE:Ljava/nio/charset/CodingErrorAction;
+  #25 = String             #26              // REPORT
+  #26 = Utf8               REPORT
+  #27 = Fieldref           #8.#28           // java/nio/charset/CodingErrorAction.REPORT:Ljava/nio/charset/CodingErrorAction;
+  #28 = NameAndType        #26:#20          // REPORT:Ljava/nio/charset/CodingErrorAction;
+  #29 = Utf8               Code
+  #30 = Utf8               LineNumberTable
+  #31 = Utf8               LocalVariableTable
+  #32 = Utf8               this
+  #33 = Utf8               toString
+  #34 = Utf8               ()Ljava/lang/String;
+  #35 = Utf8               <clinit>
+  #36 = Utf8               SourceFile
+  #37 = Utf8               CodingErrorAction.java
+{
+  private java.lang.String name;
+    descriptor: Ljava/lang/String;
+    flags: (0x0002) ACC_PRIVATE
+  
+  public static final java.nio.charset.CodingErrorAction IGNORE;
+    descriptor: Ljava/nio/charset/CodingErrorAction;
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+  
+  public static final java.nio.charset.CodingErrorAction REPLACE;
+    descriptor: Ljava/nio/charset/CodingErrorAction;
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+  
+  public static final java.nio.charset.CodingErrorAction REPORT;
+    descriptor: Ljava/nio/charset/CodingErrorAction;
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+  
+  private java.nio.charset.CodingErrorAction(java.lang.String);
+    descriptor: (Ljava/lang/String;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: aload_0                 
+         5: aload_1                 
+         6: putfield      #7                  // Field name:Ljava/lang/String;
+         9: return                  
+      LineNumberTable:
+        line 47: 0
+        line 48: 4
+        line 49: 9
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/nio/charset/CodingErrorAction;
+           0       10     1  name   Ljava/lang/String;
+  
+  public java.lang.String toString();
+    descriptor: ()Ljava/lang/String;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #7                  // Field name:Ljava/lang/String;
+         4: areturn                 
+      LineNumberTable:
+        line 81: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/nio/charset/CodingErrorAction;
+  
+  static {};
+    descriptor: ()V
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=3, locals=0, args_size=0
+         0: new           #8                  // class java/nio/charset/CodingErrorAction
+         3: dup                     
+         4: ldc           #13                 // String IGNORE
+         6: invokespecial #15                 // Method "<init>":(Ljava/lang/String;)V
+         9: putstatic     #18                 // Field IGNORE:Ljava/nio/charset/CodingErrorAction;
+        12: new           #8                  // class java/nio/charset/CodingErrorAction
+        15: dup                     
+        16: ldc           #21                 // String REPLACE
+        18: invokespecial #15                 // Method "<init>":(Ljava/lang/String;)V
+        21: putstatic     #23                 // Field REPLACE:Ljava/nio/charset/CodingErrorAction;
+        24: new           #8                  // class java/nio/charset/CodingErrorAction
+        27: dup                     
+        28: ldc           #25                 // String REPORT
+        30: invokespecial #15                 // Method "<init>":(Ljava/lang/String;)V
+        33: putstatic     #27                 // Field REPORT:Ljava/nio/charset/CodingErrorAction;
+        36: return                  
+      LineNumberTable:
+        line 55: 0
+        line 63: 12
+        line 72: 24
+}
+SourceFile: "CodingErrorAction.java"

@@ -1127,12 +1127,6 @@ impl Interpreter {
         params: Vec<Value>,
     ) -> Result<(), JvmError> {
         let locals = self.params_to_frame_locals(method, params)?;
-
-        if method.name() == "checkName" && locals[0] == Some(Value::Ref(6)) {
-            let val = self.heap.borrow().get_string(6);
-            print!("")
-        }
-
         let frame = Frame::new(class.cp().clone(), method.clone(), locals)?;
 
         self.interpret_method_code(method.instructions()?, frame)?;
