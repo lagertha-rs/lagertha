@@ -1,0 +1,648 @@
+---
+source: class_file/src/lib.rs
+expression: display
+---
+class java.nio.Buffer$2 implements jdk.internal.access.JavaNioAccess
+  minor version: 0
+  major version: 68
+  flags: (0x0020) ACC_SUPER
+  this_class: #104                     //java/nio/Buffer$2
+  super_class: #2                      //java/lang/Object
+  interfaces: 1, fields: 0, methods: 20, attributes: 4
+Constant pool:
+    #1 = Methodref          #2.#3            // java/lang/Object."<init>":()V
+    #2 = Class              #4               // java/lang/Object
+    #3 = NameAndType        #5:#6            // "<init>":()V
+    #4 = Utf8               java/lang/Object
+    #5 = Utf8               <init>
+    #6 = Utf8               ()V
+    #7 = Fieldref           #8.#9            // java/nio/Bits.BUFFER_POOL:Ljdk/internal/misc/VM$BufferPool;
+    #8 = Class              #10              // java/nio/Bits
+    #9 = NameAndType        #11:#12          // BUFFER_POOL:Ljdk/internal/misc/VM$BufferPool;
+   #10 = Utf8               java/nio/Bits
+   #11 = Utf8               BUFFER_POOL
+   #12 = Utf8               Ljdk/internal/misc/VM$BufferPool;
+   #13 = Class              #14              // java/nio/DirectByteBuffer
+   #14 = Utf8               java/nio/DirectByteBuffer
+   #15 = Methodref          #13.#16          // java/nio/DirectByteBuffer."<init>":(JILjava/lang/Object;Ljava/lang/foreign/MemorySegment;)V
+   #16 = NameAndType        #5:#17           // "<init>":(JILjava/lang/Object;Ljava/lang/foreign/MemorySegment;)V
+   #17 = Utf8               (JILjava/lang/Object;Ljava/lang/foreign/MemorySegment;)V
+   #18 = InterfaceMethodref #19.#20          // jdk/internal/access/foreign/UnmapperProxy.fileDescriptor:()Ljava/io/FileDescriptor;
+   #19 = Class              #21              // jdk/internal/access/foreign/UnmapperProxy
+   #20 = NameAndType        #22:#23          // fileDescriptor:()Ljava/io/FileDescriptor;
+   #21 = Utf8               jdk/internal/access/foreign/UnmapperProxy
+   #22 = Utf8               fileDescriptor
+   #23 = Utf8               ()Ljava/io/FileDescriptor;
+   #24 = InterfaceMethodref #19.#25          // jdk/internal/access/foreign/UnmapperProxy.isSync:()Z
+   #25 = NameAndType        #26:#27          // isSync:()Z
+   #26 = Utf8               isSync
+   #27 = Utf8               ()Z
+   #28 = Methodref          #13.#29          // java/nio/DirectByteBuffer."<init>":(JILjava/lang/Object;Ljava/io/FileDescriptor;ZLjava/lang/foreign/MemorySegment;)V
+   #29 = NameAndType        #5:#30           // "<init>":(JILjava/lang/Object;Ljava/io/FileDescriptor;ZLjava/lang/foreign/MemorySegment;)V
+   #30 = Utf8               (JILjava/lang/Object;Ljava/io/FileDescriptor;ZLjava/lang/foreign/MemorySegment;)V
+   #31 = Class              #32              // java/nio/HeapByteBuffer
+   #32 = Utf8               java/nio/HeapByteBuffer
+   #33 = Methodref          #31.#34          // java/nio/HeapByteBuffer."<init>":([BIIIIILjava/lang/foreign/MemorySegment;)V
+   #34 = NameAndType        #5:#35           // "<init>":([BIIIIILjava/lang/foreign/MemorySegment;)V
+   #35 = Utf8               ([BIIIIILjava/lang/foreign/MemorySegment;)V
+   #36 = Methodref          #13.#37          // java/nio/DirectByteBuffer."<init>":(JJ)V
+   #37 = NameAndType        #5:#38           // "<init>":(JJ)V
+   #38 = Utf8               (JJ)V
+   #39 = Methodref          #40.#41          // java/nio/Buffer.base:()Ljava/lang/Object;
+   #40 = Class              #42              // java/nio/Buffer
+   #41 = NameAndType        #43:#44          // base:()Ljava/lang/Object;
+   #42 = Utf8               java/nio/Buffer
+   #43 = Utf8               base
+   #44 = Utf8               ()Ljava/lang/Object;
+   #45 = Fieldref           #40.#46          // java/nio/Buffer.address:J
+   #46 = NameAndType        #47:#48          // address:J
+   #47 = Utf8               address
+   #48 = Utf8               J
+   #49 = Class              #50              // java/nio/MappedByteBuffer
+   #50 = Utf8               java/nio/MappedByteBuffer
+   #51 = Methodref          #49.#52          // java/nio/MappedByteBuffer.unmapper:()Ljdk/internal/access/foreign/UnmapperProxy;
+   #52 = NameAndType        #53:#54          // unmapper:()Ljdk/internal/access/foreign/UnmapperProxy;
+   #53 = Utf8               unmapper
+   #54 = Utf8               ()Ljdk/internal/access/foreign/UnmapperProxy;
+   #55 = Fieldref           #40.#56          // java/nio/Buffer.segment:Ljava/lang/foreign/MemorySegment;
+   #56 = NameAndType        #57:#58          // segment:Ljava/lang/foreign/MemorySegment;
+   #57 = Utf8               segment
+   #58 = Utf8               Ljava/lang/foreign/MemorySegment;
+   #59 = Methodref          #40.#60          // java/nio/Buffer.session:()Ljdk/internal/foreign/MemorySessionImpl;
+   #60 = NameAndType        #61:#62          // session:()Ljdk/internal/foreign/MemorySessionImpl;
+   #61 = Utf8               session
+   #62 = Utf8               ()Ljdk/internal/foreign/MemorySessionImpl;
+   #63 = Methodref          #64.#65          // jdk/internal/foreign/MemorySessionImpl.acquire0:()V
+   #64 = Class              #66              // jdk/internal/foreign/MemorySessionImpl
+   #65 = NameAndType        #67:#6           // acquire0:()V
+   #66 = Utf8               jdk/internal/foreign/MemorySessionImpl
+   #67 = Utf8               acquire0
+   #68 = Methodref          #64.#69          // jdk/internal/foreign/MemorySessionImpl.release0:()V
+   #69 = NameAndType        #70:#6           // release0:()V
+   #70 = Utf8               release0
+   #71 = Methodref          #72.#73          // java/lang/ref/Reference.reachabilityFence:(Ljava/lang/Object;)V
+   #72 = Class              #74              // java/lang/ref/Reference
+   #73 = NameAndType        #75:#76          // reachabilityFence:(Ljava/lang/Object;)V
+   #74 = Utf8               java/lang/ref/Reference
+   #75 = Utf8               reachabilityFence
+   #76 = Utf8               (Ljava/lang/Object;)V
+   #77 = Methodref          #64.#78          // jdk/internal/foreign/MemorySessionImpl.ownerThread:()Ljava/lang/Thread;
+   #78 = NameAndType        #79:#80          // ownerThread:()Ljava/lang/Thread;
+   #79 = Utf8               ownerThread
+   #80 = Utf8               ()Ljava/lang/Thread;
+   #81 = Fieldref           #82.#83          // java/nio/MappedMemoryUtils.PROXY:Ljdk/internal/access/foreign/MappedMemoryUtilsProxy;
+   #82 = Class              #84              // java/nio/MappedMemoryUtils
+   #83 = NameAndType        #85:#86          // PROXY:Ljdk/internal/access/foreign/MappedMemoryUtilsProxy;
+   #84 = Utf8               java/nio/MappedMemoryUtils
+   #85 = Utf8               PROXY
+   #86 = Utf8               Ljdk/internal/access/foreign/MappedMemoryUtilsProxy;
+   #87 = Methodref          #8.#88           // java/nio/Bits.reserveMemory:(JJ)V
+   #88 = NameAndType        #89:#38          // reserveMemory:(JJ)V
+   #89 = Utf8               reserveMemory
+   #90 = Methodref          #8.#91           // java/nio/Bits.unreserveMemory:(JJ)V
+   #91 = NameAndType        #92:#38          // unreserveMemory:(JJ)V
+   #92 = Utf8               unreserveMemory
+   #93 = Methodref          #8.#94           // java/nio/Bits.pageSize:()I
+   #94 = NameAndType        #95:#96          // pageSize:()I
+   #95 = Utf8               pageSize
+   #96 = Utf8               ()I
+   #97 = Methodref          #40.#98          // java/nio/Buffer.scaleShifts:()I
+   #98 = NameAndType        #99:#96          // scaleShifts:()I
+   #99 = Utf8               scaleShifts
+  #100 = Methodref          #40.#101         // java/nio/Buffer.heapSegment:(Ljava/lang/Object;JJZLjdk/internal/foreign/MemorySessionImpl;)Ljdk/internal/foreign/AbstractMemorySegmentImpl;
+  #101 = NameAndType        #102:#103        // heapSegment:(Ljava/lang/Object;JJZLjdk/internal/foreign/MemorySessionImpl;)Ljdk/internal/foreign/AbstractMemorySegmentImpl;
+  #102 = Utf8               heapSegment
+  #103 = Utf8               (Ljava/lang/Object;JJZLjdk/internal/foreign/MemorySessionImpl;)Ljdk/internal/foreign/AbstractMemorySegmentImpl;
+  #104 = Class              #105             // java/nio/Buffer$2
+  #105 = Utf8               java/nio/Buffer$2
+  #106 = Class              #107             // jdk/internal/access/JavaNioAccess
+  #107 = Utf8               jdk/internal/access/JavaNioAccess
+  #108 = Utf8               Code
+  #109 = Utf8               LineNumberTable
+  #110 = Utf8               LocalVariableTable
+  #111 = Utf8               this
+  #112 = Utf8               Ljava/nio/Buffer$2;
+  #113 = Utf8               getDirectBufferPool
+  #114 = Utf8               ()Ljdk/internal/misc/VM$BufferPool;
+  #115 = Utf8               newDirectByteBuffer
+  #116 = Utf8               (JILjava/lang/Object;Ljava/lang/foreign/MemorySegment;)Ljava/nio/ByteBuffer;
+  #117 = Utf8               addr
+  #118 = Utf8               cap
+  #119 = Utf8               I
+  #120 = Utf8               obj
+  #121 = Utf8               Ljava/lang/Object;
+  #122 = Utf8               newMappedByteBuffer
+  #123 = Utf8               (Ljdk/internal/access/foreign/UnmapperProxy;JILjava/lang/Object;Ljava/lang/foreign/MemorySegment;)Ljava/nio/ByteBuffer;
+  #124 = Utf8               unmapperProxy
+  #125 = Utf8               Ljdk/internal/access/foreign/UnmapperProxy;
+  #126 = Utf8               StackMapTable
+  #127 = Class              #128             // java/nio/ByteBuffer
+  #128 = Utf8               java/nio/ByteBuffer
+  #129 = Utf8               newHeapByteBuffer
+  #130 = Utf8               ([BIILjava/lang/foreign/MemorySegment;)Ljava/nio/ByteBuffer;
+  #131 = Utf8               hb
+  #132 = Utf8               [B
+  #133 = Utf8               offset
+  #134 = Utf8               capacity
+  #135 = Utf8               (JI)Ljava/nio/ByteBuffer;
+  #136 = Utf8               getBufferBase
+  #137 = Utf8               (Ljava/nio/Buffer;)Ljava/lang/Object;
+  #138 = Utf8               buffer
+  #139 = Utf8               Ljava/nio/Buffer;
+  #140 = Utf8               RuntimeVisibleAnnotations
+  #141 = Utf8               Ljdk/internal/vm/annotation/ForceInline;
+  #142 = Utf8               getBufferAddress
+  #143 = Utf8               (Ljava/nio/Buffer;)J
+  #144 = Utf8               (Ljava/nio/Buffer;)Ljdk/internal/access/foreign/UnmapperProxy;
+  #145 = Utf8               mbb
+  #146 = Utf8               Ljava/nio/MappedByteBuffer;
+  #147 = Utf8               bufferSegment
+  #148 = Utf8               (Ljava/nio/Buffer;)Ljava/lang/foreign/MemorySegment;
+  #149 = Utf8               acquireSession
+  #150 = Utf8               (Ljava/nio/Buffer;)V
+  #151 = Utf8               scope
+  #152 = Utf8               Ljdk/internal/foreign/MemorySessionImpl;
+  #153 = Utf8               releaseSession
+  #154 = Class              #155             // java/lang/Throwable
+  #155 = Utf8               java/lang/Throwable
+  #156 = Utf8               isThreadConfined
+  #157 = Utf8               (Ljava/nio/Buffer;)Z
+  #158 = Utf8               hasSession
+  #159 = Utf8               mappedMemoryUtils
+  #160 = Utf8               ()Ljdk/internal/access/foreign/MappedMemoryUtilsProxy;
+  #161 = Utf8               size
+  #162 = Utf8               (Ljava/nio/Buffer;)I
+  #163 = Utf8               (Ljava/nio/Buffer;Ljava/lang/Object;JJZLjdk/internal/foreign/MemorySessionImpl;)Ljdk/internal/foreign/AbstractMemorySegmentImpl;
+  #164 = Utf8               length
+  #165 = Utf8               readOnly
+  #166 = Utf8               Z
+  #167 = Utf8               bufferScope
+  #168 = Utf8               SourceFile
+  #169 = Utf8               Buffer.java
+  #170 = Utf8               EnclosingMethod
+  #171 = Utf8               NestHost
+  #172 = Utf8               InnerClasses
+  #173 = Class              #174             // jdk/internal/misc/VM$BufferPool
+  #174 = Utf8               jdk/internal/misc/VM$BufferPool
+  #175 = Class              #176             // jdk/internal/misc/VM
+  #176 = Utf8               jdk/internal/misc/VM
+  #177 = Utf8               BufferPool
+{
+  java.nio.Buffer$2();
+    descriptor: ()V
+    flags: (0x0000) 
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return                  
+      LineNumberTable:
+        line 826: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/nio/Buffer$2;
+  
+  public jdk.internal.misc.VM$BufferPool getDirectBufferPool();
+    descriptor: ()Ljdk/internal/misc/VM$BufferPool;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: getstatic     #7                  // Field java/nio/Bits.BUFFER_POOL:Ljdk/internal/misc/VM$BufferPool;
+         3: areturn                 
+      LineNumberTable:
+        line 830: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        4     0  this   Ljava/nio/Buffer$2;
+  
+  public java.nio.ByteBuffer newDirectByteBuffer(long, int, java.lang.Object, java.lang.foreign.MemorySegment);
+    descriptor: (JILjava/lang/Object;Ljava/lang/foreign/MemorySegment;)Ljava/nio/ByteBuffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=7, locals=6, args_size=5
+         0: new           #13                 // class java/nio/DirectByteBuffer
+         3: dup                     
+         4: lload_1                 
+         5: iload_3                 
+         6: aload         4                 
+         8: aload         5                 
+        10: invokespecial #15                 // Method java/nio/DirectByteBuffer."<init>":(JILjava/lang/Object;Ljava/lang/foreign/MemorySegment;)V
+        13: areturn                 
+      LineNumberTable:
+        line 835: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       14     0  this   Ljava/nio/Buffer$2;
+           0       14     1  addr   J
+           0       14     3  cap    I
+           0       14     4  obj    Ljava/lang/Object;
+           0       14     5  segment Ljava/lang/foreign/MemorySegment;
+  
+  public java.nio.ByteBuffer newMappedByteBuffer(jdk.internal.access.foreign.UnmapperProxy, long, int, java.lang.Object, java.lang.foreign.MemorySegment);
+    descriptor: (Ljdk/internal/access/foreign/UnmapperProxy;JILjava/lang/Object;Ljava/lang/foreign/MemorySegment;)Ljava/nio/ByteBuffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=9, locals=7, args_size=6
+         0: aload_1                 
+         1: ifnonnull     21                
+         4: new           #13                 // class java/nio/DirectByteBuffer
+         7: dup                     
+         8: lload_2                 
+         9: iload         4                 
+        11: aload         5                 
+        13: aload         6                 
+        15: invokespecial #15                 // Method java/nio/DirectByteBuffer."<init>":(JILjava/lang/Object;Ljava/lang/foreign/MemorySegment;)V
+        18: goto          47                
+        21: new           #13                 // class java/nio/DirectByteBuffer
+        24: dup                     
+        25: lload_2                 
+        26: iload         4                 
+        28: aload         5                 
+        30: aload_1                 
+        31: invokeinterface #18, 1              // InterfaceMethod jdk/internal/access/foreign/UnmapperProxy.fileDescriptor:()Ljava/io/FileDescriptor;
+        36: aload_1                 
+        37: invokeinterface #24, 1              // InterfaceMethod jdk/internal/access/foreign/UnmapperProxy.isSync:()Z
+        42: aload         6                 
+        44: invokespecial #28                 // Method java/nio/DirectByteBuffer."<init>":(JILjava/lang/Object;Ljava/io/FileDescriptor;ZLjava/lang/foreign/MemorySegment;)V
+        47: areturn                 
+      LineNumberTable:
+        line 840: 0
+        line 841: 4
+        line 842: 21
+        line 840: 47
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       48     0  this   Ljava/nio/Buffer$2;
+           0       48     1  unmapperProxy Ljdk/internal/access/foreign/UnmapperProxy;
+           0       48     2  address J
+           0       48     4  cap    I
+           0       48     5  obj    Ljava/lang/Object;
+           0       48     6  segment Ljava/lang/foreign/MemorySegment;
+      StackMapTable: number_of_entries = 2
+        frame_type = 21 /* same */
+        frame_type = 89 /* same_locals_1_stack_item */
+          stack = [ class java/nio/ByteBuffer ]
+  
+  public java.nio.ByteBuffer newHeapByteBuffer(byte[], int, int, java.lang.foreign.MemorySegment);
+    descriptor: ([BIILjava/lang/foreign/MemorySegment;)Ljava/nio/ByteBuffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=9, locals=5, args_size=5
+         0: new           #31                 // class java/nio/HeapByteBuffer
+         3: dup                     
+         4: aload_1                 
+         5: iconst_m1               
+         6: iconst_0                
+         7: iload_3                 
+         8: iload_3                 
+         9: iload_2                 
+        10: aload         4                 
+        12: invokespecial #33                 // Method java/nio/HeapByteBuffer."<init>":([BIIIIILjava/lang/foreign/MemorySegment;)V
+        15: areturn                 
+      LineNumberTable:
+        line 847: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       16     0  this   Ljava/nio/Buffer$2;
+           0       16     1  hb     [B
+           0       16     2  offset I
+           0       16     3  capacity I
+           0       16     4  segment Ljava/lang/foreign/MemorySegment;
+  
+  public java.nio.ByteBuffer newDirectByteBuffer(long, int);
+    descriptor: (JI)Ljava/nio/ByteBuffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=6, locals=4, args_size=3
+         0: new           #13                 // class java/nio/DirectByteBuffer
+         3: dup                     
+         4: lload_1                 
+         5: iload_3                 
+         6: i2l                     
+         7: invokespecial #36                 // Method java/nio/DirectByteBuffer."<init>":(JJ)V
+        10: areturn                 
+      LineNumberTable:
+        line 852: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       11     0  this   Ljava/nio/Buffer$2;
+           0       11     1  addr   J
+           0       11     3  cap    I
+  
+  public java.lang.Object getBufferBase(java.nio.Buffer);
+    descriptor: (Ljava/nio/Buffer;)Ljava/lang/Object;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: aload_1                 
+         1: invokevirtual #39                 // Method java/nio/Buffer.base:()Ljava/lang/Object;
+         4: areturn                 
+      LineNumberTable:
+        line 858: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/nio/Buffer$2;
+           0        5     1  buffer Ljava/nio/Buffer;
+    RuntimeVisibleAnnotations:
+      0: #141()
+        jdk.internal.vm.annotation.ForceInline
+  
+  public long getBufferAddress(java.nio.Buffer);
+    descriptor: (Ljava/nio/Buffer;)J
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_1                 
+         1: getfield      #45                 // Field java/nio/Buffer.address:J
+         4: lreturn                 
+      LineNumberTable:
+        line 863: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/nio/Buffer$2;
+           0        5     1  buffer Ljava/nio/Buffer;
+  
+  public jdk.internal.access.foreign.UnmapperProxy unmapper(java.nio.Buffer);
+    descriptor: (Ljava/nio/Buffer;)Ljdk/internal/access/foreign/UnmapperProxy;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=3, args_size=2
+         0: aload_1                 
+         1: instanceof    #49                 // class java/nio/MappedByteBuffer
+         4: ifeq          17                
+         7: aload_1                 
+         8: checkcast     #49                 // class java/nio/MappedByteBuffer
+        11: astore_2                
+        12: aload_2                 
+        13: invokevirtual #51                 // Method java/nio/MappedByteBuffer.unmapper:()Ljdk/internal/access/foreign/UnmapperProxy;
+        16: areturn                 
+        17: aconst_null             
+        18: areturn                 
+      LineNumberTable:
+        line 868: 0
+        line 869: 12
+        line 871: 17
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          12        5     2  mbb    Ljava/nio/MappedByteBuffer;
+           0       19     0  this   Ljava/nio/Buffer$2;
+           0       19     1  buffer Ljava/nio/Buffer;
+      StackMapTable: number_of_entries = 1
+        frame_type = 17 /* same */
+  
+  public java.lang.foreign.MemorySegment bufferSegment(java.nio.Buffer);
+    descriptor: (Ljava/nio/Buffer;)Ljava/lang/foreign/MemorySegment;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: aload_1                 
+         1: getfield      #55                 // Field java/nio/Buffer.segment:Ljava/lang/foreign/MemorySegment;
+         4: areturn                 
+      LineNumberTable:
+        line 877: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/nio/Buffer$2;
+           0        5     1  buffer Ljava/nio/Buffer;
+  
+  public void acquireSession(java.nio.Buffer);
+    descriptor: (Ljava/nio/Buffer;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=3, args_size=2
+         0: aload_1                 
+         1: invokevirtual #59                 // Method java/nio/Buffer.session:()Ljdk/internal/foreign/MemorySessionImpl;
+         4: astore_2                
+         5: aload_2                 
+         6: ifnull        13                
+         9: aload_2                 
+        10: invokevirtual #63                 // Method jdk/internal/foreign/MemorySessionImpl.acquire0:()V
+        13: return                  
+      LineNumberTable:
+        line 882: 0
+        line 883: 5
+        line 884: 9
+        line 886: 13
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       14     0  this   Ljava/nio/Buffer$2;
+           0       14     1  buffer Ljava/nio/Buffer;
+           5        9     2  scope  Ljdk/internal/foreign/MemorySessionImpl;
+      StackMapTable: number_of_entries = 1
+        frame_type = 252 /* append */
+          offset_delta = 13
+          locals = [class jdk/internal/foreign/MemorySessionImpl]
+  
+  public void releaseSession(java.nio.Buffer);
+    descriptor: (Ljava/nio/Buffer;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=4, args_size=2
+         0: aload_1                 
+         1: invokevirtual #59                 // Method java/nio/Buffer.session:()Ljdk/internal/foreign/MemorySessionImpl;
+         4: astore_2                
+         5: aload_2                 
+         6: ifnull        13                
+         9: aload_2                 
+        10: invokevirtual #68                 // Method jdk/internal/foreign/MemorySessionImpl.release0:()V
+        13: aload_1                 
+        14: invokestatic  #71                 // Method java/lang/ref/Reference.reachabilityFence:(Ljava/lang/Object;)V
+        17: goto          27                
+        20: astore_3                
+        21: aload_1                 
+        22: invokestatic  #71                 // Method java/lang/ref/Reference.reachabilityFence:(Ljava/lang/Object;)V
+        25: aload_3                 
+        26: athrow                  
+        27: return                  
+      Exception table:
+          from       to target type
+             0       13    20  any
+      LineNumberTable:
+        line 891: 0
+        line 892: 5
+        line 893: 9
+        line 896: 13
+        line 897: 17
+        line 896: 20
+        line 897: 25
+        line 898: 27
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           5        8     2  scope  Ljdk/internal/foreign/MemorySessionImpl;
+           0       28     0  this   Ljava/nio/Buffer$2;
+           0       28     1  buffer Ljava/nio/Buffer;
+      StackMapTable: number_of_entries = 3
+        frame_type = 13 /* same */
+        frame_type = 70 /* same_locals_1_stack_item */
+          stack = [ class java/lang/Throwable ]
+        frame_type = 6 /* same */
+  
+  public boolean isThreadConfined(java.nio.Buffer);
+    descriptor: (Ljava/nio/Buffer;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=3, args_size=2
+         0: aload_1                 
+         1: invokevirtual #59                 // Method java/nio/Buffer.session:()Ljdk/internal/foreign/MemorySessionImpl;
+         4: astore_2                
+         5: aload_2                 
+         6: ifnull        20                
+         9: aload_2                 
+        10: invokevirtual #77                 // Method jdk/internal/foreign/MemorySessionImpl.ownerThread:()Ljava/lang/Thread;
+        13: ifnull        20                
+        16: iconst_1                
+        17: goto          21                
+        20: iconst_0                
+        21: ireturn                 
+      LineNumberTable:
+        line 902: 0
+        line 903: 5
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       22     0  this   Ljava/nio/Buffer$2;
+           0       22     1  buffer Ljava/nio/Buffer;
+           5       17     2  scope  Ljdk/internal/foreign/MemorySessionImpl;
+      StackMapTable: number_of_entries = 2
+        frame_type = 252 /* append */
+          offset_delta = 20
+          locals = [class jdk/internal/foreign/MemorySessionImpl]
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  public boolean hasSession(java.nio.Buffer);
+    descriptor: (Ljava/nio/Buffer;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: aload_1                 
+         1: invokevirtual #59                 // Method java/nio/Buffer.session:()Ljdk/internal/foreign/MemorySessionImpl;
+         4: ifnull        11                
+         7: iconst_1                
+         8: goto          12                
+        11: iconst_0                
+        12: ireturn                 
+      LineNumberTable:
+        line 908: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       13     0  this   Ljava/nio/Buffer$2;
+           0       13     1  buffer Ljava/nio/Buffer;
+      StackMapTable: number_of_entries = 2
+        frame_type = 11 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  public jdk.internal.access.foreign.MappedMemoryUtilsProxy mappedMemoryUtils();
+    descriptor: ()Ljdk/internal/access/foreign/MappedMemoryUtilsProxy;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: getstatic     #81                 // Field java/nio/MappedMemoryUtils.PROXY:Ljdk/internal/access/foreign/MappedMemoryUtilsProxy;
+         3: areturn                 
+      LineNumberTable:
+        line 913: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        4     0  this   Ljava/nio/Buffer$2;
+  
+  public void reserveMemory(long, long);
+    descriptor: (JJ)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=5, args_size=3
+         0: lload_1                 
+         1: lload_3                 
+         2: invokestatic  #87                 // Method java/nio/Bits.reserveMemory:(JJ)V
+         5: return                  
+      LineNumberTable:
+        line 918: 0
+        line 919: 5
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        6     0  this   Ljava/nio/Buffer$2;
+           0        6     1  size   J
+           0        6     3  cap    J
+  
+  public void unreserveMemory(long, long);
+    descriptor: (JJ)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=5, args_size=3
+         0: lload_1                 
+         1: lload_3                 
+         2: invokestatic  #90                 // Method java/nio/Bits.unreserveMemory:(JJ)V
+         5: return                  
+      LineNumberTable:
+        line 923: 0
+        line 924: 5
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        6     0  this   Ljava/nio/Buffer$2;
+           0        6     1  size   J
+           0        6     3  cap    J
+  
+  public int pageSize();
+    descriptor: ()I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: invokestatic  #93                 // Method java/nio/Bits.pageSize:()I
+         3: ireturn                 
+      LineNumberTable:
+        line 928: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        4     0  this   Ljava/nio/Buffer$2;
+  
+  public int scaleShifts(java.nio.Buffer);
+    descriptor: (Ljava/nio/Buffer;)I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: aload_1                 
+         1: invokevirtual #97                 // Method java/nio/Buffer.scaleShifts:()I
+         4: ireturn                 
+      LineNumberTable:
+        line 934: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/nio/Buffer$2;
+           0        5     1  buffer Ljava/nio/Buffer;
+    RuntimeVisibleAnnotations:
+      0: #141()
+        jdk.internal.vm.annotation.ForceInline
+  
+  public jdk.internal.foreign.AbstractMemorySegmentImpl heapSegment(java.nio.Buffer, java.lang.Object, long, long, boolean, jdk.internal.foreign.MemorySessionImpl);
+    descriptor: (Ljava/nio/Buffer;Ljava/lang/Object;JJZLjdk/internal/foreign/MemorySessionImpl;)Ljdk/internal/foreign/AbstractMemorySegmentImpl;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=8, locals=9, args_size=7
+         0: aload_1                 
+         1: aload_2                 
+         2: lload_3                 
+         3: lload         5                 
+         5: iload         7                 
+         7: aload         8                 
+         9: invokevirtual #100                // Method java/nio/Buffer.heapSegment:(Ljava/lang/Object;JJZLjdk/internal/foreign/MemorySessionImpl;)Ljdk/internal/foreign/AbstractMemorySegmentImpl;
+        12: areturn                 
+      LineNumberTable:
+        line 945: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       13     0  this   Ljava/nio/Buffer$2;
+           0       13     1  buffer Ljava/nio/Buffer;
+           0       13     2  base   Ljava/lang/Object;
+           0       13     3  offset J
+           0       13     5  length J
+           0       13     7  readOnly Z
+           0       13     8  bufferScope Ljdk/internal/foreign/MemorySessionImpl;
+    RuntimeVisibleAnnotations:
+      0: #141()
+        jdk.internal.vm.annotation.ForceInline
+}
+SourceFile: "Buffer.java"
+EnclosingMethod: #40.#0  // java.nio.Buffer
+NestHost: class java/nio/Buffer
+InnerClasses:
+  public static #177= #173 of #175;           // BufferPool=class jdk/internal/misc/VM$BufferPool of class jdk/internal/misc/VM
+  #104;                                       // class java/nio/Buffer$2

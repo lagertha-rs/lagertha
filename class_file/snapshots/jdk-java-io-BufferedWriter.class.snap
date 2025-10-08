@@ -1,0 +1,1015 @@
+---
+source: class_file/src/lib.rs
+expression: display
+---
+public class java.io.BufferedWriter extends java.io.Writer
+  minor version: 0
+  major version: 68
+  flags: (0x0021) ACC_PUBLIC, ACC_SUPER
+  this_class: #16                      //java/io/BufferedWriter
+  super_class: #19                     //java/io/Writer
+  interfaces: 0, fields: 7, methods: 14, attributes: 1
+Constant pool:
+    #1 = Methodref          #2.#3            // jdk/internal/misc/VM.isBooted:()Z
+    #2 = Class              #4               // jdk/internal/misc/VM
+    #3 = NameAndType        #5:#6            // isBooted:()Z
+    #4 = Utf8               jdk/internal/misc/VM
+    #5 = Utf8               isBooted
+    #6 = Utf8               ()Z
+    #7 = Methodref          #8.#9            // java/lang/Thread.currentThread:()Ljava/lang/Thread;
+    #8 = Class              #10              // java/lang/Thread
+    #9 = NameAndType        #11:#12          // currentThread:()Ljava/lang/Thread;
+   #10 = Utf8               java/lang/Thread
+   #11 = Utf8               currentThread
+   #12 = Utf8               ()Ljava/lang/Thread;
+   #13 = Methodref          #8.#14           // java/lang/Thread.isVirtual:()Z
+   #14 = NameAndType        #15:#6           // isVirtual:()Z
+   #15 = Utf8               isVirtual
+   #16 = Class              #17              // java/io/BufferedWriter
+   #17 = Utf8               java/io/BufferedWriter
+   #18 = Methodref          #19.#20          // java/io/Writer."<init>":(Ljava/lang/Object;)V
+   #19 = Class              #21              // java/io/Writer
+   #20 = NameAndType        #22:#23          // "<init>":(Ljava/lang/Object;)V
+   #21 = Utf8               java/io/Writer
+   #22 = Utf8               <init>
+   #23 = Utf8               (Ljava/lang/Object;)V
+   #24 = Class              #25              // java/lang/IllegalArgumentException
+   #25 = Utf8               java/lang/IllegalArgumentException
+   #26 = String             #27              // Buffer size <= 0
+   #27 = Utf8               Buffer size <= 0
+   #28 = Methodref          #24.#29          // java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+   #29 = NameAndType        #22:#30          // "<init>":(Ljava/lang/String;)V
+   #30 = Utf8               (Ljava/lang/String;)V
+   #31 = Fieldref           #16.#32          // java/io/BufferedWriter.out:Ljava/io/Writer;
+   #32 = NameAndType        #33:#34          // out:Ljava/io/Writer;
+   #33 = Utf8               out
+   #34 = Utf8               Ljava/io/Writer;
+   #35 = Fieldref           #16.#36          // java/io/BufferedWriter.cb:[C
+   #36 = NameAndType        #37:#38          // cb:[C
+   #37 = Utf8               cb
+   #38 = Utf8               [C
+   #39 = Fieldref           #16.#40          // java/io/BufferedWriter.nChars:I
+   #40 = NameAndType        #41:#42          // nChars:I
+   #41 = Utf8               nChars
+   #42 = Utf8               I
+   #43 = Fieldref           #16.#44          // java/io/BufferedWriter.maxChars:I
+   #44 = NameAndType        #45:#42          // maxChars:I
+   #45 = Utf8               maxChars
+   #46 = Methodref          #16.#47          // java/io/BufferedWriter.initialBufferSize:()I
+   #47 = NameAndType        #48:#49          // initialBufferSize:()I
+   #48 = Utf8               initialBufferSize
+   #49 = Utf8               ()I
+   #50 = Methodref          #16.#51          // java/io/BufferedWriter."<init>":(Ljava/io/Writer;II)V
+   #51 = NameAndType        #22:#52          // "<init>":(Ljava/io/Writer;II)V
+   #52 = Utf8               (Ljava/io/Writer;II)V
+   #53 = Class              #54              // java/io/IOException
+   #54 = Utf8               java/io/IOException
+   #55 = String             #56              // Stream closed
+   #56 = Utf8               Stream closed
+   #57 = Methodref          #53.#29          // java/io/IOException."<init>":(Ljava/lang/String;)V
+   #58 = Fieldref           #16.#59          // java/io/BufferedWriter.nextChar:I
+   #59 = NameAndType        #60:#42          // nextChar:I
+   #60 = Utf8               nextChar
+   #61 = Class              #62              // java/lang/Integer
+   #62 = Utf8               java/lang/Integer
+   #63 = Integer            2147483647
+   #64 = Methodref          #16.#65          // java/io/BufferedWriter.min:(II)I
+   #65 = NameAndType        #66:#67          // min:(II)I
+   #66 = Utf8               min
+   #67 = Utf8               (II)I
+   #68 = Methodref          #69.#70          // java/util/Arrays.copyOf:([CI)[C
+   #69 = Class              #71              // java/util/Arrays
+   #70 = NameAndType        #72:#73          // copyOf:([CI)[C
+   #71 = Utf8               java/util/Arrays
+   #72 = Utf8               copyOf
+   #73 = Utf8               ([CI)[C
+   #74 = Fieldref           #16.#75          // java/io/BufferedWriter.lock:Ljava/lang/Object;
+   #75 = NameAndType        #76:#77          // lock:Ljava/lang/Object;
+   #76 = Utf8               lock
+   #77 = Utf8               Ljava/lang/Object;
+   #78 = Methodref          #16.#79          // java/io/BufferedWriter.ensureOpen:()V
+   #79 = NameAndType        #80:#81          // ensureOpen:()V
+   #80 = Utf8               ensureOpen
+   #81 = Utf8               ()V
+   #82 = Methodref          #19.#83          // java/io/Writer.write:([CII)V
+   #83 = NameAndType        #84:#85          // write:([CII)V
+   #84 = Utf8               write
+   #85 = Utf8               ([CII)V
+   #86 = Methodref          #16.#87          // java/io/BufferedWriter.growIfNeeded:(I)V
+   #87 = NameAndType        #88:#89          // growIfNeeded:(I)V
+   #88 = Utf8               growIfNeeded
+   #89 = Utf8               (I)V
+   #90 = Methodref          #16.#91          // java/io/BufferedWriter.flushBuffer:()V
+   #91 = NameAndType        #92:#81          // flushBuffer:()V
+   #92 = Utf8               flushBuffer
+   #93 = Methodref          #94.#95          // java/util/Objects.checkFromIndexSize:(III)I
+   #94 = Class              #96              // java/util/Objects
+   #95 = NameAndType        #97:#98          // checkFromIndexSize:(III)I
+   #96 = Utf8               java/util/Objects
+   #97 = Utf8               checkFromIndexSize
+   #98 = Utf8               (III)I
+   #99 = Methodref          #100.#101        // java/lang/System.arraycopy:(Ljava/lang/Object;ILjava/lang/Object;II)V
+  #100 = Class              #102             // java/lang/System
+  #101 = NameAndType        #103:#104        // arraycopy:(Ljava/lang/Object;ILjava/lang/Object;II)V
+  #102 = Utf8               java/lang/System
+  #103 = Utf8               arraycopy
+  #104 = Utf8               (Ljava/lang/Object;ILjava/lang/Object;II)V
+  #105 = Methodref          #106.#107        // java/lang/String.getChars:(II[CI)V
+  #106 = Class              #108             // java/lang/String
+  #107 = NameAndType        #109:#110        // getChars:(II[CI)V
+  #108 = Utf8               java/lang/String
+  #109 = Utf8               getChars
+  #110 = Utf8               (II[CI)V
+  #111 = Methodref          #100.#112        // java/lang/System.lineSeparator:()Ljava/lang/String;
+  #112 = NameAndType        #113:#114        // lineSeparator:()Ljava/lang/String;
+  #113 = Utf8               lineSeparator
+  #114 = Utf8               ()Ljava/lang/String;
+  #115 = Methodref          #16.#116         // java/io/BufferedWriter.write:(Ljava/lang/String;)V
+  #116 = NameAndType        #84:#30          // write:(Ljava/lang/String;)V
+  #117 = Methodref          #19.#118         // java/io/Writer.flush:()V
+  #118 = NameAndType        #119:#81         // flush:()V
+  #119 = Utf8               flush
+  #120 = Methodref          #19.#121         // java/io/Writer.close:()V
+  #121 = NameAndType        #122:#81         // close:()V
+  #122 = Utf8               close
+  #123 = Class              #124             // java/lang/Throwable
+  #124 = Utf8               java/lang/Throwable
+  #125 = Methodref          #123.#126        // java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+  #126 = NameAndType        #127:#128        // addSuppressed:(Ljava/lang/Throwable;)V
+  #127 = Utf8               addSuppressed
+  #128 = Utf8               (Ljava/lang/Throwable;)V
+  #129 = Utf8               DEFAULT_INITIAL_BUFFER_SIZE
+  #130 = Utf8               ConstantValue
+  #131 = Integer            512
+  #132 = Utf8               DEFAULT_MAX_BUFFER_SIZE
+  #133 = Integer            8192
+  #134 = Utf8               Code
+  #135 = Utf8               LineNumberTable
+  #136 = Utf8               StackMapTable
+  #137 = Utf8               LocalVariableTable
+  #138 = Utf8               this
+  #139 = Utf8               Ljava/io/BufferedWriter;
+  #140 = Utf8               initialSize
+  #141 = Utf8               maxSize
+  #142 = Utf8               (Ljava/io/Writer;)V
+  #143 = Utf8               (Ljava/io/Writer;I)V
+  #144 = Utf8               sz
+  #145 = Utf8               Exceptions
+  #146 = Utf8               newSize
+  #147 = Utf8               len
+  #148 = Utf8               neededSize
+  #149 = Class              #150             // java/lang/Object
+  #150 = Utf8               java/lang/Object
+  #151 = Utf8               c
+  #152 = Utf8               a
+  #153 = Utf8               b
+  #154 = Utf8               d
+  #155 = Utf8               t
+  #156 = Utf8               cbuf
+  #157 = Utf8               off
+  #158 = Utf8               (Ljava/lang/String;II)V
+  #159 = Utf8               s
+  #160 = Utf8               Ljava/lang/String;
+  #161 = Utf8               newLine
+  #162 = Utf8               w
+  #163 = Utf8               SourceFile
+  #164 = Utf8               BufferedWriter.java
+{
+  private static final int DEFAULT_INITIAL_BUFFER_SIZE;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 512
+  
+  private static final int DEFAULT_MAX_BUFFER_SIZE;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 8192
+  
+  private java.io.Writer out;
+    descriptor: Ljava/io/Writer;
+    flags: (0x0002) ACC_PRIVATE
+  
+  private char[] cb;
+    descriptor: [C
+    flags: (0x0002) ACC_PRIVATE
+  
+  private int nChars;
+    descriptor: I
+    flags: (0x0002) ACC_PRIVATE
+  
+  private int nextChar;
+    descriptor: I
+    flags: (0x0002) ACC_PRIVATE
+  
+  private final int maxChars;
+    descriptor: I
+    flags: (0x0012) ACC_PRIVATE, ACC_FINAL
+  
+  private static int initialBufferSize();
+    descriptor: ()I
+    flags: (0x000a) ACC_PRIVATE, ACC_STATIC
+    Code: 
+      stack=1, locals=0, args_size=0
+         0: invokestatic  #1                  // Method jdk/internal/misc/VM.isBooted:()Z
+         3: ifeq          19                
+         6: invokestatic  #7                  // Method java/lang/Thread.currentThread:()Ljava/lang/Thread;
+         9: invokevirtual #13                 // Method java/lang/Thread.isVirtual:()Z
+        12: ifeq          19                
+        15: sipush        512               
+        18: ireturn                 
+        19: sipush        8192              
+        22: ireturn                 
+      LineNumberTable:
+        line 89: 0
+        line 90: 15
+        line 92: 19
+      StackMapTable: number_of_entries = 1
+        frame_type = 19 /* same */
+  
+  private java.io.BufferedWriter(java.io.Writer, int, int);
+    descriptor: (Ljava/io/Writer;II)V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=3, locals=4, args_size=4
+         0: aload_0                 
+         1: aload_1                 
+         2: invokespecial #18                 // Method java/io/Writer."<init>":(Ljava/lang/Object;)V
+         5: iload_2                 
+         6: ifgt          19                
+         9: new           #24                 // class java/lang/IllegalArgumentException
+        12: dup                     
+        13: ldc           #26                 // String Buffer size <= 0
+        15: invokespecial #28                 // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+        18: athrow                  
+        19: aload_0                 
+        20: aload_1                 
+        21: putfield      #31                 // Field out:Ljava/io/Writer;
+        24: aload_0                 
+        25: iload_2                 
+        26: newarray      char              
+        28: putfield      #35                 // Field cb:[C
+        31: aload_0                 
+        32: iload_2                 
+        33: putfield      #39                 // Field nChars:I
+        36: aload_0                 
+        37: iload_3                 
+        38: putfield      #43                 // Field maxChars:I
+        41: return                  
+      LineNumberTable:
+        line 100: 0
+        line 101: 5
+        line 102: 9
+        line 105: 19
+        line 106: 24
+        line 107: 31
+        line 108: 36
+        line 109: 41
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       42     0  this   Ljava/io/BufferedWriter;
+           0       42     1  out    Ljava/io/Writer;
+           0       42     2  initialSize I
+           0       42     3  maxSize I
+      StackMapTable: number_of_entries = 1
+        frame_type = 255 /* full_frame */
+          offset_delta = 19
+          locals = [class java/io/BufferedWriter, class java/io/Writer, int, int]
+          stack = []
+  
+  public java.io.BufferedWriter(java.io.Writer);
+    descriptor: (Ljava/io/Writer;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=2, args_size=2
+         0: aload_0                 
+         1: aload_1                 
+         2: invokestatic  #46                 // Method initialBufferSize:()I
+         5: sipush        8192              
+         8: invokespecial #50                 // Method "<init>":(Ljava/io/Writer;II)V
+        11: return                  
+      LineNumberTable:
+        line 118: 0
+        line 119: 11
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       12     0  this   Ljava/io/BufferedWriter;
+           0       12     1  out    Ljava/io/Writer;
+  
+  public java.io.BufferedWriter(java.io.Writer, int);
+    descriptor: (Ljava/io/Writer;I)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=3, args_size=3
+         0: aload_0                 
+         1: aload_1                 
+         2: iload_2                 
+         3: iload_2                 
+         4: invokespecial #50                 // Method "<init>":(Ljava/io/Writer;II)V
+         7: return                  
+      LineNumberTable:
+        line 131: 0
+        line 132: 7
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/io/BufferedWriter;
+           0        8     1  out    Ljava/io/Writer;
+           0        8     2  sz     I
+  
+  private void ensureOpen() throws java.io.IOException;
+    descriptor: ()V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=3, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #31                 // Field out:Ljava/io/Writer;
+         4: ifnonnull     17                
+         7: new           #53                 // class java/io/IOException
+        10: dup                     
+        11: ldc           #55                 // String Stream closed
+        13: invokespecial #57                 // Method java/io/IOException."<init>":(Ljava/lang/String;)V
+        16: athrow                  
+        17: return                  
+      LineNumberTable:
+        line 136: 0
+        line 137: 7
+        line 138: 17
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       18     0  this   Ljava/io/BufferedWriter;
+      StackMapTable: number_of_entries = 1
+        frame_type = 17 /* same */
+    Exceptions:
+      throws java.io.IOException
+  
+  private void growIfNeeded(int);
+    descriptor: (I)V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=3, locals=4, args_size=2
+         0: aload_0                 
+         1: getfield      #58                 // Field nextChar:I
+         4: iload_1                 
+         5: iadd                    
+         6: iconst_1                
+         7: iadd                    
+         8: istore_2                
+         9: iload_2                 
+        10: ifge          16                
+        13: ldc           #63                 // int 2147483647
+        15: istore_2                
+        16: iload_2                 
+        17: aload_0                 
+        18: getfield      #39                 // Field nChars:I
+        21: if_icmple     62                
+        24: aload_0                 
+        25: getfield      #39                 // Field nChars:I
+        28: aload_0                 
+        29: getfield      #43                 // Field maxChars:I
+        32: if_icmpge     62                
+        35: aload_0                 
+        36: iload_2                 
+        37: aload_0                 
+        38: getfield      #43                 // Field maxChars:I
+        41: invokevirtual #64                 // Method min:(II)I
+        44: istore_3                
+        45: aload_0                 
+        46: aload_0                 
+        47: getfield      #35                 // Field cb:[C
+        50: iload_3                 
+        51: invokestatic  #68                 // Method java/util/Arrays.copyOf:([CI)[C
+        54: putfield      #35                 // Field cb:[C
+        57: aload_0                 
+        58: iload_3                 
+        59: putfield      #39                 // Field nChars:I
+        62: return                  
+      LineNumberTable:
+        line 148: 0
+        line 149: 9
+        line 150: 13
+        line 151: 16
+        line 152: 35
+        line 153: 45
+        line 154: 57
+        line 156: 62
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          45       17     3  newSize I
+           0       63     0  this   Ljava/io/BufferedWriter;
+           0       63     1  len    I
+           9       54     2  neededSize I
+      StackMapTable: number_of_entries = 2
+        frame_type = 252 /* append */
+          offset_delta = 16
+          locals = [int]
+        frame_type = 45 /* same */
+  
+  void flushBuffer() throws java.io.IOException;
+    descriptor: ()V
+    flags: (0x0000) 
+    Code: 
+      stack=4, locals=3, args_size=1
+         0: aload_0                 
+         1: getfield      #74                 // Field lock:Ljava/lang/Object;
+         4: dup                     
+         5: astore_1                
+         6: monitorenter            
+         7: aload_0                 
+         8: invokevirtual #78                 // Method ensureOpen:()V
+        11: aload_0                 
+        12: getfield      #58                 // Field nextChar:I
+        15: ifne          21                
+        18: aload_1                 
+        19: monitorexit             
+        20: return                  
+        21: aload_0                 
+        22: getfield      #31                 // Field out:Ljava/io/Writer;
+        25: aload_0                 
+        26: getfield      #35                 // Field cb:[C
+        29: iconst_0                
+        30: aload_0                 
+        31: getfield      #58                 // Field nextChar:I
+        34: invokevirtual #82                 // Method java/io/Writer.write:([CII)V
+        37: aload_0                 
+        38: iconst_0                
+        39: putfield      #58                 // Field nextChar:I
+        42: aload_1                 
+        43: monitorexit             
+        44: goto          52                
+        47: astore_2                
+        48: aload_1                 
+        49: monitorexit             
+        50: aload_2                 
+        51: athrow                  
+        52: return                  
+      Exception table:
+          from       to target type
+             7       20    47  any
+            21       44    47  any
+            47       50    47  any
+      LineNumberTable:
+        line 164: 0
+        line 165: 7
+        line 166: 11
+        line 167: 18
+        line 168: 21
+        line 169: 37
+        line 170: 42
+        line 171: 52
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       53     0  this   Ljava/io/BufferedWriter;
+      StackMapTable: number_of_entries = 3
+        frame_type = 252 /* append */
+          offset_delta = 21
+          locals = [class java/lang/Object]
+        frame_type = 89 /* same_locals_1_stack_item */
+          stack = [ class java/lang/Throwable ]
+        frame_type = 250 /* chop */
+          offset_delta = 4
+    Exceptions:
+      throws java.io.IOException
+  
+  public void write(int) throws java.io.IOException;
+    descriptor: (I)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=5, locals=4, args_size=2
+         0: aload_0                 
+         1: getfield      #74                 // Field lock:Ljava/lang/Object;
+         4: dup                     
+         5: astore_2                
+         6: monitorenter            
+         7: aload_0                 
+         8: invokevirtual #78                 // Method ensureOpen:()V
+        11: aload_0                 
+        12: iconst_1                
+        13: invokevirtual #86                 // Method growIfNeeded:(I)V
+        16: aload_0                 
+        17: getfield      #58                 // Field nextChar:I
+        20: aload_0                 
+        21: getfield      #39                 // Field nChars:I
+        24: if_icmplt     31                
+        27: aload_0                 
+        28: invokevirtual #90                 // Method flushBuffer:()V
+        31: aload_0                 
+        32: getfield      #35                 // Field cb:[C
+        35: aload_0                 
+        36: dup                     
+        37: getfield      #58                 // Field nextChar:I
+        40: dup_x1                  
+        41: iconst_1                
+        42: iadd                    
+        43: putfield      #58                 // Field nextChar:I
+        46: iload_1                 
+        47: i2c                     
+        48: castore                 
+        49: aload_2                 
+        50: monitorexit             
+        51: goto          59                
+        54: astore_3                
+        55: aload_2                 
+        56: monitorexit             
+        57: aload_3                 
+        58: athrow                  
+        59: return                  
+      Exception table:
+          from       to target type
+             7       51    54  any
+            54       57    54  any
+      LineNumberTable:
+        line 179: 0
+        line 180: 7
+        line 181: 11
+        line 182: 16
+        line 183: 27
+        line 184: 31
+        line 185: 49
+        line 186: 59
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       60     0  this   Ljava/io/BufferedWriter;
+           0       60     1  c      I
+      StackMapTable: number_of_entries = 3
+        frame_type = 252 /* append */
+          offset_delta = 31
+          locals = [class java/lang/Object]
+        frame_type = 86 /* same_locals_1_stack_item */
+          stack = [ class java/lang/Throwable ]
+        frame_type = 250 /* chop */
+          offset_delta = 4
+    Exceptions:
+      throws java.io.IOException
+  
+  private int min(int, int);
+    descriptor: (II)I
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=2, locals=3, args_size=3
+         0: iload_1                 
+         1: iload_2                 
+         2: if_icmpge     7                 
+         5: iload_1                 
+         6: ireturn                 
+         7: iload_2                 
+         8: ireturn                 
+      LineNumberTable:
+        line 193: 0
+        line 194: 7
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  this   Ljava/io/BufferedWriter;
+           0        9     1  a      I
+           0        9     2  b      I
+      StackMapTable: number_of_entries = 1
+        frame_type = 7 /* same */
+  
+  public void write(char[], int, int) throws java.io.IOException;
+    descriptor: ([CII)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=5, locals=9, args_size=4
+         0: aload_0                 
+         1: getfield      #74                 // Field lock:Ljava/lang/Object;
+         4: dup                     
+         5: astore        4                 
+         7: monitorenter            
+         8: aload_0                 
+         9: invokevirtual #78                 // Method ensureOpen:()V
+        12: iload_2                 
+        13: iload_3                 
+        14: aload_1                 
+        15: arraylength             
+        16: invokestatic  #93                 // Method java/util/Objects.checkFromIndexSize:(III)I
+        19: pop                     
+        20: iload_3                 
+        21: ifne          28                
+        24: aload         4                 
+        26: monitorexit             
+        27: return                  
+        28: iload_3                 
+        29: aload_0                 
+        30: getfield      #43                 // Field maxChars:I
+        33: if_icmplt     54                
+        36: aload_0                 
+        37: invokevirtual #90                 // Method flushBuffer:()V
+        40: aload_0                 
+        41: getfield      #31                 // Field out:Ljava/io/Writer;
+        44: aload_1                 
+        45: iload_2                 
+        46: iload_3                 
+        47: invokevirtual #82                 // Method java/io/Writer.write:([CII)V
+        50: aload         4                 
+        52: monitorexit             
+        53: return                  
+        54: aload_0                 
+        55: iload_3                 
+        56: invokevirtual #86                 // Method growIfNeeded:(I)V
+        59: iload_2                 
+        60: istore        5                 
+        62: iload_2                 
+        63: iload_3                 
+        64: iadd                    
+        65: istore        6                 
+        67: iload         5                 
+        69: iload         6                 
+        71: if_icmpge     146               
+        74: aload_0                 
+        75: aload_0                 
+        76: getfield      #39                 // Field nChars:I
+        79: aload_0                 
+        80: getfield      #58                 // Field nextChar:I
+        83: isub                    
+        84: iload         6                 
+        86: iload         5                 
+        88: isub                    
+        89: invokevirtual #64                 // Method min:(II)I
+        92: istore        7                 
+        94: aload_1                 
+        95: iload         5                 
+        97: aload_0                 
+        98: getfield      #35                 // Field cb:[C
+       101: aload_0                 
+       102: getfield      #58                 // Field nextChar:I
+       105: iload         7                 
+       107: invokestatic  #99                 // Method java/lang/System.arraycopy:(Ljava/lang/Object;ILjava/lang/Object;II)V
+       110: iload         5                 
+       112: iload         7                 
+       114: iadd                    
+       115: istore        5                 
+       117: aload_0                 
+       118: dup                     
+       119: getfield      #58                 // Field nextChar:I
+       122: iload         7                 
+       124: iadd                    
+       125: putfield      #58                 // Field nextChar:I
+       128: aload_0                 
+       129: getfield      #58                 // Field nextChar:I
+       132: aload_0                 
+       133: getfield      #39                 // Field nChars:I
+       136: if_icmplt     143               
+       139: aload_0                 
+       140: invokevirtual #90                 // Method flushBuffer:()V
+       143: goto          67                
+       146: aload         4                 
+       148: monitorexit             
+       149: goto          160               
+       152: astore        8                 
+       154: aload         4                 
+       156: monitorexit             
+       157: aload         8                 
+       159: athrow                  
+       160: return                  
+      Exception table:
+          from       to target type
+             8       27   152  any
+            28       53   152  any
+            54      149   152  any
+           152      157   152  any
+      LineNumberTable:
+        line 219: 0
+        line 220: 8
+        line 221: 12
+        line 222: 20
+        line 223: 24
+        line 226: 28
+        line 230: 36
+        line 231: 40
+        line 232: 50
+        line 235: 54
+        line 236: 59
+        line 237: 67
+        line 238: 74
+        line 239: 94
+        line 240: 110
+        line 241: 117
+        line 242: 128
+        line 243: 139
+        line 245: 143
+        line 246: 146
+        line 247: 160
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          94       49     7  d      I
+          62       84     5  b      I
+          67       79     6  t      I
+           0      161     0  this   Ljava/io/BufferedWriter;
+           0      161     1  cbuf   [C
+           0      161     2  off    I
+           0      161     3  len    I
+      StackMapTable: number_of_entries = 7
+        frame_type = 252 /* append */
+          offset_delta = 28
+          locals = [class java/lang/Object]
+        frame_type = 25 /* same */
+        frame_type = 253 /* append */
+          offset_delta = 12
+          locals = [int, int]
+        frame_type = 251 /* same_frame_extended */
+          offset_delta = 75
+        frame_type = 249 /* chop */
+          offset_delta = 2
+        frame_type = 69 /* same_locals_1_stack_item */
+          stack = [ class java/lang/Throwable ]
+        frame_type = 250 /* chop */
+          offset_delta = 7
+    Exceptions:
+      throws java.io.IOException
+  
+  public void write(java.lang.String, int, int) throws java.io.IOException;
+    descriptor: (Ljava/lang/String;II)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=5, locals=9, args_size=4
+         0: aload_0                 
+         1: getfield      #74                 // Field lock:Ljava/lang/Object;
+         4: dup                     
+         5: astore        4                 
+         7: monitorenter            
+         8: aload_0                 
+         9: invokevirtual #78                 // Method ensureOpen:()V
+        12: aload_0                 
+        13: iload_3                 
+        14: invokevirtual #86                 // Method growIfNeeded:(I)V
+        17: iload_2                 
+        18: istore        5                 
+        20: iload_2                 
+        21: iload_3                 
+        22: iadd                    
+        23: istore        6                 
+        25: iload         5                 
+        27: iload         6                 
+        29: if_icmpge     107               
+        32: aload_0                 
+        33: aload_0                 
+        34: getfield      #39                 // Field nChars:I
+        37: aload_0                 
+        38: getfield      #58                 // Field nextChar:I
+        41: isub                    
+        42: iload         6                 
+        44: iload         5                 
+        46: isub                    
+        47: invokevirtual #64                 // Method min:(II)I
+        50: istore        7                 
+        52: aload_1                 
+        53: iload         5                 
+        55: iload         5                 
+        57: iload         7                 
+        59: iadd                    
+        60: aload_0                 
+        61: getfield      #35                 // Field cb:[C
+        64: aload_0                 
+        65: getfield      #58                 // Field nextChar:I
+        68: invokevirtual #105                // Method java/lang/String.getChars:(II[CI)V
+        71: iload         5                 
+        73: iload         7                 
+        75: iadd                    
+        76: istore        5                 
+        78: aload_0                 
+        79: dup                     
+        80: getfield      #58                 // Field nextChar:I
+        83: iload         7                 
+        85: iadd                    
+        86: putfield      #58                 // Field nextChar:I
+        89: aload_0                 
+        90: getfield      #58                 // Field nextChar:I
+        93: aload_0                 
+        94: getfield      #39                 // Field nChars:I
+        97: if_icmplt     104               
+       100: aload_0                 
+       101: invokevirtual #90                 // Method flushBuffer:()V
+       104: goto          25                
+       107: aload         4                 
+       109: monitorexit             
+       110: goto          121               
+       113: astore        8                 
+       115: aload         4                 
+       117: monitorexit             
+       118: aload         8                 
+       120: athrow                  
+       121: return                  
+      Exception table:
+          from       to target type
+             8      110   113  any
+           113      118   113  any
+      LineNumberTable:
+        line 272: 0
+        line 273: 8
+        line 274: 12
+        line 275: 17
+        line 276: 25
+        line 277: 32
+        line 278: 52
+        line 279: 71
+        line 280: 78
+        line 281: 89
+        line 282: 100
+        line 283: 104
+        line 284: 107
+        line 285: 121
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          52       52     7  d      I
+          20       87     5  b      I
+          25       82     6  t      I
+           0      122     0  this   Ljava/io/BufferedWriter;
+           0      122     1  s      Ljava/lang/String;
+           0      122     2  off    I
+           0      122     3  len    I
+      StackMapTable: number_of_entries = 5
+        frame_type = 254 /* append */
+          offset_delta = 25
+          locals = [class java/lang/Object, int, int]
+        frame_type = 251 /* same_frame_extended */
+          offset_delta = 78
+        frame_type = 249 /* chop */
+          offset_delta = 2
+        frame_type = 69 /* same_locals_1_stack_item */
+          stack = [ class java/lang/Throwable ]
+        frame_type = 250 /* chop */
+          offset_delta = 7
+    Exceptions:
+      throws java.io.IOException
+  
+  public void newLine() throws java.io.IOException;
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: aload_0                 
+         1: invokestatic  #111                // Method java/lang/System.lineSeparator:()Ljava/lang/String;
+         4: invokevirtual #115                // Method write:(Ljava/lang/String;)V
+         7: return                  
+      LineNumberTable:
+        line 295: 0
+        line 296: 7
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/io/BufferedWriter;
+    Exceptions:
+      throws java.io.IOException
+  
+  public void flush() throws java.io.IOException;
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=3, args_size=1
+         0: aload_0                 
+         1: getfield      #74                 // Field lock:Ljava/lang/Object;
+         4: dup                     
+         5: astore_1                
+         6: monitorenter            
+         7: aload_0                 
+         8: invokevirtual #90                 // Method flushBuffer:()V
+        11: aload_0                 
+        12: getfield      #31                 // Field out:Ljava/io/Writer;
+        15: invokevirtual #117                // Method java/io/Writer.flush:()V
+        18: aload_1                 
+        19: monitorexit             
+        20: goto          28                
+        23: astore_2                
+        24: aload_1                 
+        25: monitorexit             
+        26: aload_2                 
+        27: athrow                  
+        28: return                  
+      Exception table:
+          from       to target type
+             7       20    23  any
+            23       26    23  any
+      LineNumberTable:
+        line 304: 0
+        line 305: 7
+        line 306: 11
+        line 307: 18
+        line 308: 28
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       29     0  this   Ljava/io/BufferedWriter;
+      StackMapTable: number_of_entries = 2
+        frame_type = 255 /* full_frame */
+          offset_delta = 23
+          locals = [class java/io/BufferedWriter, class java/lang/Object]
+          stack = [class java/lang/Throwable]
+        frame_type = 250 /* chop */
+          offset_delta = 4
+    Exceptions:
+      throws java.io.IOException
+  
+  public void close() throws java.io.IOException;
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=7, args_size=1
+         0: aload_0                 
+         1: getfield      #74                 // Field lock:Ljava/lang/Object;
+         4: dup                     
+         5: astore_1                
+         6: monitorenter            
+         7: aload_0                 
+         8: getfield      #31                 // Field out:Ljava/io/Writer;
+        11: ifnonnull     17                
+        14: aload_1                 
+        15: monitorexit             
+        16: return                  
+        17: aload_0                 
+        18: getfield      #31                 // Field out:Ljava/io/Writer;
+        21: astore_2                
+        22: aload_0                 
+        23: invokevirtual #90                 // Method flushBuffer:()V
+        26: aload_2                 
+        27: ifnull        59                
+        30: aload_2                 
+        31: invokevirtual #120                // Method java/io/Writer.close:()V
+        34: goto          59                
+        37: astore_3                
+        38: aload_2                 
+        39: ifnull        57                
+        42: aload_2                 
+        43: invokevirtual #120                // Method java/io/Writer.close:()V
+        46: goto          57                
+        49: astore        4                 
+        51: aload_3                 
+        52: aload         4                 
+        54: invokevirtual #125                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+        57: aload_3                 
+        58: athrow                  
+        59: aload_0                 
+        60: aconst_null             
+        61: putfield      #31                 // Field out:Ljava/io/Writer;
+        64: aload_0                 
+        65: aconst_null             
+        66: putfield      #35                 // Field cb:[C
+        69: goto          87                
+        72: astore        5                 
+        74: aload_0                 
+        75: aconst_null             
+        76: putfield      #31                 // Field out:Ljava/io/Writer;
+        79: aload_0                 
+        80: aconst_null             
+        81: putfield      #35                 // Field cb:[C
+        84: aload         5                 
+        86: athrow                  
+        87: aload_1                 
+        88: monitorexit             
+        89: goto          99                
+        92: astore        6                 
+        94: aload_1                 
+        95: monitorexit             
+        96: aload         6                 
+        98: athrow                  
+        99: return                  
+      Exception table:
+          from       to target type
+            22       26    37  Class java/lang/Throwable
+            42       46    49  Class java/lang/Throwable
+            17       59    72  any
+            72       74    72  any
+             7       16    92  any
+            17       89    92  any
+            92       96    92  any
+      LineNumberTable:
+        line 312: 0
+        line 313: 7
+        line 314: 14
+        line 316: 17
+        line 317: 22
+        line 318: 26
+        line 316: 37
+        line 319: 59
+        line 320: 64
+        line 321: 69
+        line 319: 72
+        line 320: 79
+        line 321: 84
+        line 322: 87
+        line 323: 99
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          22       37     2  w      Ljava/io/Writer;
+           0      100     0  this   Ljava/io/BufferedWriter;
+      StackMapTable: number_of_entries = 9
+        frame_type = 252 /* append */
+          offset_delta = 17
+          locals = [class java/lang/Object]
+        frame_type = 255 /* full_frame */
+          offset_delta = 19
+          locals = [class java/io/BufferedWriter, class java/lang/Object, class java/io/Writer]
+          stack = [class java/lang/Throwable]
+        frame_type = 255 /* full_frame */
+          offset_delta = 11
+          locals = [class java/io/BufferedWriter, class java/lang/Object, class java/io/Writer, class java/lang/Throwable]
+          stack = [class java/lang/Throwable]
+        frame_type = 7 /* same */
+        frame_type = 249 /* chop */
+          offset_delta = 1
+        frame_type = 76 /* same_locals_1_stack_item */
+          stack = [ class java/lang/Throwable ]
+        frame_type = 14 /* same */
+        frame_type = 68 /* same_locals_1_stack_item */
+          stack = [ class java/lang/Throwable ]
+        frame_type = 250 /* chop */
+          offset_delta = 6
+    Exceptions:
+      throws java.io.IOException
+}
+SourceFile: "BufferedWriter.java"

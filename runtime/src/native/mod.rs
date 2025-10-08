@@ -309,6 +309,14 @@ impl NativeRegistry {
             ),
             java_lang_system_set_in_0,
         );
+        instance.register(
+            MethodKey::new(
+                "jdk/internal/misc/ScopedMemoryAccess".to_string(),
+                "registerNatives".to_string(),
+                "()V".to_string(),
+            ),
+            jdk_internal_misc_scoped_memory_access_register_natives,
+        );
 
         instance
     }
@@ -881,4 +889,12 @@ fn vm_internal_clone(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     let mut borrowed_heap = vm.heap.borrow_mut();
     let cloned = borrowed_heap.clone_object(obj);
     Some(Value::Ref(cloned))
+}
+
+fn jdk_internal_misc_scoped_memory_access_register_natives(
+    _vm: &mut VirtualMachine,
+    _args: &[Value],
+) -> NativeRet {
+    debug!("TODO: Stub: jdk.internal.misc.ScopedMemoryAccess.registerNatives");
+    None
 }

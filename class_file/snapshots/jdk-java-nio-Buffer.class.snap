@@ -1,0 +1,1374 @@
+---
+source: class_file/src/lib.rs
+expression: display
+---
+public abstract class java.nio.Buffer 
+  minor version: 0
+  major version: 68
+  flags: (0x0421) ACC_PUBLIC, ACC_SUPER, ACC_ABSTRACT
+  this_class: #10                      //java/nio/Buffer
+  super_class: #4                      //java/lang/Object
+  interfaces: 0, fields: 11, methods: 40, attributes: 4
+Constant pool:
+    #1 = Class              #2               // java/util/Spliterator
+    #2 = Utf8               java/util/Spliterator
+    #3 = Methodref          #4.#5            // java/lang/Object."<init>":()V
+    #4 = Class              #6               // java/lang/Object
+    #5 = NameAndType        #7:#8            // "<init>":()V
+    #6 = Utf8               java/lang/Object
+    #7 = Utf8               <init>
+    #8 = Utf8               ()V
+    #9 = Fieldref           #10.#11          // java/nio/Buffer.mark:I
+   #10 = Class              #12              // java/nio/Buffer
+   #11 = NameAndType        #13:#14          // mark:I
+   #12 = Utf8               java/nio/Buffer
+   #13 = Utf8               mark
+   #14 = Utf8               I
+   #15 = Fieldref           #10.#16          // java/nio/Buffer.position:I
+   #16 = NameAndType        #17:#14          // position:I
+   #17 = Utf8               position
+   #18 = Fieldref           #10.#19          // java/nio/Buffer.address:J
+   #19 = NameAndType        #20:#21          // address:J
+   #20 = Utf8               address
+   #21 = Utf8               J
+   #22 = Fieldref           #10.#23          // java/nio/Buffer.capacity:I
+   #23 = NameAndType        #24:#14          // capacity:I
+   #24 = Utf8               capacity
+   #25 = Fieldref           #10.#26          // java/nio/Buffer.segment:Ljava/lang/foreign/MemorySegment;
+   #26 = NameAndType        #27:#28          // segment:Ljava/lang/foreign/MemorySegment;
+   #27 = Utf8               segment
+   #28 = Utf8               Ljava/lang/foreign/MemorySegment;
+   #29 = Methodref          #10.#30          // java/nio/Buffer.createCapacityException:(I)Ljava/lang/IllegalArgumentException;
+   #30 = NameAndType        #31:#32          // createCapacityException:(I)Ljava/lang/IllegalArgumentException;
+   #31 = Utf8               createCapacityException
+   #32 = Utf8               (I)Ljava/lang/IllegalArgumentException;
+   #33 = Methodref          #10.#34          // java/nio/Buffer.limit:(I)Ljava/nio/Buffer;
+   #34 = NameAndType        #35:#36          // limit:(I)Ljava/nio/Buffer;
+   #35 = Utf8               limit
+   #36 = Utf8               (I)Ljava/nio/Buffer;
+   #37 = Methodref          #10.#38          // java/nio/Buffer.position:(I)Ljava/nio/Buffer;
+   #38 = NameAndType        #17:#36          // position:(I)Ljava/nio/Buffer;
+   #39 = Class              #40              // java/lang/IllegalArgumentException
+   #40 = Utf8               java/lang/IllegalArgumentException
+   #41 = Class              #42              // java/lang/StringBuilder
+   #42 = Utf8               java/lang/StringBuilder
+   #43 = Methodref          #41.#5           // java/lang/StringBuilder."<init>":()V
+   #44 = String             #45              // mark > position: (
+   #45 = Utf8               mark > position: (
+   #46 = Methodref          #41.#47          // java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+   #47 = NameAndType        #48:#49          // append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+   #48 = Utf8               append
+   #49 = Utf8               (Ljava/lang/String;)Ljava/lang/StringBuilder;
+   #50 = Methodref          #41.#51          // java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+   #51 = NameAndType        #48:#52          // append:(I)Ljava/lang/StringBuilder;
+   #52 = Utf8               (I)Ljava/lang/StringBuilder;
+   #53 = String             #54              //  > 
+   #54 = Utf8                > 
+   #55 = String             #56              // )
+   #56 = Utf8               )
+   #57 = Methodref          #41.#58          // java/lang/StringBuilder.toString:()Ljava/lang/String;
+   #58 = NameAndType        #59:#60          // toString:()Ljava/lang/String;
+   #59 = Utf8               toString
+   #60 = Utf8               ()Ljava/lang/String;
+   #61 = Methodref          #39.#62          // java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+   #62 = NameAndType        #7:#63           // "<init>":(Ljava/lang/String;)V
+   #63 = Utf8               (Ljava/lang/String;)V
+   #64 = String             #65              // The source buffer is this buffer
+   #65 = Utf8               The source buffer is this buffer
+   #66 = Fieldref           #10.#67          // java/nio/Buffer.$assertionsDisabled:Z
+   #67 = NameAndType        #68:#69          // $assertionsDisabled:Z
+   #68 = Utf8               $assertionsDisabled
+   #69 = Utf8               Z
+   #70 = Class              #71              // java/lang/AssertionError
+   #71 = Utf8               java/lang/AssertionError
+   #72 = String             #73              // capacity expected to be negative
+   #73 = Utf8               capacity expected to be negative
+   #74 = Methodref          #70.#75          // java/lang/AssertionError."<init>":(Ljava/lang/Object;)V
+   #75 = NameAndType        #7:#76           // "<init>":(Ljava/lang/Object;)V
+   #76 = Utf8               (Ljava/lang/Object;)V
+   #77 = String             #78              // capacity < 0: (
+   #78 = Utf8               capacity < 0: (
+   #79 = String             #80              //  < 0)
+   #80 = Utf8                < 0)
+   #81 = Fieldref           #10.#82          // java/nio/Buffer.limit:I
+   #82 = NameAndType        #35:#14          // limit:I
+   #83 = Methodref          #10.#84          // java/nio/Buffer.createPositionException:(I)Ljava/lang/IllegalArgumentException;
+   #84 = NameAndType        #85:#32          // createPositionException:(I)Ljava/lang/IllegalArgumentException;
+   #85 = Utf8               createPositionException
+   #86 = String             #87              // newPosition > limit: (
+   #87 = Utf8               newPosition > limit: (
+   #88 = String             #89              // newPosition expected to be negative
+   #89 = Utf8               newPosition expected to be negative
+   #90 = String             #91              // newPosition < 0: (
+   #91 = Utf8               newPosition < 0: (
+   #92 = Methodref          #10.#93          // java/nio/Buffer.createLimitException:(I)Ljava/lang/IllegalArgumentException;
+   #93 = NameAndType        #94:#32          // createLimitException:(I)Ljava/lang/IllegalArgumentException;
+   #94 = Utf8               createLimitException
+   #95 = String             #96              // newLimit > capacity: (
+   #96 = Utf8               newLimit > capacity: (
+   #97 = String             #98              // newLimit expected to be negative
+   #98 = Utf8               newLimit expected to be negative
+   #99 = String             #100             // newLimit < 0: (
+  #100 = Utf8               newLimit < 0: (
+  #101 = Class              #102             // java/nio/InvalidMarkException
+  #102 = Utf8               java/nio/InvalidMarkException
+  #103 = Methodref          #101.#5          // java/nio/InvalidMarkException."<init>":()V
+  #104 = Class              #105             // java/nio/BufferUnderflowException
+  #105 = Utf8               java/nio/BufferUnderflowException
+  #106 = Methodref          #104.#5          // java/nio/BufferUnderflowException."<init>":()V
+  #107 = Class              #108             // java/nio/BufferOverflowException
+  #108 = Utf8               java/nio/BufferOverflowException
+  #109 = Methodref          #107.#5          // java/nio/BufferOverflowException."<init>":()V
+  #110 = Fieldref           #10.#111         // java/nio/Buffer.IOOBE_FORMATTER:Ljava/util/function/BiFunction;
+  #111 = NameAndType        #112:#113        // IOOBE_FORMATTER:Ljava/util/function/BiFunction;
+  #112 = Utf8               IOOBE_FORMATTER
+  #113 = Utf8               Ljava/util/function/BiFunction;
+  #114 = Methodref          #115.#116        // jdk/internal/util/Preconditions.checkIndex:(IILjava/util/function/BiFunction;)I
+  #115 = Class              #117             // jdk/internal/util/Preconditions
+  #116 = NameAndType        #118:#119        // checkIndex:(IILjava/util/function/BiFunction;)I
+  #117 = Utf8               jdk/internal/util/Preconditions
+  #118 = Utf8               checkIndex
+  #119 = Utf8               (IILjava/util/function/BiFunction;)I
+  #120 = Class              #121             // jdk/internal/foreign/AbstractMemorySegmentImpl
+  #121 = Utf8               jdk/internal/foreign/AbstractMemorySegmentImpl
+  #122 = Methodref          #120.#123        // jdk/internal/foreign/AbstractMemorySegmentImpl.sessionImpl:()Ljdk/internal/foreign/MemorySessionImpl;
+  #123 = NameAndType        #124:#125        // sessionImpl:()Ljdk/internal/foreign/MemorySessionImpl;
+  #124 = Utf8               sessionImpl
+  #125 = Utf8               ()Ljdk/internal/foreign/MemorySessionImpl;
+  #126 = Methodref          #10.#127         // java/nio/Buffer.session:()Ljdk/internal/foreign/MemorySessionImpl;
+  #127 = NameAndType        #128:#125        // session:()Ljdk/internal/foreign/MemorySessionImpl;
+  #128 = Utf8               session
+  #129 = Methodref          #130.#131        // jdk/internal/foreign/MemorySessionImpl.checkValidState:()V
+  #130 = Class              #132             // jdk/internal/foreign/MemorySessionImpl
+  #131 = NameAndType        #133:#8          // checkValidState:()V
+  #132 = Utf8               jdk/internal/foreign/MemorySessionImpl
+  #133 = Utf8               checkValidState
+  #134 = Methodref          #135.#136        // java/lang/Class.desiredAssertionStatus:()Z
+  #135 = Class              #137             // java/lang/Class
+  #136 = NameAndType        #138:#139        // desiredAssertionStatus:()Z
+  #137 = Utf8               java/lang/Class
+  #138 = Utf8               desiredAssertionStatus
+  #139 = Utf8               ()Z
+  #140 = Methodref          #141.#142        // jdk/internal/misc/Unsafe.getUnsafe:()Ljdk/internal/misc/Unsafe;
+  #141 = Class              #143             // jdk/internal/misc/Unsafe
+  #142 = NameAndType        #144:#145        // getUnsafe:()Ljdk/internal/misc/Unsafe;
+  #143 = Utf8               jdk/internal/misc/Unsafe
+  #144 = Utf8               getUnsafe
+  #145 = Utf8               ()Ljdk/internal/misc/Unsafe;
+  #146 = Fieldref           #10.#147         // java/nio/Buffer.UNSAFE:Ljdk/internal/misc/Unsafe;
+  #147 = NameAndType        #148:#149        // UNSAFE:Ljdk/internal/misc/Unsafe;
+  #148 = Utf8               UNSAFE
+  #149 = Utf8               Ljdk/internal/misc/Unsafe;
+  #150 = Methodref          #151.#152        // jdk/internal/misc/ScopedMemoryAccess.getScopedMemoryAccess:()Ljdk/internal/misc/ScopedMemoryAccess;
+  #151 = Class              #153             // jdk/internal/misc/ScopedMemoryAccess
+  #152 = NameAndType        #154:#155        // getScopedMemoryAccess:()Ljdk/internal/misc/ScopedMemoryAccess;
+  #153 = Utf8               jdk/internal/misc/ScopedMemoryAccess
+  #154 = Utf8               getScopedMemoryAccess
+  #155 = Utf8               ()Ljdk/internal/misc/ScopedMemoryAccess;
+  #156 = Fieldref           #10.#157         // java/nio/Buffer.SCOPED_MEMORY_ACCESS:Ljdk/internal/misc/ScopedMemoryAccess;
+  #157 = NameAndType        #158:#159        // SCOPED_MEMORY_ACCESS:Ljdk/internal/misc/ScopedMemoryAccess;
+  #158 = Utf8               SCOPED_MEMORY_ACCESS
+  #159 = Utf8               Ljdk/internal/misc/ScopedMemoryAccess;
+  #160 = Class              #161             // java/nio/Buffer$1
+  #161 = Utf8               java/nio/Buffer$1
+  #162 = Methodref          #160.#5          // java/nio/Buffer$1."<init>":()V
+  #163 = Methodref          #115.#164        // jdk/internal/util/Preconditions.outOfBoundsExceptionFormatter:(Ljava/util/function/Function;)Ljava/util/function/BiFunction;
+  #164 = NameAndType        #165:#166        // outOfBoundsExceptionFormatter:(Ljava/util/function/Function;)Ljava/util/function/BiFunction;
+  #165 = Utf8               outOfBoundsExceptionFormatter
+  #166 = Utf8               (Ljava/util/function/Function;)Ljava/util/function/BiFunction;
+  #167 = Class              #168             // java/nio/Buffer$2
+  #168 = Utf8               java/nio/Buffer$2
+  #169 = Methodref          #167.#5          // java/nio/Buffer$2."<init>":()V
+  #170 = Methodref          #171.#172        // jdk/internal/access/SharedSecrets.setJavaNioAccess:(Ljdk/internal/access/JavaNioAccess;)V
+  #171 = Class              #173             // jdk/internal/access/SharedSecrets
+  #172 = NameAndType        #174:#175        // setJavaNioAccess:(Ljdk/internal/access/JavaNioAccess;)V
+  #173 = Utf8               jdk/internal/access/SharedSecrets
+  #174 = Utf8               setJavaNioAccess
+  #175 = Utf8               (Ljdk/internal/access/JavaNioAccess;)V
+  #176 = Utf8               SPLITERATOR_CHARACTERISTICS
+  #177 = Utf8               ConstantValue
+  #178 = Integer            16464
+  #179 = Utf8               Signature
+  #180 = Utf8               Ljava/util/function/BiFunction<Ljava/lang/String;Ljava/util/List<Ljava/lang/Number;>;Ljava/lang/IndexOutOfBoundsException;>;
+  #181 = Utf8               (JILjava/lang/foreign/MemorySegment;)V
+  #182 = Utf8               Code
+  #183 = Utf8               LineNumberTable
+  #184 = Utf8               LocalVariableTable
+  #185 = Utf8               this
+  #186 = Utf8               Ljava/nio/Buffer;
+  #187 = Utf8               addr
+  #188 = Utf8               cap
+  #189 = Utf8               (IIIILjava/lang/foreign/MemorySegment;)V
+  #190 = Utf8               pos
+  #191 = Utf8               lim
+  #192 = Utf8               StackMapTable
+  #193 = Class              #194             // java/lang/foreign/MemorySegment
+  #194 = Utf8               java/lang/foreign/MemorySegment
+  #195 = Utf8               createSameBufferException
+  #196 = Utf8               ()Ljava/lang/IllegalArgumentException;
+  #197 = Utf8               ()I
+  #198 = Utf8               newPosition
+  #199 = Utf8               msg
+  #200 = Utf8               Ljava/lang/String;
+  #201 = Class              #202             // java/lang/String
+  #202 = Utf8               java/lang/String
+  #203 = Utf8               newLimit
+  #204 = Utf8               ()Ljava/nio/Buffer;
+  #205 = Utf8               reset
+  #206 = Utf8               m
+  #207 = Utf8               clear
+  #208 = Utf8               flip
+  #209 = Utf8               rewind
+  #210 = Utf8               remaining
+  #211 = Utf8               rem
+  #212 = Utf8               hasRemaining
+  #213 = Utf8               isReadOnly
+  #214 = Utf8               hasArray
+  #215 = Utf8               array
+  #216 = Utf8               ()Ljava/lang/Object;
+  #217 = Utf8               arrayOffset
+  #218 = Utf8               isDirect
+  #219 = Utf8               slice
+  #220 = Utf8               (II)Ljava/nio/Buffer;
+  #221 = Utf8               duplicate
+  #222 = Utf8               base
+  #223 = Utf8               nextGetIndex
+  #224 = Utf8               p
+  #225 = Utf8               (I)I
+  #226 = Utf8               nb
+  #227 = Utf8               nextPutIndex
+  #228 = Utf8               i
+  #229 = Utf8               RuntimeVisibleAnnotations
+  #230 = Utf8               Ljdk/internal/vm/annotation/ForceInline;
+  #231 = Utf8               (II)I
+  #232 = Utf8               scaleShifts
+  #233 = Utf8               heapSegment
+  #234 = Utf8               (Ljava/lang/Object;JJZLjdk/internal/foreign/MemorySessionImpl;)Ljdk/internal/foreign/AbstractMemorySegmentImpl;
+  #235 = Utf8               markValue
+  #236 = Utf8               discardMark
+  #237 = Utf8               checkSession
+  #238 = Utf8               Ljdk/internal/foreign/MemorySessionImpl;
+  #239 = Utf8               <clinit>
+  #240 = Utf8               SourceFile
+  #241 = Utf8               Buffer.java
+  #242 = Utf8               NestMembers
+  #243 = Utf8               PermittedSubclasses
+  #244 = Class              #245             // java/nio/ByteBuffer
+  #245 = Utf8               java/nio/ByteBuffer
+  #246 = Class              #247             // java/nio/CharBuffer
+  #247 = Utf8               java/nio/CharBuffer
+  #248 = Class              #249             // java/nio/DoubleBuffer
+  #249 = Utf8               java/nio/DoubleBuffer
+  #250 = Class              #251             // java/nio/FloatBuffer
+  #251 = Utf8               java/nio/FloatBuffer
+  #252 = Class              #253             // java/nio/IntBuffer
+  #253 = Utf8               java/nio/IntBuffer
+  #254 = Class              #255             // java/nio/LongBuffer
+  #255 = Utf8               java/nio/LongBuffer
+  #256 = Class              #257             // java/nio/ShortBuffer
+  #257 = Utf8               java/nio/ShortBuffer
+  #258 = Utf8               InnerClasses
+{
+  static final jdk.internal.misc.Unsafe UNSAFE;
+    descriptor: Ljdk/internal/misc/Unsafe;
+    flags: (0x0018) ACC_STATIC, ACC_FINAL
+  
+  static final jdk.internal.misc.ScopedMemoryAccess SCOPED_MEMORY_ACCESS;
+    descriptor: Ljdk/internal/misc/ScopedMemoryAccess;
+    flags: (0x0018) ACC_STATIC, ACC_FINAL
+  
+  static final int SPLITERATOR_CHARACTERISTICS;
+    descriptor: I
+    flags: (0x0018) ACC_STATIC, ACC_FINAL
+    ConstantValue: int 16464
+  
+  private int mark;
+    descriptor: I
+    flags: (0x0002) ACC_PRIVATE
+  
+  private int position;
+    descriptor: I
+    flags: (0x0002) ACC_PRIVATE
+  
+  private int limit;
+    descriptor: I
+    flags: (0x0002) ACC_PRIVATE
+  
+  private final int capacity;
+    descriptor: I
+    flags: (0x0012) ACC_PRIVATE, ACC_FINAL
+  
+  long address;
+    descriptor: J
+    flags: (0x0000) 
+  
+  final java.lang.foreign.MemorySegment segment;
+    descriptor: Ljava/lang/foreign/MemorySegment;
+    flags: (0x0010) ACC_FINAL
+  
+  private static final java.util.function.BiFunction<java.lang.String, java.util.List<java.lang.Number>, java.lang.IndexOutOfBoundsException> IOOBE_FORMATTER;
+    descriptor: Ljava/util/function/BiFunction;
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    Signature: #180                        // Ljava/util/function/BiFunction<Ljava/lang/String;Ljava/util/List<Ljava/lang/Number;>;Ljava/lang/IndexOutOfBoundsException;>;
+  
+  static final boolean $assertionsDisabled;
+    descriptor: Z
+    flags: (0x1018) ACC_STATIC, ACC_FINAL, ACC_SYNTHETIC
+  
+  java.nio.Buffer(long, int, java.lang.foreign.MemorySegment);
+    descriptor: (JILjava/lang/foreign/MemorySegment;)V
+    flags: (0x0000) 
+    Code: 
+      stack=3, locals=5, args_size=4
+         0: aload_0                 
+         1: invokespecial #3                  // Method java/lang/Object."<init>":()V
+         4: aload_0                 
+         5: iconst_m1               
+         6: putfield      #9                  // Field mark:I
+         9: aload_0                 
+        10: iconst_0                
+        11: putfield      #15                 // Field position:I
+        14: aload_0                 
+        15: lload_1                 
+        16: putfield      #18                 // Field address:J
+        19: aload_0                 
+        20: iload_3                 
+        21: putfield      #22                 // Field capacity:I
+        24: aload_0                 
+        25: aload         4                 
+        27: putfield      #25                 // Field segment:Ljava/lang/foreign/MemorySegment;
+        30: return                  
+      LineNumberTable:
+        line 241: 0
+        line 218: 4
+        line 219: 9
+        line 242: 14
+        line 243: 19
+        line 244: 24
+        line 245: 30
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       31     0  this   Ljava/nio/Buffer;
+           0       31     1  addr   J
+           0       31     3  cap    I
+           0       31     4  segment Ljava/lang/foreign/MemorySegment;
+  
+  java.nio.Buffer(int, int, int, int, java.lang.foreign.MemorySegment);
+    descriptor: (IIIILjava/lang/foreign/MemorySegment;)V
+    flags: (0x0000) 
+    Code: 
+      stack=4, locals=6, args_size=6
+         0: aload_0                 
+         1: invokespecial #3                  // Method java/lang/Object."<init>":()V
+         4: aload_0                 
+         5: iconst_m1               
+         6: putfield      #9                  // Field mark:I
+         9: aload_0                 
+        10: iconst_0                
+        11: putfield      #15                 // Field position:I
+        14: iload         4                 
+        16: ifge          25                
+        19: iload         4                 
+        21: invokestatic  #29                 // Method createCapacityException:(I)Ljava/lang/IllegalArgumentException;
+        24: athrow                  
+        25: aload_0                 
+        26: iload         4                 
+        28: putfield      #22                 // Field capacity:I
+        31: aload_0                 
+        32: aload         5                 
+        34: putfield      #25                 // Field segment:Ljava/lang/foreign/MemorySegment;
+        37: aload_0                 
+        38: iload_3                 
+        39: invokevirtual #33                 // Method limit:(I)Ljava/nio/Buffer;
+        42: pop                     
+        43: aload_0                 
+        44: iload_2                 
+        45: invokevirtual #37                 // Method position:(I)Ljava/nio/Buffer;
+        48: pop                     
+        49: iload_1                 
+        50: iflt          104               
+        53: iload_1                 
+        54: iload_2                 
+        55: if_icmple     99                
+        58: new           #39                 // class java/lang/IllegalArgumentException
+        61: dup                     
+        62: new           #41                 // class java/lang/StringBuilder
+        65: dup                     
+        66: invokespecial #43                 // Method java/lang/StringBuilder."<init>":()V
+        69: ldc           #44                 // String mark > position: (
+        71: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        74: iload_1                 
+        75: invokevirtual #50                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+        78: ldc           #53                 // String  > 
+        80: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        83: iload_2                 
+        84: invokevirtual #50                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+        87: ldc           #55                 // String )
+        89: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        92: invokevirtual #57                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        95: invokespecial #61                 // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+        98: athrow                  
+        99: aload_0                 
+       100: iload_1                 
+       101: putfield      #9                  // Field mark:I
+       104: return                  
+      LineNumberTable:
+        line 250: 0
+        line 218: 4
+        line 219: 9
+        line 251: 14
+        line 252: 19
+        line 253: 25
+        line 254: 31
+        line 255: 37
+        line 256: 43
+        line 257: 49
+        line 258: 53
+        line 259: 58
+        line 261: 99
+        line 263: 104
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0      105     0  this   Ljava/nio/Buffer;
+           0      105     1  mark   I
+           0      105     2  pos    I
+           0      105     3  lim    I
+           0      105     4  cap    I
+           0      105     5  segment Ljava/lang/foreign/MemorySegment;
+      StackMapTable: number_of_entries = 3
+        frame_type = 255 /* full_frame */
+          offset_delta = 25
+          locals = [class java/nio/Buffer, int, int, int, int, class java/lang/foreign/MemorySegment]
+          stack = []
+        frame_type = 251 /* same_frame_extended */
+          offset_delta = 73
+        frame_type = 4 /* same */
+  
+  static java.lang.IllegalArgumentException createSameBufferException();
+    descriptor: ()Ljava/lang/IllegalArgumentException;
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=3, locals=0, args_size=0
+         0: new           #39                 // class java/lang/IllegalArgumentException
+         3: dup                     
+         4: ldc           #64                 // String The source buffer is this buffer
+         6: invokespecial #61                 // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+         9: areturn                 
+      LineNumberTable:
+        line 275: 0
+  
+  static java.lang.IllegalArgumentException createCapacityException(int);
+    descriptor: (I)Ljava/lang/IllegalArgumentException;
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=4, locals=1, args_size=1
+         0: getstatic     #66                 // Field $assertionsDisabled:Z
+         3: ifne          20                
+         6: iload_0                 
+         7: iflt          20                
+        10: new           #70                 // class java/lang/AssertionError
+        13: dup                     
+        14: ldc           #72                 // String capacity expected to be negative
+        16: invokespecial #74                 // Method java/lang/AssertionError."<init>":(Ljava/lang/Object;)V
+        19: athrow                  
+        20: new           #39                 // class java/lang/IllegalArgumentException
+        23: dup                     
+        24: new           #41                 // class java/lang/StringBuilder
+        27: dup                     
+        28: invokespecial #43                 // Method java/lang/StringBuilder."<init>":()V
+        31: ldc           #77                 // String capacity < 0: (
+        33: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        36: iload_0                 
+        37: invokevirtual #50                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+        40: ldc           #79                 // String  < 0)
+        42: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        45: invokevirtual #57                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        48: invokespecial #61                 // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+        51: areturn                 
+      LineNumberTable:
+        line 288: 0
+        line 289: 20
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       52     0  capacity I
+      StackMapTable: number_of_entries = 1
+        frame_type = 20 /* same */
+  
+  public final int capacity();
+    descriptor: ()I
+    flags: (0x0011) ACC_PUBLIC, ACC_FINAL
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #22                 // Field capacity:I
+         4: ireturn                 
+      LineNumberTable:
+        line 299: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/nio/Buffer;
+  
+  public final int position();
+    descriptor: ()I
+    flags: (0x0011) ACC_PUBLIC, ACC_FINAL
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #15                 // Field position:I
+         4: ireturn                 
+      LineNumberTable:
+        line 308: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/nio/Buffer;
+  
+  public java.nio.Buffer position(int);
+    descriptor: (I)Ljava/nio/Buffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: iload_1                 
+         1: aload_0                 
+         2: getfield      #81                 // Field limit:I
+         5: if_icmple     12                
+         8: iconst_1                
+         9: goto          13                
+        12: iconst_0                
+        13: iload_1                 
+        14: ifge          21                
+        17: iconst_1                
+        18: goto          22                
+        21: iconst_0                
+        22: ior                     
+        23: ifeq          32                
+        26: aload_0                 
+        27: iload_1                 
+        28: invokevirtual #83                 // Method createPositionException:(I)Ljava/lang/IllegalArgumentException;
+        31: athrow                  
+        32: aload_0                 
+        33: getfield      #9                  // Field mark:I
+        36: iload_1                 
+        37: if_icmple     45                
+        40: aload_0                 
+        41: iconst_m1               
+        42: putfield      #9                  // Field mark:I
+        45: aload_0                 
+        46: iload_1                 
+        47: putfield      #15                 // Field position:I
+        50: aload_0                 
+        51: areturn                 
+      LineNumberTable:
+        line 325: 0
+        line 326: 26
+        line 327: 32
+        line 328: 45
+        line 329: 50
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       52     0  this   Ljava/nio/Buffer;
+           0       52     1  newPosition I
+      StackMapTable: number_of_entries = 6
+        frame_type = 12 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 71 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 255 /* full_frame */
+          offset_delta = 0
+          locals = [class java/nio/Buffer, int]
+          stack = [int, int]
+        frame_type = 9 /* same */
+        frame_type = 12 /* same */
+  
+  private java.lang.IllegalArgumentException createPositionException(int);
+    descriptor: (I)Ljava/lang/IllegalArgumentException;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=3, locals=3, args_size=2
+         0: aconst_null             
+         1: astore_2                
+         2: iload_1                 
+         3: aload_0                 
+         4: getfield      #81                 // Field limit:I
+         7: if_icmple     50                
+        10: new           #41                 // class java/lang/StringBuilder
+        13: dup                     
+        14: invokespecial #43                 // Method java/lang/StringBuilder."<init>":()V
+        17: ldc           #86                 // String newPosition > limit: (
+        19: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        22: iload_1                 
+        23: invokevirtual #50                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+        26: ldc           #53                 // String  > 
+        28: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        31: aload_0                 
+        32: getfield      #81                 // Field limit:I
+        35: invokevirtual #50                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+        38: ldc           #55                 // String )
+        40: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        43: invokevirtual #57                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        46: astore_2                
+        47: goto          95                
+        50: getstatic     #66                 // Field $assertionsDisabled:Z
+        53: ifne          70                
+        56: iload_1                 
+        57: iflt          70                
+        60: new           #70                 // class java/lang/AssertionError
+        63: dup                     
+        64: ldc           #88                 // String newPosition expected to be negative
+        66: invokespecial #74                 // Method java/lang/AssertionError."<init>":(Ljava/lang/Object;)V
+        69: athrow                  
+        70: new           #41                 // class java/lang/StringBuilder
+        73: dup                     
+        74: invokespecial #43                 // Method java/lang/StringBuilder."<init>":()V
+        77: ldc           #90                 // String newPosition < 0: (
+        79: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        82: iload_1                 
+        83: invokevirtual #50                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+        86: ldc           #79                 // String  < 0)
+        88: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        91: invokevirtual #57                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        94: astore_2                
+        95: new           #39                 // class java/lang/IllegalArgumentException
+        98: dup                     
+        99: aload_2                 
+       100: invokespecial #61                 // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+       103: areturn                 
+      LineNumberTable:
+        line 342: 0
+        line 344: 2
+        line 345: 10
+        line 347: 50
+        line 348: 70
+        line 351: 95
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0      104     0  this   Ljava/nio/Buffer;
+           0      104     1  newPosition I
+           2      102     2  msg    Ljava/lang/String;
+      StackMapTable: number_of_entries = 3
+        frame_type = 252 /* append */
+          offset_delta = 50
+          locals = [class java/lang/String]
+        frame_type = 19 /* same */
+        frame_type = 24 /* same */
+  
+  public final int limit();
+    descriptor: ()I
+    flags: (0x0011) ACC_PUBLIC, ACC_FINAL
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #81                 // Field limit:I
+         4: ireturn                 
+      LineNumberTable:
+        line 360: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/nio/Buffer;
+  
+  public java.nio.Buffer limit(int);
+    descriptor: (I)Ljava/nio/Buffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: iload_1                 
+         1: aload_0                 
+         2: getfield      #22                 // Field capacity:I
+         5: if_icmple     12                
+         8: iconst_1                
+         9: goto          13                
+        12: iconst_0                
+        13: iload_1                 
+        14: ifge          21                
+        17: iconst_1                
+        18: goto          22                
+        21: iconst_0                
+        22: ior                     
+        23: ifeq          32                
+        26: aload_0                 
+        27: iload_1                 
+        28: invokevirtual #92                 // Method createLimitException:(I)Ljava/lang/IllegalArgumentException;
+        31: athrow                  
+        32: aload_0                 
+        33: iload_1                 
+        34: putfield      #81                 // Field limit:I
+        37: aload_0                 
+        38: getfield      #15                 // Field position:I
+        41: iload_1                 
+        42: if_icmple     50                
+        45: aload_0                 
+        46: iload_1                 
+        47: putfield      #15                 // Field position:I
+        50: aload_0                 
+        51: getfield      #9                  // Field mark:I
+        54: iload_1                 
+        55: if_icmple     63                
+        58: aload_0                 
+        59: iconst_m1               
+        60: putfield      #9                  // Field mark:I
+        63: aload_0                 
+        64: areturn                 
+      LineNumberTable:
+        line 378: 0
+        line 379: 26
+        line 380: 32
+        line 381: 37
+        line 382: 50
+        line 383: 63
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       65     0  this   Ljava/nio/Buffer;
+           0       65     1  newLimit I
+      StackMapTable: number_of_entries = 7
+        frame_type = 12 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 71 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 255 /* full_frame */
+          offset_delta = 0
+          locals = [class java/nio/Buffer, int]
+          stack = [int, int]
+        frame_type = 9 /* same */
+        frame_type = 17 /* same */
+        frame_type = 12 /* same */
+  
+  private java.lang.IllegalArgumentException createLimitException(int);
+    descriptor: (I)Ljava/lang/IllegalArgumentException;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=3, locals=3, args_size=2
+         0: aconst_null             
+         1: astore_2                
+         2: iload_1                 
+         3: aload_0                 
+         4: getfield      #22                 // Field capacity:I
+         7: if_icmple     50                
+        10: new           #41                 // class java/lang/StringBuilder
+        13: dup                     
+        14: invokespecial #43                 // Method java/lang/StringBuilder."<init>":()V
+        17: ldc           #95                 // String newLimit > capacity: (
+        19: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        22: iload_1                 
+        23: invokevirtual #50                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+        26: ldc           #53                 // String  > 
+        28: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        31: aload_0                 
+        32: getfield      #22                 // Field capacity:I
+        35: invokevirtual #50                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+        38: ldc           #55                 // String )
+        40: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        43: invokevirtual #57                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        46: astore_2                
+        47: goto          95                
+        50: getstatic     #66                 // Field $assertionsDisabled:Z
+        53: ifne          70                
+        56: iload_1                 
+        57: iflt          70                
+        60: new           #70                 // class java/lang/AssertionError
+        63: dup                     
+        64: ldc           #97                 // String newLimit expected to be negative
+        66: invokespecial #74                 // Method java/lang/AssertionError."<init>":(Ljava/lang/Object;)V
+        69: athrow                  
+        70: new           #41                 // class java/lang/StringBuilder
+        73: dup                     
+        74: invokespecial #43                 // Method java/lang/StringBuilder."<init>":()V
+        77: ldc           #99                 // String newLimit < 0: (
+        79: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        82: iload_1                 
+        83: invokevirtual #50                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+        86: ldc           #79                 // String  < 0)
+        88: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        91: invokevirtual #57                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        94: astore_2                
+        95: new           #39                 // class java/lang/IllegalArgumentException
+        98: dup                     
+        99: aload_2                 
+       100: invokespecial #61                 // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+       103: areturn                 
+      LineNumberTable:
+        line 396: 0
+        line 398: 2
+        line 399: 10
+        line 401: 50
+        line 402: 70
+        line 405: 95
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0      104     0  this   Ljava/nio/Buffer;
+           0      104     1  newLimit I
+           2      102     2  msg    Ljava/lang/String;
+      StackMapTable: number_of_entries = 3
+        frame_type = 252 /* append */
+          offset_delta = 50
+          locals = [class java/lang/String]
+        frame_type = 19 /* same */
+        frame_type = 24 /* same */
+  
+  public java.nio.Buffer mark();
+    descriptor: ()Ljava/nio/Buffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: aload_0                 
+         1: aload_0                 
+         2: getfield      #15                 // Field position:I
+         5: putfield      #9                  // Field mark:I
+         8: aload_0                 
+         9: areturn                 
+      LineNumberTable:
+        line 414: 0
+        line 415: 8
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/nio/Buffer;
+  
+  public java.nio.Buffer reset();
+    descriptor: ()Ljava/nio/Buffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=1
+         0: aload_0                 
+         1: getfield      #9                  // Field mark:I
+         4: istore_1                
+         5: iload_1                 
+         6: ifge          17                
+         9: new           #101                // class java/nio/InvalidMarkException
+        12: dup                     
+        13: invokespecial #103                // Method java/nio/InvalidMarkException."<init>":()V
+        16: athrow                  
+        17: aload_0                 
+        18: iload_1                 
+        19: putfield      #15                 // Field position:I
+        22: aload_0                 
+        23: areturn                 
+      LineNumberTable:
+        line 430: 0
+        line 431: 5
+        line 432: 9
+        line 433: 17
+        line 434: 22
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       24     0  this   Ljava/nio/Buffer;
+           5       19     1  m      I
+      StackMapTable: number_of_entries = 1
+        frame_type = 252 /* append */
+          offset_delta = 17
+          locals = [int]
+  
+  public java.nio.Buffer clear();
+    descriptor: ()Ljava/nio/Buffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: aload_0                 
+         1: iconst_0                
+         2: putfield      #15                 // Field position:I
+         5: aload_0                 
+         6: aload_0                 
+         7: getfield      #22                 // Field capacity:I
+        10: putfield      #81                 // Field limit:I
+        13: aload_0                 
+        14: iconst_m1               
+        15: putfield      #9                  // Field mark:I
+        18: aload_0                 
+        19: areturn                 
+      LineNumberTable:
+        line 456: 0
+        line 457: 5
+        line 458: 13
+        line 459: 18
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       20     0  this   Ljava/nio/Buffer;
+  
+  public java.nio.Buffer flip();
+    descriptor: ()Ljava/nio/Buffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: aload_0                 
+         1: aload_0                 
+         2: getfield      #15                 // Field position:I
+         5: putfield      #81                 // Field limit:I
+         8: aload_0                 
+         9: iconst_0                
+        10: putfield      #15                 // Field position:I
+        13: aload_0                 
+        14: iconst_m1               
+        15: putfield      #9                  // Field mark:I
+        18: aload_0                 
+        19: areturn                 
+      LineNumberTable:
+        line 485: 0
+        line 486: 8
+        line 487: 13
+        line 488: 18
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       20     0  this   Ljava/nio/Buffer;
+  
+  public java.nio.Buffer rewind();
+    descriptor: ()Ljava/nio/Buffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: aload_0                 
+         1: iconst_0                
+         2: putfield      #15                 // Field position:I
+         5: aload_0                 
+         6: iconst_m1               
+         7: putfield      #9                  // Field mark:I
+        10: aload_0                 
+        11: areturn                 
+      LineNumberTable:
+        line 508: 0
+        line 509: 5
+        line 510: 10
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       12     0  this   Ljava/nio/Buffer;
+  
+  public final int remaining();
+    descriptor: ()I
+    flags: (0x0011) ACC_PUBLIC, ACC_FINAL
+    Code: 
+      stack=2, locals=2, args_size=1
+         0: aload_0                 
+         1: getfield      #81                 // Field limit:I
+         4: aload_0                 
+         5: getfield      #15                 // Field position:I
+         8: isub                    
+         9: istore_1                
+        10: iload_1                 
+        11: ifle          18                
+        14: iload_1                 
+        15: goto          19                
+        18: iconst_0                
+        19: ireturn                 
+      LineNumberTable:
+        line 520: 0
+        line 521: 10
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       20     0  this   Ljava/nio/Buffer;
+          10       10     1  rem    I
+      StackMapTable: number_of_entries = 2
+        frame_type = 252 /* append */
+          offset_delta = 18
+          locals = [int]
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  public final boolean hasRemaining();
+    descriptor: ()Z
+    flags: (0x0011) ACC_PUBLIC, ACC_FINAL
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #15                 // Field position:I
+         4: aload_0                 
+         5: getfield      #81                 // Field limit:I
+         8: if_icmpge     15                
+        11: iconst_1                
+        12: goto          16                
+        15: iconst_0                
+        16: ireturn                 
+      LineNumberTable:
+        line 532: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       17     0  this   Ljava/nio/Buffer;
+      StackMapTable: number_of_entries = 2
+        frame_type = 15 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  public abstract boolean isReadOnly();
+    descriptor: ()Z
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+  
+  public abstract boolean hasArray();
+    descriptor: ()Z
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+  
+  public abstract java.lang.Object array();
+    descriptor: ()Ljava/lang/Object;
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+  
+  public abstract int arrayOffset();
+    descriptor: ()I
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+  
+  public abstract boolean isDirect();
+    descriptor: ()Z
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+  
+  public abstract java.nio.Buffer slice();
+    descriptor: ()Ljava/nio/Buffer;
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+  
+  public abstract java.nio.Buffer slice(int, int);
+    descriptor: (II)Ljava/nio/Buffer;
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+  
+  public abstract java.nio.Buffer duplicate();
+    descriptor: ()Ljava/nio/Buffer;
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+  
+  abstract java.lang.Object base();
+    descriptor: ()Ljava/lang/Object;
+    flags: (0x0400) ACC_ABSTRACT
+  
+  final int nextGetIndex();
+    descriptor: ()I
+    flags: (0x0010) ACC_FINAL
+    Code: 
+      stack=3, locals=2, args_size=1
+         0: aload_0                 
+         1: getfield      #15                 // Field position:I
+         4: istore_1                
+         5: iload_1                 
+         6: aload_0                 
+         7: getfield      #81                 // Field limit:I
+        10: if_icmplt     21                
+        13: new           #104                // class java/nio/BufferUnderflowException
+        16: dup                     
+        17: invokespecial #106                // Method java/nio/BufferUnderflowException."<init>":()V
+        20: athrow                  
+        21: aload_0                 
+        22: iload_1                 
+        23: iconst_1                
+        24: iadd                    
+        25: putfield      #15                 // Field position:I
+        28: iload_1                 
+        29: ireturn                 
+      LineNumberTable:
+        line 710: 0
+        line 711: 5
+        line 712: 13
+        line 713: 21
+        line 714: 28
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       30     0  this   Ljava/nio/Buffer;
+           5       25     1  p      I
+      StackMapTable: number_of_entries = 1
+        frame_type = 252 /* append */
+          offset_delta = 21
+          locals = [int]
+  
+  final int nextGetIndex(int);
+    descriptor: (I)I
+    flags: (0x0010) ACC_FINAL
+    Code: 
+      stack=3, locals=3, args_size=2
+         0: aload_0                 
+         1: getfield      #15                 // Field position:I
+         4: istore_2                
+         5: aload_0                 
+         6: getfield      #81                 // Field limit:I
+         9: iload_2                 
+        10: isub                    
+        11: iload_1                 
+        12: if_icmpge     23                
+        15: new           #104                // class java/nio/BufferUnderflowException
+        18: dup                     
+        19: invokespecial #106                // Method java/nio/BufferUnderflowException."<init>":()V
+        22: athrow                  
+        23: aload_0                 
+        24: iload_2                 
+        25: iload_1                 
+        26: iadd                    
+        27: putfield      #15                 // Field position:I
+        30: iload_2                 
+        31: ireturn                 
+      LineNumberTable:
+        line 718: 0
+        line 719: 5
+        line 720: 15
+        line 721: 23
+        line 722: 30
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       32     0  this   Ljava/nio/Buffer;
+           0       32     1  nb     I
+           5       27     2  p      I
+      StackMapTable: number_of_entries = 1
+        frame_type = 252 /* append */
+          offset_delta = 23
+          locals = [int]
+  
+  final int nextPutIndex();
+    descriptor: ()I
+    flags: (0x0010) ACC_FINAL
+    Code: 
+      stack=3, locals=2, args_size=1
+         0: aload_0                 
+         1: getfield      #15                 // Field position:I
+         4: istore_1                
+         5: iload_1                 
+         6: aload_0                 
+         7: getfield      #81                 // Field limit:I
+        10: if_icmplt     21                
+        13: new           #107                // class java/nio/BufferOverflowException
+        16: dup                     
+        17: invokespecial #109                // Method java/nio/BufferOverflowException."<init>":()V
+        20: athrow                  
+        21: aload_0                 
+        22: iload_1                 
+        23: iconst_1                
+        24: iadd                    
+        25: putfield      #15                 // Field position:I
+        28: iload_1                 
+        29: ireturn                 
+      LineNumberTable:
+        line 733: 0
+        line 734: 5
+        line 735: 13
+        line 736: 21
+        line 737: 28
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       30     0  this   Ljava/nio/Buffer;
+           5       25     1  p      I
+      StackMapTable: number_of_entries = 1
+        frame_type = 252 /* append */
+          offset_delta = 21
+          locals = [int]
+  
+  final int nextPutIndex(int);
+    descriptor: (I)I
+    flags: (0x0010) ACC_FINAL
+    Code: 
+      stack=3, locals=3, args_size=2
+         0: aload_0                 
+         1: getfield      #15                 // Field position:I
+         4: istore_2                
+         5: aload_0                 
+         6: getfield      #81                 // Field limit:I
+         9: iload_2                 
+        10: isub                    
+        11: iload_1                 
+        12: if_icmpge     23                
+        15: new           #107                // class java/nio/BufferOverflowException
+        18: dup                     
+        19: invokespecial #109                // Method java/nio/BufferOverflowException."<init>":()V
+        22: athrow                  
+        23: aload_0                 
+        24: iload_2                 
+        25: iload_1                 
+        26: iadd                    
+        27: putfield      #15                 // Field position:I
+        30: iload_2                 
+        31: ireturn                 
+      LineNumberTable:
+        line 741: 0
+        line 742: 5
+        line 743: 15
+        line 744: 23
+        line 745: 30
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       32     0  this   Ljava/nio/Buffer;
+           0       32     1  nb     I
+           5       27     2  p      I
+      StackMapTable: number_of_entries = 1
+        frame_type = 252 /* append */
+          offset_delta = 23
+          locals = [int]
+  
+  final int checkIndex(int);
+    descriptor: (I)I
+    flags: (0x0010) ACC_FINAL
+    Code: 
+      stack=3, locals=2, args_size=2
+         0: iload_1                 
+         1: aload_0                 
+         2: getfield      #81                 // Field limit:I
+         5: getstatic     #110                // Field IOOBE_FORMATTER:Ljava/util/function/BiFunction;
+         8: invokestatic  #114                // Method jdk/internal/util/Preconditions.checkIndex:(IILjava/util/function/BiFunction;)I
+        11: ireturn                 
+      LineNumberTable:
+        line 767: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       12     0  this   Ljava/nio/Buffer;
+           0       12     1  i      I
+    RuntimeVisibleAnnotations:
+      0: #230()
+        jdk.internal.vm.annotation.ForceInline
+  
+  final int checkIndex(int, int);
+    descriptor: (II)I
+    flags: (0x0010) ACC_FINAL
+    Code: 
+      stack=3, locals=3, args_size=3
+         0: iload_1                 
+         1: aload_0                 
+         2: getfield      #81                 // Field limit:I
+         5: iload_2                 
+         6: isub                    
+         7: iconst_1                
+         8: iadd                    
+         9: getstatic     #110                // Field IOOBE_FORMATTER:Ljava/util/function/BiFunction;
+        12: invokestatic  #114                // Method jdk/internal/util/Preconditions.checkIndex:(IILjava/util/function/BiFunction;)I
+        15: ireturn                 
+      LineNumberTable:
+        line 778: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       16     0  this   Ljava/nio/Buffer;
+           0       16     1  i      I
+           0       16     2  nb     I
+    RuntimeVisibleAnnotations:
+      0: #230()
+        jdk.internal.vm.annotation.ForceInline
+  
+  abstract int scaleShifts();
+    descriptor: ()I
+    flags: (0x0400) ACC_ABSTRACT
+  
+  abstract jdk.internal.foreign.AbstractMemorySegmentImpl heapSegment(java.lang.Object, long, long, boolean, jdk.internal.foreign.MemorySessionImpl);
+    descriptor: (Ljava/lang/Object;JJZLjdk/internal/foreign/MemorySessionImpl;)Ljdk/internal/foreign/AbstractMemorySegmentImpl;
+    flags: (0x0400) ACC_ABSTRACT
+  
+  final int markValue();
+    descriptor: ()I
+    flags: (0x0010) ACC_FINAL
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #9                  // Field mark:I
+         4: ireturn                 
+      LineNumberTable:
+        line 799: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/nio/Buffer;
+  
+  final void discardMark();
+    descriptor: ()V
+    flags: (0x0010) ACC_FINAL
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: aload_0                 
+         1: iconst_m1               
+         2: putfield      #9                  // Field mark:I
+         5: return                  
+      LineNumberTable:
+        line 803: 0
+        line 804: 5
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        6     0  this   Ljava/nio/Buffer;
+  
+  final jdk.internal.foreign.MemorySessionImpl session();
+    descriptor: ()Ljdk/internal/foreign/MemorySessionImpl;
+    flags: (0x0010) ACC_FINAL
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #25                 // Field segment:Ljava/lang/foreign/MemorySegment;
+         4: ifnull        18                
+         7: aload_0                 
+         8: getfield      #25                 // Field segment:Ljava/lang/foreign/MemorySegment;
+        11: checkcast     #120                // class jdk/internal/foreign/AbstractMemorySegmentImpl
+        14: invokevirtual #122                // Method jdk/internal/foreign/AbstractMemorySegmentImpl.sessionImpl:()Ljdk/internal/foreign/MemorySessionImpl;
+        17: areturn                 
+        18: aconst_null             
+        19: areturn                 
+      LineNumberTable:
+        line 808: 0
+        line 809: 7
+        line 811: 18
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       20     0  this   Ljava/nio/Buffer;
+      StackMapTable: number_of_entries = 1
+        frame_type = 18 /* same */
+    RuntimeVisibleAnnotations:
+      0: #230()
+        jdk.internal.vm.annotation.ForceInline
+  
+  final void checkSession();
+    descriptor: ()V
+    flags: (0x0010) ACC_FINAL
+    Code: 
+      stack=1, locals=2, args_size=1
+         0: aload_0                 
+         1: invokevirtual #126                // Method session:()Ljdk/internal/foreign/MemorySessionImpl;
+         4: astore_1                
+         5: aload_1                 
+         6: ifnull        13                
+         9: aload_1                 
+        10: invokevirtual #129                // Method jdk/internal/foreign/MemorySessionImpl.checkValidState:()V
+        13: return                  
+      LineNumberTable:
+        line 816: 0
+        line 817: 5
+        line 818: 9
+        line 820: 13
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       14     0  this   Ljava/nio/Buffer;
+           5        9     1  session Ljdk/internal/foreign/MemorySessionImpl;
+      StackMapTable: number_of_entries = 1
+        frame_type = 252 /* append */
+          offset_delta = 13
+          locals = [class jdk/internal/foreign/MemorySessionImpl]
+  
+  static {};
+    descriptor: ()V
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=2, locals=0, args_size=0
+         0: ldc           #10                 // class java/nio/Buffer
+         2: invokevirtual #134                // Method java/lang/Class.desiredAssertionStatus:()Z
+         5: ifne          12                
+         8: iconst_1                
+         9: goto          13                
+        12: iconst_0                
+        13: putstatic     #66                 // Field $assertionsDisabled:Z
+        16: invokestatic  #140                // Method jdk/internal/misc/Unsafe.getUnsafe:()Ljdk/internal/misc/Unsafe;
+        19: putstatic     #146                // Field UNSAFE:Ljdk/internal/misc/Unsafe;
+        22: invokestatic  #150                // Method jdk/internal/misc/ScopedMemoryAccess.getScopedMemoryAccess:()Ljdk/internal/misc/ScopedMemoryAccess;
+        25: putstatic     #156                // Field SCOPED_MEMORY_ACCESS:Ljdk/internal/misc/ScopedMemoryAccess;
+        28: new           #160                // class java/nio/Buffer$1
+        31: dup                     
+        32: invokespecial #162                // Method java/nio/Buffer$1."<init>":()V
+        35: invokestatic  #163                // Method jdk/internal/util/Preconditions.outOfBoundsExceptionFormatter:(Ljava/util/function/Function;)Ljava/util/function/BiFunction;
+        38: putstatic     #110                // Field IOOBE_FORMATTER:Ljava/util/function/BiFunction;
+        41: new           #167                // class java/nio/Buffer$2
+        44: dup                     
+        45: invokespecial #169                // Method java/nio/Buffer$2."<init>":()V
+        48: invokestatic  #170                // Method jdk/internal/access/SharedSecrets.setJavaNioAccess:(Ljdk/internal/access/JavaNioAccess;)V
+        51: return                  
+      LineNumberTable:
+        line 202: 0
+        line 206: 16
+        line 208: 22
+        line 753: 28
+        line 825: 41
+        line 948: 51
+      StackMapTable: number_of_entries = 2
+        frame_type = 12 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+}
+SourceFile: "Buffer.java"
+NestMembers:
+  java/nio/Buffer$2
+  java/nio/Buffer$1
+PermittedSubclasses:
+  java/nio/ByteBuffer
+  java/nio/CharBuffer
+  java/nio/DoubleBuffer
+  java/nio/FloatBuffer
+  java/nio/IntBuffer
+  java/nio/LongBuffer
+  java/nio/ShortBuffer
+InnerClasses:
+  #160;                                       // class java/nio/Buffer$1
+  #167;                                       // class java/nio/Buffer$2

@@ -348,10 +348,23 @@ impl Class {
         self.get_static_field_value(name, descriptor)
     }
 
+    fn get_static_field_value_recursive(
+        &self,
+        name: &str,
+        descriptor: &str,
+    ) -> Option<&StaticField> {
+        if let Some(f) = self.static_fields.get(name).and_then(|m| m.get(descriptor)) {
+            return Some(f);
+        }
+
+        match &self.super_class {
+            Some(super_class) => super_class.get_static_field_value_recursive(name, descriptor),
+            None => None,
+        }
+    }
+
     pub fn get_static_field_value(&self, name: &str, descriptor: &str) -> Result<Value, JvmError> {
-        self.static_fields
-            .get(name)
-            .and_then(|m| m.get(descriptor))
+        self.get_static_field_value_recursive(name, descriptor)
             .map(|f| f.value())
             .ok_or(JvmError::FieldNotFound(name.to_string()))
     }
