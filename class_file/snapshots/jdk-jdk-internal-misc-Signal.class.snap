@@ -1,0 +1,671 @@
+---
+source: class_file/src/lib.rs
+expression: display
+---
+public final class jdk.internal.misc.Signal 
+  minor version: 0
+  major version: 68
+  flags: (0x0031) ACC_PUBLIC, ACC_FINAL, ACC_SUPER
+  this_class: #2                       //jdk/internal/misc/Signal
+  super_class: #34                     //java/lang/Object
+  interfaces: 0, fields: 4, methods: 13, attributes: 3
+Constant pool:
+    #1 = Fieldref           #2.#3            // jdk/internal/misc/Signal.number:I
+    #2 = Class              #4               // jdk/internal/misc/Signal
+    #3 = NameAndType        #5:#6            // number:I
+    #4 = Utf8               jdk/internal/misc/Signal
+    #5 = Utf8               number
+    #6 = Utf8               I
+    #7 = Fieldref           #2.#8            // jdk/internal/misc/Signal.name:Ljava/lang/String;
+    #8 = NameAndType        #9:#10           // name:Ljava/lang/String;
+    #9 = Utf8               name
+   #10 = Utf8               Ljava/lang/String;
+   #11 = Methodref          #12.#13          // java/lang/String.equals:(Ljava/lang/Object;)Z
+   #12 = Class              #14              // java/lang/String
+   #13 = NameAndType        #15:#16          // equals:(Ljava/lang/Object;)Z
+   #14 = Utf8               java/lang/String
+   #15 = Utf8               equals
+   #16 = Utf8               (Ljava/lang/Object;)Z
+   #17 = Class              #18              // java/lang/StringBuilder
+   #18 = Utf8               java/lang/StringBuilder
+   #19 = Methodref          #17.#20          // java/lang/StringBuilder."<init>":()V
+   #20 = NameAndType        #21:#22          // "<init>":()V
+   #21 = Utf8               <init>
+   #22 = Utf8               ()V
+   #23 = String             #24              // SIG
+   #24 = Utf8               SIG
+   #25 = Methodref          #17.#26          // java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+   #26 = NameAndType        #27:#28          // append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+   #27 = Utf8               append
+   #28 = Utf8               (Ljava/lang/String;)Ljava/lang/StringBuilder;
+   #29 = Methodref          #17.#30          // java/lang/StringBuilder.toString:()Ljava/lang/String;
+   #30 = NameAndType        #31:#32          // toString:()Ljava/lang/String;
+   #31 = Utf8               toString
+   #32 = Utf8               ()Ljava/lang/String;
+   #33 = Methodref          #34.#20          // java/lang/Object."<init>":()V
+   #34 = Class              #35              // java/lang/Object
+   #35 = Utf8               java/lang/Object
+   #36 = String             #9               // name
+   #37 = Methodref          #38.#39          // java/util/Objects.requireNonNull:(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+   #38 = Class              #40              // java/util/Objects
+   #39 = NameAndType        #41:#42          // requireNonNull:(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+   #40 = Utf8               java/util/Objects
+   #41 = Utf8               requireNonNull
+   #42 = Utf8               (Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+   #43 = Methodref          #12.#44          // java/lang/String.startsWith:(Ljava/lang/String;)Z
+   #44 = NameAndType        #45:#46          // startsWith:(Ljava/lang/String;)Z
+   #45 = Utf8               startsWith
+   #46 = Utf8               (Ljava/lang/String;)Z
+   #47 = Class              #48              // java/lang/IllegalArgumentException
+   #48 = Utf8               java/lang/IllegalArgumentException
+   #49 = String             #50              // Unknown signal: 
+   #50 = Utf8               Unknown signal: 
+   #51 = Methodref          #47.#52          // java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+   #52 = NameAndType        #21:#53          // "<init>":(Ljava/lang/String;)V
+   #53 = Utf8               (Ljava/lang/String;)V
+   #54 = Methodref          #2.#55           // jdk/internal/misc/Signal.findSignal0:(Ljava/lang/String;)I
+   #55 = NameAndType        #56:#57          // findSignal0:(Ljava/lang/String;)I
+   #56 = Utf8               findSignal0
+   #57 = Utf8               (Ljava/lang/String;)I
+   #58 = String             #59              // sig
+   #59 = Utf8               sig
+   #60 = String             #61              // handler
+   #61 = Utf8               handler
+   #62 = Class              #63              // jdk/internal/misc/Signal$NativeHandler
+   #63 = Utf8               jdk/internal/misc/Signal$NativeHandler
+   #64 = Methodref          #62.#65          // jdk/internal/misc/Signal$NativeHandler.getHandler:()J
+   #65 = NameAndType        #66:#67          // getHandler:()J
+   #66 = Utf8               getHandler
+   #67 = Utf8               ()J
+   #68 = Long               2l
+   #70 = Methodref          #2.#71           // jdk/internal/misc/Signal.handle0:(IJ)J
+   #71 = NameAndType        #72:#73          // handle0:(IJ)J
+   #72 = Utf8               handle0
+   #73 = Utf8               (IJ)J
+   #74 = Long               -1l
+   #76 = String             #77              // Signal already used by VM or OS: 
+   #77 = Utf8               Signal already used by VM or OS: 
+   #78 = Methodref          #17.#79          // java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+   #79 = NameAndType        #27:#80          // append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+   #80 = Utf8               (Ljava/lang/Object;)Ljava/lang/StringBuilder;
+   #81 = Fieldref           #2.#82           // jdk/internal/misc/Signal.signals:Ljava/util/Hashtable;
+   #82 = NameAndType        #83:#84          // signals:Ljava/util/Hashtable;
+   #83 = Utf8               signals
+   #84 = Utf8               Ljava/util/Hashtable;
+   #85 = Methodref          #86.#87          // java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+   #86 = Class              #88              // java/lang/Integer
+   #87 = NameAndType        #89:#90          // valueOf:(I)Ljava/lang/Integer;
+   #88 = Utf8               java/lang/Integer
+   #89 = Utf8               valueOf
+   #90 = Utf8               (I)Ljava/lang/Integer;
+   #91 = Methodref          #92.#93          // java/util/Hashtable.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+   #92 = Class              #94              // java/util/Hashtable
+   #93 = NameAndType        #95:#96          // put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+   #94 = Utf8               java/util/Hashtable
+   #95 = Utf8               put
+   #96 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+   #97 = Fieldref           #2.#98           // jdk/internal/misc/Signal.handlers:Ljava/util/Hashtable;
+   #98 = NameAndType        #99:#84          // handlers:Ljava/util/Hashtable;
+   #99 = Utf8               handlers
+  #100 = Class              #101             // jdk/internal/misc/Signal$Handler
+  #101 = Utf8               jdk/internal/misc/Signal$Handler
+  #102 = Methodref          #92.#103         // java/util/Hashtable.remove:(Ljava/lang/Object;)Ljava/lang/Object;
+  #103 = NameAndType        #104:#105        // remove:(Ljava/lang/Object;)Ljava/lang/Object;
+  #104 = Utf8               remove
+  #105 = Utf8               (Ljava/lang/Object;)Ljava/lang/Object;
+  #106 = Fieldref           #100.#107        // jdk/internal/misc/Signal$Handler.SIG_DFL:Ljdk/internal/misc/Signal$Handler;
+  #107 = NameAndType        #108:#109        // SIG_DFL:Ljdk/internal/misc/Signal$Handler;
+  #108 = Utf8               SIG_DFL
+  #109 = Utf8               Ljdk/internal/misc/Signal$Handler;
+  #110 = Fieldref           #100.#111        // jdk/internal/misc/Signal$Handler.SIG_IGN:Ljdk/internal/misc/Signal$Handler;
+  #111 = NameAndType        #112:#109        // SIG_IGN:Ljdk/internal/misc/Signal$Handler;
+  #112 = Utf8               SIG_IGN
+  #113 = Methodref          #62.#114         // jdk/internal/misc/Signal$NativeHandler."<init>":(J)V
+  #114 = NameAndType        #21:#115         // "<init>":(J)V
+  #115 = Utf8               (J)V
+  #116 = Methodref          #92.#117         // java/util/Hashtable.get:(Ljava/lang/Object;)Ljava/lang/Object;
+  #117 = NameAndType        #118:#105        // get:(Ljava/lang/Object;)Ljava/lang/Object;
+  #118 = Utf8               get
+  #119 = String             #120             // Unhandled signal: 
+  #120 = Utf8               Unhandled signal: 
+  #121 = Methodref          #2.#122          // jdk/internal/misc/Signal.raise0:(I)V
+  #122 = NameAndType        #123:#124        // raise0:(I)V
+  #123 = Utf8               raise0
+  #124 = Utf8               (I)V
+  #125 = Class              #126             // jdk/internal/misc/Signal$1
+  #126 = Utf8               jdk/internal/misc/Signal$1
+  #127 = Methodref          #125.#128        // jdk/internal/misc/Signal$1."<init>":(Ljdk/internal/misc/Signal$Handler;Ljdk/internal/misc/Signal;)V
+  #128 = NameAndType        #21:#129         // "<init>":(Ljdk/internal/misc/Signal$Handler;Ljdk/internal/misc/Signal;)V
+  #129 = Utf8               (Ljdk/internal/misc/Signal$Handler;Ljdk/internal/misc/Signal;)V
+  #130 = Class              #131             // java/lang/Thread
+  #131 = Utf8               java/lang/Thread
+  #132 = String             #133             //  handler
+  #133 = Utf8                handler
+  #134 = Methodref          #130.#135        // java/lang/Thread."<init>":(Ljava/lang/ThreadGroup;Ljava/lang/Runnable;Ljava/lang/String;JZ)V
+  #135 = NameAndType        #21:#136         // "<init>":(Ljava/lang/ThreadGroup;Ljava/lang/Runnable;Ljava/lang/String;JZ)V
+  #136 = Utf8               (Ljava/lang/ThreadGroup;Ljava/lang/Runnable;Ljava/lang/String;JZ)V
+  #137 = Methodref          #130.#138        // java/lang/Thread.start:()V
+  #138 = NameAndType        #139:#22         // start:()V
+  #139 = Utf8               start
+  #140 = Methodref          #92.#141         // java/util/Hashtable."<init>":(I)V
+  #141 = NameAndType        #21:#124         // "<init>":(I)V
+  #142 = Utf8               Signature
+  #143 = Utf8               Ljava/util/Hashtable<Ljdk/internal/misc/Signal;Ljdk/internal/misc/Signal$Handler;>;
+  #144 = Utf8               Ljava/util/Hashtable<Ljava/lang/Integer;Ljdk/internal/misc/Signal;>;
+  #145 = Utf8               getNumber
+  #146 = Utf8               ()I
+  #147 = Utf8               Code
+  #148 = Utf8               LineNumberTable
+  #149 = Utf8               LocalVariableTable
+  #150 = Utf8               this
+  #151 = Utf8               Ljdk/internal/misc/Signal;
+  #152 = Utf8               getName
+  #153 = Utf8               other
+  #154 = Utf8               obj
+  #155 = Utf8               Ljava/lang/Object;
+  #156 = Utf8               StackMapTable
+  #157 = Utf8               hashCode
+  #158 = Utf8               handle
+  #159 = Utf8               (Ljdk/internal/misc/Signal;Ljdk/internal/misc/Signal$Handler;)Ljdk/internal/misc/Signal$Handler;
+  #160 = Utf8               oldHandler
+  #161 = Utf8               newH
+  #162 = Utf8               J
+  #163 = Utf8               oldH
+  #164 = Utf8               Exceptions
+  #165 = Utf8               raise
+  #166 = Utf8               (Ljdk/internal/misc/Signal;)V
+  #167 = Utf8               dispatch
+  #168 = Utf8               runnable
+  #169 = Utf8               Ljava/lang/Runnable;
+  #170 = Class              #171             // java/lang/Runnable
+  #171 = Utf8               java/lang/Runnable
+  #172 = Utf8               <clinit>
+  #173 = Utf8               SourceFile
+  #174 = Utf8               Signal.java
+  #175 = Utf8               NestMembers
+  #176 = Utf8               InnerClasses
+  #177 = Utf8               NativeHandler
+  #178 = Utf8               Handler
+{
+  private static final java.util.Hashtable<jdk.internal.misc.Signal, jdk.internal.misc.Signal$Handler> handlers;
+    descriptor: Ljava/util/Hashtable;
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    Signature: #143                        // Ljava/util/Hashtable<Ljdk/internal/misc/Signal;Ljdk/internal/misc/Signal$Handler;>;
+  
+  private static final java.util.Hashtable<java.lang.Integer, jdk.internal.misc.Signal> signals;
+    descriptor: Ljava/util/Hashtable;
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    Signature: #144                        // Ljava/util/Hashtable<Ljava/lang/Integer;Ljdk/internal/misc/Signal;>;
+  
+  private int number;
+    descriptor: I
+    flags: (0x0002) ACC_PRIVATE
+  
+  private java.lang.String name;
+    descriptor: Ljava/lang/String;
+    flags: (0x0002) ACC_PRIVATE
+  
+  public int getNumber();
+    descriptor: ()I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #1                  // Field number:I
+         4: ireturn                 
+      LineNumberTable:
+        line 82: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljdk/internal/misc/Signal;
+  
+  public java.lang.String getName();
+    descriptor: ()Ljava/lang/String;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #7                  // Field name:Ljava/lang/String;
+         4: areturn                 
+      LineNumberTable:
+        line 92: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljdk/internal/misc/Signal;
+  
+  public boolean equals(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=3, args_size=2
+         0: aload_0                 
+         1: aload_1                 
+         2: if_acmpne     7                 
+         5: iconst_1                
+         6: ireturn                 
+         7: aload_1                 
+         8: instanceof    #2                  // class jdk/internal/misc/Signal
+        11: ifeq          50                
+        14: aload_1                 
+        15: checkcast     #2                  // class jdk/internal/misc/Signal
+        18: astore_2                
+        19: aload_0                 
+        20: getfield      #7                  // Field name:Ljava/lang/String;
+        23: aload_2                 
+        24: getfield      #7                  // Field name:Ljava/lang/String;
+        27: invokevirtual #11                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+        30: ifeq          48                
+        33: aload_0                 
+        34: getfield      #1                  // Field number:I
+        37: aload_2                 
+        38: getfield      #1                  // Field number:I
+        41: if_icmpne     48                
+        44: iconst_1                
+        45: goto          49                
+        48: iconst_0                
+        49: ireturn                 
+        50: iconst_0                
+        51: ireturn                 
+      LineNumberTable:
+        line 102: 0
+        line 103: 5
+        line 105: 7
+        line 106: 19
+        line 108: 50
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          19       31     2  other  Ljdk/internal/misc/Signal;
+           0       52     0  this   Ljdk/internal/misc/Signal;
+           0       52     1  obj    Ljava/lang/Object;
+      StackMapTable: number_of_entries = 4
+        frame_type = 7 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 40
+          locals = [class jdk/internal/misc/Signal]
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 250 /* chop */
+          offset_delta = 0
+  
+  public int hashCode();
+    descriptor: ()I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #1                  // Field number:I
+         4: ireturn                 
+      LineNumberTable:
+        line 117: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljdk/internal/misc/Signal;
+  
+  public java.lang.String toString();
+    descriptor: ()Ljava/lang/String;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: new           #17                 // class java/lang/StringBuilder
+         3: dup                     
+         4: invokespecial #19                 // Method java/lang/StringBuilder."<init>":()V
+         7: ldc           #23                 // String SIG
+         9: invokevirtual #25                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        12: aload_0                 
+        13: getfield      #7                  // Field name:Ljava/lang/String;
+        16: invokevirtual #25                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        19: invokevirtual #29                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        22: areturn                 
+      LineNumberTable:
+        line 127: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       23     0  this   Ljdk/internal/misc/Signal;
+  
+  public jdk.internal.misc.Signal(java.lang.String);
+    descriptor: (Ljava/lang/String;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=2, args_size=2
+         0: aload_0                 
+         1: invokespecial #33                 // Method java/lang/Object."<init>":()V
+         4: aload_1                 
+         5: ldc           #36                 // String name
+         7: invokestatic  #37                 // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+        10: pop                     
+        11: aload_1                 
+        12: ldc           #23                 // String SIG
+        14: invokevirtual #43                 // Method java/lang/String.startsWith:(Ljava/lang/String;)Z
+        17: ifeq          47                
+        20: new           #47                 // class java/lang/IllegalArgumentException
+        23: dup                     
+        24: new           #17                 // class java/lang/StringBuilder
+        27: dup                     
+        28: invokespecial #19                 // Method java/lang/StringBuilder."<init>":()V
+        31: ldc           #49                 // String Unknown signal: 
+        33: invokevirtual #25                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        36: aload_1                 
+        37: invokevirtual #25                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        40: invokevirtual #29                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        43: invokespecial #51                 // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+        46: athrow                  
+        47: aload_0                 
+        48: aload_1                 
+        49: putfield      #7                  // Field name:Ljava/lang/String;
+        52: aload_0                 
+        53: aload_1                 
+        54: invokestatic  #54                 // Method findSignal0:(Ljava/lang/String;)I
+        57: putfield      #1                  // Field number:I
+        60: aload_0                 
+        61: getfield      #1                  // Field number:I
+        64: ifge          94                
+        67: new           #47                 // class java/lang/IllegalArgumentException
+        70: dup                     
+        71: new           #17                 // class java/lang/StringBuilder
+        74: dup                     
+        75: invokespecial #19                 // Method java/lang/StringBuilder."<init>":()V
+        78: ldc           #49                 // String Unknown signal: 
+        80: invokevirtual #25                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        83: aload_1                 
+        84: invokevirtual #25                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        87: invokevirtual #29                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        90: invokespecial #51                 // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+        93: athrow                  
+        94: return                  
+      LineNumberTable:
+        line 137: 0
+        line 138: 4
+        line 141: 11
+        line 142: 20
+        line 144: 47
+        line 145: 52
+        line 146: 60
+        line 147: 67
+        line 149: 94
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       95     0  this   Ljdk/internal/misc/Signal;
+           0       95     1  name   Ljava/lang/String;
+      StackMapTable: number_of_entries = 2
+        frame_type = 255 /* full_frame */
+          offset_delta = 47
+          locals = [class jdk/internal/misc/Signal, class java/lang/String]
+          stack = []
+        frame_type = 46 /* same */
+  
+  public static synchronized jdk.internal.misc.Signal$Handler handle(jdk.internal.misc.Signal, jdk.internal.misc.Signal$Handler) throws java.lang.IllegalArgumentException;
+    descriptor: (Ljdk/internal/misc/Signal;Ljdk/internal/misc/Signal$Handler;)Ljdk/internal/misc/Signal$Handler;
+    flags: (0x0029) ACC_PUBLIC, ACC_STATIC, ACC_SYNCHRONIZED
+    Code: 
+      stack=4, locals=7, args_size=2
+         0: aload_0                 
+         1: ldc           #58                 // String sig
+         3: invokestatic  #37                 // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+         6: pop                     
+         7: aload_1                 
+         8: ldc           #60                 // String handler
+        10: invokestatic  #37                 // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+        13: pop                     
+        14: aload_1                 
+        15: instanceof    #62                 // class jdk/internal/misc/Signal$NativeHandler
+        18: ifeq          31                
+        21: aload_1                 
+        22: checkcast     #62                 // class jdk/internal/misc/Signal$NativeHandler
+        25: invokevirtual #64                 // Method jdk/internal/misc/Signal$NativeHandler.getHandler:()J
+        28: goto          34                
+        31: ldc2_w        #68                 // long 2l
+        34: lstore_2                
+        35: aload_0                 
+        36: getfield      #1                  // Field number:I
+        39: lload_2                 
+        40: invokestatic  #70                 // Method handle0:(IJ)J
+        43: lstore        4                 
+        45: lload         4                 
+        47: ldc2_w        #74                 // long -1l
+        50: lcmp                    
+        51: ifne          81                
+        54: new           #47                 // class java/lang/IllegalArgumentException
+        57: dup                     
+        58: new           #17                 // class java/lang/StringBuilder
+        61: dup                     
+        62: invokespecial #19                 // Method java/lang/StringBuilder."<init>":()V
+        65: ldc           #76                 // String Signal already used by VM or OS: 
+        67: invokevirtual #25                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        70: aload_0                 
+        71: invokevirtual #78                 // Method java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+        74: invokevirtual #29                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        77: invokespecial #51                 // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+        80: athrow                  
+        81: getstatic     #81                 // Field signals:Ljava/util/Hashtable;
+        84: aload_0                 
+        85: getfield      #1                  // Field number:I
+        88: invokestatic  #85                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        91: aload_0                 
+        92: invokevirtual #91                 // Method java/util/Hashtable.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        95: pop                     
+        96: lload_2                 
+        97: ldc2_w        #68                 // long 2l
+       100: lcmp                    
+       101: ifne          120               
+       104: getstatic     #97                 // Field handlers:Ljava/util/Hashtable;
+       107: aload_0                 
+       108: aload_1                 
+       109: invokevirtual #91                 // Method java/util/Hashtable.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+       112: checkcast     #100                // class jdk/internal/misc/Signal$Handler
+       115: astore        6                 
+       117: goto          132               
+       120: getstatic     #97                 // Field handlers:Ljava/util/Hashtable;
+       123: aload_0                 
+       124: invokevirtual #102                // Method java/util/Hashtable.remove:(Ljava/lang/Object;)Ljava/lang/Object;
+       127: checkcast     #100                // class jdk/internal/misc/Signal$Handler
+       130: astore        6                 
+       132: lload         4                 
+       134: lconst_0                
+       135: lcmp                    
+       136: ifne          143               
+       139: getstatic     #106                // Field jdk/internal/misc/Signal$Handler.SIG_DFL:Ljdk/internal/misc/Signal$Handler;
+       142: areturn                 
+       143: lload         4                 
+       145: lconst_1                
+       146: lcmp                    
+       147: ifne          154               
+       150: getstatic     #110                // Field jdk/internal/misc/Signal$Handler.SIG_IGN:Ljdk/internal/misc/Signal$Handler;
+       153: areturn                 
+       154: lload         4                 
+       156: ldc2_w        #68                 // long 2l
+       159: lcmp                    
+       160: ifne          166               
+       163: aload         6                 
+       165: areturn                 
+       166: new           #62                 // class jdk/internal/misc/Signal$NativeHandler
+       169: dup                     
+       170: lload         4                 
+       172: invokespecial #113                // Method jdk/internal/misc/Signal$NativeHandler."<init>":(J)V
+       175: areturn                 
+      LineNumberTable:
+        line 166: 0
+        line 167: 7
+        line 168: 14
+        line 169: 21
+        line 170: 35
+        line 171: 45
+        line 172: 54
+        line 175: 81
+        line 177: 96
+        line 178: 104
+        line 180: 120
+        line 182: 132
+        line 183: 139
+        line 184: 143
+        line 185: 150
+        line 186: 154
+        line 187: 163
+        line 189: 166
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+         117        3     6  oldHandler Ljdk/internal/misc/Signal$Handler;
+           0      176     0  sig    Ljdk/internal/misc/Signal;
+           0      176     1  handler Ljdk/internal/misc/Signal$Handler;
+          35      141     2  newH   J
+          45      131     4  oldH   J
+         132       44     6  oldHandler Ljdk/internal/misc/Signal$Handler;
+      StackMapTable: number_of_entries = 8
+        frame_type = 31 /* same */
+        frame_type = 66 /* same_locals_1_stack_item */
+          stack = [ long ]
+        frame_type = 253 /* append */
+          offset_delta = 46
+          locals = [long, long]
+        frame_type = 38 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 11
+          locals = [class jdk/internal/misc/Signal$Handler]
+        frame_type = 10 /* same */
+        frame_type = 10 /* same */
+        frame_type = 11 /* same */
+    Exceptions:
+      throws java.lang.IllegalArgumentException
+  
+  public static void raise(jdk.internal.misc.Signal) throws java.lang.IllegalArgumentException;
+    descriptor: (Ljdk/internal/misc/Signal;)V
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=4, locals=1, args_size=1
+         0: aload_0                 
+         1: ldc           #58                 // String sig
+         3: invokestatic  #37                 // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+         6: pop                     
+         7: getstatic     #97                 // Field handlers:Ljava/util/Hashtable;
+        10: aload_0                 
+        11: invokevirtual #116                // Method java/util/Hashtable.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        14: ifnonnull     44                
+        17: new           #47                 // class java/lang/IllegalArgumentException
+        20: dup                     
+        21: new           #17                 // class java/lang/StringBuilder
+        24: dup                     
+        25: invokespecial #19                 // Method java/lang/StringBuilder."<init>":()V
+        28: ldc           #119                // String Unhandled signal: 
+        30: invokevirtual #25                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        33: aload_0                 
+        34: invokevirtual #78                 // Method java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+        37: invokevirtual #29                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        40: invokespecial #51                 // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+        43: athrow                  
+        44: aload_0                 
+        45: getfield      #1                  // Field number:I
+        48: invokestatic  #121                // Method raise0:(I)V
+        51: return                  
+      LineNumberTable:
+        line 200: 0
+        line 201: 7
+        line 202: 17
+        line 204: 44
+        line 205: 51
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       52     0  sig    Ljdk/internal/misc/Signal;
+      StackMapTable: number_of_entries = 1
+        frame_type = 44 /* same */
+    Exceptions:
+      throws java.lang.IllegalArgumentException
+  
+  private static void dispatch(int);
+    descriptor: (I)V
+    flags: (0x000a) ACC_PRIVATE, ACC_STATIC
+    Code: 
+      stack=8, locals=4, args_size=1
+         0: getstatic     #81                 // Field signals:Ljava/util/Hashtable;
+         3: iload_0                 
+         4: invokestatic  #85                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+         7: invokevirtual #116                // Method java/util/Hashtable.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        10: checkcast     #2                  // class jdk/internal/misc/Signal
+        13: astore_1                
+        14: getstatic     #97                 // Field handlers:Ljava/util/Hashtable;
+        17: aload_1                 
+        18: invokevirtual #116                // Method java/util/Hashtable.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        21: checkcast     #100                // class jdk/internal/misc/Signal$Handler
+        24: astore_2                
+        25: new           #125                // class jdk/internal/misc/Signal$1
+        28: dup                     
+        29: aload_2                 
+        30: aload_1                 
+        31: invokespecial #127                // Method jdk/internal/misc/Signal$1."<init>":(Ljdk/internal/misc/Signal$Handler;Ljdk/internal/misc/Signal;)V
+        34: astore_3                
+        35: aload_2                 
+        36: ifnull        72                
+        39: new           #130                // class java/lang/Thread
+        42: dup                     
+        43: aconst_null             
+        44: aload_3                 
+        45: new           #17                 // class java/lang/StringBuilder
+        48: dup                     
+        49: invokespecial #19                 // Method java/lang/StringBuilder."<init>":()V
+        52: aload_1                 
+        53: invokevirtual #78                 // Method java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+        56: ldc           #132                // String  handler
+        58: invokevirtual #25                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        61: invokevirtual #29                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        64: lconst_0                
+        65: iconst_0                
+        66: invokespecial #134                // Method java/lang/Thread."<init>":(Ljava/lang/ThreadGroup;Ljava/lang/Runnable;Ljava/lang/String;JZ)V
+        69: invokevirtual #137                // Method java/lang/Thread.start:()V
+        72: return                  
+      LineNumberTable:
+        line 209: 0
+        line 210: 14
+        line 212: 25
+        line 221: 35
+        line 222: 39
+        line 224: 72
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       73     0  number I
+          14       59     1  sig    Ljdk/internal/misc/Signal;
+          25       48     2  handler Ljdk/internal/misc/Signal$Handler;
+          35       38     3  runnable Ljava/lang/Runnable;
+      StackMapTable: number_of_entries = 1
+        frame_type = 254 /* append */
+          offset_delta = 72
+          locals = [class jdk/internal/misc/Signal, class jdk/internal/misc/Signal$Handler, class java/lang/Runnable]
+  
+  private static native int findSignal0(java.lang.String);
+    descriptor: (Ljava/lang/String;)I
+    flags: (0x010a) ACC_PRIVATE, ACC_STATIC, ACC_NATIVE
+  
+  private static native long handle0(int, long);
+    descriptor: (IJ)J
+    flags: (0x010a) ACC_PRIVATE, ACC_STATIC, ACC_NATIVE
+  
+  private static native void raise0(int);
+    descriptor: (I)V
+    flags: (0x010a) ACC_PRIVATE, ACC_STATIC, ACC_NATIVE
+  
+  static {};
+    descriptor: ()V
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=3, locals=0, args_size=0
+         0: new           #92                 // class java/util/Hashtable
+         3: dup                     
+         4: iconst_4                
+         5: invokespecial #140                // Method java/util/Hashtable."<init>":(I)V
+         8: putstatic     #97                 // Field handlers:Ljava/util/Hashtable;
+        11: new           #92                 // class java/util/Hashtable
+        14: dup                     
+        15: iconst_4                
+        16: invokespecial #140                // Method java/util/Hashtable."<init>":(I)V
+        19: putstatic     #81                 // Field signals:Ljava/util/Hashtable;
+        22: return                  
+      LineNumberTable:
+        line 74: 0
+        line 75: 11
+}
+SourceFile: "Signal.java"
+NestMembers:
+  jdk/internal/misc/Signal$NativeHandler
+  jdk/internal/misc/Signal$Handler
+  jdk/internal/misc/Signal$1
+InnerClasses:
+  static final #177= #62 of #2;               // NativeHandler=class jdk/internal/misc/Signal$NativeHandler of class jdk/internal/misc/Signal
+  public static #178= #100 of #2;             // Handler=class jdk/internal/misc/Signal$Handler of class jdk/internal/misc/Signal
+  #125;                                       // class jdk/internal/misc/Signal$1

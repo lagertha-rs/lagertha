@@ -1,0 +1,81 @@
+---
+source: class_file/src/lib.rs
+expression: display
+---
+public interface jdk.internal.misc.Signal$Handler 
+  minor version: 0
+  major version: 68
+  flags: (0x0601) ACC_PUBLIC, ACC_INTERFACE, ACC_ABSTRACT
+  this_class: #8                       //jdk/internal/misc/Signal$Handler
+  super_class: #16                     //java/lang/Object
+  interfaces: 0, fields: 2, methods: 2, attributes: 3
+Constant pool:
+   #1 = Class              #2               // jdk/internal/misc/Signal$NativeHandler
+   #2 = Utf8               jdk/internal/misc/Signal$NativeHandler
+   #3 = Methodref          #1.#4            // jdk/internal/misc/Signal$NativeHandler."<init>":(J)V
+   #4 = NameAndType        #5:#6            // "<init>":(J)V
+   #5 = Utf8               <init>
+   #6 = Utf8               (J)V
+   #7 = Fieldref           #8.#9            // jdk/internal/misc/Signal$Handler.SIG_DFL:Ljdk/internal/misc/Signal$Handler;
+   #8 = Class              #10              // jdk/internal/misc/Signal$Handler
+   #9 = NameAndType        #11:#12          // SIG_DFL:Ljdk/internal/misc/Signal$Handler;
+  #10 = Utf8               jdk/internal/misc/Signal$Handler
+  #11 = Utf8               SIG_DFL
+  #12 = Utf8               Ljdk/internal/misc/Signal$Handler;
+  #13 = Fieldref           #8.#14           // jdk/internal/misc/Signal$Handler.SIG_IGN:Ljdk/internal/misc/Signal$Handler;
+  #14 = NameAndType        #15:#12          // SIG_IGN:Ljdk/internal/misc/Signal$Handler;
+  #15 = Utf8               SIG_IGN
+  #16 = Class              #17              // java/lang/Object
+  #17 = Utf8               java/lang/Object
+  #18 = Utf8               handle
+  #19 = Utf8               (Ljdk/internal/misc/Signal;)V
+  #20 = Utf8               <clinit>
+  #21 = Utf8               ()V
+  #22 = Utf8               Code
+  #23 = Utf8               LineNumberTable
+  #24 = Utf8               SourceFile
+  #25 = Utf8               Signal.java
+  #26 = Utf8               NestHost
+  #27 = Class              #28              // jdk/internal/misc/Signal
+  #28 = Utf8               jdk/internal/misc/Signal
+  #29 = Utf8               InnerClasses
+  #30 = Utf8               NativeHandler
+  #31 = Utf8               Handler
+{
+  public static final jdk.internal.misc.Signal$Handler SIG_DFL;
+    descriptor: Ljdk/internal/misc/Signal$Handler;
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+  
+  public static final jdk.internal.misc.Signal$Handler SIG_IGN;
+    descriptor: Ljdk/internal/misc/Signal$Handler;
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+  
+  public abstract void handle(jdk.internal.misc.Signal);
+    descriptor: (Ljdk/internal/misc/Signal;)V
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+  
+  static {};
+    descriptor: ()V
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=4, locals=0, args_size=0
+         0: new           #1                  // class jdk/internal/misc/Signal$NativeHandler
+         3: dup                     
+         4: lconst_0                
+         5: invokespecial #3                  // Method jdk/internal/misc/Signal$NativeHandler."<init>":(J)V
+         8: putstatic     #7                  // Field SIG_DFL:Ljdk/internal/misc/Signal$Handler;
+        11: new           #1                  // class jdk/internal/misc/Signal$NativeHandler
+        14: dup                     
+        15: lconst_1                
+        16: invokespecial #3                  // Method jdk/internal/misc/Signal$NativeHandler."<init>":(J)V
+        19: putstatic     #13                 // Field SIG_IGN:Ljdk/internal/misc/Signal$Handler;
+        22: return                  
+      LineNumberTable:
+        line 247: 0
+        line 251: 11
+}
+SourceFile: "Signal.java"
+NestHost: class jdk/internal/misc/Signal
+InnerClasses:
+  static final #30= #1 of #27;                // NativeHandler=class jdk/internal/misc/Signal$NativeHandler of class jdk/internal/misc/Signal
+  public static #31= #8 of #27;               // Handler=class jdk/internal/misc/Signal$Handler of class jdk/internal/misc/Signal
