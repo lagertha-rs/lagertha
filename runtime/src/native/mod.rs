@@ -311,11 +311,75 @@ impl NativeRegistry {
         );
         instance.register(
             MethodKey::new(
+                "java/lang/System".to_string(),
+                "setOut0".to_string(),
+                "(Ljava/io/PrintStream;)V".to_string(),
+            ),
+            java_lang_system_set_out_0,
+        );
+        instance.register(
+            MethodKey::new(
+                "java/lang/System".to_string(),
+                "setErr0".to_string(),
+                "(Ljava/io/PrintStream;)V".to_string(),
+            ),
+            java_lang_system_set_err_0,
+        );
+        instance.register(
+            MethodKey::new(
                 "jdk/internal/misc/ScopedMemoryAccess".to_string(),
                 "registerNatives".to_string(),
                 "()V".to_string(),
             ),
             jdk_internal_misc_scoped_memory_access_register_natives,
+        );
+        instance.register(
+            MethodKey::new(
+                "jdk/internal/misc/Signal".to_string(),
+                "findSignal0".to_string(),
+                "(Ljava/lang/String;)I".to_string(),
+            ),
+            jdk_internal_misc_signal_find_signal_0,
+        );
+        instance.register(
+            MethodKey::new(
+                "jdk/internal/misc/Signal".to_string(),
+                "handle0".to_string(),
+                "(IJ)J".to_string(),
+            ),
+            jdk_internal_misc_signal_handle_0,
+        );
+        instance.register(
+            MethodKey::new(
+                "jdk/internal/misc/CDS".to_string(),
+                "getCDSConfigStatus".to_string(),
+                "()I".to_string(),
+            ),
+            jdk_internal_misc_cds_get_cds_config_status,
+        );
+        instance.register(
+            MethodKey::new(
+                "jdk/internal/misc/CDS".to_string(),
+                "initializeFromArchive".to_string(),
+                "(Ljava/lang/Class;)V".to_string(),
+            ),
+            jdk_internal_misc_cds_initialize_from_archive,
+        );
+        instance.register(
+            MethodKey::new(
+                "java/lang/Object".to_string(),
+                "notifyAll".to_string(),
+                "()V".to_string(),
+            ),
+            java_lang_object_notify_all,
+        );
+        instance.register(
+            MethodKey::new(
+                "java/io/FileOutputStream".to_string(),
+                "writeBytes".to_string(),
+                "([BIIZ)V".to_string(),
+            ),
+            java_io_file_output_stream_write_bytes,
         );
 
         instance
@@ -494,6 +558,9 @@ fn jdk_internal_util_system_props_raw_platform_properties(
     let empty_string_stub = heap.get_or_new_string("");
     let h = heap.alloc_array_with_value(string_class, 40, Value::Ref(empty_string_stub));
     let enc = heap.get_or_new_string("UTF-8");
+    let line_separator_value = heap.get_or_new_string("\n");
+    heap.write_array_element(h, 19, Value::Ref(line_separator_value))
+        .unwrap();
     heap.write_array_element(h, 27, Value::Ref(enc)).unwrap();
     heap.write_array_element(h, 28, Value::Ref(enc)).unwrap();
     heap.write_array_element(h, 34, Value::Ref(enc)).unwrap();
@@ -880,6 +947,24 @@ fn java_lang_system_set_in_0(_vm: &mut VirtualMachine, _args: &[Value]) -> Nativ
     None
 }
 
+fn java_lang_system_set_out_0(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
+    debug!("TODO: Stub: java.lang.System.setIn0");
+    let val = match &args[0] {
+        Value::Ref(h) => *h,
+        _ => panic!("java.lang.System.setOut0: expected PrintStream object"),
+    };
+    let system_class = vm.method_area().get_class("java/lang/System").unwrap();
+    system_class
+        .set_static_field("out", "Ljava/io/PrintStream;", Value::Ref(val))
+        .unwrap();
+    None
+}
+
+fn java_lang_system_set_err_0(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
+    debug!("TODO: Stub: java.lang.System.setIn0");
+    None
+}
+
 fn vm_internal_clone(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: internal clone");
     let obj = match &args[0] {
@@ -896,5 +981,97 @@ fn jdk_internal_misc_scoped_memory_access_register_natives(
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.ScopedMemoryAccess.registerNatives");
+    None
+}
+
+fn jdk_internal_misc_signal_find_signal_0(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
+    debug!("TODO: Stub: jdk.internal.misc.Signal.findSignal0");
+    let signal_name = match &args[0] {
+        Value::Ref(h) => {
+            let heap = vm.heap.borrow();
+            let s = heap.get_string(*h).unwrap();
+            s.to_string()
+        }
+        _ => panic!("jdk.internal.misc.Signal.findSignal0: expected signal name string"),
+    };
+    let signal_number = match signal_name.as_str() {
+        "HUP" => 1,
+        "INT" => 2,
+        "QUIT" => 3,
+        "ILL" => 4,
+        "ABRT" => 6,
+        "FPE" => 8,
+        "KILL" => 9,
+        "SEGV" => 11,
+        "PIPE" => 13,
+        "ALRM" => 14,
+        "TERM" => 15,
+        "USR1" => 10,
+        "USR2" => 12,
+        "CHLD" => 17,
+        "CONT" => 18,
+        "STOP" => 19,
+        "TSTP" => 20,
+        "TTIN" => 21,
+        "TTOU" => 22,
+        _ => -1,
+    };
+    Some(Value::Integer(signal_number))
+}
+
+fn jdk_internal_misc_signal_handle_0(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
+    debug!("TODO: Stub: jdk.internal.misc.Signal.handle0");
+    Some(Value::Long(1))
+}
+
+fn jdk_internal_misc_cds_get_cds_config_status(
+    _vm: &mut VirtualMachine,
+    _args: &[Value],
+) -> NativeRet {
+    debug!("TODO: Stub: jdk.internal.misc.CDS.getCDSConfigStatus");
+    Some(Value::Integer(0))
+}
+
+fn jdk_internal_misc_cds_initialize_from_archive(
+    _vm: &mut VirtualMachine,
+    _args: &[Value],
+) -> NativeRet {
+    debug!("TODO: Stub: jdk.internal.misc.CDS.initializeFromArchive");
+    None
+}
+
+fn java_lang_object_notify_all(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
+    debug!("TODO: Stub: java.lang.Object.notifyAll");
+    None
+}
+
+fn java_io_file_output_stream_write_bytes(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
+    debug!("TODO: Partial implementation: java.io.FileOutputStream.writeBytes");
+    let fd_obj = match &args[0] {
+        Value::Ref(h) => *h,
+        _ => panic!("java.io.FileOutputStream.writeBytes: expected FileDescriptor object"),
+    };
+    let bytes_array = match &args[1] {
+        Value::Ref(h) => *h,
+        _ => panic!("java.io.FileOutputStream.writeBytes: expected byte array"),
+    };
+    let offset = match args[2] {
+        Value::Integer(i) if i >= 0 => i as usize,
+        _ => panic!("java.io.FileOutputStream.writeBytes: expected non-negative offset"),
+    };
+    let length = match args[3] {
+        Value::Integer(i) if i >= 0 => i as usize,
+        _ => panic!("java.io.FileOutputStream.writeBytes: expected non-negative length"),
+    };
+
+    let heap = vm.heap.borrow();
+    let array = heap.get_array(&bytes_array);
+    for i in offset..offset + length {
+        let byte = match array.get_element(i) {
+            Value::Integer(b) => b,
+            _ => panic!("java.io.FileOutputStream.writeBytes: expected byte element"),
+        };
+        print!("{}", *byte as u8 as char);
+    }
     None
 }

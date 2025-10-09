@@ -10,6 +10,7 @@ use crate::rt::method::{Method, MethodType};
 use crate::stack::Frame;
 use common::instruction::Instruction;
 use common::jtype::Value;
+use log::warn;
 use std::cell::RefCell;
 use std::cmp::Ordering;
 use std::rc::Rc;
@@ -178,6 +179,22 @@ impl Interpreter {
             Instruction::Lstore(n) => {
                 let value = self.vm.frame_stack.pop_long()?;
                 self.vm.frame_stack.set_local(n as usize, value)?;
+            }
+            Instruction::Lstore0 => {
+                let value = self.vm.frame_stack.pop_long()?;
+                self.vm.frame_stack.set_local(0, value)?;
+            }
+            Instruction::Lstore1 => {
+                let value = self.vm.frame_stack.pop_long()?;
+                self.vm.frame_stack.set_local(1, value)?;
+            }
+            Instruction::Lstore2 => {
+                let value = self.vm.frame_stack.pop_long()?;
+                self.vm.frame_stack.set_local(2, value)?;
+            }
+            Instruction::Lstore3 => {
+                let value = self.vm.frame_stack.pop_long()?;
+                self.vm.frame_stack.set_local(3, value)?;
             }
             Instruction::Fstore(n) => {
                 let value = self.vm.frame_stack.pop_float()?;
@@ -527,7 +544,7 @@ impl Interpreter {
                 let class = self.method_area().get_class(field_ref.class()?.name()?)?;
                 self.ensure_initialized(Some(&class))?;
                 let field_nat = field_ref.name_and_type()?;
-                class.set_static_field(field_nat, self.vm.frame_stack.pop_operand()?)?;
+                class.set_static_field_by_nat(field_nat, self.vm.frame_stack.pop_operand()?)?;
             }
             Instruction::Getstatic(idx) => {
                 let cp = self.vm.frame_stack.cp()?;
@@ -553,7 +570,15 @@ impl Interpreter {
                 let class = self.method_area().get_class(method_ref.class()?.name()?)?;
                 let method = class.get_virtual_method_by_nat(method_ref)?;
                 let params = self.prepare_method_params(method)?;
-                self.run_instance_method_type(method, method_ref, params)?;
+                if method.name() == "startThreads"
+                    && class.name() == "jdk/internal/access/JavaLangRefAccess"
+                {
+                    warn!(
+                        "TODO: Stub: Ignoring call to jdk/internal/access/JavaLangRefAccess.startThreads"
+                    );
+                } else {
+                    self.run_instance_method_type(method, method_ref, params)?;
+                }
             }
             Instruction::AconstNull => {
                 self.vm.frame_stack.push_operand(Value::Null)?;
@@ -891,6 +916,16 @@ impl Interpreter {
                 }
                 self.vm.frame_stack.push_operand(Value::Float(v1 / v2))?;
             }
+            Instruction::Irem => {
+                let v2 = self.vm.frame_stack.pop_int_val()?;
+                let v1 = self.vm.frame_stack.pop_int_val()?;
+                if v2 == 0 {
+                    Err(JvmError::ArithmeticException(
+                        "Division by zero".to_string(),
+                    ))?
+                }
+                self.vm.frame_stack.push_operand(Value::Integer(v1 % v2))?;
+            }
             Instruction::Iadd => {
                 let v2 = self.vm.frame_stack.pop_int_val()?;
                 let v1 = self.vm.frame_stack.pop_int_val()?;
@@ -983,6 +1018,12 @@ impl Interpreter {
             }
             Instruction::Lreturn => {
                 let value = self.vm.frame_stack.pop_long()?;
+                self.pop_frame()?;
+                self.vm.frame_stack.push_operand(value)?;
+                return Ok(true);
+            }
+            Instruction::Freturn => {
+                let value = self.vm.frame_stack.pop_float()?;
                 self.pop_frame()?;
                 self.vm.frame_stack.push_operand(value)?;
                 return Ok(true);

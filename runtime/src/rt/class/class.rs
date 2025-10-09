@@ -265,8 +265,28 @@ impl Class {
         self.initializer.as_ref()
     }
 
-    /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-5.html#jvms-5.4.3.2
     pub fn set_static_field(
+        &self,
+        name: &str,
+        descriptor: &str,
+        value: Value,
+    ) -> Result<(), JvmError> {
+        self.static_fields
+            .get(name)
+            .and_then(|m| m.get(descriptor))
+            .map(|f| f.set_value(value))
+            .ok_or(JvmError::FieldNotFound(name.to_string()))??;
+        /* TODO:
+        NoSuchFieldError,
+        IncompatibleClassChangeError,
+        IllegalAccessError
+        etc...
+         */
+        Ok(())
+    }
+
+    /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-5.html#jvms-5.4.3.2
+    pub fn set_static_field_by_nat(
         &self,
         nat: &NameAndTypeReference,
         value: Value,
@@ -274,18 +294,8 @@ impl Class {
         let name = nat.name()?;
         let descriptor = nat.field_descriptor()?.raw();
 
-        self.static_fields
-            .get(name)
-            .and_then(|m| m.get(descriptor))
-            .map(|f| f.set_value(value))
-            .ok_or(JvmError::FieldNotFound(name.to_string()))??;
+        self.set_static_field(name, descriptor, value)?;
 
-        /* TODO:
-        NoSuchFieldError,
-        IncompatibleClassChangeError,
-        IllegalAccessError
-        etc...
-         */
         Ok(())
     }
 
