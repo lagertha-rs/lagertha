@@ -184,7 +184,7 @@ mod tests {
     #[trace]
     // Requires `testdata/compile-fixtures.sh` to be run to generate the .class files
     fn test_display(
-        #[base_dir = "../target/test-classes/custom"]
+        #[base_dir = "../target/test-classes/runtime"]
         #[files("**/*Main.class")]
         path: PathBuf,
     ) {

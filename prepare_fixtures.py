@@ -6,15 +6,18 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 DEFAULT_EXPECTED = "javac 24.0.2"
 DEFAULT_OUT_DIR = "target/test-classes"
-DEFAULT_CONFIG = "testdata/fixtures.toml"
-SRC_ROOT = Path("testdata/java")
+DEFAULT_CONFIG = "class_file/fixtures.toml"
 
-SUBDIR_USER = "custom"
+RUNTIME_SRC_ROOT = Path("runtime/testdata")
+VM_SRC_ROOT = Path("vm/testdata")
+
 SUBDIR_JDK = "jdk"
+SUBDIR_RUNTIME = "runtime"
+SUBDIR_VM = "vm"
 
 
 def eprint(*a, **k):
@@ -37,6 +40,7 @@ def check_javac_version(expected: str):
 
 
 def find_java_sources(root: Path) -> List[Path]:
+    """Find all .java files under a root, excluding anything under a path containing 'java.base'."""
     if not root.exists():
         return []
     files: List[Path] = []
@@ -48,19 +52,19 @@ def find_java_sources(root: Path) -> List[Path]:
     return sorted(files)
 
 
-def compile_sources(sources: List[Path], out_dir: Path):
+def compile_sources(sources: List[Path], out_dir: Path, label: str):
     out_dir.mkdir(parents=True, exist_ok=True)
     if not sources:
-        print("No .java sources to compile under testdata/java (excluding java.base).")
+        print(f"[{label}] No .java sources found (excluding java.base).")
         return
     for s in sources:
-        eprint(f"Compiling {s}")
+        eprint(f"[{label}] Compiling {s}")
     with tempfile.TemporaryDirectory(prefix="javac_args_") as td:
         argfile = Path(td) / "sources.txt"
         argfile.write_text("".join(f"\"{str(s)}\"\n" for s in sources), encoding="utf-8")
         cmd = ["javac", "-g", "-d", str(out_dir), f"@{argfile}"]
         subprocess.run(cmd, check=True)
-    print(f"Compiled {len(sources)} file(s) to {out_dir}")
+    print(f"[{label}] Compiled {len(sources)} file(s) to {out_dir}")
 
 
 def load_toml(config_path: Path) -> Dict:
@@ -80,7 +84,7 @@ def fqn_to_rel(class_fqn: str) -> Path:
     return Path(*class_fqn.split(".")).with_suffix(".class")
 
 
-def extract_fixtures(config_path: Path, out_dir: Path, java_home: str | None):
+def extract_fixtures(config_path: Path, out_dir: Path, java_home: Optional[str]):
     if not config_path.exists():
         print(f"No {config_path} found; skipping JDK extraction.")
         return
@@ -140,7 +144,9 @@ def extract_fixtures(config_path: Path, out_dir: Path, java_home: str | None):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Prepare Java fixtures: compile sources and extract JDK classes.")
+    ap = argparse.ArgumentParser(
+        description="Prepare Java fixtures: compile sources from runtime/vm testdata and extract JDK classes."
+    )
     ap.add_argument("--expected-javac", default=DEFAULT_EXPECTED, help="Exact `javac --version` to require")
     ap.add_argument("--out-dir", default=DEFAULT_OUT_DIR, help="Root output directory for class files")
     ap.add_argument("--config", default=DEFAULT_CONFIG, help="TOML config with modules/classes to extract")
@@ -150,17 +156,25 @@ def main():
     check_javac_version(args.expected_javac)
 
     out_root = Path(args.out_dir)
-    out_custom = out_root / SUBDIR_USER
     out_jdk = out_root / SUBDIR_JDK
+    out_runtime = out_root / SUBDIR_RUNTIME
+    out_vm = out_root / SUBDIR_VM
 
-    sources = find_java_sources(SRC_ROOT)
-    compile_sources(sources, out_custom)
+    # Compile runtime sources
+    runtime_sources = find_java_sources(RUNTIME_SRC_ROOT)
+    compile_sources(runtime_sources, out_runtime, label="runtime")
 
+    # Compile vm sources
+    vm_sources = find_java_sources(VM_SRC_ROOT)
+    compile_sources(vm_sources, out_vm, label="vm")
+
+    # Extract JDK fixtures
     extract_fixtures(Path(args.config), out_jdk, args.java_home)
 
     print(f"Fixtures ready in: {out_root}")
-    print(f"  user classes: {out_custom}")
-    print(f"  jdk  classes: {out_jdk}")
+    print(f"  runtime classes: {out_runtime}")
+    print(f"  vm      classes: {out_vm}")
+    print(f"  jdk     classes: {out_jdk}")
 
 
 if __name__ == "__main__":
