@@ -2,11 +2,11 @@
 source: class_file/src/lib.rs
 expression: display
 ---
-public class hello_world.HelloWorldMain 
+public class hello_world.HelloWorldOkMain 
   minor version: 0
   major version: 68
   flags: (0x0021) ACC_PUBLIC, ACC_SUPER
-  this_class: #21                      //hello_world/HelloWorldMain
+  this_class: #21                      //hello_world/HelloWorldOkMain
   super_class: #2                      //java/lang/Object
   interfaces: 0, fields: 0, methods: 2, attributes: 1
 Constant pool:
@@ -30,21 +30,21 @@ Constant pool:
   #18 = Utf8               java/io/PrintStream
   #19 = Utf8               println
   #20 = Utf8               (Ljava/lang/String;)V
-  #21 = Class              #22              // hello_world/HelloWorldMain
-  #22 = Utf8               hello_world/HelloWorldMain
+  #21 = Class              #22              // hello_world/HelloWorldOkMain
+  #22 = Utf8               hello_world/HelloWorldOkMain
   #23 = Utf8               Code
   #24 = Utf8               LineNumberTable
   #25 = Utf8               LocalVariableTable
   #26 = Utf8               this
-  #27 = Utf8               Lhello_world/HelloWorldMain;
+  #27 = Utf8               Lhello_world/HelloWorldOkMain;
   #28 = Utf8               main
   #29 = Utf8               ([Ljava/lang/String;)V
   #30 = Utf8               args
   #31 = Utf8               [Ljava/lang/String;
   #32 = Utf8               SourceFile
-  #33 = Utf8               HelloWorldMain.java
+  #33 = Utf8               HelloWorldOkMain.java
 {
-  public hello_world.HelloWorldMain();
+  public hello_world.HelloWorldOkMain();
     descriptor: ()V
     flags: (0x0001) ACC_PUBLIC
     Code: 
@@ -56,7 +56,7 @@ Constant pool:
         line 3: 0
       LocalVariableTable:
        Start   Length  Slot  Name   Signature
-           0        5     0  this   Lhello_world/HelloWorldMain;
+           0        5     0  this   Lhello_world/HelloWorldOkMain;
   
   public static void main(java.lang.String[]);
     descriptor: ([Ljava/lang/String;)V
@@ -74,4 +74,4 @@ Constant pool:
        Start   Length  Slot  Name   Signature
            0        9     0  args   [Ljava/lang/String;
 }
-SourceFile: "HelloWorldMain.java"
+SourceFile: "HelloWorldOkMain.java"

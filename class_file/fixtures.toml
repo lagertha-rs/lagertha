@@ -132,6 +132,7 @@ classes = [
     "jdk.internal.util.Preconditions$2",
     "jdk.internal.util.Preconditions$3",
     "jdk.internal.util.Preconditions$4",
+    "jdk.internal.util.DecimalDigits",
     "jdk.internal.misc.Unsafe",
     "jdk.internal.misc.UnsafeConstants",
     "jdk.internal.misc.VM",

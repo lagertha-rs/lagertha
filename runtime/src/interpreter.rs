@@ -750,6 +750,32 @@ impl Interpreter {
                     Value::Integer(value & 0xFF),
                 )?;
             }
+            Instruction::Sastore => {
+                let value = self.vm.frame_stack.pop_int_val()?;
+                let index = self.vm.frame_stack.pop_int_val()?;
+                let array_addr = self.vm.frame_stack.pop_obj_val()?;
+                self.heap.borrow_mut().write_array_element(
+                    array_addr,
+                    index as usize,
+                    Value::Integer(value & 0xFFFF),
+                )?;
+            }
+            Instruction::Saload => {
+                let index = self.vm.frame_stack.pop_int_val()?;
+                let array_addr = self.vm.frame_stack.pop_obj_val()?;
+                let value = *self
+                    .heap
+                    .borrow()
+                    .get_array(&array_addr)
+                    .get_element(index as usize);
+                if let Value::Integer(i) = value {
+                    self.vm
+                        .frame_stack
+                        .push_operand(Value::Integer(i & 0xFFFF))?;
+                } else {
+                    panic!("Expected integer value in saload");
+                }
+            }
             Instruction::Castore => {
                 let value = self.vm.frame_stack.pop_int_val()?;
                 let index = self.vm.frame_stack.pop_int_val()?;
@@ -881,6 +907,16 @@ impl Interpreter {
                 let v = self.vm.frame_stack.pop_float_val()?;
                 self.vm.frame_stack.push_operand(Value::Double(v as f64))?;
             }
+            Instruction::Ineg => {
+                let v = self.vm.frame_stack.pop_int_val()?;
+                self.vm.frame_stack.push_operand(Value::Integer(-v))?;
+            }
+            Instruction::I2s => {
+                let v = self.vm.frame_stack.pop_int_val()?;
+                self.vm
+                    .frame_stack
+                    .push_operand(Value::Integer((v as i16) as i32))?;
+            }
             Instruction::I2c => {
                 let v = self.vm.frame_stack.pop_int_val()?;
                 self.vm
@@ -929,7 +965,9 @@ impl Interpreter {
             Instruction::Iadd => {
                 let v2 = self.vm.frame_stack.pop_int_val()?;
                 let v1 = self.vm.frame_stack.pop_int_val()?;
-                self.vm.frame_stack.push_operand(Value::Integer(v1 + v2))?;
+                self.vm
+                    .frame_stack
+                    .push_operand(Value::Integer(v1.wrapping_add(v2)))?;
             }
             Instruction::Ladd => {
                 let v2 = self.vm.frame_stack.pop_long_val()?;

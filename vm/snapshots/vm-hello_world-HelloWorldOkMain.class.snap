@@ -1,0 +1,5 @@
+---
+source: vm/src/main.rs
+expression: "&out_str"
+---
+Hello World!
