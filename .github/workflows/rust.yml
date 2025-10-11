@@ -49,11 +49,11 @@ jobs:
           path: target/test-classes
           key: >
             ${{ runner.os }}-jdk-${{ matrix.jdk }}-${{ matrix.jdk_distribution }}-fixtures-
-            ${{ hashFiles('testdata/java/**/*.java', 'testdata/prepare_fixtures.py', 'testdata/fixtures.toml')}}
+            ${{ hashFiles('vm/testdata/**/*.java', 'runtime/testdata/**/*.java', 'prepare_fixtures.py', 'class_file/fixtures.toml')}}
 
       - name: Prepare fixtures (compile + extract)
         if: steps.cache-fixtures.outputs.cache-hit != 'true'
-        run: python3 testdata/prepare_fixtures.py
+        run: python3 prepare_fixtures.py
 
       - name: Install cargo-hack
         run: cargo install --locked cargo-hack
