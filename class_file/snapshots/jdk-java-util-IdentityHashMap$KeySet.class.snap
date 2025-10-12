@@ -1,0 +1,597 @@
+---
+source: class_file/src/lib.rs
+expression: display
+---
+class java.util.IdentityHashMap$KeySet extends java.util.AbstractSet<K>
+  minor version: 0
+  major version: 68
+  flags: (0x0020) ACC_SUPER
+  this_class: #2                       //java/util/IdentityHashMap$KeySet
+  super_class: #8                      //java/util/AbstractSet
+  interfaces: 0, fields: 1, methods: 11, attributes: 4
+Constant pool:
+    #1 = Fieldref           #2.#3            // java/util/IdentityHashMap$KeySet.this$0:Ljava/util/IdentityHashMap;
+    #2 = Class              #4               // java/util/IdentityHashMap$KeySet
+    #3 = NameAndType        #5:#6            // this$0:Ljava/util/IdentityHashMap;
+    #4 = Utf8               java/util/IdentityHashMap$KeySet
+    #5 = Utf8               this$0
+    #6 = Utf8               Ljava/util/IdentityHashMap;
+    #7 = Methodref          #8.#9            // java/util/AbstractSet."<init>":()V
+    #8 = Class              #10              // java/util/AbstractSet
+    #9 = NameAndType        #11:#12          // "<init>":()V
+   #10 = Utf8               java/util/AbstractSet
+   #11 = Utf8               <init>
+   #12 = Utf8               ()V
+   #13 = Class              #14              // java/util/IdentityHashMap$KeyIterator
+   #14 = Utf8               java/util/IdentityHashMap$KeyIterator
+   #15 = Methodref          #13.#16          // java/util/IdentityHashMap$KeyIterator."<init>":(Ljava/util/IdentityHashMap;)V
+   #16 = NameAndType        #11:#17          // "<init>":(Ljava/util/IdentityHashMap;)V
+   #17 = Utf8               (Ljava/util/IdentityHashMap;)V
+   #18 = Fieldref           #19.#20          // java/util/IdentityHashMap.size:I
+   #19 = Class              #21              // java/util/IdentityHashMap
+   #20 = NameAndType        #22:#23          // size:I
+   #21 = Utf8               java/util/IdentityHashMap
+   #22 = Utf8               size
+   #23 = Utf8               I
+   #24 = Methodref          #19.#25          // java/util/IdentityHashMap.containsKey:(Ljava/lang/Object;)Z
+   #25 = NameAndType        #26:#27          // containsKey:(Ljava/lang/Object;)Z
+   #26 = Utf8               containsKey
+   #27 = Utf8               (Ljava/lang/Object;)Z
+   #28 = Methodref          #19.#29          // java/util/IdentityHashMap.remove:(Ljava/lang/Object;)Ljava/lang/Object;
+   #29 = NameAndType        #30:#31          // remove:(Ljava/lang/Object;)Ljava/lang/Object;
+   #30 = Utf8               remove
+   #31 = Utf8               (Ljava/lang/Object;)Ljava/lang/Object;
+   #32 = Methodref          #33.#34          // java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+   #33 = Class              #35              // java/util/Objects
+   #34 = NameAndType        #36:#31          // requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+   #35 = Utf8               java/util/Objects
+   #36 = Utf8               requireNonNull
+   #37 = Methodref          #2.#38           // java/util/IdentityHashMap$KeySet.iterator:()Ljava/util/Iterator;
+   #38 = NameAndType        #39:#40          // iterator:()Ljava/util/Iterator;
+   #39 = Utf8               iterator
+   #40 = Utf8               ()Ljava/util/Iterator;
+   #41 = InterfaceMethodref #42.#43          // java/util/Iterator.hasNext:()Z
+   #42 = Class              #44              // java/util/Iterator
+   #43 = NameAndType        #45:#46          // hasNext:()Z
+   #44 = Utf8               java/util/Iterator
+   #45 = Utf8               hasNext
+   #46 = Utf8               ()Z
+   #47 = InterfaceMethodref #42.#48          // java/util/Iterator.next:()Ljava/lang/Object;
+   #48 = NameAndType        #49:#50          // next:()Ljava/lang/Object;
+   #49 = Utf8               next
+   #50 = Utf8               ()Ljava/lang/Object;
+   #51 = InterfaceMethodref #52.#53          // java/util/Collection.contains:(Ljava/lang/Object;)Z
+   #52 = Class              #54              // java/util/Collection
+   #53 = NameAndType        #55:#27          // contains:(Ljava/lang/Object;)Z
+   #54 = Utf8               java/util/Collection
+   #55 = Utf8               contains
+   #56 = InterfaceMethodref #42.#57          // java/util/Iterator.remove:()V
+   #57 = NameAndType        #30:#12          // remove:()V
+   #58 = Methodref          #19.#59          // java/util/IdentityHashMap.clear:()V
+   #59 = NameAndType        #60:#12          // clear:()V
+   #60 = Utf8               clear
+   #61 = Methodref          #62.#63          // java/lang/System.identityHashCode:(Ljava/lang/Object;)I
+   #62 = Class              #64              // java/lang/System
+   #63 = NameAndType        #65:#66          // identityHashCode:(Ljava/lang/Object;)I
+   #64 = Utf8               java/lang/System
+   #65 = Utf8               identityHashCode
+   #66 = Utf8               (Ljava/lang/Object;)I
+   #67 = Class              #68              // java/lang/Object
+   #68 = Utf8               java/lang/Object
+   #69 = Methodref          #2.#70           // java/util/IdentityHashMap$KeySet.toArray:([Ljava/lang/Object;)[Ljava/lang/Object;
+   #70 = NameAndType        #71:#72          // toArray:([Ljava/lang/Object;)[Ljava/lang/Object;
+   #71 = Utf8               toArray
+   #72 = Utf8               ([Ljava/lang/Object;)[Ljava/lang/Object;
+   #73 = Fieldref           #19.#74          // java/util/IdentityHashMap.modCount:I
+   #74 = NameAndType        #75:#23          // modCount:I
+   #75 = Utf8               modCount
+   #76 = Methodref          #2.#77           // java/util/IdentityHashMap$KeySet.size:()I
+   #77 = NameAndType        #22:#78          // size:()I
+   #78 = Utf8               ()I
+   #79 = Methodref          #67.#80          // java/lang/Object.getClass:()Ljava/lang/Class;
+   #80 = NameAndType        #81:#82          // getClass:()Ljava/lang/Class;
+   #81 = Utf8               getClass
+   #82 = Utf8               ()Ljava/lang/Class;
+   #83 = Methodref          #84.#85          // java/lang/Class.getComponentType:()Ljava/lang/Class;
+   #84 = Class              #86              // java/lang/Class
+   #85 = NameAndType        #87:#82          // getComponentType:()Ljava/lang/Class;
+   #86 = Utf8               java/lang/Class
+   #87 = Utf8               getComponentType
+   #88 = Methodref          #89.#90          // java/lang/reflect/Array.newInstance:(Ljava/lang/Class;I)Ljava/lang/Object;
+   #89 = Class              #91              // java/lang/reflect/Array
+   #90 = NameAndType        #92:#93          // newInstance:(Ljava/lang/Class;I)Ljava/lang/Object;
+   #91 = Utf8               java/lang/reflect/Array
+   #92 = Utf8               newInstance
+   #93 = Utf8               (Ljava/lang/Class;I)Ljava/lang/Object;
+   #94 = Class              #95              // "[Ljava/lang/Object;"
+   #95 = Utf8               [Ljava/lang/Object;
+   #96 = Fieldref           #19.#97          // java/util/IdentityHashMap.table:[Ljava/lang/Object;
+   #97 = NameAndType        #98:#95          // table:[Ljava/lang/Object;
+   #98 = Utf8               table
+   #99 = Class              #100             // java/util/ConcurrentModificationException
+  #100 = Utf8               java/util/ConcurrentModificationException
+  #101 = Methodref          #99.#9           // java/util/ConcurrentModificationException."<init>":()V
+  #102 = Methodref          #19.#103         // java/util/IdentityHashMap.unmaskNull:(Ljava/lang/Object;)Ljava/lang/Object;
+  #103 = NameAndType        #104:#31         // unmaskNull:(Ljava/lang/Object;)Ljava/lang/Object;
+  #104 = Utf8               unmaskNull
+  #105 = Class              #106             // java/util/IdentityHashMap$KeySpliterator
+  #106 = Utf8               java/util/IdentityHashMap$KeySpliterator
+  #107 = Methodref          #105.#108        // java/util/IdentityHashMap$KeySpliterator."<init>":(Ljava/util/IdentityHashMap;IIII)V
+  #108 = NameAndType        #11:#109         // "<init>":(Ljava/util/IdentityHashMap;IIII)V
+  #109 = Utf8               (Ljava/util/IdentityHashMap;IIII)V
+  #110 = Utf8               Code
+  #111 = Utf8               LineNumberTable
+  #112 = Utf8               LocalVariableTable
+  #113 = Utf8               this
+  #114 = Utf8               Ljava/util/IdentityHashMap$KeySet;
+  #115 = Utf8               LocalVariableTypeTable
+  #116 = Utf8               Ljava/util/IdentityHashMap<TK;TV;>.KeySet;
+  #117 = Utf8               MethodParameters
+  #118 = Utf8               Signature
+  #119 = Utf8               ()Ljava/util/Iterator<TK;>;
+  #120 = Utf8               o
+  #121 = Utf8               Ljava/lang/Object;
+  #122 = Utf8               oldSize
+  #123 = Utf8               StackMapTable
+  #124 = Utf8               removeAll
+  #125 = Utf8               (Ljava/util/Collection;)Z
+  #126 = Utf8               i
+  #127 = Utf8               Ljava/util/Iterator;
+  #128 = Utf8               c
+  #129 = Utf8               Ljava/util/Collection;
+  #130 = Utf8               modified
+  #131 = Utf8               Z
+  #132 = Utf8               Ljava/util/Iterator<TK;>;
+  #133 = Utf8               Ljava/util/Collection<*>;
+  #134 = Utf8               (Ljava/util/Collection<*>;)Z
+  #135 = Utf8               hashCode
+  #136 = Utf8               key
+  #137 = Utf8               result
+  #138 = Utf8               TK;
+  #139 = Utf8               ()[Ljava/lang/Object;
+  #140 = Utf8               si
+  #141 = Utf8               a
+  #142 = Utf8               expectedModCount
+  #143 = Utf8               tab
+  #144 = Utf8               ti
+  #145 = Utf8               [TT;
+  #146 = Utf8               <T:Ljava/lang/Object;>([TT;)[TT;
+  #147 = Utf8               spliterator
+  #148 = Utf8               ()Ljava/util/Spliterator;
+  #149 = Utf8               ()Ljava/util/Spliterator<TK;>;
+  #150 = Utf8               Ljava/util/AbstractSet<TK;>;
+  #151 = Utf8               SourceFile
+  #152 = Utf8               IdentityHashMap.java
+  #153 = Utf8               NestHost
+  #154 = Utf8               InnerClasses
+  #155 = Utf8               KeySet
+  #156 = Utf8               KeyIterator
+  #157 = Utf8               KeySpliterator
+{
+  final java.util.IdentityHashMap this$0;
+    descriptor: Ljava/util/IdentityHashMap;
+    flags: (0x1010) ACC_FINAL, ACC_SYNTHETIC
+  
+  private java.util.IdentityHashMap$KeySet(java.util.IdentityHashMap);
+    descriptor: (Ljava/util/IdentityHashMap;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: aload_1                 
+         2: putfield      #1                  // Field this$0:Ljava/util/IdentityHashMap;
+         5: aload_0                 
+         6: invokespecial #7                  // Method java/util/AbstractSet."<init>":()V
+         9: return                  
+      LineNumberTable:
+        line 995: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/util/IdentityHashMap$KeySet;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       10     0  this   Ljava/util/IdentityHashMap<TK;TV;>.KeySet;
+    MethodParameters:
+      Name                             Flags
+      <no name>                        final synthetic 
+  
+  public java.util.Iterator<K> iterator();
+    descriptor: ()Ljava/util/Iterator;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=1, args_size=1
+         0: new           #13                 // class java/util/IdentityHashMap$KeyIterator
+         3: dup                     
+         4: aload_0                 
+         5: getfield      #1                  // Field this$0:Ljava/util/IdentityHashMap;
+         8: invokespecial #15                 // Method java/util/IdentityHashMap$KeyIterator."<init>":(Ljava/util/IdentityHashMap;)V
+        11: areturn                 
+      LineNumberTable:
+        line 997: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       12     0  this   Ljava/util/IdentityHashMap$KeySet;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       12     0  this   Ljava/util/IdentityHashMap<TK;TV;>.KeySet;
+    Signature: #119                        // ()Ljava/util/Iterator<TK;>;
+  
+  public int size();
+    descriptor: ()I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #1                  // Field this$0:Ljava/util/IdentityHashMap;
+         4: getfield      #18                 // Field java/util/IdentityHashMap.size:I
+         7: ireturn                 
+      LineNumberTable:
+        line 1000: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/util/IdentityHashMap$KeySet;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        8     0  this   Ljava/util/IdentityHashMap<TK;TV;>.KeySet;
+  
+  public boolean contains(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #1                  // Field this$0:Ljava/util/IdentityHashMap;
+         4: aload_1                 
+         5: invokevirtual #24                 // Method java/util/IdentityHashMap.containsKey:(Ljava/lang/Object;)Z
+         8: ireturn                 
+      LineNumberTable:
+        line 1003: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  this   Ljava/util/IdentityHashMap$KeySet;
+           0        9     1  o      Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        9     0  this   Ljava/util/IdentityHashMap<TK;TV;>.KeySet;
+  
+  public boolean remove(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=3, args_size=2
+         0: aload_0                 
+         1: getfield      #1                  // Field this$0:Ljava/util/IdentityHashMap;
+         4: getfield      #18                 // Field java/util/IdentityHashMap.size:I
+         7: istore_2                
+         8: aload_0                 
+         9: getfield      #1                  // Field this$0:Ljava/util/IdentityHashMap;
+        12: aload_1                 
+        13: invokevirtual #28                 // Method java/util/IdentityHashMap.remove:(Ljava/lang/Object;)Ljava/lang/Object;
+        16: pop                     
+        17: aload_0                 
+        18: getfield      #1                  // Field this$0:Ljava/util/IdentityHashMap;
+        21: getfield      #18                 // Field java/util/IdentityHashMap.size:I
+        24: iload_2                 
+        25: if_icmpeq     32                
+        28: iconst_1                
+        29: goto          33                
+        32: iconst_0                
+        33: ireturn                 
+      LineNumberTable:
+        line 1006: 0
+        line 1007: 8
+        line 1008: 17
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       34     0  this   Ljava/util/IdentityHashMap$KeySet;
+           0       34     1  o      Ljava/lang/Object;
+           8       26     2  oldSize I
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       34     0  this   Ljava/util/IdentityHashMap<TK;TV;>.KeySet;
+      StackMapTable: number_of_entries = 2
+        frame_type = 252 /* append */
+          offset_delta = 32
+          locals = [int]
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  public boolean removeAll(java.util.Collection<?>);
+    descriptor: (Ljava/util/Collection;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=4, args_size=2
+         0: aload_1                 
+         1: invokestatic  #32                 // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+         4: pop                     
+         5: iconst_0                
+         6: istore_2                
+         7: aload_0                 
+         8: invokevirtual #37                 // Method iterator:()Ljava/util/Iterator;
+        11: astore_3                
+        12: aload_3                 
+        13: invokeinterface #41, 1              // InterfaceMethod java/util/Iterator.hasNext:()Z
+        18: ifeq          47                
+        21: aload_1                 
+        22: aload_3                 
+        23: invokeinterface #47, 1              // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        28: invokeinterface #51, 2              // InterfaceMethod java/util/Collection.contains:(Ljava/lang/Object;)Z
+        33: ifeq          12                
+        36: aload_3                 
+        37: invokeinterface #56, 1              // InterfaceMethod java/util/Iterator.remove:()V
+        42: iconst_1                
+        43: istore_2                
+        44: goto          12                
+        47: iload_2                 
+        48: ireturn                 
+      LineNumberTable:
+        line 1016: 0
+        line 1017: 5
+        line 1018: 7
+        line 1019: 21
+        line 1020: 36
+        line 1021: 42
+        line 1024: 47
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          12       35     3  i      Ljava/util/Iterator;
+           0       49     0  this   Ljava/util/IdentityHashMap$KeySet;
+           0       49     1  c      Ljava/util/Collection;
+           7       42     2  modified Z
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            12       35     3  i      Ljava/util/Iterator<TK;>;
+             0       49     0  this   Ljava/util/IdentityHashMap<TK;TV;>.KeySet;
+             0       49     1  c      Ljava/util/Collection<*>;
+      StackMapTable: number_of_entries = 2
+        frame_type = 253 /* append */
+          offset_delta = 12
+          locals = [int, class java/util/Iterator]
+        frame_type = 250 /* chop */
+          offset_delta = 34
+    Signature: #134                        // (Ljava/util/Collection<*>;)Z
+  
+  public void clear();
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #1                  // Field this$0:Ljava/util/IdentityHashMap;
+         4: invokevirtual #58                 // Method java/util/IdentityHashMap.clear:()V
+         7: return                  
+      LineNumberTable:
+        line 1027: 0
+        line 1028: 7
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/util/IdentityHashMap$KeySet;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        8     0  this   Ljava/util/IdentityHashMap<TK;TV;>.KeySet;
+  
+  public int hashCode();
+    descriptor: ()I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=4, args_size=1
+         0: iconst_0                
+         1: istore_1                
+         2: aload_0                 
+         3: invokevirtual #37                 // Method iterator:()Ljava/util/Iterator;
+         6: astore_2                
+         7: aload_2                 
+         8: invokeinterface #41, 1              // InterfaceMethod java/util/Iterator.hasNext:()Z
+        13: ifeq          33                
+        16: aload_2                 
+        17: invokeinterface #47, 1              // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        22: astore_3                
+        23: iload_1                 
+        24: aload_3                 
+        25: invokestatic  #61                 // Method java/lang/System.identityHashCode:(Ljava/lang/Object;)I
+        28: iadd                    
+        29: istore_1                
+        30: goto          7                 
+        33: iload_1                 
+        34: ireturn                 
+      LineNumberTable:
+        line 1030: 0
+        line 1031: 2
+        line 1032: 23
+        line 1033: 33
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          23        7     3  key    Ljava/lang/Object;
+           0       35     0  this   Ljava/util/IdentityHashMap$KeySet;
+           2       33     1  result I
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            23        7     3  key    TK;
+             0       35     0  this   Ljava/util/IdentityHashMap<TK;TV;>.KeySet;
+      StackMapTable: number_of_entries = 2
+        frame_type = 253 /* append */
+          offset_delta = 7
+          locals = [int, class java/util/Iterator]
+        frame_type = 250 /* chop */
+          offset_delta = 25
+  
+  public java.lang.Object[] toArray();
+    descriptor: ()[Ljava/lang/Object;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: aload_0                 
+         1: iconst_0                
+         2: anewarray     #67                 // class java/lang/Object
+         5: invokevirtual #69                 // Method toArray:([Ljava/lang/Object;)[Ljava/lang/Object;
+         8: areturn                 
+      LineNumberTable:
+        line 1036: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  this   Ljava/util/IdentityHashMap$KeySet;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        9     0  this   Ljava/util/IdentityHashMap<TK;TV;>.KeySet;
+  
+  public <T extends java.lang.Object> T[] toArray(T[]);
+    descriptor: ([Ljava/lang/Object;)[Ljava/lang/Object;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=8, args_size=2
+         0: aload_0                 
+         1: getfield      #1                  // Field this$0:Ljava/util/IdentityHashMap;
+         4: getfield      #73                 // Field java/util/IdentityHashMap.modCount:I
+         7: istore_2                
+         8: aload_0                 
+         9: invokevirtual #76                 // Method size:()I
+        12: istore_3                
+        13: aload_1                 
+        14: arraylength             
+        15: iload_3                 
+        16: if_icmpge     34                
+        19: aload_1                 
+        20: invokevirtual #79                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+        23: invokevirtual #83                 // Method java/lang/Class.getComponentType:()Ljava/lang/Class;
+        26: iload_3                 
+        27: invokestatic  #88                 // Method java/lang/reflect/Array.newInstance:(Ljava/lang/Class;I)Ljava/lang/Object;
+        30: checkcast     #94                 // class "[Ljava/lang/Object;"
+        33: astore_1                
+        34: aload_0                 
+        35: getfield      #1                  // Field this$0:Ljava/util/IdentityHashMap;
+        38: getfield      #96                 // Field java/util/IdentityHashMap.table:[Ljava/lang/Object;
+        41: astore        4                 
+        43: iconst_0                
+        44: istore        5                 
+        46: iconst_0                
+        47: istore        6                 
+        49: iload         6                 
+        51: aload         4                 
+        53: arraylength             
+        54: if_icmpge     100               
+        57: aload         4                 
+        59: iload         6                 
+        61: aaload                  
+        62: dup                     
+        63: astore        7                 
+        65: ifnull        94                
+        68: iload         5                 
+        70: iload_3                 
+        71: if_icmplt     82                
+        74: new           #99                 // class java/util/ConcurrentModificationException
+        77: dup                     
+        78: invokespecial #101                // Method java/util/ConcurrentModificationException."<init>":()V
+        81: athrow                  
+        82: aload_1                 
+        83: iload         5                 
+        85: iinc          5, 1              
+        88: aload         7                 
+        90: invokestatic  #102                // Method java/util/IdentityHashMap.unmaskNull:(Ljava/lang/Object;)Ljava/lang/Object;
+        93: aastore                 
+        94: iinc          6, 2              
+        97: goto          49                
+       100: iload         5                 
+       102: iload_3                 
+       103: if_icmplt     117               
+       106: iload_2                 
+       107: aload_0                 
+       108: getfield      #1                  // Field this$0:Ljava/util/IdentityHashMap;
+       111: getfield      #73                 // Field java/util/IdentityHashMap.modCount:I
+       114: if_icmpeq     125               
+       117: new           #99                 // class java/util/ConcurrentModificationException
+       120: dup                     
+       121: invokespecial #101                // Method java/util/ConcurrentModificationException."<init>":()V
+       124: athrow                  
+       125: iload         5                 
+       127: aload_1                 
+       128: arraylength             
+       129: if_icmpge     137               
+       132: aload_1                 
+       133: iload         5                 
+       135: aconst_null             
+       136: aastore                 
+       137: aload_1                 
+       138: areturn                 
+      LineNumberTable:
+        line 1040: 0
+        line 1041: 8
+        line 1042: 13
+        line 1043: 19
+        line 1044: 34
+        line 1045: 43
+        line 1046: 46
+        line 1048: 57
+        line 1050: 68
+        line 1051: 74
+        line 1053: 82
+        line 1046: 94
+        line 1057: 100
+        line 1058: 117
+        line 1061: 125
+        line 1062: 132
+        line 1064: 137
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          65       29     7  key    Ljava/lang/Object;
+          49       51     6  si     I
+           0      139     0  this   Ljava/util/IdentityHashMap$KeySet;
+           0      139     1  a      [Ljava/lang/Object;
+           8      131     2  expectedModCount I
+          13      126     3  size   I
+          43       96     4  tab    [Ljava/lang/Object;
+          46       93     5  ti     I
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0      139     0  this   Ljava/util/IdentityHashMap<TK;TV;>.KeySet;
+             0      139     1  a      [TT;
+      StackMapTable: number_of_entries = 8
+        frame_type = 253 /* append */
+          offset_delta = 34
+          locals = [int, int]
+        frame_type = 254 /* append */
+          offset_delta = 14
+          locals = [class "[Ljava/lang/Object;", int, int]
+        frame_type = 252 /* append */
+          offset_delta = 32
+          locals = [class java/lang/Object]
+        frame_type = 250 /* chop */
+          offset_delta = 11
+        frame_type = 250 /* chop */
+          offset_delta = 5
+        frame_type = 16 /* same */
+        frame_type = 7 /* same */
+        frame_type = 11 /* same */
+    Signature: #146                        // <T:Ljava/lang/Object;>([TT;)[TT;
+  
+  public java.util.Spliterator<K> spliterator();
+    descriptor: ()Ljava/util/Spliterator;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=7, locals=1, args_size=1
+         0: new           #105                // class java/util/IdentityHashMap$KeySpliterator
+         3: dup                     
+         4: aload_0                 
+         5: getfield      #1                  // Field this$0:Ljava/util/IdentityHashMap;
+         8: iconst_0                
+         9: iconst_m1               
+        10: iconst_0                
+        11: iconst_0                
+        12: invokespecial #107                // Method java/util/IdentityHashMap$KeySpliterator."<init>":(Ljava/util/IdentityHashMap;IIII)V
+        15: areturn                 
+      LineNumberTable:
+        line 1068: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       16     0  this   Ljava/util/IdentityHashMap$KeySet;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       16     0  this   Ljava/util/IdentityHashMap<TK;TV;>.KeySet;
+    Signature: #149                        // ()Ljava/util/Spliterator<TK;>;
+}
+Signature: #150                        // Ljava/util/AbstractSet<TK;>;
+SourceFile: "IdentityHashMap.java"
+NestHost: class java/util/IdentityHashMap
+InnerClasses:
+  private #155= #2 of #19;                    // KeySet=class java/util/IdentityHashMap$KeySet of class java/util/IdentityHashMap
+  private #156= #13 of #19;                   // KeyIterator=class java/util/IdentityHashMap$KeyIterator of class java/util/IdentityHashMap
+  static final #157= #105 of #19;             // KeySpliterator=class java/util/IdentityHashMap$KeySpliterator of class java/util/IdentityHashMap

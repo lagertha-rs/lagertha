@@ -319,4 +319,8 @@ impl Frame {
     pub fn pop_operand(&mut self) -> Result<Value, JvmError> {
         self.operands.pop().ok_or(JvmError::OperandStackIsEmpty)
     }
+
+    pub fn pc(&self) -> usize {
+        self.pc
+    }
 }

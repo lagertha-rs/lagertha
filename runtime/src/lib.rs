@@ -20,6 +20,7 @@ pub mod rt;
 pub mod stack;
 
 pub type ClassId = usize;
+pub type MethodId = usize;
 
 #[derive(Debug)]
 pub struct VmConfig {
@@ -96,21 +97,15 @@ pub fn start(main_class: Vec<u8>, config: VmConfig) -> Result<(), JvmError> {
             JvmError::JavaExceptionThrown(addr) => {
                 let heap = interpreter.vm().heap.borrow();
                 let exception = heap.get_instance(&addr);
-                let message_field_ref = exception
-                    .get_field_value("detailMessage", "Ljava/lang/String;")
-                    .unwrap();
-                let msg = match message_field_ref {
-                    Value::Ref(obj) => heap.get_string(*obj)?,
-                    Value::Null => "Exception message is null".to_string(),
-                    _ => {
-                        panic!("detailMessage field is not an object reference");
-                    }
-                };
-                error!(
-                    "Java exception thrown: {} with message: {}",
-                    exception.class().name(),
-                    msg
-                );
+
+                let print_stack_trace_method = exception
+                    .class()
+                    .get_virtual_method("printStackTrace", "()V")
+                    .expect("Exception class should have printStackTrace method")
+                    .clone();
+                let param = vec![Value::Ref(addr)];
+                drop(heap);
+                interpreter.run_instance_method(&print_stack_trace_method, param)?;
                 Err(e)
             }
             _ => {

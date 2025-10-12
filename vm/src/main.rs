@@ -114,4 +114,32 @@ mod tests {
             }
         );
     }
+
+    #[rstest]
+    #[trace]
+    fn error_cases(
+        #[base_dir = "../target/test-classes/vm"]
+        #[files("**/*ExceptionMain.class")]
+        path: PathBuf,
+    ) {
+        // given
+        // requires cargo build
+        let mut cmd = assert_cmd::Command::cargo_bin("vm").unwrap();
+        cmd.args([&path]);
+
+        // when
+        let err = cmd.assert().success().get_output().stderr.clone();
+        let err_str = String::from_utf8_lossy(&err);
+
+        // then
+        with_settings!(
+            {
+                snapshot_path => DISPLAY_SNAPSHOT_PATH,
+                prepend_module_to_snapshot => false,
+            },
+            {
+                insta::assert_snapshot!(to_snapshot_name(&path), &err_str);
+            }
+        );
+    }
 }

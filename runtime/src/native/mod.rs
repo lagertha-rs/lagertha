@@ -381,6 +381,22 @@ impl NativeRegistry {
             ),
             java_io_file_output_stream_write_bytes,
         );
+        instance.register(
+            MethodKey::new(
+                "java/lang/System".to_string(),
+                "identityHashCode".to_string(),
+                "(Ljava/lang/Object;)I".to_string(),
+            ),
+            java_lang_system_identity_hash_code,
+        );
+        instance.register(
+            MethodKey::new(
+                "java/lang/StackTraceElement".to_string(),
+                "initStackTraceElements".to_string(),
+                "([Ljava/lang/StackTraceElement;Ljava/lang/Object;I)V".to_string(),
+            ),
+            java_lang_stack_trace_element_init_stack_trace_elements,
+        );
 
         instance
     }
@@ -528,6 +544,15 @@ fn java_lang_object_hash_code(_vm: &mut VirtualMachine, args: &[Value]) -> Nativ
     }
 }
 
+fn java_lang_system_identity_hash_code(_vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
+    debug!("TODO: Stub: java.lang.System.identityHashCode");
+    if let Value::Ref(h) = &args[0] {
+        Some(Value::Integer(*h as i32))
+    } else {
+        panic!("java.lang.System.identityHashCode: expected object as argument");
+    }
+}
+
 fn java_lang_object_init_class_name(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.initClassName");
     if let Value::Ref(h) = &args[0] {
@@ -599,79 +624,65 @@ fn jdk_internal_misc_unsafe_register_natives(
     None
 }
 
+/// Fills the backtrace and depth fields of the Throwable object, it contains the VM internal information
+/// about the current stack frames. The backtrace format isn't strictly defined.
+/// My backtrace is an array of three arrays:
+/// - an int array with the class ids of the classes in the stack frames
+/// - an int array with the name indexes of the methods in the stack frames
+/// - an int array with the line pc of the methods in the stack frames
 fn java_lang_throwable_fill_in_stack_trace(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Throwable.fillInStackTrace");
     let frames = vm.frame_stack.frames();
+    let mut heap = vm.heap.borrow_mut();
     let int_class = vm
         .method_area
         .get_class(ArrayType::Int.descriptor())
         .unwrap();
-    let class_idx = vm
-        .heap
-        .borrow_mut()
-        .alloc_array(int_class.clone(), frames.len());
-    let name_idx = vm
-        .heap
-        .borrow_mut()
-        .alloc_array(int_class.clone(), frames.len());
-    let descriptor_idx = vm.heap.borrow_mut().alloc_array(int_class, frames.len());
+    let class_id_array = heap.alloc_array(int_class.clone(), frames.len());
+    let method_id_array = heap.alloc_array(int_class.clone(), frames.len());
+    let line_nbr_array = heap.alloc_array(int_class, frames.len());
     for (pos, frame) in frames.iter().enumerate() {
-        let mut heap = vm.heap.borrow_mut();
         heap.write_array_element(
-            class_idx,
+            class_id_array,
             pos,
             Value::Integer(frame.method().class_id().unwrap() as i32),
         )
         .unwrap();
         heap.write_array_element(
-            name_idx,
+            method_id_array,
             pos,
-            Value::Integer(frame.method().name_idx() as i32),
+            Value::Integer(frame.method().id().unwrap() as i32),
         )
         .unwrap();
-        heap.write_array_element(
-            descriptor_idx,
-            pos,
-            Value::Integer(frame.method().descriptor().idx() as i32),
-        )
-        .unwrap();
+        heap.write_array_element(line_nbr_array, pos, Value::Integer(frame.pc() as i32))
+            .unwrap();
     }
     let obj_class = vm.method_area.get_class("java/lang/Object").unwrap();
-    let backtrace_addr = vm.heap.borrow_mut().alloc_array(obj_class, 3);
-    vm.heap
-        .borrow_mut()
-        .write_array_element(backtrace_addr, 0, Value::Ref(class_idx))
+    let backtrace_addr = heap.alloc_array(obj_class, 3);
+    heap.write_array_element(backtrace_addr, 0, Value::Ref(class_id_array))
         .unwrap();
-    vm.heap
-        .borrow_mut()
-        .write_array_element(backtrace_addr, 1, Value::Ref(name_idx))
+    heap.write_array_element(backtrace_addr, 1, Value::Ref(method_id_array))
         .unwrap();
-    vm.heap
-        .borrow_mut()
-        .write_array_element(backtrace_addr, 2, Value::Ref(descriptor_idx))
+    heap.write_array_element(backtrace_addr, 2, Value::Ref(line_nbr_array))
         .unwrap();
     let throwable_addr = match args[0] {
         Value::Ref(h) => h,
         _ => panic!("java.lang.Throwable.fillInStackTrace: expected object"),
     };
-    vm.heap
-        .borrow_mut()
-        .write_instance_field(
-            throwable_addr,
-            "backtrace",
-            "Ljava/lang/Object;",
-            Value::Ref(backtrace_addr),
-        )
-        .unwrap();
-    vm.heap
-        .borrow_mut()
-        .write_instance_field(
-            throwable_addr,
-            "depth",
-            "I",
-            Value::Integer(frames.len() as i32),
-        )
-        .unwrap();
+    heap.write_instance_field(
+        throwable_addr,
+        "backtrace",
+        "Ljava/lang/Object;",
+        Value::Ref(backtrace_addr),
+    )
+    .unwrap();
+    heap.write_instance_field(
+        throwable_addr,
+        "depth",
+        "I",
+        Value::Integer(frames.len() as i32),
+    )
+    .unwrap();
 
     Some(Value::Ref(throwable_addr))
 }
@@ -960,8 +971,41 @@ fn java_lang_system_set_out_0(vm: &mut VirtualMachine, args: &[Value]) -> Native
     None
 }
 
-fn java_lang_system_set_err_0(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
+fn java_lang_system_set_err_0(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.System.setIn0");
+    let val = match &args[0] {
+        Value::Ref(h) => *h,
+        _ => panic!("java.lang.System.setOut0: expected PrintStream object"),
+    };
+    let system_class = vm.method_area().get_class("java/lang/System").unwrap();
+    system_class
+        .set_static_field("err", "Ljava/io/PrintStream;", Value::Ref(val))
+        .unwrap();
+    None
+}
+
+fn java_lang_stack_trace_element_init_stack_trace_elements(
+    vm: &mut VirtualMachine,
+    _args: &[Value],
+) -> NativeRet {
+    debug!("TODO: Stub: java.lang.StackTraceElement.initStackTraceElements");
+    let elements_array = match &_args[0] {
+        Value::Ref(h) => *h,
+        _ => panic!("java.lang.StackTraceElement.initStackTraceElements: expected array"),
+    };
+    let object = match &_args[1] {
+        Value::Ref(h) => *h,
+        _ => panic!("java.lang.StackTraceElement.initStackTraceElements: expected object"),
+    };
+    let depth = match _args[2] {
+        Value::Integer(i) if i >= 0 => i as usize,
+        _ => panic!(
+            "java.lang.StackTraceElement.initStackTraceElements: expected non-negative depth"
+        ),
+    };
+    let heap = vm.heap.borrow();
+    let array = heap.get_array(&elements_array);
+    let obj = heap.get(object).unwrap();
     None
 }
 

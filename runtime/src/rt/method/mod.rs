@@ -1,9 +1,9 @@
-use crate::ClassId;
 use crate::error::JvmError;
 use crate::rt::class::LinkageError;
 use crate::rt::class::class::Class;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::constant_pool::reference::MethodDescriptorReference;
+use crate::{ClassId, MethodId};
 use class_file::attribute::method::code::{
     CodeAttributeInfo, LineNumberEntry, LocalVariableEntry, LocalVariableTypeEntry, StackMapFrame,
 };
@@ -49,6 +49,7 @@ pub struct Method {
     rt_invisible_annotations: Option<Vec<Annotation>>,
     is_deprecated: bool,
     method_type: MethodType,
+    id: SyncOnceCell<MethodId>,
 }
 
 impl Method {
@@ -69,6 +70,7 @@ impl Method {
             rt_invisible_annotations: None,
             is_deprecated: false,
             method_type: MethodType::Native,
+            id: SyncOnceCell::new(),
         }
     }
 
@@ -130,7 +132,17 @@ impl Method {
             signature: signature.into_inner(),
             rt_visible_annotations: rt_vis_ann.into_inner(),
             rt_invisible_annotations: rt_invis_ann.into_inner(),
+            id: SyncOnceCell::new(),
         })
+    }
+
+    pub fn set_id(&self, id: MethodId) -> Result<(), LinkageError> {
+        self.id.set(id).unwrap();
+        Ok(())
+    }
+
+    pub fn id(&self) -> Result<MethodId, LinkageError> {
+        Ok(*self.id.get().unwrap())
     }
 
     pub fn type_of(&self) -> &MethodType {

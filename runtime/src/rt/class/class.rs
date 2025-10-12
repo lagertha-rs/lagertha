@@ -41,8 +41,10 @@ pub struct Class {
     fields: Vec<Field>,
     field_idx: NatHashMap<usize>,
     static_fields: NatHashMap<StaticField>,
-    methods: NatHashMap<Arc<Method>>,
-    static_methods: NatHashMap<Arc<Method>>,
+    method_idx: NatHashMap<usize>,
+    methods: Vec<Arc<Method>>,
+    static_method_idx: NatHashMap<usize>,
+    static_methods: Vec<Arc<Method>>,
     initializer: Option<Arc<Method>>,
     attributes: Vec<ClassAttribute>,
     cp: Arc<RuntimeConstantPool>,
@@ -57,8 +59,10 @@ impl Class {
         let major_version = cf.major_version;
         let name = cp.get_class(&cf.this_class)?.name_arc()?;
         let access = cf.access_flags;
-        let mut methods: NatHashMap<Arc<Method>> = HashMap::new();
-        let mut static_methods: NatHashMap<Arc<Method>> = HashMap::new();
+        let mut method_idx: NatHashMap<usize> = HashMap::new();
+        let mut methods = vec![];
+        let mut static_method_idx: NatHashMap<usize> = HashMap::new();
+        let mut static_methods = vec![];
         let mut initializer = None;
         for method in cf.methods {
             let flags = method.access_flags;
@@ -73,19 +77,21 @@ impl Class {
                     let method = Method::new(method, MethodType::Native, &cp)?;
                     let name = method.name_arc();
                     let descriptor = method.descriptor().raw_arc();
-                    static_methods
+                    static_method_idx
                         .entry(name)
                         .or_default()
-                        .insert(descriptor, Arc::new(method));
+                        .insert(descriptor, static_methods.len());
+                    static_methods.push(Arc::new(method));
                 }
                 (true, false) => {
                     let method = Method::new(method, MethodType::Native, &cp)?;
                     let name = method.name_arc();
                     let descriptor = method.descriptor().raw_arc();
-                    methods
+                    method_idx
                         .entry(name)
                         .or_default()
-                        .insert(descriptor, Arc::new(method));
+                        .insert(descriptor, methods.len());
+                    methods.push(Arc::new(method));
                 }
                 (false, true) => {
                     if name == "<clinit>" {
@@ -94,10 +100,11 @@ impl Class {
                         let method = Method::new(method, MethodType::Java, &cp)?;
                         let name = method.name_arc();
                         let descriptor = method.descriptor().raw_arc();
-                        static_methods
+                        static_method_idx
                             .entry(name)
                             .or_default()
-                            .insert(descriptor, Arc::new(method));
+                            .insert(descriptor, static_methods.len());
+                        static_methods.push(Arc::new(method))
                     }
                 }
                 (false, false) => {
@@ -109,10 +116,11 @@ impl Class {
                     };
                     let name = method.name_arc();
                     let descriptor = method.descriptor().raw_arc();
-                    methods
+                    method_idx
                         .entry(name)
                         .or_default()
-                        .insert(descriptor, Arc::new(method));
+                        .insert(descriptor, methods.len());
+                    methods.push(Arc::new(method))
                 }
             }
         }
@@ -159,8 +167,8 @@ impl Class {
             fields,
             field_idx,
             static_fields,
-            static_methods,
-            methods,
+            static_method_idx,
+            method_idx,
             initializer,
             attributes: cf.attributes,
             primitive: None,
@@ -168,16 +176,21 @@ impl Class {
             state: initialized,
             mirror: OnceCell::new(),
             id: OnceCell::new(),
+            methods,
+            static_methods,
         });
 
-        for (_, method) in class.methods.values().flatten() {
+        for (i, method) in class.methods.iter().enumerate() {
             method.set_class(class.clone())?;
+            method.set_id(i)?;
         }
-        for (_, method) in class.static_methods.values().flatten() {
+        for (i, method) in class.static_methods.iter().enumerate() {
             method.set_class(class.clone())?;
+            method.set_id(i)?;
         }
         if let Some(init) = &class.initializer {
             init.set_class(class.clone())?;
+            init.set_id(0)?;
         }
 
         Ok(class)
@@ -222,9 +235,10 @@ impl Class {
     }
 
     pub fn find_main_method(&self) -> Option<&Arc<Method>> {
-        self.static_methods
+        self.static_method_idx
             .get("main")
             .and_then(|m| m.get("([Ljava/lang/String;)V"))
+            .and_then(|i| self.static_methods.get(*i))
     }
 
     pub fn mirror(&self) -> Option<HeapAddr> {
@@ -395,9 +409,10 @@ impl Class {
         name: &str,
         descriptor: &str,
     ) -> Result<&Arc<Method>, JvmError> {
-        self.static_methods
+        self.static_method_idx
             .get(name)
             .and_then(|m| m.get(descriptor))
+            .and_then(|i| self.static_methods.get(*i))
             .ok_or(JvmError::NoSuchMethod(format!("{}.{}", name, descriptor)))
     }
 
@@ -435,8 +450,9 @@ impl Class {
         name: &str,
         descriptor: &str,
     ) -> Option<(&Arc<Method>, &Arc<RuntimeConstantPool>)> {
-        if let Some(m) = self.methods.get(name).and_then(|m| m.get(descriptor)) {
-            return Some((m, &self.cp));
+        if let Some(m) = self.method_idx.get(name).and_then(|m| m.get(descriptor)) {
+            let method = self.methods.get(*m).unwrap();
+            return Some((method, &self.cp));
         }
 
         match &self.super_class {
@@ -475,10 +491,11 @@ impl Class {
             MethodFlags::new(0),
         ));
 
-        let methods: NatHashMap<Arc<Method>> = HashMap::from([(
+        let method_idx: NatHashMap<usize> = HashMap::from([(
             clone_method_name.clone(),
-            HashMap::from([(Arc::from(raw_descriptor), clone_method.clone())]),
+            HashMap::from([(Arc::from(raw_descriptor), 0)]),
         )]);
+        let methods = vec![clone_method];
         let class = Arc::new(Self {
             id: OnceCell::new(),
             primitive,
@@ -491,14 +508,17 @@ impl Class {
             field_idx: HashMap::new(),
             static_fields: HashMap::new(),
             methods,
-            static_methods: HashMap::new(),
+            method_idx,
+            static_method_idx: HashMap::new(),
+            static_methods: vec![],
             initializer: None,
             attributes: vec![],
             cp: Arc::new(RuntimeConstantPool::new(vec![])),
             state: RwLock::new(InitState::Initialized),
             mirror: OnceCell::new(),
         });
-        for (_, method) in class.methods.values().flatten() {
+        for (i, method) in class.methods.iter().enumerate() {
+            method.set_id(i).unwrap();
             method.set_class(class.clone()).unwrap();
         }
         class

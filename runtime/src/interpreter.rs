@@ -101,9 +101,8 @@ impl Interpreter {
         ((bci as isize) + (off as isize)) as usize
     }
 
-    // TODO: replace return book with enum or set special cp values
+    // TODO: replace return bool with enum or set special cp values
     fn interpret_instruction(&mut self, instruction: Instruction) -> Result<bool, JvmError> {
-        debug!("Executing instruction: {:?}", instruction);
         if !matches!(
             instruction,
             Instruction::Goto(_)
@@ -1151,7 +1150,7 @@ impl Interpreter {
         Ok(locals)
     }
 
-    fn run_instance_method(
+    pub fn run_instance_method(
         &mut self,
         method: &Arc<Method>,
         params: Vec<Value>,
