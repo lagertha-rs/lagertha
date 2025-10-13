@@ -42,7 +42,7 @@ fn create_vm_configuration(args: Args) -> Result<VmConfig, String> {
 }
 
 fn main() {
-    //init_tracing();
+    init_tracing();
     let args = Args::parse();
     debug!("Provided command line arguments: {:?}", args);
     debug!("Trying to open class file: {}", args.main_class);

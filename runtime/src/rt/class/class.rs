@@ -476,6 +476,16 @@ impl Class {
             )))
     }
 
+    pub fn is_subclass_of(&self, name: &str) -> bool {
+        if self.name() == name {
+            return true;
+        }
+        match &self.super_class {
+            Some(super_class) => super_class.is_subclass_of(name),
+            None => false,
+        }
+    }
+
     //TODO: stub, need to cleanup
     pub fn default(class_name: Arc<str>, primitive: Option<ArrayType>) -> Arc<Self> {
         let clone_method_name: Arc<str> = Arc::from("clone");

@@ -638,10 +638,21 @@ fn java_lang_throwable_fill_in_stack_trace(vm: &mut VirtualMachine, args: &[Valu
         .method_area
         .get_class(ArrayType::Int.descriptor())
         .unwrap();
+    // TODO: frames size is wrong
     let class_id_array = heap.alloc_array(int_class.clone(), frames.len());
     let method_id_array = heap.alloc_array(int_class.clone(), frames.len());
     let line_nbr_array = heap.alloc_array(int_class, frames.len());
     for (pos, frame) in frames.iter().enumerate() {
+        if frame.method().name() == "<init>"
+            || frame
+                .method()
+                .class()
+                .unwrap()
+                .is_subclass_of("java/lang/Throwable")
+        {
+            // Skip frames until we are out of Throwable constructors
+            continue;
+        }
         heap.write_array_element(
             class_id_array,
             pos,
