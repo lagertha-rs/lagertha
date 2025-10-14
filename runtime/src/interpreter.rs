@@ -1,6 +1,5 @@
 use crate::VirtualMachine;
 use crate::error::JvmError;
-use crate::heap::Heap;
 use crate::method_area::MethodArea;
 use crate::native::MethodKey;
 use crate::rt::class::class::{Class, InitState};
@@ -11,17 +10,13 @@ use crate::stack::Frame;
 use common::instruction::Instruction;
 use common::jtype::Value;
 use log::warn;
-use std::cell::RefCell;
 use std::cmp::Ordering;
-use std::rc::Rc;
 use std::sync::Arc;
 use tracing_log::log::debug;
 
 #[cfg_attr(test, derive(serde::Serialize))]
 pub struct Interpreter {
     vm: VirtualMachine,
-    #[cfg_attr(test, serde(skip_serializing))]
-    heap: Rc<RefCell<Heap>>,
     #[cfg(test)]
     last_pop_frame: Option<Frame>,
 }
@@ -31,7 +26,6 @@ impl Interpreter {
         Self {
             #[cfg(test)]
             last_pop_frame: None,
-            heap: vm.heap(),
             vm,
         }
     }
@@ -243,6 +237,7 @@ impl Interpreter {
                 let index = self.vm.frame_stack.pop_int_val()?;
                 let array_addr = self.vm.frame_stack.pop_obj_val()?;
                 let value = *self
+                    .vm
                     .heap
                     .borrow()
                     .get_array(&array_addr)
@@ -257,6 +252,7 @@ impl Interpreter {
                 let index = self.vm.frame_stack.pop_int_val()?;
                 let array_addr = self.vm.frame_stack.pop_obj_val()?;
                 let value = *self
+                    .vm
                     .heap
                     .borrow()
                     .get_array(&array_addr)
@@ -587,14 +583,12 @@ impl Interpreter {
                 let raw = cp.get(&idx)?;
                 match raw {
                     RuntimeConstant::String(data) => {
-                        let string_addr = self.heap.borrow_mut().get_or_new_string(data.value()?);
+                        let string_addr =
+                            self.vm.heap.borrow_mut().get_or_new_string(data.value()?);
                         self.vm.frame_stack.push_operand(Value::Ref(string_addr))?;
                     }
                     RuntimeConstant::Class(class) => {
-                        let class_mirror = self
-                            .vm
-                            .method_area()
-                            .get_mirror_addr_by_name(class.name()?)?;
+                        let class_mirror = self.vm.get_mirror_addr_by_name(class.name()?)?;
                         self.vm.frame_stack.push_operand(Value::Ref(class_mirror))?;
                     }
                     RuntimeConstant::Double(value) => {
@@ -618,7 +612,7 @@ impl Interpreter {
                 let class = self.method_area().get_class(class_ref.name()?)?;
                 let size = self.vm.frame_stack.pop_int_val()?;
                 if size >= 0 {
-                    let addr = self.heap.borrow_mut().alloc_array(class, size as usize);
+                    let addr = self.vm.heap.borrow_mut().alloc_array(class, size as usize);
                     self.vm.frame_stack.push_operand(Value::Ref(addr))?;
                 } else {
                     return Err(JvmError::NegativeArraySizeException)?;
@@ -630,6 +624,7 @@ impl Interpreter {
                     let primitive_type_name = array_type.descriptor();
                     let primitive_class = self.method_area().get_class(primitive_type_name)?;
                     let addr = self
+                        .vm
                         .heap
                         .borrow_mut()
                         .alloc_array(primitive_class, count as usize);
@@ -643,7 +638,7 @@ impl Interpreter {
                 let class_ref = cp.get_class(&idx)?;
                 let class = self.method_area().get_class(class_ref.name()?)?;
                 self.ensure_initialized(Some(&class))?;
-                let addr = self.heap.borrow_mut().alloc_instance(class);
+                let addr = self.vm.heap.borrow_mut().alloc_instance(class);
                 self.vm.frame_stack.push_operand(Value::Ref(addr))?;
             }
             Instruction::Dup => {
@@ -700,7 +695,7 @@ impl Interpreter {
                 let method = class.get_virtual_method_by_nat(method_ref)?;
 
                 let params = self.prepare_method_params(method)?;
-                let heap = self.heap.borrow();
+                let heap = self.vm.heap.borrow();
                 match params.first() {
                     // try to dynamically dispatch the method
                     Some(Value::Ref(obj)) if heap.addr_is_instance(obj) => {
@@ -743,7 +738,7 @@ impl Interpreter {
                 let value = self.vm.frame_stack.pop_int_val()?;
                 let index = self.vm.frame_stack.pop_int_val()?;
                 let array_addr = self.vm.frame_stack.pop_obj_val()?;
-                self.heap.borrow_mut().write_array_element(
+                self.vm.heap.borrow_mut().write_array_element(
                     array_addr,
                     index as usize,
                     Value::Integer(value & 0xFF),
@@ -753,7 +748,7 @@ impl Interpreter {
                 let value = self.vm.frame_stack.pop_int_val()?;
                 let index = self.vm.frame_stack.pop_int_val()?;
                 let array_addr = self.vm.frame_stack.pop_obj_val()?;
-                self.heap.borrow_mut().write_array_element(
+                self.vm.heap.borrow_mut().write_array_element(
                     array_addr,
                     index as usize,
                     Value::Integer(value & 0xFFFF),
@@ -763,6 +758,7 @@ impl Interpreter {
                 let index = self.vm.frame_stack.pop_int_val()?;
                 let array_addr = self.vm.frame_stack.pop_obj_val()?;
                 let value = *self
+                    .vm
                     .heap
                     .borrow()
                     .get_array(&array_addr)
@@ -779,7 +775,7 @@ impl Interpreter {
                 let value = self.vm.frame_stack.pop_int_val()?;
                 let index = self.vm.frame_stack.pop_int_val()?;
                 let array_addr = self.vm.frame_stack.pop_obj_val()?;
-                self.heap.borrow_mut().write_array_element(
+                self.vm.heap.borrow_mut().write_array_element(
                     array_addr,
                     index as usize,
                     Value::Integer(value & 0xFF),
@@ -791,7 +787,7 @@ impl Interpreter {
                 let other_class = self.method_area().get_class(class_ref.name()?)?;
                 let obj_addr = self.vm.frame_stack.pop_nullable_ref_val()?;
                 if let Some(addr) = &obj_addr {
-                    let heap = self.heap.borrow();
+                    let heap = self.vm.heap.borrow();
                     let target_class = heap.get_instance(addr).class();
                     debug!(
                         "Instanceof check: target_class={}, other_class={}",
@@ -810,7 +806,7 @@ impl Interpreter {
                 let value = self.vm.frame_stack.pop_int_val()?;
                 let index = self.vm.frame_stack.pop_int_val()?;
                 let array_addr = self.vm.frame_stack.pop_obj_val()?;
-                self.heap.borrow_mut().write_array_element(
+                self.vm.heap.borrow_mut().write_array_element(
                     array_addr,
                     index as usize,
                     Value::Integer(value),
@@ -820,7 +816,8 @@ impl Interpreter {
                 let value = self.vm.frame_stack.pop_nullable_ref()?;
                 let index = self.vm.frame_stack.pop_int_val()?;
                 let array_addr = self.vm.frame_stack.pop_obj_val()?;
-                self.heap
+                self.vm
+                    .heap
                     .borrow_mut()
                     .write_array_element(array_addr, index as usize, value)?;
             }
@@ -846,7 +843,7 @@ impl Interpreter {
             }
             Instruction::ArrayLength => {
                 let array_addr = self.vm.frame_stack.pop_obj_val()?;
-                let length = self.heap.borrow().get_array(&array_addr).length();
+                let length = self.vm.heap.borrow().get_array(&array_addr).length();
                 self.vm
                     .frame_stack
                     .push_operand(Value::Integer(length as i32))?;
@@ -866,6 +863,7 @@ impl Interpreter {
                 let field_nat = cp.get_fieldref(&idx)?.name_and_type()?;
                 let object_addr = self.vm.frame_stack.pop_obj_val()?;
                 let value = *self
+                    .vm
                     .heap
                     .borrow_mut()
                     .get_instance_field(&object_addr, field_nat);
@@ -1013,7 +1011,7 @@ impl Interpreter {
                 let field_nat = cp.get_fieldref(&idx)?.name_and_type()?;
                 let value = self.vm.frame_stack.pop_operand()?;
                 let object_addr = self.vm.frame_stack.pop_obj_val()?;
-                self.heap.borrow_mut().write_instance_field_by_nat(
+                self.vm.heap.borrow_mut().write_instance_field_by_nat(
                     object_addr,
                     field_nat,
                     value,
@@ -1171,7 +1169,7 @@ impl Interpreter {
         params: Vec<Value>,
     ) -> Result<(), JvmError> {
         let class = match &params[0] {
-            Value::Ref(o) => self.heap.borrow_mut().get_instance(o).class().clone(),
+            Value::Ref(o) => self.vm.heap.borrow_mut().get_instance(o).class().clone(),
             Value::Null => return Err(JvmError::NullPointerException),
             _ => panic!("Abstract method called on non-object"),
         };

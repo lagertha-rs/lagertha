@@ -17,7 +17,6 @@ use tracing_log::log::debug;
 //TODO: the class loading process is working stub, need to be improved and respect the spec
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.5.4
 pub struct MethodArea {
-    heap: Rc<RefCell<Heap>>,
     bootstrap_class_loader: ClassLoader,
     // TODO: make class name Arc<str>?
     classes_idx: HashMap<String, ClassId>,
@@ -27,11 +26,10 @@ pub struct MethodArea {
 }
 
 impl MethodArea {
-    pub fn new(vm_config: &VmConfig, heap: Rc<RefCell<Heap>>) -> Result<Self, JvmError> {
+    pub fn new(vm_config: &VmConfig) -> Result<Self, JvmError> {
         debug!("Initializing MethodArea...");
         let bootstrap_class_loader = ClassLoader::new(vm_config)?;
         let method_area = Self {
-            heap,
             classes_idx: HashMap::new(),
             classes: Vec::new(),
             bootstrap_class_loader,
@@ -101,31 +99,40 @@ impl MethodArea {
         self.mirrors.get(mirror)
     }
 
-    pub fn get_mirror_addr_by_name(&mut self, name: &str) -> Result<HeapAddr, JvmError> {
+    pub(super) fn get_mirror_addr_by_name(
+        &mut self,
+        name: &str,
+        heap: &Rc<RefCell<Heap>>,
+    ) -> Result<HeapAddr, JvmError> {
         let target_class = self.get_class(name)?;
-        self.get_mirror_addr_by_class(&target_class)
+        self.get_mirror_addr_by_class(&target_class, heap)
     }
 
-    pub fn get_mirror_addr_by_class(
+    pub(super) fn get_mirror_addr_by_class(
         &mut self,
         target_class: &Arc<Class>,
+        heap: &Rc<RefCell<Heap>>,
     ) -> Result<HeapAddr, JvmError> {
         if let Some(mirror) = target_class.mirror() {
             return Ok(mirror);
         }
         let class_class = self.get_class("java/lang/Class")?;
-        let mirror = self.heap.borrow_mut().alloc_instance(class_class);
+        let mirror = heap.borrow_mut().alloc_instance(class_class);
         target_class.set_mirror(mirror)?;
         self.mirrors.insert(mirror, target_class.clone());
         Ok(mirror)
     }
 
-    pub fn get_primitive_mirror_addr(&mut self, name: &HeapAddr) -> HeapAddr {
+    pub(super) fn get_primitive_mirror_addr(
+        &mut self,
+        name: &HeapAddr,
+        heap: &Rc<RefCell<Heap>>,
+    ) -> HeapAddr {
         if let Some(addr) = self.primitives.get(name) {
             *addr
         } else {
             let class_class = self.get_class("java/lang/Class").unwrap();
-            let mirror_addr = self.heap.borrow_mut().alloc_instance(class_class);
+            let mirror_addr = heap.borrow_mut().alloc_instance(class_class);
             self.primitives.insert(*name, mirror_addr);
             mirror_addr
         }

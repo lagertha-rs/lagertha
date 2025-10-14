@@ -57,6 +57,23 @@ pub enum Value {
     Null,
 }
 
+impl Value {
+    pub fn as_obj_ref(&self) -> Option<HeapAddr> {
+        match self {
+            Value::Ref(addr) => Some(*addr),
+            Value::Null => None,
+            _ => None,
+        }
+    }
+
+    pub fn as_int(&self) -> Option<i32> {
+        match self {
+            Value::Integer(v) => Some(*v),
+            _ => None,
+        }
+    }
+}
+
 impl Type {
     pub fn get_default_value(&self) -> Value {
         match self {

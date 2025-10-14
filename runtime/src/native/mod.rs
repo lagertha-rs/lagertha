@@ -507,7 +507,7 @@ fn java_lang_class_is_primitive(vm: &mut VirtualMachine, args: &[Value]) -> Nati
 fn java_lang_class_get_primitive_class(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.getPrimitiveClass");
     if let Value::Ref(h) = &args[0] {
-        let v = vm.method_area().get_primitive_mirror_addr(h);
+        let v = vm.get_primitive_mirror_addr(h);
         Some(Value::Ref(v))
     } else {
         panic!("java.lang.Class.getPrimitiveClass: expected object");
@@ -525,10 +525,7 @@ fn java_lang_object_get_class(vm: &mut VirtualMachine, args: &[Value]) -> Native
         } else {
             panic!("java.lang.Class.getClass: invalid heap address");
         };
-        let res = vm
-            .method_area
-            .get_mirror_addr_by_class(&target_class)
-            .unwrap();
+        let res = vm.get_mirror_addr_by_class(&target_class).unwrap();
         Some(Value::Ref(res))
     } else {
         panic!("java.lang.Class.getClass: expected object as argument");
@@ -632,27 +629,28 @@ fn jdk_internal_misc_unsafe_register_natives(
 /// - an int array with the line pc of the methods in the stack frames
 fn java_lang_throwable_fill_in_stack_trace(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Throwable.fillInStackTrace");
-    let frames = vm.frame_stack.frames();
+    let mut frames: Vec<_> = vm
+        .frame_stack
+        .frames()
+        .iter()
+        .filter(|frame| {
+            frame.method().name() != "<init>"
+                && !frame
+                    .method()
+                    .class()
+                    .unwrap()
+                    .is_subclass_of("java/lang/Throwable")
+        })
+        .collect();
     let mut heap = vm.heap.borrow_mut();
     let int_class = vm
         .method_area
         .get_class(ArrayType::Int.descriptor())
         .unwrap();
-    // TODO: frames size is wrong
     let class_id_array = heap.alloc_array(int_class.clone(), frames.len());
     let method_id_array = heap.alloc_array(int_class.clone(), frames.len());
     let line_nbr_array = heap.alloc_array(int_class, frames.len());
     for (pos, frame) in frames.iter().enumerate() {
-        if frame.method().name() == "<init>"
-            || frame
-                .method()
-                .class()
-                .unwrap()
-                .is_subclass_of("java/lang/Throwable")
-        {
-            // Skip frames until we are out of Throwable constructors
-            continue;
-        }
         heap.write_array_element(
             class_id_array,
             pos,
@@ -1014,9 +1012,21 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
             "java.lang.StackTraceElement.initStackTraceElements: expected non-negative depth"
         ),
     };
-    let heap = vm.heap.borrow();
+    let h = vm.heap();
+    let heap = h.borrow_mut();
     let array = heap.get_array(&elements_array);
-    let obj = heap.get(object).unwrap();
+    let obj = heap.get_array(&object);
+    let class_info = heap.get_array(&obj.get_element(0).as_obj_ref().unwrap());
+    let method_info = heap.get_array(&obj.get_element(1).as_obj_ref().unwrap());
+    let cp_info = heap.get_array(&obj.get_element(2).as_obj_ref().unwrap());
+
+    for i in 0..depth {
+        let class_id = class_info.get_element(i).as_int().unwrap() as usize;
+        let method_id = method_info.get_element(i).as_int().unwrap() as usize;
+        let class = vm.method_area().get_class_by_id(class_id).unwrap();
+        let method = class.get_method_by_id(&method_id).unwrap();
+        print!("")
+    }
     None
 }
 
