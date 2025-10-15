@@ -493,8 +493,7 @@ impl Class {
     pub fn get_method_by_id(&self, id: &usize) -> Option<&Arc<Method>> {
         self.initializer
             .as_ref()
-            .map(|m| (m.id().unwrap() == *id).then_some(m))
-            .flatten()
+            .and_then(|m| (m.id().unwrap() == *id).then_some(m))
             .or_else(|| self.methods.get(id))
             .or_else(|| self.static_methods.get(id))
     }
