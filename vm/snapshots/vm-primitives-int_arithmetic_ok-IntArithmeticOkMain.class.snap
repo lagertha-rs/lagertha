@@ -1,7 +1,8 @@
 ---
 source: vm/src/main.rs
-expression: "&out_str"
+expression: combined
 ---
+----- STDOUT -----
 add.wrap:OK
 sub.wrap:OK
 mul.wrap:OK
@@ -36,3 +37,4 @@ cmp.signed.ge:OK
 cmp.eq:OK
 cmp.ne:OK
 TOTAL:33/33
+----- STDERR -----

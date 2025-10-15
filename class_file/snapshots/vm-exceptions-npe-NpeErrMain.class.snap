@@ -2,11 +2,11 @@
 source: class_file/src/lib.rs
 expression: display
 ---
-public class exceptions.npe.NpeExceptionMain 
+public class exceptions.npe.NpeErrMain 
   minor version: 0
   major version: 68
   flags: (0x0021) ACC_PUBLIC, ACC_SUPER
-  this_class: #15                      //exceptions/npe/NpeExceptionMain
+  this_class: #15                      //exceptions/npe/NpeErrMain
   super_class: #2                      //java/lang/Object
   interfaces: 0, fields: 0, methods: 4, attributes: 1
 Constant pool:
@@ -23,27 +23,27 @@ Constant pool:
   #11 = Methodref          #7.#12           // java/lang/NullPointerException."<init>":(Ljava/lang/String;)V
   #12 = NameAndType        #5:#13           // "<init>":(Ljava/lang/String;)V
   #13 = Utf8               (Ljava/lang/String;)V
-  #14 = Methodref          #15.#16          // exceptions/npe/NpeExceptionMain.method2:()V
-  #15 = Class              #17              // exceptions/npe/NpeExceptionMain
+  #14 = Methodref          #15.#16          // exceptions/npe/NpeErrMain.method2:()V
+  #15 = Class              #17              // exceptions/npe/NpeErrMain
   #16 = NameAndType        #18:#6           // method2:()V
-  #17 = Utf8               exceptions/npe/NpeExceptionMain
+  #17 = Utf8               exceptions/npe/NpeErrMain
   #18 = Utf8               method2
-  #19 = Methodref          #15.#20          // exceptions/npe/NpeExceptionMain.method1:()V
+  #19 = Methodref          #15.#20          // exceptions/npe/NpeErrMain.method1:()V
   #20 = NameAndType        #21:#6           // method1:()V
   #21 = Utf8               method1
   #22 = Utf8               Code
   #23 = Utf8               LineNumberTable
   #24 = Utf8               LocalVariableTable
   #25 = Utf8               this
-  #26 = Utf8               Lexceptions/npe/NpeExceptionMain;
+  #26 = Utf8               Lexceptions/npe/NpeErrMain;
   #27 = Utf8               main
   #28 = Utf8               ([Ljava/lang/String;)V
   #29 = Utf8               args
   #30 = Utf8               [Ljava/lang/String;
   #31 = Utf8               SourceFile
-  #32 = Utf8               NpeExceptionMain.java
+  #32 = Utf8               NpeErrMain.java
 {
-  public exceptions.npe.NpeExceptionMain();
+  public exceptions.npe.NpeErrMain();
     descriptor: ()V
     flags: (0x0001) ACC_PUBLIC
     Code: 
@@ -55,7 +55,7 @@ Constant pool:
         line 3: 0
       LocalVariableTable:
        Start   Length  Slot  Name   Signature
-           0        5     0  this   Lexceptions/npe/NpeExceptionMain;
+           0        5     0  this   Lexceptions/npe/NpeErrMain;
   
   static void method2();
     descriptor: ()V
@@ -95,4 +95,4 @@ Constant pool:
        Start   Length  Slot  Name   Signature
            0        4     0  args   [Ljava/lang/String;
 }
-SourceFile: "NpeExceptionMain.java"
+SourceFile: "NpeErrMain.java"

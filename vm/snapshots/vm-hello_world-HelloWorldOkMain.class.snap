@@ -1,5 +1,7 @@
 ---
 source: vm/src/main.rs
-expression: "&out_str"
+expression: combined
 ---
+----- STDOUT -----
 Hello World!
+----- STDERR -----

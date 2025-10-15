@@ -100,8 +100,15 @@ mod tests {
         cmd.args([&path]);
 
         // when
-        let out = cmd.assert().success().get_output().stdout.clone();
-        let out_str = String::from_utf8_lossy(&out);
+        let output = cmd.assert().success().get_output().clone();
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let stderr = String::from_utf8_lossy(&output.stderr);
+
+        let combined = format!(
+            "----- STDOUT -----\n{}\n----- STDERR -----\n{}",
+            stdout.trim_end(),
+            stderr.trim_end()
+        );
 
         // then
         with_settings!(
@@ -110,7 +117,7 @@ mod tests {
                 prepend_module_to_snapshot => false,
             },
             {
-                insta::assert_snapshot!(to_snapshot_name(&path), &out_str);
+                insta::assert_snapshot!(to_snapshot_name(&path), combined);
             }
         );
     }
@@ -119,7 +126,7 @@ mod tests {
     #[trace]
     fn error_cases(
         #[base_dir = "../target/test-classes/vm"]
-        #[files("**/*ExceptionMain.class")]
+        #[files("**/*ErrMain.class")]
         path: PathBuf,
     ) {
         // given
@@ -128,8 +135,15 @@ mod tests {
         cmd.args([&path]);
 
         // when
-        let err = cmd.assert().failure().get_output().stderr.clone();
-        let err_str = String::from_utf8_lossy(&err);
+        let output = cmd.assert().failure().get_output().clone();
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let stderr = String::from_utf8_lossy(&output.stderr);
+
+        let combined = format!(
+            "----- STDOUT -----\n{}\n----- STDERR -----\n{}",
+            stdout.trim_end(),
+            stderr.trim_end()
+        );
 
         // then
         with_settings!(
@@ -138,7 +152,7 @@ mod tests {
                 prepend_module_to_snapshot => false,
             },
             {
-                insta::assert_snapshot!(to_snapshot_name(&path), &err_str);
+                insta::assert_snapshot!(to_snapshot_name(&path), &combined);
             }
         );
     }
