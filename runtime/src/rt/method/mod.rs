@@ -219,8 +219,13 @@ impl Method {
                 if !ln_table.is_empty() {
                     res = Some(ln_table[0].line_number as usize);
                 }
-                for entry in ln_table {
-                    if (entry.start_pc as usize) <= cp && cp < (entry.start_pc as usize) {
+                for i in 0..ln_table.len() {
+                    let entry = &ln_table[i];
+                    let next_start_pc = ln_table.get(i + 1).map(|e| e.start_pc as usize);
+                    if (entry.start_pc as usize) <= cp && match next_start_pc {
+                        Some(nspc) => cp < nspc,
+                        None => true,
+                    } {
                         return Some(entry.line_number as usize);
                     }
                 }
