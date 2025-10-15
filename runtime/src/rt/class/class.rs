@@ -50,6 +50,7 @@ pub struct Class {
     cp: Arc<RuntimeConstantPool>,
     state: RwLock<InitState>,
     mirror: OnceCell<HeapAddr>,
+    source_file: Option<Arc<str>>,
 }
 
 impl Class {
@@ -152,7 +153,16 @@ impl Class {
             RwLock::new(InitState::Initialized)
         };
 
+        let mut source_file = None;
+        for attr in &cf.attributes {
+            if let ClassAttribute::SourceFile(sourcefile_index) = attr {
+                source_file = Some(cp.get_utf8_arc(sourcefile_index)?);
+                break;
+            }
+        }
+
         let class = Arc::new(Class {
+            source_file,
             name,
             access,
             super_class,
@@ -489,6 +499,10 @@ impl Class {
             .or_else(|| self.static_methods.get(id))
     }
 
+    pub fn source_file(&self) -> Option<&Arc<str>> {
+        self.source_file.as_ref()
+    }
+
     //TODO: stub, need to cleanup
     pub fn default(class_name: Arc<str>, primitive: Option<ArrayType>) -> Arc<Self> {
         let clone_method_name: Arc<str> = Arc::from("clone");
@@ -512,6 +526,7 @@ impl Class {
         let class = Arc::new(Self {
             id: OnceCell::new(),
             primitive,
+            source_file: None,
             name: class_name,
             access: ClassFlags::new(0),
             minor_version: 0,

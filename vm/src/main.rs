@@ -128,7 +128,7 @@ mod tests {
         cmd.args([&path]);
 
         // when
-        let err = cmd.assert().success().get_output().stderr.clone();
+        let err = cmd.assert().failure().get_output().stderr.clone();
         let err_str = String::from_utf8_lossy(&err);
 
         // then

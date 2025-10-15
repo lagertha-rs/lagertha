@@ -1,0 +1,8 @@
+---
+source: vm/src/main.rs
+expression: "&err_str"
+---
+java.lang.NullPointerException: I want to see the stacktrace and error messages
+	at exceptions.npe.NpeExceptionMain.method2(NpeExceptionMain.java:5)
+	at exceptions.npe.NpeExceptionMain.method1(NpeExceptionMain.java:9)
+	at exceptions.npe.NpeExceptionMain.main(NpeExceptionMain.java:13)

@@ -41,6 +41,7 @@ classes = [
     "java.lang.IllegalArgumentException",
     "java.lang.Terminator",
     "java.lang.Terminator$1",
+    "java.lang.ClassLoader",
     # java.io
     "java.io.FileInputStream",
     "java.io.BufferedInputStream",
@@ -50,6 +51,8 @@ classes = [
     "java.io.FileDescriptor$1",
     "java.io.FileOutputStream",
     "java.io.BufferedWriter",
+    # java.security
+    "java.security.SecureClassLoader",
     # java.nio
     "java.nio.ByteBuffer",
     "java.nio.Buffer",
@@ -129,6 +132,7 @@ classes = [
     "java.util.concurrent.ConcurrentHashMap$Node",
     "java.util.concurrent.locks.LockSupport",
     # internal
+    "jdk.internal.loader.BuiltinClassLoader",
     "jdk.internal.util.StaticProperty",
     "jdk.internal.util.SystemProps",
     "jdk.internal.util.SystemProps$Raw",

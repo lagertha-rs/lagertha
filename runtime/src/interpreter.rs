@@ -866,7 +866,7 @@ impl Interpreter {
                     .vm
                     .heap
                     .borrow_mut()
-                    .get_instance_field(&object_addr, field_nat);
+                    .get_instance_field_by_nat(&object_addr, field_nat);
                 self.vm.frame_stack.push_operand(value)?;
             }
             Instruction::Iand => {

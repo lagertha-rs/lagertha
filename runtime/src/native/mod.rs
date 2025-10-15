@@ -642,6 +642,7 @@ fn java_lang_throwable_fill_in_stack_trace(vm: &mut VirtualMachine, args: &[Valu
                     .is_subclass_of("java/lang/Throwable")
         })
         .collect();
+    frames.reverse();
     let mut heap = vm.heap.borrow_mut();
     let int_class = vm
         .method_area
@@ -1012,20 +1013,78 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
             "java.lang.StackTraceElement.initStackTraceElements: expected non-negative depth"
         ),
     };
-    let h = vm.heap();
-    let heap = h.borrow_mut();
-    let array = heap.get_array(&elements_array);
-    let obj = heap.get_array(&object);
-    let class_info = heap.get_array(&obj.get_element(0).as_obj_ref().unwrap());
-    let method_info = heap.get_array(&obj.get_element(1).as_obj_ref().unwrap());
-    let cp_info = heap.get_array(&obj.get_element(2).as_obj_ref().unwrap());
 
+    // TODO: obviously need to clean this up
     for i in 0..depth {
-        let class_id = class_info.get_element(i).as_int().unwrap() as usize;
-        let method_id = method_info.get_element(i).as_int().unwrap() as usize;
+        let h = vm.heap();
+        let heap = h.borrow();
+        let class_id = heap
+            .get_array(&heap.get_array(&object).get_element(0).as_obj_ref().unwrap())
+            .get_element(i)
+            .as_int()
+            .unwrap() as usize;
+        let method_id = heap
+            .get_array(&heap.get_array(&object).get_element(1).as_obj_ref().unwrap())
+            .get_element(i)
+            .as_int()
+            .unwrap() as usize;
+        let cp = heap
+            .get_array(&heap.get_array(&object).get_element(2).as_obj_ref().unwrap())
+            .get_element(i)
+            .as_int()
+            .unwrap() as usize;
         let class = vm.method_area().get_class_by_id(class_id).unwrap();
+        drop(heap);
+        drop(h);
+        let declaring_class_object = vm.get_mirror_addr_by_name(class.name()).unwrap();
+        let h = vm.heap();
+        let mut heap = h.borrow_mut();
         let method = class.get_method_by_id(&method_id).unwrap();
-        print!("")
+        let class_name = heap.get_or_new_string(&class.name().replace('/', "."));
+        let method_name = heap.get_or_new_string(method.name());
+        let source = heap.get_or_new_string(class.source_file().unwrap());
+        let line_nbr = method.get_line_number_by_cp(cp).unwrap();
+        let cur_stack_trace_entry = heap
+            .get_array(&elements_array)
+            .get_element(i)
+            .as_obj_ref()
+            .unwrap();
+
+        heap.write_instance_field(
+            cur_stack_trace_entry,
+            "declaringClass",
+            "Ljava/lang/String;",
+            Value::Ref(class_name),
+        )
+        .unwrap();
+        heap.write_instance_field(
+            cur_stack_trace_entry,
+            "methodName",
+            "Ljava/lang/String;",
+            Value::Ref(method_name),
+        )
+        .unwrap();
+        heap.write_instance_field(
+            cur_stack_trace_entry,
+            "fileName",
+            "Ljava/lang/String;",
+            Value::Ref(source),
+        )
+        .unwrap();
+        heap.write_instance_field(
+            cur_stack_trace_entry,
+            "lineNumber",
+            "I",
+            Value::Integer(line_nbr as i32),
+        )
+        .unwrap();
+        heap.write_instance_field(
+            cur_stack_trace_entry,
+            "declaringClassObject",
+            "Ljava/lang/Class;",
+            Value::Ref(declaring_class_object),
+        )
+        .unwrap();
     }
     None
 }
@@ -1112,7 +1171,7 @@ fn java_lang_object_notify_all(_vm: &mut VirtualMachine, _args: &[Value]) -> Nat
 
 fn java_io_file_output_stream_write_bytes(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Partial implementation: java.io.FileOutputStream.writeBytes");
-    let fd_obj = match &args[0] {
+    let output_stream_addr = match &args[0] {
         Value::Ref(h) => *h,
         _ => panic!("java.io.FileOutputStream.writeBytes: expected FileDescriptor object"),
     };
@@ -1129,14 +1188,30 @@ fn java_io_file_output_stream_write_bytes(vm: &mut VirtualMachine, args: &[Value
         _ => panic!("java.io.FileOutputStream.writeBytes: expected non-negative length"),
     };
 
-    let heap = vm.heap.borrow();
+    let mut heap = vm.heap.borrow_mut();
+    let fd_obj = heap
+        .get_instance_field(&output_stream_addr, "fd", "Ljava/io/FileDescriptor;")
+        .as_obj_ref()
+        .unwrap();
+    let fd = heap
+        .get_instance_field(&fd_obj, "fd", "I")
+        .as_int()
+        .unwrap();
     let array = heap.get_array(&bytes_array);
     for i in offset..offset + length {
         let byte = match array.get_element(i) {
             Value::Integer(b) => b,
             _ => panic!("java.io.FileOutputStream.writeBytes: expected byte element"),
         };
-        print!("{}", *byte as u8 as char);
+        if fd == 1 {
+            print!("{}", *byte as u8 as char);
+        } else if fd == 2 {
+            eprint!("{}", *byte as u8 as char);
+        } else {
+            unimplemented!(
+                "java.io.FileOutputStream.writeBytes: only stdout and stderr are supported"
+            );
+        }
     }
     None
 }
