@@ -1,6 +1,6 @@
 use crate::error::JvmError;
-use crate::rt::class::LinkageError;
-use crate::rt::class::class::Class;
+use crate::rt::LinkageError;
+use crate::rt::class::Class;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::constant_pool::reference::MethodDescriptorReference;
 use crate::{ClassId, MethodId};

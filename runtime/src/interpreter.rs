@@ -1,8 +1,8 @@
 use crate::VirtualMachine;
 use crate::error::JvmError;
-use crate::method_area::MethodArea;
+use crate::heap::method_area::MethodArea;
 use crate::native::MethodKey;
-use crate::rt::class::class::{Class, InitState};
+use crate::rt::class::{Class, InitState};
 use crate::rt::constant_pool::RuntimeConstant;
 use crate::rt::constant_pool::reference::MethodReference;
 use crate::rt::method::{Method, MethodType};
@@ -32,10 +32,6 @@ impl Interpreter {
 
     pub fn vm(&mut self) -> &mut VirtualMachine {
         &mut self.vm
-    }
-
-    fn method_area(&mut self) -> &mut MethodArea {
-        self.vm.method_area()
     }
 
     fn pop_frame(&mut self) -> Result<(), JvmError> {

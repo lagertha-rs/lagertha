@@ -1,8 +1,8 @@
 use crate::class_loader::ClassLoader;
 use crate::error::JvmError;
 use crate::heap::Heap;
-use crate::rt::class::LinkageError;
-use crate::rt::class::class::Class;
+use crate::rt::LinkageError;
+use crate::rt::class::Class;
 use crate::{ClassId, VmConfig};
 use class_file::ClassFile;
 use common::instruction::ArrayType;
@@ -99,7 +99,7 @@ impl MethodArea {
         self.mirrors.get(mirror)
     }
 
-    pub(super) fn get_mirror_addr_by_name(
+    pub(crate) fn get_mirror_addr_by_name(
         &mut self,
         name: &str,
         heap: &Rc<RefCell<Heap>>,
@@ -108,7 +108,7 @@ impl MethodArea {
         self.get_mirror_addr_by_class(&target_class, heap)
     }
 
-    pub(super) fn get_mirror_addr_by_class(
+    pub(crate) fn get_mirror_addr_by_class(
         &mut self,
         target_class: &Arc<Class>,
         heap: &Rc<RefCell<Heap>>,
@@ -123,7 +123,7 @@ impl MethodArea {
         Ok(mirror)
     }
 
-    pub(super) fn get_primitive_mirror_addr(
+    pub(crate) fn get_primitive_mirror_addr(
         &mut self,
         name: &HeapAddr,
         heap: &Rc<RefCell<Heap>>,

@@ -1,11 +1,11 @@
 use crate::ClassId;
 use crate::error::JvmError;
-use crate::method_area::MethodArea;
-use crate::rt::class::field::{Field, StaticField};
+use crate::heap::method_area::MethodArea;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::constant_pool::reference::{
     MethodDescriptorReference, MethodReference, NameAndTypeReference,
 };
+use crate::rt::field::{Field, StaticField};
 use crate::rt::method::{Method, MethodType};
 use class_file::ClassFile;
 use class_file::attribute::class::ClassAttribute;

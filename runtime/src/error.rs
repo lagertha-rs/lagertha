@@ -1,6 +1,6 @@
 use crate::ClassId;
 use crate::class_loader::ClassLoaderErr;
-use crate::rt::class::LinkageError;
+use crate::rt::LinkageError;
 use crate::rt::constant_pool::error::RuntimePoolError;
 use common::jtype::HeapAddr;
 use common::utils::cursor::CursorError;

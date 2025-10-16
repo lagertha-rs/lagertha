@@ -1,7 +1,10 @@
 // TODO: very primitive implementation, ok for right now
 
+pub mod method_area;
+
 use crate::error::JvmError;
-use crate::rt::class::class::Class;
+use crate::heap::method_area::MethodArea;
+use crate::rt::class::Class;
 use crate::rt::constant_pool::reference::NameAndTypeReference;
 use common::jtype::{HeapAddr, Value};
 use std::cell::OnceCell;
@@ -81,16 +84,18 @@ pub struct Heap {
     objects: Vec<HeapObject>,
     string_pool: HashMap<String, HeapAddr>,
     char_class: OnceCell<Arc<Class>>,
+    method_area: MethodArea,
 }
 
 impl Heap {
-    pub fn new() -> Self {
+    pub fn new(method_area: MethodArea) -> Self {
         debug!("Creating Heap...");
         Self {
             string_class: OnceCell::new(),
             string_pool: HashMap::new(),
             objects: Vec::new(),
             char_class: OnceCell::new(),
+            method_area,
         }
     }
 

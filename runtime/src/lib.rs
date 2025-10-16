@@ -1,12 +1,11 @@
 use crate::error::JvmError;
 use crate::heap::Heap;
+use crate::heap::method_area::MethodArea;
 use crate::interpreter::Interpreter;
-use crate::method_area::MethodArea;
 use crate::native::NativeRegistry;
-use crate::rt::class::class::Class;
+use crate::rt::class::Class;
 use crate::stack::FrameStack;
 use common::jtype::{HeapAddr, Value};
-use log::error;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -16,7 +15,6 @@ mod class_loader;
 pub mod error;
 mod heap;
 mod interpreter;
-mod method_area;
 mod native;
 pub mod rt;
 pub mod stack;
@@ -49,7 +47,6 @@ impl VmConfig {
 
 pub struct VirtualMachine {
     config: VmConfig,
-    method_area: MethodArea,
     heap: Rc<RefCell<Heap>>,
     native_registry: NativeRegistry,
     frame_stack: FrameStack,
@@ -58,25 +55,16 @@ pub struct VirtualMachine {
 impl VirtualMachine {
     pub fn new(config: VmConfig) -> Result<Self, JvmError> {
         config.validate();
-        let heap = Rc::new(RefCell::new(Heap::new()));
-        let mut method_area = MethodArea::new(&config)?;
-        let char_class = method_area.get_class("[C")?;
-        heap.borrow().set_char_class(char_class);
-        let string_class = method_area.get_class("java/lang/String")?;
-        heap.borrow().initialize(string_class);
+        let method_area = MethodArea::new(&config)?;
+        let heap = Rc::new(RefCell::new(Heap::new(method_area)));
 
         let native_registry = NativeRegistry::new();
         Ok(Self {
             frame_stack: FrameStack::new(&config),
             config,
-            method_area,
             heap,
             native_registry,
         })
-    }
-
-    pub fn method_area(&mut self) -> &mut MethodArea {
-        &mut self.method_area
     }
 
     pub fn heap(&self) -> Rc<RefCell<Heap>> {
