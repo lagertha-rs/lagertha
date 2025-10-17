@@ -310,7 +310,7 @@ impl Class {
         value: Value,
     ) -> Result<(), JvmError> {
         let name = nat.name()?;
-        let descriptor = nat.field_descriptor()?.raw();
+        let descriptor = nat.field_descriptor_ref()?.raw();
 
         self.set_static_field(name, descriptor, value)?;
 
@@ -361,7 +361,7 @@ impl Class {
 
     pub fn get_field_index_by_nat(&self, nat: &NameAndTypeReference) -> Result<usize, JvmError> {
         let name = nat.name()?;
-        let descriptor = nat.field_descriptor()?.raw();
+        let descriptor = nat.field_descriptor_ref()?.raw();
 
         self.get_field_index(name, descriptor)
     }
@@ -371,7 +371,7 @@ impl Class {
         nat: &NameAndTypeReference,
     ) -> Result<Value, JvmError> {
         let name = nat.name()?;
-        let descriptor = nat.field_descriptor()?.raw();
+        let descriptor = nat.field_descriptor_ref()?.raw();
 
         self.get_static_field_value(name, descriptor)
     }
@@ -401,9 +401,9 @@ impl Class {
         &self,
         method_ref: &MethodReference,
     ) -> Result<&Arc<Method>, JvmError> {
-        let nat = method_ref.name_and_type()?;
+        let nat = method_ref.name_and_type_ref()?;
         let name = nat.name()?;
-        let descriptor = nat.method_descriptor()?.raw();
+        let descriptor = nat.method_descriptor_ref()?.raw();
 
         self.get_static_method(name, descriptor)
     }
@@ -424,9 +424,9 @@ impl Class {
         &self,
         method_ref: &MethodReference,
     ) -> Result<&Arc<Method>, JvmError> {
-        let nat = method_ref.name_and_type()?;
+        let nat = method_ref.name_and_type_ref()?;
         let name = nat.name()?;
-        let descriptor = nat.method_descriptor()?.raw();
+        let descriptor = nat.method_descriptor_ref()?.raw();
 
         self.get_virtual_method(name, descriptor)
     }
@@ -436,9 +436,9 @@ impl Class {
         &self,
         method_ref: &MethodReference,
     ) -> Result<(&Arc<Method>, &Arc<RuntimeConstantPool>), JvmError> {
-        let nat = method_ref.name_and_type()?;
+        let nat = method_ref.name_and_type_ref()?;
         let name = nat.name()?;
-        let descriptor = nat.method_descriptor()?.raw();
+        let descriptor = nat.method_descriptor_ref()?.raw();
 
         self.get_virtual_method_recursive(name, descriptor)
             .ok_or(JvmError::NoSuchMethod(format!(

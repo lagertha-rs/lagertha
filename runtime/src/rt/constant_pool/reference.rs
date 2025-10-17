@@ -104,7 +104,7 @@ impl MethodReference {
         &self.name_and_type_index
     }
 
-    pub fn class(&self) -> Result<&Arc<ClassReference>, RuntimePoolError> {
+    pub fn class_ref(&self) -> Result<&Arc<ClassReference>, RuntimePoolError> {
         self.class
             .get()
             .ok_or(RuntimePoolError::TryingToAccessUnresolved(
@@ -113,7 +113,7 @@ impl MethodReference {
             ))
     }
 
-    pub fn name_and_type(&self) -> Result<&Arc<NameAndTypeReference>, RuntimePoolError> {
+    pub fn name_and_type_ref(&self) -> Result<&Arc<NameAndTypeReference>, RuntimePoolError> {
         self.name_and_type
             .get()
             .ok_or(RuntimePoolError::TryingToAccessUnresolved(
@@ -151,7 +151,7 @@ impl FieldReference {
         &self.name_and_type_index
     }
 
-    pub fn class(&self) -> Result<&Arc<ClassReference>, RuntimePoolError> {
+    pub fn class_ref(&self) -> Result<&Arc<ClassReference>, RuntimePoolError> {
         self.class
             .get()
             .ok_or(RuntimePoolError::TryingToAccessUnresolved(
@@ -160,7 +160,7 @@ impl FieldReference {
             ))
     }
 
-    pub fn name_and_type(&self) -> Result<&Arc<NameAndTypeReference>, RuntimePoolError> {
+    pub fn name_and_type_ref(&self) -> Result<&Arc<NameAndTypeReference>, RuntimePoolError> {
         self.name_and_type
             .get()
             .ok_or(RuntimePoolError::TryingToAccessUnresolved(
@@ -211,7 +211,9 @@ impl NameAndTypeReference {
             ))
     }
 
-    pub fn method_descriptor(&self) -> Result<&Arc<MethodDescriptorReference>, RuntimePoolError> {
+    pub fn method_descriptor_ref(
+        &self,
+    ) -> Result<&Arc<MethodDescriptorReference>, RuntimePoolError> {
         self.method_descriptor
             .get()
             .ok_or(RuntimePoolError::TryingToAccessUnresolved(
@@ -220,7 +222,7 @@ impl NameAndTypeReference {
             ))
     }
 
-    pub fn field_descriptor(&self) -> Result<&Arc<FieldDescriptorReference>, RuntimePoolError> {
+    pub fn field_descriptor_ref(&self) -> Result<&Arc<FieldDescriptorReference>, RuntimePoolError> {
         self.field_descriptor
             .get()
             .ok_or(RuntimePoolError::TryingToAccessUnresolved(
@@ -312,7 +314,7 @@ impl InvokeDynamicReference {
         self.name_and_type_index
     }
 
-    pub fn name_and_type(&self) -> Result<&Arc<NameAndTypeReference>, RuntimePoolError> {
+    pub fn name_and_type_ref(&self) -> Result<&Arc<NameAndTypeReference>, RuntimePoolError> {
         self.name_and_type
             .get()
             .ok_or(RuntimePoolError::TryingToAccessUnresolved(
@@ -340,7 +342,7 @@ impl MethodTypeReference {
         self.descriptor_index
     }
 
-    pub fn descriptor(&self) -> Result<&Arc<MethodDescriptorReference>, RuntimePoolError> {
+    pub fn descriptor_ref(&self) -> Result<&Arc<MethodDescriptorReference>, RuntimePoolError> {
         self.descriptor
             .get()
             .ok_or(RuntimePoolError::TryingToAccessUnresolved(

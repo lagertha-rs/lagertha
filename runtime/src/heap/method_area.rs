@@ -1,15 +1,11 @@
 use crate::class_loader::ClassLoader;
 use crate::error::JvmError;
-use crate::heap::Heap;
 use crate::rt::LinkageError;
 use crate::rt::class::Class;
 use crate::{ClassId, VmConfig};
 use class_file::ClassFile;
 use common::instruction::ArrayType;
-use common::jtype::HeapAddr;
-use std::cell::RefCell;
 use std::collections::HashMap;
-use std::rc::Rc;
 use std::sync::Arc;
 use tracing_log::log::debug;
 
@@ -21,8 +17,6 @@ pub struct MethodArea {
     // TODO: make class name Arc<str>?
     classes_idx: HashMap<String, ClassId>,
     classes: Vec<Arc<Class>>,
-    mirrors: HashMap<HeapAddr, Arc<Class>>,
-    primitives: HashMap<HeapAddr, HeapAddr>,
 }
 
 impl MethodArea {
@@ -33,18 +27,15 @@ impl MethodArea {
             classes_idx: HashMap::new(),
             classes: Vec::new(),
             bootstrap_class_loader,
-            mirrors: HashMap::new(),
-            primitives: HashMap::new(),
         };
 
         debug!("MethodArea initialized");
         Ok(method_area)
     }
 
-    pub fn get_class_by_id(&self, class_id: ClassId) -> Result<Arc<Class>, JvmError> {
+    pub fn get_class_by_id(&self, class_id: ClassId) -> Result<&Arc<Class>, JvmError> {
         self.classes
             .get(class_id)
-            .cloned()
             .ok_or(JvmError::ClassNotFound2(class_id))
     }
 
@@ -93,52 +84,5 @@ impl MethodArea {
             return Ok(*class_id);
         }
         Err(JvmError::ClassNotFound(name.to_string()))
-    }
-
-    pub fn get_class_by_mirror(&self, mirror: &HeapAddr) -> Option<&Arc<Class>> {
-        self.mirrors.get(mirror)
-    }
-
-    pub(crate) fn get_mirror_addr_by_name(
-        &mut self,
-        name: &str,
-        heap: &Rc<RefCell<Heap>>,
-    ) -> Result<HeapAddr, JvmError> {
-        let target_class = self.get_class(name)?;
-        self.get_mirror_addr_by_class(&target_class, heap)
-    }
-
-    pub(crate) fn get_mirror_addr_by_class(
-        &mut self,
-        target_class: &Arc<Class>,
-        heap: &Rc<RefCell<Heap>>,
-    ) -> Result<HeapAddr, JvmError> {
-        if let Some(mirror) = target_class.mirror() {
-            return Ok(mirror);
-        }
-        let class_class = self.get_class("java/lang/Class")?;
-        let mirror = heap.borrow_mut().alloc_instance(class_class);
-        target_class.set_mirror(mirror)?;
-        self.mirrors.insert(mirror, target_class.clone());
-        Ok(mirror)
-    }
-
-    pub(crate) fn get_primitive_mirror_addr(
-        &mut self,
-        name: &HeapAddr,
-        heap: &Rc<RefCell<Heap>>,
-    ) -> HeapAddr {
-        if let Some(addr) = self.primitives.get(name) {
-            *addr
-        } else {
-            let class_class = self.get_class("java/lang/Class").unwrap();
-            let mirror_addr = heap.borrow_mut().alloc_instance(class_class);
-            self.primitives.insert(*name, mirror_addr);
-            mirror_addr
-        }
-    }
-
-    pub fn addr_is_primitive(&self, addr: &HeapAddr) -> bool {
-        self.primitives.values().any(|v| v == addr)
     }
 }

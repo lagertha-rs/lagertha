@@ -3,12 +3,10 @@ use crate::heap::Heap;
 use crate::heap::method_area::MethodArea;
 use crate::interpreter::Interpreter;
 use crate::native::NativeRegistry;
-use crate::rt::class::Class;
 use crate::stack::FrameStack;
-use common::jtype::{HeapAddr, Value};
+use common::jtype::Value;
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::sync::Arc;
 use tracing_log::log::debug;
 
 mod class_loader;
@@ -56,7 +54,7 @@ impl VirtualMachine {
     pub fn new(config: VmConfig) -> Result<Self, JvmError> {
         config.validate();
         let method_area = MethodArea::new(&config)?;
-        let heap = Rc::new(RefCell::new(Heap::new(method_area)));
+        let heap = Rc::new(RefCell::new(Heap::new(method_area)?));
 
         let native_registry = NativeRegistry::new();
         Ok(Self {
@@ -69,22 +67,6 @@ impl VirtualMachine {
 
     pub fn heap(&self) -> Rc<RefCell<Heap>> {
         self.heap.clone()
-    }
-
-    pub fn get_mirror_addr_by_name(&mut self, name: &str) -> Result<HeapAddr, JvmError> {
-        self.method_area.get_mirror_addr_by_name(name, &self.heap)
-    }
-
-    pub fn get_mirror_addr_by_class(
-        &mut self,
-        target_class: &Arc<Class>,
-    ) -> Result<HeapAddr, JvmError> {
-        self.method_area
-            .get_mirror_addr_by_class(target_class, &self.heap)
-    }
-
-    pub fn get_primitive_mirror_addr(&mut self, name: &HeapAddr) -> HeapAddr {
-        self.method_area.get_primitive_mirror_addr(name, &self.heap)
     }
 }
 

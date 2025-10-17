@@ -1,4 +1,3 @@
-use crate::VirtualMachine;
 use crate::error::JvmError;
 use crate::heap::method_area::MethodArea;
 use crate::native::MethodKey;
@@ -7,6 +6,7 @@ use crate::rt::constant_pool::RuntimeConstant;
 use crate::rt::constant_pool::reference::MethodReference;
 use crate::rt::method::{Method, MethodType};
 use crate::stack::Frame;
+use crate::{ClassId, VirtualMachine};
 use common::instruction::Instruction;
 use common::jtype::Value;
 use log::warn;
@@ -43,10 +43,15 @@ impl Interpreter {
         Ok(())
     }
 
-    fn ensure_initialized(&mut self, class: Option<&Arc<Class>>) -> Result<(), JvmError> {
+    pub fn ensure_initialized(&mut self, class_id: ClassId) -> Result<(), JvmError> {
+        let class = self.method_area().get_class_by_id(class_id)?;
+        self.ensure_initialized(Some(&class))
+    }
+
+    fn ensure_initialized_recursive(&mut self, class: Option<&Arc<Class>>) -> Result<(), JvmError> {
         if let Some(class) = class {
             if let Some(super_class) = &class.super_class() {
-                self.ensure_initialized(Some(super_class))?;
+                self.ensure_initialized_recursive(Some(super_class))?;
             }
             if !class.initialized()
                 && let Some(initializer) = class.initializer()
@@ -532,25 +537,45 @@ impl Interpreter {
             Instruction::Putstatic(idx) => {
                 let cp = self.vm.frame_stack.cp()?;
                 let field_ref = cp.get_fieldref(&idx)?;
-                let class = self.method_area().get_class(field_ref.class()?.name()?)?;
-                self.ensure_initialized(Some(&class))?;
-                let field_nat = field_ref.name_and_type()?;
-                class.set_static_field_by_nat(field_nat, self.vm.frame_stack.pop_operand()?)?;
+                let class_id = self
+                    .vm
+                    .heap
+                    .borrow()
+                    .method_area()
+                    .get_class_id(field_ref.class_ref()?.name()?)?;
+                self.ensure_initialized(class_id)?;
+                let field_nat = field_ref.name_and_type_ref()?;
+                self.vm.heap.borrow_mut().set_class_static_field_by_nat(
+                    class_id,
+                    field_nat,
+                    self.vm.frame_stack.pop_operand()?,
+                )?;
             }
             Instruction::Getstatic(idx) => {
                 let cp = self.vm.frame_stack.cp()?;
                 let field_ref = cp.get_fieldref(&idx)?;
-                let class = self.method_area().get_class(field_ref.class()?.name()?)?;
-                self.ensure_initialized(Some(&class))?;
-                let field_nat = field_ref.name_and_type()?;
-                let value = class.get_static_field_value_by_nat(field_nat)?;
+                let class_id = self
+                    .vm
+                    .heap
+                    .borrow()
+                    .method_area()
+                    .get_class_id(field_ref.class_ref()?.name()?)?;
+                self.ensure_initialized(class_id)?;
+                let field_nat = field_ref.name_and_type_ref()?;
+                let value = self
+                    .vm
+                    .heap
+                    .borrow_mut()
+                    .get_class_static_field_by_nat(class_id, field_nat)?;
                 self.vm.frame_stack.push_operand(value)?;
             }
             Instruction::InvokeStatic(idx) => {
                 let cp = self.vm.frame_stack.cp()?;
                 let method_ref = cp.get_methodref(&idx)?;
-                let class = self.method_area().get_class(method_ref.class()?.name()?)?;
-                self.ensure_initialized(Some(&class))?;
+                let class = self
+                    .method_area()
+                    .get_class(method_ref.class_ref()?.name()?)?;
+                self.ensure_initialized_recursive(Some(&class))?;
                 let method = class.get_static_method_by_nat(method_ref)?;
                 let params = self.prepare_method_params(method)?;
                 self.run_static_method_type(&class, method, params)?;
@@ -558,7 +583,9 @@ impl Interpreter {
             Instruction::InvokeInterface(idx, _count) => {
                 let cp = self.vm.frame_stack.cp()?;
                 let method_ref = cp.get_interface_methodref(&idx)?;
-                let class = self.method_area().get_class(method_ref.class()?.name()?)?;
+                let class = self
+                    .method_area()
+                    .get_class(method_ref.class_ref()?.name()?)?;
                 let method = class.get_virtual_method_by_nat(method_ref)?;
                 let params = self.prepare_method_params(method)?;
                 if method.name() == "startThreads"
@@ -584,7 +611,11 @@ impl Interpreter {
                         self.vm.frame_stack.push_operand(Value::Ref(string_addr))?;
                     }
                     RuntimeConstant::Class(class) => {
-                        let class_mirror = self.vm.get_mirror_addr_by_name(class.name()?)?;
+                        let class_mirror = self
+                            .vm
+                            .heap
+                            .borrow_mut()
+                            .get_mirror_addr_by_name(class.name()?)?;
                         self.vm.frame_stack.push_operand(Value::Ref(class_mirror))?;
                     }
                     RuntimeConstant::Double(value) => {
@@ -605,10 +636,19 @@ impl Interpreter {
             Instruction::Anewarray(idx) => {
                 let cp = self.vm.frame_stack.cp()?;
                 let class_ref = cp.get_class(&idx)?;
-                let class = self.method_area().get_class(class_ref.name()?)?;
+                let class_id = self
+                    .vm
+                    .heap
+                    .borrow()
+                    .method_area()
+                    .get_class_id(class_ref.name()?)?;
                 let size = self.vm.frame_stack.pop_int_val()?;
                 if size >= 0 {
-                    let addr = self.vm.heap.borrow_mut().alloc_array(class, size as usize);
+                    let addr = self
+                        .vm
+                        .heap
+                        .borrow_mut()
+                        .alloc_array(class_id, size as usize);
                     self.vm.frame_stack.push_operand(Value::Ref(addr))?;
                 } else {
                     return Err(JvmError::NegativeArraySizeException)?;
@@ -633,7 +673,7 @@ impl Interpreter {
                 let cp = self.vm.frame_stack.cp()?;
                 let class_ref = cp.get_class(&idx)?;
                 let class = self.method_area().get_class(class_ref.name()?)?;
-                self.ensure_initialized(Some(&class))?;
+                self.ensure_initialized_recursive(Some(&class))?;
                 let addr = self.vm.heap.borrow_mut().alloc_instance(class);
                 self.vm.frame_stack.push_operand(Value::Ref(addr))?;
             }
@@ -671,7 +711,9 @@ impl Interpreter {
             Instruction::InvokeSpecial(idx) => {
                 let cp = self.vm.frame_stack.cp()?;
                 let method_ref = cp.get_methodref(&idx)?;
-                let class = self.method_area().get_class(method_ref.class()?.name()?)?;
+                let class = self
+                    .method_area()
+                    .get_class(method_ref.class_ref()?.name()?)?;
                 let method = class.get_virtual_method_by_nat(method_ref)?;
                 if !matches!(method.type_of(), MethodType::Java) {
                     unimplemented!("InvokeSpecial for native or abstract methods");
@@ -687,7 +729,9 @@ impl Interpreter {
             Instruction::InvokeVirtual(idx) => {
                 let cp = self.vm.frame_stack.cp()?;
                 let method_ref = cp.get_methodref(&idx)?;
-                let class = self.method_area().get_class(method_ref.class()?.name()?)?;
+                let class = self
+                    .method_area()
+                    .get_class(method_ref.class_ref()?.name()?)?;
                 let method = class.get_virtual_method_by_nat(method_ref)?;
 
                 let params = self.prepare_method_params(method)?;
@@ -856,7 +900,7 @@ impl Interpreter {
             }
             Instruction::Getfield(idx) => {
                 let cp = self.vm.frame_stack.cp()?;
-                let field_nat = cp.get_fieldref(&idx)?.name_and_type()?;
+                let field_nat = cp.get_fieldref(&idx)?.name_and_type_ref()?;
                 let object_addr = self.vm.frame_stack.pop_obj_val()?;
                 let value = *self
                     .vm
@@ -1004,7 +1048,7 @@ impl Interpreter {
             }
             Instruction::Putfield(idx) => {
                 let cp = self.vm.frame_stack.cp()?;
-                let field_nat = cp.get_fieldref(&idx)?.name_and_type()?;
+                let field_nat = cp.get_fieldref(&idx)?.name_and_type_ref()?;
                 let value = self.vm.frame_stack.pop_operand()?;
                 let object_addr = self.vm.frame_stack.pop_obj_val()?;
                 self.vm.heap.borrow_mut().write_instance_field_by_nat(
@@ -1255,7 +1299,7 @@ impl Interpreter {
             .find_main_method()
             .ok_or(JvmError::NoMainClassFound(main_class.name().to_string()))?;
         debug!("Found main method of class {}", main_class.name());
-        self.ensure_initialized(Some(&main_class))?;
+        self.ensure_initialized_recursive(Some(&main_class))?;
         let instructions = main_method.instructions()?;
         //TODO: handle args
         let frame = Frame::new(
