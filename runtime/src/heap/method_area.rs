@@ -39,22 +39,21 @@ impl MethodArea {
             .ok_or(JvmError::ClassNotFound2(class_id))
     }
 
-    pub fn add_raw_bytecode(&mut self, data: Vec<u8>) -> Result<Arc<Class>, JvmError> {
+    pub fn add_raw_bytecode(&mut self, data: Vec<u8>) -> Result<&Arc<Class>, JvmError> {
         let cf = ClassFile::try_from(data).map_err(LinkageError::from)?;
         let class = Class::new(cf, self)?;
-        self.add_class(class.clone())?;
-        Ok(class)
+        self.add_class(class)
     }
 
-    fn add_class(&mut self, class: Arc<Class>) -> Result<(), JvmError> {
+    fn add_class(&mut self, class: Arc<Class>) -> Result<&Arc<Class>, JvmError> {
         let id = self.classes.len();
         class.set_id(id)?;
         self.classes.push(class.clone());
         self.classes_idx.insert(class.name().to_string(), id);
-        Ok(())
+        Ok(&self.classes[id])
     }
 
-    pub fn get_class(&mut self, name: &str) -> Result<Arc<Class>, JvmError> {
+    pub fn get_class(&mut self, name: &str) -> Result<&Arc<Class>, JvmError> {
         if let Some(class_id) = self.classes_idx.get(name) {
             return self.get_class_by_id(*class_id);
         }
@@ -66,7 +65,7 @@ impl MethodArea {
         }
     }
 
-    fn create_array_class(&mut self, name: &str) -> Result<Arc<Class>, JvmError> {
+    fn create_array_class(&mut self, name: &str) -> Result<&Arc<Class>, JvmError> {
         if let Some(class_id) = self.classes_idx.get(name) {
             return self.get_class_by_id(*class_id);
         }
@@ -75,14 +74,15 @@ impl MethodArea {
         } else {
             Class::new_array(name)?
         };
-        self.add_class(class.clone())?;
-        Ok(class)
+        self.add_class(class.clone())
     }
 
-    pub fn get_class_id(&self, name: &str) -> Result<ClassId, JvmError> {
+    pub fn get_class_id(&mut self, name: &str) -> Result<ClassId, JvmError> {
         if let Some(class_id) = self.classes_idx.get(name) {
-            return Ok(*class_id);
+            Ok(*class_id)
+        } else {
+            let class = self.get_class(name)?;
+            class.id()
         }
-        Err(JvmError::ClassNotFound(name.to_string()))
     }
 }

@@ -1,5 +1,4 @@
 use clap::Parser;
-use common::utils::telemetry::init_tracing;
 use runtime::VmConfig;
 use tracing_log::log::{debug, error};
 

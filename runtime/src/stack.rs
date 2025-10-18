@@ -262,9 +262,8 @@ impl FrameStack {
         self.cur_frame_mut()?.pop_operand()
     }
 
-    //TODO: cloning cp every time may be inefficient, even if it's Arc
-    pub fn cp(&self) -> Result<Arc<RuntimeConstantPool>, JvmError> {
-        self.cur_frame().map(|v| v.cp.clone())
+    pub fn cp(&self) -> Result<&RuntimeConstantPool, JvmError> {
+        self.cur_frame().map(|v| v.cp.as_ref())
     }
 
     pub fn peek(&self) -> Result<&Value, JvmError> {

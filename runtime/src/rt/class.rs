@@ -142,7 +142,11 @@ impl Class {
             }
         }
         let super_class = if cf.super_class != 0 {
-            Some(method_area.get_class(cp.get_class_name(&cf.super_class)?)?)
+            Some(
+                method_area
+                    .get_class(cp.get_class_name(&cf.super_class)?)?
+                    .clone(),
+            ) // FIXME
         } else {
             None
         };
@@ -219,12 +223,12 @@ impl Class {
         self.primitive
     }
 
-    pub fn instance_of(&self, class: &Arc<Class>) -> bool {
-        if self.name == class.name {
+    pub fn instance_of(&self, id: &ClassId) -> bool {
+        if &self.id().unwrap() == id {
             return true;
         }
         match &self.super_class {
-            Some(super_class) => super_class.instance_of(class),
+            Some(super_class) => super_class.instance_of(id),
             None => false,
         }
     }
@@ -293,7 +297,7 @@ impl Class {
             .get(name)
             .and_then(|m| m.get(descriptor))
             .map(|f| f.set_value(value))
-            .ok_or(JvmError::FieldNotFound(name.to_string()))??;
+            .ok_or(JvmError::NoSuchFieldError(name.to_string()))??;
         /* TODO:
         NoSuchFieldError,
         IncompatibleClassChangeError,
@@ -317,19 +321,21 @@ impl Class {
         Ok(())
     }
 
-    fn get_field_index_recursive(&self, name: &str, descriptor: &str) -> ControlFlow<usize, usize> {
-        if let Some(idx) = self
-            .field_idx
-            .get(name)
-            .and_then(|m| m.get(descriptor))
-            .copied()
-        {
-            return ControlFlow::Break(idx);
+    fn get_field_index_recursive(&self, name: &str) -> ControlFlow<usize, usize> {
+        let descriptors = self.field_idx.get(name);
+        if let Some(descriptors) = descriptors {
+            if descriptors.len() == 1 {
+                if let Some(idx) = descriptors.values().next() {
+                    return ControlFlow::Break(*idx);
+                }
+            } else {
+                panic!("More than one field with name {}", name);
+            }
         }
 
         let fields_count = self.fields.len();
         match &self.super_class {
-            Some(super_class) => match super_class.get_field_index_recursive(name, descriptor) {
+            Some(super_class) => match super_class.get_field_index_recursive(name) {
                 ControlFlow::Break(idx) => ControlFlow::Break(idx + fields_count),
                 ControlFlow::Continue(acc) => ControlFlow::Continue(acc + fields_count),
             },
@@ -337,33 +343,18 @@ impl Class {
         }
     }
 
-    //TODO: probably I don't need to index fields by descriptor, because field overloading is not allowed in Java
-    pub fn get_field_index_by_name(&self, name: &str) -> Result<usize, JvmError> {
-        let descriptors = self.field_idx.get(name);
-        if let Some(descriptors) = descriptors {
-            if descriptors.len() == 1 {
-                if let Some(idx) = descriptors.values().next() {
-                    return Ok(*idx);
-                }
-            } else {
-                panic!("More than one field with name {}", name);
-            }
-        }
-        Err(JvmError::FieldNotFound(name.to_string()))
-    }
-
-    pub fn get_field_index(&self, name: &str, descriptor: &str) -> Result<usize, JvmError> {
-        match self.get_field_index_recursive(name, descriptor) {
+    //TODO: rename indexes here to field_offset or similar
+    pub fn get_field_index(&self, name: &str) -> Result<usize, JvmError> {
+        match self.get_field_index_recursive(name) {
             ControlFlow::Break(idx) => Ok(idx),
-            ControlFlow::Continue(_) => Err(JvmError::FieldNotFound(name.to_string())),
+            ControlFlow::Continue(_) => Err(JvmError::NoSuchFieldError(name.to_string())),
         }
     }
 
     pub fn get_field_index_by_nat(&self, nat: &NameAndTypeReference) -> Result<usize, JvmError> {
         let name = nat.name()?;
-        let descriptor = nat.field_descriptor_ref()?.raw();
 
-        self.get_field_index(name, descriptor)
+        self.get_field_index(name)
     }
 
     pub fn get_static_field_value_by_nat(
@@ -394,7 +385,7 @@ impl Class {
     pub fn get_static_field_value(&self, name: &str, descriptor: &str) -> Result<Value, JvmError> {
         self.get_static_field_value_recursive(name, descriptor)
             .map(|f| f.value())
-            .ok_or(JvmError::FieldNotFound(name.to_string()))
+            .ok_or(JvmError::NoSuchFieldError(name.to_string()))
     }
 
     pub fn get_static_method_by_nat(

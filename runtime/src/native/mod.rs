@@ -450,8 +450,7 @@ fn java_lang_system_arraycopy(vm: &mut VirtualMachine, args: &[Value]) -> Native
         _ => panic!("java.lang.System.arraycopy: expected non-negative length"),
     };
     let tmp: Vec<Value> = {
-        let heap = vm.heap.borrow();
-        let arr = heap.get_array(&src);
+        let arr = vm.heap.get_array(&src);
         let src_array_len = arr.length();
         let slice: &[Value] = arr.elements();
         if src_pos
@@ -464,8 +463,7 @@ fn java_lang_system_arraycopy(vm: &mut VirtualMachine, args: &[Value]) -> Native
     };
 
     {
-        let mut heap = vm.heap.borrow_mut();
-        let dest_array_len = heap.get_array(&dest).length();
+        let dest_array_len = vm.heap.get_array(&dest).length();
         if dest_pos
             .checked_add(length)
             .map_or(true, |end| end > dest_array_len)
@@ -474,7 +472,8 @@ fn java_lang_system_arraycopy(vm: &mut VirtualMachine, args: &[Value]) -> Native
         }
 
         for i in 0..length {
-            heap.write_array_element(dest, dest_pos + i, tmp[i].clone())
+            vm.heap
+                .write_array_element(dest, dest_pos + i, tmp[i].clone())
                 .unwrap();
         }
     }
@@ -497,7 +496,7 @@ fn java_lang_class_desired_assertion_status_0(
 fn java_lang_class_is_primitive(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.isPrimitive");
     if let Value::Ref(h) = &args[0] {
-        let is_primitive = vm.method_area().addr_is_primitive(h);
+        let is_primitive = vm.heap.addr_is_primitive(h);
         Some(Value::Integer(if is_primitive { 1 } else { 0 }))
     } else {
         panic!("java.lang.Class.isPrimitive: expected object");
@@ -507,7 +506,7 @@ fn java_lang_class_is_primitive(vm: &mut VirtualMachine, args: &[Value]) -> Nati
 fn java_lang_class_get_primitive_class(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.getPrimitiveClass");
     if let Value::Ref(h) = &args[0] {
-        let v = vm.get_primitive_mirror_addr(h);
+        let v = vm.heap.get_primitive_mirror_addr(h).unwrap();
         Some(Value::Ref(v))
     } else {
         panic!("java.lang.Class.getPrimitiveClass: expected object");
@@ -517,15 +516,16 @@ fn java_lang_class_get_primitive_class(vm: &mut VirtualMachine, args: &[Value]) 
 fn java_lang_object_get_class(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.getClass");
     if let Value::Ref(h) = &args[0] {
-        let target_class = if let Some(obj) = vm.heap().borrow().get(*h) {
+        let target_class_id = if let Some(obj) = vm.heap.get(*h) {
             match obj {
-                HeapObject::Instance(instance) => instance.class().clone(),
-                HeapObject::Array(array) => array.class().clone(),
+                HeapObject::Instance(instance) => instance.class_id(),
+                HeapObject::Array(array) => array.class_id(),
             }
         } else {
             panic!("java.lang.Class.getClass: invalid heap address");
         };
-        let res = vm.get_mirror_addr_by_class(&target_class).unwrap();
+        let class = vm.method_area.get_class_by_id(*target_class_id).unwrap();
+        let res = vm.heap.get_mirror_addr(class).unwrap();
         Some(Value::Ref(res))
     } else {
         panic!("java.lang.Class.getClass: expected object as argument");
@@ -554,15 +554,16 @@ fn java_lang_object_init_class_name(vm: &mut VirtualMachine, args: &[Value]) -> 
     debug!("TODO: Stub: java.lang.Class.initClassName");
     if let Value::Ref(h) = &args[0] {
         let class_name = vm
-            .method_area()
+            .heap
             .get_class_by_mirror(h)
             .unwrap()
             .name()
             .replace('/', ".");
-        let val = Value::Ref(vm.heap().borrow_mut().get_or_new_string(&class_name));
-        vm.heap()
-            .borrow_mut()
-            .write_instance_field(*h, "name", "Ljava/lang/String;", val)
+        let val = Value::Ref(vm.heap.get_or_new_string(&class_name));
+        let class_id = vm.heap.get_class_id(h);
+        let class = vm.method_area.get_class_by_id(class_id).unwrap();
+        vm.heap
+            .write_instance_field(*h, class.get_field_index("name").unwrap(), val)
             .unwrap();
         Some(val)
     } else {
@@ -575,17 +576,20 @@ fn jdk_internal_util_system_props_raw_platform_properties(
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.platformProperties");
-    let string_class = vm.method_area().get_class("java/lang/String").unwrap();
-    let mut heap = vm.heap.borrow_mut();
-    let empty_string_stub = heap.get_or_new_string("");
-    let h = heap.alloc_array_with_value(string_class, 40, Value::Ref(empty_string_stub));
-    let enc = heap.get_or_new_string("UTF-8");
-    let line_separator_value = heap.get_or_new_string("\n");
-    heap.write_array_element(h, 19, Value::Ref(line_separator_value))
+    let string_class = vm.method_area.get_class("java/lang/String").unwrap();
+    let empty_string_stub = vm.heap.get_or_new_string("");
+    let h = vm
+        .heap
+        .alloc_array_with_value(string_class, 40, Value::Ref(empty_string_stub))
         .unwrap();
-    heap.write_array_element(h, 27, Value::Ref(enc)).unwrap();
-    heap.write_array_element(h, 28, Value::Ref(enc)).unwrap();
-    heap.write_array_element(h, 34, Value::Ref(enc)).unwrap();
+    let enc = vm.heap.get_or_new_string("UTF-8");
+    let line_separator_value = vm.heap.get_or_new_string("\n");
+    vm.heap
+        .write_array_element(h, 19, Value::Ref(line_separator_value))
+        .unwrap();
+    vm.heap.write_array_element(h, 27, Value::Ref(enc)).unwrap();
+    vm.heap.write_array_element(h, 28, Value::Ref(enc)).unwrap();
+    vm.heap.write_array_element(h, 34, Value::Ref(enc)).unwrap();
 
     Some(Value::Ref(h))
 }
@@ -595,20 +599,23 @@ fn jdk_internal_util_system_props_raw_vm_properties(
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.vmProperties");
-    let string_class = vm.method_area().get_class("java/lang/String").unwrap();
-    let h = vm.heap().borrow_mut().alloc_array(string_class, 4);
-    let mut heap = vm.heap.borrow_mut();
-    let java_home_key = heap.get_or_new_string("java.home");
-    let java_home_value = heap.get_or_new_string(&vm.config.home);
-    let sun_page_align_stub = heap.get_or_new_string("sun.nio.PageAlignDirectMemory");
-    let false_str = heap.get_or_new_string("false");
-    heap.write_array_element(h, 0, Value::Ref(java_home_key))
+    let string_class = vm.method_area.get_class("java/lang/String").unwrap();
+    let h = vm.heap.alloc_array(string_class, 4).unwrap();
+    let java_home_key = vm.heap.get_or_new_string("java.home");
+    let java_home_value = vm.heap.get_or_new_string(&vm.config.home);
+    let sun_page_align_stub = vm.heap.get_or_new_string("sun.nio.PageAlignDirectMemory");
+    let false_str = vm.heap.get_or_new_string("false");
+    vm.heap
+        .write_array_element(h, 0, Value::Ref(java_home_key))
         .unwrap();
-    heap.write_array_element(h, 1, Value::Ref(java_home_value))
+    vm.heap
+        .write_array_element(h, 1, Value::Ref(java_home_value))
         .unwrap();
-    heap.write_array_element(h, 2, Value::Ref(sun_page_align_stub))
+    vm.heap
+        .write_array_element(h, 2, Value::Ref(sun_page_align_stub))
         .unwrap();
-    heap.write_array_element(h, 3, Value::Ref(false_str))
+    vm.heap
+        .write_array_element(h, 3, Value::Ref(false_str))
         .unwrap();
     Some(Value::Ref(h))
 }
@@ -643,56 +650,63 @@ fn java_lang_throwable_fill_in_stack_trace(vm: &mut VirtualMachine, args: &[Valu
         })
         .collect();
     frames.reverse();
-    let mut heap = vm.heap.borrow_mut();
     let int_class = vm
         .method_area
         .get_class(ArrayType::Int.descriptor())
         .unwrap();
-    let class_id_array = heap.alloc_array(int_class.clone(), frames.len());
-    let method_id_array = heap.alloc_array(int_class.clone(), frames.len());
-    let line_nbr_array = heap.alloc_array(int_class, frames.len());
+    let class_id_array = vm.heap.alloc_array(int_class, frames.len()).unwrap();
+    let method_id_array = vm.heap.alloc_array(int_class, frames.len()).unwrap();
+    let line_nbr_array = vm.heap.alloc_array(int_class, frames.len()).unwrap();
     for (pos, frame) in frames.iter().enumerate() {
-        heap.write_array_element(
-            class_id_array,
-            pos,
-            Value::Integer(frame.method().class_id().unwrap() as i32),
-        )
-        .unwrap();
-        heap.write_array_element(
-            method_id_array,
-            pos,
-            Value::Integer(frame.method().id().unwrap() as i32),
-        )
-        .unwrap();
-        heap.write_array_element(line_nbr_array, pos, Value::Integer(frame.pc() as i32))
+        vm.heap
+            .write_array_element(
+                class_id_array,
+                pos,
+                Value::Integer(frame.method().class_id().unwrap() as i32),
+            )
+            .unwrap();
+        vm.heap
+            .write_array_element(
+                method_id_array,
+                pos,
+                Value::Integer(frame.method().id().unwrap() as i32),
+            )
+            .unwrap();
+        vm.heap
+            .write_array_element(line_nbr_array, pos, Value::Integer(frame.pc() as i32))
             .unwrap();
     }
     let obj_class = vm.method_area.get_class("java/lang/Object").unwrap();
-    let backtrace_addr = heap.alloc_array(obj_class, 3);
-    heap.write_array_element(backtrace_addr, 0, Value::Ref(class_id_array))
+    let backtrace_addr = vm.heap.alloc_array(obj_class, 3).unwrap();
+    vm.heap
+        .write_array_element(backtrace_addr, 0, Value::Ref(class_id_array))
         .unwrap();
-    heap.write_array_element(backtrace_addr, 1, Value::Ref(method_id_array))
+    vm.heap
+        .write_array_element(backtrace_addr, 1, Value::Ref(method_id_array))
         .unwrap();
-    heap.write_array_element(backtrace_addr, 2, Value::Ref(line_nbr_array))
+    vm.heap
+        .write_array_element(backtrace_addr, 2, Value::Ref(line_nbr_array))
         .unwrap();
     let throwable_addr = match args[0] {
         Value::Ref(h) => h,
         _ => panic!("java.lang.Throwable.fillInStackTrace: expected object"),
     };
-    heap.write_instance_field(
-        throwable_addr,
-        "backtrace",
-        "Ljava/lang/Object;",
-        Value::Ref(backtrace_addr),
-    )
-    .unwrap();
-    heap.write_instance_field(
-        throwable_addr,
-        "depth",
-        "I",
-        Value::Integer(frames.len() as i32),
-    )
-    .unwrap();
+    let throwable_class_id = vm.heap.get_class_id(&throwable_addr);
+    let throwable_class = vm.method_area.get_class_by_id(throwable_class_id).unwrap();
+    vm.heap
+        .write_instance_field(
+            throwable_addr,
+            throwable_class.get_field_index("backtrace").unwrap(),
+            Value::Ref(backtrace_addr),
+        )
+        .unwrap();
+    vm.heap
+        .write_instance_field(
+            throwable_addr,
+            throwable_class.get_field_index("depth").unwrap(),
+            Value::Integer(frames.len() as i32),
+        )
+        .unwrap();
 
     Some(Value::Ref(throwable_addr))
 }
@@ -726,9 +740,8 @@ fn jdk_internal_misc_unsafe_compare_and_set_int(
         Value::Integer(l) => l,
         _ => panic!("jdk.internal.misc.Unsafe.compareAndSetLong: expected long new value"),
     };
-    let mut heap = vm.heap.borrow_mut();
-    let instance = heap.get_instance_mut(object);
-    let field = instance.get_field_mut(offset);
+    let instance = vm.heap.get_instance_mut(object);
+    let field = instance.get_element_mut(offset);
     if let Value::Integer(current_value) = field {
         if *current_value == expected {
             *field = Value::Integer(new_value);
@@ -762,9 +775,8 @@ fn jdk_internal_misc_unsafe_compare_and_set_long(
         Value::Long(l) => l,
         _ => panic!("jdk.internal.misc.Unsafe.compareAndSetLong: expected long new value"),
     };
-    let mut heap = vm.heap.borrow_mut();
-    let instance = heap.get_instance_mut(object);
-    let field = instance.get_field_mut(offset);
+    let instance = vm.heap.get_instance_mut(object);
+    let field = instance.get_element_mut(offset);
     if let Value::Long(current_value) = field {
         if *current_value == expected {
             *field = Value::Long(new_value);
@@ -792,10 +804,9 @@ fn jdk_internal_misc_unsafe_get_reference_volatile(
         Value::Long(x) => x,
         _ => panic!("Unsafe.getReferenceVolatile expects a long offset"),
     };
-    let heap = vm.heap.borrow();
-    match heap.get(base) {
+    match vm.heap.get(base) {
         Some(HeapObject::Instance(instance)) => {
-            let field = instance.get_field(off as usize);
+            let field = instance.get_element(off as usize);
             match field {
                 Value::Ref(_) => Some(*field),
                 _ => panic!("Unsafe.getReferenceVolatile field is not an object"),
@@ -827,14 +838,13 @@ fn jdk_internal_misc_unsafe_object_field_offset_1(
     };
     let field_name = match &args[2] {
         Value::Ref(h) => {
-            let heap = vm.heap.borrow();
-            let s = heap.get_string(*h).unwrap();
+            let s = vm.heap.get_string(*h).unwrap();
             s.to_string()
         }
         _ => panic!("jdk.internal.misc.Unsafe.objectFieldOffset: expected field name string"),
     };
-    let class = vm.method_area().get_class_by_mirror(class_addr).unwrap();
-    let offset = class.get_field_index_by_name(&field_name).unwrap();
+    let class = vm.heap.get_class_by_mirror(class_addr).unwrap();
+    let offset = class.get_field_index(&field_name).unwrap();
     Some(Value::Long(offset as i64))
 }
 
@@ -873,12 +883,11 @@ fn jdk_internal_misc_unsafe_compare_and_set_reference(
             panic!("jdk.internal.misc.Unsafe.compareAndSetReference: expected object")
         }
     };
-    let mut heap = vm.heap.borrow_mut();
     let new_value = match args[4] {
         Value::Ref(h) => h,
         _ => panic!("jdk.internal.misc.Unsafe.compareAndSetReference: expected long new value"),
     };
-    match heap.get_mut(*object) {
+    match vm.heap.get_mut(*object) {
         HeapObject::Array(array) => {
             if offset >= array.length() {
                 panic!(
@@ -894,7 +903,7 @@ fn jdk_internal_misc_unsafe_compare_and_set_reference(
             }
         }
         HeapObject::Instance(instance) => {
-            let field = instance.get_field_mut(offset);
+            let field = instance.get_element_mut(offset);
             if *field == expected {
                 *field = Value::Ref(new_value);
                 Some(Value::Integer(1))
@@ -974,7 +983,7 @@ fn java_lang_system_set_out_0(vm: &mut VirtualMachine, args: &[Value]) -> Native
         Value::Ref(h) => *h,
         _ => panic!("java.lang.System.setOut0: expected PrintStream object"),
     };
-    let system_class = vm.method_area().get_class("java/lang/System").unwrap();
+    let system_class = vm.method_area.get_class("java/lang/System").unwrap();
     system_class
         .set_static_field("out", "Ljava/io/PrintStream;", Value::Ref(val))
         .unwrap();
@@ -987,7 +996,7 @@ fn java_lang_system_set_err_0(vm: &mut VirtualMachine, args: &[Value]) -> Native
         Value::Ref(h) => *h,
         _ => panic!("java.lang.System.setOut0: expected PrintStream object"),
     };
-    let system_class = vm.method_area().get_class("java/lang/System").unwrap();
+    let system_class = vm.method_area.get_class("java/lang/System").unwrap();
     system_class
         .set_static_field("err", "Ljava/io/PrintStream;", Value::Ref(val))
         .unwrap();
@@ -1016,75 +1025,99 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
 
     // TODO: obviously need to clean this up
     for i in 0..depth {
-        let h = vm.heap();
-        let heap = h.borrow();
-        let class_id = heap
-            .get_array(&heap.get_array(&object).get_element(0).as_obj_ref().unwrap())
+        let class_id = vm
+            .heap
+            .get_array(
+                &vm.heap
+                    .get_array(&object)
+                    .get_element(0)
+                    .as_obj_ref()
+                    .unwrap(),
+            )
             .get_element(i)
             .as_int()
             .unwrap() as usize;
-        let method_id = heap
-            .get_array(&heap.get_array(&object).get_element(1).as_obj_ref().unwrap())
+        let method_id = vm
+            .heap
+            .get_array(
+                &vm.heap
+                    .get_array(&object)
+                    .get_element(1)
+                    .as_obj_ref()
+                    .unwrap(),
+            )
             .get_element(i)
             .as_int()
             .unwrap() as usize;
-        let cp = heap
-            .get_array(&heap.get_array(&object).get_element(2).as_obj_ref().unwrap())
+        let cp = vm
+            .heap
+            .get_array(
+                &vm.heap
+                    .get_array(&object)
+                    .get_element(2)
+                    .as_obj_ref()
+                    .unwrap(),
+            )
             .get_element(i)
             .as_int()
             .unwrap() as usize;
-        let class = vm.method_area().get_class_by_id(class_id).unwrap();
-        drop(heap);
-        drop(h);
-        let declaring_class_object = vm.get_mirror_addr_by_name(class.name()).unwrap();
-        let h = vm.heap();
-        let mut heap = h.borrow_mut();
+        let class = vm.method_area.get_class_by_id(class_id).unwrap();
+        let declaring_class_object = vm.heap.get_mirror_addr(class).unwrap();
         let method = class.get_method_by_id(&method_id).unwrap();
-        let class_name = heap.get_or_new_string(&class.name().replace('/', "."));
-        let method_name = heap.get_or_new_string(method.name());
-        let source = heap.get_or_new_string(class.source_file().unwrap());
+        let class_name = vm.heap.get_or_new_string(&class.name().replace('/', "."));
+        let method_name = vm.heap.get_or_new_string(method.name());
+        let source = vm.heap.get_or_new_string(class.source_file().unwrap());
         let line_nbr = method.get_line_number_by_cp(cp).unwrap();
-        let cur_stack_trace_entry = heap
+        let cur_stack_trace_entry = vm
+            .heap
             .get_array(&elements_array)
             .get_element(i)
             .as_obj_ref()
             .unwrap();
 
-        heap.write_instance_field(
-            cur_stack_trace_entry,
-            "declaringClass",
-            "Ljava/lang/String;",
-            Value::Ref(class_name),
-        )
-        .unwrap();
-        heap.write_instance_field(
-            cur_stack_trace_entry,
-            "methodName",
-            "Ljava/lang/String;",
-            Value::Ref(method_name),
-        )
-        .unwrap();
-        heap.write_instance_field(
-            cur_stack_trace_entry,
-            "fileName",
-            "Ljava/lang/String;",
-            Value::Ref(source),
-        )
-        .unwrap();
-        heap.write_instance_field(
-            cur_stack_trace_entry,
-            "lineNumber",
-            "I",
-            Value::Integer(line_nbr as i32),
-        )
-        .unwrap();
-        heap.write_instance_field(
-            cur_stack_trace_entry,
-            "declaringClassObject",
-            "Ljava/lang/Class;",
-            Value::Ref(declaring_class_object),
-        )
-        .unwrap();
+        let stack_trace_class_id = vm.heap.get_class_id(&cur_stack_trace_entry);
+        let stack_trace_class = vm
+            .method_area
+            .get_class_by_id(stack_trace_class_id)
+            .unwrap();
+
+        vm.heap
+            .write_instance_field(
+                cur_stack_trace_entry,
+                stack_trace_class.get_field_index("declaringClass").unwrap(),
+                Value::Ref(class_name),
+            )
+            .unwrap();
+        vm.heap
+            .write_instance_field(
+                cur_stack_trace_entry,
+                stack_trace_class.get_field_index("methodName").unwrap(),
+                Value::Ref(method_name),
+            )
+            .unwrap();
+        vm.heap
+            .write_instance_field(
+                cur_stack_trace_entry,
+                stack_trace_class.get_field_index("fieldName").unwrap(),
+                Value::Ref(source),
+            )
+            .unwrap();
+        vm.heap
+            .write_instance_field(
+                cur_stack_trace_entry,
+                stack_trace_class.get_field_index("lineNumber").unwrap(),
+                Value::Integer(line_nbr as i32),
+            )
+            .unwrap();
+        vm.heap
+            .write_instance_field(
+                cur_stack_trace_entry,
+                stack_trace_class
+                    .get_field_index("declaringClassObject")
+                    .unwrap(),
+                Value::Ref(declaring_class_object),
+            )
+            .unwrap();
     }
     None
 }
@@ -1095,8 +1128,7 @@ fn vm_internal_clone(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
         Value::Ref(h) => *h,
         _ => panic!("internal clone: expected object"),
     };
-    let mut borrowed_heap = vm.heap.borrow_mut();
-    let cloned = borrowed_heap.clone_object(obj);
+    let cloned = vm.heap.clone_object(obj);
     Some(Value::Ref(cloned))
 }
 
@@ -1112,8 +1144,7 @@ fn jdk_internal_misc_signal_find_signal_0(vm: &mut VirtualMachine, args: &[Value
     debug!("TODO: Stub: jdk.internal.misc.Signal.findSignal0");
     let signal_name = match &args[0] {
         Value::Ref(h) => {
-            let heap = vm.heap.borrow();
-            let s = heap.get_string(*h).unwrap();
+            let s = vm.heap.get_string(*h).unwrap();
             s.to_string()
         }
         _ => panic!("jdk.internal.misc.Signal.findSignal0: expected signal name string"),
@@ -1188,16 +1219,29 @@ fn java_io_file_output_stream_write_bytes(vm: &mut VirtualMachine, args: &[Value
         _ => panic!("java.io.FileOutputStream.writeBytes: expected non-negative length"),
     };
 
-    let mut heap = vm.heap.borrow_mut();
-    let fd_obj = heap
-        .get_instance_field(&output_stream_addr, "fd", "Ljava/io/FileDescriptor;")
+    let output_stream_fd_field_offset = {
+        let class_id = vm.heap.get_class_id(&output_stream_addr);
+        let class = vm.method_area.get_class_by_id(class_id).unwrap();
+        class.get_field_index("fd").unwrap()
+    };
+    let fd_obj = vm
+        .heap
+        .get_instance_field(&output_stream_addr, output_stream_fd_field_offset)
+        .unwrap()
         .as_obj_ref()
         .unwrap();
-    let fd = heap
-        .get_instance_field(&fd_obj, "fd", "I")
+    let fd_fd_field_offset = {
+        let class_id = vm.heap.get_class_id(&fd_obj);
+        let class = vm.method_area.get_class_by_id(class_id).unwrap();
+        class.get_field_index("fd").unwrap()
+    };
+    let fd = vm
+        .heap
+        .get_instance_field(&fd_obj, fd_fd_field_offset)
+        .unwrap()
         .as_int()
         .unwrap();
-    let array = heap.get_array(&bytes_array);
+    let array = vm.heap.get_array(&bytes_array);
     for i in offset..offset + length {
         let byte = match array.get_element(i) {
             Value::Integer(b) => b,

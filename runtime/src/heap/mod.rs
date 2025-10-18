@@ -1,90 +1,74 @@
 // TODO: very primitive implementation, ok for right now
 
-pub mod method_area;
-
 use crate::ClassId;
 use crate::error::JvmError;
 use crate::heap::method_area::MethodArea;
 use crate::rt::class::Class;
-use crate::rt::constant_pool::reference::NameAndTypeReference;
 use common::jtype::{HeapAddr, Value};
-use std::cell::{OnceCell, RefCell};
 use std::collections::HashMap;
-use std::rc::Rc;
 use std::sync::Arc;
 use tracing_log::log::debug;
 
+pub mod method_area;
+
 pub enum HeapObject {
-    Instance(ClassInstance),
-    Array(ArrayInstance),
+    Instance(Instance),
+    Array(Instance),
 }
 
 #[derive(Clone)]
-pub struct ArrayInstance {
-    class: Arc<Class>,
-    elements: Vec<Value>,
+pub struct Instance {
+    class_id: ClassId,
+    data: Vec<Value>,
 }
 
-impl ArrayInstance {
-    pub fn new(class: Arc<Class>, elements: Vec<Value>) -> Self {
-        Self { class, elements }
+impl Instance {
+    pub fn new(class_id: ClassId, elements: Vec<Value>) -> Self {
+        Self {
+            class_id,
+            data: elements,
+        }
     }
 
-    pub fn class(&self) -> &Arc<Class> {
-        &self.class
+    pub fn class_id(&self) -> &ClassId {
+        &self.class_id
     }
 
     pub fn elements(&self) -> &Vec<Value> {
-        &self.elements
+        &self.data
     }
 
     pub fn elements_mut(&mut self) -> &mut Vec<Value> {
-        &mut self.elements
+        &mut self.data
     }
 
     pub fn length(&self) -> usize {
-        self.elements.len()
+        self.data.len()
     }
 
     pub fn get_element(&self, index: usize) -> &Value {
-        self.elements.get(index).expect("invalid array index")
+        self.data.get(index).expect("invalid array index")
+    }
+
+    pub fn get_element_mut(&mut self, index: usize) -> &mut Value {
+        self.data.get_mut(index).expect("invalid array index")
     }
 }
 
-#[derive(Clone)]
-pub struct ClassInstance {
-    class: Arc<Class>,
-    fields: Vec<Value>,
-}
-
-impl ClassInstance {
-    pub fn new(class: Arc<Class>, fields: Vec<Value>) -> Self {
-        Self { class, fields }
-    }
-
-    pub fn get_field_mut(&mut self, index: usize) -> &mut Value {
-        self.fields.get_mut(index).expect("invalid field index")
-    }
-
-    pub fn get_field(&self, index: usize) -> &Value {
-        self.fields.get(index).expect("invalid field index")
-    }
-
-    pub fn class(&self) -> &Arc<Class> {
-        &self.class
-    }
-
-    pub fn get_field_value(&self, name: &str, descriptor: &str) -> Option<&Value> {
-        let index = self.class.get_field_index(name, descriptor).ok()?;
-        self.fields.get(index)
-    }
+// TODO: probably should be different
+// right now to avoid self.alloc_instance(&self.class_class)?; don't want to clone to avoid using self self
+enum AllocClass<'a> {
+    String,
+    Char,
+    Class,
+    Other(&'a Arc<Class>),
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.5.3
 pub struct Heap {
     objects: Vec<HeapObject>,
     string_pool: HashMap<String, HeapAddr>,
-    method_area: MethodArea,
+    // TODO: find a better way to expose MethodArea functionality
     string_class: Arc<Class>,
     char_class: Arc<Class>,
     class_class: Arc<Class>,
@@ -93,21 +77,27 @@ pub struct Heap {
 }
 
 impl Heap {
-    pub fn new(mut method_area: MethodArea) -> Result<Self, JvmError> {
+    pub fn new(method_area: &mut MethodArea) -> Result<Self, JvmError> {
         debug!("Creating Heap...");
-        let char_class = method_area.get_class("[C")?;
-        let string_class = method_area.get_class("java/lang/String")?;
-        let class_class = method_area.get_class("java/lang/Class")?;
+        let char_class = method_area.get_class("[C")?.clone();
+        let string_class = method_area.get_class("java/lang/String")?.clone();
+        let class_class = method_area.get_class("java/lang/Class")?.clone();
         Ok(Self {
             string_pool: HashMap::new(),
             objects: Vec::new(),
             mirrors: HashMap::new(),
             primitives: HashMap::new(),
-            method_area,
             char_class,
             string_class,
             class_class,
         })
+    }
+
+    pub fn get_class_id(&self, h: &HeapAddr) -> ClassId {
+        match self.get(*h).unwrap() {
+            HeapObject::Instance(inst) => inst.class_id,
+            HeapObject::Array(arr) => arr.class_id,
+        }
     }
 
     fn push(&mut self, obj: HeapObject) -> HeapAddr {
@@ -116,24 +106,24 @@ impl Heap {
         idx
     }
 
-    pub fn alloc_array(&mut self, class_id: ClassId, length: usize) -> HeapAddr {
+    pub fn alloc_array(&mut self, class: &Arc<Class>, length: usize) -> Result<HeapAddr, JvmError> {
         let default_value = if let Some(primitive_type) = class.primitive() {
             Value::from(&primitive_type)
         } else {
             Value::Null
         };
         let elements = vec![default_value; length];
-        self.push(HeapObject::Array(ArrayInstance::new(class, elements)))
+        Ok(self.push(HeapObject::Array(Instance::new(class.id()?, elements))))
     }
 
     pub fn alloc_array_with_value(
         &mut self,
-        class: Arc<Class>,
+        class: &Arc<Class>,
         length: usize,
         value: Value,
-    ) -> HeapAddr {
+    ) -> Result<HeapAddr, JvmError> {
         let elements = vec![value; length];
-        self.push(HeapObject::Array(ArrayInstance::new(class, elements)))
+        Ok(self.push(HeapObject::Array(Instance::new(class.id()?, elements))))
     }
 
     fn create_default_fields(class: &Arc<Class>) -> Vec<Value> {
@@ -151,9 +141,22 @@ impl Heap {
         fields
     }
 
-    pub fn alloc_instance(&mut self, class: Arc<Class>) -> HeapAddr {
-        let fields = Self::create_default_fields(&class);
-        self.push(HeapObject::Instance(ClassInstance { class, fields }))
+    fn alloc_instance_internal(&mut self, class: AllocClass) -> Result<HeapAddr, JvmError> {
+        let class = match class {
+            AllocClass::String => &self.string_class,
+            AllocClass::Char => &self.char_class,
+            AllocClass::Class => &self.class_class,
+            AllocClass::Other(c) => c,
+        };
+        let fields = Self::create_default_fields(class);
+        Ok(self.push(HeapObject::Instance(Instance {
+            class_id: class.id()?,
+            data: fields,
+        })))
+    }
+
+    pub fn alloc_instance(&mut self, class: &Arc<Class>) -> Result<HeapAddr, JvmError> {
+        self.alloc_instance_internal(AllocClass::Other(class))
     }
 
     pub fn get_or_new_string(&mut self, value: &str) -> HeapAddr {
@@ -172,17 +175,17 @@ impl Heap {
         let mut fields = Self::create_default_fields(&self.string_class);
 
         let chars = s.chars().map(|c| Value::Integer(c as i32)).collect();
-        let value = self.push(HeapObject::Array(ArrayInstance::new(
-            self.char_class.clone(),
+        let value = self.push(HeapObject::Array(Instance::new(
+            self.char_class.id().unwrap(),
             chars,
         )));
 
-        // The "value" field is always the first field in java.lang.String, but probably should be looked up by name
+        // The "value" field is always the first field in java.lang.String
         fields[0] = Value::Ref(value);
 
-        self.push(HeapObject::Instance(ClassInstance {
-            class: self.string_class.clone(),
-            fields,
+        self.push(HeapObject::Instance(Instance {
+            class_id: self.string_class.id().unwrap(),
+            data: fields,
         }))
     }
 
@@ -191,16 +194,17 @@ impl Heap {
         self.objects.get(h)
     }
 
-    // TODO: return Result and handle errors
-    pub fn get_instance(&self, h: &HeapAddr) -> &ClassInstance {
+    pub fn get_instance(&self, h: &HeapAddr) -> Result<&Instance, JvmError> {
         let heap_obj = self.get(*h).unwrap();
         match heap_obj {
-            HeapObject::Instance(inst) => inst,
-            _ => panic!("get_by_ref called with non-instance HeapObject",),
+            HeapObject::Instance(inst) => Ok(inst),
+            _ => Err(JvmError::Todo(
+                "get_by_ref called with non-instance HeapObject".to_string(),
+            )),
         }
     }
 
-    pub fn get_instance_mut(&mut self, h: &HeapAddr) -> &mut ClassInstance {
+    pub fn get_instance_mut(&mut self, h: &HeapAddr) -> &mut Instance {
         let heap_obj = self.get_mut(*h);
         match heap_obj {
             HeapObject::Instance(inst) => inst,
@@ -208,7 +212,7 @@ impl Heap {
         }
     }
 
-    pub fn get_array(&self, h: &HeapAddr) -> &ArrayInstance {
+    pub fn get_array(&self, h: &HeapAddr) -> &Instance {
         let heap_obj = self.get(*h).unwrap();
         match heap_obj {
             HeapObject::Array(arr) => arr,
@@ -216,20 +220,16 @@ impl Heap {
         }
     }
 
-    pub fn get_instance_field_by_nat(
+    pub fn get_instance_field(
         &mut self,
-        h: &HeapAddr,
-        nat: &NameAndTypeReference,
-    ) -> &Value {
-        let instance = self.get_instance(h);
-        let slot = instance.class.get_field_index_by_nat(nat).unwrap();
-        instance.fields.get(slot).unwrap()
-    }
-
-    pub fn get_instance_field(&mut self, h: &HeapAddr, name: &str, descriptor: &str) -> &Value {
-        let instance = self.get_instance(h);
-        let slot = instance.class.get_field_index(name, descriptor).unwrap();
-        instance.fields.get(slot).unwrap()
+        addr: &HeapAddr,
+        offset: usize,
+    ) -> Result<&Value, JvmError> {
+        let instance = self.get_instance(addr)?;
+        instance
+            .data
+            .get(offset)
+            .ok_or(JvmError::Todo("invalid field index".to_string()))
     }
 
     pub fn get_mut(&mut self, h: HeapAddr) -> &mut HeapObject {
@@ -244,10 +244,8 @@ impl Heap {
 
     //TODO: design it lightweight
     pub fn get_string(&self, h: HeapAddr) -> Result<String, JvmError> {
-        let instance = self.get_instance(&h);
-        let value_field = instance
-            .get_field_value("value", "[B")
-            .ok_or(JvmError::Uninitialized)?;
+        let instance = self.get_instance(&h)?;
+        let value_field = instance.get_element(0); // "value" field is always the first field in java.lang.String
         let array_addr = match value_field {
             Value::Ref(addr) => *addr,
             _ => {
@@ -274,10 +272,10 @@ impl Heap {
     ) -> Result<(), JvmError> {
         match self.get_mut(h) {
             HeapObject::Array(array) => {
-                if index >= array.elements.len() {
+                if index >= array.data.len() {
                     return Err(JvmError::ArrayIndexOutOfBoundsException);
                 }
-                array.elements[index] = val;
+                array.data[index] = val;
             }
             _ => panic!("heap: write_array_element on non-array"),
         }
@@ -287,34 +285,19 @@ impl Heap {
     pub fn write_instance_field(
         &mut self,
         h: HeapAddr,
-        field_name: &str,
-        field_descriptor: &str,
+        offset: usize,
         val: Value,
     ) -> Result<(), JvmError> {
         match self.get_mut(h) {
             HeapObject::Instance(instance) => {
-                let slot = instance
-                    .class
-                    .get_field_index(field_name, field_descriptor)?;
-                instance.fields[slot] = val;
+                if offset >= instance.data.len() {
+                    return Err(JvmError::Todo("invalid field index".to_string()));
+                }
+                instance.data[offset] = val;
             }
-            _ => panic!("heap: write_instance_field on non-instance"),
-        }
-        Ok(())
-    }
-
-    pub fn write_instance_field_by_nat(
-        &mut self,
-        h: HeapAddr,
-        field_nat: &NameAndTypeReference,
-        val: Value,
-    ) -> Result<(), JvmError> {
-        match self.get_mut(h) {
-            HeapObject::Instance(instance) => {
-                let slot = instance.class.get_field_index_by_nat(field_nat)?;
-                instance.fields[slot] = val;
-            }
-            _ => panic!("heap: write_instance_field on non-instance"),
+            _ => Err(JvmError::Todo(
+                "heap: write_instance_field on non-instance".to_string(),
+            ))?,
         }
         Ok(())
     }
@@ -323,18 +306,18 @@ impl Heap {
         let obj = self.get(h).expect("heap: invalid handle (clone_object)");
         match obj {
             HeapObject::Instance(inst) => {
-                let new_fields = inst.fields.clone();
-                let new_instance = ClassInstance {
-                    class: inst.class.clone(),
-                    fields: new_fields,
+                let new_fields = inst.data.clone();
+                let new_instance = Instance {
+                    class_id: inst.class_id,
+                    data: new_fields,
                 };
                 self.push(HeapObject::Instance(new_instance))
             }
             HeapObject::Array(arr) => {
-                let new_elements = arr.elements.clone();
-                let new_array = ArrayInstance {
-                    class: arr.class.clone(),
-                    elements: new_elements,
+                let new_elements = arr.data.clone();
+                let new_array = Instance {
+                    class_id: arr.class_id.clone(),
+                    data: new_elements,
                 };
                 self.push(HeapObject::Array(new_array))
             }
@@ -345,65 +328,39 @@ impl Heap {
         self.mirrors.get(mirror)
     }
 
-    pub(crate) fn get_mirror_addr_by_class(
+    pub(crate) fn get_mirror_addr(
         &mut self,
         target_class: &Arc<Class>,
     ) -> Result<HeapAddr, JvmError> {
         if let Some(mirror) = target_class.mirror() {
             return Ok(mirror);
         }
-        let mirror = self.alloc_instance(self.class_class.clone());
+        let mirror = self.alloc_instance_internal(AllocClass::Class)?;
         target_class.set_mirror(mirror)?;
         self.mirrors.insert(mirror, target_class.clone());
         Ok(mirror)
     }
 
-    pub(crate) fn get_primitive_mirror_addr(&mut self, name: &HeapAddr) -> HeapAddr {
+    pub(crate) fn get_primitive_mirror_addr(
+        &mut self,
+        name: &HeapAddr,
+    ) -> Result<HeapAddr, JvmError> {
         if let Some(addr) = self.primitives.get(name) {
-            *addr
+            Ok(*addr)
         } else {
-            let mirror_addr = self.alloc_instance(self.class_class.clone());
+            let mirror_addr = self.alloc_instance_internal(AllocClass::Class)?;
             self.primitives.insert(*name, mirror_addr);
-            mirror_addr
+            Ok(mirror_addr)
         }
-    }
-
-    pub(crate) fn get_mirror_addr_by_name(&mut self, name: &str) -> Result<HeapAddr, JvmError> {
-        let target_class = self.method_area.get_class(name)?;
-        self.get_mirror_addr_by_class(&target_class)
     }
 
     pub fn addr_is_primitive(&self, addr: &HeapAddr) -> bool {
         self.primitives.values().any(|v| v == addr)
     }
-
-    // TODO: find a better way to expose MethodArea functionality
-    pub fn method_area(&self) -> &MethodArea {
-        &self.method_area
-    }
-
-    pub fn set_class_static_field_by_nat(
-        &mut self,
-        class_id: ClassId,
-        field_nat: &NameAndTypeReference,
-        value: Value,
-    ) -> Result<(), JvmError> {
-        let class = self.method_area.get_class_by_id(class_id)?;
-        class.set_static_field_by_nat(&field_nat, value)
-    }
-
-    pub fn get_class_static_field_by_nat(
-        &self,
-        class_id: ClassId,
-        field_nat: &NameAndTypeReference,
-    ) -> Result<Value, JvmError> {
-        let class = self.method_area.get_class_by_id(class_id)?;
-        class.get_static_field_value_by_nat(&field_nat)
-    }
 }
 
 #[cfg(test)]
-impl serde::Serialize for ClassInstance {
+impl serde::Serialize for Instance {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -411,8 +368,8 @@ impl serde::Serialize for ClassInstance {
         use serde::ser::SerializeStruct;
 
         let mut state = serializer.serialize_struct("ClassInstance", 2)?;
-        state.serialize_field("class", &self.class.name())?;
-        state.serialize_field("fields", &self.fields)?;
+        state.serialize_field("class", &self.class_id)?;
+        state.serialize_field("fields", &self.data)?;
         state.end()
     }
 }
@@ -447,7 +404,7 @@ impl serde::Serialize for Heap {
                         let mut state = serializer.serialize_struct("HeapObject", 4)?;
                         state.serialize_field("address", &self.address)?;
                         state.serialize_field("type", "Array")?;
-                        state.serialize_field("class", arr.class().name())?;
+                        state.serialize_field("class", arr.class_id())?;
                         state.serialize_field("elements", arr.elements())?;
                         state.end()
                     }

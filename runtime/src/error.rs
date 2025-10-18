@@ -39,7 +39,7 @@ pub enum JvmError {
     #[error("NoSuchMethod: {0}")]
     NoSuchMethod(String),
     #[error("NoSuchField: {0}")]
-    FieldNotFound(String),
+    NoSuchFieldError(String),
     #[error("LocalVariableNotFound: {0}")]
     LocalVariableNotFound(u8),
     #[error("LocalVariableNotInitialized: {0}")]
@@ -68,4 +68,6 @@ pub enum JvmError {
     Uninitialized,
     #[error("WrongHeapAddress: `{0}`")]
     WrongHeapAddress(HeapAddr),
+    #[error("TODO map to correct error: `{0}`")]
+    Todo(String),
 }

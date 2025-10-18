@@ -5,13 +5,11 @@ use crate::interpreter::Interpreter;
 use crate::native::NativeRegistry;
 use crate::stack::FrameStack;
 use common::jtype::Value;
-use std::cell::RefCell;
-use std::rc::Rc;
 use tracing_log::log::debug;
 
 mod class_loader;
 pub mod error;
-mod heap;
+pub mod heap;
 mod interpreter;
 mod native;
 pub mod rt;
@@ -45,7 +43,8 @@ impl VmConfig {
 
 pub struct VirtualMachine {
     config: VmConfig,
-    heap: Rc<RefCell<Heap>>,
+    heap: Heap,
+    method_area: MethodArea,
     native_registry: NativeRegistry,
     frame_stack: FrameStack,
 }
@@ -53,20 +52,17 @@ pub struct VirtualMachine {
 impl VirtualMachine {
     pub fn new(config: VmConfig) -> Result<Self, JvmError> {
         config.validate();
-        let method_area = MethodArea::new(&config)?;
-        let heap = Rc::new(RefCell::new(Heap::new(method_area)?));
+        let mut method_area = MethodArea::new(&config)?;
+        let heap = Heap::new(&mut method_area)?;
 
         let native_registry = NativeRegistry::new();
         Ok(Self {
             frame_stack: FrameStack::new(&config),
+            method_area,
             config,
             heap,
             native_registry,
         })
-    }
-
-    pub fn heap(&self) -> Rc<RefCell<Heap>> {
-        self.heap.clone()
     }
 }
 
@@ -83,16 +79,19 @@ pub fn start(main_class: Vec<u8>, config: VmConfig) -> Result<(), JvmError> {
         }
         Err(e) => match e {
             JvmError::JavaExceptionThrown(addr) => {
-                let heap = interpreter.vm().heap.borrow();
-                let exception = heap.get_instance(&addr);
-
-                let print_stack_trace_method = exception
-                    .class()
+                let exception_class_id = {
+                    let exception = interpreter.vm().heap.get_instance(&addr)?;
+                    *exception.class_id()
+                };
+                let exception_class = interpreter
+                    .vm()
+                    .method_area
+                    .get_class_by_id(exception_class_id)?;
+                let print_stack_trace_method = exception_class
                     .get_virtual_method("printStackTrace", "()V")
                     .expect("Exception class should have printStackTrace method")
                     .clone();
                 let param = vec![Value::Ref(addr)];
-                drop(heap);
                 interpreter.run_instance_method(&print_stack_trace_method, param)?;
                 Err(e)
             }
@@ -114,7 +113,7 @@ impl serde::Serialize for VirtualMachine {
         use std::ops::Deref;
 
         let mut state = serializer.serialize_struct("VirtualMachine", 3)?;
-        state.serialize_field("heap", self.heap.borrow().deref())?;
+        state.serialize_field("heap", &self.heap)?;
         state.end()
     }
 }
