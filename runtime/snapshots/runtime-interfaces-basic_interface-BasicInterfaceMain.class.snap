@@ -8,12 +8,12 @@ vm:
       - address: 0
         type: Instance
         value:
-          class: interfaces/basic_interface/BasicInterfaceMain$ClassImplementingSummable
+          class: 5
           fields: []
       - address: 1
         type: Instance
         value:
-          class: interfaces/basic_interface/BasicInterfaceMain$ClassImplementingSummable
+          class: 5
           fields: []
     string_pool: []
 last_pop_frame:

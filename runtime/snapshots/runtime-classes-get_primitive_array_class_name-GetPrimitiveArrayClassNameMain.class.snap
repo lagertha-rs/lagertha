@@ -7,13 +7,13 @@ vm:
     objects:
       - address: 0
         type: Array
-        class: "[I"
+        class: 5
         elements:
           - Integer: 0
       - address: 1
         type: Instance
         value:
-          class: java/lang/Class
+          class: 3
           fields:
             - "Null"
             - Ref: 3
@@ -33,14 +33,14 @@ vm:
             - "Null"
       - address: 2
         type: Array
-        class: "[C"
+        class: 0
         elements:
           - Integer: 91
           - Integer: 73
       - address: 3
         type: Instance
         value:
-          class: java/lang/String
+          class: 2
           fields:
             - Ref: 2
             - Integer: 0

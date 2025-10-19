@@ -8,24 +8,24 @@ vm:
       - address: 0
         type: Instance
         value:
-          class: arrays/reference_array/ReferenceArrayMain$ReferenceClass
+          class: 5
           fields:
             - Integer: 1
       - address: 1
         type: Instance
         value:
-          class: arrays/reference_array/ReferenceArrayMain$ReferenceClass
+          class: 5
           fields:
             - Integer: 2
       - address: 2
         type: Instance
         value:
-          class: arrays/reference_array/ReferenceArrayMain$ReferenceClass
+          class: 5
           fields:
             - Integer: 3
       - address: 3
         type: Array
-        class: arrays/reference_array/ReferenceArrayMain$ReferenceClass
+        class: 5
         elements:
           - Ref: 0
           - Ref: 1

@@ -7,7 +7,7 @@ vm:
     objects:
       - address: 0
         type: Array
-        class: "[I"
+        class: 5
         elements:
           - Integer: 0
           - Integer: 0
@@ -16,7 +16,7 @@ vm:
           - Integer: 0
       - address: 1
         type: Array
-        class: "[F"
+        class: 6
         elements:
           - Float: 0
           - Float: 0

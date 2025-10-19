@@ -8,7 +8,7 @@ vm:
       - address: 0
         type: Instance
         value:
-          class: inheritance/invoke_parent_setter/InvokeParentSetterMain$Child
+          class: 6
           fields:
             - Integer: 224
     string_pool: []

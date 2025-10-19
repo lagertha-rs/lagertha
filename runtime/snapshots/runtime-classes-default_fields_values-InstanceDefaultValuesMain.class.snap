@@ -8,7 +8,7 @@ vm:
       - address: 0
         type: Instance
         value:
-          class: classes/default_fields_values/InstanceDefaultValuesMain$ClassWithFields
+          class: 5
           fields:
             - "Null"
             - "Null"

@@ -7,7 +7,7 @@ vm:
     objects:
       - address: 0
         type: Array
-        class: "[C"
+        class: 0
         elements:
           - Integer: 104
           - Integer: 101
@@ -17,7 +17,7 @@ vm:
       - address: 1
         type: Instance
         value:
-          class: java/lang/String
+          class: 2
           fields:
             - Ref: 0
             - Integer: 0
@@ -25,17 +25,17 @@ vm:
             - Integer: 0
       - address: 2
         type: Array
-        class: java/io/ObjectStreamField
+        class: 5
         elements: []
       - address: 3
         type: Instance
         value:
-          class: java/lang/String$CaseInsensitiveComparator
+          class: 6
           fields: []
       - address: 4
         type: Instance
         value:
-          class: java/lang/String
+          class: 2
           fields:
             - Ref: 0
             - Integer: 0

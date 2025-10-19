@@ -7,12 +7,12 @@ vm:
     objects:
       - address: 0
         type: Array
-        class: "[C"
+        class: 0
         elements: []
       - address: 1
         type: Instance
         value:
-          class: java/lang/String
+          class: 2
           fields:
             - Ref: 0
             - Integer: 0
@@ -21,7 +21,7 @@ vm:
       - address: 2
         type: Instance
         value:
-          class: java/lang/Class
+          class: 3
           fields:
             - "Null"
             - "Null"

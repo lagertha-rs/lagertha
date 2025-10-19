@@ -8,7 +8,7 @@ vm:
       - address: 0
         type: Instance
         value:
-          class: inheritance/invoke_parent_method/InvokeParentMethodMain$Child
+          class: 6
           fields:
             - Integer: 42
     string_pool: []

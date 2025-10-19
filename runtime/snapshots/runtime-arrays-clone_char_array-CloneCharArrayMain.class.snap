@@ -7,7 +7,7 @@ vm:
     objects:
       - address: 0
         type: Array
-        class: "[C"
+        class: 0
         elements:
           - Integer: 104
           - Integer: 101
@@ -16,7 +16,7 @@ vm:
           - Integer: 111
       - address: 1
         type: Array
-        class: "[C"
+        class: 0
         elements:
           - Integer: 104
           - Integer: 101

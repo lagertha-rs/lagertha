@@ -7,7 +7,7 @@ vm:
     objects:
       - address: 0
         type: Array
-        class: "[C"
+        class: 0
         elements:
           - Integer: 106
           - Integer: 97
@@ -24,7 +24,7 @@ vm:
       - address: 1
         type: Instance
         value:
-          class: java/lang/String
+          class: 2
           fields:
             - Ref: 0
             - Integer: 0
@@ -32,17 +32,17 @@ vm:
             - Integer: 0
       - address: 2
         type: Array
-        class: java/io/ObjectStreamField
+        class: 5
         elements: []
       - address: 3
         type: Instance
         value:
-          class: java/lang/String$CaseInsensitiveComparator
+          class: 6
           fields: []
       - address: 4
         type: Instance
         value:
-          class: java/lang/Class
+          class: 3
           fields:
             - "Null"
             - "Null"
@@ -62,21 +62,21 @@ vm:
             - "Null"
       - address: 5
         type: Array
-        class: java/lang/Class
+        class: 3
         elements: []
       - address: 6
         type: Array
-        class: java/io/ObjectStreamField
+        class: 5
         elements: []
       - address: 7
         type: Instance
         value:
-          class: jdk/internal/misc/Unsafe
+          class: 9
           fields: []
       - address: 8
         type: Instance
         value:
-          class: java/lang/Class
+          class: 3
           fields:
             - "Null"
             - "Null"
@@ -97,7 +97,7 @@ vm:
       - address: 9
         type: Instance
         value:
-          class: java/lang/Class
+          class: 3
           fields:
             - "Null"
             - "Null"
@@ -118,7 +118,7 @@ vm:
       - address: 10
         type: Instance
         value:
-          class: java/lang/Class
+          class: 3
           fields:
             - "Null"
             - "Null"
@@ -139,7 +139,7 @@ vm:
       - address: 11
         type: Instance
         value:
-          class: java/lang/Class
+          class: 3
           fields:
             - "Null"
             - "Null"
@@ -160,7 +160,7 @@ vm:
       - address: 12
         type: Instance
         value:
-          class: java/lang/Class
+          class: 3
           fields:
             - "Null"
             - "Null"
@@ -181,7 +181,7 @@ vm:
       - address: 13
         type: Instance
         value:
-          class: java/lang/Class
+          class: 3
           fields:
             - "Null"
             - "Null"
@@ -202,7 +202,7 @@ vm:
       - address: 14
         type: Instance
         value:
-          class: java/lang/Class
+          class: 3
           fields:
             - "Null"
             - "Null"
@@ -223,7 +223,7 @@ vm:
       - address: 15
         type: Instance
         value:
-          class: java/lang/Class
+          class: 3
           fields:
             - "Null"
             - "Null"
@@ -244,7 +244,7 @@ vm:
       - address: 16
         type: Instance
         value:
-          class: java/lang/Class
+          class: 3
           fields:
             - "Null"
             - "Null"
@@ -264,7 +264,7 @@ vm:
             - "Null"
       - address: 17
         type: Array
-        class: "[C"
+        class: 0
         elements:
           - Integer: 105
           - Integer: 110
@@ -272,7 +272,7 @@ vm:
       - address: 18
         type: Instance
         value:
-          class: java/lang/String
+          class: 2
           fields:
             - Ref: 17
             - Integer: 0
@@ -281,7 +281,7 @@ vm:
       - address: 19
         type: Instance
         value:
-          class: java/lang/Class
+          class: 3
           fields:
             - "Null"
             - "Null"
@@ -301,7 +301,7 @@ vm:
             - "Null"
       - address: 20
         type: Array
-        class: "[C"
+        class: 0
         elements:
           - Integer: 48
           - Integer: 49
@@ -341,7 +341,7 @@ vm:
           - Integer: 122
       - address: 21
         type: Array
-        class: "[C"
+        class: 0
         elements:
           - Integer: 98
           - Integer: 121
@@ -350,7 +350,7 @@ vm:
       - address: 22
         type: Instance
         value:
-          class: java/lang/String
+          class: 2
           fields:
             - Ref: 21
             - Integer: 0
@@ -359,7 +359,7 @@ vm:
       - address: 23
         type: Instance
         value:
-          class: java/lang/Class
+          class: 3
           fields:
             - "Null"
             - "Null"

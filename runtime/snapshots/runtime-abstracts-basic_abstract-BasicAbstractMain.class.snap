@@ -8,16 +8,16 @@ vm:
       - address: 0
         type: Instance
         value:
-          class: abstracts/basic_abstract/BasicAbstractMain$Cat
+          class: 6
           fields: []
       - address: 1
         type: Instance
         value:
-          class: abstracts/basic_abstract/BasicAbstractMain$Cat
+          class: 6
           fields: []
       - address: 2
         type: Array
-        class: "[C"
+        class: 0
         elements:
           - Integer: 77
           - Integer: 101
@@ -26,7 +26,7 @@ vm:
       - address: 3
         type: Instance
         value:
-          class: java/lang/String
+          class: 2
           fields:
             - Ref: 2
             - Integer: 0

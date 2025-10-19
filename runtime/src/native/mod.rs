@@ -1098,7 +1098,7 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
         vm.heap
             .write_instance_field(
                 cur_stack_trace_entry,
-                stack_trace_class.get_field_index("fieldName").unwrap(),
+                stack_trace_class.get_field_index("fileName").unwrap(),
                 Value::Ref(source),
             )
             .unwrap();

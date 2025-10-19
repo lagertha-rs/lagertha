@@ -7,7 +7,7 @@ vm:
     objects:
       - address: 0
         type: Array
-        class: "[C"
+        class: 0
         elements:
           - Integer: 104
           - Integer: 101
@@ -23,7 +23,7 @@ vm:
       - address: 1
         type: Instance
         value:
-          class: java/lang/String
+          class: 2
           fields:
             - Ref: 0
             - Integer: 0
@@ -32,7 +32,7 @@ vm:
       - address: 2
         type: Instance
         value:
-          class: java/lang/Class
+          class: 3
           fields:
             - "Null"
             - Ref: 4
@@ -52,7 +52,7 @@ vm:
             - "Null"
       - address: 3
         type: Array
-        class: "[C"
+        class: 0
         elements:
           - Integer: 106
           - Integer: 97
@@ -73,7 +73,7 @@ vm:
       - address: 4
         type: Instance
         value:
-          class: java/lang/String
+          class: 2
           fields:
             - Ref: 3
             - Integer: 0
