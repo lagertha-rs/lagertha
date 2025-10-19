@@ -316,7 +316,7 @@ impl Heap {
             HeapObject::Array(arr) => {
                 let new_elements = arr.data.clone();
                 let new_array = Instance {
-                    class_id: arr.class_id.clone(),
+                    class_id: arr.class_id,
                     data: new_elements,
                 };
                 self.push(HeapObject::Array(new_array))
