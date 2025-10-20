@@ -1,4 +1,4 @@
-# Classp
+# javap
 
 ## Description
 
@@ -7,17 +7,17 @@ including their methods, fields, and bytecode instructions.
 
 https://docs.oracle.com/en/java/javase/24/docs/specs/man/javap.html
 
-The `classp` tool has exactly the same functionality as `javap -v -p`. The `-v` option enables verbose output, and the
+This `javap` tool has exactly the same functionality as `javap -v -p`. The `-v` option enables verbose output, and the
 `-p` option includes private members in the output.
-The purpose of `classp` is to simplify the debugging, testing and analysis of Java class files by using the `jclass`
+The purpose of `javap` is to simplify the debugging, testing and analysis of Java class files by using the `jclass`
 library under the hood.
 
 ## Usage
 
-To use the `classp` tool, run the following command:
+To use the `javap` tool, run the following command:
 
 ```bash
-cargo run --bin classp -- <class file>
+cargo run --bin javap -- <class file>
 ```
 
 - `<class file>`: The path to the Java class file you want to inspect.
@@ -36,10 +36,10 @@ public class HelloWorldMain {
 }
 ```
 
-You can use the `classp` tool to inspect its contents:
+You can use the `javap` tool to inspect its contents:
 
 ```bash
-cargo run --bin classp -- path/to/HelloWorldMain.class
+cargo run --bin javap -- path/to/HelloWorldMain.class
 ```
 
 This will output the detailed structure of the `HelloWorldMain` class, including its fields, methods, and bytecode

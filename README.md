@@ -18,7 +18,7 @@ This workspace consists of several crates:
 
 - **jclass** - Library that parses and maps the binary representation of `.class` files to Rust structures
 - **common** - Utility library with shared functionality used across the workspace
-- **classp** - Binary tool similar to `javap -v -p` for inspecting class files
+- **javap** - Binary tool similar to `javap -v -p` for inspecting class files
 - **runtime** - Library implementing the virtual machine that executes Java bytecode
 - **vm** - Binary application that launches the runtime
 
