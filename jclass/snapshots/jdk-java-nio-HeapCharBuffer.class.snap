@@ -1,0 +1,1587 @@
+---
+source: jclass/src/lib.rs
+expression: display
+---
+class java.nio.HeapCharBuffer extends java.nio.CharBuffer
+  minor version: 0
+  major version: 68
+  flags: (0x0020) ACC_SUPER
+  this_class: #8                       //java/nio/HeapCharBuffer
+  super_class: #2                      //java/nio/CharBuffer
+  interfaces: 0, fields: 3, methods: 37, attributes: 2
+Constant pool:
+    #1 = Methodref          #2.#3            // java/nio/CharBuffer."<init>":(IIII[CILjava/lang/foreign/MemorySegment;)V
+    #2 = Class              #4               // java/nio/CharBuffer
+    #3 = NameAndType        #5:#6            // "<init>":(IIII[CILjava/lang/foreign/MemorySegment;)V
+    #4 = Utf8               java/nio/CharBuffer
+    #5 = Utf8               <init>
+    #6 = Utf8               (IIII[CILjava/lang/foreign/MemorySegment;)V
+    #7 = Fieldref           #8.#9            // java/nio/HeapCharBuffer.ARRAY_BASE_OFFSET:J
+    #8 = Class              #10              // java/nio/HeapCharBuffer
+    #9 = NameAndType        #11:#12          // ARRAY_BASE_OFFSET:J
+   #10 = Utf8               java/nio/HeapCharBuffer
+   #11 = Utf8               ARRAY_BASE_OFFSET
+   #12 = Utf8               J
+   #13 = Fieldref           #8.#14           // java/nio/HeapCharBuffer.address:J
+   #14 = NameAndType        #15:#12          // address:J
+   #15 = Utf8               address
+   #16 = Fieldref           #8.#17           // java/nio/HeapCharBuffer.ARRAY_INDEX_SCALE:J
+   #17 = NameAndType        #18:#12          // ARRAY_INDEX_SCALE:J
+   #18 = Utf8               ARRAY_INDEX_SCALE
+   #19 = Methodref          #8.#20           // java/nio/HeapCharBuffer.position:()I
+   #20 = NameAndType        #21:#22          // position:()I
+   #21 = Utf8               position
+   #22 = Utf8               ()I
+   #23 = Methodref          #8.#24           // java/nio/HeapCharBuffer.limit:()I
+   #24 = NameAndType        #25:#22          // limit:()I
+   #25 = Utf8               limit
+   #26 = Fieldref           #8.#27           // java/nio/HeapCharBuffer.hb:[C
+   #27 = NameAndType        #28:#29          // hb:[C
+   #28 = Utf8               hb
+   #29 = Utf8               [C
+   #30 = Fieldref           #8.#31           // java/nio/HeapCharBuffer.offset:I
+   #31 = NameAndType        #32:#33          // offset:I
+   #32 = Utf8               offset
+   #33 = Utf8               I
+   #34 = Fieldref           #8.#35           // java/nio/HeapCharBuffer.segment:Ljava/lang/foreign/MemorySegment;
+   #35 = NameAndType        #36:#37          // segment:Ljava/lang/foreign/MemorySegment;
+   #36 = Utf8               segment
+   #37 = Utf8               Ljava/lang/foreign/MemorySegment;
+   #38 = Methodref          #8.#39           // java/nio/HeapCharBuffer."<init>":([CIIIIILjava/lang/foreign/MemorySegment;)V
+   #39 = NameAndType        #5:#40           // "<init>":([CIIIIILjava/lang/foreign/MemorySegment;)V
+   #40 = Utf8               ([CIIIIILjava/lang/foreign/MemorySegment;)V
+   #41 = Methodref          #42.#43          // java/util/Objects.checkFromIndexSize:(III)I
+   #42 = Class              #44              // java/util/Objects
+   #43 = NameAndType        #45:#46          // checkFromIndexSize:(III)I
+   #44 = Utf8               java/util/Objects
+   #45 = Utf8               checkFromIndexSize
+   #46 = Utf8               (III)I
+   #47 = Methodref          #8.#48           // java/nio/HeapCharBuffer.markValue:()I
+   #48 = NameAndType        #49:#22          // markValue:()I
+   #49 = Utf8               markValue
+   #50 = Methodref          #8.#51           // java/nio/HeapCharBuffer.capacity:()I
+   #51 = NameAndType        #52:#22          // capacity:()I
+   #52 = Utf8               capacity
+   #53 = Class              #54              // java/nio/HeapCharBufferR
+   #54 = Utf8               java/nio/HeapCharBufferR
+   #55 = Methodref          #53.#39          // java/nio/HeapCharBufferR."<init>":([CIIIIILjava/lang/foreign/MemorySegment;)V
+   #56 = Methodref          #8.#57           // java/nio/HeapCharBuffer.nextGetIndex:()I
+   #57 = NameAndType        #58:#22          // nextGetIndex:()I
+   #58 = Utf8               nextGetIndex
+   #59 = Methodref          #8.#60           // java/nio/HeapCharBuffer.ix:(I)I
+   #60 = NameAndType        #61:#62          // ix:(I)I
+   #61 = Utf8               ix
+   #62 = Utf8               (I)I
+   #63 = Methodref          #8.#64           // java/nio/HeapCharBuffer.checkIndex:(I)I
+   #64 = NameAndType        #65:#62          // checkIndex:(I)I
+   #65 = Utf8               checkIndex
+   #66 = Methodref          #8.#67           // java/nio/HeapCharBuffer.checkSession:()V
+   #67 = NameAndType        #68:#69          // checkSession:()V
+   #68 = Utf8               checkSession
+   #69 = Utf8               ()V
+   #70 = Class              #71              // java/nio/BufferUnderflowException
+   #71 = Utf8               java/nio/BufferUnderflowException
+   #72 = Methodref          #70.#73          // java/nio/BufferUnderflowException."<init>":()V
+   #73 = NameAndType        #5:#69           // "<init>":()V
+   #74 = Methodref          #75.#76          // java/lang/System.arraycopy:(Ljava/lang/Object;ILjava/lang/Object;II)V
+   #75 = Class              #77              // java/lang/System
+   #76 = NameAndType        #78:#79          // arraycopy:(Ljava/lang/Object;ILjava/lang/Object;II)V
+   #77 = Utf8               java/lang/System
+   #78 = Utf8               arraycopy
+   #79 = Utf8               (Ljava/lang/Object;ILjava/lang/Object;II)V
+   #80 = Methodref          #8.#81           // java/nio/HeapCharBuffer.position:(I)Ljava/nio/CharBuffer;
+   #81 = NameAndType        #21:#82          // position:(I)Ljava/nio/CharBuffer;
+   #82 = Utf8               (I)Ljava/nio/CharBuffer;
+   #83 = Methodref          #8.#84           // java/nio/HeapCharBuffer.nextPutIndex:()I
+   #84 = NameAndType        #85:#22          // nextPutIndex:()I
+   #85 = Utf8               nextPutIndex
+   #86 = Class              #87              // java/nio/BufferOverflowException
+   #87 = Utf8               java/nio/BufferOverflowException
+   #88 = Methodref          #86.#73          // java/nio/BufferOverflowException."<init>":()V
+   #89 = Methodref          #2.#90           // java/nio/CharBuffer.put:(Ljava/nio/CharBuffer;)Ljava/nio/CharBuffer;
+   #90 = NameAndType        #91:#92          // put:(Ljava/nio/CharBuffer;)Ljava/nio/CharBuffer;
+   #91 = Utf8               put
+   #92 = Utf8               (Ljava/nio/CharBuffer;)Ljava/nio/CharBuffer;
+   #93 = Methodref          #2.#94           // java/nio/CharBuffer.put:(ILjava/nio/CharBuffer;II)Ljava/nio/CharBuffer;
+   #94 = NameAndType        #91:#95          // put:(ILjava/nio/CharBuffer;II)Ljava/nio/CharBuffer;
+   #95 = Utf8               (ILjava/nio/CharBuffer;II)Ljava/nio/CharBuffer;
+   #96 = InterfaceMethodref #97.#98          // java/lang/CharSequence.length:()I
+   #97 = Class              #99              // java/lang/CharSequence
+   #98 = NameAndType        #100:#22         // length:()I
+   #99 = Utf8               java/lang/CharSequence
+  #100 = Utf8               length
+  #101 = Methodref          #42.#102         // java/util/Objects.checkFromToIndex:(III)I
+  #102 = NameAndType        #103:#46         // checkFromToIndex:(III)I
+  #103 = Utf8               checkFromToIndex
+  #104 = Class              #105             // java/lang/String
+  #105 = Utf8               java/lang/String
+  #106 = Methodref          #104.#107        // java/lang/String.getChars:(II[CI)V
+  #107 = NameAndType        #108:#109        // getChars:(II[CI)V
+  #108 = Utf8               getChars
+  #109 = Utf8               (II[CI)V
+  #110 = Class              #111             // java/lang/StringBuilder
+  #111 = Utf8               java/lang/StringBuilder
+  #112 = Methodref          #110.#107        // java/lang/StringBuilder.getChars:(II[CI)V
+  #113 = Class              #114             // java/lang/StringBuffer
+  #114 = Utf8               java/lang/StringBuffer
+  #115 = Methodref          #113.#107        // java/lang/StringBuffer.getChars:(II[CI)V
+  #116 = Methodref          #8.#117          // java/nio/HeapCharBuffer.appendChars:(Ljava/lang/CharSequence;II)Ljava/nio/CharBuffer;
+  #117 = NameAndType        #118:#119        // appendChars:(Ljava/lang/CharSequence;II)Ljava/nio/CharBuffer;
+  #118 = Utf8               appendChars
+  #119 = Utf8               (Ljava/lang/CharSequence;II)Ljava/nio/CharBuffer;
+  #120 = Methodref          #2.#121          // java/nio/CharBuffer.append:(Ljava/lang/CharSequence;)Ljava/nio/CharBuffer;
+  #121 = NameAndType        #122:#123        // append:(Ljava/lang/CharSequence;)Ljava/nio/CharBuffer;
+  #122 = Utf8               append
+  #123 = Utf8               (Ljava/lang/CharSequence;)Ljava/nio/CharBuffer;
+  #124 = Methodref          #2.#125          // java/nio/CharBuffer.append:(Ljava/lang/CharSequence;II)Ljava/nio/CharBuffer;
+  #125 = NameAndType        #122:#119        // append:(Ljava/lang/CharSequence;II)Ljava/nio/CharBuffer;
+  #126 = Methodref          #104.#98         // java/lang/String.length:()I
+  #127 = Fieldref           #8.#128          // java/nio/HeapCharBuffer.$assertionsDisabled:Z
+  #128 = NameAndType        #129:#130        // $assertionsDisabled:Z
+  #129 = Utf8               $assertionsDisabled
+  #130 = Utf8               Z
+  #131 = Class              #132             // java/lang/AssertionError
+  #132 = Utf8               java/lang/AssertionError
+  #133 = Methodref          #131.#73         // java/lang/AssertionError."<init>":()V
+  #134 = Methodref          #8.#135          // java/nio/HeapCharBuffer.limit:(I)Ljava/nio/CharBuffer;
+  #135 = NameAndType        #25:#82          // limit:(I)Ljava/nio/CharBuffer;
+  #136 = Methodref          #8.#137          // java/nio/HeapCharBuffer.discardMark:()V
+  #137 = NameAndType        #138:#69         // discardMark:()V
+  #138 = Utf8               discardMark
+  #139 = Methodref          #104.#140        // java/lang/String."<init>":([CII)V
+  #140 = NameAndType        #5:#141          // "<init>":([CII)V
+  #141 = Utf8               ([CII)V
+  #142 = Class              #143             // java/lang/StringIndexOutOfBoundsException
+  #143 = Utf8               java/lang/StringIndexOutOfBoundsException
+  #144 = Class              #145             // java/lang/IndexOutOfBoundsException
+  #145 = Utf8               java/lang/IndexOutOfBoundsException
+  #146 = Methodref          #144.#73         // java/lang/IndexOutOfBoundsException."<init>":()V
+  #147 = Methodref          #148.#149        // java/nio/ByteOrder.nativeOrder:()Ljava/nio/ByteOrder;
+  #148 = Class              #150             // java/nio/ByteOrder
+  #149 = NameAndType        #151:#152        // nativeOrder:()Ljava/nio/ByteOrder;
+  #150 = Utf8               java/nio/ByteOrder
+  #151 = Utf8               nativeOrder
+  #152 = Utf8               ()Ljava/nio/ByteOrder;
+  #153 = Methodref          #8.#154          // java/nio/HeapCharBuffer.order:()Ljava/nio/ByteOrder;
+  #154 = NameAndType        #155:#152        // order:()Ljava/nio/ByteOrder;
+  #155 = Utf8               order
+  #156 = Methodref          #8.#125          // java/nio/HeapCharBuffer.append:(Ljava/lang/CharSequence;II)Ljava/nio/CharBuffer;
+  #157 = Methodref          #8.#121          // java/nio/HeapCharBuffer.append:(Ljava/lang/CharSequence;)Ljava/nio/CharBuffer;
+  #158 = Methodref          #8.#159          // java/nio/HeapCharBuffer.subSequence:(II)Ljava/nio/CharBuffer;
+  #159 = NameAndType        #160:#161        // subSequence:(II)Ljava/nio/CharBuffer;
+  #160 = Utf8               subSequence
+  #161 = Utf8               (II)Ljava/nio/CharBuffer;
+  #162 = Methodref          #8.#163          // java/nio/HeapCharBuffer.duplicate:()Ljava/nio/CharBuffer;
+  #163 = NameAndType        #164:#165        // duplicate:()Ljava/nio/CharBuffer;
+  #164 = Utf8               duplicate
+  #165 = Utf8               ()Ljava/nio/CharBuffer;
+  #166 = Methodref          #8.#167          // java/nio/HeapCharBuffer.slice:(II)Ljava/nio/CharBuffer;
+  #167 = NameAndType        #168:#161        // slice:(II)Ljava/nio/CharBuffer;
+  #168 = Utf8               slice
+  #169 = Methodref          #8.#170          // java/nio/HeapCharBuffer.slice:()Ljava/nio/CharBuffer;
+  #170 = NameAndType        #168:#165        // slice:()Ljava/nio/CharBuffer;
+  #171 = Methodref          #172.#173        // java/lang/Class.desiredAssertionStatus:()Z
+  #172 = Class              #174             // java/lang/Class
+  #173 = NameAndType        #175:#176        // desiredAssertionStatus:()Z
+  #174 = Utf8               java/lang/Class
+  #175 = Utf8               desiredAssertionStatus
+  #176 = Utf8               ()Z
+  #177 = Fieldref           #8.#178          // java/nio/HeapCharBuffer.UNSAFE:Ljdk/internal/misc/Unsafe;
+  #178 = NameAndType        #179:#180        // UNSAFE:Ljdk/internal/misc/Unsafe;
+  #179 = Utf8               UNSAFE
+  #180 = Utf8               Ljdk/internal/misc/Unsafe;
+  #181 = Class              #29              // "[C"
+  #182 = Methodref          #183.#184        // jdk/internal/misc/Unsafe.arrayBaseOffset:(Ljava/lang/Class;)I
+  #183 = Class              #185             // jdk/internal/misc/Unsafe
+  #184 = NameAndType        #186:#187        // arrayBaseOffset:(Ljava/lang/Class;)I
+  #185 = Utf8               jdk/internal/misc/Unsafe
+  #186 = Utf8               arrayBaseOffset
+  #187 = Utf8               (Ljava/lang/Class;)I
+  #188 = Methodref          #183.#189        // jdk/internal/misc/Unsafe.arrayIndexScale:(Ljava/lang/Class;)I
+  #189 = NameAndType        #190:#187        // arrayIndexScale:(Ljava/lang/Class;)I
+  #190 = Utf8               arrayIndexScale
+  #191 = Utf8               (IILjava/lang/foreign/MemorySegment;)V
+  #192 = Utf8               Code
+  #193 = Utf8               LineNumberTable
+  #194 = Utf8               LocalVariableTable
+  #195 = Utf8               this
+  #196 = Utf8               Ljava/nio/HeapCharBuffer;
+  #197 = Utf8               cap
+  #198 = Utf8               lim
+  #199 = Utf8               ([CIILjava/lang/foreign/MemorySegment;)V
+  #200 = Utf8               buf
+  #201 = Utf8               off
+  #202 = Utf8               len
+  #203 = Utf8               mark
+  #204 = Utf8               pos
+  #205 = Utf8               rem
+  #206 = Utf8               StackMapTable
+  #207 = Utf8               index
+  #208 = Utf8               asReadOnlyBuffer
+  #209 = Utf8               i
+  #210 = Utf8               get
+  #211 = Utf8               ()C
+  #212 = Utf8               (I)C
+  #213 = Utf8               getUnchecked
+  #214 = Utf8               ([CII)Ljava/nio/CharBuffer;
+  #215 = Utf8               dst
+  #216 = Utf8               (I[CII)Ljava/nio/CharBuffer;
+  #217 = Utf8               isDirect
+  #218 = Utf8               isReadOnly
+  #219 = Utf8               (C)Ljava/nio/CharBuffer;
+  #220 = Utf8               x
+  #221 = Utf8               C
+  #222 = Utf8               (IC)Ljava/nio/CharBuffer;
+  #223 = Utf8               src
+  #224 = Utf8               Ljava/nio/CharBuffer;
+  #225 = Utf8               str
+  #226 = Utf8               Ljava/lang/String;
+  #227 = Utf8               sb
+  #228 = Utf8               Ljava/lang/StringBuilder;
+  #229 = Utf8               Ljava/lang/StringBuffer;
+  #230 = Utf8               csq
+  #231 = Utf8               Ljava/lang/CharSequence;
+  #232 = Utf8               start
+  #233 = Utf8               end
+  #234 = Utf8               (Ljava/lang/String;II)Ljava/nio/CharBuffer;
+  #235 = Utf8               compact
+  #236 = Utf8               toString
+  #237 = Utf8               (II)Ljava/lang/String;
+  #238 = Utf8               Ljava/lang/StringIndexOutOfBoundsException;
+  #239 = Utf8               charRegionOrder
+  #240 = Utf8               (Ljava/lang/CharSequence;II)Ljava/lang/Appendable;
+  #241 = Utf8               Exceptions
+  #242 = Class              #243             // java/io/IOException
+  #243 = Utf8               java/io/IOException
+  #244 = Utf8               MethodParameters
+  #245 = Utf8               (Ljava/lang/CharSequence;)Ljava/lang/Appendable;
+  #246 = Utf8               (II)Ljava/lang/CharSequence;
+  #247 = Utf8               ()Ljava/nio/Buffer;
+  #248 = Utf8               (II)Ljava/nio/Buffer;
+  #249 = Utf8               <clinit>
+  #250 = Utf8               SourceFile
+  #251 = Utf8               HeapCharBuffer.java
+  #252 = Utf8               PermittedSubclasses
+{
+  private static final long ARRAY_BASE_OFFSET;
+    descriptor: J
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+  
+  private static final long ARRAY_INDEX_SCALE;
+    descriptor: J
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+  
+  static final boolean $assertionsDisabled;
+    descriptor: Z
+    flags: (0x1018) ACC_STATIC, ACC_FINAL, ACC_SYNTHETIC
+  
+  java.nio.HeapCharBuffer(int, int, java.lang.foreign.MemorySegment);
+    descriptor: (IILjava/lang/foreign/MemorySegment;)V
+    flags: (0x0000) 
+    Code: 
+      stack=8, locals=4, args_size=4
+         0: aload_0                 
+         1: iconst_m1               
+         2: iconst_0                
+         3: iload_2                 
+         4: iload_1                 
+         5: iload_1                 
+         6: newarray      char              
+         8: iconst_0                
+         9: aload_3                 
+        10: invokespecial #1                  // Method java/nio/CharBuffer."<init>":(IIII[CILjava/lang/foreign/MemorySegment;)V
+        13: aload_0                 
+        14: getstatic     #7                  // Field ARRAY_BASE_OFFSET:J
+        17: putfield      #13                 // Field address:J
+        20: return                  
+      LineNumberTable:
+        line 75: 0
+        line 80: 13
+        line 85: 20
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       21     0  this   Ljava/nio/HeapCharBuffer;
+           0       21     1  cap    I
+           0       21     2  lim    I
+           0       21     3  segment Ljava/lang/foreign/MemorySegment;
+  
+  java.nio.HeapCharBuffer(char[], int, int, java.lang.foreign.MemorySegment);
+    descriptor: ([CIILjava/lang/foreign/MemorySegment;)V
+    flags: (0x0000) 
+    Code: 
+      stack=8, locals=5, args_size=5
+         0: aload_0                 
+         1: iconst_m1               
+         2: iload_2                 
+         3: iload_2                 
+         4: iload_3                 
+         5: iadd                    
+         6: aload_1                 
+         7: arraylength             
+         8: aload_1                 
+         9: iconst_0                
+        10: aload         4                 
+        12: invokespecial #1                  // Method java/nio/CharBuffer."<init>":(IIII[CILjava/lang/foreign/MemorySegment;)V
+        15: aload_0                 
+        16: getstatic     #7                  // Field ARRAY_BASE_OFFSET:J
+        19: putfield      #13                 // Field address:J
+        22: return                  
+      LineNumberTable:
+        line 89: 0
+        line 94: 15
+        line 99: 22
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       23     0  this   Ljava/nio/HeapCharBuffer;
+           0       23     1  buf    [C
+           0       23     2  off    I
+           0       23     3  len    I
+           0       23     4  segment Ljava/lang/foreign/MemorySegment;
+  
+  protected java.nio.HeapCharBuffer(char[], int, int, int, int, int, java.lang.foreign.MemorySegment);
+    descriptor: ([CIIIIILjava/lang/foreign/MemorySegment;)V
+    flags: (0x0004) ACC_PROTECTED
+    Code: 
+      stack=8, locals=8, args_size=8
+         0: aload_0                 
+         1: iload_2                 
+         2: iload_3                 
+         3: iload         4                 
+         5: iload         5                 
+         7: aload_1                 
+         8: iload         6                 
+        10: aload         7                 
+        12: invokespecial #1                  // Method java/nio/CharBuffer."<init>":(IIII[CILjava/lang/foreign/MemorySegment;)V
+        15: aload_0                 
+        16: getstatic     #7                  // Field ARRAY_BASE_OFFSET:J
+        19: iload         6                 
+        21: i2l                     
+        22: getstatic     #16                 // Field ARRAY_INDEX_SCALE:J
+        25: lmul                    
+        26: ladd                    
+        27: putfield      #13                 // Field address:J
+        30: return                  
+      LineNumberTable:
+        line 106: 0
+        line 111: 15
+        line 116: 30
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       31     0  this   Ljava/nio/HeapCharBuffer;
+           0       31     1  buf    [C
+           0       31     2  mark   I
+           0       31     3  pos    I
+           0       31     4  lim    I
+           0       31     5  cap    I
+           0       31     6  off    I
+           0       31     7  segment Ljava/lang/foreign/MemorySegment;
+  
+  public java.nio.CharBuffer slice();
+    descriptor: ()Ljava/nio/CharBuffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=9, locals=4, args_size=1
+         0: aload_0                 
+         1: invokevirtual #19                 // Method position:()I
+         4: istore_1                
+         5: aload_0                 
+         6: invokevirtual #23                 // Method limit:()I
+         9: istore_2                
+        10: iload_1                 
+        11: iload_2                 
+        12: if_icmpgt     21                
+        15: iload_2                 
+        16: iload_1                 
+        17: isub                    
+        18: goto          22                
+        21: iconst_0                
+        22: istore_3                
+        23: new           #8                  // class java/nio/HeapCharBuffer
+        26: dup                     
+        27: aload_0                 
+        28: getfield      #26                 // Field hb:[C
+        31: iconst_m1               
+        32: iconst_0                
+        33: iload_3                 
+        34: iload_3                 
+        35: iload_1                 
+        36: aload_0                 
+        37: getfield      #30                 // Field offset:I
+        40: iadd                    
+        41: aload_0                 
+        42: getfield      #34                 // Field segment:Ljava/lang/foreign/MemorySegment;
+        45: invokespecial #38                 // Method "<init>":([CIIIIILjava/lang/foreign/MemorySegment;)V
+        48: areturn                 
+      LineNumberTable:
+        line 119: 0
+        line 120: 5
+        line 121: 10
+        line 122: 23
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       49     0  this   Ljava/nio/HeapCharBuffer;
+           5       44     1  pos    I
+          10       39     2  lim    I
+          23       26     3  rem    I
+      StackMapTable: number_of_entries = 2
+        frame_type = 253 /* append */
+          offset_delta = 21
+          locals = [int, int]
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  public java.nio.CharBuffer slice(int, int);
+    descriptor: (II)Ljava/nio/CharBuffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=9, locals=3, args_size=3
+         0: iload_1                 
+         1: iload_2                 
+         2: aload_0                 
+         3: invokevirtual #23                 // Method limit:()I
+         6: invokestatic  #41                 // Method java/util/Objects.checkFromIndexSize:(III)I
+         9: pop                     
+        10: new           #8                  // class java/nio/HeapCharBuffer
+        13: dup                     
+        14: aload_0                 
+        15: getfield      #26                 // Field hb:[C
+        18: iconst_m1               
+        19: iconst_0                
+        20: iload_2                 
+        21: iload_2                 
+        22: iload_1                 
+        23: aload_0                 
+        24: getfield      #30                 // Field offset:I
+        27: iadd                    
+        28: aload_0                 
+        29: getfield      #34                 // Field segment:Ljava/lang/foreign/MemorySegment;
+        32: invokespecial #38                 // Method "<init>":([CIIIIILjava/lang/foreign/MemorySegment;)V
+        35: areturn                 
+      LineNumberTable:
+        line 132: 0
+        line 133: 10
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       36     0  this   Ljava/nio/HeapCharBuffer;
+           0       36     1  index  I
+           0       36     2  length I
+  
+  public java.nio.CharBuffer duplicate();
+    descriptor: ()Ljava/nio/CharBuffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=9, locals=1, args_size=1
+         0: new           #8                  // class java/nio/HeapCharBuffer
+         3: dup                     
+         4: aload_0                 
+         5: getfield      #26                 // Field hb:[C
+         8: aload_0                 
+         9: invokevirtual #47                 // Method markValue:()I
+        12: aload_0                 
+        13: invokevirtual #19                 // Method position:()I
+        16: aload_0                 
+        17: invokevirtual #23                 // Method limit:()I
+        20: aload_0                 
+        21: invokevirtual #50                 // Method capacity:()I
+        24: aload_0                 
+        25: getfield      #30                 // Field offset:I
+        28: aload_0                 
+        29: getfield      #34                 // Field segment:Ljava/lang/foreign/MemorySegment;
+        32: invokespecial #38                 // Method "<init>":([CIIIIILjava/lang/foreign/MemorySegment;)V
+        35: areturn                 
+      LineNumberTable:
+        line 142: 0
+        line 143: 9
+        line 144: 13
+        line 145: 17
+        line 146: 21
+        line 142: 35
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       36     0  this   Ljava/nio/HeapCharBuffer;
+  
+  public java.nio.CharBuffer asReadOnlyBuffer();
+    descriptor: ()Ljava/nio/CharBuffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=9, locals=1, args_size=1
+         0: new           #53                 // class java/nio/HeapCharBufferR
+         3: dup                     
+         4: aload_0                 
+         5: getfield      #26                 // Field hb:[C
+         8: aload_0                 
+         9: invokevirtual #47                 // Method markValue:()I
+        12: aload_0                 
+        13: invokevirtual #19                 // Method position:()I
+        16: aload_0                 
+        17: invokevirtual #23                 // Method limit:()I
+        20: aload_0                 
+        21: invokevirtual #50                 // Method capacity:()I
+        24: aload_0                 
+        25: getfield      #30                 // Field offset:I
+        28: aload_0                 
+        29: getfield      #34                 // Field segment:Ljava/lang/foreign/MemorySegment;
+        32: invokespecial #55                 // Method java/nio/HeapCharBufferR."<init>":([CIIIIILjava/lang/foreign/MemorySegment;)V
+        35: areturn                 
+      LineNumberTable:
+        line 152: 0
+        line 153: 9
+        line 154: 13
+        line 155: 17
+        line 156: 21
+        line 152: 35
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       36     0  this   Ljava/nio/HeapCharBuffer;
+  
+  protected int ix(int);
+    descriptor: (I)I
+    flags: (0x0004) ACC_PROTECTED
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: iload_1                 
+         1: aload_0                 
+         2: getfield      #30                 // Field offset:I
+         5: iadd                    
+         6: ireturn                 
+      LineNumberTable:
+        line 166: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        7     0  this   Ljava/nio/HeapCharBuffer;
+           0        7     1  i      I
+  
+  public char get();
+    descriptor: ()C
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #26                 // Field hb:[C
+         4: aload_0                 
+         5: aload_0                 
+         6: invokevirtual #56                 // Method nextGetIndex:()I
+         9: invokevirtual #59                 // Method ix:(I)I
+        12: caload                  
+        13: ireturn                 
+      LineNumberTable:
+        line 176: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       14     0  this   Ljava/nio/HeapCharBuffer;
+  
+  public char get(int);
+    descriptor: (I)C
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #26                 // Field hb:[C
+         4: aload_0                 
+         5: aload_0                 
+         6: iload_1                 
+         7: invokevirtual #63                 // Method checkIndex:(I)I
+        10: invokevirtual #59                 // Method ix:(I)I
+        13: caload                  
+        14: ireturn                 
+      LineNumberTable:
+        line 180: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       15     0  this   Ljava/nio/HeapCharBuffer;
+           0       15     1  i      I
+  
+  char getUnchecked(int);
+    descriptor: (I)C
+    flags: (0x0000) 
+    Code: 
+      stack=3, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #26                 // Field hb:[C
+         4: aload_0                 
+         5: iload_1                 
+         6: invokevirtual #59                 // Method ix:(I)I
+         9: caload                  
+        10: ireturn                 
+      LineNumberTable:
+        line 185: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       11     0  this   Ljava/nio/HeapCharBuffer;
+           0       11     1  i      I
+  
+  public java.nio.CharBuffer get(char[], int, int);
+    descriptor: ([CII)Ljava/nio/CharBuffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=5, locals=5, args_size=4
+         0: aload_0                 
+         1: invokevirtual #66                 // Method checkSession:()V
+         4: iload_2                 
+         5: iload_3                 
+         6: aload_1                 
+         7: arraylength             
+         8: invokestatic  #41                 // Method java/util/Objects.checkFromIndexSize:(III)I
+        11: pop                     
+        12: aload_0                 
+        13: invokevirtual #19                 // Method position:()I
+        16: istore        4                 
+        18: iload_3                 
+        19: aload_0                 
+        20: invokevirtual #23                 // Method limit:()I
+        23: iload         4                 
+        25: isub                    
+        26: if_icmple     37                
+        29: new           #70                 // class java/nio/BufferUnderflowException
+        32: dup                     
+        33: invokespecial #72                 // Method java/nio/BufferUnderflowException."<init>":()V
+        36: athrow                  
+        37: aload_0                 
+        38: getfield      #26                 // Field hb:[C
+        41: aload_0                 
+        42: iload         4                 
+        44: invokevirtual #59                 // Method ix:(I)I
+        47: aload_1                 
+        48: iload_2                 
+        49: iload_3                 
+        50: invokestatic  #74                 // Method java/lang/System.arraycopy:(Ljava/lang/Object;ILjava/lang/Object;II)V
+        53: aload_0                 
+        54: iload         4                 
+        56: iload_3                 
+        57: iadd                    
+        58: invokevirtual #80                 // Method position:(I)Ljava/nio/CharBuffer;
+        61: pop                     
+        62: aload_0                 
+        63: areturn                 
+      LineNumberTable:
+        line 190: 0
+        line 191: 4
+        line 192: 12
+        line 193: 18
+        line 194: 29
+        line 195: 37
+        line 196: 53
+        line 197: 62
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       64     0  this   Ljava/nio/HeapCharBuffer;
+           0       64     1  dst    [C
+           0       64     2  offset I
+           0       64     3  length I
+          18       46     4  pos    I
+      StackMapTable: number_of_entries = 1
+        frame_type = 252 /* append */
+          offset_delta = 37
+          locals = [int]
+  
+  public java.nio.CharBuffer get(int, char[], int, int);
+    descriptor: (I[CII)Ljava/nio/CharBuffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=5, locals=5, args_size=5
+         0: aload_0                 
+         1: invokevirtual #66                 // Method checkSession:()V
+         4: iload_1                 
+         5: iload         4                 
+         7: aload_0                 
+         8: invokevirtual #23                 // Method limit:()I
+        11: invokestatic  #41                 // Method java/util/Objects.checkFromIndexSize:(III)I
+        14: pop                     
+        15: iload_3                 
+        16: iload         4                 
+        18: aload_2                 
+        19: arraylength             
+        20: invokestatic  #41                 // Method java/util/Objects.checkFromIndexSize:(III)I
+        23: pop                     
+        24: aload_0                 
+        25: getfield      #26                 // Field hb:[C
+        28: aload_0                 
+        29: iload_1                 
+        30: invokevirtual #59                 // Method ix:(I)I
+        33: aload_2                 
+        34: iload_3                 
+        35: iload         4                 
+        37: invokestatic  #74                 // Method java/lang/System.arraycopy:(Ljava/lang/Object;ILjava/lang/Object;II)V
+        40: aload_0                 
+        41: areturn                 
+      LineNumberTable:
+        line 201: 0
+        line 202: 4
+        line 203: 15
+        line 204: 24
+        line 205: 40
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       42     0  this   Ljava/nio/HeapCharBuffer;
+           0       42     1  index  I
+           0       42     2  dst    [C
+           0       42     3  offset I
+           0       42     4  length I
+  
+  public boolean isDirect();
+    descriptor: ()Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: iconst_0                
+         1: ireturn                 
+      LineNumberTable:
+        line 209: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        2     0  this   Ljava/nio/HeapCharBuffer;
+  
+  public boolean isReadOnly();
+    descriptor: ()Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: iconst_0                
+         1: ireturn                 
+      LineNumberTable:
+        line 215: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        2     0  this   Ljava/nio/HeapCharBuffer;
+  
+  public java.nio.CharBuffer put(char);
+    descriptor: (C)Ljava/nio/CharBuffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #26                 // Field hb:[C
+         4: aload_0                 
+         5: aload_0                 
+         6: invokevirtual #83                 // Method nextPutIndex:()I
+         9: invokevirtual #59                 // Method ix:(I)I
+        12: iload_1                 
+        13: castore                 
+        14: aload_0                 
+        15: areturn                 
+      LineNumberTable:
+        line 220: 0
+        line 221: 14
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       16     0  this   Ljava/nio/HeapCharBuffer;
+           0       16     1  x      C
+  
+  public java.nio.CharBuffer put(int, char);
+    descriptor: (IC)Ljava/nio/CharBuffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=3, args_size=3
+         0: aload_0                 
+         1: getfield      #26                 // Field hb:[C
+         4: aload_0                 
+         5: aload_0                 
+         6: iload_1                 
+         7: invokevirtual #63                 // Method checkIndex:(I)I
+        10: invokevirtual #59                 // Method ix:(I)I
+        13: iload_2                 
+        14: castore                 
+        15: aload_0                 
+        16: areturn                 
+      LineNumberTable:
+        line 229: 0
+        line 230: 15
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       17     0  this   Ljava/nio/HeapCharBuffer;
+           0       17     1  i      I
+           0       17     2  x      C
+  
+  public java.nio.CharBuffer put(char[], int, int);
+    descriptor: ([CII)Ljava/nio/CharBuffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=5, locals=5, args_size=4
+         0: aload_0                 
+         1: invokevirtual #66                 // Method checkSession:()V
+         4: iload_2                 
+         5: iload_3                 
+         6: aload_1                 
+         7: arraylength             
+         8: invokestatic  #41                 // Method java/util/Objects.checkFromIndexSize:(III)I
+        11: pop                     
+        12: aload_0                 
+        13: invokevirtual #19                 // Method position:()I
+        16: istore        4                 
+        18: iload_3                 
+        19: aload_0                 
+        20: invokevirtual #23                 // Method limit:()I
+        23: iload         4                 
+        25: isub                    
+        26: if_icmple     37                
+        29: new           #86                 // class java/nio/BufferOverflowException
+        32: dup                     
+        33: invokespecial #88                 // Method java/nio/BufferOverflowException."<init>":()V
+        36: athrow                  
+        37: aload_1                 
+        38: iload_2                 
+        39: aload_0                 
+        40: getfield      #26                 // Field hb:[C
+        43: aload_0                 
+        44: iload         4                 
+        46: invokevirtual #59                 // Method ix:(I)I
+        49: iload_3                 
+        50: invokestatic  #74                 // Method java/lang/System.arraycopy:(Ljava/lang/Object;ILjava/lang/Object;II)V
+        53: aload_0                 
+        54: iload         4                 
+        56: iload_3                 
+        57: iadd                    
+        58: invokevirtual #80                 // Method position:(I)Ljava/nio/CharBuffer;
+        61: pop                     
+        62: aload_0                 
+        63: areturn                 
+      LineNumberTable:
+        line 238: 0
+        line 239: 4
+        line 240: 12
+        line 241: 18
+        line 242: 29
+        line 243: 37
+        line 244: 53
+        line 245: 62
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       64     0  this   Ljava/nio/HeapCharBuffer;
+           0       64     1  src    [C
+           0       64     2  offset I
+           0       64     3  length I
+          18       46     4  pos    I
+      StackMapTable: number_of_entries = 1
+        frame_type = 252 /* append */
+          offset_delta = 37
+          locals = [int]
+  
+  public java.nio.CharBuffer put(java.nio.CharBuffer);
+    descriptor: (Ljava/nio/CharBuffer;)Ljava/nio/CharBuffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: invokevirtual #66                 // Method checkSession:()V
+         4: aload_0                 
+         5: aload_1                 
+         6: invokespecial #89                 // Method java/nio/CharBuffer.put:(Ljava/nio/CharBuffer;)Ljava/nio/CharBuffer;
+         9: pop                     
+        10: aload_0                 
+        11: areturn                 
+      LineNumberTable:
+        line 253: 0
+        line 254: 4
+        line 255: 10
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       12     0  this   Ljava/nio/HeapCharBuffer;
+           0       12     1  src    Ljava/nio/CharBuffer;
+  
+  public java.nio.CharBuffer put(int, java.nio.CharBuffer, int, int);
+    descriptor: (ILjava/nio/CharBuffer;II)Ljava/nio/CharBuffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=5, locals=5, args_size=5
+         0: aload_0                 
+         1: invokevirtual #66                 // Method checkSession:()V
+         4: aload_0                 
+         5: iload_1                 
+         6: aload_2                 
+         7: iload_3                 
+         8: iload         4                 
+        10: invokespecial #93                 // Method java/nio/CharBuffer.put:(ILjava/nio/CharBuffer;II)Ljava/nio/CharBuffer;
+        13: pop                     
+        14: aload_0                 
+        15: areturn                 
+      LineNumberTable:
+        line 263: 0
+        line 264: 4
+        line 265: 14
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       16     0  this   Ljava/nio/HeapCharBuffer;
+           0       16     1  index  I
+           0       16     2  src    Ljava/nio/CharBuffer;
+           0       16     3  offset I
+           0       16     4  length I
+  
+  public java.nio.CharBuffer put(int, char[], int, int);
+    descriptor: (I[CII)Ljava/nio/CharBuffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=5, locals=5, args_size=5
+         0: aload_0                 
+         1: invokevirtual #66                 // Method checkSession:()V
+         4: iload_1                 
+         5: iload         4                 
+         7: aload_0                 
+         8: invokevirtual #23                 // Method limit:()I
+        11: invokestatic  #41                 // Method java/util/Objects.checkFromIndexSize:(III)I
+        14: pop                     
+        15: iload_3                 
+        16: iload         4                 
+        18: aload_2                 
+        19: arraylength             
+        20: invokestatic  #41                 // Method java/util/Objects.checkFromIndexSize:(III)I
+        23: pop                     
+        24: aload_2                 
+        25: iload_3                 
+        26: aload_0                 
+        27: getfield      #26                 // Field hb:[C
+        30: aload_0                 
+        31: iload_1                 
+        32: invokevirtual #59                 // Method ix:(I)I
+        35: iload         4                 
+        37: invokestatic  #74                 // Method java/lang/System.arraycopy:(Ljava/lang/Object;ILjava/lang/Object;II)V
+        40: aload_0                 
+        41: areturn                 
+      LineNumberTable:
+        line 273: 0
+        line 274: 4
+        line 275: 15
+        line 276: 24
+        line 277: 40
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       42     0  this   Ljava/nio/HeapCharBuffer;
+           0       42     1  index  I
+           0       42     2  src    [C
+           0       42     3  offset I
+           0       42     4  length I
+  
+  private java.nio.CharBuffer appendChars(java.lang.CharSequence, int, int);
+    descriptor: (Ljava/lang/CharSequence;II)Ljava/nio/CharBuffer;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=6, locals=11, args_size=4
+         0: aload_0                 
+         1: invokevirtual #66                 // Method checkSession:()V
+         4: iload_2                 
+         5: iload_3                 
+         6: aload_1                 
+         7: invokeinterface #96, 1              // InterfaceMethod java/lang/CharSequence.length:()I
+        12: invokestatic  #101                // Method java/util/Objects.checkFromToIndex:(III)I
+        15: pop                     
+        16: iload_3                 
+        17: iload_2                 
+        18: isub                    
+        19: istore        4                 
+        21: aload_0                 
+        22: invokevirtual #19                 // Method position:()I
+        25: istore        5                 
+        27: aload_0                 
+        28: invokevirtual #23                 // Method limit:()I
+        31: istore        6                 
+        33: iload         5                 
+        35: iload         6                 
+        37: if_icmpgt     48                
+        40: iload         6                 
+        42: iload         5                 
+        44: isub                    
+        45: goto          49                
+        48: iconst_0                
+        49: istore        7                 
+        51: iload         4                 
+        53: iload         7                 
+        55: if_icmple     66                
+        58: new           #86                 // class java/nio/BufferOverflowException
+        61: dup                     
+        62: invokespecial #88                 // Method java/nio/BufferOverflowException."<init>":()V
+        65: athrow                  
+        66: aload_1                 
+        67: instanceof    #104                // class java/lang/String
+        70: ifeq          99                
+        73: aload_1                 
+        74: checkcast     #104                // class java/lang/String
+        77: astore        8                 
+        79: aload         8                 
+        81: iload_2                 
+        82: iload_3                 
+        83: aload_0                 
+        84: getfield      #26                 // Field hb:[C
+        87: aload_0                 
+        88: iload         5                 
+        90: invokevirtual #59                 // Method ix:(I)I
+        93: invokevirtual #106                // Method java/lang/String.getChars:(II[CI)V
+        96: goto          162               
+        99: aload_1                 
+       100: instanceof    #110                // class java/lang/StringBuilder
+       103: ifeq          132               
+       106: aload_1                 
+       107: checkcast     #110                // class java/lang/StringBuilder
+       110: astore        9                 
+       112: aload         9                 
+       114: iload_2                 
+       115: iload_3                 
+       116: aload_0                 
+       117: getfield      #26                 // Field hb:[C
+       120: aload_0                 
+       121: iload         5                 
+       123: invokevirtual #59                 // Method ix:(I)I
+       126: invokevirtual #112                // Method java/lang/StringBuilder.getChars:(II[CI)V
+       129: goto          162               
+       132: aload_1                 
+       133: instanceof    #113                // class java/lang/StringBuffer
+       136: ifeq          162               
+       139: aload_1                 
+       140: checkcast     #113                // class java/lang/StringBuffer
+       143: astore        10                
+       145: aload         10                
+       147: iload_2                 
+       148: iload_3                 
+       149: aload_0                 
+       150: getfield      #26                 // Field hb:[C
+       153: aload_0                 
+       154: iload         5                 
+       156: invokevirtual #59                 // Method ix:(I)I
+       159: invokevirtual #115                // Method java/lang/StringBuffer.getChars:(II[CI)V
+       162: aload_0                 
+       163: iload         5                 
+       165: iload         4                 
+       167: iadd                    
+       168: invokevirtual #80                 // Method position:(I)Ljava/nio/CharBuffer;
+       171: pop                     
+       172: aload_0                 
+       173: areturn                 
+      LineNumberTable:
+        line 294: 0
+        line 296: 4
+        line 298: 16
+        line 299: 21
+        line 300: 27
+        line 301: 33
+        line 302: 51
+        line 303: 58
+        line 305: 66
+        line 306: 79
+        line 307: 99
+        line 308: 112
+        line 309: 132
+        line 310: 145
+        line 313: 162
+        line 315: 172
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          79       20     8  str    Ljava/lang/String;
+         112       20     9  sb     Ljava/lang/StringBuilder;
+         145       17    10  sb     Ljava/lang/StringBuffer;
+           0      174     0  this   Ljava/nio/HeapCharBuffer;
+           0      174     1  csq    Ljava/lang/CharSequence;
+           0      174     2  start  I
+           0      174     3  end    I
+          21      153     4  length I
+          27      147     5  pos    I
+          33      141     6  lim    I
+          51      123     7  rem    I
+      StackMapTable: number_of_entries = 6
+        frame_type = 254 /* append */
+          offset_delta = 48
+          locals = [int, int, int]
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 252 /* append */
+          offset_delta = 16
+          locals = [int]
+        frame_type = 32 /* same */
+        frame_type = 32 /* same */
+        frame_type = 29 /* same */
+  
+  public java.nio.CharBuffer append(java.lang.CharSequence);
+    descriptor: (Ljava/lang/CharSequence;)Ljava/nio/CharBuffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=2, args_size=2
+         0: aload_1                 
+         1: instanceof    #110                // class java/lang/StringBuilder
+         4: ifeq          20                
+         7: aload_0                 
+         8: aload_1                 
+         9: iconst_0                
+        10: aload_1                 
+        11: invokeinterface #96, 1              // InterfaceMethod java/lang/CharSequence.length:()I
+        16: invokevirtual #116                // Method appendChars:(Ljava/lang/CharSequence;II)Ljava/nio/CharBuffer;
+        19: areturn                 
+        20: aload_0                 
+        21: aload_1                 
+        22: invokespecial #120                // Method java/nio/CharBuffer.append:(Ljava/lang/CharSequence;)Ljava/nio/CharBuffer;
+        25: areturn                 
+      LineNumberTable:
+        line 320: 0
+        line 321: 7
+        line 323: 20
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       26     0  this   Ljava/nio/HeapCharBuffer;
+           0       26     1  csq    Ljava/lang/CharSequence;
+      StackMapTable: number_of_entries = 1
+        frame_type = 20 /* same */
+  
+  public java.nio.CharBuffer append(java.lang.CharSequence, int, int);
+    descriptor: (Ljava/lang/CharSequence;II)Ljava/nio/CharBuffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=4, args_size=4
+         0: aload_1                 
+         1: instanceof    #104                // class java/lang/String
+         4: ifne          21                
+         7: aload_1                 
+         8: instanceof    #113                // class java/lang/StringBuffer
+        11: ifne          21                
+        14: aload_1                 
+        15: instanceof    #110                // class java/lang/StringBuilder
+        18: ifeq          29                
+        21: aload_0                 
+        22: aload_1                 
+        23: iload_2                 
+        24: iload_3                 
+        25: invokevirtual #116                // Method appendChars:(Ljava/lang/CharSequence;II)Ljava/nio/CharBuffer;
+        28: areturn                 
+        29: aload_0                 
+        30: aload_1                 
+        31: iload_2                 
+        32: iload_3                 
+        33: invokespecial #124                // Method java/nio/CharBuffer.append:(Ljava/lang/CharSequence;II)Ljava/nio/CharBuffer;
+        36: areturn                 
+      LineNumberTable:
+        line 331: 0
+        line 333: 21
+        line 335: 29
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       37     0  this   Ljava/nio/HeapCharBuffer;
+           0       37     1  csq    Ljava/lang/CharSequence;
+           0       37     2  start  I
+           0       37     3  end    I
+      StackMapTable: number_of_entries = 2
+        frame_type = 21 /* same */
+        frame_type = 7 /* same */
+  
+  public java.nio.CharBuffer put(java.lang.String, int, int);
+    descriptor: (Ljava/lang/String;II)Ljava/nio/CharBuffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=6, locals=8, args_size=4
+         0: aload_0                 
+         1: invokevirtual #66                 // Method checkSession:()V
+         4: iload_3                 
+         5: iload_2                 
+         6: isub                    
+         7: istore        4                 
+         9: iload_2                 
+        10: iload         4                 
+        12: aload_1                 
+        13: invokevirtual #126                // Method java/lang/String.length:()I
+        16: invokestatic  #41                 // Method java/util/Objects.checkFromIndexSize:(III)I
+        19: pop                     
+        20: aload_0                 
+        21: invokevirtual #19                 // Method position:()I
+        24: istore        5                 
+        26: aload_0                 
+        27: invokevirtual #23                 // Method limit:()I
+        30: istore        6                 
+        32: iload         5                 
+        34: iload         6                 
+        36: if_icmpgt     47                
+        39: iload         6                 
+        41: iload         5                 
+        43: isub                    
+        44: goto          48                
+        47: iconst_0                
+        48: istore        7                 
+        50: iload         4                 
+        52: iload         7                 
+        54: if_icmple     65                
+        57: new           #86                 // class java/nio/BufferOverflowException
+        60: dup                     
+        61: invokespecial #88                 // Method java/nio/BufferOverflowException."<init>":()V
+        64: athrow                  
+        65: aload_1                 
+        66: iload_2                 
+        67: iload_3                 
+        68: aload_0                 
+        69: getfield      #26                 // Field hb:[C
+        72: aload_0                 
+        73: iload         5                 
+        75: invokevirtual #59                 // Method ix:(I)I
+        78: invokevirtual #106                // Method java/lang/String.getChars:(II[CI)V
+        81: aload_0                 
+        82: iload         5                 
+        84: iload         4                 
+        86: iadd                    
+        87: invokevirtual #80                 // Method position:(I)Ljava/nio/CharBuffer;
+        90: pop                     
+        91: aload_0                 
+        92: areturn                 
+      LineNumberTable:
+        line 343: 0
+        line 344: 4
+        line 345: 9
+        line 346: 20
+        line 347: 26
+        line 348: 32
+        line 349: 50
+        line 350: 57
+        line 351: 65
+        line 352: 81
+        line 353: 91
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       93     0  this   Ljava/nio/HeapCharBuffer;
+           0       93     1  src    Ljava/lang/String;
+           0       93     2  start  I
+           0       93     3  end    I
+           9       84     4  length I
+          26       67     5  pos    I
+          32       61     6  lim    I
+          50       43     7  rem    I
+      StackMapTable: number_of_entries = 3
+        frame_type = 254 /* append */
+          offset_delta = 47
+          locals = [int, int, int]
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 252 /* append */
+          offset_delta = 16
+          locals = [int]
+  
+  public java.nio.CharBuffer compact();
+    descriptor: ()Ljava/nio/CharBuffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=5, locals=4, args_size=1
+         0: aload_0                 
+         1: invokevirtual #19                 // Method position:()I
+         4: istore_1                
+         5: aload_0                 
+         6: invokevirtual #23                 // Method limit:()I
+         9: istore_2                
+        10: getstatic     #127                // Field $assertionsDisabled:Z
+        13: ifne          29                
+        16: iload_1                 
+        17: iload_2                 
+        18: if_icmple     29                
+        21: new           #131                // class java/lang/AssertionError
+        24: dup                     
+        25: invokespecial #133                // Method java/lang/AssertionError."<init>":()V
+        28: athrow                  
+        29: iload_1                 
+        30: iload_2                 
+        31: if_icmpgt     40                
+        34: iload_2                 
+        35: iload_1                 
+        36: isub                    
+        37: goto          41                
+        40: iconst_0                
+        41: istore_3                
+        42: aload_0                 
+        43: getfield      #26                 // Field hb:[C
+        46: aload_0                 
+        47: iload_1                 
+        48: invokevirtual #59                 // Method ix:(I)I
+        51: aload_0                 
+        52: getfield      #26                 // Field hb:[C
+        55: aload_0                 
+        56: iconst_0                
+        57: invokevirtual #59                 // Method ix:(I)I
+        60: iload_3                 
+        61: invokestatic  #74                 // Method java/lang/System.arraycopy:(Ljava/lang/Object;ILjava/lang/Object;II)V
+        64: aload_0                 
+        65: iload_3                 
+        66: invokevirtual #80                 // Method position:(I)Ljava/nio/CharBuffer;
+        69: pop                     
+        70: aload_0                 
+        71: aload_0                 
+        72: invokevirtual #50                 // Method capacity:()I
+        75: invokevirtual #134                // Method limit:(I)Ljava/nio/CharBuffer;
+        78: pop                     
+        79: aload_0                 
+        80: invokevirtual #136                // Method discardMark:()V
+        83: aload_0                 
+        84: areturn                 
+      LineNumberTable:
+        line 363: 0
+        line 364: 5
+        line 365: 10
+        line 366: 29
+        line 367: 42
+        line 368: 64
+        line 369: 70
+        line 370: 79
+        line 371: 83
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       85     0  this   Ljava/nio/HeapCharBuffer;
+           5       80     1  pos    I
+          10       75     2  lim    I
+          42       43     3  rem    I
+      StackMapTable: number_of_entries = 3
+        frame_type = 253 /* append */
+          offset_delta = 29
+          locals = [int, int]
+        frame_type = 10 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  java.lang.String toString(int, int);
+    descriptor: (II)Ljava/lang/String;
+    flags: (0x0000) 
+    Code: 
+      stack=6, locals=4, args_size=3
+         0: new           #104                // class java/lang/String
+         3: dup                     
+         4: aload_0                 
+         5: getfield      #26                 // Field hb:[C
+         8: iload_1                 
+         9: aload_0                 
+        10: getfield      #30                 // Field offset:I
+        13: iadd                    
+        14: iload_2                 
+        15: iload_1                 
+        16: isub                    
+        17: invokespecial #139                // Method java/lang/String."<init>":([CII)V
+        20: areturn                 
+        21: astore_3                
+        22: new           #144                // class java/lang/IndexOutOfBoundsException
+        25: dup                     
+        26: invokespecial #146                // Method java/lang/IndexOutOfBoundsException."<init>":()V
+        29: athrow                  
+      Exception table:
+          from       to target type
+             0       20    21  Class java/lang/StringIndexOutOfBoundsException
+      LineNumberTable:
+        line 720: 0
+        line 721: 21
+        line 722: 22
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          22        8     3  x      Ljava/lang/StringIndexOutOfBoundsException;
+           0       30     0  this   Ljava/nio/HeapCharBuffer;
+           0       30     1  start  I
+           0       30     2  end    I
+      StackMapTable: number_of_entries = 1
+        frame_type = 85 /* same_locals_1_stack_item */
+          stack = [ class java/lang/StringIndexOutOfBoundsException ]
+  
+  public java.nio.CharBuffer subSequence(int, int);
+    descriptor: (II)Ljava/nio/CharBuffer;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=9, locals=4, args_size=3
+         0: aload_0                 
+         1: invokevirtual #19                 // Method position:()I
+         4: istore_3                
+         5: iload_1                 
+         6: iload_2                 
+         7: aload_0                 
+         8: invokevirtual #23                 // Method limit:()I
+        11: iload_3                 
+        12: isub                    
+        13: invokestatic  #101                // Method java/util/Objects.checkFromToIndex:(III)I
+        16: pop                     
+        17: new           #8                  // class java/nio/HeapCharBuffer
+        20: dup                     
+        21: aload_0                 
+        22: getfield      #26                 // Field hb:[C
+        25: iconst_m1               
+        26: iload_3                 
+        27: iload_1                 
+        28: iadd                    
+        29: iload_3                 
+        30: iload_2                 
+        31: iadd                    
+        32: aload_0                 
+        33: invokevirtual #50                 // Method capacity:()I
+        36: aload_0                 
+        37: getfield      #30                 // Field offset:I
+        40: aload_0                 
+        41: getfield      #34                 // Field segment:Ljava/lang/foreign/MemorySegment;
+        44: invokespecial #38                 // Method "<init>":([CIIIIILjava/lang/foreign/MemorySegment;)V
+        47: areturn                 
+      LineNumberTable:
+        line 730: 0
+        line 731: 5
+        line 732: 17
+        line 736: 33
+        line 732: 47
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       48     0  this   Ljava/nio/HeapCharBuffer;
+           0       48     1  start  I
+           0       48     2  end    I
+           5       43     3  pos    I
+  
+  public java.nio.ByteOrder order();
+    descriptor: ()Ljava/nio/ByteOrder;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: invokestatic  #147                // Method java/nio/ByteOrder.nativeOrder:()Ljava/nio/ByteOrder;
+         3: areturn                 
+      LineNumberTable:
+        line 763: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        4     0  this   Ljava/nio/HeapCharBuffer;
+  
+  java.nio.ByteOrder charRegionOrder();
+    descriptor: ()Ljava/nio/ByteOrder;
+    flags: (0x0000) 
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: invokevirtual #153                // Method order:()Ljava/nio/ByteOrder;
+         4: areturn                 
+      LineNumberTable:
+        line 769: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/nio/HeapCharBuffer;
+  
+  public java.lang.Appendable append(java.lang.CharSequence, int, int) throws java.io.IOException;
+    descriptor: (Ljava/lang/CharSequence;II)Ljava/lang/Appendable;
+    flags: (0x1041) ACC_PUBLIC, ACC_BRIDGE, ACC_SYNTHETIC
+    Code: 
+      stack=4, locals=4, args_size=4
+         0: aload_0                 
+         1: aload_1                 
+         2: iload_2                 
+         3: iload_3                 
+         4: invokevirtual #156                // Method append:(Ljava/lang/CharSequence;II)Ljava/nio/CharBuffer;
+         7: areturn                 
+      LineNumberTable:
+        line 48: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/nio/HeapCharBuffer;
+    Exceptions:
+      throws java.io.IOException
+    MethodParameters:
+      Name                             Flags
+      <no name>                        synthetic 
+      <no name>                        synthetic 
+      <no name>                        synthetic 
+  
+  public java.lang.Appendable append(java.lang.CharSequence) throws java.io.IOException;
+    descriptor: (Ljava/lang/CharSequence;)Ljava/lang/Appendable;
+    flags: (0x1041) ACC_PUBLIC, ACC_BRIDGE, ACC_SYNTHETIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: aload_1                 
+         2: invokevirtual #157                // Method append:(Ljava/lang/CharSequence;)Ljava/nio/CharBuffer;
+         5: areturn                 
+      LineNumberTable:
+        line 48: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        6     0  this   Ljava/nio/HeapCharBuffer;
+    Exceptions:
+      throws java.io.IOException
+    MethodParameters:
+      Name                             Flags
+      <no name>                        synthetic 
+  
+  public java.lang.CharSequence subSequence(int, int);
+    descriptor: (II)Ljava/lang/CharSequence;
+    flags: (0x1041) ACC_PUBLIC, ACC_BRIDGE, ACC_SYNTHETIC
+    Code: 
+      stack=3, locals=3, args_size=3
+         0: aload_0                 
+         1: iload_1                 
+         2: iload_2                 
+         3: invokevirtual #158                // Method subSequence:(II)Ljava/nio/CharBuffer;
+         6: areturn                 
+      LineNumberTable:
+        line 48: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        7     0  this   Ljava/nio/HeapCharBuffer;
+    MethodParameters:
+      Name                             Flags
+      <no name>                        synthetic 
+      <no name>                        synthetic 
+  
+  public java.nio.Buffer duplicate();
+    descriptor: ()Ljava/nio/Buffer;
+    flags: (0x1041) ACC_PUBLIC, ACC_BRIDGE, ACC_SYNTHETIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: invokevirtual #162                // Method duplicate:()Ljava/nio/CharBuffer;
+         4: areturn                 
+      LineNumberTable:
+        line 48: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/nio/HeapCharBuffer;
+  
+  public java.nio.Buffer slice(int, int);
+    descriptor: (II)Ljava/nio/Buffer;
+    flags: (0x1041) ACC_PUBLIC, ACC_BRIDGE, ACC_SYNTHETIC
+    Code: 
+      stack=3, locals=3, args_size=3
+         0: aload_0                 
+         1: iload_1                 
+         2: iload_2                 
+         3: invokevirtual #166                // Method slice:(II)Ljava/nio/CharBuffer;
+         6: areturn                 
+      LineNumberTable:
+        line 48: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        7     0  this   Ljava/nio/HeapCharBuffer;
+    MethodParameters:
+      Name                             Flags
+      <no name>                        synthetic 
+      <no name>                        synthetic 
+  
+  public java.nio.Buffer slice();
+    descriptor: ()Ljava/nio/Buffer;
+    flags: (0x1041) ACC_PUBLIC, ACC_BRIDGE, ACC_SYNTHETIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: invokevirtual #169                // Method slice:()Ljava/nio/CharBuffer;
+         4: areturn                 
+      LineNumberTable:
+        line 48: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/nio/HeapCharBuffer;
+  
+  static {};
+    descriptor: ()V
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=2, locals=0, args_size=0
+         0: ldc           #8                  // class java/nio/HeapCharBuffer
+         2: invokevirtual #171                // Method java/lang/Class.desiredAssertionStatus:()Z
+         5: ifne          12                
+         8: iconst_1                
+         9: goto          13                
+        12: iconst_0                
+        13: putstatic     #127                // Field $assertionsDisabled:Z
+        16: getstatic     #177                // Field UNSAFE:Ljdk/internal/misc/Unsafe;
+        19: ldc           #181                // class "[C"
+        21: invokevirtual #182                // Method jdk/internal/misc/Unsafe.arrayBaseOffset:(Ljava/lang/Class;)I
+        24: i2l                     
+        25: putstatic     #7                  // Field ARRAY_BASE_OFFSET:J
+        28: getstatic     #177                // Field UNSAFE:Ljdk/internal/misc/Unsafe;
+        31: ldc           #181                // class "[C"
+        33: invokevirtual #188                // Method jdk/internal/misc/Unsafe.arrayIndexScale:(Ljava/lang/Class;)I
+        36: i2l                     
+        37: putstatic     #16                 // Field ARRAY_INDEX_SCALE:J
+        40: return                  
+      LineNumberTable:
+        line 48: 0
+        line 60: 16
+        line 63: 28
+      StackMapTable: number_of_entries = 2
+        frame_type = 12 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+}
+SourceFile: "HeapCharBuffer.java"
+PermittedSubclasses:
+  java/nio/HeapCharBufferR

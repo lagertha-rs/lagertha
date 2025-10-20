@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      PKG_ARG: "--package class_file --package classp --package common"
+      PKG_ARG: "--package jclass --package classp --package common"
 
     strategy:
       matrix:
@@ -49,7 +49,7 @@ jobs:
           path: target/test-classes
           key: >
             ${{ runner.os }}-jdk-${{ matrix.jdk }}-${{ matrix.jdk_distribution }}-fixtures-
-            ${{ hashFiles('vm/testdata/**/*.java', 'runtime/testdata/**/*.java', 'prepare_fixtures.py', 'class_file/fixtures.toml')}}
+            ${{ hashFiles('vm/testdata/**/*.java', 'runtime/testdata/**/*.java', 'prepare_fixtures.py', 'jclass/fixtures.toml')}}
 
       - name: Prepare fixtures (compile + extract)
         if: steps.cache-fixtures.outputs.cache-hit != 'true'

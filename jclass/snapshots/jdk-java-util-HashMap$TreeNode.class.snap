@@ -1,0 +1,2990 @@
+---
+source: jclass/src/lib.rs
+expression: display
+---
+final class java.util.HashMap$TreeNode <K extends java.lang.Object, V extends java.lang.Object> extends java.util.LinkedHashMap$Entry<K, V>
+  minor version: 0
+  major version: 68
+  flags: (0x0030) ACC_FINAL, ACC_SUPER
+  this_class: #10                      //java/util/HashMap$TreeNode
+  super_class: #4                      //java/util/LinkedHashMap$Entry
+  interfaces: 0, fields: 6, methods: 17, attributes: 4
+Constant pool:
+    #1 = Class              #2               // java/util/HashMap
+    #2 = Utf8               java/util/HashMap
+    #3 = Methodref          #4.#5            // java/util/LinkedHashMap$Entry."<init>":(ILjava/lang/Object;Ljava/lang/Object;Ljava/util/HashMap$Node;)V
+    #4 = Class              #6               // java/util/LinkedHashMap$Entry
+    #5 = NameAndType        #7:#8            // "<init>":(ILjava/lang/Object;Ljava/lang/Object;Ljava/util/HashMap$Node;)V
+    #6 = Utf8               java/util/LinkedHashMap$Entry
+    #7 = Utf8               <init>
+    #8 = Utf8               (ILjava/lang/Object;Ljava/lang/Object;Ljava/util/HashMap$Node;)V
+    #9 = Fieldref           #10.#11          // java/util/HashMap$TreeNode.parent:Ljava/util/HashMap$TreeNode;
+   #10 = Class              #12              // java/util/HashMap$TreeNode
+   #11 = NameAndType        #13:#14          // parent:Ljava/util/HashMap$TreeNode;
+   #12 = Utf8               java/util/HashMap$TreeNode
+   #13 = Utf8               parent
+   #14 = Utf8               Ljava/util/HashMap$TreeNode;
+   #15 = Fieldref           #10.#16          // java/util/HashMap$TreeNode.hash:I
+   #16 = NameAndType        #17:#18          // hash:I
+   #17 = Utf8               hash
+   #18 = Utf8               I
+   #19 = Fieldref           #10.#20          // java/util/HashMap$TreeNode.prev:Ljava/util/HashMap$TreeNode;
+   #20 = NameAndType        #21:#14          // prev:Ljava/util/HashMap$TreeNode;
+   #21 = Utf8               prev
+   #22 = Fieldref           #10.#23          // java/util/HashMap$TreeNode.next:Ljava/util/HashMap$Node;
+   #23 = NameAndType        #24:#25          // next:Ljava/util/HashMap$Node;
+   #24 = Utf8               next
+   #25 = Utf8               Ljava/util/HashMap$Node;
+   #26 = Fieldref           #10.#27          // java/util/HashMap$TreeNode.$assertionsDisabled:Z
+   #27 = NameAndType        #28:#29          // $assertionsDisabled:Z
+   #28 = Utf8               $assertionsDisabled
+   #29 = Utf8               Z
+   #30 = Methodref          #10.#31          // java/util/HashMap$TreeNode.checkInvariants:(Ljava/util/HashMap$TreeNode;)Z
+   #31 = NameAndType        #32:#33          // checkInvariants:(Ljava/util/HashMap$TreeNode;)Z
+   #32 = Utf8               checkInvariants
+   #33 = Utf8               (Ljava/util/HashMap$TreeNode;)Z
+   #34 = Class              #35              // java/lang/AssertionError
+   #35 = Utf8               java/lang/AssertionError
+   #36 = Methodref          #34.#37          // java/lang/AssertionError."<init>":()V
+   #37 = NameAndType        #7:#38           // "<init>":()V
+   #38 = Utf8               ()V
+   #39 = Fieldref           #10.#40          // java/util/HashMap$TreeNode.left:Ljava/util/HashMap$TreeNode;
+   #40 = NameAndType        #41:#14          // left:Ljava/util/HashMap$TreeNode;
+   #41 = Utf8               left
+   #42 = Fieldref           #10.#43          // java/util/HashMap$TreeNode.right:Ljava/util/HashMap$TreeNode;
+   #43 = NameAndType        #44:#14          // right:Ljava/util/HashMap$TreeNode;
+   #44 = Utf8               right
+   #45 = Fieldref           #10.#46          // java/util/HashMap$TreeNode.key:Ljava/lang/Object;
+   #46 = NameAndType        #47:#48          // key:Ljava/lang/Object;
+   #47 = Utf8               key
+   #48 = Utf8               Ljava/lang/Object;
+   #49 = Methodref          #50.#51          // java/lang/Object.equals:(Ljava/lang/Object;)Z
+   #50 = Class              #52              // java/lang/Object
+   #51 = NameAndType        #53:#54          // equals:(Ljava/lang/Object;)Z
+   #52 = Utf8               java/lang/Object
+   #53 = Utf8               equals
+   #54 = Utf8               (Ljava/lang/Object;)Z
+   #55 = Methodref          #1.#56           // java/util/HashMap.comparableClassFor:(Ljava/lang/Object;)Ljava/lang/Class;
+   #56 = NameAndType        #57:#58          // comparableClassFor:(Ljava/lang/Object;)Ljava/lang/Class;
+   #57 = Utf8               comparableClassFor
+   #58 = Utf8               (Ljava/lang/Object;)Ljava/lang/Class;
+   #59 = Methodref          #1.#60           // java/util/HashMap.compareComparables:(Ljava/lang/Class;Ljava/lang/Object;Ljava/lang/Object;)I
+   #60 = NameAndType        #61:#62          // compareComparables:(Ljava/lang/Class;Ljava/lang/Object;Ljava/lang/Object;)I
+   #61 = Utf8               compareComparables
+   #62 = Utf8               (Ljava/lang/Class;Ljava/lang/Object;Ljava/lang/Object;)I
+   #63 = Methodref          #10.#64          // java/util/HashMap$TreeNode.find:(ILjava/lang/Object;Ljava/lang/Class;)Ljava/util/HashMap$TreeNode;
+   #64 = NameAndType        #65:#66          // find:(ILjava/lang/Object;Ljava/lang/Class;)Ljava/util/HashMap$TreeNode;
+   #65 = Utf8               find
+   #66 = Utf8               (ILjava/lang/Object;Ljava/lang/Class;)Ljava/util/HashMap$TreeNode;
+   #67 = Methodref          #10.#68          // java/util/HashMap$TreeNode.root:()Ljava/util/HashMap$TreeNode;
+   #68 = NameAndType        #69:#70          // root:()Ljava/util/HashMap$TreeNode;
+   #69 = Utf8               root
+   #70 = Utf8               ()Ljava/util/HashMap$TreeNode;
+   #71 = Methodref          #50.#72          // java/lang/Object.getClass:()Ljava/lang/Class;
+   #72 = NameAndType        #73:#74          // getClass:()Ljava/lang/Class;
+   #73 = Utf8               getClass
+   #74 = Utf8               ()Ljava/lang/Class;
+   #75 = Methodref          #76.#77          // java/lang/Class.getName:()Ljava/lang/String;
+   #76 = Class              #78              // java/lang/Class
+   #77 = NameAndType        #79:#80          // getName:()Ljava/lang/String;
+   #78 = Utf8               java/lang/Class
+   #79 = Utf8               getName
+   #80 = Utf8               ()Ljava/lang/String;
+   #81 = Methodref          #82.#83          // java/lang/String.compareTo:(Ljava/lang/String;)I
+   #82 = Class              #84              // java/lang/String
+   #83 = NameAndType        #85:#86          // compareTo:(Ljava/lang/String;)I
+   #84 = Utf8               java/lang/String
+   #85 = Utf8               compareTo
+   #86 = Utf8               (Ljava/lang/String;)I
+   #87 = Methodref          #88.#89          // java/lang/System.identityHashCode:(Ljava/lang/Object;)I
+   #88 = Class              #90              // java/lang/System
+   #89 = NameAndType        #91:#92          // identityHashCode:(Ljava/lang/Object;)I
+   #90 = Utf8               java/lang/System
+   #91 = Utf8               identityHashCode
+   #92 = Utf8               (Ljava/lang/Object;)I
+   #93 = Fieldref           #10.#94          // java/util/HashMap$TreeNode.red:Z
+   #94 = NameAndType        #95:#29          // red:Z
+   #95 = Utf8               red
+   #96 = Methodref          #10.#97          // java/util/HashMap$TreeNode.tieBreakOrder:(Ljava/lang/Object;Ljava/lang/Object;)I
+   #97 = NameAndType        #98:#99          // tieBreakOrder:(Ljava/lang/Object;Ljava/lang/Object;)I
+   #98 = Utf8               tieBreakOrder
+   #99 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;)I
+  #100 = Methodref          #10.#101         // java/util/HashMap$TreeNode.balanceInsertion:(Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+  #101 = NameAndType        #102:#103        // balanceInsertion:(Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+  #102 = Utf8               balanceInsertion
+  #103 = Utf8               (Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+  #104 = Methodref          #10.#105         // java/util/HashMap$TreeNode.moveRootToFront:([Ljava/util/HashMap$Node;Ljava/util/HashMap$TreeNode;)V
+  #105 = NameAndType        #106:#107        // moveRootToFront:([Ljava/util/HashMap$Node;Ljava/util/HashMap$TreeNode;)V
+  #106 = Utf8               moveRootToFront
+  #107 = Utf8               ([Ljava/util/HashMap$Node;Ljava/util/HashMap$TreeNode;)V
+  #108 = Methodref          #1.#109          // java/util/HashMap.replacementNode:(Ljava/util/HashMap$Node;Ljava/util/HashMap$Node;)Ljava/util/HashMap$Node;
+  #109 = NameAndType        #110:#111        // replacementNode:(Ljava/util/HashMap$Node;Ljava/util/HashMap$Node;)Ljava/util/HashMap$Node;
+  #110 = Utf8               replacementNode
+  #111 = Utf8               (Ljava/util/HashMap$Node;Ljava/util/HashMap$Node;)Ljava/util/HashMap$Node;
+  #112 = Fieldref           #113.#23         // java/util/HashMap$Node.next:Ljava/util/HashMap$Node;
+  #113 = Class              #114             // java/util/HashMap$Node
+  #114 = Utf8               java/util/HashMap$Node
+  #115 = Methodref          #1.#116          // java/util/HashMap.newTreeNode:(ILjava/lang/Object;Ljava/lang/Object;Ljava/util/HashMap$Node;)Ljava/util/HashMap$TreeNode;
+  #116 = NameAndType        #117:#118        // newTreeNode:(ILjava/lang/Object;Ljava/lang/Object;Ljava/util/HashMap$Node;)Ljava/util/HashMap$TreeNode;
+  #117 = Utf8               newTreeNode
+  #118 = Utf8               (ILjava/lang/Object;Ljava/lang/Object;Ljava/util/HashMap$Node;)Ljava/util/HashMap$TreeNode;
+  #119 = Methodref          #10.#120         // java/util/HashMap$TreeNode.untreeify:(Ljava/util/HashMap;)Ljava/util/HashMap$Node;
+  #120 = NameAndType        #121:#122        // untreeify:(Ljava/util/HashMap;)Ljava/util/HashMap$Node;
+  #121 = Utf8               untreeify
+  #122 = Utf8               (Ljava/util/HashMap;)Ljava/util/HashMap$Node;
+  #123 = Methodref          #10.#124         // java/util/HashMap$TreeNode.balanceDeletion:(Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+  #124 = NameAndType        #125:#103        // balanceDeletion:(Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+  #125 = Utf8               balanceDeletion
+  #126 = Methodref          #10.#127         // java/util/HashMap$TreeNode.treeify:([Ljava/util/HashMap$Node;)V
+  #127 = NameAndType        #128:#129        // treeify:([Ljava/util/HashMap$Node;)V
+  #128 = Utf8               treeify
+  #129 = Utf8               ([Ljava/util/HashMap$Node;)V
+  #130 = Methodref          #10.#131         // java/util/HashMap$TreeNode.rotateLeft:(Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+  #131 = NameAndType        #132:#103        // rotateLeft:(Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+  #132 = Utf8               rotateLeft
+  #133 = Methodref          #10.#134         // java/util/HashMap$TreeNode.rotateRight:(Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+  #134 = NameAndType        #135:#103        // rotateRight:(Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+  #135 = Utf8               rotateRight
+  #136 = Methodref          #76.#137         // java/lang/Class.desiredAssertionStatus:()Z
+  #137 = NameAndType        #138:#139        // desiredAssertionStatus:()Z
+  #138 = Utf8               desiredAssertionStatus
+  #139 = Utf8               ()Z
+  #140 = Utf8               Signature
+  #141 = Utf8               Ljava/util/HashMap$TreeNode<TK;TV;>;
+  #142 = Utf8               Code
+  #143 = Utf8               LineNumberTable
+  #144 = Utf8               LocalVariableTable
+  #145 = Utf8               this
+  #146 = Utf8               val
+  #147 = Utf8               LocalVariableTypeTable
+  #148 = Utf8               TK;
+  #149 = Utf8               TV;
+  #150 = Utf8               Ljava/util/HashMap$Node<TK;TV;>;
+  #151 = Utf8               (ITK;TV;Ljava/util/HashMap$Node<TK;TV;>;)V
+  #152 = Utf8               r
+  #153 = Utf8               p
+  #154 = Utf8               StackMapTable
+  #155 = Utf8               ()Ljava/util/HashMap$TreeNode<TK;TV;>;
+  #156 = Utf8               rn
+  #157 = Utf8               rp
+  #158 = Utf8               index
+  #159 = Utf8               first
+  #160 = Utf8               n
+  #161 = Utf8               tab
+  #162 = Utf8               [Ljava/util/HashMap$Node;
+  #163 = Utf8               [Ljava/util/HashMap$Node<TK;TV;>;
+  #164 = Class              #162             // "[Ljava/util/HashMap$Node;"
+  #165 = Utf8               <K:Ljava/lang/Object;V:Ljava/lang/Object;>([Ljava/util/HashMap$Node<TK;TV;>;Ljava/util/HashMap$TreeNode<TK;TV;>;)V
+  #166 = Utf8               dir
+  #167 = Utf8               ph
+  #168 = Utf8               pk
+  #169 = Utf8               pl
+  #170 = Utf8               pr
+  #171 = Utf8               q
+  #172 = Utf8               h
+  #173 = Utf8               k
+  #174 = Utf8               kc
+  #175 = Utf8               Ljava/lang/Class;
+  #176 = Utf8               Ljava/lang/Class<*>;
+  #177 = Utf8               (ILjava/lang/Object;Ljava/lang/Class<*>;)Ljava/util/HashMap$TreeNode<TK;TV;>;
+  #178 = Utf8               getTreeNode
+  #179 = Utf8               (ILjava/lang/Object;)Ljava/util/HashMap$TreeNode;
+  #180 = Utf8               (ILjava/lang/Object;)Ljava/util/HashMap$TreeNode<TK;TV;>;
+  #181 = Utf8               d
+  #182 = Utf8               a
+  #183 = Utf8               b
+  #184 = Utf8               xp
+  #185 = Utf8               x
+  #186 = Utf8               ([Ljava/util/HashMap$Node<TK;TV;>;)V
+  #187 = Utf8               map
+  #188 = Utf8               Ljava/util/HashMap;
+  #189 = Utf8               hd
+  #190 = Utf8               tl
+  #191 = Utf8               Ljava/util/HashMap<TK;TV;>;
+  #192 = Utf8               (Ljava/util/HashMap<TK;TV;>;)Ljava/util/HashMap$Node<TK;TV;>;
+  #193 = Utf8               putTreeVal
+  #194 = Utf8               (Ljava/util/HashMap;[Ljava/util/HashMap$Node;ILjava/lang/Object;Ljava/lang/Object;)Ljava/util/HashMap$TreeNode;
+  #195 = Utf8               ch
+  #196 = Utf8               xpn
+  #197 = Utf8               v
+  #198 = Utf8               searched
+  #199 = Utf8               (Ljava/util/HashMap<TK;TV;>;[Ljava/util/HashMap$Node<TK;TV;>;ITK;TV;)Ljava/util/HashMap$TreeNode<TK;TV;>;
+  #200 = Utf8               removeTreeNode
+  #201 = Utf8               (Ljava/util/HashMap;[Ljava/util/HashMap$Node;Z)V
+  #202 = Utf8               rl
+  #203 = Utf8               sp
+  #204 = Utf8               replacement
+  #205 = Utf8               s
+  #206 = Utf8               sl
+  #207 = Utf8               c
+  #208 = Utf8               sr
+  #209 = Utf8               pp
+  #210 = Utf8               movable
+  #211 = Utf8               succ
+  #212 = Utf8               pred
+  #213 = Utf8               (Ljava/util/HashMap<TK;TV;>;[Ljava/util/HashMap$Node<TK;TV;>;Z)V
+  #214 = Utf8               split
+  #215 = Utf8               (Ljava/util/HashMap;[Ljava/util/HashMap$Node;II)V
+  #216 = Utf8               e
+  #217 = Utf8               bit
+  #218 = Utf8               loHead
+  #219 = Utf8               loTail
+  #220 = Utf8               hiHead
+  #221 = Utf8               hiTail
+  #222 = Utf8               lc
+  #223 = Utf8               hc
+  #224 = Utf8               (Ljava/util/HashMap<TK;TV;>;[Ljava/util/HashMap$Node<TK;TV;>;II)V
+  #225 = Utf8               <K:Ljava/lang/Object;V:Ljava/lang/Object;>(Ljava/util/HashMap$TreeNode<TK;TV;>;Ljava/util/HashMap$TreeNode<TK;TV;>;)Ljava/util/HashMap$TreeNode<TK;TV;>;
+  #226 = Utf8               l
+  #227 = Utf8               lr
+  #228 = Utf8               xpp
+  #229 = Utf8               xppr
+  #230 = Utf8               xppl
+  #231 = Utf8               xpr
+  #232 = Utf8               xpl
+  #233 = Utf8               t
+  #234 = Utf8               tp
+  #235 = Utf8               tr
+  #236 = Utf8               tb
+  #237 = Utf8               tn
+  #238 = Utf8               <K:Ljava/lang/Object;V:Ljava/lang/Object;>(Ljava/util/HashMap$TreeNode<TK;TV;>;)Z
+  #239 = Utf8               <clinit>
+  #240 = Utf8               <K:Ljava/lang/Object;V:Ljava/lang/Object;>Ljava/util/LinkedHashMap$Entry<TK;TV;>;
+  #241 = Utf8               SourceFile
+  #242 = Utf8               HashMap.java
+  #243 = Utf8               NestHost
+  #244 = Utf8               InnerClasses
+  #245 = Class              #246             // java/util/LinkedHashMap
+  #246 = Utf8               java/util/LinkedHashMap
+  #247 = Utf8               Entry
+  #248 = Utf8               Node
+  #249 = Utf8               TreeNode
+{
+  java.util.HashMap$TreeNode<K, V> parent;
+    descriptor: Ljava/util/HashMap$TreeNode;
+    flags: (0x0000) 
+    Signature: #141                        // Ljava/util/HashMap$TreeNode<TK;TV;>;
+  
+  java.util.HashMap$TreeNode<K, V> left;
+    descriptor: Ljava/util/HashMap$TreeNode;
+    flags: (0x0000) 
+    Signature: #141                        // Ljava/util/HashMap$TreeNode<TK;TV;>;
+  
+  java.util.HashMap$TreeNode<K, V> right;
+    descriptor: Ljava/util/HashMap$TreeNode;
+    flags: (0x0000) 
+    Signature: #141                        // Ljava/util/HashMap$TreeNode<TK;TV;>;
+  
+  java.util.HashMap$TreeNode<K, V> prev;
+    descriptor: Ljava/util/HashMap$TreeNode;
+    flags: (0x0000) 
+    Signature: #141                        // Ljava/util/HashMap$TreeNode<TK;TV;>;
+  
+  boolean red;
+    descriptor: Z
+    flags: (0x0000) 
+  
+  static final boolean $assertionsDisabled;
+    descriptor: Z
+    flags: (0x1018) ACC_STATIC, ACC_FINAL, ACC_SYNTHETIC
+  
+  java.util.HashMap$TreeNode(int, K, V, java.util.HashMap$Node<K, V>);
+    descriptor: (ILjava/lang/Object;Ljava/lang/Object;Ljava/util/HashMap$Node;)V
+    flags: (0x0000) 
+    Code: 
+      stack=5, locals=5, args_size=5
+         0: aload_0                 
+         1: iload_1                 
+         2: aload_2                 
+         3: aload_3                 
+         4: aload         4                 
+         6: invokespecial #3                  // Method java/util/LinkedHashMap$Entry."<init>":(ILjava/lang/Object;Ljava/lang/Object;Ljava/util/HashMap$Node;)V
+         9: return                  
+      LineNumberTable:
+        line 1974: 0
+        line 1975: 9
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/util/HashMap$TreeNode;
+           0       10     1  hash   I
+           0       10     2  key    Ljava/lang/Object;
+           0       10     3  val    Ljava/lang/Object;
+           0       10     4  next   Ljava/util/HashMap$Node;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       10     0  this   Ljava/util/HashMap$TreeNode<TK;TV;>;
+             0       10     2  key    TK;
+             0       10     3  val    TV;
+             0       10     4  next   Ljava/util/HashMap$Node<TK;TV;>;
+    Signature: #151                        // (ITK;TV;Ljava/util/HashMap$Node<TK;TV;>;)V
+  
+  final java.util.HashMap$TreeNode<K, V> root();
+    descriptor: ()Ljava/util/HashMap$TreeNode;
+    flags: (0x0010) ACC_FINAL
+    Code: 
+      stack=2, locals=3, args_size=1
+         0: aload_0                 
+         1: astore_1                
+         2: aload_1                 
+         3: getfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+         6: dup                     
+         7: astore_2                
+         8: ifnonnull     13                
+        11: aload_1                 
+        12: areturn                 
+        13: aload_2                 
+        14: astore_1                
+        15: goto          2                 
+      LineNumberTable:
+        line 1981: 0
+        line 1982: 2
+        line 1983: 11
+        line 1984: 13
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           2       16     1  r      Ljava/util/HashMap$TreeNode;
+           8       10     2  p      Ljava/util/HashMap$TreeNode;
+           0       18     0  this   Ljava/util/HashMap$TreeNode;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             2       16     1  r      Ljava/util/HashMap$TreeNode<TK;TV;>;
+             8       10     2  p      Ljava/util/HashMap$TreeNode<TK;TV;>;
+             0       18     0  this   Ljava/util/HashMap$TreeNode<TK;TV;>;
+      StackMapTable: number_of_entries = 2
+        frame_type = 252 /* append */
+          offset_delta = 2
+          locals = [class java/util/HashMap$TreeNode]
+        frame_type = 252 /* append */
+          offset_delta = 10
+          locals = [class java/util/HashMap$TreeNode]
+    Signature: #155                        // ()Ljava/util/HashMap$TreeNode<TK;TV;>;
+  
+  static <K extends java.lang.Object, V extends java.lang.Object> void moveRootToFront(java.util.HashMap$Node<K, V>[], java.util.HashMap$TreeNode<K, V>);
+    descriptor: ([Ljava/util/HashMap$Node;Ljava/util/HashMap$TreeNode;)V
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=3, locals=7, args_size=2
+         0: aload_1                 
+         1: ifnull        123               
+         4: aload_0                 
+         5: ifnull        123               
+         8: aload_0                 
+         9: arraylength             
+        10: dup                     
+        11: istore_2                
+        12: ifle          123               
+        15: iload_2                 
+        16: iconst_1                
+        17: isub                    
+        18: aload_1                 
+        19: getfield      #15                 // Field hash:I
+        22: iand                    
+        23: istore_3                
+        24: aload_0                 
+        25: iload_3                 
+        26: aaload                  
+        27: checkcast     #10                 // class java/util/HashMap$TreeNode
+        30: astore        4                 
+        32: aload_1                 
+        33: aload         4                 
+        35: if_acmpeq     102               
+        38: aload_0                 
+        39: iload_3                 
+        40: aload_1                 
+        41: aastore                 
+        42: aload_1                 
+        43: getfield      #19                 // Field prev:Ljava/util/HashMap$TreeNode;
+        46: astore        6                 
+        48: aload_1                 
+        49: getfield      #22                 // Field next:Ljava/util/HashMap$Node;
+        52: dup                     
+        53: astore        5                 
+        55: ifnull        68                
+        58: aload         5                 
+        60: checkcast     #10                 // class java/util/HashMap$TreeNode
+        63: aload         6                 
+        65: putfield      #19                 // Field prev:Ljava/util/HashMap$TreeNode;
+        68: aload         6                 
+        70: ifnull        80                
+        73: aload         6                 
+        75: aload         5                 
+        77: putfield      #22                 // Field next:Ljava/util/HashMap$Node;
+        80: aload         4                 
+        82: ifnull        91                
+        85: aload         4                 
+        87: aload_1                 
+        88: putfield      #19                 // Field prev:Ljava/util/HashMap$TreeNode;
+        91: aload_1                 
+        92: aload         4                 
+        94: putfield      #22                 // Field next:Ljava/util/HashMap$Node;
+        97: aload_1                 
+        98: aconst_null             
+        99: putfield      #19                 // Field prev:Ljava/util/HashMap$TreeNode;
+       102: getstatic     #26                 // Field $assertionsDisabled:Z
+       105: ifne          123               
+       108: aload_1                 
+       109: invokestatic  #30                 // Method checkInvariants:(Ljava/util/HashMap$TreeNode;)Z
+       112: ifne          123               
+       115: new           #34                 // class java/lang/AssertionError
+       118: dup                     
+       119: invokespecial #36                 // Method java/lang/AssertionError."<init>":()V
+       122: athrow                  
+       123: return                  
+      LineNumberTable:
+        line 1993: 0
+        line 1994: 15
+        line 1995: 24
+        line 1996: 32
+        line 1998: 38
+        line 1999: 42
+        line 2000: 48
+        line 2001: 58
+        line 2002: 68
+        line 2003: 73
+        line 2004: 80
+        line 2005: 85
+        line 2006: 91
+        line 2007: 97
+        line 2009: 102
+        line 2011: 123
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          55       47     5  rn     Ljava/util/HashMap$Node;
+          48       54     6  rp     Ljava/util/HashMap$TreeNode;
+          24       99     3  index  I
+          32       91     4  first  Ljava/util/HashMap$TreeNode;
+          12      111     2  n      I
+           0      124     0  tab    [Ljava/util/HashMap$Node;
+           0      124     1  root   Ljava/util/HashMap$TreeNode;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            55       47     5  rn     Ljava/util/HashMap$Node<TK;TV;>;
+            48       54     6  rp     Ljava/util/HashMap$TreeNode<TK;TV;>;
+            32       91     4  first   Ljava/util/HashMap$TreeNode<TK;TV;>;
+             0      124     0  tab    [Ljava/util/HashMap$Node<TK;TV;>;
+             0      124     1  root   Ljava/util/HashMap$TreeNode<TK;TV;>;
+      StackMapTable: number_of_entries = 5
+        frame_type = 255 /* full_frame */
+          offset_delta = 68
+          locals = [class "[Ljava/util/HashMap$Node;", class java/util/HashMap$TreeNode, int, int, class java/util/HashMap$TreeNode, class java/util/HashMap$Node, class java/util/HashMap$TreeNode]
+          stack = []
+        frame_type = 11 /* same */
+        frame_type = 10 /* same */
+        frame_type = 249 /* chop */
+          offset_delta = 10
+        frame_type = 248 /* chop */
+          offset_delta = 20
+    Signature: #165                        // <K:Ljava/lang/Object;V:Ljava/lang/Object;>([Ljava/util/HashMap$Node<TK;TV;>;Ljava/util/HashMap$TreeNode<TK;TV;>;)V
+  
+  final java.util.HashMap$TreeNode<K, V> find(int, java.lang.Object, java.lang.Class<?>);
+    descriptor: (ILjava/lang/Object;Ljava/lang/Class;)Ljava/util/HashMap$TreeNode;
+    flags: (0x0010) ACC_FINAL
+    Code: 
+      stack=4, locals=11, args_size=4
+         0: aload_0                 
+         1: astore        4                 
+         3: aload         4                 
+         5: getfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+         8: astore        8                 
+        10: aload         4                 
+        12: getfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+        15: astore        9                 
+        17: aload         4                 
+        19: getfield      #15                 // Field hash:I
+        22: dup                     
+        23: istore        5                 
+        25: iload_1                 
+        26: if_icmple     36                
+        29: aload         8                 
+        31: astore        4                 
+        33: goto          165               
+        36: iload         5                 
+        38: iload_1                 
+        39: if_icmpge     49                
+        42: aload         9                 
+        44: astore        4                 
+        46: goto          165               
+        49: aload         4                 
+        51: getfield      #45                 // Field key:Ljava/lang/Object;
+        54: dup                     
+        55: astore        7                 
+        57: aload_2                 
+        58: if_acmpeq     74                
+        61: aload_2                 
+        62: ifnull        77                
+        65: aload_2                 
+        66: aload         7                 
+        68: invokevirtual #49                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+        71: ifeq          77                
+        74: aload         4                 
+        76: areturn                 
+        77: aload         8                 
+        79: ifnonnull     89                
+        82: aload         9                 
+        84: astore        4                 
+        86: goto          165               
+        89: aload         9                 
+        91: ifnonnull     101               
+        94: aload         8                 
+        96: astore        4                 
+        98: goto          165               
+       101: aload_3                 
+       102: ifnonnull     114               
+       105: aload_2                 
+       106: invokestatic  #55                 // Method java/util/HashMap.comparableClassFor:(Ljava/lang/Object;)Ljava/lang/Class;
+       109: dup                     
+       110: astore_3                
+       111: ifnull        144               
+       114: aload_3                 
+       115: aload_2                 
+       116: aload         7                 
+       118: invokestatic  #59                 // Method java/util/HashMap.compareComparables:(Ljava/lang/Class;Ljava/lang/Object;Ljava/lang/Object;)I
+       121: dup                     
+       122: istore        6                 
+       124: ifeq          144               
+       127: iload         6                 
+       129: ifge          137               
+       132: aload         8                 
+       134: goto          139               
+       137: aload         9                 
+       139: astore        4                 
+       141: goto          165               
+       144: aload         9                 
+       146: iload_1                 
+       147: aload_2                 
+       148: aload_3                 
+       149: invokevirtual #63                 // Method find:(ILjava/lang/Object;Ljava/lang/Class;)Ljava/util/HashMap$TreeNode;
+       152: dup                     
+       153: astore        10                
+       155: ifnull        161               
+       158: aload         10                
+       160: areturn                 
+       161: aload         8                 
+       163: astore        4                 
+       165: aload         4                 
+       167: ifnonnull     3                 
+       170: aconst_null             
+       171: areturn                 
+      LineNumberTable:
+        line 2019: 0
+        line 2022: 3
+        line 2023: 17
+        line 2024: 29
+        line 2025: 36
+        line 2026: 42
+        line 2027: 49
+        line 2028: 74
+        line 2029: 77
+        line 2030: 82
+        line 2031: 89
+        line 2032: 94
+        line 2033: 101
+        line 2034: 106
+        line 2035: 118
+        line 2036: 127
+        line 2037: 144
+        line 2038: 158
+        line 2040: 161
+        line 2041: 165
+        line 2042: 170
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+         124       20     6  dir    I
+          25      140     5  ph     I
+          57      108     7  pk     Ljava/lang/Object;
+          10      155     8  pl     Ljava/util/HashMap$TreeNode;
+          17      148     9  pr     Ljava/util/HashMap$TreeNode;
+         155       10    10  q      Ljava/util/HashMap$TreeNode;
+           0      172     0  this   Ljava/util/HashMap$TreeNode;
+           0      172     1  h      I
+           0      172     2  k      Ljava/lang/Object;
+           0      172     3  kc     Ljava/lang/Class;
+           3      169     4  p      Ljava/util/HashMap$TreeNode;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            57      108     7  pk     TK;
+            10      155     8  pl     Ljava/util/HashMap$TreeNode<TK;TV;>;
+            17      148     9  pr     Ljava/util/HashMap$TreeNode<TK;TV;>;
+           155       10    10  q      Ljava/util/HashMap$TreeNode<TK;TV;>;
+             0      172     0  this   Ljava/util/HashMap$TreeNode<TK;TV;>;
+             0      172     3  kc     Ljava/lang/Class<*>;
+             3      169     4  p      Ljava/util/HashMap$TreeNode<TK;TV;>;
+      StackMapTable: number_of_entries = 13
+        frame_type = 252 /* append */
+          offset_delta = 3
+          locals = [class java/util/HashMap$TreeNode]
+        frame_type = 255 /* full_frame */
+          offset_delta = 32
+          locals = [class java/util/HashMap$TreeNode, int, class java/lang/Object, class java/lang/Class, class java/util/HashMap$TreeNode, int, top, top, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode]
+          stack = []
+        frame_type = 12 /* same */
+        frame_type = 255 /* full_frame */
+          offset_delta = 24
+          locals = [class java/util/HashMap$TreeNode, int, class java/lang/Object, class java/lang/Class, class java/util/HashMap$TreeNode, int, top, class java/lang/Object, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode]
+          stack = []
+        frame_type = 2 /* same */
+        frame_type = 11 /* same */
+        frame_type = 11 /* same */
+        frame_type = 12 /* same */
+        frame_type = 255 /* full_frame */
+          offset_delta = 22
+          locals = [class java/util/HashMap$TreeNode, int, class java/lang/Object, class java/lang/Class, class java/util/HashMap$TreeNode, int, int, class java/lang/Object, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode]
+          stack = []
+        frame_type = 65 /* same_locals_1_stack_item */
+          stack = [ class java/util/HashMap$TreeNode ]
+        frame_type = 255 /* full_frame */
+          offset_delta = 4
+          locals = [class java/util/HashMap$TreeNode, int, class java/lang/Object, class java/lang/Class, class java/util/HashMap$TreeNode, int, top, class java/lang/Object, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode]
+          stack = []
+        frame_type = 252 /* append */
+          offset_delta = 16
+          locals = [class java/util/HashMap$TreeNode]
+        frame_type = 255 /* full_frame */
+          offset_delta = 3
+          locals = [class java/util/HashMap$TreeNode, int, class java/lang/Object, class java/lang/Class, class java/util/HashMap$TreeNode]
+          stack = []
+    Signature: #177                        // (ILjava/lang/Object;Ljava/lang/Class<*>;)Ljava/util/HashMap$TreeNode<TK;TV;>;
+  
+  final java.util.HashMap$TreeNode<K, V> getTreeNode(int, java.lang.Object);
+    descriptor: (ILjava/lang/Object;)Ljava/util/HashMap$TreeNode;
+    flags: (0x0010) ACC_FINAL
+    Code: 
+      stack=4, locals=3, args_size=3
+         0: aload_0                 
+         1: getfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+         4: ifnull        14                
+         7: aload_0                 
+         8: invokevirtual #67                 // Method root:()Ljava/util/HashMap$TreeNode;
+        11: goto          15                
+        14: aload_0                 
+        15: iload_1                 
+        16: aload_2                 
+        17: aconst_null             
+        18: invokevirtual #63                 // Method find:(ILjava/lang/Object;Ljava/lang/Class;)Ljava/util/HashMap$TreeNode;
+        21: areturn                 
+      LineNumberTable:
+        line 2049: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       22     0  this   Ljava/util/HashMap$TreeNode;
+           0       22     1  h      I
+           0       22     2  k      Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       22     0  this   Ljava/util/HashMap$TreeNode<TK;TV;>;
+      StackMapTable: number_of_entries = 2
+        frame_type = 14 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ class java/util/HashMap$TreeNode ]
+    Signature: #180                        // (ILjava/lang/Object;)Ljava/util/HashMap$TreeNode<TK;TV;>;
+  
+  static int tieBreakOrder(java.lang.Object, java.lang.Object);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;)I
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=2, locals=3, args_size=2
+         0: aload_0                 
+         1: ifnull        30                
+         4: aload_1                 
+         5: ifnull        30                
+         8: aload_0                 
+         9: invokevirtual #71                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+        12: invokevirtual #75                 // Method java/lang/Class.getName:()Ljava/lang/String;
+        15: aload_1                 
+        16: invokevirtual #71                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+        19: invokevirtual #75                 // Method java/lang/Class.getName:()Ljava/lang/String;
+        22: invokevirtual #81                 // Method java/lang/String.compareTo:(Ljava/lang/String;)I
+        25: dup                     
+        26: istore_2                
+        27: ifne          47                
+        30: aload_0                 
+        31: invokestatic  #87                 // Method java/lang/System.identityHashCode:(Ljava/lang/Object;)I
+        34: aload_1                 
+        35: invokestatic  #87                 // Method java/lang/System.identityHashCode:(Ljava/lang/Object;)I
+        38: if_icmpgt     45                
+        41: iconst_m1               
+        42: goto          46                
+        45: iconst_1                
+        46: istore_2                
+        47: iload_2                 
+        48: ireturn                 
+      LineNumberTable:
+        line 2061: 0
+        line 2062: 9
+        line 2063: 16
+        line 2064: 30
+        line 2065: 41
+        line 2066: 47
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          27        3     2  d      I
+           0       49     0  a      Ljava/lang/Object;
+           0       49     1  b      Ljava/lang/Object;
+          47        2     2  d      I
+      StackMapTable: number_of_entries = 4
+        frame_type = 30 /* same */
+        frame_type = 14 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 252 /* append */
+          offset_delta = 0
+          locals = [int]
+  
+  final void treeify(java.util.HashMap$Node<K, V>[]);
+    descriptor: ([Ljava/util/HashMap$Node;)V
+    flags: (0x0010) ACC_FINAL
+    Code: 
+      stack=4, locals=13, args_size=2
+         0: aconst_null             
+         1: astore_2                
+         2: aload_0                 
+         3: astore_3                
+         4: aload_3                 
+         5: ifnull        215               
+         8: aload_3                 
+         9: getfield      #22                 // Field next:Ljava/util/HashMap$Node;
+        12: checkcast     #10                 // class java/util/HashMap$TreeNode
+        15: astore        4                 
+        17: aload_3                 
+        18: aload_3                 
+        19: aconst_null             
+        20: dup_x1                  
+        21: putfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+        24: putfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+        27: aload_2                 
+        28: ifnonnull     46                
+        31: aload_3                 
+        32: aconst_null             
+        33: putfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+        36: aload_3                 
+        37: iconst_0                
+        38: putfield      #93                 // Field red:Z
+        41: aload_3                 
+        42: astore_2                
+        43: goto          209               
+        46: aload_3                 
+        47: getfield      #45                 // Field key:Ljava/lang/Object;
+        50: astore        5                 
+        52: aload_3                 
+        53: getfield      #15                 // Field hash:I
+        56: istore        6                 
+        58: aconst_null             
+        59: astore        7                 
+        61: aload_2                 
+        62: astore        8                 
+        64: aload         8                 
+        66: getfield      #45                 // Field key:Ljava/lang/Object;
+        69: astore        11                
+        71: aload         8                 
+        73: getfield      #15                 // Field hash:I
+        76: dup                     
+        77: istore        10                
+        79: iload         6                 
+        81: if_icmple     90                
+        84: iconst_m1               
+        85: istore        9                 
+        87: goto          143               
+        90: iload         10                
+        92: iload         6                 
+        94: if_icmpge     103               
+        97: iconst_1                
+        98: istore        9                 
+       100: goto          143               
+       103: aload         7                 
+       105: ifnonnull     119               
+       108: aload         5                 
+       110: invokestatic  #55                 // Method java/util/HashMap.comparableClassFor:(Ljava/lang/Object;)Ljava/lang/Class;
+       113: dup                     
+       114: astore        7                 
+       116: ifnull        134               
+       119: aload         7                 
+       121: aload         5                 
+       123: aload         11                
+       125: invokestatic  #59                 // Method java/util/HashMap.compareComparables:(Ljava/lang/Class;Ljava/lang/Object;Ljava/lang/Object;)I
+       128: dup                     
+       129: istore        9                 
+       131: ifne          143               
+       134: aload         5                 
+       136: aload         11                
+       138: invokestatic  #96                 // Method tieBreakOrder:(Ljava/lang/Object;Ljava/lang/Object;)I
+       141: istore        9                 
+       143: aload         8                 
+       145: astore        12                
+       147: iload         9                 
+       149: ifgt          160               
+       152: aload         8                 
+       154: getfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       157: goto          165               
+       160: aload         8                 
+       162: getfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+       165: dup                     
+       166: astore        8                 
+       168: ifnonnull     206               
+       171: aload_3                 
+       172: aload         12                
+       174: putfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+       177: iload         9                 
+       179: ifgt          191               
+       182: aload         12                
+       184: aload_3                 
+       185: putfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       188: goto          197               
+       191: aload         12                
+       193: aload_3                 
+       194: putfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+       197: aload_2                 
+       198: aload_3                 
+       199: invokestatic  #100                // Method balanceInsertion:(Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+       202: astore_2                
+       203: goto          209               
+       206: goto          64                
+       209: aload         4                 
+       211: astore_3                
+       212: goto          4                 
+       215: aload_1                 
+       216: aload_2                 
+       217: invokestatic  #104                // Method moveRootToFront:([Ljava/util/HashMap$Node;Ljava/util/HashMap$TreeNode;)V
+       220: return                  
+      LineNumberTable:
+        line 2073: 0
+        line 2074: 2
+        line 2075: 8
+        line 2076: 17
+        line 2077: 27
+        line 2078: 31
+        line 2079: 36
+        line 2080: 41
+        line 2083: 46
+        line 2084: 52
+        line 2085: 58
+        line 2086: 61
+        line 2088: 64
+        line 2089: 71
+        line 2090: 84
+        line 2091: 90
+        line 2092: 97
+        line 2093: 103
+        line 2094: 110
+        line 2095: 125
+        line 2096: 134
+        line 2098: 143
+        line 2099: 147
+        line 2100: 171
+        line 2101: 177
+        line 2102: 182
+        line 2104: 191
+        line 2105: 197
+        line 2106: 203
+        line 2108: 206
+        line 2074: 209
+        line 2111: 215
+        line 2112: 220
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          87        3     9  dir    I
+         100        3     9  dir    I
+         131        3     9  dir    I
+         143       63     9  dir    I
+          79      127    10  ph     I
+          71      135    11  pk     Ljava/lang/Object;
+         147       59    12  xp     Ljava/util/HashMap$TreeNode;
+          64      145     8  p      Ljava/util/HashMap$TreeNode;
+          52      157     5  k      Ljava/lang/Object;
+          58      151     6  h      I
+          61      148     7  kc     Ljava/lang/Class;
+           4      211     3  x      Ljava/util/HashMap$TreeNode;
+          17      198     4  next   Ljava/util/HashMap$TreeNode;
+           0      221     0  this   Ljava/util/HashMap$TreeNode;
+           0      221     1  tab    [Ljava/util/HashMap$Node;
+           2      219     2  root   Ljava/util/HashMap$TreeNode;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            71      135    11  pk     TK;
+           147       59    12  xp     Ljava/util/HashMap$TreeNode<TK;TV;>;
+            64      145     8  p      Ljava/util/HashMap$TreeNode<TK;TV;>;
+            52      157     5  k      TK;
+            61      148     7  kc     Ljava/lang/Class<*>;
+             4      211     3  x      Ljava/util/HashMap$TreeNode<TK;TV;>;
+            17      198     4  next   Ljava/util/HashMap$TreeNode<TK;TV;>;
+             0      221     0  this   Ljava/util/HashMap$TreeNode<TK;TV;>;
+             0      221     1  tab    [Ljava/util/HashMap$Node<TK;TV;>;
+             2      219     2  root   Ljava/util/HashMap$TreeNode<TK;TV;>;
+      StackMapTable: number_of_entries = 15
+        frame_type = 253 /* append */
+          offset_delta = 4
+          locals = [class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode]
+        frame_type = 252 /* append */
+          offset_delta = 41
+          locals = [class java/util/HashMap$TreeNode]
+        frame_type = 255 /* full_frame */
+          offset_delta = 17
+          locals = [class java/util/HashMap$TreeNode, class "[Ljava/util/HashMap$Node;", class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/lang/Object, int, class java/lang/Class, class java/util/HashMap$TreeNode]
+          stack = []
+        frame_type = 254 /* append */
+          offset_delta = 25
+          locals = [top, int, class java/lang/Object]
+        frame_type = 12 /* same */
+        frame_type = 15 /* same */
+        frame_type = 14 /* same */
+        frame_type = 255 /* full_frame */
+          offset_delta = 8
+          locals = [class java/util/HashMap$TreeNode, class "[Ljava/util/HashMap$Node;", class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/lang/Object, int, class java/lang/Class, class java/util/HashMap$TreeNode, int, int, class java/lang/Object]
+          stack = []
+        frame_type = 252 /* append */
+          offset_delta = 16
+          locals = [class java/util/HashMap$TreeNode]
+        frame_type = 68 /* same_locals_1_stack_item */
+          stack = [ class java/util/HashMap$TreeNode ]
+        frame_type = 25 /* same */
+        frame_type = 5 /* same */
+        frame_type = 255 /* full_frame */
+          offset_delta = 8
+          locals = [class java/util/HashMap$TreeNode, class "[Ljava/util/HashMap$Node;", class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/lang/Object, int, class java/lang/Class, class java/util/HashMap$TreeNode]
+          stack = []
+        frame_type = 255 /* full_frame */
+          offset_delta = 2
+          locals = [class java/util/HashMap$TreeNode, class "[Ljava/util/HashMap$Node;", class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode]
+          stack = []
+        frame_type = 249 /* chop */
+          offset_delta = 5
+    Signature: #186                        // ([Ljava/util/HashMap$Node<TK;TV;>;)V
+  
+  final java.util.HashMap$Node<K, V> untreeify(java.util.HashMap<K, V>);
+    descriptor: (Ljava/util/HashMap;)Ljava/util/HashMap$Node;
+    flags: (0x0010) ACC_FINAL
+    Code: 
+      stack=3, locals=6, args_size=2
+         0: aconst_null             
+         1: astore_2                
+         2: aconst_null             
+         3: astore_3                
+         4: aload_0                 
+         5: astore        4                 
+         7: aload         4                 
+         9: ifnull        50                
+        12: aload_1                 
+        13: aload         4                 
+        15: aconst_null             
+        16: invokevirtual #108                // Method java/util/HashMap.replacementNode:(Ljava/util/HashMap$Node;Ljava/util/HashMap$Node;)Ljava/util/HashMap$Node;
+        19: astore        5                 
+        21: aload_3                 
+        22: ifnonnull     31                
+        25: aload         5                 
+        27: astore_2                
+        28: goto          37                
+        31: aload_3                 
+        32: aload         5                 
+        34: putfield      #112                // Field java/util/HashMap$Node.next:Ljava/util/HashMap$Node;
+        37: aload         5                 
+        39: astore_3                
+        40: aload         4                 
+        42: getfield      #112                // Field java/util/HashMap$Node.next:Ljava/util/HashMap$Node;
+        45: astore        4                 
+        47: goto          7                 
+        50: aload_2                 
+        51: areturn                 
+      LineNumberTable:
+        line 2119: 0
+        line 2120: 4
+        line 2121: 12
+        line 2122: 21
+        line 2123: 25
+        line 2125: 31
+        line 2126: 37
+        line 2120: 40
+        line 2128: 50
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          21       19     5  p      Ljava/util/HashMap$Node;
+           7       43     4  q      Ljava/util/HashMap$Node;
+           0       52     0  this   Ljava/util/HashMap$TreeNode;
+           0       52     1  map    Ljava/util/HashMap;
+           2       50     2  hd     Ljava/util/HashMap$Node;
+           4       48     3  tl     Ljava/util/HashMap$Node;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            21       19     5  p      Ljava/util/HashMap$Node<TK;TV;>;
+             7       43     4  q      Ljava/util/HashMap$Node<TK;TV;>;
+             0       52     0  this   Ljava/util/HashMap$TreeNode<TK;TV;>;
+             0       52     1  map    Ljava/util/HashMap<TK;TV;>;
+             2       50     2  hd     Ljava/util/HashMap$Node<TK;TV;>;
+             4       48     3  tl     Ljava/util/HashMap$Node<TK;TV;>;
+      StackMapTable: number_of_entries = 4
+        frame_type = 254 /* append */
+          offset_delta = 7
+          locals = [class java/util/HashMap$Node, class java/util/HashMap$Node, class java/util/HashMap$Node]
+        frame_type = 252 /* append */
+          offset_delta = 23
+          locals = [class java/util/HashMap$Node]
+        frame_type = 5 /* same */
+        frame_type = 249 /* chop */
+          offset_delta = 12
+    Signature: #192                        // (Ljava/util/HashMap<TK;TV;>;)Ljava/util/HashMap$Node<TK;TV;>;
+  
+  final java.util.HashMap$TreeNode<K, V> putTreeVal(java.util.HashMap<K, V>, java.util.HashMap$Node<K, V>[], int, K, V);
+    descriptor: (Ljava/util/HashMap;[Ljava/util/HashMap$Node;ILjava/lang/Object;Ljava/lang/Object;)Ljava/util/HashMap$TreeNode;
+    flags: (0x0010) ACC_FINAL
+    Code: 
+      stack=5, locals=16, args_size=6
+         0: aconst_null             
+         1: astore        6                 
+         3: iconst_0                
+         4: istore        7                 
+         6: aload_0                 
+         7: getfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+        10: ifnull        20                
+        13: aload_0                 
+        14: invokevirtual #67                 // Method root:()Ljava/util/HashMap$TreeNode;
+        17: goto          21                
+        20: aload_0                 
+        21: astore        8                 
+        23: aload         8                 
+        25: astore        9                 
+        27: aload         9                 
+        29: getfield      #15                 // Field hash:I
+        32: dup                     
+        33: istore        11                
+        35: iload_3                 
+        36: if_icmple     45                
+        39: iconst_m1               
+        40: istore        10                
+        42: goto          193               
+        45: iload         11                
+        47: iload_3                 
+        48: if_icmpge     57                
+        51: iconst_1                
+        52: istore        10                
+        54: goto          193               
+        57: aload         9                 
+        59: getfield      #45                 // Field key:Ljava/lang/Object;
+        62: dup                     
+        63: astore        12                
+        65: aload         4                 
+        67: if_acmpeq     85                
+        70: aload         4                 
+        72: ifnull        88                
+        75: aload         4                 
+        77: aload         12                
+        79: invokevirtual #49                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+        82: ifeq          88                
+        85: aload         9                 
+        87: areturn                 
+        88: aload         6                 
+        90: ifnonnull     104               
+        93: aload         4                 
+        95: invokestatic  #55                 // Method java/util/HashMap.comparableClassFor:(Ljava/lang/Object;)Ljava/lang/Class;
+        98: dup                     
+        99: astore        6                 
+       101: ifnull        119               
+       104: aload         6                 
+       106: aload         4                 
+       108: aload         12                
+       110: invokestatic  #59                 // Method java/util/HashMap.compareComparables:(Ljava/lang/Class;Ljava/lang/Object;Ljava/lang/Object;)I
+       113: dup                     
+       114: istore        10                
+       116: ifne          193               
+       119: iload         7                 
+       121: ifne          184               
+       124: iconst_1                
+       125: istore        7                 
+       127: aload         9                 
+       129: getfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       132: dup                     
+       133: astore        14                
+       135: ifnull        154               
+       138: aload         14                
+       140: iload_3                 
+       141: aload         4                 
+       143: aload         6                 
+       145: invokevirtual #63                 // Method find:(ILjava/lang/Object;Ljava/lang/Class;)Ljava/util/HashMap$TreeNode;
+       148: dup                     
+       149: astore        13                
+       151: ifnonnull     181               
+       154: aload         9                 
+       156: getfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+       159: dup                     
+       160: astore        14                
+       162: ifnull        184               
+       165: aload         14                
+       167: iload_3                 
+       168: aload         4                 
+       170: aload         6                 
+       172: invokevirtual #63                 // Method find:(ILjava/lang/Object;Ljava/lang/Class;)Ljava/util/HashMap$TreeNode;
+       175: dup                     
+       176: astore        13                
+       178: ifnull        184               
+       181: aload         13                
+       183: areturn                 
+       184: aload         4                 
+       186: aload         12                
+       188: invokestatic  #96                 // Method tieBreakOrder:(Ljava/lang/Object;Ljava/lang/Object;)I
+       191: istore        10                
+       193: aload         9                 
+       195: astore        13                
+       197: iload         10                
+       199: ifgt          210               
+       202: aload         9                 
+       204: getfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       207: goto          215               
+       210: aload         9                 
+       212: getfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+       215: dup                     
+       216: astore        9                 
+       218: ifnonnull     311               
+       221: aload         13                
+       223: getfield      #22                 // Field next:Ljava/util/HashMap$Node;
+       226: astore        14                
+       228: aload_1                 
+       229: iload_3                 
+       230: aload         4                 
+       232: aload         5                 
+       234: aload         14                
+       236: invokevirtual #115                // Method java/util/HashMap.newTreeNode:(ILjava/lang/Object;Ljava/lang/Object;Ljava/util/HashMap$Node;)Ljava/util/HashMap$TreeNode;
+       239: astore        15                
+       241: iload         10                
+       243: ifgt          256               
+       246: aload         13                
+       248: aload         15                
+       250: putfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       253: goto          263               
+       256: aload         13                
+       258: aload         15                
+       260: putfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+       263: aload         13                
+       265: aload         15                
+       267: putfield      #22                 // Field next:Ljava/util/HashMap$Node;
+       270: aload         15                
+       272: aload         15                
+       274: aload         13                
+       276: dup_x1                  
+       277: putfield      #19                 // Field prev:Ljava/util/HashMap$TreeNode;
+       280: putfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+       283: aload         14                
+       285: ifnull        298               
+       288: aload         14                
+       290: checkcast     #10                 // class java/util/HashMap$TreeNode
+       293: aload         15                
+       295: putfield      #19                 // Field prev:Ljava/util/HashMap$TreeNode;
+       298: aload_2                 
+       299: aload         8                 
+       301: aload         15                
+       303: invokestatic  #100                // Method balanceInsertion:(Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+       306: invokestatic  #104                // Method moveRootToFront:([Ljava/util/HashMap$Node;Ljava/util/HashMap$TreeNode;)V
+       309: aconst_null             
+       310: areturn                 
+       311: goto          27                
+      LineNumberTable:
+        line 2136: 0
+        line 2137: 3
+        line 2138: 6
+        line 2139: 23
+        line 2141: 27
+        line 2142: 39
+        line 2143: 45
+        line 2144: 51
+        line 2145: 57
+        line 2146: 85
+        line 2147: 88
+        line 2148: 95
+        line 2149: 110
+        line 2150: 119
+        line 2152: 124
+        line 2153: 127
+        line 2154: 145
+        line 2156: 172
+        line 2157: 181
+        line 2159: 184
+        line 2162: 193
+        line 2163: 197
+        line 2164: 221
+        line 2165: 228
+        line 2166: 241
+        line 2167: 246
+        line 2169: 256
+        line 2170: 263
+        line 2171: 270
+        line 2172: 283
+        line 2173: 288
+        line 2174: 298
+        line 2175: 309
+        line 2177: 311
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          42        3    10  dir    I
+          54        3    10  dir    I
+         116        3    10  dir    I
+         151        3    13  q      Ljava/util/HashMap$TreeNode;
+         178        6    13  q      Ljava/util/HashMap$TreeNode;
+         135       49    14  ch     Ljava/util/HashMap$TreeNode;
+          65      128    12  pk     Ljava/lang/Object;
+         228       83    14  xpn    Ljava/util/HashMap$Node;
+         241       70    15  x      Ljava/util/HashMap$TreeNode;
+         193      118    10  dir    I
+          35      276    11  ph     I
+         197      114    13  xp     Ljava/util/HashMap$TreeNode;
+          27      287     9  p      Ljava/util/HashMap$TreeNode;
+           0      314     0  this   Ljava/util/HashMap$TreeNode;
+           0      314     1  map    Ljava/util/HashMap;
+           0      314     2  tab    [Ljava/util/HashMap$Node;
+           0      314     3  h      I
+           0      314     4  k      Ljava/lang/Object;
+           0      314     5  v      Ljava/lang/Object;
+           3      311     6  kc     Ljava/lang/Class;
+           6      308     7  searched Z
+          23      291     8  root   Ljava/util/HashMap$TreeNode;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+           151        3    13  q      Ljava/util/HashMap$TreeNode<TK;TV;>;
+           178        6    13  q      Ljava/util/HashMap$TreeNode<TK;TV;>;
+           135       49    14  ch     Ljava/util/HashMap$TreeNode<TK;TV;>;
+            65      128    12  pk     TK;
+           228       83    14  xpn    Ljava/util/HashMap$Node<TK;TV;>;
+           241       70    15  x      Ljava/util/HashMap$TreeNode<TK;TV;>;
+           197      114    13  xp     Ljava/util/HashMap$TreeNode<TK;TV;>;
+            27      287     9  p      Ljava/util/HashMap$TreeNode<TK;TV;>;
+             0      314     0  this   Ljava/util/HashMap$TreeNode<TK;TV;>;
+             0      314     1  map    Ljava/util/HashMap<TK;TV;>;
+             0      314     2  tab    [Ljava/util/HashMap$Node<TK;TV;>;
+             0      314     4  k      TK;
+             0      314     5  v      TV;
+             3      311     6  kc     Ljava/lang/Class<*>;
+            23      291     8  root   Ljava/util/HashMap$TreeNode<TK;TV;>;
+      StackMapTable: number_of_entries = 19
+        frame_type = 253 /* append */
+          offset_delta = 20
+          locals = [class java/lang/Class, int]
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ class java/util/HashMap$TreeNode ]
+        frame_type = 253 /* append */
+          offset_delta = 5
+          locals = [class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode]
+        frame_type = 253 /* append */
+          offset_delta = 17
+          locals = [top, int]
+        frame_type = 11 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 27
+          locals = [class java/lang/Object]
+        frame_type = 2 /* same */
+        frame_type = 15 /* same */
+        frame_type = 14 /* same */
+        frame_type = 253 /* append */
+          offset_delta = 34
+          locals = [top, class java/util/HashMap$TreeNode]
+        frame_type = 255 /* full_frame */
+          offset_delta = 26
+          locals = [class java/util/HashMap$TreeNode, class java/util/HashMap, class "[Ljava/util/HashMap$Node;", int, class java/lang/Object, class java/lang/Object, class java/lang/Class, int, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, top, int, class java/lang/Object, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode]
+          stack = []
+        frame_type = 249 /* chop */
+          offset_delta = 2
+        frame_type = 255 /* full_frame */
+          offset_delta = 8
+          locals = [class java/util/HashMap$TreeNode, class java/util/HashMap, class "[Ljava/util/HashMap$Node;", int, class java/lang/Object, class java/lang/Object, class java/lang/Class, int, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, int, int]
+          stack = []
+        frame_type = 253 /* append */
+          offset_delta = 16
+          locals = [top, class java/util/HashMap$TreeNode]
+        frame_type = 68 /* same_locals_1_stack_item */
+          stack = [ class java/util/HashMap$TreeNode ]
+        frame_type = 253 /* append */
+          offset_delta = 40
+          locals = [class java/util/HashMap$Node, class java/util/HashMap$TreeNode]
+        frame_type = 6 /* same */
+        frame_type = 34 /* same */
+        frame_type = 255 /* full_frame */
+          offset_delta = 12
+          locals = [class java/util/HashMap$TreeNode, class java/util/HashMap, class "[Ljava/util/HashMap$Node;", int, class java/lang/Object, class java/lang/Object, class java/lang/Class, int, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode]
+          stack = []
+    Signature: #199                        // (Ljava/util/HashMap<TK;TV;>;[Ljava/util/HashMap$Node<TK;TV;>;ITK;TV;)Ljava/util/HashMap$TreeNode<TK;TV;>;
+  
+  final void removeTreeNode(java.util.HashMap<K, V>, java.util.HashMap$Node<K, V>[], boolean);
+    descriptor: (Ljava/util/HashMap;[Ljava/util/HashMap$Node;Z)V
+    flags: (0x0010) ACC_FINAL
+    Code: 
+      stack=5, locals=21, args_size=4
+         0: aload_2                 
+         1: ifnull        12                
+         4: aload_2                 
+         5: arraylength             
+         6: dup                     
+         7: istore        4                 
+         9: ifne          13                
+        12: return                  
+        13: iload         4                 
+        15: iconst_1                
+        16: isub                    
+        17: aload_0                 
+        18: getfield      #15                 // Field hash:I
+        21: iand                    
+        22: istore        5                 
+        24: aload_2                 
+        25: iload         5                 
+        27: aaload                  
+        28: checkcast     #10                 // class java/util/HashMap$TreeNode
+        31: astore        6                 
+        33: aload         6                 
+        35: astore        7                 
+        37: aload_0                 
+        38: getfield      #22                 // Field next:Ljava/util/HashMap$Node;
+        41: checkcast     #10                 // class java/util/HashMap$TreeNode
+        44: astore        9                 
+        46: aload_0                 
+        47: getfield      #19                 // Field prev:Ljava/util/HashMap$TreeNode;
+        50: astore        10                
+        52: aload         10                
+        54: ifnonnull     69                
+        57: aload_2                 
+        58: iload         5                 
+        60: aload         9                 
+        62: dup                     
+        63: astore        6                 
+        65: aastore                 
+        66: goto          76                
+        69: aload         10                
+        71: aload         9                 
+        73: putfield      #22                 // Field next:Ljava/util/HashMap$Node;
+        76: aload         9                 
+        78: ifnull        88                
+        81: aload         9                 
+        83: aload         10                
+        85: putfield      #19                 // Field prev:Ljava/util/HashMap$TreeNode;
+        88: aload         6                 
+        90: ifnonnull     94                
+        93: return                  
+        94: aload         7                 
+        96: getfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+        99: ifnull        109               
+       102: aload         7                 
+       104: invokevirtual #67                 // Method root:()Ljava/util/HashMap$TreeNode;
+       107: astore        7                 
+       109: aload         7                 
+       111: ifnull        145               
+       114: iload_3                 
+       115: ifeq          156               
+       118: aload         7                 
+       120: getfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+       123: ifnull        145               
+       126: aload         7                 
+       128: getfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       131: dup                     
+       132: astore        8                 
+       134: ifnull        145               
+       137: aload         8                 
+       139: getfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       142: ifnonnull     156               
+       145: aload_2                 
+       146: iload         5                 
+       148: aload         6                 
+       150: aload_1                 
+       151: invokevirtual #119                // Method untreeify:(Ljava/util/HashMap;)Ljava/util/HashMap$Node;
+       154: aastore                 
+       155: return                  
+       156: aload_0                 
+       157: astore        11                
+       159: aload_0                 
+       160: getfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       163: astore        12                
+       165: aload_0                 
+       166: getfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+       169: astore        13                
+       171: aload         12                
+       173: ifnull        434               
+       176: aload         13                
+       178: ifnull        434               
+       181: aload         13                
+       183: astore        15                
+       185: aload         15                
+       187: getfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       190: dup                     
+       191: astore        16                
+       193: ifnull        203               
+       196: aload         16                
+       198: astore        15                
+       200: goto          185               
+       203: aload         15                
+       205: getfield      #93                 // Field red:Z
+       208: istore        17                
+       210: aload         15                
+       212: aload         11                
+       214: getfield      #93                 // Field red:Z
+       217: putfield      #93                 // Field red:Z
+       220: aload         11                
+       222: iload         17                
+       224: putfield      #93                 // Field red:Z
+       227: aload         15                
+       229: getfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+       232: astore        18                
+       234: aload         11                
+       236: getfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+       239: astore        19                
+       241: aload         15                
+       243: aload         13                
+       245: if_acmpne     265               
+       248: aload         11                
+       250: aload         15                
+       252: putfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+       255: aload         15                
+       257: aload         11                
+       259: putfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+       262: goto          328               
+       265: aload         15                
+       267: getfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+       270: astore        20                
+       272: aload         11                
+       274: aload         20                
+       276: dup_x1                  
+       277: putfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+       280: ifnull        310               
+       283: aload         15                
+       285: aload         20                
+       287: getfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       290: if_acmpne     303               
+       293: aload         20                
+       295: aload         11                
+       297: putfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       300: goto          310               
+       303: aload         20                
+       305: aload         11                
+       307: putfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+       310: aload         15                
+       312: aload         13                
+       314: dup_x1                  
+       315: putfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+       318: ifnull        328               
+       321: aload         13                
+       323: aload         15                
+       325: putfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+       328: aload         11                
+       330: aconst_null             
+       331: putfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       334: aload         11                
+       336: aload         18                
+       338: dup_x1                  
+       339: putfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+       342: ifnull        352               
+       345: aload         18                
+       347: aload         11                
+       349: putfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+       352: aload         15                
+       354: aload         12                
+       356: dup_x1                  
+       357: putfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       360: ifnull        370               
+       363: aload         12                
+       365: aload         15                
+       367: putfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+       370: aload         15                
+       372: aload         19                
+       374: dup_x1                  
+       375: putfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+       378: ifnonnull     388               
+       381: aload         15                
+       383: astore        7                 
+       385: goto          415               
+       388: aload         11                
+       390: aload         19                
+       392: getfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       395: if_acmpne     408               
+       398: aload         19                
+       400: aload         15                
+       402: putfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       405: goto          415               
+       408: aload         19                
+       410: aload         15                
+       412: putfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+       415: aload         18                
+       417: ifnull        427               
+       420: aload         18                
+       422: astore        14                
+       424: goto          431               
+       427: aload         11                
+       429: astore        14                
+       431: goto          462               
+       434: aload         12                
+       436: ifnull        446               
+       439: aload         12                
+       441: astore        14                
+       443: goto          462               
+       446: aload         13                
+       448: ifnull        458               
+       451: aload         13                
+       453: astore        14                
+       455: goto          462               
+       458: aload         11                
+       460: astore        14                
+       462: aload         14                
+       464: aload         11                
+       466: if_acmpeq     544               
+       469: aload         14                
+       471: aload         11                
+       473: getfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+       476: dup_x1                  
+       477: putfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+       480: astore        15                
+       482: aload         15                
+       484: ifnonnull     499               
+       487: aload         14                
+       489: dup                     
+       490: astore        7                 
+       492: iconst_0                
+       493: putfield      #93                 // Field red:Z
+       496: goto          526               
+       499: aload         11                
+       501: aload         15                
+       503: getfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       506: if_acmpne     519               
+       509: aload         15                
+       511: aload         14                
+       513: putfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       516: goto          526               
+       519: aload         15                
+       521: aload         14                
+       523: putfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+       526: aload         11                
+       528: aload         11                
+       530: aload         11                
+       532: aconst_null             
+       533: dup_x1                  
+       534: putfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+       537: dup_x1                  
+       538: putfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+       541: putfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       544: aload         11                
+       546: getfield      #93                 // Field red:Z
+       549: ifeq          557               
+       552: aload         7                 
+       554: goto          564               
+       557: aload         7                 
+       559: aload         14                
+       561: invokestatic  #123                // Method balanceDeletion:(Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+       564: astore        15                
+       566: aload         14                
+       568: aload         11                
+       570: if_acmpne     626               
+       573: aload         11                
+       575: getfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+       578: astore        16                
+       580: aload         11                
+       582: aconst_null             
+       583: putfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+       586: aload         16                
+       588: ifnull        626               
+       591: aload         11                
+       593: aload         16                
+       595: getfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       598: if_acmpne     610               
+       601: aload         16                
+       603: aconst_null             
+       604: putfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       607: goto          626               
+       610: aload         11                
+       612: aload         16                
+       614: getfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+       617: if_acmpne     626               
+       620: aload         16                
+       622: aconst_null             
+       623: putfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+       626: iload_3                 
+       627: ifeq          636               
+       630: aload_2                 
+       631: aload         15                
+       633: invokestatic  #104                // Method moveRootToFront:([Ljava/util/HashMap$Node;Ljava/util/HashMap$TreeNode;)V
+       636: return                  
+      LineNumberTable:
+        line 2193: 0
+        line 2194: 12
+        line 2195: 13
+        line 2196: 24
+        line 2197: 37
+        line 2198: 52
+        line 2199: 57
+        line 2201: 69
+        line 2202: 76
+        line 2203: 81
+        line 2204: 88
+        line 2205: 93
+        line 2206: 94
+        line 2207: 102
+        line 2208: 109
+        line 2213: 145
+        line 2214: 155
+        line 2216: 156
+        line 2217: 171
+        line 2218: 181
+        line 2219: 185
+        line 2220: 196
+        line 2221: 203
+        line 2222: 227
+        line 2223: 234
+        line 2224: 241
+        line 2225: 248
+        line 2226: 255
+        line 2229: 265
+        line 2230: 272
+        line 2231: 283
+        line 2232: 293
+        line 2234: 303
+        line 2236: 310
+        line 2237: 321
+        line 2239: 328
+        line 2240: 334
+        line 2241: 345
+        line 2242: 352
+        line 2243: 363
+        line 2244: 370
+        line 2245: 381
+        line 2246: 388
+        line 2247: 398
+        line 2249: 408
+        line 2250: 415
+        line 2251: 420
+        line 2253: 427
+        line 2254: 431
+        line 2255: 434
+        line 2256: 439
+        line 2257: 446
+        line 2258: 451
+        line 2260: 458
+        line 2261: 462
+        line 2262: 469
+        line 2263: 482
+        line 2264: 487
+        line 2265: 499
+        line 2266: 509
+        line 2268: 519
+        line 2269: 526
+        line 2272: 544
+        line 2274: 566
+        line 2275: 573
+        line 2276: 580
+        line 2277: 586
+        line 2278: 591
+        line 2279: 601
+        line 2280: 610
+        line 2281: 620
+        line 2284: 626
+        line 2285: 630
+        line 2286: 636
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           9        3     4  n      I
+         134       11     8  rl     Ljava/util/HashMap$TreeNode;
+         272       56    20  sp     Ljava/util/HashMap$TreeNode;
+         424        3    14  replacement Ljava/util/HashMap$TreeNode;
+         185      246    15  s      Ljava/util/HashMap$TreeNode;
+         193      238    16  sl     Ljava/util/HashMap$TreeNode;
+         210      221    17  c      Z
+         234      197    18  sr     Ljava/util/HashMap$TreeNode;
+         241      190    19  pp     Ljava/util/HashMap$TreeNode;
+         431        3    14  replacement Ljava/util/HashMap$TreeNode;
+         443        3    14  replacement Ljava/util/HashMap$TreeNode;
+         455        3    14  replacement Ljava/util/HashMap$TreeNode;
+         482       62    15  pp     Ljava/util/HashMap$TreeNode;
+         580       46    16  pp     Ljava/util/HashMap$TreeNode;
+           0      637     0  this   Ljava/util/HashMap$TreeNode;
+           0      637     1  map    Ljava/util/HashMap;
+           0      637     2  tab    [Ljava/util/HashMap$Node;
+           0      637     3  movable Z
+          13      624     4  n      I
+          24      613     5  index  I
+          33      604     6  first  Ljava/util/HashMap$TreeNode;
+          37      600     7  root   Ljava/util/HashMap$TreeNode;
+          46      591     9  succ   Ljava/util/HashMap$TreeNode;
+          52      585    10  pred   Ljava/util/HashMap$TreeNode;
+         159      478    11  p      Ljava/util/HashMap$TreeNode;
+         165      472    12  pl     Ljava/util/HashMap$TreeNode;
+         171      466    13  pr     Ljava/util/HashMap$TreeNode;
+         462      175    14  replacement Ljava/util/HashMap$TreeNode;
+         566       71    15  r      Ljava/util/HashMap$TreeNode;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+           134       11     8  rl     Ljava/util/HashMap$TreeNode<TK;TV;>;
+           272       56    20  sp     Ljava/util/HashMap$TreeNode<TK;TV;>;
+           424        3    14  replacement   Ljava/util/HashMap$TreeNode<TK;TV;>;
+           185      246    15  s      Ljava/util/HashMap$TreeNode<TK;TV;>;
+           193      238    16  sl     Ljava/util/HashMap$TreeNode<TK;TV;>;
+           234      197    18  sr     Ljava/util/HashMap$TreeNode<TK;TV;>;
+           241      190    19  pp     Ljava/util/HashMap$TreeNode<TK;TV;>;
+           431        3    14  replacement   Ljava/util/HashMap$TreeNode<TK;TV;>;
+           443        3    14  replacement   Ljava/util/HashMap$TreeNode<TK;TV;>;
+           455        3    14  replacement   Ljava/util/HashMap$TreeNode<TK;TV;>;
+           482       62    15  pp     Ljava/util/HashMap$TreeNode<TK;TV;>;
+           580       46    16  pp     Ljava/util/HashMap$TreeNode<TK;TV;>;
+             0      637     0  this   Ljava/util/HashMap$TreeNode<TK;TV;>;
+             0      637     1  map    Ljava/util/HashMap<TK;TV;>;
+             0      637     2  tab    [Ljava/util/HashMap$Node<TK;TV;>;
+            33      604     6  first   Ljava/util/HashMap$TreeNode<TK;TV;>;
+            37      600     7  root   Ljava/util/HashMap$TreeNode<TK;TV;>;
+            46      591     9  succ   Ljava/util/HashMap$TreeNode<TK;TV;>;
+            52      585    10  pred   Ljava/util/HashMap$TreeNode<TK;TV;>;
+           159      478    11  p      Ljava/util/HashMap$TreeNode<TK;TV;>;
+           165      472    12  pl     Ljava/util/HashMap$TreeNode<TK;TV;>;
+           171      466    13  pr     Ljava/util/HashMap$TreeNode<TK;TV;>;
+           462      175    14  replacement   Ljava/util/HashMap$TreeNode<TK;TV;>;
+           566       71    15  r      Ljava/util/HashMap$TreeNode<TK;TV;>;
+      StackMapTable: number_of_entries = 35
+        frame_type = 12 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 0
+          locals = [int]
+        frame_type = 255 /* full_frame */
+          offset_delta = 55
+          locals = [class java/util/HashMap$TreeNode, class java/util/HashMap, class "[Ljava/util/HashMap$Node;", int, int, int, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, top, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode]
+          stack = []
+        frame_type = 6 /* same */
+        frame_type = 11 /* same */
+        frame_type = 5 /* same */
+        frame_type = 14 /* same */
+        frame_type = 35 /* same */
+        frame_type = 10 /* same */
+        frame_type = 255 /* full_frame */
+          offset_delta = 28
+          locals = [class java/util/HashMap$TreeNode, class java/util/HashMap, class "[Ljava/util/HashMap$Node;", int, int, int, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, top, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, top, class java/util/HashMap$TreeNode]
+          stack = []
+        frame_type = 252 /* append */
+          offset_delta = 17
+          locals = [class java/util/HashMap$TreeNode]
+        frame_type = 254 /* append */
+          offset_delta = 61
+          locals = [int, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode]
+        frame_type = 252 /* append */
+          offset_delta = 37
+          locals = [class java/util/HashMap$TreeNode]
+        frame_type = 6 /* same */
+        frame_type = 250 /* chop */
+          offset_delta = 17
+        frame_type = 23 /* same */
+        frame_type = 17 /* same */
+        frame_type = 17 /* same */
+        frame_type = 19 /* same */
+        frame_type = 6 /* same */
+        frame_type = 11 /* same */
+        frame_type = 255 /* full_frame */
+          offset_delta = 3
+          locals = [class java/util/HashMap$TreeNode, class java/util/HashMap, class "[Ljava/util/HashMap$Node;", int, int, int, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, top, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode]
+          stack = []
+        frame_type = 250 /* chop */
+          offset_delta = 2
+        frame_type = 11 /* same */
+        frame_type = 11 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 3
+          locals = [class java/util/HashMap$TreeNode]
+        frame_type = 252 /* append */
+          offset_delta = 36
+          locals = [class java/util/HashMap$TreeNode]
+        frame_type = 19 /* same */
+        frame_type = 6 /* same */
+        frame_type = 250 /* chop */
+          offset_delta = 17
+        frame_type = 12 /* same */
+        frame_type = 70 /* same_locals_1_stack_item */
+          stack = [ class java/util/HashMap$TreeNode ]
+        frame_type = 253 /* append */
+          offset_delta = 45
+          locals = [class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode]
+        frame_type = 250 /* chop */
+          offset_delta = 15
+        frame_type = 9 /* same */
+    Signature: #213                        // (Ljava/util/HashMap<TK;TV;>;[Ljava/util/HashMap$Node<TK;TV;>;Z)V
+  
+  final void split(java.util.HashMap<K, V>, java.util.HashMap$Node<K, V>[], int, int);
+    descriptor: (Ljava/util/HashMap;[Ljava/util/HashMap$Node;II)V
+    flags: (0x0010) ACC_FINAL
+    Code: 
+      stack=4, locals=14, args_size=5
+         0: aload_0                 
+         1: astore        5                 
+         3: aconst_null             
+         4: astore        6                 
+         6: aconst_null             
+         7: astore        7                 
+         9: aconst_null             
+        10: astore        8                 
+        12: aconst_null             
+        13: astore        9                 
+        15: iconst_0                
+        16: istore        10                
+        18: iconst_0                
+        19: istore        11                
+        21: aload         5                 
+        23: astore        12                
+        25: aload         12                
+        27: ifnull        131               
+        30: aload         12                
+        32: getfield      #22                 // Field next:Ljava/util/HashMap$Node;
+        35: checkcast     #10                 // class java/util/HashMap$TreeNode
+        38: astore        13                
+        40: aload         12                
+        42: aconst_null             
+        43: putfield      #22                 // Field next:Ljava/util/HashMap$Node;
+        46: aload         12                
+        48: getfield      #15                 // Field hash:I
+        51: iload         4                 
+        53: iand                    
+        54: ifne          92                
+        57: aload         12                
+        59: aload         7                 
+        61: dup_x1                  
+        62: putfield      #19                 // Field prev:Ljava/util/HashMap$TreeNode;
+        65: ifnonnull     75                
+        68: aload         12                
+        70: astore        6                 
+        72: goto          82                
+        75: aload         7                 
+        77: aload         12                
+        79: putfield      #22                 // Field next:Ljava/util/HashMap$Node;
+        82: aload         12                
+        84: astore        7                 
+        86: iinc          10, 1             
+        89: goto          124               
+        92: aload         12                
+        94: aload         9                 
+        96: dup_x1                  
+        97: putfield      #19                 // Field prev:Ljava/util/HashMap$TreeNode;
+       100: ifnonnull     110               
+       103: aload         12                
+       105: astore        8                 
+       107: goto          117               
+       110: aload         9                 
+       112: aload         12                
+       114: putfield      #22                 // Field next:Ljava/util/HashMap$Node;
+       117: aload         12                
+       119: astore        9                 
+       121: iinc          11, 1             
+       124: aload         13                
+       126: astore        12                
+       128: goto          25                
+       131: aload         6                 
+       133: ifnull        171               
+       136: iload         10                
+       138: bipush        6                 
+       140: if_icmpgt     155               
+       143: aload_2                 
+       144: iload_3                 
+       145: aload         6                 
+       147: aload_1                 
+       148: invokevirtual #119                // Method untreeify:(Ljava/util/HashMap;)Ljava/util/HashMap$Node;
+       151: aastore                 
+       152: goto          171               
+       155: aload_2                 
+       156: iload_3                 
+       157: aload         6                 
+       159: aastore                 
+       160: aload         8                 
+       162: ifnull        171               
+       165: aload         6                 
+       167: aload_2                 
+       168: invokevirtual #126                // Method treeify:([Ljava/util/HashMap$Node;)V
+       171: aload         8                 
+       173: ifnull        217               
+       176: iload         11                
+       178: bipush        6                 
+       180: if_icmpgt     198               
+       183: aload_2                 
+       184: iload_3                 
+       185: iload         4                 
+       187: iadd                    
+       188: aload         8                 
+       190: aload_1                 
+       191: invokevirtual #119                // Method untreeify:(Ljava/util/HashMap;)Ljava/util/HashMap$Node;
+       194: aastore                 
+       195: goto          217               
+       198: aload_2                 
+       199: iload_3                 
+       200: iload         4                 
+       202: iadd                    
+       203: aload         8                 
+       205: aastore                 
+       206: aload         6                 
+       208: ifnull        217               
+       211: aload         8                 
+       213: aload_2                 
+       214: invokevirtual #126                // Method treeify:([Ljava/util/HashMap$Node;)V
+       217: return                  
+      LineNumberTable:
+        line 2299: 0
+        line 2301: 3
+        line 2302: 9
+        line 2303: 15
+        line 2304: 21
+        line 2305: 30
+        line 2306: 40
+        line 2307: 46
+        line 2308: 57
+        line 2309: 68
+        line 2311: 75
+        line 2312: 82
+        line 2313: 86
+        line 2316: 92
+        line 2317: 103
+        line 2319: 110
+        line 2320: 117
+        line 2321: 121
+        line 2304: 124
+        line 2325: 131
+        line 2326: 136
+        line 2327: 143
+        line 2329: 155
+        line 2330: 160
+        line 2331: 165
+        line 2334: 171
+        line 2335: 176
+        line 2336: 183
+        line 2338: 198
+        line 2339: 206
+        line 2340: 211
+        line 2343: 217
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          25      106    12  e      Ljava/util/HashMap$TreeNode;
+          40       91    13  next   Ljava/util/HashMap$TreeNode;
+           0      218     0  this   Ljava/util/HashMap$TreeNode;
+           0      218     1  map    Ljava/util/HashMap;
+           0      218     2  tab    [Ljava/util/HashMap$Node;
+           0      218     3  index  I
+           0      218     4  bit    I
+           3      215     5  b      Ljava/util/HashMap$TreeNode;
+           6      212     6  loHead Ljava/util/HashMap$TreeNode;
+           9      209     7  loTail Ljava/util/HashMap$TreeNode;
+          12      206     8  hiHead Ljava/util/HashMap$TreeNode;
+          15      203     9  hiTail Ljava/util/HashMap$TreeNode;
+          18      200    10  lc     I
+          21      197    11  hc     I
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            25      106    12  e      Ljava/util/HashMap$TreeNode<TK;TV;>;
+            40       91    13  next   Ljava/util/HashMap$TreeNode<TK;TV;>;
+             0      218     0  this   Ljava/util/HashMap$TreeNode<TK;TV;>;
+             0      218     1  map    Ljava/util/HashMap<TK;TV;>;
+             0      218     2  tab    [Ljava/util/HashMap$Node<TK;TV;>;
+             3      215     5  b      Ljava/util/HashMap$TreeNode<TK;TV;>;
+             6      212     6  loHead   Ljava/util/HashMap$TreeNode<TK;TV;>;
+             9      209     7  loTail   Ljava/util/HashMap$TreeNode<TK;TV;>;
+            12      206     8  hiHead   Ljava/util/HashMap$TreeNode<TK;TV;>;
+            15      203     9  hiTail   Ljava/util/HashMap$TreeNode<TK;TV;>;
+      StackMapTable: number_of_entries = 12
+        frame_type = 255 /* full_frame */
+          offset_delta = 25
+          locals = [class java/util/HashMap$TreeNode, class java/util/HashMap, class "[Ljava/util/HashMap$Node;", int, int, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, int, int, class java/util/HashMap$TreeNode]
+          stack = []
+        frame_type = 252 /* append */
+          offset_delta = 49
+          locals = [class java/util/HashMap$TreeNode]
+        frame_type = 6 /* same */
+        frame_type = 9 /* same */
+        frame_type = 17 /* same */
+        frame_type = 6 /* same */
+        frame_type = 6 /* same */
+        frame_type = 249 /* chop */
+          offset_delta = 6
+        frame_type = 23 /* same */
+        frame_type = 15 /* same */
+        frame_type = 26 /* same */
+        frame_type = 18 /* same */
+    Signature: #224                        // (Ljava/util/HashMap<TK;TV;>;[Ljava/util/HashMap$Node<TK;TV;>;II)V
+  
+  static <K extends java.lang.Object, V extends java.lang.Object> java.util.HashMap$TreeNode<K, V> rotateLeft(java.util.HashMap$TreeNode<K, V>, java.util.HashMap$TreeNode<K, V>);
+    descriptor: (Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=3, locals=5, args_size=2
+         0: aload_1                 
+         1: ifnull        89                
+         4: aload_1                 
+         5: getfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+         8: dup                     
+         9: astore_2                
+        10: ifnull        89                
+        13: aload_1                 
+        14: aload_2                 
+        15: getfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+        18: dup_x1                  
+        19: putfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+        22: dup                     
+        23: astore        4                 
+        25: ifnull        34                
+        28: aload         4                 
+        30: aload_1                 
+        31: putfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+        34: aload_2                 
+        35: aload_1                 
+        36: getfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+        39: dup_x1                  
+        40: putfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+        43: dup                     
+        44: astore_3                
+        45: ifnonnull     58                
+        48: aload_2                 
+        49: dup                     
+        50: astore_0                
+        51: iconst_0                
+        52: putfield      #93                 // Field red:Z
+        55: goto          79                
+        58: aload_3                 
+        59: getfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+        62: aload_1                 
+        63: if_acmpne     74                
+        66: aload_3                 
+        67: aload_2                 
+        68: putfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+        71: goto          79                
+        74: aload_3                 
+        75: aload_2                 
+        76: putfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+        79: aload_2                 
+        80: aload_1                 
+        81: putfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+        84: aload_1                 
+        85: aload_2                 
+        86: putfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+        89: aload_0                 
+        90: areturn                 
+      LineNumberTable:
+        line 2351: 0
+        line 2352: 13
+        line 2353: 28
+        line 2354: 34
+        line 2355: 48
+        line 2356: 58
+        line 2357: 66
+        line 2359: 74
+        line 2360: 79
+        line 2361: 84
+        line 2363: 89
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          10       79     2  r      Ljava/util/HashMap$TreeNode;
+          45       44     3  pp     Ljava/util/HashMap$TreeNode;
+          25       64     4  rl     Ljava/util/HashMap$TreeNode;
+           0       91     0  root   Ljava/util/HashMap$TreeNode;
+           0       91     1  p      Ljava/util/HashMap$TreeNode;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            10       79     2  r      Ljava/util/HashMap$TreeNode<TK;TV;>;
+            45       44     3  pp     Ljava/util/HashMap$TreeNode<TK;TV;>;
+            25       64     4  rl     Ljava/util/HashMap$TreeNode<TK;TV;>;
+             0       91     0  root   Ljava/util/HashMap$TreeNode<TK;TV;>;
+             0       91     1  p      Ljava/util/HashMap$TreeNode<TK;TV;>;
+      StackMapTable: number_of_entries = 5
+        frame_type = 254 /* append */
+          offset_delta = 34
+          locals = [class java/util/HashMap$TreeNode, top, class java/util/HashMap$TreeNode]
+        frame_type = 255 /* full_frame */
+          offset_delta = 23
+          locals = [class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode]
+          stack = []
+        frame_type = 15 /* same */
+        frame_type = 4 /* same */
+        frame_type = 248 /* chop */
+          offset_delta = 9
+    Signature: #225                        // <K:Ljava/lang/Object;V:Ljava/lang/Object;>(Ljava/util/HashMap$TreeNode<TK;TV;>;Ljava/util/HashMap$TreeNode<TK;TV;>;)Ljava/util/HashMap$TreeNode<TK;TV;>;
+  
+  static <K extends java.lang.Object, V extends java.lang.Object> java.util.HashMap$TreeNode<K, V> rotateRight(java.util.HashMap$TreeNode<K, V>, java.util.HashMap$TreeNode<K, V>);
+    descriptor: (Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=3, locals=5, args_size=2
+         0: aload_1                 
+         1: ifnull        89                
+         4: aload_1                 
+         5: getfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+         8: dup                     
+         9: astore_2                
+        10: ifnull        89                
+        13: aload_1                 
+        14: aload_2                 
+        15: getfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+        18: dup_x1                  
+        19: putfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+        22: dup                     
+        23: astore        4                 
+        25: ifnull        34                
+        28: aload         4                 
+        30: aload_1                 
+        31: putfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+        34: aload_2                 
+        35: aload_1                 
+        36: getfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+        39: dup_x1                  
+        40: putfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+        43: dup                     
+        44: astore_3                
+        45: ifnonnull     58                
+        48: aload_2                 
+        49: dup                     
+        50: astore_0                
+        51: iconst_0                
+        52: putfield      #93                 // Field red:Z
+        55: goto          79                
+        58: aload_3                 
+        59: getfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+        62: aload_1                 
+        63: if_acmpne     74                
+        66: aload_3                 
+        67: aload_2                 
+        68: putfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+        71: goto          79                
+        74: aload_3                 
+        75: aload_2                 
+        76: putfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+        79: aload_2                 
+        80: aload_1                 
+        81: putfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+        84: aload_1                 
+        85: aload_2                 
+        86: putfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+        89: aload_0                 
+        90: areturn                 
+      LineNumberTable:
+        line 2369: 0
+        line 2370: 13
+        line 2371: 28
+        line 2372: 34
+        line 2373: 48
+        line 2374: 58
+        line 2375: 66
+        line 2377: 74
+        line 2378: 79
+        line 2379: 84
+        line 2381: 89
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          10       79     2  l      Ljava/util/HashMap$TreeNode;
+          45       44     3  pp     Ljava/util/HashMap$TreeNode;
+          25       64     4  lr     Ljava/util/HashMap$TreeNode;
+           0       91     0  root   Ljava/util/HashMap$TreeNode;
+           0       91     1  p      Ljava/util/HashMap$TreeNode;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            10       79     2  l      Ljava/util/HashMap$TreeNode<TK;TV;>;
+            45       44     3  pp     Ljava/util/HashMap$TreeNode<TK;TV;>;
+            25       64     4  lr     Ljava/util/HashMap$TreeNode<TK;TV;>;
+             0       91     0  root   Ljava/util/HashMap$TreeNode<TK;TV;>;
+             0       91     1  p      Ljava/util/HashMap$TreeNode<TK;TV;>;
+      StackMapTable: number_of_entries = 5
+        frame_type = 254 /* append */
+          offset_delta = 34
+          locals = [class java/util/HashMap$TreeNode, top, class java/util/HashMap$TreeNode]
+        frame_type = 255 /* full_frame */
+          offset_delta = 23
+          locals = [class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode]
+          stack = []
+        frame_type = 15 /* same */
+        frame_type = 4 /* same */
+        frame_type = 248 /* chop */
+          offset_delta = 9
+    Signature: #225                        // <K:Ljava/lang/Object;V:Ljava/lang/Object;>(Ljava/util/HashMap$TreeNode<TK;TV;>;Ljava/util/HashMap$TreeNode<TK;TV;>;)Ljava/util/HashMap$TreeNode<TK;TV;>;
+  
+  static <K extends java.lang.Object, V extends java.lang.Object> java.util.HashMap$TreeNode<K, V> balanceInsertion(java.util.HashMap$TreeNode<K, V>, java.util.HashMap$TreeNode<K, V>);
+    descriptor: (Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=3, locals=6, args_size=2
+         0: aload_1                 
+         1: iconst_1                
+         2: putfield      #93                 // Field red:Z
+         5: aload_1                 
+         6: getfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+         9: dup                     
+        10: astore_2                
+        11: ifnonnull     21                
+        14: aload_1                 
+        15: iconst_0                
+        16: putfield      #93                 // Field red:Z
+        19: aload_1                 
+        20: areturn                 
+        21: aload_2                 
+        22: getfield      #93                 // Field red:Z
+        25: ifeq          37                
+        28: aload_2                 
+        29: getfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+        32: dup                     
+        33: astore_3                
+        34: ifnonnull     39                
+        37: aload_0                 
+        38: areturn                 
+        39: aload_2                 
+        40: aload_3                 
+        41: getfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+        44: dup                     
+        45: astore        4                 
+        47: if_acmpne     150               
+        50: aload_3                 
+        51: getfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+        54: dup                     
+        55: astore        5                 
+        57: ifnull        89                
+        60: aload         5                 
+        62: getfield      #93                 // Field red:Z
+        65: ifeq          89                
+        68: aload         5                 
+        70: iconst_0                
+        71: putfield      #93                 // Field red:Z
+        74: aload_2                 
+        75: iconst_0                
+        76: putfield      #93                 // Field red:Z
+        79: aload_3                 
+        80: iconst_1                
+        81: putfield      #93                 // Field red:Z
+        84: aload_3                 
+        85: astore_1                
+        86: goto          5                 
+        89: aload_1                 
+        90: aload_2                 
+        91: getfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+        94: if_acmpne     123               
+        97: aload_0                 
+        98: aload_2                 
+        99: dup                     
+       100: astore_1                
+       101: invokestatic  #130                // Method rotateLeft:(Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+       104: astore_0                
+       105: aload_1                 
+       106: getfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+       109: dup                     
+       110: astore_2                
+       111: ifnonnull     118               
+       114: aconst_null             
+       115: goto          122               
+       118: aload_2                 
+       119: getfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+       122: astore_3                
+       123: aload_2                 
+       124: ifnull        5                 
+       127: aload_2                 
+       128: iconst_0                
+       129: putfield      #93                 // Field red:Z
+       132: aload_3                 
+       133: ifnull        5                 
+       136: aload_3                 
+       137: iconst_1                
+       138: putfield      #93                 // Field red:Z
+       141: aload_0                 
+       142: aload_3                 
+       143: invokestatic  #133                // Method rotateRight:(Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+       146: astore_0                
+       147: goto          5                 
+       150: aload         4                 
+       152: ifnull        184               
+       155: aload         4                 
+       157: getfield      #93                 // Field red:Z
+       160: ifeq          184               
+       163: aload         4                 
+       165: iconst_0                
+       166: putfield      #93                 // Field red:Z
+       169: aload_2                 
+       170: iconst_0                
+       171: putfield      #93                 // Field red:Z
+       174: aload_3                 
+       175: iconst_1                
+       176: putfield      #93                 // Field red:Z
+       179: aload_3                 
+       180: astore_1                
+       181: goto          5                 
+       184: aload_1                 
+       185: aload_2                 
+       186: getfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       189: if_acmpne     218               
+       192: aload_0                 
+       193: aload_2                 
+       194: dup                     
+       195: astore_1                
+       196: invokestatic  #133                // Method rotateRight:(Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+       199: astore_0                
+       200: aload_1                 
+       201: getfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+       204: dup                     
+       205: astore_2                
+       206: ifnonnull     213               
+       209: aconst_null             
+       210: goto          217               
+       213: aload_2                 
+       214: getfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+       217: astore_3                
+       218: aload_2                 
+       219: ifnull        5                 
+       222: aload_2                 
+       223: iconst_0                
+       224: putfield      #93                 // Field red:Z
+       227: aload_3                 
+       228: ifnull        5                 
+       231: aload_3                 
+       232: iconst_1                
+       233: putfield      #93                 // Field red:Z
+       236: aload_0                 
+       237: aload_3                 
+       238: invokestatic  #130                // Method rotateLeft:(Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+       241: astore_0                
+       242: goto          5                 
+      LineNumberTable:
+        line 2386: 0
+        line 2388: 5
+        line 2389: 14
+        line 2390: 19
+        line 2392: 21
+        line 2393: 37
+        line 2394: 39
+        line 2395: 50
+        line 2396: 68
+        line 2397: 74
+        line 2398: 79
+        line 2399: 84
+        line 2402: 89
+        line 2403: 97
+        line 2404: 105
+        line 2406: 123
+        line 2407: 127
+        line 2408: 132
+        line 2409: 136
+        line 2410: 141
+        line 2416: 150
+        line 2417: 163
+        line 2418: 169
+        line 2419: 174
+        line 2420: 179
+        line 2423: 184
+        line 2424: 192
+        line 2425: 200
+        line 2427: 218
+        line 2428: 222
+        line 2429: 227
+        line 2430: 231
+        line 2431: 236
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          34        3     3  xpp    Ljava/util/HashMap$TreeNode;
+          57       93     5  xppr   Ljava/util/HashMap$TreeNode;
+          11      234     2  xp     Ljava/util/HashMap$TreeNode;
+          39      206     3  xpp    Ljava/util/HashMap$TreeNode;
+          47      198     4  xppl   Ljava/util/HashMap$TreeNode;
+           0      245     0  root   Ljava/util/HashMap$TreeNode;
+           0      245     1  x      Ljava/util/HashMap$TreeNode;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            34        3     3  xpp    Ljava/util/HashMap$TreeNode<TK;TV;>;
+            57       93     5  xppr   Ljava/util/HashMap$TreeNode<TK;TV;>;
+            11      234     2  xp     Ljava/util/HashMap$TreeNode<TK;TV;>;
+            39      206     3  xpp    Ljava/util/HashMap$TreeNode<TK;TV;>;
+            47      198     4  xppl   Ljava/util/HashMap$TreeNode<TK;TV;>;
+             0      245     0  root   Ljava/util/HashMap$TreeNode<TK;TV;>;
+             0      245     1  x      Ljava/util/HashMap$TreeNode<TK;TV;>;
+      StackMapTable: number_of_entries = 13
+        frame_type = 5 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 15
+          locals = [class java/util/HashMap$TreeNode]
+        frame_type = 15 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 1
+          locals = [class java/util/HashMap$TreeNode]
+        frame_type = 253 /* append */
+          offset_delta = 49
+          locals = [class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode]
+        frame_type = 28 /* same */
+        frame_type = 67 /* same_locals_1_stack_item */
+          stack = [ class java/util/HashMap$TreeNode ]
+        frame_type = 0 /* same */
+        frame_type = 250 /* chop */
+          offset_delta = 26
+        frame_type = 33 /* same */
+        frame_type = 28 /* same */
+        frame_type = 67 /* same_locals_1_stack_item */
+          stack = [ class java/util/HashMap$TreeNode ]
+        frame_type = 0 /* same */
+    Signature: #225                        // <K:Ljava/lang/Object;V:Ljava/lang/Object;>(Ljava/util/HashMap$TreeNode<TK;TV;>;Ljava/util/HashMap$TreeNode<TK;TV;>;)Ljava/util/HashMap$TreeNode<TK;TV;>;
+  
+  static <K extends java.lang.Object, V extends java.lang.Object> java.util.HashMap$TreeNode<K, V> balanceDeletion(java.util.HashMap$TreeNode<K, V>, java.util.HashMap$TreeNode<K, V>);
+    descriptor: (Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=2, locals=7, args_size=2
+         0: aload_1                 
+         1: ifnull        9                 
+         4: aload_1                 
+         5: aload_0                 
+         6: if_acmpne     11                
+         9: aload_0                 
+        10: areturn                 
+        11: aload_1                 
+        12: getfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+        15: dup                     
+        16: astore_2                
+        17: ifnonnull     27                
+        20: aload_1                 
+        21: iconst_0                
+        22: putfield      #93                 // Field red:Z
+        25: aload_1                 
+        26: areturn                 
+        27: aload_1                 
+        28: getfield      #93                 // Field red:Z
+        31: ifeq          41                
+        34: aload_1                 
+        35: iconst_0                
+        36: putfield      #93                 // Field red:Z
+        39: aload_0                 
+        40: areturn                 
+        41: aload_2                 
+        42: getfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+        45: dup                     
+        46: astore_3                
+        47: aload_1                 
+        48: if_acmpne     281               
+        51: aload_2                 
+        52: getfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+        55: dup                     
+        56: astore        4                 
+        58: ifnull        105               
+        61: aload         4                 
+        63: getfield      #93                 // Field red:Z
+        66: ifeq          105               
+        69: aload         4                 
+        71: iconst_0                
+        72: putfield      #93                 // Field red:Z
+        75: aload_2                 
+        76: iconst_1                
+        77: putfield      #93                 // Field red:Z
+        80: aload_0                 
+        81: aload_2                 
+        82: invokestatic  #130                // Method rotateLeft:(Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+        85: astore_0                
+        86: aload_1                 
+        87: getfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+        90: dup                     
+        91: astore_2                
+        92: ifnonnull     99                
+        95: aconst_null             
+        96: goto          103               
+        99: aload_2                 
+       100: getfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+       103: astore        4                 
+       105: aload         4                 
+       107: ifnonnull     115               
+       110: aload_2                 
+       111: astore_1                
+       112: goto          0                 
+       115: aload         4                 
+       117: getfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       120: astore        5                 
+       122: aload         4                 
+       124: getfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+       127: astore        6                 
+       129: aload         6                 
+       131: ifnull        142               
+       134: aload         6                 
+       136: getfield      #93                 // Field red:Z
+       139: ifne          166               
+       142: aload         5                 
+       144: ifnull        155               
+       147: aload         5                 
+       149: getfield      #93                 // Field red:Z
+       152: ifne          166               
+       155: aload         4                 
+       157: iconst_1                
+       158: putfield      #93                 // Field red:Z
+       161: aload_2                 
+       162: astore_1                
+       163: goto          278               
+       166: aload         6                 
+       168: ifnull        179               
+       171: aload         6                 
+       173: getfield      #93                 // Field red:Z
+       176: ifne          222               
+       179: aload         5                 
+       181: ifnull        190               
+       184: aload         5                 
+       186: iconst_0                
+       187: putfield      #93                 // Field red:Z
+       190: aload         4                 
+       192: iconst_1                
+       193: putfield      #93                 // Field red:Z
+       196: aload_0                 
+       197: aload         4                 
+       199: invokestatic  #133                // Method rotateRight:(Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+       202: astore_0                
+       203: aload_1                 
+       204: getfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+       207: dup                     
+       208: astore_2                
+       209: ifnonnull     216               
+       212: aconst_null             
+       213: goto          220               
+       216: aload_2                 
+       217: getfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+       220: astore        4                 
+       222: aload         4                 
+       224: ifnull        261               
+       227: aload         4                 
+       229: aload_2                 
+       230: ifnonnull     237               
+       233: iconst_0                
+       234: goto          241               
+       237: aload_2                 
+       238: getfield      #93                 // Field red:Z
+       241: putfield      #93                 // Field red:Z
+       244: aload         4                 
+       246: getfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+       249: dup                     
+       250: astore        6                 
+       252: ifnull        261               
+       255: aload         6                 
+       257: iconst_0                
+       258: putfield      #93                 // Field red:Z
+       261: aload_2                 
+       262: ifnull        276               
+       265: aload_2                 
+       266: iconst_0                
+       267: putfield      #93                 // Field red:Z
+       270: aload_0                 
+       271: aload_2                 
+       272: invokestatic  #130                // Method rotateLeft:(Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+       275: astore_0                
+       276: aload_0                 
+       277: astore_1                
+       278: goto          0                 
+       281: aload_3                 
+       282: ifnull        326               
+       285: aload_3                 
+       286: getfield      #93                 // Field red:Z
+       289: ifeq          326               
+       292: aload_3                 
+       293: iconst_0                
+       294: putfield      #93                 // Field red:Z
+       297: aload_2                 
+       298: iconst_1                
+       299: putfield      #93                 // Field red:Z
+       302: aload_0                 
+       303: aload_2                 
+       304: invokestatic  #133                // Method rotateRight:(Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+       307: astore_0                
+       308: aload_1                 
+       309: getfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+       312: dup                     
+       313: astore_2                
+       314: ifnonnull     321               
+       317: aconst_null             
+       318: goto          325               
+       321: aload_2                 
+       322: getfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       325: astore_3                
+       326: aload_3                 
+       327: ifnonnull     335               
+       330: aload_2                 
+       331: astore_1                
+       332: goto          0                 
+       335: aload_3                 
+       336: getfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       339: astore        5                 
+       341: aload_3                 
+       342: getfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+       345: astore        6                 
+       347: aload         5                 
+       349: ifnull        360               
+       352: aload         5                 
+       354: getfield      #93                 // Field red:Z
+       357: ifne          383               
+       360: aload         6                 
+       362: ifnull        373               
+       365: aload         6                 
+       367: getfield      #93                 // Field red:Z
+       370: ifne          383               
+       373: aload_3                 
+       374: iconst_1                
+       375: putfield      #93                 // Field red:Z
+       378: aload_2                 
+       379: astore_1                
+       380: goto          489               
+       383: aload         5                 
+       385: ifnull        396               
+       388: aload         5                 
+       390: getfield      #93                 // Field red:Z
+       393: ifne          436               
+       396: aload         6                 
+       398: ifnull        407               
+       401: aload         6                 
+       403: iconst_0                
+       404: putfield      #93                 // Field red:Z
+       407: aload_3                 
+       408: iconst_1                
+       409: putfield      #93                 // Field red:Z
+       412: aload_0                 
+       413: aload_3                 
+       414: invokestatic  #130                // Method rotateLeft:(Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+       417: astore_0                
+       418: aload_1                 
+       419: getfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+       422: dup                     
+       423: astore_2                
+       424: ifnonnull     431               
+       427: aconst_null             
+       428: goto          435               
+       431: aload_2                 
+       432: getfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       435: astore_3                
+       436: aload_3                 
+       437: ifnull        472               
+       440: aload_3                 
+       441: aload_2                 
+       442: ifnonnull     449               
+       445: iconst_0                
+       446: goto          453               
+       449: aload_2                 
+       450: getfield      #93                 // Field red:Z
+       453: putfield      #93                 // Field red:Z
+       456: aload_3                 
+       457: getfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+       460: dup                     
+       461: astore        5                 
+       463: ifnull        472               
+       466: aload         5                 
+       468: iconst_0                
+       469: putfield      #93                 // Field red:Z
+       472: aload_2                 
+       473: ifnull        487               
+       476: aload_2                 
+       477: iconst_0                
+       478: putfield      #93                 // Field red:Z
+       481: aload_0                 
+       482: aload_2                 
+       483: invokestatic  #133                // Method rotateRight:(Ljava/util/HashMap$TreeNode;Ljava/util/HashMap$TreeNode;)Ljava/util/HashMap$TreeNode;
+       486: astore_0                
+       487: aload_0                 
+       488: astore_1                
+       489: goto          0                 
+      LineNumberTable:
+        line 2442: 0
+        line 2443: 9
+        line 2444: 11
+        line 2445: 20
+        line 2446: 25
+        line 2448: 27
+        line 2449: 34
+        line 2450: 39
+        line 2452: 41
+        line 2453: 51
+        line 2454: 69
+        line 2455: 75
+        line 2456: 80
+        line 2457: 86
+        line 2459: 105
+        line 2460: 110
+        line 2462: 115
+        line 2463: 129
+        line 2465: 155
+        line 2466: 161
+        line 2469: 166
+        line 2470: 179
+        line 2471: 184
+        line 2472: 190
+        line 2473: 196
+        line 2474: 203
+        line 2475: 212
+        line 2477: 222
+        line 2478: 227
+        line 2479: 244
+        line 2480: 255
+        line 2482: 261
+        line 2483: 265
+        line 2484: 270
+        line 2486: 276
+        line 2488: 278
+        line 2491: 281
+        line 2492: 292
+        line 2493: 297
+        line 2494: 302
+        line 2495: 308
+        line 2497: 326
+        line 2498: 330
+        line 2500: 335
+        line 2501: 347
+        line 2503: 373
+        line 2504: 378
+        line 2507: 383
+        line 2508: 396
+        line 2509: 401
+        line 2510: 407
+        line 2511: 412
+        line 2512: 418
+        line 2513: 427
+        line 2515: 436
+        line 2516: 440
+        line 2517: 456
+        line 2518: 466
+        line 2520: 472
+        line 2521: 476
+        line 2522: 481
+        line 2524: 487
+        line 2526: 489
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+         122      156     5  sl     Ljava/util/HashMap$TreeNode;
+         129      149     6  sr     Ljava/util/HashMap$TreeNode;
+          58      223     4  xpr    Ljava/util/HashMap$TreeNode;
+         341      148     5  sl     Ljava/util/HashMap$TreeNode;
+         347      142     6  sr     Ljava/util/HashMap$TreeNode;
+          17      475     2  xp     Ljava/util/HashMap$TreeNode;
+          47      445     3  xpl    Ljava/util/HashMap$TreeNode;
+           0      492     0  root   Ljava/util/HashMap$TreeNode;
+           0      492     1  x      Ljava/util/HashMap$TreeNode;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+           122      156     5  sl     Ljava/util/HashMap$TreeNode<TK;TV;>;
+           129      149     6  sr     Ljava/util/HashMap$TreeNode<TK;TV;>;
+            58      223     4  xpr    Ljava/util/HashMap$TreeNode<TK;TV;>;
+           341      148     5  sl     Ljava/util/HashMap$TreeNode<TK;TV;>;
+           347      142     6  sr     Ljava/util/HashMap$TreeNode<TK;TV;>;
+            17      475     2  xp     Ljava/util/HashMap$TreeNode<TK;TV;>;
+            47      445     3  xpl    Ljava/util/HashMap$TreeNode<TK;TV;>;
+             0      492     0  root   Ljava/util/HashMap$TreeNode<TK;TV;>;
+             0      492     1  x      Ljava/util/HashMap$TreeNode<TK;TV;>;
+      StackMapTable: number_of_entries = 40
+        frame_type = 0 /* same */
+        frame_type = 8 /* same */
+        frame_type = 1 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 15
+          locals = [class java/util/HashMap$TreeNode]
+        frame_type = 13 /* same */
+        frame_type = 253 /* append */
+          offset_delta = 57
+          locals = [class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode]
+        frame_type = 67 /* same_locals_1_stack_item */
+          stack = [ class java/util/HashMap$TreeNode ]
+        frame_type = 1 /* same */
+        frame_type = 9 /* same */
+        frame_type = 253 /* append */
+          offset_delta = 26
+          locals = [class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode]
+        frame_type = 12 /* same */
+        frame_type = 10 /* same */
+        frame_type = 12 /* same */
+        frame_type = 10 /* same */
+        frame_type = 25 /* same */
+        frame_type = 67 /* same_locals_1_stack_item */
+          stack = [ class java/util/HashMap$TreeNode ]
+        frame_type = 1 /* same */
+        frame_type = 78 /* same_locals_1_stack_item */
+          stack = [ class java/util/HashMap$TreeNode ]
+        frame_type = 255 /* full_frame */
+          offset_delta = 3
+          locals = [class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode]
+          stack = [class java/util/HashMap$TreeNode, int]
+        frame_type = 19 /* same */
+        frame_type = 14 /* same */
+        frame_type = 249 /* chop */
+          offset_delta = 1
+        frame_type = 250 /* chop */
+          offset_delta = 2
+        frame_type = 39 /* same */
+        frame_type = 67 /* same_locals_1_stack_item */
+          stack = [ class java/util/HashMap$TreeNode ]
+        frame_type = 0 /* same */
+        frame_type = 8 /* same */
+        frame_type = 254 /* append */
+          offset_delta = 24
+          locals = [top, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode]
+        frame_type = 12 /* same */
+        frame_type = 9 /* same */
+        frame_type = 12 /* same */
+        frame_type = 10 /* same */
+        frame_type = 23 /* same */
+        frame_type = 67 /* same_locals_1_stack_item */
+          stack = [ class java/util/HashMap$TreeNode ]
+        frame_type = 0 /* same */
+        frame_type = 76 /* same_locals_1_stack_item */
+          stack = [ class java/util/HashMap$TreeNode ]
+        frame_type = 255 /* full_frame */
+          offset_delta = 3
+          locals = [class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, top, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode]
+          stack = [class java/util/HashMap$TreeNode, int]
+        frame_type = 18 /* same */
+        frame_type = 14 /* same */
+        frame_type = 248 /* chop */
+          offset_delta = 1
+    Signature: #225                        // <K:Ljava/lang/Object;V:Ljava/lang/Object;>(Ljava/util/HashMap$TreeNode<TK;TV;>;Ljava/util/HashMap$TreeNode<TK;TV;>;)Ljava/util/HashMap$TreeNode<TK;TV;>;
+  
+  static <K extends java.lang.Object, V extends java.lang.Object> boolean checkInvariants(java.util.HashMap$TreeNode<K, V>);
+    descriptor: (Ljava/util/HashMap$TreeNode;)Z
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=2, locals=6, args_size=1
+         0: aload_0                 
+         1: getfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+         4: astore_1                
+         5: aload_0                 
+         6: getfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+         9: astore_2                
+        10: aload_0                 
+        11: getfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+        14: astore_3                
+        15: aload_0                 
+        16: getfield      #19                 // Field prev:Ljava/util/HashMap$TreeNode;
+        19: astore        4                 
+        21: aload_0                 
+        22: getfield      #22                 // Field next:Ljava/util/HashMap$Node;
+        25: checkcast     #10                 // class java/util/HashMap$TreeNode
+        28: astore        5                 
+        30: aload         4                 
+        32: ifnull        46                
+        35: aload         4                 
+        37: getfield      #22                 // Field next:Ljava/util/HashMap$Node;
+        40: aload_0                 
+        41: if_acmpeq     46                
+        44: iconst_0                
+        45: ireturn                 
+        46: aload         5                 
+        48: ifnull        62                
+        51: aload         5                 
+        53: getfield      #19                 // Field prev:Ljava/util/HashMap$TreeNode;
+        56: aload_0                 
+        57: if_acmpeq     62                
+        60: iconst_0                
+        61: ireturn                 
+        62: aload_1                 
+        63: ifnull        84                
+        66: aload_0                 
+        67: aload_1                 
+        68: getfield      #39                 // Field left:Ljava/util/HashMap$TreeNode;
+        71: if_acmpeq     84                
+        74: aload_0                 
+        75: aload_1                 
+        76: getfield      #42                 // Field right:Ljava/util/HashMap$TreeNode;
+        79: if_acmpeq     84                
+        82: iconst_0                
+        83: ireturn                 
+        84: aload_2                 
+        85: ifnull        109               
+        88: aload_2                 
+        89: getfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+        92: aload_0                 
+        93: if_acmpne     107               
+        96: aload_2                 
+        97: getfield      #15                 // Field hash:I
+       100: aload_0                 
+       101: getfield      #15                 // Field hash:I
+       104: if_icmple     109               
+       107: iconst_0                
+       108: ireturn                 
+       109: aload_3                 
+       110: ifnull        134               
+       113: aload_3                 
+       114: getfield      #9                  // Field parent:Ljava/util/HashMap$TreeNode;
+       117: aload_0                 
+       118: if_acmpne     132               
+       121: aload_3                 
+       122: getfield      #15                 // Field hash:I
+       125: aload_0                 
+       126: getfield      #15                 // Field hash:I
+       129: if_icmpge     134               
+       132: iconst_0                
+       133: ireturn                 
+       134: aload_0                 
+       135: getfield      #93                 // Field red:Z
+       138: ifeq          165               
+       141: aload_2                 
+       142: ifnull        165               
+       145: aload_2                 
+       146: getfield      #93                 // Field red:Z
+       149: ifeq          165               
+       152: aload_3                 
+       153: ifnull        165               
+       156: aload_3                 
+       157: getfield      #93                 // Field red:Z
+       160: ifeq          165               
+       163: iconst_0                
+       164: ireturn                 
+       165: aload_2                 
+       166: ifnull        178               
+       169: aload_2                 
+       170: invokestatic  #30                 // Method checkInvariants:(Ljava/util/HashMap$TreeNode;)Z
+       173: ifne          178               
+       176: iconst_0                
+       177: ireturn                 
+       178: aload_3                 
+       179: ifnull        191               
+       182: aload_3                 
+       183: invokestatic  #30                 // Method checkInvariants:(Ljava/util/HashMap$TreeNode;)Z
+       186: ifne          191               
+       189: iconst_0                
+       190: ireturn                 
+       191: iconst_1                
+       192: ireturn                 
+      LineNumberTable:
+        line 2535: 0
+        line 2536: 15
+        line 2537: 30
+        line 2538: 44
+        line 2539: 46
+        line 2540: 60
+        line 2541: 62
+        line 2542: 82
+        line 2543: 84
+        line 2544: 107
+        line 2545: 109
+        line 2546: 132
+        line 2547: 134
+        line 2548: 163
+        line 2549: 165
+        line 2550: 176
+        line 2551: 178
+        line 2552: 189
+        line 2553: 191
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0      193     0  t      Ljava/util/HashMap$TreeNode;
+           5      188     1  tp     Ljava/util/HashMap$TreeNode;
+          10      183     2  tl     Ljava/util/HashMap$TreeNode;
+          15      178     3  tr     Ljava/util/HashMap$TreeNode;
+          21      172     4  tb     Ljava/util/HashMap$TreeNode;
+          30      163     5  tn     Ljava/util/HashMap$TreeNode;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0      193     0  t      Ljava/util/HashMap$TreeNode<TK;TV;>;
+             5      188     1  tp     Ljava/util/HashMap$TreeNode<TK;TV;>;
+            10      183     2  tl     Ljava/util/HashMap$TreeNode<TK;TV;>;
+            15      178     3  tr     Ljava/util/HashMap$TreeNode<TK;TV;>;
+            21      172     4  tb     Ljava/util/HashMap$TreeNode<TK;TV;>;
+            30      163     5  tn     Ljava/util/HashMap$TreeNode<TK;TV;>;
+      StackMapTable: number_of_entries = 10
+        frame_type = 255 /* full_frame */
+          offset_delta = 46
+          locals = [class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode, class java/util/HashMap$TreeNode]
+          stack = []
+        frame_type = 15 /* same */
+        frame_type = 21 /* same */
+        frame_type = 22 /* same */
+        frame_type = 1 /* same */
+        frame_type = 22 /* same */
+        frame_type = 1 /* same */
+        frame_type = 30 /* same */
+        frame_type = 12 /* same */
+        frame_type = 12 /* same */
+    Signature: #238                        // <K:Ljava/lang/Object;V:Ljava/lang/Object;>(Ljava/util/HashMap$TreeNode<TK;TV;>;)Z
+  
+  static {};
+    descriptor: ()V
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=1, locals=0, args_size=0
+         0: ldc           #1                  // class java/util/HashMap
+         2: invokevirtual #136                // Method java/lang/Class.desiredAssertionStatus:()Z
+         5: ifne          12                
+         8: iconst_1                
+         9: goto          13                
+        12: iconst_0                
+        13: putstatic     #26                 // Field $assertionsDisabled:Z
+        16: return                  
+      LineNumberTable:
+        line 1967: 0
+      StackMapTable: number_of_entries = 2
+        frame_type = 12 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+}
+Signature: #240                        // <K:Ljava/lang/Object;V:Ljava/lang/Object;>Ljava/util/LinkedHashMap$Entry<TK;TV;>;
+SourceFile: "HashMap.java"
+NestHost: class java/util/HashMap
+InnerClasses:
+  static #247= #4 of #245;                    // Entry=class java/util/LinkedHashMap$Entry of class java/util/LinkedHashMap
+  static #248= #113 of #1;                    // Node=class java/util/HashMap$Node of class java/util/HashMap
+  static final #249= #10 of #1;               // TreeNode=class java/util/HashMap$TreeNode of class java/util/HashMap

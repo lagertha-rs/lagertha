@@ -4,13 +4,13 @@ use crate::rt::class::Class;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::constant_pool::reference::MethodDescriptorReference;
 use crate::{ClassId, MethodId};
-use class_file::attribute::method::code::{
+use jclass::attribute::method::code::{
     CodeAttributeInfo, LineNumberEntry, LocalVariableEntry, LocalVariableTypeEntry, StackMapFrame,
 };
-use class_file::attribute::method::{CodeAttribute, MethodAttribute};
-use class_file::attribute::{Annotation, SharedAttribute};
-use class_file::flags::MethodFlags;
-use class_file::method::MethodInfo;
+use jclass::attribute::method::{CodeAttribute, MethodAttribute};
+use jclass::attribute::{Annotation, SharedAttribute};
+use jclass::flags::MethodFlags;
+use jclass::method::MethodInfo;
 use log::warn;
 use once_cell::sync::OnceCell as SyncOnceCell;
 use std::cell::OnceCell;
@@ -27,11 +27,11 @@ pub struct CodeContext {
     max_stack: u16,
     max_locals: u16,
     instructions: Vec<u8>,
-    // TODO: Create a dedicated struct? (now struct from class_file)
+    // TODO: Create a dedicated struct? (now struct from jclass)
     line_numbers: Option<Vec<LineNumberEntry>>,
-    // TODO: Create a dedicated struct? (now struct from class_file)
+    // TODO: Create a dedicated struct? (now struct from jclass)
     local_variables: Option<Vec<LocalVariableEntry>>,
-    // TODO: Create a dedicated struct? (now struct from class_file)
+    // TODO: Create a dedicated struct? (now struct from jclass)
     local_variable_types: Option<Vec<LocalVariableTypeEntry>>,
     stack_map_table: Option<Vec<StackMapFrame>>,
 }

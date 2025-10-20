@@ -1,0 +1,1789 @@
+---
+source: jclass/src/lib.rs
+expression: display
+---
+public final class sun.nio.cs.StreamEncoder extends java.io.Writer
+  minor version: 0
+  major version: 68
+  flags: (0x0031) ACC_PUBLIC, ACC_FINAL, ACC_SUPER
+  this_class: #2                       //sun/nio/cs/StreamEncoder
+  super_class: #111                    //java/io/Writer
+  interfaces: 0, fields: 12, methods: 27, attributes: 1
+Constant pool:
+    #1 = Fieldref           #2.#3            // sun/nio/cs/StreamEncoder.closed:Z
+    #2 = Class              #4               // sun/nio/cs/StreamEncoder
+    #3 = NameAndType        #5:#6            // closed:Z
+    #4 = Utf8               sun/nio/cs/StreamEncoder
+    #5 = Utf8               closed
+    #6 = Utf8               Z
+    #7 = Class              #8               // java/io/IOException
+    #8 = Utf8               java/io/IOException
+    #9 = String             #10              // Stream closed
+   #10 = Utf8               Stream closed
+   #11 = Methodref          #7.#12           // java/io/IOException."<init>":(Ljava/lang/String;)V
+   #12 = NameAndType        #13:#14          // "<init>":(Ljava/lang/String;)V
+   #13 = Utf8               <init>
+   #14 = Utf8               (Ljava/lang/String;)V
+   #15 = Methodref          #16.#17          // java/nio/charset/Charset.forName:(Ljava/lang/String;)Ljava/nio/charset/Charset;
+   #16 = Class              #18              // java/nio/charset/Charset
+   #17 = NameAndType        #19:#20          // forName:(Ljava/lang/String;)Ljava/nio/charset/Charset;
+   #18 = Utf8               java/nio/charset/Charset
+   #19 = Utf8               forName
+   #20 = Utf8               (Ljava/lang/String;)Ljava/nio/charset/Charset;
+   #21 = Methodref          #2.#22           // sun/nio/cs/StreamEncoder."<init>":(Ljava/io/OutputStream;Ljava/lang/Object;Ljava/nio/charset/Charset;)V
+   #22 = NameAndType        #13:#23          // "<init>":(Ljava/io/OutputStream;Ljava/lang/Object;Ljava/nio/charset/Charset;)V
+   #23 = Utf8               (Ljava/io/OutputStream;Ljava/lang/Object;Ljava/nio/charset/Charset;)V
+   #24 = Class              #25              // java/nio/charset/IllegalCharsetNameException
+   #25 = Utf8               java/nio/charset/IllegalCharsetNameException
+   #26 = Class              #27              // java/nio/charset/UnsupportedCharsetException
+   #27 = Utf8               java/nio/charset/UnsupportedCharsetException
+   #28 = Class              #29              // java/io/UnsupportedEncodingException
+   #29 = Utf8               java/io/UnsupportedEncodingException
+   #30 = Methodref          #28.#12          // java/io/UnsupportedEncodingException."<init>":(Ljava/lang/String;)V
+   #31 = Methodref          #2.#32           // sun/nio/cs/StreamEncoder."<init>":(Ljava/io/OutputStream;Ljava/lang/Object;Ljava/nio/charset/CharsetEncoder;)V
+   #32 = NameAndType        #13:#33          // "<init>":(Ljava/io/OutputStream;Ljava/lang/Object;Ljava/nio/charset/CharsetEncoder;)V
+   #33 = Utf8               (Ljava/io/OutputStream;Ljava/lang/Object;Ljava/nio/charset/CharsetEncoder;)V
+   #34 = Methodref          #2.#35           // sun/nio/cs/StreamEncoder."<init>":(Ljava/io/OutputStream;Ljava/nio/charset/CharsetEncoder;)V
+   #35 = NameAndType        #13:#36          // "<init>":(Ljava/io/OutputStream;Ljava/nio/charset/CharsetEncoder;)V
+   #36 = Utf8               (Ljava/io/OutputStream;Ljava/nio/charset/CharsetEncoder;)V
+   #37 = Methodref          #2.#38           // sun/nio/cs/StreamEncoder.isOpen:()Z
+   #38 = NameAndType        #39:#40          // isOpen:()Z
+   #39 = Utf8               isOpen
+   #40 = Utf8               ()Z
+   #41 = Methodref          #2.#42           // sun/nio/cs/StreamEncoder.encodingName:()Ljava/lang/String;
+   #42 = NameAndType        #43:#44          // encodingName:()Ljava/lang/String;
+   #43 = Utf8               encodingName
+   #44 = Utf8               ()Ljava/lang/String;
+   #45 = Fieldref           #2.#46           // sun/nio/cs/StreamEncoder.lock:Ljava/lang/Object;
+   #46 = NameAndType        #47:#48          // lock:Ljava/lang/Object;
+   #47 = Utf8               lock
+   #48 = Utf8               Ljava/lang/Object;
+   #49 = Methodref          #2.#50           // sun/nio/cs/StreamEncoder.implFlushBuffer:()V
+   #50 = NameAndType        #51:#52          // implFlushBuffer:()V
+   #51 = Utf8               implFlushBuffer
+   #52 = Utf8               ()V
+   #53 = Methodref          #2.#54           // sun/nio/cs/StreamEncoder.write:([CII)V
+   #54 = NameAndType        #55:#56          // write:([CII)V
+   #55 = Utf8               write
+   #56 = Utf8               ([CII)V
+   #57 = Methodref          #2.#58           // sun/nio/cs/StreamEncoder.ensureOpen:()V
+   #58 = NameAndType        #59:#52          // ensureOpen:()V
+   #59 = Utf8               ensureOpen
+   #60 = Class              #61              // java/lang/IndexOutOfBoundsException
+   #61 = Utf8               java/lang/IndexOutOfBoundsException
+   #62 = Methodref          #60.#63          // java/lang/IndexOutOfBoundsException."<init>":()V
+   #63 = NameAndType        #13:#52          // "<init>":()V
+   #64 = Methodref          #2.#65           // sun/nio/cs/StreamEncoder.implWrite:([CII)V
+   #65 = NameAndType        #66:#56          // implWrite:([CII)V
+   #66 = Utf8               implWrite
+   #67 = Methodref          #68.#69          // java/lang/String.getChars:(II[CI)V
+   #68 = Class              #70              // java/lang/String
+   #69 = NameAndType        #71:#72          // getChars:(II[CI)V
+   #70 = Utf8               java/lang/String
+   #71 = Utf8               getChars
+   #72 = Utf8               (II[CI)V
+   #73 = Methodref          #74.#75          // java/nio/CharBuffer.position:()I
+   #74 = Class              #76              // java/nio/CharBuffer
+   #75 = NameAndType        #77:#78          // position:()I
+   #76 = Utf8               java/nio/CharBuffer
+   #77 = Utf8               position
+   #78 = Utf8               ()I
+   #79 = Methodref          #2.#80           // sun/nio/cs/StreamEncoder.implWrite:(Ljava/nio/CharBuffer;)V
+   #80 = NameAndType        #66:#81          // implWrite:(Ljava/nio/CharBuffer;)V
+   #81 = Utf8               (Ljava/nio/CharBuffer;)V
+   #82 = Methodref          #74.#83          // java/nio/CharBuffer.position:(I)Ljava/nio/CharBuffer;
+   #83 = NameAndType        #77:#84          // position:(I)Ljava/nio/CharBuffer;
+   #84 = Utf8               (I)Ljava/nio/CharBuffer;
+   #85 = Methodref          #2.#86           // sun/nio/cs/StreamEncoder.implFlush:()V
+   #86 = NameAndType        #87:#52          // implFlush:()V
+   #87 = Utf8               implFlush
+   #88 = Methodref          #2.#89           // sun/nio/cs/StreamEncoder.implClose:()V
+   #89 = NameAndType        #90:#52          // implClose:()V
+   #90 = Utf8               implClose
+   #91 = Methodref          #16.#92          // java/nio/charset/Charset.newEncoder:()Ljava/nio/charset/CharsetEncoder;
+   #92 = NameAndType        #93:#94          // newEncoder:()Ljava/nio/charset/CharsetEncoder;
+   #93 = Utf8               newEncoder
+   #94 = Utf8               ()Ljava/nio/charset/CharsetEncoder;
+   #95 = Fieldref           #96.#97          // java/nio/charset/CodingErrorAction.REPLACE:Ljava/nio/charset/CodingErrorAction;
+   #96 = Class              #98              // java/nio/charset/CodingErrorAction
+   #97 = NameAndType        #99:#100         // REPLACE:Ljava/nio/charset/CodingErrorAction;
+   #98 = Utf8               java/nio/charset/CodingErrorAction
+   #99 = Utf8               REPLACE
+  #100 = Utf8               Ljava/nio/charset/CodingErrorAction;
+  #101 = Methodref          #102.#103        // java/nio/charset/CharsetEncoder.onMalformedInput:(Ljava/nio/charset/CodingErrorAction;)Ljava/nio/charset/CharsetEncoder;
+  #102 = Class              #104             // java/nio/charset/CharsetEncoder
+  #103 = NameAndType        #105:#106        // onMalformedInput:(Ljava/nio/charset/CodingErrorAction;)Ljava/nio/charset/CharsetEncoder;
+  #104 = Utf8               java/nio/charset/CharsetEncoder
+  #105 = Utf8               onMalformedInput
+  #106 = Utf8               (Ljava/nio/charset/CodingErrorAction;)Ljava/nio/charset/CharsetEncoder;
+  #107 = Methodref          #102.#108        // java/nio/charset/CharsetEncoder.onUnmappableCharacter:(Ljava/nio/charset/CodingErrorAction;)Ljava/nio/charset/CharsetEncoder;
+  #108 = NameAndType        #109:#106        // onUnmappableCharacter:(Ljava/nio/charset/CodingErrorAction;)Ljava/nio/charset/CharsetEncoder;
+  #109 = Utf8               onUnmappableCharacter
+  #110 = Methodref          #111.#112        // java/io/Writer."<init>":(Ljava/lang/Object;)V
+  #111 = Class              #113             // java/io/Writer
+  #112 = NameAndType        #13:#114         // "<init>":(Ljava/lang/Object;)V
+  #113 = Utf8               java/io/Writer
+  #114 = Utf8               (Ljava/lang/Object;)V
+  #115 = Fieldref           #2.#116          // sun/nio/cs/StreamEncoder.haveLeftoverChar:Z
+  #116 = NameAndType        #117:#6          // haveLeftoverChar:Z
+  #117 = Utf8               haveLeftoverChar
+  #118 = Fieldref           #2.#119          // sun/nio/cs/StreamEncoder.lcb:Ljava/nio/CharBuffer;
+  #119 = NameAndType        #120:#121        // lcb:Ljava/nio/CharBuffer;
+  #120 = Utf8               lcb
+  #121 = Utf8               Ljava/nio/CharBuffer;
+  #122 = Fieldref           #2.#123          // sun/nio/cs/StreamEncoder.out:Ljava/io/OutputStream;
+  #123 = NameAndType        #124:#125        // out:Ljava/io/OutputStream;
+  #124 = Utf8               out
+  #125 = Utf8               Ljava/io/OutputStream;
+  #126 = Methodref          #102.#127        // java/nio/charset/CharsetEncoder.charset:()Ljava/nio/charset/Charset;
+  #127 = NameAndType        #128:#129        // charset:()Ljava/nio/charset/Charset;
+  #128 = Utf8               charset
+  #129 = Utf8               ()Ljava/nio/charset/Charset;
+  #130 = Fieldref           #2.#131          // sun/nio/cs/StreamEncoder.cs:Ljava/nio/charset/Charset;
+  #131 = NameAndType        #132:#133        // cs:Ljava/nio/charset/Charset;
+  #132 = Utf8               cs
+  #133 = Utf8               Ljava/nio/charset/Charset;
+  #134 = Fieldref           #2.#135          // sun/nio/cs/StreamEncoder.encoder:Ljava/nio/charset/CharsetEncoder;
+  #135 = NameAndType        #136:#137        // encoder:Ljava/nio/charset/CharsetEncoder;
+  #136 = Utf8               encoder
+  #137 = Utf8               Ljava/nio/charset/CharsetEncoder;
+  #138 = Methodref          #139.#140        // java/nio/ByteBuffer.allocate:(I)Ljava/nio/ByteBuffer;
+  #139 = Class              #141             // java/nio/ByteBuffer
+  #140 = NameAndType        #142:#143        // allocate:(I)Ljava/nio/ByteBuffer;
+  #141 = Utf8               java/nio/ByteBuffer
+  #142 = Utf8               allocate
+  #143 = Utf8               (I)Ljava/nio/ByteBuffer;
+  #144 = Fieldref           #2.#145          // sun/nio/cs/StreamEncoder.bb:Ljava/nio/ByteBuffer;
+  #145 = NameAndType        #146:#147        // bb:Ljava/nio/ByteBuffer;
+  #146 = Utf8               bb
+  #147 = Utf8               Ljava/nio/ByteBuffer;
+  #148 = Fieldref           #2.#149          // sun/nio/cs/StreamEncoder.maxBufferCapacity:I
+  #149 = NameAndType        #150:#151        // maxBufferCapacity:I
+  #150 = Utf8               maxBufferCapacity
+  #151 = Utf8               I
+  #152 = Methodref          #111.#63         // java/io/Writer."<init>":()V
+  #153 = Methodref          #139.#154        // java/nio/ByteBuffer.flip:()Ljava/nio/ByteBuffer;
+  #154 = NameAndType        #155:#156        // flip:()Ljava/nio/ByteBuffer;
+  #155 = Utf8               flip
+  #156 = Utf8               ()Ljava/nio/ByteBuffer;
+  #157 = Methodref          #139.#158        // java/nio/ByteBuffer.limit:()I
+  #158 = NameAndType        #159:#78         // limit:()I
+  #159 = Utf8               limit
+  #160 = Methodref          #139.#75         // java/nio/ByteBuffer.position:()I
+  #161 = Fieldref           #2.#162          // sun/nio/cs/StreamEncoder.$assertionsDisabled:Z
+  #162 = NameAndType        #163:#6          // $assertionsDisabled:Z
+  #163 = Utf8               $assertionsDisabled
+  #164 = Class              #165             // java/lang/AssertionError
+  #165 = Utf8               java/lang/AssertionError
+  #166 = Methodref          #164.#63         // java/lang/AssertionError."<init>":()V
+  #167 = Methodref          #139.#168        // java/nio/ByteBuffer.array:()[B
+  #168 = NameAndType        #169:#170        // array:()[B
+  #169 = Utf8               array
+  #170 = Utf8               ()[B
+  #171 = Methodref          #139.#172        // java/nio/ByteBuffer.arrayOffset:()I
+  #172 = NameAndType        #173:#78         // arrayOffset:()I
+  #173 = Utf8               arrayOffset
+  #174 = Methodref          #175.#176        // java/io/OutputStream.write:([BII)V
+  #175 = Class              #177             // java/io/OutputStream
+  #176 = NameAndType        #55:#178         // write:([BII)V
+  #177 = Utf8               java/io/OutputStream
+  #178 = Utf8               ([BII)V
+  #179 = Methodref          #139.#180        // java/nio/ByteBuffer.clear:()Ljava/nio/ByteBuffer;
+  #180 = NameAndType        #181:#156        // clear:()Ljava/nio/ByteBuffer;
+  #181 = Utf8               clear
+  #182 = Methodref          #74.#183         // java/nio/CharBuffer.allocate:(I)Ljava/nio/CharBuffer;
+  #183 = NameAndType        #142:#84         // allocate:(I)Ljava/nio/CharBuffer;
+  #184 = Methodref          #74.#185         // java/nio/CharBuffer.clear:()Ljava/nio/CharBuffer;
+  #185 = NameAndType        #181:#186        // clear:()Ljava/nio/CharBuffer;
+  #186 = Utf8               ()Ljava/nio/CharBuffer;
+  #187 = Fieldref           #2.#188          // sun/nio/cs/StreamEncoder.leftoverChar:C
+  #188 = NameAndType        #189:#190        // leftoverChar:C
+  #189 = Utf8               leftoverChar
+  #190 = Utf8               C
+  #191 = Methodref          #74.#192         // java/nio/CharBuffer.put:(C)Ljava/nio/CharBuffer;
+  #192 = NameAndType        #193:#194        // put:(C)Ljava/nio/CharBuffer;
+  #193 = Utf8               put
+  #194 = Utf8               (C)Ljava/nio/CharBuffer;
+  #195 = Methodref          #74.#196         // java/nio/CharBuffer.hasRemaining:()Z
+  #196 = NameAndType        #197:#40         // hasRemaining:()Z
+  #197 = Utf8               hasRemaining
+  #198 = Methodref          #74.#199         // java/nio/CharBuffer.get:()C
+  #199 = NameAndType        #200:#201        // get:()C
+  #200 = Utf8               get
+  #201 = Utf8               ()C
+  #202 = Methodref          #74.#203         // java/nio/CharBuffer.flip:()Ljava/nio/CharBuffer;
+  #203 = NameAndType        #155:#186        // flip:()Ljava/nio/CharBuffer;
+  #204 = Methodref          #102.#205        // java/nio/charset/CharsetEncoder.encode:(Ljava/nio/CharBuffer;Ljava/nio/ByteBuffer;Z)Ljava/nio/charset/CoderResult;
+  #205 = NameAndType        #206:#207        // encode:(Ljava/nio/CharBuffer;Ljava/nio/ByteBuffer;Z)Ljava/nio/charset/CoderResult;
+  #206 = Utf8               encode
+  #207 = Utf8               (Ljava/nio/CharBuffer;Ljava/nio/ByteBuffer;Z)Ljava/nio/charset/CoderResult;
+  #208 = Methodref          #209.#210        // java/nio/charset/CoderResult.isUnderflow:()Z
+  #209 = Class              #211             // java/nio/charset/CoderResult
+  #210 = NameAndType        #212:#40         // isUnderflow:()Z
+  #211 = Utf8               java/nio/charset/CoderResult
+  #212 = Utf8               isUnderflow
+  #213 = Methodref          #209.#214        // java/nio/charset/CoderResult.isOverflow:()Z
+  #214 = NameAndType        #215:#40         // isOverflow:()Z
+  #215 = Utf8               isOverflow
+  #216 = Methodref          #2.#217          // sun/nio/cs/StreamEncoder.writeBytes:()V
+  #217 = NameAndType        #218:#52         // writeBytes:()V
+  #218 = Utf8               writeBytes
+  #219 = Methodref          #209.#220        // java/nio/charset/CoderResult.throwException:()V
+  #220 = NameAndType        #221:#52         // throwException:()V
+  #221 = Utf8               throwException
+  #222 = Methodref          #74.#223         // java/nio/CharBuffer.wrap:([CII)Ljava/nio/CharBuffer;
+  #223 = NameAndType        #224:#225        // wrap:([CII)Ljava/nio/CharBuffer;
+  #224 = Utf8               wrap
+  #225 = Utf8               ([CII)Ljava/nio/CharBuffer;
+  #226 = Methodref          #2.#227          // sun/nio/cs/StreamEncoder.flushLeftoverChar:(Ljava/nio/CharBuffer;Z)V
+  #227 = NameAndType        #228:#229        // flushLeftoverChar:(Ljava/nio/CharBuffer;Z)V
+  #228 = Utf8               flushLeftoverChar
+  #229 = Utf8               (Ljava/nio/CharBuffer;Z)V
+  #230 = Methodref          #74.#231         // java/nio/CharBuffer.remaining:()I
+  #231 = NameAndType        #232:#78         // remaining:()I
+  #232 = Utf8               remaining
+  #233 = Methodref          #2.#234          // sun/nio/cs/StreamEncoder.growByteBufferIfNeeded:(I)V
+  #234 = NameAndType        #235:#236        // growByteBufferIfNeeded:(I)V
+  #235 = Utf8               growByteBufferIfNeeded
+  #236 = Utf8               (I)V
+  #237 = Methodref          #164.#238        // java/lang/AssertionError."<init>":(I)V
+  #238 = NameAndType        #13:#236         // "<init>":(I)V
+  #239 = Methodref          #139.#240        // java/nio/ByteBuffer.capacity:()I
+  #240 = NameAndType        #241:#78         // capacity:()I
+  #241 = Utf8               capacity
+  #242 = Methodref          #102.#243        // java/nio/charset/CharsetEncoder.maxBytesPerChar:()F
+  #243 = NameAndType        #244:#245        // maxBytesPerChar:()F
+  #244 = Utf8               maxBytesPerChar
+  #245 = Utf8               ()F
+  #246 = Methodref          #247.#248        // java/lang/Math.round:(F)I
+  #247 = Class              #249             // java/lang/Math
+  #248 = NameAndType        #250:#251        // round:(F)I
+  #249 = Utf8               java/lang/Math
+  #250 = Utf8               round
+  #251 = Utf8               (F)I
+  #252 = Methodref          #247.#253        // java/lang/Math.min:(II)I
+  #253 = NameAndType        #254:#255        // min:(II)I
+  #254 = Utf8               min
+  #255 = Utf8               (II)I
+  #256 = Methodref          #175.#257        // java/io/OutputStream.flush:()V
+  #257 = NameAndType        #258:#52         // flush:()V
+  #258 = Utf8               flush
+  #259 = Methodref          #102.#260        // java/nio/charset/CharsetEncoder.flush:(Ljava/nio/ByteBuffer;)Ljava/nio/charset/CoderResult;
+  #260 = NameAndType        #258:#261        // flush:(Ljava/nio/ByteBuffer;)Ljava/nio/charset/CoderResult;
+  #261 = Utf8               (Ljava/nio/ByteBuffer;)Ljava/nio/charset/CoderResult;
+  #262 = Methodref          #175.#263        // java/io/OutputStream.close:()V
+  #263 = NameAndType        #264:#52         // close:()V
+  #264 = Utf8               close
+  #265 = Class              #266             // java/lang/Throwable
+  #266 = Utf8               java/lang/Throwable
+  #267 = Methodref          #265.#268        // java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+  #268 = NameAndType        #269:#270        // addSuppressed:(Ljava/lang/Throwable;)V
+  #269 = Utf8               addSuppressed
+  #270 = Utf8               (Ljava/lang/Throwable;)V
+  #271 = Methodref          #102.#272        // java/nio/charset/CharsetEncoder.reset:()Ljava/nio/charset/CharsetEncoder;
+  #272 = NameAndType        #273:#94         // reset:()Ljava/nio/charset/CharsetEncoder;
+  #273 = Utf8               reset
+  #274 = Class              #275             // sun/nio/cs/HistoricallyNamedCharset
+  #275 = Utf8               sun/nio/cs/HistoricallyNamedCharset
+  #276 = InterfaceMethodref #274.#277        // sun/nio/cs/HistoricallyNamedCharset.historicalName:()Ljava/lang/String;
+  #277 = NameAndType        #278:#44         // historicalName:()Ljava/lang/String;
+  #278 = Utf8               historicalName
+  #279 = Methodref          #16.#280         // java/nio/charset/Charset.name:()Ljava/lang/String;
+  #280 = NameAndType        #281:#44         // name:()Ljava/lang/String;
+  #281 = Utf8               name
+  #282 = Methodref          #283.#284        // java/lang/Class.desiredAssertionStatus:()Z
+  #283 = Class              #285             // java/lang/Class
+  #284 = NameAndType        #286:#40         // desiredAssertionStatus:()Z
+  #285 = Utf8               java/lang/Class
+  #286 = Utf8               desiredAssertionStatus
+  #287 = Utf8               INITIAL_BYTE_BUFFER_CAPACITY
+  #288 = Utf8               ConstantValue
+  #289 = Integer            512
+  #290 = Utf8               MAX_BYTE_BUFFER_CAPACITY
+  #291 = Integer            8192
+  #292 = Utf8               Code
+  #293 = Utf8               LineNumberTable
+  #294 = Utf8               LocalVariableTable
+  #295 = Utf8               this
+  #296 = Utf8               Lsun/nio/cs/StreamEncoder;
+  #297 = Utf8               StackMapTable
+  #298 = Utf8               Exceptions
+  #299 = Utf8               forOutputStreamWriter
+  #300 = Utf8               (Ljava/io/OutputStream;Ljava/lang/Object;Ljava/lang/String;)Lsun/nio/cs/StreamEncoder;
+  #301 = Utf8               x
+  #302 = Utf8               Ljava/lang/IllegalArgumentException;
+  #303 = Utf8               charsetName
+  #304 = Utf8               Ljava/lang/String;
+  #305 = Class              #306             // java/lang/IllegalArgumentException
+  #306 = Utf8               java/lang/IllegalArgumentException
+  #307 = Utf8               (Ljava/io/OutputStream;Ljava/lang/Object;Ljava/nio/charset/Charset;)Lsun/nio/cs/StreamEncoder;
+  #308 = Utf8               (Ljava/io/OutputStream;Ljava/lang/Object;Ljava/nio/charset/CharsetEncoder;)Lsun/nio/cs/StreamEncoder;
+  #309 = Utf8               enc
+  #310 = Utf8               (Ljava/io/OutputStream;Ljava/nio/charset/CharsetEncoder;)Lsun/nio/cs/StreamEncoder;
+  #311 = Utf8               getEncoding
+  #312 = Utf8               flushBuffer
+  #313 = Class              #314             // java/lang/Object
+  #314 = Utf8               java/lang/Object
+  #315 = Utf8               c
+  #316 = Utf8               cbuf
+  #317 = Utf8               [C
+  #318 = Utf8               off
+  #319 = Utf8               len
+  #320 = Utf8               (Ljava/lang/String;II)V
+  #321 = Utf8               str
+  #322 = Utf8               cb
+  #323 = Utf8               lim
+  #324 = Utf8               pos
+  #325 = Utf8               rem
+  #326 = Utf8               cr
+  #327 = Utf8               Ljava/nio/charset/CoderResult;
+  #328 = Utf8               endOfInput
+  #329 = Utf8               maxBytes
+  #330 = Utf8               newCap
+  #331 = Utf8               cap
+  #332 = Utf8               Ljava/io/IOException;
+  #333 = Utf8               <clinit>
+  #334 = Utf8               SourceFile
+  #335 = Utf8               StreamEncoder.java
+{
+  private static final int INITIAL_BYTE_BUFFER_CAPACITY;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 512
+  
+  private static final int MAX_BYTE_BUFFER_CAPACITY;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 8192
+  
+  private volatile boolean closed;
+    descriptor: Z
+    flags: (0x0042) ACC_PRIVATE, ACC_VOLATILE
+  
+  private final java.nio.charset.Charset cs;
+    descriptor: Ljava/nio/charset/Charset;
+    flags: (0x0012) ACC_PRIVATE, ACC_FINAL
+  
+  private final java.nio.charset.CharsetEncoder encoder;
+    descriptor: Ljava/nio/charset/CharsetEncoder;
+    flags: (0x0012) ACC_PRIVATE, ACC_FINAL
+  
+  private java.nio.ByteBuffer bb;
+    descriptor: Ljava/nio/ByteBuffer;
+    flags: (0x0002) ACC_PRIVATE
+  
+  private final int maxBufferCapacity;
+    descriptor: I
+    flags: (0x0012) ACC_PRIVATE, ACC_FINAL
+  
+  private final java.io.OutputStream out;
+    descriptor: Ljava/io/OutputStream;
+    flags: (0x0012) ACC_PRIVATE, ACC_FINAL
+  
+  private boolean haveLeftoverChar;
+    descriptor: Z
+    flags: (0x0002) ACC_PRIVATE
+  
+  private char leftoverChar;
+    descriptor: C
+    flags: (0x0002) ACC_PRIVATE
+  
+  private java.nio.CharBuffer lcb;
+    descriptor: Ljava/nio/CharBuffer;
+    flags: (0x0002) ACC_PRIVATE
+  
+  static final boolean $assertionsDisabled;
+    descriptor: Z
+    flags: (0x1018) ACC_STATIC, ACC_FINAL, ACC_SYNTHETIC
+  
+  private void ensureOpen() throws java.io.IOException;
+    descriptor: ()V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=3, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #1                  // Field closed:Z
+         4: ifeq          17                
+         7: new           #7                  // class java/io/IOException
+        10: dup                     
+        11: ldc           #9                  // String Stream closed
+        13: invokespecial #11                 // Method java/io/IOException."<init>":(Ljava/lang/String;)V
+        16: athrow                  
+        17: return                  
+      LineNumberTable:
+        line 49: 0
+        line 50: 7
+        line 51: 17
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       18     0  this   Lsun/nio/cs/StreamEncoder;
+      StackMapTable: number_of_entries = 1
+        frame_type = 17 /* same */
+    Exceptions:
+      throws java.io.IOException
+  
+  public static sun.nio.cs.StreamEncoder forOutputStreamWriter(java.io.OutputStream, java.lang.Object, java.lang.String) throws java.io.UnsupportedEncodingException;
+    descriptor: (Ljava/io/OutputStream;Ljava/lang/Object;Ljava/lang/String;)Lsun/nio/cs/StreamEncoder;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=5, locals=4, args_size=3
+         0: new           #2                  // class sun/nio/cs/StreamEncoder
+         3: dup                     
+         4: aload_0                 
+         5: aload_1                 
+         6: aload_2                 
+         7: invokestatic  #15                 // Method java/nio/charset/Charset.forName:(Ljava/lang/String;)Ljava/nio/charset/Charset;
+        10: invokespecial #21                 // Method "<init>":(Ljava/io/OutputStream;Ljava/lang/Object;Ljava/nio/charset/Charset;)V
+        13: areturn                 
+        14: astore_3                
+        15: new           #28                 // class java/io/UnsupportedEncodingException
+        18: dup                     
+        19: aload_2                 
+        20: invokespecial #30                 // Method java/io/UnsupportedEncodingException."<init>":(Ljava/lang/String;)V
+        23: athrow                  
+      Exception table:
+          from       to target type
+             0       13    14  Class java/nio/charset/IllegalCharsetNameException
+             0       13    14  Class java/nio/charset/UnsupportedCharsetException
+      LineNumberTable:
+        line 60: 0
+        line 61: 14
+        line 62: 15
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          15        9     3  x      Ljava/lang/IllegalArgumentException;
+           0       24     0  out    Ljava/io/OutputStream;
+           0       24     1  lock   Ljava/lang/Object;
+           0       24     2  charsetName Ljava/lang/String;
+      StackMapTable: number_of_entries = 1
+        frame_type = 78 /* same_locals_1_stack_item */
+          stack = [ class java/lang/IllegalArgumentException ]
+    Exceptions:
+      throws java.io.UnsupportedEncodingException
+  
+  public static sun.nio.cs.StreamEncoder forOutputStreamWriter(java.io.OutputStream, java.lang.Object, java.nio.charset.Charset);
+    descriptor: (Ljava/io/OutputStream;Ljava/lang/Object;Ljava/nio/charset/Charset;)Lsun/nio/cs/StreamEncoder;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=5, locals=3, args_size=3
+         0: new           #2                  // class sun/nio/cs/StreamEncoder
+         3: dup                     
+         4: aload_0                 
+         5: aload_1                 
+         6: aload_2                 
+         7: invokespecial #21                 // Method "<init>":(Ljava/io/OutputStream;Ljava/lang/Object;Ljava/nio/charset/Charset;)V
+        10: areturn                 
+      LineNumberTable:
+        line 70: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       11     0  out    Ljava/io/OutputStream;
+           0       11     1  lock   Ljava/lang/Object;
+           0       11     2  cs     Ljava/nio/charset/Charset;
+  
+  public static sun.nio.cs.StreamEncoder forOutputStreamWriter(java.io.OutputStream, java.lang.Object, java.nio.charset.CharsetEncoder);
+    descriptor: (Ljava/io/OutputStream;Ljava/lang/Object;Ljava/nio/charset/CharsetEncoder;)Lsun/nio/cs/StreamEncoder;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=5, locals=3, args_size=3
+         0: new           #2                  // class sun/nio/cs/StreamEncoder
+         3: dup                     
+         4: aload_0                 
+         5: aload_1                 
+         6: aload_2                 
+         7: invokespecial #31                 // Method "<init>":(Ljava/io/OutputStream;Ljava/lang/Object;Ljava/nio/charset/CharsetEncoder;)V
+        10: areturn                 
+      LineNumberTable:
+        line 77: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       11     0  out    Ljava/io/OutputStream;
+           0       11     1  lock   Ljava/lang/Object;
+           0       11     2  enc    Ljava/nio/charset/CharsetEncoder;
+  
+  public static sun.nio.cs.StreamEncoder forOutputStreamWriter(java.io.OutputStream, java.nio.charset.CharsetEncoder);
+    descriptor: (Ljava/io/OutputStream;Ljava/nio/charset/CharsetEncoder;)Lsun/nio/cs/StreamEncoder;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=4, locals=2, args_size=2
+         0: new           #2                  // class sun/nio/cs/StreamEncoder
+         3: dup                     
+         4: aload_0                 
+         5: aload_1                 
+         6: invokespecial #34                 // Method "<init>":(Ljava/io/OutputStream;Ljava/nio/charset/CharsetEncoder;)V
+         9: areturn                 
+      LineNumberTable:
+        line 83: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  out    Ljava/io/OutputStream;
+           0       10     1  enc    Ljava/nio/charset/CharsetEncoder;
+  
+  public java.lang.String getEncoding();
+    descriptor: ()Ljava/lang/String;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: invokevirtual #37                 // Method isOpen:()Z
+         4: ifeq          12                
+         7: aload_0                 
+         8: invokevirtual #41                 // Method encodingName:()Ljava/lang/String;
+        11: areturn                 
+        12: aconst_null             
+        13: areturn                 
+      LineNumberTable:
+        line 93: 0
+        line 94: 7
+        line 95: 12
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       14     0  this   Lsun/nio/cs/StreamEncoder;
+      StackMapTable: number_of_entries = 1
+        frame_type = 12 /* same */
+  
+  public void flushBuffer() throws java.io.IOException;
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=3, args_size=1
+         0: aload_0                 
+         1: getfield      #45                 // Field lock:Ljava/lang/Object;
+         4: dup                     
+         5: astore_1                
+         6: monitorenter            
+         7: aload_0                 
+         8: invokevirtual #37                 // Method isOpen:()Z
+        11: ifeq          21                
+        14: aload_0                 
+        15: invokevirtual #49                 // Method implFlushBuffer:()V
+        18: goto          31                
+        21: new           #7                  // class java/io/IOException
+        24: dup                     
+        25: ldc           #9                  // String Stream closed
+        27: invokespecial #11                 // Method java/io/IOException."<init>":(Ljava/lang/String;)V
+        30: athrow                  
+        31: aload_1                 
+        32: monitorexit             
+        33: goto          41                
+        36: astore_2                
+        37: aload_1                 
+        38: monitorexit             
+        39: aload_2                 
+        40: athrow                  
+        41: return                  
+      Exception table:
+          from       to target type
+             7       33    36  any
+            36       39    36  any
+      LineNumberTable:
+        line 99: 0
+        line 100: 7
+        line 101: 14
+        line 103: 21
+        line 104: 31
+        line 105: 41
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       42     0  this   Lsun/nio/cs/StreamEncoder;
+      StackMapTable: number_of_entries = 4
+        frame_type = 252 /* append */
+          offset_delta = 21
+          locals = [class java/lang/Object]
+        frame_type = 9 /* same */
+        frame_type = 68 /* same_locals_1_stack_item */
+          stack = [ class java/lang/Throwable ]
+        frame_type = 250 /* chop */
+          offset_delta = 4
+    Exceptions:
+      throws java.io.IOException
+  
+  public void write(int) throws java.io.IOException;
+    descriptor: (I)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=3, args_size=2
+         0: iconst_1                
+         1: newarray      char              
+         3: astore_2                
+         4: aload_2                 
+         5: iconst_0                
+         6: iload_1                 
+         7: i2c                     
+         8: castore                 
+         9: aload_0                 
+        10: aload_2                 
+        11: iconst_0                
+        12: iconst_1                
+        13: invokevirtual #53                 // Method write:([CII)V
+        16: return                  
+      LineNumberTable:
+        line 108: 0
+        line 109: 4
+        line 110: 9
+        line 111: 16
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       17     0  this   Lsun/nio/cs/StreamEncoder;
+           0       17     1  c      I
+           4       13     2  cbuf   [C
+    Exceptions:
+      throws java.io.IOException
+  
+  public void write(char[], int, int) throws java.io.IOException;
+    descriptor: ([CII)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=6, args_size=4
+         0: aload_0                 
+         1: getfield      #45                 // Field lock:Ljava/lang/Object;
+         4: dup                     
+         5: astore        4                 
+         7: monitorenter            
+         8: aload_0                 
+         9: invokevirtual #57                 // Method ensureOpen:()V
+        12: iload_2                 
+        13: iflt          40                
+        16: iload_2                 
+        17: aload_1                 
+        18: arraylength             
+        19: if_icmpgt     40                
+        22: iload_3                 
+        23: iflt          40                
+        26: iload_2                 
+        27: iload_3                 
+        28: iadd                    
+        29: aload_1                 
+        30: arraylength             
+        31: if_icmpgt     40                
+        34: iload_2                 
+        35: iload_3                 
+        36: iadd                    
+        37: ifge          48                
+        40: new           #60                 // class java/lang/IndexOutOfBoundsException
+        43: dup                     
+        44: invokespecial #62                 // Method java/lang/IndexOutOfBoundsException."<init>":()V
+        47: athrow                  
+        48: iload_3                 
+        49: ifne          56                
+        52: aload         4                 
+        54: monitorexit             
+        55: return                  
+        56: aload_0                 
+        57: aload_1                 
+        58: iload_2                 
+        59: iload_3                 
+        60: invokevirtual #64                 // Method implWrite:([CII)V
+        63: aload         4                 
+        65: monitorexit             
+        66: goto          77                
+        69: astore        5                 
+        71: aload         4                 
+        73: monitorexit             
+        74: aload         5                 
+        76: athrow                  
+        77: return                  
+      Exception table:
+          from       to target type
+             8       55    69  any
+            56       66    69  any
+            69       74    69  any
+      LineNumberTable:
+        line 114: 0
+        line 115: 8
+        line 116: 12
+        line 118: 40
+        line 119: 48
+        line 120: 52
+        line 122: 56
+        line 123: 63
+        line 124: 77
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       78     0  this   Lsun/nio/cs/StreamEncoder;
+           0       78     1  cbuf   [C
+           0       78     2  off    I
+           0       78     3  len    I
+      StackMapTable: number_of_entries = 5
+        frame_type = 252 /* append */
+          offset_delta = 40
+          locals = [class java/lang/Object]
+        frame_type = 7 /* same */
+        frame_type = 7 /* same */
+        frame_type = 76 /* same_locals_1_stack_item */
+          stack = [ class java/lang/Throwable ]
+        frame_type = 250 /* chop */
+          offset_delta = 7
+    Exceptions:
+      throws java.io.IOException
+  
+  public void write(java.lang.String, int, int) throws java.io.IOException;
+    descriptor: (Ljava/lang/String;II)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=5, locals=5, args_size=4
+         0: iload_3                 
+         1: ifge          12                
+         4: new           #60                 // class java/lang/IndexOutOfBoundsException
+         7: dup                     
+         8: invokespecial #62                 // Method java/lang/IndexOutOfBoundsException."<init>":()V
+        11: athrow                  
+        12: iload_3                 
+        13: newarray      char              
+        15: astore        4                 
+        17: aload_1                 
+        18: iload_2                 
+        19: iload_2                 
+        20: iload_3                 
+        21: iadd                    
+        22: aload         4                 
+        24: iconst_0                
+        25: invokevirtual #67                 // Method java/lang/String.getChars:(II[CI)V
+        28: aload_0                 
+        29: aload         4                 
+        31: iconst_0                
+        32: iload_3                 
+        33: invokevirtual #53                 // Method write:([CII)V
+        36: return                  
+      LineNumberTable:
+        line 128: 0
+        line 129: 4
+        line 130: 12
+        line 131: 17
+        line 132: 28
+        line 133: 36
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       37     0  this   Lsun/nio/cs/StreamEncoder;
+           0       37     1  str    Ljava/lang/String;
+           0       37     2  off    I
+           0       37     3  len    I
+          17       20     4  cbuf   [C
+      StackMapTable: number_of_entries = 1
+        frame_type = 12 /* same */
+    Exceptions:
+      throws java.io.IOException
+  
+  public void write(java.nio.CharBuffer) throws java.io.IOException;
+    descriptor: (Ljava/nio/CharBuffer;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=6, args_size=2
+         0: aload_1                 
+         1: invokevirtual #73                 // Method java/nio/CharBuffer.position:()I
+         4: istore_2                
+         5: aload_0                 
+         6: getfield      #45                 // Field lock:Ljava/lang/Object;
+         9: dup                     
+        10: astore_3                
+        11: monitorenter            
+        12: aload_0                 
+        13: invokevirtual #57                 // Method ensureOpen:()V
+        16: aload_0                 
+        17: aload_1                 
+        18: invokevirtual #79                 // Method implWrite:(Ljava/nio/CharBuffer;)V
+        21: aload_3                 
+        22: monitorexit             
+        23: goto          33                
+        26: astore        4                 
+        28: aload_3                 
+        29: monitorexit             
+        30: aload         4                 
+        32: athrow                  
+        33: aload_1                 
+        34: iload_2                 
+        35: invokevirtual #82                 // Method java/nio/CharBuffer.position:(I)Ljava/nio/CharBuffer;
+        38: pop                     
+        39: goto          53                
+        42: astore        5                 
+        44: aload_1                 
+        45: iload_2                 
+        46: invokevirtual #82                 // Method java/nio/CharBuffer.position:(I)Ljava/nio/CharBuffer;
+        49: pop                     
+        50: aload         5                 
+        52: athrow                  
+        53: return                  
+      Exception table:
+          from       to target type
+            12       23    26  any
+            26       30    26  any
+             5       33    42  any
+            42       44    42  any
+      LineNumberTable:
+        line 136: 0
+        line 138: 5
+        line 139: 12
+        line 140: 16
+        line 141: 21
+        line 143: 33
+        line 144: 39
+        line 143: 42
+        line 144: 50
+        line 145: 53
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       54     0  this   Lsun/nio/cs/StreamEncoder;
+           0       54     1  cb     Ljava/nio/CharBuffer;
+           5       49     2  position I
+      StackMapTable: number_of_entries = 4
+        frame_type = 255 /* full_frame */
+          offset_delta = 26
+          locals = [class sun/nio/cs/StreamEncoder, class java/nio/CharBuffer, int, class java/lang/Object]
+          stack = [class java/lang/Throwable]
+        frame_type = 250 /* chop */
+          offset_delta = 6
+        frame_type = 72 /* same_locals_1_stack_item */
+          stack = [ class java/lang/Throwable ]
+        frame_type = 10 /* same */
+    Exceptions:
+      throws java.io.IOException
+  
+  public void flush() throws java.io.IOException;
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=3, args_size=1
+         0: aload_0                 
+         1: getfield      #45                 // Field lock:Ljava/lang/Object;
+         4: dup                     
+         5: astore_1                
+         6: monitorenter            
+         7: aload_0                 
+         8: invokevirtual #57                 // Method ensureOpen:()V
+        11: aload_0                 
+        12: invokevirtual #85                 // Method implFlush:()V
+        15: aload_1                 
+        16: monitorexit             
+        17: goto          25                
+        20: astore_2                
+        21: aload_1                 
+        22: monitorexit             
+        23: aload_2                 
+        24: athrow                  
+        25: return                  
+      Exception table:
+          from       to target type
+             7       17    20  any
+            20       23    20  any
+      LineNumberTable:
+        line 148: 0
+        line 149: 7
+        line 150: 11
+        line 151: 15
+        line 152: 25
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       26     0  this   Lsun/nio/cs/StreamEncoder;
+      StackMapTable: number_of_entries = 2
+        frame_type = 255 /* full_frame */
+          offset_delta = 20
+          locals = [class sun/nio/cs/StreamEncoder, class java/lang/Object]
+          stack = [class java/lang/Throwable]
+        frame_type = 250 /* chop */
+          offset_delta = 4
+    Exceptions:
+      throws java.io.IOException
+  
+  public void close() throws java.io.IOException;
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=4, args_size=1
+         0: aload_0                 
+         1: getfield      #45                 // Field lock:Ljava/lang/Object;
+         4: dup                     
+         5: astore_1                
+         6: monitorenter            
+         7: aload_0                 
+         8: getfield      #1                  // Field closed:Z
+        11: ifeq          17                
+        14: aload_1                 
+        15: monitorexit             
+        16: return                  
+        17: aload_0                 
+        18: invokevirtual #88                 // Method implClose:()V
+        21: aload_0                 
+        22: iconst_1                
+        23: putfield      #1                  // Field closed:Z
+        26: goto          37                
+        29: astore_2                
+        30: aload_0                 
+        31: iconst_1                
+        32: putfield      #1                  // Field closed:Z
+        35: aload_2                 
+        36: athrow                  
+        37: aload_1                 
+        38: monitorexit             
+        39: goto          47                
+        42: astore_3                
+        43: aload_1                 
+        44: monitorexit             
+        45: aload_3                 
+        46: athrow                  
+        47: return                  
+      Exception table:
+          from       to target type
+            17       21    29  any
+             7       16    42  any
+            17       39    42  any
+            42       45    42  any
+      LineNumberTable:
+        line 155: 0
+        line 156: 7
+        line 157: 14
+        line 159: 17
+        line 161: 21
+        line 162: 26
+        line 161: 29
+        line 162: 35
+        line 163: 37
+        line 164: 47
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       48     0  this   Lsun/nio/cs/StreamEncoder;
+      StackMapTable: number_of_entries = 5
+        frame_type = 252 /* append */
+          offset_delta = 17
+          locals = [class java/lang/Object]
+        frame_type = 75 /* same_locals_1_stack_item */
+          stack = [ class java/lang/Throwable ]
+        frame_type = 7 /* same */
+        frame_type = 68 /* same_locals_1_stack_item */
+          stack = [ class java/lang/Throwable ]
+        frame_type = 250 /* chop */
+          offset_delta = 4
+    Exceptions:
+      throws java.io.IOException
+  
+  private boolean isOpen();
+    descriptor: ()Z
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #1                  // Field closed:Z
+         4: ifne          11                
+         7: iconst_1                
+         8: goto          12                
+        11: iconst_0                
+        12: ireturn                 
+      LineNumberTable:
+        line 167: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       13     0  this   Lsun/nio/cs/StreamEncoder;
+      StackMapTable: number_of_entries = 2
+        frame_type = 11 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  private sun.nio.cs.StreamEncoder(java.io.OutputStream, java.lang.Object, java.nio.charset.Charset);
+    descriptor: (Ljava/io/OutputStream;Ljava/lang/Object;Ljava/nio/charset/Charset;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=5, locals=4, args_size=4
+         0: aload_0                 
+         1: aload_1                 
+         2: aload_2                 
+         3: aload_3                 
+         4: invokevirtual #91                 // Method java/nio/charset/Charset.newEncoder:()Ljava/nio/charset/CharsetEncoder;
+         7: getstatic     #95                 // Field java/nio/charset/CodingErrorAction.REPLACE:Ljava/nio/charset/CodingErrorAction;
+        10: invokevirtual #101                // Method java/nio/charset/CharsetEncoder.onMalformedInput:(Ljava/nio/charset/CodingErrorAction;)Ljava/nio/charset/CharsetEncoder;
+        13: getstatic     #95                 // Field java/nio/charset/CodingErrorAction.REPLACE:Ljava/nio/charset/CodingErrorAction;
+        16: invokevirtual #107                // Method java/nio/charset/CharsetEncoder.onUnmappableCharacter:(Ljava/nio/charset/CodingErrorAction;)Ljava/nio/charset/CharsetEncoder;
+        19: invokespecial #31                 // Method "<init>":(Ljava/io/OutputStream;Ljava/lang/Object;Ljava/nio/charset/CharsetEncoder;)V
+        22: return                  
+      LineNumberTable:
+        line 186: 0
+        line 187: 4
+        line 188: 10
+        line 189: 16
+        line 186: 19
+        line 190: 22
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       23     0  this   Lsun/nio/cs/StreamEncoder;
+           0       23     1  out    Ljava/io/OutputStream;
+           0       23     2  lock   Ljava/lang/Object;
+           0       23     3  cs     Ljava/nio/charset/Charset;
+  
+  private sun.nio.cs.StreamEncoder(java.io.OutputStream, java.lang.Object, java.nio.charset.CharsetEncoder);
+    descriptor: (Ljava/io/OutputStream;Ljava/lang/Object;Ljava/nio/charset/CharsetEncoder;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=2, locals=4, args_size=4
+         0: aload_0                 
+         1: aload_2                 
+         2: invokespecial #110                // Method java/io/Writer."<init>":(Ljava/lang/Object;)V
+         5: aload_0                 
+         6: iconst_0                
+         7: putfield      #115                // Field haveLeftoverChar:Z
+        10: aload_0                 
+        11: aconst_null             
+        12: putfield      #118                // Field lcb:Ljava/nio/CharBuffer;
+        15: aload_0                 
+        16: aload_1                 
+        17: putfield      #122                // Field out:Ljava/io/OutputStream;
+        20: aload_0                 
+        21: aload_3                 
+        22: invokevirtual #126                // Method java/nio/charset/CharsetEncoder.charset:()Ljava/nio/charset/Charset;
+        25: putfield      #130                // Field cs:Ljava/nio/charset/Charset;
+        28: aload_0                 
+        29: aload_3                 
+        30: putfield      #134                // Field encoder:Ljava/nio/charset/CharsetEncoder;
+        33: aload_0                 
+        34: sipush        512               
+        37: invokestatic  #138                // Method java/nio/ByteBuffer.allocate:(I)Ljava/nio/ByteBuffer;
+        40: putfield      #144                // Field bb:Ljava/nio/ByteBuffer;
+        43: aload_0                 
+        44: sipush        8192              
+        47: putfield      #148                // Field maxBufferCapacity:I
+        50: return                  
+      LineNumberTable:
+        line 193: 0
+        line 181: 5
+        line 183: 10
+        line 194: 15
+        line 195: 20
+        line 196: 28
+        line 198: 33
+        line 199: 43
+        line 200: 50
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       51     0  this   Lsun/nio/cs/StreamEncoder;
+           0       51     1  out    Ljava/io/OutputStream;
+           0       51     2  lock   Ljava/lang/Object;
+           0       51     3  enc    Ljava/nio/charset/CharsetEncoder;
+  
+  private sun.nio.cs.StreamEncoder(java.io.OutputStream, java.nio.charset.CharsetEncoder);
+    descriptor: (Ljava/io/OutputStream;Ljava/nio/charset/CharsetEncoder;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=2, locals=3, args_size=3
+         0: aload_0                 
+         1: invokespecial #152                // Method java/io/Writer."<init>":()V
+         4: aload_0                 
+         5: iconst_0                
+         6: putfield      #115                // Field haveLeftoverChar:Z
+         9: aload_0                 
+        10: aconst_null             
+        11: putfield      #118                // Field lcb:Ljava/nio/CharBuffer;
+        14: aload_0                 
+        15: aload_1                 
+        16: putfield      #122                // Field out:Ljava/io/OutputStream;
+        19: aload_0                 
+        20: aload_2                 
+        21: invokevirtual #126                // Method java/nio/charset/CharsetEncoder.charset:()Ljava/nio/charset/Charset;
+        24: putfield      #130                // Field cs:Ljava/nio/charset/Charset;
+        27: aload_0                 
+        28: aload_2                 
+        29: putfield      #134                // Field encoder:Ljava/nio/charset/CharsetEncoder;
+        32: aload_0                 
+        33: sipush        512               
+        36: invokestatic  #138                // Method java/nio/ByteBuffer.allocate:(I)Ljava/nio/ByteBuffer;
+        39: putfield      #144                // Field bb:Ljava/nio/ByteBuffer;
+        42: aload_0                 
+        43: sipush        8192              
+        46: putfield      #148                // Field maxBufferCapacity:I
+        49: return                  
+      LineNumberTable:
+        line 203: 0
+        line 181: 4
+        line 183: 9
+        line 204: 14
+        line 205: 19
+        line 206: 27
+        line 208: 32
+        line 209: 42
+        line 210: 49
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       50     0  this   Lsun/nio/cs/StreamEncoder;
+           0       50     1  out    Ljava/io/OutputStream;
+           0       50     2  enc    Ljava/nio/charset/CharsetEncoder;
+  
+  private void writeBytes() throws java.io.IOException;
+    descriptor: ()V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=4, locals=4, args_size=1
+         0: aload_0                 
+         1: getfield      #144                // Field bb:Ljava/nio/ByteBuffer;
+         4: invokevirtual #153                // Method java/nio/ByteBuffer.flip:()Ljava/nio/ByteBuffer;
+         7: pop                     
+         8: aload_0                 
+         9: getfield      #144                // Field bb:Ljava/nio/ByteBuffer;
+        12: invokevirtual #157                // Method java/nio/ByteBuffer.limit:()I
+        15: istore_1                
+        16: aload_0                 
+        17: getfield      #144                // Field bb:Ljava/nio/ByteBuffer;
+        20: invokevirtual #160                // Method java/nio/ByteBuffer.position:()I
+        23: istore_2                
+        24: getstatic     #161                // Field $assertionsDisabled:Z
+        27: ifne          43                
+        30: iload_2                 
+        31: iload_1                 
+        32: if_icmple     43                
+        35: new           #164                // class java/lang/AssertionError
+        38: dup                     
+        39: invokespecial #166                // Method java/lang/AssertionError."<init>":()V
+        42: athrow                  
+        43: iload_2                 
+        44: iload_1                 
+        45: if_icmpgt     54                
+        48: iload_1                 
+        49: iload_2                 
+        50: isub                    
+        51: goto          55                
+        54: iconst_0                
+        55: istore_3                
+        56: iload_3                 
+        57: ifle          84                
+        60: aload_0                 
+        61: getfield      #122                // Field out:Ljava/io/OutputStream;
+        64: aload_0                 
+        65: getfield      #144                // Field bb:Ljava/nio/ByteBuffer;
+        68: invokevirtual #167                // Method java/nio/ByteBuffer.array:()[B
+        71: aload_0                 
+        72: getfield      #144                // Field bb:Ljava/nio/ByteBuffer;
+        75: invokevirtual #171                // Method java/nio/ByteBuffer.arrayOffset:()I
+        78: iload_2                 
+        79: iadd                    
+        80: iload_3                 
+        81: invokevirtual #174                // Method java/io/OutputStream.write:([BII)V
+        84: aload_0                 
+        85: getfield      #144                // Field bb:Ljava/nio/ByteBuffer;
+        88: invokevirtual #179                // Method java/nio/ByteBuffer.clear:()Ljava/nio/ByteBuffer;
+        91: pop                     
+        92: return                  
+      LineNumberTable:
+        line 213: 0
+        line 214: 8
+        line 215: 16
+        line 216: 24
+        line 217: 43
+        line 219: 56
+        line 220: 60
+        line 222: 84
+        line 223: 92
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       93     0  this   Lsun/nio/cs/StreamEncoder;
+          16       77     1  lim    I
+          24       69     2  pos    I
+          56       37     3  rem    I
+      StackMapTable: number_of_entries = 4
+        frame_type = 253 /* append */
+          offset_delta = 43
+          locals = [int, int]
+        frame_type = 10 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 252 /* append */
+          offset_delta = 28
+          locals = [int]
+    Exceptions:
+      throws java.io.IOException
+  
+  private void flushLeftoverChar(java.nio.CharBuffer, boolean) throws java.io.IOException;
+    descriptor: (Ljava/nio/CharBuffer;Z)V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=4, locals=4, args_size=3
+         0: aload_0                 
+         1: getfield      #115                // Field haveLeftoverChar:Z
+         4: ifne          12                
+         7: iload_2                 
+         8: ifne          12                
+        11: return                  
+        12: aload_0                 
+        13: getfield      #118                // Field lcb:Ljava/nio/CharBuffer;
+        16: ifnonnull     30                
+        19: aload_0                 
+        20: iconst_2                
+        21: invokestatic  #182                // Method java/nio/CharBuffer.allocate:(I)Ljava/nio/CharBuffer;
+        24: putfield      #118                // Field lcb:Ljava/nio/CharBuffer;
+        27: goto          38                
+        30: aload_0                 
+        31: getfield      #118                // Field lcb:Ljava/nio/CharBuffer;
+        34: invokevirtual #184                // Method java/nio/CharBuffer.clear:()Ljava/nio/CharBuffer;
+        37: pop                     
+        38: aload_0                 
+        39: getfield      #115                // Field haveLeftoverChar:Z
+        42: ifeq          57                
+        45: aload_0                 
+        46: getfield      #118                // Field lcb:Ljava/nio/CharBuffer;
+        49: aload_0                 
+        50: getfield      #187                // Field leftoverChar:C
+        53: invokevirtual #191                // Method java/nio/CharBuffer.put:(C)Ljava/nio/CharBuffer;
+        56: pop                     
+        57: aload_1                 
+        58: ifnull        80                
+        61: aload_1                 
+        62: invokevirtual #195                // Method java/nio/CharBuffer.hasRemaining:()Z
+        65: ifeq          80                
+        68: aload_0                 
+        69: getfield      #118                // Field lcb:Ljava/nio/CharBuffer;
+        72: aload_1                 
+        73: invokevirtual #198                // Method java/nio/CharBuffer.get:()C
+        76: invokevirtual #191                // Method java/nio/CharBuffer.put:(C)Ljava/nio/CharBuffer;
+        79: pop                     
+        80: aload_0                 
+        81: getfield      #118                // Field lcb:Ljava/nio/CharBuffer;
+        84: invokevirtual #202                // Method java/nio/CharBuffer.flip:()Ljava/nio/CharBuffer;
+        87: pop                     
+        88: aload_0                 
+        89: getfield      #118                // Field lcb:Ljava/nio/CharBuffer;
+        92: invokevirtual #195                // Method java/nio/CharBuffer.hasRemaining:()Z
+        95: ifne          102               
+        98: iload_2                 
+        99: ifeq          237               
+       102: aload_0                 
+       103: getfield      #134                // Field encoder:Ljava/nio/charset/CharsetEncoder;
+       106: aload_0                 
+       107: getfield      #118                // Field lcb:Ljava/nio/CharBuffer;
+       110: aload_0                 
+       111: getfield      #144                // Field bb:Ljava/nio/ByteBuffer;
+       114: iload_2                 
+       115: invokevirtual #204                // Method java/nio/charset/CharsetEncoder.encode:(Ljava/nio/CharBuffer;Ljava/nio/ByteBuffer;Z)Ljava/nio/charset/CoderResult;
+       118: astore_3                
+       119: aload_3                 
+       120: invokevirtual #208                // Method java/nio/charset/CoderResult.isUnderflow:()Z
+       123: ifeq          192               
+       126: aload_0                 
+       127: getfield      #118                // Field lcb:Ljava/nio/CharBuffer;
+       130: invokevirtual #195                // Method java/nio/CharBuffer.hasRemaining:()Z
+       133: ifeq          237               
+       136: aload_0                 
+       137: aload_0                 
+       138: getfield      #118                // Field lcb:Ljava/nio/CharBuffer;
+       141: invokevirtual #198                // Method java/nio/CharBuffer.get:()C
+       144: putfield      #187                // Field leftoverChar:C
+       147: aload_1                 
+       148: ifnull        191               
+       151: aload_1                 
+       152: invokevirtual #195                // Method java/nio/CharBuffer.hasRemaining:()Z
+       155: ifeq          191               
+       158: aload_0                 
+       159: getfield      #118                // Field lcb:Ljava/nio/CharBuffer;
+       162: invokevirtual #184                // Method java/nio/CharBuffer.clear:()Ljava/nio/CharBuffer;
+       165: pop                     
+       166: aload_0                 
+       167: getfield      #118                // Field lcb:Ljava/nio/CharBuffer;
+       170: aload_0                 
+       171: getfield      #187                // Field leftoverChar:C
+       174: invokevirtual #191                // Method java/nio/CharBuffer.put:(C)Ljava/nio/CharBuffer;
+       177: aload_1                 
+       178: invokevirtual #198                // Method java/nio/CharBuffer.get:()C
+       181: invokevirtual #191                // Method java/nio/CharBuffer.put:(C)Ljava/nio/CharBuffer;
+       184: invokevirtual #202                // Method java/nio/CharBuffer.flip:()Ljava/nio/CharBuffer;
+       187: pop                     
+       188: goto          88                
+       191: return                  
+       192: aload_3                 
+       193: invokevirtual #213                // Method java/nio/charset/CoderResult.isOverflow:()Z
+       196: ifeq          230               
+       199: getstatic     #161                // Field $assertionsDisabled:Z
+       202: ifne          223               
+       205: aload_0                 
+       206: getfield      #144                // Field bb:Ljava/nio/ByteBuffer;
+       209: invokevirtual #160                // Method java/nio/ByteBuffer.position:()I
+       212: ifgt          223               
+       215: new           #164                // class java/lang/AssertionError
+       218: dup                     
+       219: invokespecial #166                // Method java/lang/AssertionError."<init>":()V
+       222: athrow                  
+       223: aload_0                 
+       224: invokevirtual #216                // Method writeBytes:()V
+       227: goto          88                
+       230: aload_3                 
+       231: invokevirtual #219                // Method java/nio/charset/CoderResult.throwException:()V
+       234: goto          88                
+       237: aload_0                 
+       238: iconst_0                
+       239: putfield      #115                // Field haveLeftoverChar:Z
+       242: return                  
+      LineNumberTable:
+        line 228: 0
+        line 229: 11
+        line 230: 12
+        line 231: 19
+        line 233: 30
+        line 234: 38
+        line 235: 45
+        line 236: 57
+        line 237: 68
+        line 238: 80
+        line 239: 88
+        line 240: 102
+        line 241: 119
+        line 242: 126
+        line 243: 136
+        line 244: 147
+        line 245: 158
+        line 246: 166
+        line 247: 188
+        line 249: 191
+        line 253: 192
+        line 254: 199
+        line 255: 223
+        line 256: 227
+        line 258: 230
+        line 259: 234
+        line 260: 237
+        line 261: 242
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+         119      115     3  cr     Ljava/nio/charset/CoderResult;
+           0      243     0  this   Lsun/nio/cs/StreamEncoder;
+           0      243     1  cb     Ljava/nio/CharBuffer;
+           0      243     2  endOfInput Z
+      StackMapTable: number_of_entries = 12
+        frame_type = 12 /* same */
+        frame_type = 17 /* same */
+        frame_type = 7 /* same */
+        frame_type = 18 /* same */
+        frame_type = 22 /* same */
+        frame_type = 7 /* same */
+        frame_type = 13 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 88
+          locals = [class java/nio/charset/CoderResult]
+        frame_type = 0 /* same */
+        frame_type = 30 /* same */
+        frame_type = 6 /* same */
+        frame_type = 250 /* chop */
+          offset_delta = 6
+    Exceptions:
+      throws java.io.IOException
+  
+  void implWrite(char[], int, int) throws java.io.IOException;
+    descriptor: ([CII)V
+    flags: (0x0000) 
+    Code: 
+      stack=3, locals=5, args_size=4
+         0: aload_1                 
+         1: iload_2                 
+         2: iload_3                 
+         3: invokestatic  #222                // Method java/nio/CharBuffer.wrap:([CII)Ljava/nio/CharBuffer;
+         6: astore        4                 
+         8: aload_0                 
+         9: aload         4                 
+        11: invokevirtual #79                 // Method implWrite:(Ljava/nio/CharBuffer;)V
+        14: return                  
+      LineNumberTable:
+        line 266: 0
+        line 267: 8
+        line 268: 14
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       15     0  this   Lsun/nio/cs/StreamEncoder;
+           0       15     1  cbuf   [C
+           0       15     2  off    I
+           0       15     3  len    I
+           8        7     4  cb     Ljava/nio/CharBuffer;
+    Exceptions:
+      throws java.io.IOException
+  
+  void implWrite(java.nio.CharBuffer) throws java.io.IOException;
+    descriptor: (Ljava/nio/CharBuffer;)V
+    flags: (0x0000) 
+    Code: 
+      stack=4, locals=3, args_size=2
+         0: aload_0                 
+         1: getfield      #115                // Field haveLeftoverChar:Z
+         4: ifeq          13                
+         7: aload_0                 
+         8: aload_1                 
+         9: iconst_0                
+        10: invokevirtual #226                // Method flushLeftoverChar:(Ljava/nio/CharBuffer;Z)V
+        13: aload_0                 
+        14: aload_1                 
+        15: invokevirtual #230                // Method java/nio/CharBuffer.remaining:()I
+        18: invokevirtual #233                // Method growByteBufferIfNeeded:(I)V
+        21: aload_1                 
+        22: invokevirtual #195                // Method java/nio/CharBuffer.hasRemaining:()Z
+        25: ifeq          144               
+        28: aload_0                 
+        29: getfield      #134                // Field encoder:Ljava/nio/charset/CharsetEncoder;
+        32: aload_1                 
+        33: aload_0                 
+        34: getfield      #144                // Field bb:Ljava/nio/ByteBuffer;
+        37: iconst_0                
+        38: invokevirtual #204                // Method java/nio/charset/CharsetEncoder.encode:(Ljava/nio/CharBuffer;Ljava/nio/ByteBuffer;Z)Ljava/nio/charset/CoderResult;
+        41: astore_2                
+        42: aload_2                 
+        43: invokevirtual #208                // Method java/nio/charset/CoderResult.isUnderflow:()Z
+        46: ifeq          99                
+        49: getstatic     #161                // Field $assertionsDisabled:Z
+        52: ifne          75                
+        55: aload_1                 
+        56: invokevirtual #230                // Method java/nio/CharBuffer.remaining:()I
+        59: iconst_1                
+        60: if_icmple     75                
+        63: new           #164                // class java/lang/AssertionError
+        66: dup                     
+        67: aload_1                 
+        68: invokevirtual #230                // Method java/nio/CharBuffer.remaining:()I
+        71: invokespecial #237                // Method java/lang/AssertionError."<init>":(I)V
+        74: athrow                  
+        75: aload_1                 
+        76: invokevirtual #230                // Method java/nio/CharBuffer.remaining:()I
+        79: iconst_1                
+        80: if_icmpne     144               
+        83: aload_0                 
+        84: iconst_1                
+        85: putfield      #115                // Field haveLeftoverChar:Z
+        88: aload_0                 
+        89: aload_1                 
+        90: invokevirtual #198                // Method java/nio/CharBuffer.get:()C
+        93: putfield      #187                // Field leftoverChar:C
+        96: goto          144               
+        99: aload_2                 
+       100: invokevirtual #213                // Method java/nio/charset/CoderResult.isOverflow:()Z
+       103: ifeq          137               
+       106: getstatic     #161                // Field $assertionsDisabled:Z
+       109: ifne          130               
+       112: aload_0                 
+       113: getfield      #144                // Field bb:Ljava/nio/ByteBuffer;
+       116: invokevirtual #160                // Method java/nio/ByteBuffer.position:()I
+       119: ifgt          130               
+       122: new           #164                // class java/lang/AssertionError
+       125: dup                     
+       126: invokespecial #166                // Method java/lang/AssertionError."<init>":()V
+       129: athrow                  
+       130: aload_0                 
+       131: invokevirtual #216                // Method writeBytes:()V
+       134: goto          21                
+       137: aload_2                 
+       138: invokevirtual #219                // Method java/nio/charset/CoderResult.throwException:()V
+       141: goto          21                
+       144: return                  
+      LineNumberTable:
+        line 273: 0
+        line 274: 7
+        line 277: 13
+        line 279: 21
+        line 280: 28
+        line 281: 42
+        line 282: 49
+        line 283: 75
+        line 284: 83
+        line 285: 88
+        line 289: 99
+        line 290: 106
+        line 291: 130
+        line 292: 134
+        line 294: 137
+        line 295: 141
+        line 296: 144
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          42       99     2  cr     Ljava/nio/charset/CoderResult;
+           0      145     0  this   Lsun/nio/cs/StreamEncoder;
+           0      145     1  cb     Ljava/nio/CharBuffer;
+      StackMapTable: number_of_entries = 7
+        frame_type = 13 /* same */
+        frame_type = 7 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 53
+          locals = [class java/nio/charset/CoderResult]
+        frame_type = 23 /* same */
+        frame_type = 30 /* same */
+        frame_type = 6 /* same */
+        frame_type = 250 /* chop */
+          offset_delta = 6
+    Exceptions:
+      throws java.io.IOException
+  
+  void growByteBufferIfNeeded(int) throws java.io.IOException;
+    descriptor: (I)V
+    flags: (0x0000) 
+    Code: 
+      stack=2, locals=5, args_size=2
+         0: aload_0                 
+         1: getfield      #144                // Field bb:Ljava/nio/ByteBuffer;
+         4: invokevirtual #239                // Method java/nio/ByteBuffer.capacity:()I
+         7: istore_2                
+         8: iload_2                 
+         9: aload_0                 
+        10: getfield      #148                // Field maxBufferCapacity:I
+        13: if_icmpge     58                
+        16: iload_1                 
+        17: aload_0                 
+        18: getfield      #134                // Field encoder:Ljava/nio/charset/CharsetEncoder;
+        21: invokevirtual #242                // Method java/nio/charset/CharsetEncoder.maxBytesPerChar:()F
+        24: invokestatic  #246                // Method java/lang/Math.round:(F)I
+        27: imul                    
+        28: istore_3                
+        29: iload_3                 
+        30: aload_0                 
+        31: getfield      #148                // Field maxBufferCapacity:I
+        34: invokestatic  #252                // Method java/lang/Math.min:(II)I
+        37: istore        4                 
+        39: iload         4                 
+        41: iload_2                 
+        42: if_icmple     58                
+        45: aload_0                 
+        46: invokevirtual #49                 // Method implFlushBuffer:()V
+        49: aload_0                 
+        50: iload         4                 
+        52: invokestatic  #138                // Method java/nio/ByteBuffer.allocate:(I)Ljava/nio/ByteBuffer;
+        55: putfield      #144                // Field bb:Ljava/nio/ByteBuffer;
+        58: return                  
+      LineNumberTable:
+        line 302: 0
+        line 303: 8
+        line 304: 16
+        line 305: 29
+        line 306: 39
+        line 307: 45
+        line 308: 49
+        line 311: 58
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          29       29     3  maxBytes I
+          39       19     4  newCap I
+           0       59     0  this   Lsun/nio/cs/StreamEncoder;
+           0       59     1  len    I
+           8       51     2  cap    I
+      StackMapTable: number_of_entries = 1
+        frame_type = 252 /* append */
+          offset_delta = 58
+          locals = [int]
+    Exceptions:
+      throws java.io.IOException
+  
+  void implFlushBuffer() throws java.io.IOException;
+    descriptor: ()V
+    flags: (0x0000) 
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #144                // Field bb:Ljava/nio/ByteBuffer;
+         4: invokevirtual #160                // Method java/nio/ByteBuffer.position:()I
+         7: ifle          14                
+        10: aload_0                 
+        11: invokevirtual #216                // Method writeBytes:()V
+        14: return                  
+      LineNumberTable:
+        line 314: 0
+        line 315: 10
+        line 317: 14
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       15     0  this   Lsun/nio/cs/StreamEncoder;
+      StackMapTable: number_of_entries = 1
+        frame_type = 14 /* same */
+    Exceptions:
+      throws java.io.IOException
+  
+  void implFlush() throws java.io.IOException;
+    descriptor: ()V
+    flags: (0x0000) 
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: invokevirtual #49                 // Method implFlushBuffer:()V
+         4: aload_0                 
+         5: getfield      #122                // Field out:Ljava/io/OutputStream;
+         8: invokevirtual #256                // Method java/io/OutputStream.flush:()V
+        11: return                  
+      LineNumberTable:
+        line 320: 0
+        line 321: 4
+        line 322: 11
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       12     0  this   Lsun/nio/cs/StreamEncoder;
+    Exceptions:
+      throws java.io.IOException
+  
+  void implClose() throws java.io.IOException;
+    descriptor: ()V
+    flags: (0x0000) 
+    Code: 
+      stack=3, locals=4, args_size=1
+         0: aload_0                 
+         1: getfield      #122                // Field out:Ljava/io/OutputStream;
+         4: astore_1                
+         5: aload_0                 
+         6: aconst_null             
+         7: iconst_1                
+         8: invokevirtual #226                // Method flushLeftoverChar:(Ljava/nio/CharBuffer;Z)V
+        11: aload_0                 
+        12: getfield      #134                // Field encoder:Ljava/nio/charset/CharsetEncoder;
+        15: aload_0                 
+        16: getfield      #144                // Field bb:Ljava/nio/ByteBuffer;
+        19: invokevirtual #259                // Method java/nio/charset/CharsetEncoder.flush:(Ljava/nio/ByteBuffer;)Ljava/nio/charset/CoderResult;
+        22: astore_2                
+        23: aload_2                 
+        24: invokevirtual #208                // Method java/nio/charset/CoderResult.isUnderflow:()Z
+        27: ifeq          33                
+        30: goto          78                
+        33: aload_2                 
+        34: invokevirtual #213                // Method java/nio/charset/CoderResult.isOverflow:()Z
+        37: ifeq          71                
+        40: getstatic     #161                // Field $assertionsDisabled:Z
+        43: ifne          64                
+        46: aload_0                 
+        47: getfield      #144                // Field bb:Ljava/nio/ByteBuffer;
+        50: invokevirtual #160                // Method java/nio/ByteBuffer.position:()I
+        53: ifgt          64                
+        56: new           #164                // class java/lang/AssertionError
+        59: dup                     
+        60: invokespecial #166                // Method java/lang/AssertionError."<init>":()V
+        63: athrow                  
+        64: aload_0                 
+        65: invokevirtual #216                // Method writeBytes:()V
+        68: goto          11                
+        71: aload_2                 
+        72: invokevirtual #219                // Method java/nio/charset/CoderResult.throwException:()V
+        75: goto          11                
+        78: aload_0                 
+        79: getfield      #144                // Field bb:Ljava/nio/ByteBuffer;
+        82: invokevirtual #160                // Method java/nio/ByteBuffer.position:()I
+        85: ifle          92                
+        88: aload_0                 
+        89: invokevirtual #216                // Method writeBytes:()V
+        92: aload_0                 
+        93: getfield      #122                // Field out:Ljava/io/OutputStream;
+        96: invokevirtual #256                // Method java/io/OutputStream.flush:()V
+        99: aload_1                 
+       100: ifnull        130               
+       103: aload_1                 
+       104: invokevirtual #262                // Method java/io/OutputStream.close:()V
+       107: goto          130               
+       110: astore_2                
+       111: aload_1                 
+       112: ifnull        128               
+       115: aload_1                 
+       116: invokevirtual #262                // Method java/io/OutputStream.close:()V
+       119: goto          128               
+       122: astore_3                
+       123: aload_2                 
+       124: aload_3                 
+       125: invokevirtual #267                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+       128: aload_2                 
+       129: athrow                  
+       130: goto          144               
+       133: astore_1                
+       134: aload_0                 
+       135: getfield      #134                // Field encoder:Ljava/nio/charset/CharsetEncoder;
+       138: invokevirtual #271                // Method java/nio/charset/CharsetEncoder.reset:()Ljava/nio/charset/CharsetEncoder;
+       141: pop                     
+       142: aload_1                 
+       143: athrow                  
+       144: return                  
+      Exception table:
+          from       to target type
+             5       99   110  Class java/lang/Throwable
+           115      119   122  Class java/lang/Throwable
+             0      130   133  Class java/io/IOException
+      LineNumberTable:
+        line 325: 0
+        line 326: 5
+        line 328: 11
+        line 329: 23
+        line 330: 30
+        line 331: 33
+        line 332: 40
+        line 333: 64
+        line 334: 68
+        line 336: 71
+        line 337: 75
+        line 339: 78
+        line 340: 88
+        line 341: 92
+        line 342: 99
+        line 325: 110
+        line 345: 130
+        line 342: 133
+        line 343: 134
+        line 344: 142
+        line 346: 144
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          23       52     2  cr     Ljava/nio/charset/CoderResult;
+         134       10     1  x      Ljava/io/IOException;
+           0      145     0  this   Lsun/nio/cs/StreamEncoder;
+      StackMapTable: number_of_entries = 12
+        frame_type = 252 /* append */
+          offset_delta = 11
+          locals = [class java/io/OutputStream]
+        frame_type = 252 /* append */
+          offset_delta = 21
+          locals = [class java/nio/charset/CoderResult]
+        frame_type = 30 /* same */
+        frame_type = 6 /* same */
+        frame_type = 250 /* chop */
+          offset_delta = 6
+        frame_type = 13 /* same */
+        frame_type = 81 /* same_locals_1_stack_item */
+          stack = [ class java/lang/Throwable ]
+        frame_type = 255 /* full_frame */
+          offset_delta = 11
+          locals = [class sun/nio/cs/StreamEncoder, class java/io/OutputStream, class java/lang/Throwable]
+          stack = [class java/lang/Throwable]
+        frame_type = 5 /* same */
+        frame_type = 249 /* chop */
+          offset_delta = 1
+        frame_type = 66 /* same_locals_1_stack_item */
+          stack = [ class java/io/IOException ]
+        frame_type = 10 /* same */
+    Exceptions:
+      throws java.io.IOException
+  
+  java.lang.String encodingName();
+    descriptor: ()Ljava/lang/String;
+    flags: (0x0000) 
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #130                // Field cs:Ljava/nio/charset/Charset;
+         4: instanceof    #274                // class sun/nio/cs/HistoricallyNamedCharset
+         7: ifeq          25                
+        10: aload_0                 
+        11: getfield      #130                // Field cs:Ljava/nio/charset/Charset;
+        14: checkcast     #274                // class sun/nio/cs/HistoricallyNamedCharset
+        17: invokeinterface #276, 1             // InterfaceMethod sun/nio/cs/HistoricallyNamedCharset.historicalName:()Ljava/lang/String;
+        22: goto          32                
+        25: aload_0                 
+        26: getfield      #130                // Field cs:Ljava/nio/charset/Charset;
+        29: invokevirtual #279                // Method java/nio/charset/Charset.name:()Ljava/lang/String;
+        32: areturn                 
+      LineNumberTable:
+        line 349: 0
+        line 350: 10
+        line 351: 25
+        line 349: 32
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       33     0  this   Lsun/nio/cs/StreamEncoder;
+      StackMapTable: number_of_entries = 2
+        frame_type = 25 /* same */
+        frame_type = 70 /* same_locals_1_stack_item */
+          stack = [ class java/lang/String ]
+  
+  static {};
+    descriptor: ()V
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=1, locals=0, args_size=0
+         0: ldc           #2                  // class sun/nio/cs/StreamEncoder
+         2: invokevirtual #282                // Method java/lang/Class.desiredAssertionStatus:()Z
+         5: ifne          12                
+         8: iconst_1                
+         9: goto          13                
+        12: iconst_0                
+        13: putstatic     #161                // Field $assertionsDisabled:Z
+        16: return                  
+      LineNumberTable:
+        line 41: 0
+      StackMapTable: number_of_entries = 2
+        frame_type = 12 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+}
+SourceFile: "StreamEncoder.java"

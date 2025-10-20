@@ -45,8 +45,8 @@ fn main() {
     let args = Args::parse();
     debug!("Provided command line arguments: {:?}", args);
     debug!("Trying to open class file: {}", args.main_class);
-    let class_file_bytes = std::fs::read(&args.main_class);
-    match class_file_bytes {
+    let jclass_bytes = std::fs::read(&args.main_class);
+    match jclass_bytes {
         Ok(bytes) => {
             debug!("Class file read successfully, size: {} bytes", bytes.len());
             let vm_config = match create_vm_configuration(args) {

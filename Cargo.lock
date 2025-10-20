@@ -218,23 +218,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b94f61472cee1439c0b966b47e3aca9ae07e45d070759512cd390ea2bebc6675"
 
 [[package]]
-name = "class_file"
-version = "0.1.0"
-dependencies = [
- "common",
- "either",
- "insta",
- "itertools",
- "num_enum",
- "rstest",
- "thiserror",
-]
-
-[[package]]
 name = "classp"
 version = "0.1.0"
 dependencies = [
- "class_file",
+ "jclass",
 ]
 
 [[package]]
@@ -554,6 +541,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2b192c782037fadd9cfa75548310488aabdbf3d2da73885b31bd0abd03351285"
 dependencies = [
  "either",
+]
+
+[[package]]
+name = "jclass"
+version = "0.1.0"
+dependencies = [
+ "common",
+ "either",
+ "insta",
+ "itertools",
+ "num_enum",
+ "rstest",
+ "thiserror",
 ]
 
 [[package]]
@@ -892,10 +892,10 @@ dependencies = [
 name = "runtime"
 version = "0.1.0"
 dependencies = [
- "class_file",
  "common",
  "dashmap",
  "insta",
+ "jclass",
  "log",
  "once_cell",
  "parking_lot",

@@ -1,0 +1,283 @@
+---
+source: jclass/src/lib.rs
+expression: display
+---
+class java.io.FileDescriptor$1 implements jdk.internal.access.JavaIOFileDescriptorAccess
+  minor version: 0
+  major version: 68
+  flags: (0x0020) ACC_SUPER
+  this_class: #45                      //java/io/FileDescriptor$1
+  super_class: #2                      //java/lang/Object
+  interfaces: 1, fields: 0, methods: 11, attributes: 4
+Constant pool:
+   #1 = Methodref          #2.#3            // java/lang/Object."<init>":()V
+   #2 = Class              #4               // java/lang/Object
+   #3 = NameAndType        #5:#6            // "<init>":()V
+   #4 = Utf8               java/lang/Object
+   #5 = Utf8               <init>
+   #6 = Utf8               ()V
+   #7 = Methodref          #8.#9            // java/io/FileDescriptor.set:(I)V
+   #8 = Class              #10              // java/io/FileDescriptor
+   #9 = NameAndType        #11:#12          // set:(I)V
+  #10 = Utf8               java/io/FileDescriptor
+  #11 = Utf8               set
+  #12 = Utf8               (I)V
+  #13 = Fieldref           #8.#14           // java/io/FileDescriptor.fd:I
+  #14 = NameAndType        #15:#16          // fd:I
+  #15 = Utf8               fd
+  #16 = Utf8               I
+  #17 = Fieldref           #8.#18           // java/io/FileDescriptor.append:Z
+  #18 = NameAndType        #19:#20          // append:Z
+  #19 = Utf8               append
+  #20 = Utf8               Z
+  #21 = Methodref          #8.#22           // java/io/FileDescriptor.close:()V
+  #22 = NameAndType        #23:#6           // close:()V
+  #23 = Utf8               close
+  #24 = Methodref          #25.#26          // java/io/FileCleanable.register:(Ljava/io/FileDescriptor;)V
+  #25 = Class              #27              // java/io/FileCleanable
+  #26 = NameAndType        #28:#29          // register:(Ljava/io/FileDescriptor;)V
+  #27 = Utf8               java/io/FileCleanable
+  #28 = Utf8               register
+  #29 = Utf8               (Ljava/io/FileDescriptor;)V
+  #30 = Methodref          #8.#31           // java/io/FileDescriptor.registerCleanup:(Ljdk/internal/ref/PhantomCleanable;)V
+  #31 = NameAndType        #32:#33          // registerCleanup:(Ljdk/internal/ref/PhantomCleanable;)V
+  #32 = Utf8               registerCleanup
+  #33 = Utf8               (Ljdk/internal/ref/PhantomCleanable;)V
+  #34 = Methodref          #8.#35           // java/io/FileDescriptor.unregisterCleanup:()V
+  #35 = NameAndType        #36:#6           // unregisterCleanup:()V
+  #36 = Utf8               unregisterCleanup
+  #37 = Methodref          #8.#38           // java/io/FileDescriptor.setHandle:(J)V
+  #38 = NameAndType        #39:#40          // setHandle:(J)V
+  #39 = Utf8               setHandle
+  #40 = Utf8               (J)V
+  #41 = Fieldref           #8.#42           // java/io/FileDescriptor.handle:J
+  #42 = NameAndType        #43:#44          // handle:J
+  #43 = Utf8               handle
+  #44 = Utf8               J
+  #45 = Class              #46              // java/io/FileDescriptor$1
+  #46 = Utf8               java/io/FileDescriptor$1
+  #47 = Class              #48              // jdk/internal/access/JavaIOFileDescriptorAccess
+  #48 = Utf8               jdk/internal/access/JavaIOFileDescriptorAccess
+  #49 = Utf8               Code
+  #50 = Utf8               LineNumberTable
+  #51 = Utf8               LocalVariableTable
+  #52 = Utf8               this
+  #53 = Utf8               Ljava/io/FileDescriptor$1;
+  #54 = Utf8               (Ljava/io/FileDescriptor;I)V
+  #55 = Utf8               fdo
+  #56 = Utf8               Ljava/io/FileDescriptor;
+  #57 = Utf8               get
+  #58 = Utf8               (Ljava/io/FileDescriptor;)I
+  #59 = Utf8               setAppend
+  #60 = Utf8               (Ljava/io/FileDescriptor;Z)V
+  #61 = Utf8               getAppend
+  #62 = Utf8               (Ljava/io/FileDescriptor;)Z
+  #63 = Utf8               Exceptions
+  #64 = Class              #65              // java/io/IOException
+  #65 = Utf8               java/io/IOException
+  #66 = Utf8               (Ljava/io/FileDescriptor;Ljdk/internal/ref/PhantomCleanable;)V
+  #67 = Utf8               cleanup
+  #68 = Utf8               Ljdk/internal/ref/PhantomCleanable;
+  #69 = Utf8               LocalVariableTypeTable
+  #70 = Utf8               Ljdk/internal/ref/PhantomCleanable<Ljava/io/FileDescriptor;>;
+  #71 = Utf8               Signature
+  #72 = Utf8               (Ljava/io/FileDescriptor;Ljdk/internal/ref/PhantomCleanable<Ljava/io/FileDescriptor;>;)V
+  #73 = Utf8               (Ljava/io/FileDescriptor;J)V
+  #74 = Utf8               getHandle
+  #75 = Utf8               (Ljava/io/FileDescriptor;)J
+  #76 = Utf8               SourceFile
+  #77 = Utf8               FileDescriptor.java
+  #78 = Utf8               EnclosingMethod
+  #79 = Utf8               NestHost
+  #80 = Utf8               InnerClasses
+{
+  java.io.FileDescriptor$1();
+    descriptor: ()V
+    flags: (0x0000) 
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return                  
+      LineNumberTable:
+        line 71: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/io/FileDescriptor$1;
+  
+  public void set(java.io.FileDescriptor, int);
+    descriptor: (Ljava/io/FileDescriptor;I)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=3, args_size=3
+         0: aload_1                 
+         1: iload_2                 
+         2: invokevirtual #7                  // Method java/io/FileDescriptor.set:(I)V
+         5: return                  
+      LineNumberTable:
+        line 73: 0
+        line 74: 5
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        6     0  this   Ljava/io/FileDescriptor$1;
+           0        6     1  fdo    Ljava/io/FileDescriptor;
+           0        6     2  fd     I
+  
+  public int get(java.io.FileDescriptor);
+    descriptor: (Ljava/io/FileDescriptor;)I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: aload_1                 
+         1: getfield      #13                 // Field java/io/FileDescriptor.fd:I
+         4: ireturn                 
+      LineNumberTable:
+        line 77: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/io/FileDescriptor$1;
+           0        5     1  fdo    Ljava/io/FileDescriptor;
+  
+  public void setAppend(java.io.FileDescriptor, boolean);
+    descriptor: (Ljava/io/FileDescriptor;Z)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=3, args_size=3
+         0: aload_1                 
+         1: iload_2                 
+         2: putfield      #17                 // Field java/io/FileDescriptor.append:Z
+         5: return                  
+      LineNumberTable:
+        line 81: 0
+        line 82: 5
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        6     0  this   Ljava/io/FileDescriptor$1;
+           0        6     1  fdo    Ljava/io/FileDescriptor;
+           0        6     2  append Z
+  
+  public boolean getAppend(java.io.FileDescriptor);
+    descriptor: (Ljava/io/FileDescriptor;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: aload_1                 
+         1: getfield      #17                 // Field java/io/FileDescriptor.append:Z
+         4: ireturn                 
+      LineNumberTable:
+        line 85: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/io/FileDescriptor$1;
+           0        5     1  fdo    Ljava/io/FileDescriptor;
+  
+  public void close(java.io.FileDescriptor) throws java.io.IOException;
+    descriptor: (Ljava/io/FileDescriptor;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: aload_1                 
+         1: invokevirtual #21                 // Method java/io/FileDescriptor.close:()V
+         4: return                  
+      LineNumberTable:
+        line 89: 0
+        line 90: 4
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/io/FileDescriptor$1;
+           0        5     1  fdo    Ljava/io/FileDescriptor;
+    Exceptions:
+      throws java.io.IOException
+  
+  public void registerCleanup(java.io.FileDescriptor);
+    descriptor: (Ljava/io/FileDescriptor;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: aload_1                 
+         1: invokestatic  #24                 // Method java/io/FileCleanable.register:(Ljava/io/FileDescriptor;)V
+         4: return                  
+      LineNumberTable:
+        line 94: 0
+        line 95: 4
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/io/FileDescriptor$1;
+           0        5     1  fdo    Ljava/io/FileDescriptor;
+  
+  public void registerCleanup(java.io.FileDescriptor, jdk.internal.ref.PhantomCleanable<java.io.FileDescriptor>);
+    descriptor: (Ljava/io/FileDescriptor;Ljdk/internal/ref/PhantomCleanable;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=3, args_size=3
+         0: aload_1                 
+         1: aload_2                 
+         2: invokevirtual #30                 // Method java/io/FileDescriptor.registerCleanup:(Ljdk/internal/ref/PhantomCleanable;)V
+         5: return                  
+      LineNumberTable:
+        line 100: 0
+        line 101: 5
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        6     0  this   Ljava/io/FileDescriptor$1;
+           0        6     1  fdo    Ljava/io/FileDescriptor;
+           0        6     2  cleanup Ljdk/internal/ref/PhantomCleanable;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        6     2  cleanup   Ljdk/internal/ref/PhantomCleanable<Ljava/io/FileDescriptor;>;
+    Signature: #72                         // (Ljava/io/FileDescriptor;Ljdk/internal/ref/PhantomCleanable<Ljava/io/FileDescriptor;>;)V
+  
+  public void unregisterCleanup(java.io.FileDescriptor);
+    descriptor: (Ljava/io/FileDescriptor;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: aload_1                 
+         1: invokevirtual #34                 // Method java/io/FileDescriptor.unregisterCleanup:()V
+         4: return                  
+      LineNumberTable:
+        line 104: 0
+        line 105: 4
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/io/FileDescriptor$1;
+           0        5     1  fdo    Ljava/io/FileDescriptor;
+  
+  public void setHandle(java.io.FileDescriptor, long);
+    descriptor: (Ljava/io/FileDescriptor;J)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=4, args_size=3
+         0: aload_1                 
+         1: lload_2                 
+         2: invokevirtual #37                 // Method java/io/FileDescriptor.setHandle:(J)V
+         5: return                  
+      LineNumberTable:
+        line 108: 0
+        line 109: 5
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        6     0  this   Ljava/io/FileDescriptor$1;
+           0        6     1  fdo    Ljava/io/FileDescriptor;
+           0        6     2  handle J
+  
+  public long getHandle(java.io.FileDescriptor);
+    descriptor: (Ljava/io/FileDescriptor;)J
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_1                 
+         1: getfield      #41                 // Field java/io/FileDescriptor.handle:J
+         4: lreturn                 
+      LineNumberTable:
+        line 112: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/io/FileDescriptor$1;
+           0        5     1  fdo    Ljava/io/FileDescriptor;
+}
+SourceFile: "FileDescriptor.java"
+EnclosingMethod: #8.#0   // java.io.FileDescriptor
+NestHost: class java/io/FileDescriptor
+InnerClasses:
+  #45;                                        // class java/io/FileDescriptor$1

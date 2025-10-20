@@ -1,0 +1,719 @@
+---
+source: jclass/src/lib.rs
+expression: display
+---
+class java.util.Collections$SetFromMap <E extends java.lang.Object> extends java.util.AbstractSet<E> implements java.util.Set<E>, java.io.Serializable
+  minor version: 0
+  major version: 68
+  flags: (0x0020) ACC_SUPER
+  this_class: #8                       //java/util/Collections$SetFromMap
+  super_class: #2                      //java/util/AbstractSet
+  interfaces: 2, fields: 3, methods: 23, attributes: 4
+Constant pool:
+    #1 = Methodref          #2.#3            // java/util/AbstractSet."<init>":()V
+    #2 = Class              #4               // java/util/AbstractSet
+    #3 = NameAndType        #5:#6            // "<init>":()V
+    #4 = Utf8               java/util/AbstractSet
+    #5 = Utf8               <init>
+    #6 = Utf8               ()V
+    #7 = Fieldref           #8.#9            // java/util/Collections$SetFromMap.m:Ljava/util/Map;
+    #8 = Class              #10              // java/util/Collections$SetFromMap
+    #9 = NameAndType        #11:#12          // m:Ljava/util/Map;
+   #10 = Utf8               java/util/Collections$SetFromMap
+   #11 = Utf8               m
+   #12 = Utf8               Ljava/util/Map;
+   #13 = InterfaceMethodref #14.#15          // java/util/Map.keySet:()Ljava/util/Set;
+   #14 = Class              #16              // java/util/Map
+   #15 = NameAndType        #17:#18          // keySet:()Ljava/util/Set;
+   #16 = Utf8               java/util/Map
+   #17 = Utf8               keySet
+   #18 = Utf8               ()Ljava/util/Set;
+   #19 = Fieldref           #8.#20           // java/util/Collections$SetFromMap.s:Ljava/util/Set;
+   #20 = NameAndType        #21:#22          // s:Ljava/util/Set;
+   #21 = Utf8               s
+   #22 = Utf8               Ljava/util/Set;
+   #23 = InterfaceMethodref #14.#24          // java/util/Map.clear:()V
+   #24 = NameAndType        #25:#6           // clear:()V
+   #25 = Utf8               clear
+   #26 = InterfaceMethodref #14.#27          // java/util/Map.size:()I
+   #27 = NameAndType        #28:#29          // size:()I
+   #28 = Utf8               size
+   #29 = Utf8               ()I
+   #30 = InterfaceMethodref #14.#31          // java/util/Map.isEmpty:()Z
+   #31 = NameAndType        #32:#33          // isEmpty:()Z
+   #32 = Utf8               isEmpty
+   #33 = Utf8               ()Z
+   #34 = InterfaceMethodref #14.#35          // java/util/Map.containsKey:(Ljava/lang/Object;)Z
+   #35 = NameAndType        #36:#37          // containsKey:(Ljava/lang/Object;)Z
+   #36 = Utf8               containsKey
+   #37 = Utf8               (Ljava/lang/Object;)Z
+   #38 = InterfaceMethodref #14.#39          // java/util/Map.remove:(Ljava/lang/Object;)Ljava/lang/Object;
+   #39 = NameAndType        #40:#41          // remove:(Ljava/lang/Object;)Ljava/lang/Object;
+   #40 = Utf8               remove
+   #41 = Utf8               (Ljava/lang/Object;)Ljava/lang/Object;
+   #42 = Fieldref           #43.#44          // java/lang/Boolean.TRUE:Ljava/lang/Boolean;
+   #43 = Class              #45              // java/lang/Boolean
+   #44 = NameAndType        #46:#47          // TRUE:Ljava/lang/Boolean;
+   #45 = Utf8               java/lang/Boolean
+   #46 = Utf8               TRUE
+   #47 = Utf8               Ljava/lang/Boolean;
+   #48 = InterfaceMethodref #14.#49          // java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+   #49 = NameAndType        #50:#51          // put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+   #50 = Utf8               put
+   #51 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+   #52 = InterfaceMethodref #53.#54          // java/util/Set.iterator:()Ljava/util/Iterator;
+   #53 = Class              #55              // java/util/Set
+   #54 = NameAndType        #56:#57          // iterator:()Ljava/util/Iterator;
+   #55 = Utf8               java/util/Set
+   #56 = Utf8               iterator
+   #57 = Utf8               ()Ljava/util/Iterator;
+   #58 = InterfaceMethodref #53.#59          // java/util/Set.toArray:()[Ljava/lang/Object;
+   #59 = NameAndType        #60:#61          // toArray:()[Ljava/lang/Object;
+   #60 = Utf8               toArray
+   #61 = Utf8               ()[Ljava/lang/Object;
+   #62 = InterfaceMethodref #53.#63          // java/util/Set.toArray:([Ljava/lang/Object;)[Ljava/lang/Object;
+   #63 = NameAndType        #60:#64          // toArray:([Ljava/lang/Object;)[Ljava/lang/Object;
+   #64 = Utf8               ([Ljava/lang/Object;)[Ljava/lang/Object;
+   #65 = InterfaceMethodref #53.#66          // java/util/Set.toString:()Ljava/lang/String;
+   #66 = NameAndType        #67:#68          // toString:()Ljava/lang/String;
+   #67 = Utf8               toString
+   #68 = Utf8               ()Ljava/lang/String;
+   #69 = InterfaceMethodref #53.#70          // java/util/Set.hashCode:()I
+   #70 = NameAndType        #71:#29          // hashCode:()I
+   #71 = Utf8               hashCode
+   #72 = InterfaceMethodref #53.#73          // java/util/Set.equals:(Ljava/lang/Object;)Z
+   #73 = NameAndType        #74:#37          // equals:(Ljava/lang/Object;)Z
+   #74 = Utf8               equals
+   #75 = InterfaceMethodref #53.#76          // java/util/Set.containsAll:(Ljava/util/Collection;)Z
+   #76 = NameAndType        #77:#78          // containsAll:(Ljava/util/Collection;)Z
+   #77 = Utf8               containsAll
+   #78 = Utf8               (Ljava/util/Collection;)Z
+   #79 = InterfaceMethodref #53.#80          // java/util/Set.removeAll:(Ljava/util/Collection;)Z
+   #80 = NameAndType        #81:#78          // removeAll:(Ljava/util/Collection;)Z
+   #81 = Utf8               removeAll
+   #82 = InterfaceMethodref #53.#83          // java/util/Set.retainAll:(Ljava/util/Collection;)Z
+   #83 = NameAndType        #84:#78          // retainAll:(Ljava/util/Collection;)Z
+   #84 = Utf8               retainAll
+   #85 = InterfaceMethodref #53.#86          // java/util/Set.forEach:(Ljava/util/function/Consumer;)V
+   #86 = NameAndType        #87:#88          // forEach:(Ljava/util/function/Consumer;)V
+   #87 = Utf8               forEach
+   #88 = Utf8               (Ljava/util/function/Consumer;)V
+   #89 = InterfaceMethodref #53.#90          // java/util/Set.removeIf:(Ljava/util/function/Predicate;)Z
+   #90 = NameAndType        #91:#92          // removeIf:(Ljava/util/function/Predicate;)Z
+   #91 = Utf8               removeIf
+   #92 = Utf8               (Ljava/util/function/Predicate;)Z
+   #93 = InterfaceMethodref #53.#94          // java/util/Set.spliterator:()Ljava/util/Spliterator;
+   #94 = NameAndType        #95:#96          // spliterator:()Ljava/util/Spliterator;
+   #95 = Utf8               spliterator
+   #96 = Utf8               ()Ljava/util/Spliterator;
+   #97 = InterfaceMethodref #53.#98          // java/util/Set.stream:()Ljava/util/stream/Stream;
+   #98 = NameAndType        #99:#100         // stream:()Ljava/util/stream/Stream;
+   #99 = Utf8               stream
+  #100 = Utf8               ()Ljava/util/stream/Stream;
+  #101 = InterfaceMethodref #53.#102         // java/util/Set.parallelStream:()Ljava/util/stream/Stream;
+  #102 = NameAndType        #103:#100        // parallelStream:()Ljava/util/stream/Stream;
+  #103 = Utf8               parallelStream
+  #104 = Methodref          #105.#106        // java/io/ObjectInputStream.defaultReadObject:()V
+  #105 = Class              #107             // java/io/ObjectInputStream
+  #106 = NameAndType        #108:#6          // defaultReadObject:()V
+  #107 = Utf8               java/io/ObjectInputStream
+  #108 = Utf8               defaultReadObject
+  #109 = Class              #110             // java/io/InvalidObjectException
+  #110 = Utf8               java/io/InvalidObjectException
+  #111 = String             #112             // missing SetFromMap data
+  #112 = Utf8               missing SetFromMap data
+  #113 = Methodref          #109.#114        // java/io/InvalidObjectException."<init>":(Ljava/lang/String;)V
+  #114 = NameAndType        #5:#115          // "<init>":(Ljava/lang/String;)V
+  #115 = Utf8               (Ljava/lang/String;)V
+  #116 = Class              #117             // java/io/Serializable
+  #117 = Utf8               java/io/Serializable
+  #118 = Utf8               Signature
+  #119 = Utf8               Ljava/util/Map<TE;Ljava/lang/Boolean;>;
+  #120 = Utf8               Ljava/util/Set<TE;>;
+  #121 = Utf8               serialVersionUID
+  #122 = Utf8               J
+  #123 = Utf8               ConstantValue
+  #124 = Long               2454657854757543876l
+  #126 = Utf8               (Ljava/util/Map;)V
+  #127 = Utf8               Code
+  #128 = Utf8               LineNumberTable
+  #129 = Utf8               LocalVariableTable
+  #130 = Utf8               this
+  #131 = Utf8               Ljava/util/Collections$SetFromMap;
+  #132 = Utf8               map
+  #133 = Utf8               LocalVariableTypeTable
+  #134 = Utf8               Ljava/util/Collections$SetFromMap<TE;>;
+  #135 = Utf8               (Ljava/util/Map<TE;Ljava/lang/Boolean;>;)V
+  #136 = Utf8               contains
+  #137 = Utf8               o
+  #138 = Utf8               Ljava/lang/Object;
+  #139 = Utf8               StackMapTable
+  #140 = Utf8               add
+  #141 = Utf8               e
+  #142 = Utf8               TE;
+  #143 = Utf8               (TE;)Z
+  #144 = Utf8               ()Ljava/util/Iterator<TE;>;
+  #145 = Utf8               a
+  #146 = Utf8               [Ljava/lang/Object;
+  #147 = Utf8               [TT;
+  #148 = Utf8               <T:Ljava/lang/Object;>([TT;)[TT;
+  #149 = Utf8               c
+  #150 = Utf8               Ljava/util/Collection;
+  #151 = Utf8               Ljava/util/Collection<*>;
+  #152 = Utf8               (Ljava/util/Collection<*>;)Z
+  #153 = Utf8               action
+  #154 = Utf8               Ljava/util/function/Consumer;
+  #155 = Utf8               Ljava/util/function/Consumer<-TE;>;
+  #156 = Utf8               (Ljava/util/function/Consumer<-TE;>;)V
+  #157 = Utf8               filter
+  #158 = Utf8               Ljava/util/function/Predicate;
+  #159 = Utf8               Ljava/util/function/Predicate<-TE;>;
+  #160 = Utf8               (Ljava/util/function/Predicate<-TE;>;)Z
+  #161 = Utf8               ()Ljava/util/Spliterator<TE;>;
+  #162 = Utf8               ()Ljava/util/stream/Stream<TE;>;
+  #163 = Utf8               readObject
+  #164 = Utf8               (Ljava/io/ObjectInputStream;)V
+  #165 = Utf8               Ljava/io/ObjectInputStream;
+  #166 = Utf8               Exceptions
+  #167 = Class              #168             // java/io/IOException
+  #168 = Utf8               java/io/IOException
+  #169 = Class              #170             // java/lang/ClassNotFoundException
+  #170 = Utf8               java/lang/ClassNotFoundException
+  #171 = Utf8               readObjectNoData
+  #172 = Class              #173             // java/io/ObjectStreamException
+  #173 = Utf8               java/io/ObjectStreamException
+  #174 = Utf8               <E:Ljava/lang/Object;>Ljava/util/AbstractSet<TE;>;Ljava/util/Set<TE;>;Ljava/io/Serializable;
+  #175 = Utf8               SourceFile
+  #176 = Utf8               Collections.java
+  #177 = Utf8               NestHost
+  #178 = Class              #179             // java/util/Collections
+  #179 = Utf8               java/util/Collections
+  #180 = Utf8               InnerClasses
+  #181 = Utf8               SetFromMap
+{
+  final java.util.Map<E, java.lang.Boolean> m;
+    descriptor: Ljava/util/Map;
+    flags: (0x0010) ACC_FINAL
+    Signature: #119                        // Ljava/util/Map<TE;Ljava/lang/Boolean;>;
+  
+  private transient java.util.Set<E> s;
+    descriptor: Ljava/util/Set;
+    flags: (0x0082) ACC_PRIVATE, ACC_TRANSIENT
+    Signature: #120                        // Ljava/util/Set<TE;>;
+  
+  private static final long serialVersionUID;
+    descriptor: J
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: long 2454657854757543876l
+  
+  java.util.Collections$SetFromMap(java.util.Map<E, java.lang.Boolean>);
+    descriptor: (Ljava/util/Map;)V
+    flags: (0x0000) 
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: invokespecial #1                  // Method java/util/AbstractSet."<init>":()V
+         4: aload_0                 
+         5: aload_1                 
+         6: putfield      #7                  // Field m:Ljava/util/Map;
+         9: aload_0                 
+        10: aload_1                 
+        11: invokeinterface #13, 1              // InterfaceMethod java/util/Map.keySet:()Ljava/util/Set;
+        16: putfield      #19                 // Field s:Ljava/util/Set;
+        19: return                  
+      LineNumberTable:
+        line 5921: 0
+        line 5922: 4
+        line 5923: 9
+        line 5924: 19
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       20     0  this   Ljava/util/Collections$SetFromMap;
+           0       20     1  map    Ljava/util/Map;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       20     0  this   Ljava/util/Collections$SetFromMap<TE;>;
+             0       20     1  map    Ljava/util/Map<TE;Ljava/lang/Boolean;>;
+    Signature: #135                        // (Ljava/util/Map<TE;Ljava/lang/Boolean;>;)V
+  
+  public void clear();
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #7                  // Field m:Ljava/util/Map;
+         4: invokeinterface #23, 1              // InterfaceMethod java/util/Map.clear:()V
+         9: return                  
+      LineNumberTable:
+        line 5926: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/util/Collections$SetFromMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       10     0  this   Ljava/util/Collections$SetFromMap<TE;>;
+  
+  public int size();
+    descriptor: ()I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #7                  // Field m:Ljava/util/Map;
+         4: invokeinterface #26, 1              // InterfaceMethod java/util/Map.size:()I
+         9: ireturn                 
+      LineNumberTable:
+        line 5927: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/util/Collections$SetFromMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       10     0  this   Ljava/util/Collections$SetFromMap<TE;>;
+  
+  public boolean isEmpty();
+    descriptor: ()Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #7                  // Field m:Ljava/util/Map;
+         4: invokeinterface #30, 1              // InterfaceMethod java/util/Map.isEmpty:()Z
+         9: ireturn                 
+      LineNumberTable:
+        line 5928: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/util/Collections$SetFromMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       10     0  this   Ljava/util/Collections$SetFromMap<TE;>;
+  
+  public boolean contains(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #7                  // Field m:Ljava/util/Map;
+         4: aload_1                 
+         5: invokeinterface #34, 2              // InterfaceMethod java/util/Map.containsKey:(Ljava/lang/Object;)Z
+        10: ireturn                 
+      LineNumberTable:
+        line 5929: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       11     0  this   Ljava/util/Collections$SetFromMap;
+           0       11     1  o      Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       11     0  this   Ljava/util/Collections$SetFromMap<TE;>;
+  
+  public boolean remove(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #7                  // Field m:Ljava/util/Map;
+         4: aload_1                 
+         5: invokeinterface #38, 2              // InterfaceMethod java/util/Map.remove:(Ljava/lang/Object;)Ljava/lang/Object;
+        10: ifnull        17                
+        13: iconst_1                
+        14: goto          18                
+        17: iconst_0                
+        18: ireturn                 
+      LineNumberTable:
+        line 5930: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       19     0  this   Ljava/util/Collections$SetFromMap;
+           0       19     1  o      Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       19     0  this   Ljava/util/Collections$SetFromMap<TE;>;
+      StackMapTable: number_of_entries = 2
+        frame_type = 17 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  public boolean add(E);
+    descriptor: (Ljava/lang/Object;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #7                  // Field m:Ljava/util/Map;
+         4: aload_1                 
+         5: getstatic     #42                 // Field java/lang/Boolean.TRUE:Ljava/lang/Boolean;
+         8: invokeinterface #48, 3              // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        13: ifnonnull     20                
+        16: iconst_1                
+        17: goto          21                
+        20: iconst_0                
+        21: ireturn                 
+      LineNumberTable:
+        line 5931: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       22     0  this   Ljava/util/Collections$SetFromMap;
+           0       22     1  e      Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       22     0  this   Ljava/util/Collections$SetFromMap<TE;>;
+             0       22     1  e      TE;
+      StackMapTable: number_of_entries = 2
+        frame_type = 20 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+    Signature: #143                        // (TE;)Z
+  
+  public java.util.Iterator<E> iterator();
+    descriptor: ()Ljava/util/Iterator;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #19                 // Field s:Ljava/util/Set;
+         4: invokeinterface #52, 1              // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+         9: areturn                 
+      LineNumberTable:
+        line 5932: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/util/Collections$SetFromMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       10     0  this   Ljava/util/Collections$SetFromMap<TE;>;
+    Signature: #144                        // ()Ljava/util/Iterator<TE;>;
+  
+  public java.lang.Object[] toArray();
+    descriptor: ()[Ljava/lang/Object;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #19                 // Field s:Ljava/util/Set;
+         4: invokeinterface #58, 1              // InterfaceMethod java/util/Set.toArray:()[Ljava/lang/Object;
+         9: areturn                 
+      LineNumberTable:
+        line 5933: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/util/Collections$SetFromMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       10     0  this   Ljava/util/Collections$SetFromMap<TE;>;
+  
+  public <T extends java.lang.Object> T[] toArray(T[]);
+    descriptor: ([Ljava/lang/Object;)[Ljava/lang/Object;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #19                 // Field s:Ljava/util/Set;
+         4: aload_1                 
+         5: invokeinterface #62, 2              // InterfaceMethod java/util/Set.toArray:([Ljava/lang/Object;)[Ljava/lang/Object;
+        10: areturn                 
+      LineNumberTable:
+        line 5934: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       11     0  this   Ljava/util/Collections$SetFromMap;
+           0       11     1  a      [Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       11     0  this   Ljava/util/Collections$SetFromMap<TE;>;
+             0       11     1  a      [TT;
+    Signature: #148                        // <T:Ljava/lang/Object;>([TT;)[TT;
+  
+  public java.lang.String toString();
+    descriptor: ()Ljava/lang/String;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #19                 // Field s:Ljava/util/Set;
+         4: invokeinterface #65, 1              // InterfaceMethod java/util/Set.toString:()Ljava/lang/String;
+         9: areturn                 
+      LineNumberTable:
+        line 5935: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/util/Collections$SetFromMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       10     0  this   Ljava/util/Collections$SetFromMap<TE;>;
+  
+  public int hashCode();
+    descriptor: ()I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #19                 // Field s:Ljava/util/Set;
+         4: invokeinterface #69, 1              // InterfaceMethod java/util/Set.hashCode:()I
+         9: ireturn                 
+      LineNumberTable:
+        line 5936: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/util/Collections$SetFromMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       10     0  this   Ljava/util/Collections$SetFromMap<TE;>;
+  
+  public boolean equals(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_1                 
+         1: aload_0                 
+         2: if_acmpeq     18                
+         5: aload_0                 
+         6: getfield      #19                 // Field s:Ljava/util/Set;
+         9: aload_1                 
+        10: invokeinterface #72, 2              // InterfaceMethod java/util/Set.equals:(Ljava/lang/Object;)Z
+        15: ifeq          22                
+        18: iconst_1                
+        19: goto          23                
+        22: iconst_0                
+        23: ireturn                 
+      LineNumberTable:
+        line 5937: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       24     0  this   Ljava/util/Collections$SetFromMap;
+           0       24     1  o      Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       24     0  this   Ljava/util/Collections$SetFromMap<TE;>;
+      StackMapTable: number_of_entries = 3
+        frame_type = 18 /* same */
+        frame_type = 3 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  public boolean containsAll(java.util.Collection<?>);
+    descriptor: (Ljava/util/Collection;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #19                 // Field s:Ljava/util/Set;
+         4: aload_1                 
+         5: invokeinterface #75, 2              // InterfaceMethod java/util/Set.containsAll:(Ljava/util/Collection;)Z
+        10: ireturn                 
+      LineNumberTable:
+        line 5938: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       11     0  this   Ljava/util/Collections$SetFromMap;
+           0       11     1  c      Ljava/util/Collection;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       11     0  this   Ljava/util/Collections$SetFromMap<TE;>;
+             0       11     1  c      Ljava/util/Collection<*>;
+    Signature: #152                        // (Ljava/util/Collection<*>;)Z
+  
+  public boolean removeAll(java.util.Collection<?>);
+    descriptor: (Ljava/util/Collection;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #19                 // Field s:Ljava/util/Set;
+         4: aload_1                 
+         5: invokeinterface #79, 2              // InterfaceMethod java/util/Set.removeAll:(Ljava/util/Collection;)Z
+        10: ireturn                 
+      LineNumberTable:
+        line 5939: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       11     0  this   Ljava/util/Collections$SetFromMap;
+           0       11     1  c      Ljava/util/Collection;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       11     0  this   Ljava/util/Collections$SetFromMap<TE;>;
+             0       11     1  c      Ljava/util/Collection<*>;
+    Signature: #152                        // (Ljava/util/Collection<*>;)Z
+  
+  public boolean retainAll(java.util.Collection<?>);
+    descriptor: (Ljava/util/Collection;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #19                 // Field s:Ljava/util/Set;
+         4: aload_1                 
+         5: invokeinterface #82, 2              // InterfaceMethod java/util/Set.retainAll:(Ljava/util/Collection;)Z
+        10: ireturn                 
+      LineNumberTable:
+        line 5940: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       11     0  this   Ljava/util/Collections$SetFromMap;
+           0       11     1  c      Ljava/util/Collection;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       11     0  this   Ljava/util/Collections$SetFromMap<TE;>;
+             0       11     1  c      Ljava/util/Collection<*>;
+    Signature: #152                        // (Ljava/util/Collection<*>;)Z
+  
+  public void forEach(java.util.function.Consumer<? super E>);
+    descriptor: (Ljava/util/function/Consumer;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #19                 // Field s:Ljava/util/Set;
+         4: aload_1                 
+         5: invokeinterface #85, 2              // InterfaceMethod java/util/Set.forEach:(Ljava/util/function/Consumer;)V
+        10: return                  
+      LineNumberTable:
+        line 5946: 0
+        line 5947: 10
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       11     0  this   Ljava/util/Collections$SetFromMap;
+           0       11     1  action Ljava/util/function/Consumer;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       11     0  this   Ljava/util/Collections$SetFromMap<TE;>;
+             0       11     1  action   Ljava/util/function/Consumer<-TE;>;
+    Signature: #156                        // (Ljava/util/function/Consumer<-TE;>;)V
+  
+  public boolean removeIf(java.util.function.Predicate<? super E>);
+    descriptor: (Ljava/util/function/Predicate;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #19                 // Field s:Ljava/util/Set;
+         4: aload_1                 
+         5: invokeinterface #89, 2              // InterfaceMethod java/util/Set.removeIf:(Ljava/util/function/Predicate;)Z
+        10: ireturn                 
+      LineNumberTable:
+        line 5950: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       11     0  this   Ljava/util/Collections$SetFromMap;
+           0       11     1  filter Ljava/util/function/Predicate;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       11     0  this   Ljava/util/Collections$SetFromMap<TE;>;
+             0       11     1  filter   Ljava/util/function/Predicate<-TE;>;
+    Signature: #160                        // (Ljava/util/function/Predicate<-TE;>;)Z
+  
+  public java.util.Spliterator<E> spliterator();
+    descriptor: ()Ljava/util/Spliterator;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #19                 // Field s:Ljava/util/Set;
+         4: invokeinterface #93, 1              // InterfaceMethod java/util/Set.spliterator:()Ljava/util/Spliterator;
+         9: areturn                 
+      LineNumberTable:
+        line 5954: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/util/Collections$SetFromMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       10     0  this   Ljava/util/Collections$SetFromMap<TE;>;
+    Signature: #161                        // ()Ljava/util/Spliterator<TE;>;
+  
+  public java.util.stream.Stream<E> stream();
+    descriptor: ()Ljava/util/stream/Stream;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #19                 // Field s:Ljava/util/Set;
+         4: invokeinterface #97, 1              // InterfaceMethod java/util/Set.stream:()Ljava/util/stream/Stream;
+         9: areturn                 
+      LineNumberTable:
+        line 5956: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/util/Collections$SetFromMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       10     0  this   Ljava/util/Collections$SetFromMap<TE;>;
+    Signature: #162                        // ()Ljava/util/stream/Stream<TE;>;
+  
+  public java.util.stream.Stream<E> parallelStream();
+    descriptor: ()Ljava/util/stream/Stream;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #19                 // Field s:Ljava/util/Set;
+         4: invokeinterface #101, 1             // InterfaceMethod java/util/Set.parallelStream:()Ljava/util/stream/Stream;
+         9: areturn                 
+      LineNumberTable:
+        line 5958: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/util/Collections$SetFromMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       10     0  this   Ljava/util/Collections$SetFromMap<TE;>;
+    Signature: #162                        // ()Ljava/util/stream/Stream<TE;>;
+  
+  private void readObject(java.io.ObjectInputStream) throws java.io.IOException, java.lang.ClassNotFoundException;
+    descriptor: (Ljava/io/ObjectInputStream;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_1                 
+         1: invokevirtual #104                // Method java/io/ObjectInputStream.defaultReadObject:()V
+         4: aload_0                 
+         5: aload_0                 
+         6: getfield      #7                  // Field m:Ljava/util/Map;
+         9: invokeinterface #13, 1              // InterfaceMethod java/util/Map.keySet:()Ljava/util/Set;
+        14: putfield      #19                 // Field s:Ljava/util/Set;
+        17: return                  
+      LineNumberTable:
+        line 5967: 0
+        line 5968: 4
+        line 5969: 17
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       18     0  this   Ljava/util/Collections$SetFromMap;
+           0       18     1  stream Ljava/io/ObjectInputStream;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       18     0  this   Ljava/util/Collections$SetFromMap<TE;>;
+    Exceptions:
+      throws java.io.IOException, java.lang.ClassNotFoundException
+  
+  private void readObjectNoData() throws java.io.ObjectStreamException;
+    descriptor: ()V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=3, locals=1, args_size=1
+         0: new           #109                // class java/io/InvalidObjectException
+         3: dup                     
+         4: ldc           #111                // String missing SetFromMap data
+         6: invokespecial #113                // Method java/io/InvalidObjectException."<init>":(Ljava/lang/String;)V
+         9: athrow                  
+      LineNumberTable:
+        line 5973: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/util/Collections$SetFromMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       10     0  this   Ljava/util/Collections$SetFromMap<TE;>;
+    Exceptions:
+      throws java.io.ObjectStreamException
+}
+Signature: #174                        // <E:Ljava/lang/Object;>Ljava/util/AbstractSet<TE;>;Ljava/util/Set<TE;>;Ljava/io/Serializable;
+SourceFile: "Collections.java"
+NestHost: class java/util/Collections
+InnerClasses:
+  private static #181= #8 of #178;            // SetFromMap=class java/util/Collections$SetFromMap of class java/util/Collections

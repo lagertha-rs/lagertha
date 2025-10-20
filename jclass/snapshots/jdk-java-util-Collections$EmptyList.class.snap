@@ -1,0 +1,545 @@
+---
+source: jclass/src/lib.rs
+expression: display
+---
+class java.util.Collections$EmptyList <E extends java.lang.Object> extends java.util.AbstractList<E> implements java.util.RandomAccess, java.io.Serializable
+  minor version: 0
+  major version: 68
+  flags: (0x0020) ACC_SUPER
+  this_class: #65                      //java/util/Collections$EmptyList
+  super_class: #2                      //java/util/AbstractList
+  interfaces: 2, fields: 1, methods: 19, attributes: 4
+Constant pool:
+    #1 = Methodref          #2.#3            // java/util/AbstractList."<init>":()V
+    #2 = Class              #4               // java/util/AbstractList
+    #3 = NameAndType        #5:#6            // "<init>":()V
+    #4 = Utf8               java/util/AbstractList
+    #5 = Utf8               <init>
+    #6 = Utf8               ()V
+    #7 = Methodref          #8.#9            // java/util/Collections.emptyIterator:()Ljava/util/Iterator;
+    #8 = Class              #10              // java/util/Collections
+    #9 = NameAndType        #11:#12          // emptyIterator:()Ljava/util/Iterator;
+   #10 = Utf8               java/util/Collections
+   #11 = Utf8               emptyIterator
+   #12 = Utf8               ()Ljava/util/Iterator;
+   #13 = Methodref          #8.#14           // java/util/Collections.emptyListIterator:()Ljava/util/ListIterator;
+   #14 = NameAndType        #15:#16          // emptyListIterator:()Ljava/util/ListIterator;
+   #15 = Utf8               emptyListIterator
+   #16 = Utf8               ()Ljava/util/ListIterator;
+   #17 = InterfaceMethodref #18.#19          // java/util/Collection.isEmpty:()Z
+   #18 = Class              #20              // java/util/Collection
+   #19 = NameAndType        #21:#22          // isEmpty:()Z
+   #20 = Utf8               java/util/Collection
+   #21 = Utf8               isEmpty
+   #22 = Utf8               ()Z
+   #23 = Class              #24              // java/lang/Object
+   #24 = Utf8               java/lang/Object
+   #25 = Class              #26              // java/lang/IndexOutOfBoundsException
+   #26 = Utf8               java/lang/IndexOutOfBoundsException
+   #27 = Class              #28              // java/lang/StringBuilder
+   #28 = Utf8               java/lang/StringBuilder
+   #29 = Methodref          #27.#3           // java/lang/StringBuilder."<init>":()V
+   #30 = String             #31              // Index: 
+   #31 = Utf8               Index: 
+   #32 = Methodref          #27.#33          // java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+   #33 = NameAndType        #34:#35          // append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+   #34 = Utf8               append
+   #35 = Utf8               (Ljava/lang/String;)Ljava/lang/StringBuilder;
+   #36 = Methodref          #27.#37          // java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+   #37 = NameAndType        #34:#38          // append:(I)Ljava/lang/StringBuilder;
+   #38 = Utf8               (I)Ljava/lang/StringBuilder;
+   #39 = Methodref          #27.#40          // java/lang/StringBuilder.toString:()Ljava/lang/String;
+   #40 = NameAndType        #41:#42          // toString:()Ljava/lang/String;
+   #41 = Utf8               toString
+   #42 = Utf8               ()Ljava/lang/String;
+   #43 = Methodref          #25.#44          // java/lang/IndexOutOfBoundsException."<init>":(Ljava/lang/String;)V
+   #44 = NameAndType        #5:#45           // "<init>":(Ljava/lang/String;)V
+   #45 = Utf8               (Ljava/lang/String;)V
+   #46 = Class              #47              // java/util/List
+   #47 = Utf8               java/util/List
+   #48 = InterfaceMethodref #46.#19          // java/util/List.isEmpty:()Z
+   #49 = Methodref          #50.#51          // java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+   #50 = Class              #52              // java/util/Objects
+   #51 = NameAndType        #53:#54          // requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+   #52 = Utf8               java/util/Objects
+   #53 = Utf8               requireNonNull
+   #54 = Utf8               (Ljava/lang/Object;)Ljava/lang/Object;
+   #55 = Methodref          #56.#57          // java/util/Spliterators.emptySpliterator:()Ljava/util/Spliterator;
+   #56 = Class              #58              // java/util/Spliterators
+   #57 = NameAndType        #59:#60          // emptySpliterator:()Ljava/util/Spliterator;
+   #58 = Utf8               java/util/Spliterators
+   #59 = Utf8               emptySpliterator
+   #60 = Utf8               ()Ljava/util/Spliterator;
+   #61 = Fieldref           #8.#62           // java/util/Collections.EMPTY_LIST:Ljava/util/List;
+   #62 = NameAndType        #63:#64          // EMPTY_LIST:Ljava/util/List;
+   #63 = Utf8               EMPTY_LIST
+   #64 = Utf8               Ljava/util/List;
+   #65 = Class              #66              // java/util/Collections$EmptyList
+   #66 = Utf8               java/util/Collections$EmptyList
+   #67 = Class              #68              // java/util/RandomAccess
+   #68 = Utf8               java/util/RandomAccess
+   #69 = Class              #70              // java/io/Serializable
+   #70 = Utf8               java/io/Serializable
+   #71 = Utf8               serialVersionUID
+   #72 = Utf8               J
+   #73 = Utf8               ConstantValue
+   #74 = Long               8842843931221139166l
+   #76 = Utf8               Code
+   #77 = Utf8               LineNumberTable
+   #78 = Utf8               LocalVariableTable
+   #79 = Utf8               this
+   #80 = Utf8               Ljava/util/Collections$EmptyList;
+   #81 = Utf8               LocalVariableTypeTable
+   #82 = Utf8               Ljava/util/Collections$EmptyList<TE;>;
+   #83 = Utf8               iterator
+   #84 = Utf8               Signature
+   #85 = Utf8               ()Ljava/util/Iterator<TE;>;
+   #86 = Utf8               listIterator
+   #87 = Utf8               ()Ljava/util/ListIterator<TE;>;
+   #88 = Utf8               size
+   #89 = Utf8               ()I
+   #90 = Utf8               clear
+   #91 = Utf8               contains
+   #92 = Utf8               (Ljava/lang/Object;)Z
+   #93 = Utf8               obj
+   #94 = Utf8               Ljava/lang/Object;
+   #95 = Utf8               containsAll
+   #96 = Utf8               (Ljava/util/Collection;)Z
+   #97 = Utf8               c
+   #98 = Utf8               Ljava/util/Collection;
+   #99 = Utf8               Ljava/util/Collection<*>;
+  #100 = Utf8               (Ljava/util/Collection<*>;)Z
+  #101 = Utf8               toArray
+  #102 = Utf8               ()[Ljava/lang/Object;
+  #103 = Utf8               ([Ljava/lang/Object;)[Ljava/lang/Object;
+  #104 = Utf8               a
+  #105 = Utf8               [Ljava/lang/Object;
+  #106 = Utf8               [TT;
+  #107 = Utf8               StackMapTable
+  #108 = Utf8               <T:Ljava/lang/Object;>([TT;)[TT;
+  #109 = Utf8               get
+  #110 = Utf8               (I)Ljava/lang/Object;
+  #111 = Utf8               index
+  #112 = Utf8               I
+  #113 = Utf8               (I)TE;
+  #114 = Utf8               equals
+  #115 = Utf8               o
+  #116 = Utf8               hashCode
+  #117 = Utf8               removeIf
+  #118 = Utf8               (Ljava/util/function/Predicate;)Z
+  #119 = Utf8               filter
+  #120 = Utf8               Ljava/util/function/Predicate;
+  #121 = Utf8               Ljava/util/function/Predicate<-TE;>;
+  #122 = Utf8               (Ljava/util/function/Predicate<-TE;>;)Z
+  #123 = Utf8               replaceAll
+  #124 = Utf8               (Ljava/util/function/UnaryOperator;)V
+  #125 = Utf8               operator
+  #126 = Utf8               Ljava/util/function/UnaryOperator;
+  #127 = Utf8               Ljava/util/function/UnaryOperator<TE;>;
+  #128 = Utf8               (Ljava/util/function/UnaryOperator<TE;>;)V
+  #129 = Utf8               sort
+  #130 = Utf8               (Ljava/util/Comparator;)V
+  #131 = Utf8               Ljava/util/Comparator;
+  #132 = Utf8               Ljava/util/Comparator<-TE;>;
+  #133 = Utf8               (Ljava/util/Comparator<-TE;>;)V
+  #134 = Utf8               forEach
+  #135 = Utf8               (Ljava/util/function/Consumer;)V
+  #136 = Utf8               action
+  #137 = Utf8               Ljava/util/function/Consumer;
+  #138 = Utf8               Ljava/util/function/Consumer<-TE;>;
+  #139 = Utf8               (Ljava/util/function/Consumer<-TE;>;)V
+  #140 = Utf8               spliterator
+  #141 = Utf8               ()Ljava/util/Spliterator<TE;>;
+  #142 = Utf8               readResolve
+  #143 = Utf8               ()Ljava/lang/Object;
+  #144 = Utf8               <E:Ljava/lang/Object;>Ljava/util/AbstractList<TE;>;Ljava/util/RandomAccess;Ljava/io/Serializable;
+  #145 = Utf8               SourceFile
+  #146 = Utf8               Collections.java
+  #147 = Utf8               NestHost
+  #148 = Utf8               InnerClasses
+  #149 = Utf8               EmptyList
+{
+  private static final long serialVersionUID;
+    descriptor: J
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: long 8842843931221139166l
+  
+  private java.util.Collections$EmptyList();
+    descriptor: ()V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: invokespecial #1                  // Method java/util/AbstractList."<init>":()V
+         4: return                  
+      LineNumberTable:
+        line 4780: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/util/Collections$EmptyList;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        5     0  this   Ljava/util/Collections$EmptyList<TE;>;
+  
+  public java.util.Iterator<E> iterator();
+    descriptor: ()Ljava/util/Iterator;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: invokestatic  #7                  // Method java/util/Collections.emptyIterator:()Ljava/util/Iterator;
+         3: areturn                 
+      LineNumberTable:
+        line 4787: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        4     0  this   Ljava/util/Collections$EmptyList;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        4     0  this   Ljava/util/Collections$EmptyList<TE;>;
+    Signature: #85                         // ()Ljava/util/Iterator<TE;>;
+  
+  public java.util.ListIterator<E> listIterator();
+    descriptor: ()Ljava/util/ListIterator;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: invokestatic  #13                 // Method java/util/Collections.emptyListIterator:()Ljava/util/ListIterator;
+         3: areturn                 
+      LineNumberTable:
+        line 4790: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        4     0  this   Ljava/util/Collections$EmptyList;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        4     0  this   Ljava/util/Collections$EmptyList<TE;>;
+    Signature: #87                         // ()Ljava/util/ListIterator<TE;>;
+  
+  public int size();
+    descriptor: ()I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: iconst_0                
+         1: ireturn                 
+      LineNumberTable:
+        line 4793: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        2     0  this   Ljava/util/Collections$EmptyList;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        2     0  this   Ljava/util/Collections$EmptyList<TE;>;
+  
+  public boolean isEmpty();
+    descriptor: ()Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: iconst_1                
+         1: ireturn                 
+      LineNumberTable:
+        line 4794: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        2     0  this   Ljava/util/Collections$EmptyList;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        2     0  this   Ljava/util/Collections$EmptyList<TE;>;
+  
+  public void clear();
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=0, locals=1, args_size=1
+         0: return                  
+      LineNumberTable:
+        line 4795: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        1     0  this   Ljava/util/Collections$EmptyList;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        1     0  this   Ljava/util/Collections$EmptyList<TE;>;
+  
+  public boolean contains(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: iconst_0                
+         1: ireturn                 
+      LineNumberTable:
+        line 4797: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        2     0  this   Ljava/util/Collections$EmptyList;
+           0        2     1  obj    Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        2     0  this   Ljava/util/Collections$EmptyList<TE;>;
+  
+  public boolean containsAll(java.util.Collection<?>);
+    descriptor: (Ljava/util/Collection;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: aload_1                 
+         1: invokeinterface #17, 1              // InterfaceMethod java/util/Collection.isEmpty:()Z
+         6: ireturn                 
+      LineNumberTable:
+        line 4798: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        7     0  this   Ljava/util/Collections$EmptyList;
+           0        7     1  c      Ljava/util/Collection;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        7     0  this   Ljava/util/Collections$EmptyList<TE;>;
+             0        7     1  c      Ljava/util/Collection<*>;
+    Signature: #100                        // (Ljava/util/Collection<*>;)Z
+  
+  public java.lang.Object[] toArray();
+    descriptor: ()[Ljava/lang/Object;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: iconst_0                
+         1: anewarray     #23                 // class java/lang/Object
+         4: areturn                 
+      LineNumberTable:
+        line 4800: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/util/Collections$EmptyList;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        5     0  this   Ljava/util/Collections$EmptyList<TE;>;
+  
+  public <T extends java.lang.Object> T[] toArray(T[]);
+    descriptor: ([Ljava/lang/Object;)[Ljava/lang/Object;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=2, args_size=2
+         0: aload_1                 
+         1: arraylength             
+         2: ifle          9                 
+         5: aload_1                 
+         6: iconst_0                
+         7: aconst_null             
+         8: aastore                 
+         9: aload_1                 
+        10: areturn                 
+      LineNumberTable:
+        line 4803: 0
+        line 4804: 5
+        line 4805: 9
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       11     0  this   Ljava/util/Collections$EmptyList;
+           0       11     1  a      [Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       11     0  this   Ljava/util/Collections$EmptyList<TE;>;
+             0       11     1  a      [TT;
+      StackMapTable: number_of_entries = 1
+        frame_type = 9 /* same */
+    Signature: #108                        // <T:Ljava/lang/Object;>([TT;)[TT;
+  
+  public E get(int);
+    descriptor: (I)Ljava/lang/Object;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=2, args_size=2
+         0: new           #25                 // class java/lang/IndexOutOfBoundsException
+         3: dup                     
+         4: new           #27                 // class java/lang/StringBuilder
+         7: dup                     
+         8: invokespecial #29                 // Method java/lang/StringBuilder."<init>":()V
+        11: ldc           #30                 // String Index: 
+        13: invokevirtual #32                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        16: iload_1                 
+        17: invokevirtual #36                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+        20: invokevirtual #39                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        23: invokespecial #43                 // Method java/lang/IndexOutOfBoundsException."<init>":(Ljava/lang/String;)V
+        26: athrow                  
+      LineNumberTable:
+        line 4809: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       27     0  this   Ljava/util/Collections$EmptyList;
+           0       27     1  index  I
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       27     0  this   Ljava/util/Collections$EmptyList<TE;>;
+    Signature: #113                        // (I)TE;
+  
+  public boolean equals(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: aload_1                 
+         1: instanceof    #46                 // class java/util/List
+         4: ifeq          23                
+         7: aload_1                 
+         8: checkcast     #46                 // class java/util/List
+        11: invokeinterface #48, 1              // InterfaceMethod java/util/List.isEmpty:()Z
+        16: ifeq          23                
+        19: iconst_1                
+        20: goto          24                
+        23: iconst_0                
+        24: ireturn                 
+      LineNumberTable:
+        line 4813: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       25     0  this   Ljava/util/Collections$EmptyList;
+           0       25     1  o      Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       25     0  this   Ljava/util/Collections$EmptyList<TE;>;
+      StackMapTable: number_of_entries = 2
+        frame_type = 23 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  public int hashCode();
+    descriptor: ()I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: iconst_1                
+         1: ireturn                 
+      LineNumberTable:
+        line 4816: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        2     0  this   Ljava/util/Collections$EmptyList;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        2     0  this   Ljava/util/Collections$EmptyList<TE;>;
+  
+  public boolean removeIf(java.util.function.Predicate<? super E>);
+    descriptor: (Ljava/util/function/Predicate;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: aload_1                 
+         1: invokestatic  #49                 // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+         4: pop                     
+         5: iconst_0                
+         6: ireturn                 
+      LineNumberTable:
+        line 4820: 0
+        line 4821: 5
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        7     0  this   Ljava/util/Collections$EmptyList;
+           0        7     1  filter Ljava/util/function/Predicate;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        7     0  this   Ljava/util/Collections$EmptyList<TE;>;
+             0        7     1  filter   Ljava/util/function/Predicate<-TE;>;
+    Signature: #122                        // (Ljava/util/function/Predicate<-TE;>;)Z
+  
+  public void replaceAll(java.util.function.UnaryOperator<E>);
+    descriptor: (Ljava/util/function/UnaryOperator;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: aload_1                 
+         1: invokestatic  #49                 // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+         4: pop                     
+         5: return                  
+      LineNumberTable:
+        line 4825: 0
+        line 4826: 5
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        6     0  this   Ljava/util/Collections$EmptyList;
+           0        6     1  operator Ljava/util/function/UnaryOperator;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        6     0  this   Ljava/util/Collections$EmptyList<TE;>;
+             0        6     1  operator   Ljava/util/function/UnaryOperator<TE;>;
+    Signature: #128                        // (Ljava/util/function/UnaryOperator<TE;>;)V
+  
+  public void sort(java.util.Comparator<? super E>);
+    descriptor: (Ljava/util/Comparator;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=0, locals=2, args_size=2
+         0: return                  
+      LineNumberTable:
+        line 4829: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        1     0  this   Ljava/util/Collections$EmptyList;
+           0        1     1  c      Ljava/util/Comparator;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        1     0  this   Ljava/util/Collections$EmptyList<TE;>;
+             0        1     1  c      Ljava/util/Comparator<-TE;>;
+    Signature: #133                        // (Ljava/util/Comparator<-TE;>;)V
+  
+  public void forEach(java.util.function.Consumer<? super E>);
+    descriptor: (Ljava/util/function/Consumer;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: aload_1                 
+         1: invokestatic  #49                 // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+         4: pop                     
+         5: return                  
+      LineNumberTable:
+        line 4834: 0
+        line 4835: 5
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        6     0  this   Ljava/util/Collections$EmptyList;
+           0        6     1  action Ljava/util/function/Consumer;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        6     0  this   Ljava/util/Collections$EmptyList<TE;>;
+             0        6     1  action   Ljava/util/function/Consumer<-TE;>;
+    Signature: #139                        // (Ljava/util/function/Consumer<-TE;>;)V
+  
+  public java.util.Spliterator<E> spliterator();
+    descriptor: ()Ljava/util/Spliterator;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: invokestatic  #55                 // Method java/util/Spliterators.emptySpliterator:()Ljava/util/Spliterator;
+         3: areturn                 
+      LineNumberTable:
+        line 4838: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        4     0  this   Ljava/util/Collections$EmptyList;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        4     0  this   Ljava/util/Collections$EmptyList<TE;>;
+    Signature: #141                        // ()Ljava/util/Spliterator<TE;>;
+  
+  private java.lang.Object readResolve();
+    descriptor: ()Ljava/lang/Object;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: getstatic     #61                 // Field java/util/Collections.EMPTY_LIST:Ljava/util/List;
+         3: areturn                 
+      LineNumberTable:
+        line 4843: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        4     0  this   Ljava/util/Collections$EmptyList;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        4     0  this   Ljava/util/Collections$EmptyList<TE;>;
+}
+Signature: #144                        // <E:Ljava/lang/Object;>Ljava/util/AbstractList<TE;>;Ljava/util/RandomAccess;Ljava/io/Serializable;
+SourceFile: "Collections.java"
+NestHost: class java/util/Collections
+InnerClasses:
+  private static #149= #65 of #8;             // EmptyList=class java/util/Collections$EmptyList of class java/util/Collections

@@ -1,9 +1,9 @@
 use crate::error::JvmError;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::constant_pool::reference::FieldDescriptorReference;
-use class_file::field::FieldInfo;
-use class_file::flags::FieldFlags;
 use common::jtype::Value;
+use jclass::field::FieldInfo;
+use jclass::flags::FieldFlags;
 use std::cell::{Ref, RefCell};
 use std::ops::Deref;
 use std::sync::Arc;

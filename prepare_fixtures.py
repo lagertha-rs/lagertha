@@ -10,7 +10,7 @@ from typing import Dict, List, Optional
 
 DEFAULT_EXPECTED = "javac 24.0.2"
 DEFAULT_OUT_DIR = "target/test-classes"
-DEFAULT_CONFIG = "class_file/fixtures.toml"
+DEFAULT_CONFIG = "jclass/fixtures.toml"
 
 RUNTIME_SRC_ROOT = Path("runtime/testdata")
 VM_SRC_ROOT = Path("vm/testdata")

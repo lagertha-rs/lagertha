@@ -1,0 +1,117 @@
+---
+source: jclass/src/lib.rs
+expression: display
+---
+class classes.default_fields_values.InstanceDefaultValuesMain$ClassWithFields 
+  minor version: 0
+  major version: 68
+  flags: (0x0020) ACC_SUPER
+  this_class: #7                       //classes/default_fields_values/InstanceDefaultValuesMain$ClassWithFields
+  super_class: #2                      //java/lang/Object
+  interfaces: 0, fields: 11, methods: 1, attributes: 3
+Constant pool:
+   #1 = Methodref          #2.#3            // java/lang/Object."<init>":()V
+   #2 = Class              #4               // java/lang/Object
+   #3 = NameAndType        #5:#6            // "<init>":()V
+   #4 = Utf8               java/lang/Object
+   #5 = Utf8               <init>
+   #6 = Utf8               ()V
+   #7 = Class              #8               // classes/default_fields_values/InstanceDefaultValuesMain$ClassWithFields
+   #8 = Utf8               classes/default_fields_values/InstanceDefaultValuesMain$ClassWithFields
+   #9 = Utf8               str
+  #10 = Utf8               Ljava/lang/String;
+  #11 = Utf8               obj
+  #12 = Utf8               Ljava/lang/Object;
+  #13 = Utf8               intArray
+  #14 = Utf8               [I
+  #15 = Utf8               boolField
+  #16 = Utf8               Z
+  #17 = Utf8               byteField
+  #18 = Utf8               B
+  #19 = Utf8               shortField
+  #20 = Utf8               S
+  #21 = Utf8               charField
+  #22 = Utf8               C
+  #23 = Utf8               intField
+  #24 = Utf8               I
+  #25 = Utf8               longField
+  #26 = Utf8               J
+  #27 = Utf8               floatField
+  #28 = Utf8               F
+  #29 = Utf8               doubleField
+  #30 = Utf8               D
+  #31 = Utf8               Code
+  #32 = Utf8               LineNumberTable
+  #33 = Utf8               LocalVariableTable
+  #34 = Utf8               this
+  #35 = Utf8               Lclasses/default_fields_values/InstanceDefaultValuesMain$ClassWithFields;
+  #36 = Utf8               SourceFile
+  #37 = Utf8               InstanceDefaultValuesMain.java
+  #38 = Utf8               NestHost
+  #39 = Class              #40              // classes/default_fields_values/InstanceDefaultValuesMain
+  #40 = Utf8               classes/default_fields_values/InstanceDefaultValuesMain
+  #41 = Utf8               InnerClasses
+  #42 = Utf8               ClassWithFields
+{
+  private java.lang.String str;
+    descriptor: Ljava/lang/String;
+    flags: (0x0002) ACC_PRIVATE
+  
+  private java.lang.Object obj;
+    descriptor: Ljava/lang/Object;
+    flags: (0x0002) ACC_PRIVATE
+  
+  private int[] intArray;
+    descriptor: [I
+    flags: (0x0002) ACC_PRIVATE
+  
+  private boolean boolField;
+    descriptor: Z
+    flags: (0x0002) ACC_PRIVATE
+  
+  private byte byteField;
+    descriptor: B
+    flags: (0x0002) ACC_PRIVATE
+  
+  private short shortField;
+    descriptor: S
+    flags: (0x0002) ACC_PRIVATE
+  
+  private char charField;
+    descriptor: C
+    flags: (0x0002) ACC_PRIVATE
+  
+  private int intField;
+    descriptor: I
+    flags: (0x0002) ACC_PRIVATE
+  
+  private long longField;
+    descriptor: J
+    flags: (0x0002) ACC_PRIVATE
+  
+  private float floatField;
+    descriptor: F
+    flags: (0x0002) ACC_PRIVATE
+  
+  private double doubleField;
+    descriptor: D
+    flags: (0x0002) ACC_PRIVATE
+  
+  classes.default_fields_values.InstanceDefaultValuesMain$ClassWithFields();
+    descriptor: ()V
+    flags: (0x0000) 
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return                  
+      LineNumberTable:
+        line 4: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Lclasses/default_fields_values/InstanceDefaultValuesMain$ClassWithFields;
+}
+SourceFile: "InstanceDefaultValuesMain.java"
+NestHost: class classes/default_fields_values/InstanceDefaultValuesMain
+InnerClasses:
+  static #42= #7 of #39;                      // ClassWithFields=class classes/default_fields_values/InstanceDefaultValuesMain$ClassWithFields of class classes/default_fields_values/InstanceDefaultValuesMain

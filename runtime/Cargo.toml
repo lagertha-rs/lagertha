@@ -12,7 +12,7 @@ parking_lot = "0.12"
 thiserror = { workspace = true }
 tracing-log = { workspace = true }
 
-class_file = { path = "../class_file" }
+jclass = { path = "../jclass" }
 common = { path = "../common" }
 
 # TODO to be deleted

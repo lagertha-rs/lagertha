@@ -1,0 +1,90 @@
+---
+source: jclass/src/lib.rs
+expression: display
+---
+public class java.nio.charset.IllegalCharsetNameException extends java.lang.IllegalArgumentException
+  minor version: 0
+  major version: 68
+  flags: (0x0021) ACC_PUBLIC, ACC_SUPER
+  this_class: #14                      //java/nio/charset/IllegalCharsetNameException
+  super_class: #8                      //java/lang/IllegalArgumentException
+  interfaces: 0, fields: 2, methods: 2, attributes: 1
+Constant pool:
+   #1 = Methodref          #2.#3            // java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+   #2 = Class              #4               // java/lang/String
+   #3 = NameAndType        #5:#6            // valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+   #4 = Utf8               java/lang/String
+   #5 = Utf8               valueOf
+   #6 = Utf8               (Ljava/lang/Object;)Ljava/lang/String;
+   #7 = Methodref          #8.#9            // java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+   #8 = Class              #10              // java/lang/IllegalArgumentException
+   #9 = NameAndType        #11:#12          // "<init>":(Ljava/lang/String;)V
+  #10 = Utf8               java/lang/IllegalArgumentException
+  #11 = Utf8               <init>
+  #12 = Utf8               (Ljava/lang/String;)V
+  #13 = Fieldref           #14.#15          // java/nio/charset/IllegalCharsetNameException.charsetName:Ljava/lang/String;
+  #14 = Class              #16              // java/nio/charset/IllegalCharsetNameException
+  #15 = NameAndType        #17:#18          // charsetName:Ljava/lang/String;
+  #16 = Utf8               java/nio/charset/IllegalCharsetNameException
+  #17 = Utf8               charsetName
+  #18 = Utf8               Ljava/lang/String;
+  #19 = Utf8               serialVersionUID
+  #20 = Utf8               J
+  #21 = Utf8               ConstantValue
+  #22 = Long               1457525358470002989l
+  #24 = Utf8               Code
+  #25 = Utf8               LineNumberTable
+  #26 = Utf8               LocalVariableTable
+  #27 = Utf8               this
+  #28 = Utf8               Ljava/nio/charset/IllegalCharsetNameException;
+  #29 = Utf8               getCharsetName
+  #30 = Utf8               ()Ljava/lang/String;
+  #31 = Utf8               SourceFile
+  #32 = Utf8               IllegalCharsetNameException.java
+{
+  private static final long serialVersionUID;
+    descriptor: J
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: long 1457525358470002989l
+  
+  private java.lang.String charsetName;
+    descriptor: Ljava/lang/String;
+    flags: (0x0002) ACC_PRIVATE
+  
+  public java.nio.charset.IllegalCharsetNameException(java.lang.String);
+    descriptor: (Ljava/lang/String;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: aload_1                 
+         2: invokestatic  #1                  // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+         5: invokespecial #7                  // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+         8: aload_0                 
+         9: aload_1                 
+        10: putfield      #13                 // Field charsetName:Ljava/lang/String;
+        13: return                  
+      LineNumberTable:
+        line 59: 0
+        line 60: 8
+        line 61: 13
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       14     0  this   Ljava/nio/charset/IllegalCharsetNameException;
+           0       14     1  charsetName Ljava/lang/String;
+  
+  public java.lang.String getCharsetName();
+    descriptor: ()Ljava/lang/String;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #13                 // Field charsetName:Ljava/lang/String;
+         4: areturn                 
+      LineNumberTable:
+        line 69: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/nio/charset/IllegalCharsetNameException;
+}
+SourceFile: "IllegalCharsetNameException.java"

@@ -1,0 +1,201 @@
+---
+source: jclass/src/lib.rs
+expression: display
+---
+public final class java.nio.charset.StandardCharsets 
+  minor version: 0
+  major version: 68
+  flags: (0x0031) ACC_PUBLIC, ACC_FINAL, ACC_SUPER
+  this_class: #21                      //java/nio/charset/StandardCharsets
+  super_class: #2                      //java/lang/Object
+  interfaces: 0, fields: 9, methods: 2, attributes: 1
+Constant pool:
+   #1 = Methodref          #2.#3            // java/lang/Object."<init>":()V
+   #2 = Class              #4               // java/lang/Object
+   #3 = NameAndType        #5:#6            // "<init>":()V
+   #4 = Utf8               java/lang/Object
+   #5 = Utf8               <init>
+   #6 = Utf8               ()V
+   #7 = Class              #8               // java/lang/AssertionError
+   #8 = Utf8               java/lang/AssertionError
+   #9 = String             #10              // No java.nio.charset.StandardCharsets instances for you!
+  #10 = Utf8               No java.nio.charset.StandardCharsets instances for you!
+  #11 = Methodref          #7.#12           // java/lang/AssertionError."<init>":(Ljava/lang/Object;)V
+  #12 = NameAndType        #5:#13           // "<init>":(Ljava/lang/Object;)V
+  #13 = Utf8               (Ljava/lang/Object;)V
+  #14 = Fieldref           #15.#16          // sun/nio/cs/US_ASCII.INSTANCE:Lsun/nio/cs/US_ASCII;
+  #15 = Class              #17              // sun/nio/cs/US_ASCII
+  #16 = NameAndType        #18:#19          // INSTANCE:Lsun/nio/cs/US_ASCII;
+  #17 = Utf8               sun/nio/cs/US_ASCII
+  #18 = Utf8               INSTANCE
+  #19 = Utf8               Lsun/nio/cs/US_ASCII;
+  #20 = Fieldref           #21.#22          // java/nio/charset/StandardCharsets.US_ASCII:Ljava/nio/charset/Charset;
+  #21 = Class              #23              // java/nio/charset/StandardCharsets
+  #22 = NameAndType        #24:#25          // US_ASCII:Ljava/nio/charset/Charset;
+  #23 = Utf8               java/nio/charset/StandardCharsets
+  #24 = Utf8               US_ASCII
+  #25 = Utf8               Ljava/nio/charset/Charset;
+  #26 = Fieldref           #27.#28          // sun/nio/cs/ISO_8859_1.INSTANCE:Lsun/nio/cs/ISO_8859_1;
+  #27 = Class              #29              // sun/nio/cs/ISO_8859_1
+  #28 = NameAndType        #18:#30          // INSTANCE:Lsun/nio/cs/ISO_8859_1;
+  #29 = Utf8               sun/nio/cs/ISO_8859_1
+  #30 = Utf8               Lsun/nio/cs/ISO_8859_1;
+  #31 = Fieldref           #21.#32          // java/nio/charset/StandardCharsets.ISO_8859_1:Ljava/nio/charset/Charset;
+  #32 = NameAndType        #33:#25          // ISO_8859_1:Ljava/nio/charset/Charset;
+  #33 = Utf8               ISO_8859_1
+  #34 = Fieldref           #35.#36          // sun/nio/cs/UTF_8.INSTANCE:Lsun/nio/cs/UTF_8;
+  #35 = Class              #37              // sun/nio/cs/UTF_8
+  #36 = NameAndType        #18:#38          // INSTANCE:Lsun/nio/cs/UTF_8;
+  #37 = Utf8               sun/nio/cs/UTF_8
+  #38 = Utf8               Lsun/nio/cs/UTF_8;
+  #39 = Fieldref           #21.#40          // java/nio/charset/StandardCharsets.UTF_8:Ljava/nio/charset/Charset;
+  #40 = NameAndType        #41:#25          // UTF_8:Ljava/nio/charset/Charset;
+  #41 = Utf8               UTF_8
+  #42 = Class              #43              // sun/nio/cs/UTF_16BE
+  #43 = Utf8               sun/nio/cs/UTF_16BE
+  #44 = Methodref          #42.#3           // sun/nio/cs/UTF_16BE."<init>":()V
+  #45 = Fieldref           #21.#46          // java/nio/charset/StandardCharsets.UTF_16BE:Ljava/nio/charset/Charset;
+  #46 = NameAndType        #47:#25          // UTF_16BE:Ljava/nio/charset/Charset;
+  #47 = Utf8               UTF_16BE
+  #48 = Class              #49              // sun/nio/cs/UTF_16LE
+  #49 = Utf8               sun/nio/cs/UTF_16LE
+  #50 = Methodref          #48.#3           // sun/nio/cs/UTF_16LE."<init>":()V
+  #51 = Fieldref           #21.#52          // java/nio/charset/StandardCharsets.UTF_16LE:Ljava/nio/charset/Charset;
+  #52 = NameAndType        #53:#25          // UTF_16LE:Ljava/nio/charset/Charset;
+  #53 = Utf8               UTF_16LE
+  #54 = Class              #55              // sun/nio/cs/UTF_16
+  #55 = Utf8               sun/nio/cs/UTF_16
+  #56 = Methodref          #54.#3           // sun/nio/cs/UTF_16."<init>":()V
+  #57 = Fieldref           #21.#58          // java/nio/charset/StandardCharsets.UTF_16:Ljava/nio/charset/Charset;
+  #58 = NameAndType        #59:#25          // UTF_16:Ljava/nio/charset/Charset;
+  #59 = Utf8               UTF_16
+  #60 = Class              #61              // sun/nio/cs/UTF_32BE
+  #61 = Utf8               sun/nio/cs/UTF_32BE
+  #62 = Methodref          #60.#3           // sun/nio/cs/UTF_32BE."<init>":()V
+  #63 = Fieldref           #21.#64          // java/nio/charset/StandardCharsets.UTF_32BE:Ljava/nio/charset/Charset;
+  #64 = NameAndType        #65:#25          // UTF_32BE:Ljava/nio/charset/Charset;
+  #65 = Utf8               UTF_32BE
+  #66 = Class              #67              // sun/nio/cs/UTF_32LE
+  #67 = Utf8               sun/nio/cs/UTF_32LE
+  #68 = Methodref          #66.#3           // sun/nio/cs/UTF_32LE."<init>":()V
+  #69 = Fieldref           #21.#70          // java/nio/charset/StandardCharsets.UTF_32LE:Ljava/nio/charset/Charset;
+  #70 = NameAndType        #71:#25          // UTF_32LE:Ljava/nio/charset/Charset;
+  #71 = Utf8               UTF_32LE
+  #72 = Class              #73              // sun/nio/cs/UTF_32
+  #73 = Utf8               sun/nio/cs/UTF_32
+  #74 = Methodref          #72.#3           // sun/nio/cs/UTF_32."<init>":()V
+  #75 = Fieldref           #21.#76          // java/nio/charset/StandardCharsets.UTF_32:Ljava/nio/charset/Charset;
+  #76 = NameAndType        #77:#25          // UTF_32:Ljava/nio/charset/Charset;
+  #77 = Utf8               UTF_32
+  #78 = Utf8               Code
+  #79 = Utf8               LineNumberTable
+  #80 = Utf8               LocalVariableTable
+  #81 = Utf8               this
+  #82 = Utf8               Ljava/nio/charset/StandardCharsets;
+  #83 = Utf8               <clinit>
+  #84 = Utf8               SourceFile
+  #85 = Utf8               StandardCharsets.java
+{
+  public static final java.nio.charset.Charset US_ASCII;
+    descriptor: Ljava/nio/charset/Charset;
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+  
+  public static final java.nio.charset.Charset ISO_8859_1;
+    descriptor: Ljava/nio/charset/Charset;
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+  
+  public static final java.nio.charset.Charset UTF_8;
+    descriptor: Ljava/nio/charset/Charset;
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+  
+  public static final java.nio.charset.Charset UTF_16BE;
+    descriptor: Ljava/nio/charset/Charset;
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+  
+  public static final java.nio.charset.Charset UTF_16LE;
+    descriptor: Ljava/nio/charset/Charset;
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+  
+  public static final java.nio.charset.Charset UTF_16;
+    descriptor: Ljava/nio/charset/Charset;
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+  
+  public static final java.nio.charset.Charset UTF_32BE;
+    descriptor: Ljava/nio/charset/Charset;
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+  
+  public static final java.nio.charset.Charset UTF_32LE;
+    descriptor: Ljava/nio/charset/Charset;
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+  
+  public static final java.nio.charset.Charset UTF_32;
+    descriptor: Ljava/nio/charset/Charset;
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+  
+  private java.nio.charset.StandardCharsets();
+    descriptor: ()V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=3, locals=1, args_size=1
+         0: aload_0                 
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: new           #7                  // class java/lang/AssertionError
+         7: dup                     
+         8: ldc           #9                  // String No java.nio.charset.StandardCharsets instances for you!
+        10: invokespecial #11                 // Method java/lang/AssertionError."<init>":(Ljava/lang/Object;)V
+        13: athrow                  
+      LineNumberTable:
+        line 42: 0
+        line 43: 4
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       14     0  this   Ljava/nio/charset/StandardCharsets;
+  
+  static {};
+    descriptor: ()V
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=2, locals=0, args_size=0
+         0: getstatic     #14                 // Field sun/nio/cs/US_ASCII.INSTANCE:Lsun/nio/cs/US_ASCII;
+         3: putstatic     #20                 // Field US_ASCII:Ljava/nio/charset/Charset;
+         6: getstatic     #26                 // Field sun/nio/cs/ISO_8859_1.INSTANCE:Lsun/nio/cs/ISO_8859_1;
+         9: putstatic     #31                 // Field ISO_8859_1:Ljava/nio/charset/Charset;
+        12: getstatic     #34                 // Field sun/nio/cs/UTF_8.INSTANCE:Lsun/nio/cs/UTF_8;
+        15: putstatic     #39                 // Field UTF_8:Ljava/nio/charset/Charset;
+        18: new           #42                 // class sun/nio/cs/UTF_16BE
+        21: dup                     
+        22: invokespecial #44                 // Method sun/nio/cs/UTF_16BE."<init>":()V
+        25: putstatic     #45                 // Field UTF_16BE:Ljava/nio/charset/Charset;
+        28: new           #48                 // class sun/nio/cs/UTF_16LE
+        31: dup                     
+        32: invokespecial #50                 // Method sun/nio/cs/UTF_16LE."<init>":()V
+        35: putstatic     #51                 // Field UTF_16LE:Ljava/nio/charset/Charset;
+        38: new           #54                 // class sun/nio/cs/UTF_16
+        41: dup                     
+        42: invokespecial #56                 // Method sun/nio/cs/UTF_16."<init>":()V
+        45: putstatic     #57                 // Field UTF_16:Ljava/nio/charset/Charset;
+        48: new           #60                 // class sun/nio/cs/UTF_32BE
+        51: dup                     
+        52: invokespecial #62                 // Method sun/nio/cs/UTF_32BE."<init>":()V
+        55: putstatic     #63                 // Field UTF_32BE:Ljava/nio/charset/Charset;
+        58: new           #66                 // class sun/nio/cs/UTF_32LE
+        61: dup                     
+        62: invokespecial #68                 // Method sun/nio/cs/UTF_32LE."<init>":()V
+        65: putstatic     #69                 // Field UTF_32LE:Ljava/nio/charset/Charset;
+        68: new           #72                 // class sun/nio/cs/UTF_32
+        71: dup                     
+        72: invokespecial #74                 // Method sun/nio/cs/UTF_32."<init>":()V
+        75: putstatic     #75                 // Field UTF_32:Ljava/nio/charset/Charset;
+        78: return                  
+      LineNumberTable:
+        line 50: 0
+        line 55: 6
+        line 60: 12
+        line 65: 18
+        line 70: 28
+        line 76: 38
+        line 82: 48
+        line 88: 58
+        line 95: 68
+}
+SourceFile: "StandardCharsets.java"

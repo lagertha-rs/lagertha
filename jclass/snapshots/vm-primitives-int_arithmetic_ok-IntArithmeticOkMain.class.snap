@@ -1,0 +1,508 @@
+---
+source: jclass/src/lib.rs
+expression: display
+---
+public class primitives.int_arithmetic_ok.IntArithmeticOkMain 
+  minor version: 0
+  major version: 68
+  flags: (0x0021) ACC_PUBLIC, ACC_SUPER
+  this_class: #8                       //primitives/int_arithmetic_ok/IntArithmeticOkMain
+  super_class: #2                      //java/lang/Object
+  interfaces: 0, fields: 2, methods: 4, attributes: 1
+Constant pool:
+    #1 = Methodref          #2.#3            // java/lang/Object."<init>":()V
+    #2 = Class              #4               // java/lang/Object
+    #3 = NameAndType        #5:#6            // "<init>":()V
+    #4 = Utf8               java/lang/Object
+    #5 = Utf8               <init>
+    #6 = Utf8               ()V
+    #7 = Fieldref           #8.#9            // primitives/int_arithmetic_ok/IntArithmeticOkMain.total:I
+    #8 = Class              #10              // primitives/int_arithmetic_ok/IntArithmeticOkMain
+    #9 = NameAndType        #11:#12          // total:I
+   #10 = Utf8               primitives/int_arithmetic_ok/IntArithmeticOkMain
+   #11 = Utf8               total
+   #12 = Utf8               I
+   #13 = Fieldref           #14.#15          // java/lang/System.out:Ljava/io/PrintStream;
+   #14 = Class              #16              // java/lang/System
+   #15 = NameAndType        #17:#18          // out:Ljava/io/PrintStream;
+   #16 = Utf8               java/lang/System
+   #17 = Utf8               out
+   #18 = Utf8               Ljava/io/PrintStream;
+   #19 = String             #20              // :
+   #20 = Utf8               :
+   #21 = Methodref          #22.#23          // java/lang/String.concat:(Ljava/lang/String;)Ljava/lang/String;
+   #22 = Class              #24              // java/lang/String
+   #23 = NameAndType        #25:#26          // concat:(Ljava/lang/String;)Ljava/lang/String;
+   #24 = Utf8               java/lang/String
+   #25 = Utf8               concat
+   #26 = Utf8               (Ljava/lang/String;)Ljava/lang/String;
+   #27 = String             #28              // OK
+   #28 = Utf8               OK
+   #29 = String             #30              // FAIL
+   #30 = Utf8               FAIL
+   #31 = Methodref          #32.#33          // java/io/PrintStream.println:(Ljava/lang/String;)V
+   #32 = Class              #34              // java/io/PrintStream
+   #33 = NameAndType        #35:#36          // println:(Ljava/lang/String;)V
+   #34 = Utf8               java/io/PrintStream
+   #35 = Utf8               println
+   #36 = Utf8               (Ljava/lang/String;)V
+   #37 = Fieldref           #8.#38           // primitives/int_arithmetic_ok/IntArithmeticOkMain.passed:I
+   #38 = NameAndType        #39:#12          // passed:I
+   #39 = Utf8               passed
+   #40 = Class              #41              // java/lang/Integer
+   #41 = Utf8               java/lang/Integer
+   #42 = Integer            2147483647
+   #43 = Integer            -2147483648
+   #44 = String             #45              // add.wrap
+   #45 = Utf8               add.wrap
+   #46 = Methodref          #8.#47           // primitives/int_arithmetic_ok/IntArithmeticOkMain.t:(Ljava/lang/String;Z)V
+   #47 = NameAndType        #48:#49          // t:(Ljava/lang/String;Z)V
+   #48 = Utf8               t
+   #49 = Utf8               (Ljava/lang/String;Z)V
+   #50 = String             #51              // sub.wrap
+   #51 = Utf8               sub.wrap
+   #52 = String             #53              // mul.wrap
+   #53 = Utf8               mul.wrap
+   #54 = String             #55              // neg.edge
+   #55 = Utf8               neg.edge
+   #56 = String             #57              // div.trunc.pos
+   #57 = Utf8               div.trunc.pos
+   #58 = String             #59              // div.trunc.negA
+   #59 = Utf8               div.trunc.negA
+   #60 = String             #61              // div.trunc.negB
+   #61 = Utf8               div.trunc.negB
+   #62 = String             #63              // rem.sign.pos
+   #63 = Utf8               rem.sign.pos
+   #64 = String             #65              // rem.sign.negA
+   #65 = Utf8               rem.sign.negA
+   #66 = String             #67              // rem.sign.negB
+   #67 = Utf8               rem.sign.negB
+   #68 = String             #69              // rem.sign.negBoth
+   #69 = Utf8               rem.sign.negBoth
+   #70 = String             #71              // divrem.identity
+   #71 = Utf8               divrem.identity
+   #72 = String             #73              // min.div.minus1
+   #73 = Utf8               min.div.minus1
+   #74 = String             #75              // min.rem.minus1
+   #75 = Utf8               min.rem.minus1
+   #76 = String             #77              // shl.mask.32
+   #77 = Utf8               shl.mask.32
+   #78 = String             #79              // shl.mask.33
+   #79 = Utf8               shl.mask.33
+   #80 = String             #81              // shr.arith.neg
+   #81 = Utf8               shr.arith.neg
+   #82 = String             #83              // shr.logic.neg
+   #83 = Utf8               shr.logic.neg
+   #84 = String             #85              // shl.negative.count
+   #85 = Utf8               shl.negative.count
+   #86 = String             #87              // shr.mask.same
+   #87 = Utf8               shr.mask.same
+   #88 = String             #89              // bit.not
+   #89 = Utf8               bit.not
+   #90 = Integer            -1437226411
+   #91 = Integer            252645135
+   #92 = String             #93              // bit.and
+   #93 = Utf8               bit.and
+   #94 = Integer            168102405
+   #95 = String             #96              // bit.or
+   #96 = Utf8               bit.or
+   #97 = Integer            -1352683681
+   #98 = String             #99              // bit.xor.self
+   #99 = Utf8               bit.xor.self
+  #100 = String             #101             // cast.i2b.256
+  #101 = Utf8               cast.i2b.256
+  #102 = String             #103             // cast.i2s.65535
+  #103 = Utf8               cast.i2s.65535
+  #104 = String             #105             // cast.i2c.minus1
+  #105 = Utf8               cast.i2c.minus1
+  #106 = String             #107             // cast.char.promote
+  #107 = Utf8               cast.char.promote
+  #108 = String             #109             // iinc.wrap
+  #109 = Utf8               iinc.wrap
+  #110 = String             #111             // cmp.signed.lt
+  #111 = Utf8               cmp.signed.lt
+  #112 = String             #113             // cmp.signed.ge
+  #113 = Utf8               cmp.signed.ge
+  #114 = String             #115             // cmp.eq
+  #115 = Utf8               cmp.eq
+  #116 = String             #117             // cmp.ne
+  #117 = Utf8               cmp.ne
+  #118 = String             #119             // TOTAL:
+  #119 = Utf8               TOTAL:
+  #120 = Methodref          #22.#121         // java/lang/String.valueOf:(I)Ljava/lang/String;
+  #121 = NameAndType        #122:#123        // valueOf:(I)Ljava/lang/String;
+  #122 = Utf8               valueOf
+  #123 = Utf8               (I)Ljava/lang/String;
+  #124 = String             #125             // /
+  #125 = Utf8               /
+  #126 = Utf8               Code
+  #127 = Utf8               LineNumberTable
+  #128 = Utf8               LocalVariableTable
+  #129 = Utf8               this
+  #130 = Utf8               Lprimitives/int_arithmetic_ok/IntArithmeticOkMain;
+  #131 = Utf8               name
+  #132 = Utf8               Ljava/lang/String;
+  #133 = Utf8               ok
+  #134 = Utf8               Z
+  #135 = Utf8               StackMapTable
+  #136 = Utf8               main
+  #137 = Utf8               ([Ljava/lang/String;)V
+  #138 = Utf8               args
+  #139 = Utf8               [Ljava/lang/String;
+  #140 = Utf8               IMAX
+  #141 = Utf8               IMIN
+  #142 = Utf8               a
+  #143 = Utf8               b
+  #144 = Utf8               x
+  #145 = Utf8               y
+  #146 = Utf8               p
+  #147 = Class              #139             // "[Ljava/lang/String;"
+  #148 = Utf8               <clinit>
+  #149 = Utf8               SourceFile
+  #150 = Utf8               IntArithmeticOkMain.java
+{
+  private static int passed;
+    descriptor: I
+    flags: (0x000a) ACC_PRIVATE, ACC_STATIC
+  
+  private static int total;
+    descriptor: I
+    flags: (0x000a) ACC_PRIVATE, ACC_STATIC
+  
+  public primitives.int_arithmetic_ok.IntArithmeticOkMain();
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return                  
+      LineNumberTable:
+        line 3: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Lprimitives/int_arithmetic_ok/IntArithmeticOkMain;
+  
+  private static void t(java.lang.String, boolean);
+    descriptor: (Ljava/lang/String;Z)V
+    flags: (0x000a) ACC_PRIVATE, ACC_STATIC
+    Code: 
+      stack=3, locals=2, args_size=2
+         0: getstatic     #7                  // Field total:I
+         3: iconst_1                
+         4: iadd                    
+         5: putstatic     #7                  // Field total:I
+         8: getstatic     #13                 // Field java/lang/System.out:Ljava/io/PrintStream;
+        11: aload_0                 
+        12: ldc           #19                 // String :
+        14: invokevirtual #21                 // Method java/lang/String.concat:(Ljava/lang/String;)Ljava/lang/String;
+        17: iload_1                 
+        18: ifeq          26                
+        21: ldc           #27                 // String OK
+        23: goto          28                
+        26: ldc           #29                 // String FAIL
+        28: invokevirtual #21                 // Method java/lang/String.concat:(Ljava/lang/String;)Ljava/lang/String;
+        31: invokevirtual #31                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+        34: iload_1                 
+        35: ifeq          46                
+        38: getstatic     #37                 // Field passed:I
+        41: iconst_1                
+        42: iadd                    
+        43: putstatic     #37                 // Field passed:I
+        46: return                  
+      LineNumberTable:
+        line 7: 0
+        line 8: 8
+        line 9: 34
+        line 10: 46
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       47     0  name   Ljava/lang/String;
+           0       47     1  ok     Z
+      StackMapTable: number_of_entries = 3
+        frame_type = 255 /* full_frame */
+          offset_delta = 26
+          locals = [class java/lang/String, int]
+          stack = [class java/io/PrintStream, class java/lang/String]
+        frame_type = 255 /* full_frame */
+          offset_delta = 1
+          locals = [class java/lang/String, int]
+          stack = [class java/io/PrintStream, class java/lang/String, class java/lang/String]
+        frame_type = 17 /* same */
+  
+  public static void main(java.lang.String[]);
+    descriptor: ([Ljava/lang/String;)V
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=4, locals=8, args_size=1
+         0: ldc           #42                 // int 2147483647
+         2: istore_1                
+         3: ldc           #43                 // int -2147483648
+         5: istore_2                
+         6: ldc           #44                 // String add.wrap
+         8: iconst_1                
+         9: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+        12: ldc           #50                 // String sub.wrap
+        14: iconst_1                
+        15: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+        18: ldc           #52                 // String mul.wrap
+        20: iconst_1                
+        21: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+        24: ldc           #54                 // String neg.edge
+        26: iconst_1                
+        27: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+        30: ldc           #56                 // String div.trunc.pos
+        32: iconst_1                
+        33: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+        36: ldc           #58                 // String div.trunc.negA
+        38: iconst_1                
+        39: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+        42: ldc           #60                 // String div.trunc.negB
+        44: iconst_1                
+        45: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+        48: ldc           #62                 // String rem.sign.pos
+        50: iconst_1                
+        51: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+        54: ldc           #64                 // String rem.sign.negA
+        56: iconst_1                
+        57: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+        60: ldc           #66                 // String rem.sign.negB
+        62: iconst_1                
+        63: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+        66: ldc           #68                 // String rem.sign.negBoth
+        68: iconst_1                
+        69: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+        72: sipush        -12345            
+        75: istore_3                
+        76: bipush        67                
+        78: istore        4                 
+        80: ldc           #70                 // String divrem.identity
+        82: iload_3                 
+        83: iload         4                 
+        85: idiv                    
+        86: iload         4                 
+        88: imul                    
+        89: iload_3                 
+        90: iload         4                 
+        92: irem                    
+        93: iadd                    
+        94: iload_3                 
+        95: if_icmpne     102               
+        98: iconst_1                
+        99: goto          103               
+       102: iconst_0                
+       103: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+       106: ldc           #72                 // String min.div.minus1
+       108: iconst_1                
+       109: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+       112: ldc           #74                 // String min.rem.minus1
+       114: iconst_1                
+       115: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+       118: ldc           #76                 // String shl.mask.32
+       120: iconst_1                
+       121: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+       124: ldc           #78                 // String shl.mask.33
+       126: iconst_1                
+       127: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+       130: ldc           #80                 // String shr.arith.neg
+       132: iconst_1                
+       133: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+       136: ldc           #82                 // String shr.logic.neg
+       138: iconst_1                
+       139: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+       142: ldc           #84                 // String shl.negative.count
+       144: iconst_1                
+       145: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+       148: ldc           #86                 // String shr.mask.same
+       150: iconst_1                
+       151: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+       154: ldc           #88                 // String bit.not
+       156: iconst_1                
+       157: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+       160: ldc           #90                 // int -1437226411
+       162: istore        5                 
+       164: ldc           #91                 // int 252645135
+       166: istore        6                 
+       168: ldc           #92                 // String bit.and
+       170: iload         5                 
+       172: iload         6                 
+       174: iand                    
+       175: ldc           #94                 // int 168102405
+       177: if_icmpne     184               
+       180: iconst_1                
+       181: goto          185               
+       184: iconst_0                
+       185: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+       188: ldc           #95                 // String bit.or
+       190: iload         5                 
+       192: iload         6                 
+       194: ior                     
+       195: ldc           #97                 // int -1352683681
+       197: if_icmpne     204               
+       200: iconst_1                
+       201: goto          205               
+       204: iconst_0                
+       205: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+       208: ldc           #98                 // String bit.xor.self
+       210: iload         5                 
+       212: iload         5                 
+       214: ixor                    
+       215: ifne          222               
+       218: iconst_1                
+       219: goto          223               
+       222: iconst_0                
+       223: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+       226: ldc           #100                // String cast.i2b.256
+       228: iconst_1                
+       229: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+       232: ldc           #102                // String cast.i2s.65535
+       234: iconst_1                
+       235: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+       238: ldc           #104                // String cast.i2c.minus1
+       240: iconst_1                
+       241: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+       244: ldc           #106                // String cast.char.promote
+       246: iconst_1                
+       247: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+       250: iconst_1                
+       251: istore        7                 
+       253: iload         7                 
+       255: ldc           #42                 // int 2147483647
+       257: iadd                    
+       258: istore        7                 
+       260: ldc           #108                // String iinc.wrap
+       262: iload         7                 
+       264: ldc           #43                 // int -2147483648
+       266: if_icmpne     273               
+       269: iconst_1                
+       270: goto          274               
+       273: iconst_0                
+       274: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+       277: ldc           #110                // String cmp.signed.lt
+       279: iconst_1                
+       280: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+       283: ldc           #112                // String cmp.signed.ge
+       285: iconst_1                
+       286: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+       289: ldc           #114                // String cmp.eq
+       291: iconst_1                
+       292: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+       295: ldc           #116                // String cmp.ne
+       297: iconst_1                
+       298: invokestatic  #46                 // Method t:(Ljava/lang/String;Z)V
+       301: getstatic     #13                 // Field java/lang/System.out:Ljava/io/PrintStream;
+       304: ldc           #118                // String TOTAL:
+       306: getstatic     #37                 // Field passed:I
+       309: invokestatic  #120                // Method java/lang/String.valueOf:(I)Ljava/lang/String;
+       312: invokevirtual #21                 // Method java/lang/String.concat:(Ljava/lang/String;)Ljava/lang/String;
+       315: ldc           #124                // String /
+       317: invokevirtual #21                 // Method java/lang/String.concat:(Ljava/lang/String;)Ljava/lang/String;
+       320: getstatic     #7                  // Field total:I
+       323: invokestatic  #120                // Method java/lang/String.valueOf:(I)Ljava/lang/String;
+       326: invokevirtual #21                 // Method java/lang/String.concat:(Ljava/lang/String;)Ljava/lang/String;
+       329: invokevirtual #31                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+       332: return                  
+      LineNumberTable:
+        line 13: 0
+        line 14: 3
+        line 17: 6
+        line 18: 12
+        line 19: 18
+        line 20: 24
+        line 23: 30
+        line 24: 36
+        line 25: 42
+        line 26: 48
+        line 27: 54
+        line 28: 60
+        line 29: 66
+        line 30: 72
+        line 31: 80
+        line 32: 106
+        line 33: 112
+        line 36: 118
+        line 37: 124
+        line 38: 130
+        line 39: 136
+        line 40: 142
+        line 41: 148
+        line 44: 154
+        line 45: 160
+        line 46: 168
+        line 47: 188
+        line 48: 208
+        line 51: 226
+        line 52: 232
+        line 53: 238
+        line 54: 244
+        line 57: 250
+        line 58: 253
+        line 59: 260
+        line 62: 277
+        line 63: 283
+        line 64: 289
+        line 65: 295
+        line 67: 301
+        line 68: 332
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0      333     0  args   [Ljava/lang/String;
+           3      330     1  IMAX   I
+           6      327     2  IMIN   I
+          76      257     3  a      I
+          80      253     4  b      I
+         164      169     5  x      I
+         168      165     6  y      I
+         253       80     7  p      I
+      StackMapTable: number_of_entries = 10
+        frame_type = 255 /* full_frame */
+          offset_delta = 102
+          locals = [class "[Ljava/lang/String;", int, int, int, int]
+          stack = [class java/lang/String]
+        frame_type = 255 /* full_frame */
+          offset_delta = 0
+          locals = [class "[Ljava/lang/String;", int, int, int, int]
+          stack = [class java/lang/String, int]
+        frame_type = 255 /* full_frame */
+          offset_delta = 80
+          locals = [class "[Ljava/lang/String;", int, int, int, int, int, int]
+          stack = [class java/lang/String]
+        frame_type = 255 /* full_frame */
+          offset_delta = 0
+          locals = [class "[Ljava/lang/String;", int, int, int, int, int, int]
+          stack = [class java/lang/String, int]
+        frame_type = 82 /* same_locals_1_stack_item */
+          stack = [ class java/lang/String ]
+        frame_type = 255 /* full_frame */
+          offset_delta = 0
+          locals = [class "[Ljava/lang/String;", int, int, int, int, int, int]
+          stack = [class java/lang/String, int]
+        frame_type = 80 /* same_locals_1_stack_item */
+          stack = [ class java/lang/String ]
+        frame_type = 255 /* full_frame */
+          offset_delta = 0
+          locals = [class "[Ljava/lang/String;", int, int, int, int, int, int]
+          stack = [class java/lang/String, int]
+        frame_type = 255 /* full_frame */
+          offset_delta = 49
+          locals = [class "[Ljava/lang/String;", int, int, int, int, int, int, int]
+          stack = [class java/lang/String]
+        frame_type = 255 /* full_frame */
+          offset_delta = 0
+          locals = [class "[Ljava/lang/String;", int, int, int, int, int, int, int]
+          stack = [class java/lang/String, int]
+  
+  static {};
+    descriptor: ()V
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=1, locals=0, args_size=0
+         0: iconst_0                
+         1: putstatic     #37                 // Field passed:I
+         4: iconst_0                
+         5: putstatic     #7                  // Field total:I
+         8: return                  
+      LineNumberTable:
+        line 4: 0
+}
+SourceFile: "IntArithmeticOkMain.java"

@@ -7,12 +7,12 @@ use crate::rt::constant_pool::reference::{
 };
 use crate::rt::field::{Field, StaticField};
 use crate::rt::method::{Method, MethodType};
-use class_file::ClassFile;
-use class_file::attribute::class::ClassAttribute;
-use class_file::flags::{ClassFlags, MethodFlags};
 use common::descriptor::MethodDescriptor;
 use common::instruction::ArrayType;
 use common::jtype::{HeapAddr, Value};
+use jclass::ClassFile;
+use jclass::attribute::class::ClassAttribute;
+use jclass::flags::{ClassFlags, MethodFlags};
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
 use std::cmp::PartialEq;

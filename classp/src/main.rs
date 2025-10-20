@@ -1,17 +1,16 @@
-use class_file::ClassFile;
+use jclass::ClassFile;
 use std::fs::File;
 use std::io::Read;
 
-fn handle_class_file_arg() -> String {
+fn handle_jclass_arg() -> String {
     std::env::args()
         .nth(1)
         .expect("Please provide a class file as argument")
 }
 
 fn main() {
-    let class_file_path = handle_class_file_arg();
-    let mut file =
-        File::open(&class_file_path).unwrap_or_else(|_| panic!("Cannot open {class_file_path}"));
+    let jclass_path = handle_jclass_arg();
+    let mut file = File::open(&jclass_path).unwrap_or_else(|_| panic!("Cannot open {jclass_path}"));
     let m = file.metadata().expect("Metadata err");
     let mut buf = Vec::with_capacity(m.len() as usize);
     file.read_to_end(&mut buf).expect("Problem with read");

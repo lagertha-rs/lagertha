@@ -1,0 +1,3611 @@
+---
+source: jclass/src/lib.rs
+expression: display
+---
+public class java.util.Properties extends java.util.Hashtable<java.lang.Object, java.lang.Object>
+  minor version: 0
+  major version: 68
+  flags: (0x0021) ACC_PUBLIC, ACC_SUPER
+  this_class: #2                       //java/util/Properties
+  super_class: #10                     //java/util/Hashtable
+  interfaces: 0, fields: 4, methods: 62, attributes: 4
+Constant pool:
+    #1 = Methodref          #2.#3            // java/util/Properties."<init>":(Ljava/util/Properties;I)V
+    #2 = Class              #4               // java/util/Properties
+    #3 = NameAndType        #5:#6            // "<init>":(Ljava/util/Properties;I)V
+    #4 = Utf8               java/util/Properties
+    #5 = Utf8               <init>
+    #6 = Utf8               (Ljava/util/Properties;I)V
+    #7 = Class              #8               // java/lang/Void
+    #8 = Utf8               java/lang/Void
+    #9 = Methodref          #10.#11          // java/util/Hashtable."<init>":(Ljava/lang/Void;)V
+   #10 = Class              #12              // java/util/Hashtable
+   #11 = NameAndType        #5:#13           // "<init>":(Ljava/lang/Void;)V
+   #12 = Utf8               java/util/Hashtable
+   #13 = Utf8               (Ljava/lang/Void;)V
+   #14 = Class              #15              // java/util/concurrent/ConcurrentHashMap
+   #15 = Utf8               java/util/concurrent/ConcurrentHashMap
+   #16 = Methodref          #14.#17          // java/util/concurrent/ConcurrentHashMap."<init>":(I)V
+   #17 = NameAndType        #5:#18           // "<init>":(I)V
+   #18 = Utf8               (I)V
+   #19 = Fieldref           #2.#20           // java/util/Properties.map:Ljava/util/concurrent/ConcurrentHashMap;
+   #20 = NameAndType        #21:#22          // map:Ljava/util/concurrent/ConcurrentHashMap;
+   #21 = Utf8               map
+   #22 = Utf8               Ljava/util/concurrent/ConcurrentHashMap;
+   #23 = Fieldref           #2.#24           // java/util/Properties.defaults:Ljava/util/Properties;
+   #24 = NameAndType        #25:#26          // defaults:Ljava/util/Properties;
+   #25 = Utf8               defaults
+   #26 = Utf8               Ljava/util/Properties;
+   #27 = Fieldref           #2.#28           // java/util/Properties.UNSAFE:Ljdk/internal/misc/Unsafe;
+   #28 = NameAndType        #29:#30          // UNSAFE:Ljdk/internal/misc/Unsafe;
+   #29 = Utf8               UNSAFE
+   #30 = Utf8               Ljdk/internal/misc/Unsafe;
+   #31 = Methodref          #32.#33          // jdk/internal/misc/Unsafe.storeFence:()V
+   #32 = Class              #34              // jdk/internal/misc/Unsafe
+   #33 = NameAndType        #35:#36          // storeFence:()V
+   #34 = Utf8               jdk/internal/misc/Unsafe
+   #35 = Utf8               storeFence
+   #36 = Utf8               ()V
+   #37 = Methodref          #2.#38           // java/util/Properties.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+   #38 = NameAndType        #39:#40          // put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+   #39 = Utf8               put
+   #40 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+   #41 = String             #42              // reader parameter is null
+   #42 = Utf8               reader parameter is null
+   #43 = Methodref          #44.#45          // java/util/Objects.requireNonNull:(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+   #44 = Class              #46              // java/util/Objects
+   #45 = NameAndType        #47:#48          // requireNonNull:(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+   #46 = Utf8               java/util/Objects
+   #47 = Utf8               requireNonNull
+   #48 = Utf8               (Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+   #49 = Class              #50              // java/util/Properties$LineReader
+   #50 = Utf8               java/util/Properties$LineReader
+   #51 = Methodref          #49.#52          // java/util/Properties$LineReader."<init>":(Ljava/io/Reader;)V
+   #52 = NameAndType        #5:#53           // "<init>":(Ljava/io/Reader;)V
+   #53 = Utf8               (Ljava/io/Reader;)V
+   #54 = Methodref          #2.#55           // java/util/Properties.load0:(Ljava/util/Properties$LineReader;)V
+   #55 = NameAndType        #56:#57          // load0:(Ljava/util/Properties$LineReader;)V
+   #56 = Utf8               load0
+   #57 = Utf8               (Ljava/util/Properties$LineReader;)V
+   #58 = String             #59              // inStream parameter is null
+   #59 = Utf8               inStream parameter is null
+   #60 = Methodref          #49.#61          // java/util/Properties$LineReader."<init>":(Ljava/io/InputStream;)V
+   #61 = NameAndType        #5:#62           // "<init>":(Ljava/io/InputStream;)V
+   #62 = Utf8               (Ljava/io/InputStream;)V
+   #63 = Class              #64              // java/lang/StringBuilder
+   #64 = Utf8               java/lang/StringBuilder
+   #65 = Methodref          #63.#66          // java/lang/StringBuilder."<init>":()V
+   #66 = NameAndType        #5:#36           // "<init>":()V
+   #67 = Methodref          #49.#68          // java/util/Properties$LineReader.readLine:()I
+   #68 = NameAndType        #69:#70          // readLine:()I
+   #69 = Utf8               readLine
+   #70 = Utf8               ()I
+   #71 = Fieldref           #49.#72          // java/util/Properties$LineReader.lineBuf:[C
+   #72 = NameAndType        #73:#74          // lineBuf:[C
+   #73 = Utf8               lineBuf
+   #74 = Utf8               [C
+   #75 = Methodref          #2.#76           // java/util/Properties.loadConvert:([CIILjava/lang/StringBuilder;)Ljava/lang/String;
+   #76 = NameAndType        #77:#78          // loadConvert:([CIILjava/lang/StringBuilder;)Ljava/lang/String;
+   #77 = Utf8               loadConvert
+   #78 = Utf8               ([CIILjava/lang/StringBuilder;)Ljava/lang/String;
+   #79 = Class              #80              // java/lang/String
+   #80 = Utf8               java/lang/String
+   #81 = Methodref          #79.#82          // java/lang/String."<init>":([CII)V
+   #82 = NameAndType        #5:#83           // "<init>":([CII)V
+   #83 = Utf8               ([CII)V
+   #84 = Methodref          #63.#85          // java/lang/StringBuilder.setLength:(I)V
+   #85 = NameAndType        #86:#18          // setLength:(I)V
+   #86 = Utf8               setLength
+   #87 = Methodref          #63.#88          // java/lang/StringBuilder.append:([CII)Ljava/lang/StringBuilder;
+   #88 = NameAndType        #89:#90          // append:([CII)Ljava/lang/StringBuilder;
+   #89 = Utf8               append
+   #90 = Utf8               ([CII)Ljava/lang/StringBuilder;
+   #91 = Class              #92              // java/lang/IllegalArgumentException
+   #92 = Utf8               java/lang/IllegalArgumentException
+   #93 = String             #94              // Malformed \\uxxxx encoding.
+   #94 = Utf8               Malformed \\uxxxx encoding.
+   #95 = Methodref          #91.#96          // java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+   #96 = NameAndType        #5:#97           // "<init>":(Ljava/lang/String;)V
+   #97 = Utf8               (Ljava/lang/String;)V
+   #98 = Methodref          #63.#99          // java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+   #99 = NameAndType        #89:#100         // append:(C)Ljava/lang/StringBuilder;
+  #100 = Utf8               (C)Ljava/lang/StringBuilder;
+  #101 = Methodref          #63.#102         // java/lang/StringBuilder.toString:()Ljava/lang/String;
+  #102 = NameAndType        #103:#104        // toString:()Ljava/lang/String;
+  #103 = Utf8               toString
+  #104 = Utf8               ()Ljava/lang/String;
+  #105 = Methodref          #79.#106         // java/lang/String.length:()I
+  #106 = NameAndType        #107:#70         // length:()I
+  #107 = Utf8               length
+  #108 = Class              #109             // java/lang/Integer
+  #109 = Utf8               java/lang/Integer
+  #110 = Integer            2147483647
+  #111 = Methodref          #63.#17          // java/lang/StringBuilder."<init>":(I)V
+  #112 = Methodref          #113.#114        // java/util/HexFormat.of:()Ljava/util/HexFormat;
+  #113 = Class              #115             // java/util/HexFormat
+  #114 = NameAndType        #116:#117        // of:()Ljava/util/HexFormat;
+  #115 = Utf8               java/util/HexFormat
+  #116 = Utf8               of
+  #117 = Utf8               ()Ljava/util/HexFormat;
+  #118 = Methodref          #113.#119        // java/util/HexFormat.withUpperCase:()Ljava/util/HexFormat;
+  #119 = NameAndType        #120:#117        // withUpperCase:()Ljava/util/HexFormat;
+  #120 = Utf8               withUpperCase
+  #121 = Methodref          #79.#122         // java/lang/String.charAt:(I)C
+  #122 = NameAndType        #123:#124        // charAt:(I)C
+  #123 = Utf8               charAt
+  #124 = Utf8               (I)C
+  #125 = String             #126             // \\u
+  #126 = Utf8               \\u
+  #127 = Methodref          #63.#128         // java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+  #128 = NameAndType        #89:#129         // append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+  #129 = Utf8               (Ljava/lang/String;)Ljava/lang/StringBuilder;
+  #130 = Methodref          #113.#131        // java/util/HexFormat.toHexDigits:(C)Ljava/lang/String;
+  #131 = NameAndType        #132:#133        // toHexDigits:(C)Ljava/lang/String;
+  #132 = Utf8               toHexDigits
+  #133 = Utf8               (C)Ljava/lang/String;
+  #134 = String             #135             // #
+  #135 = Utf8               #
+  #136 = Methodref          #137.#138        // java/io/BufferedWriter.write:(Ljava/lang/String;)V
+  #137 = Class              #139             // java/io/BufferedWriter
+  #138 = NameAndType        #140:#97         // write:(Ljava/lang/String;)V
+  #139 = Utf8               java/io/BufferedWriter
+  #140 = Utf8               write
+  #141 = Methodref          #79.#142         // java/lang/String.substring:(II)Ljava/lang/String;
+  #142 = NameAndType        #143:#144        // substring:(II)Ljava/lang/String;
+  #143 = Utf8               substring
+  #144 = Utf8               (II)Ljava/lang/String;
+  #145 = Methodref          #137.#146        // java/io/BufferedWriter.newLine:()V
+  #146 = NameAndType        #147:#36         // newLine:()V
+  #147 = Utf8               newLine
+  #148 = Methodref          #2.#149          // java/util/Properties.store:(Ljava/io/OutputStream;Ljava/lang/String;)V
+  #149 = NameAndType        #150:#151        // store:(Ljava/io/OutputStream;Ljava/lang/String;)V
+  #150 = Utf8               store
+  #151 = Utf8               (Ljava/io/OutputStream;Ljava/lang/String;)V
+  #152 = Class              #153             // java/io/IOException
+  #153 = Utf8               java/io/IOException
+  #154 = Methodref          #137.#155        // java/io/BufferedWriter."<init>":(Ljava/io/Writer;)V
+  #155 = NameAndType        #5:#156          // "<init>":(Ljava/io/Writer;)V
+  #156 = Utf8               (Ljava/io/Writer;)V
+  #157 = Methodref          #2.#158          // java/util/Properties.store0:(Ljava/io/BufferedWriter;Ljava/lang/String;Z)V
+  #158 = NameAndType        #159:#160        // store0:(Ljava/io/BufferedWriter;Ljava/lang/String;Z)V
+  #159 = Utf8               store0
+  #160 = Utf8               (Ljava/io/BufferedWriter;Ljava/lang/String;Z)V
+  #161 = Class              #162             // java/io/OutputStreamWriter
+  #162 = Utf8               java/io/OutputStreamWriter
+  #163 = Fieldref           #164.#165        // sun/nio/cs/ISO_8859_1.INSTANCE:Lsun/nio/cs/ISO_8859_1;
+  #164 = Class              #166             // sun/nio/cs/ISO_8859_1
+  #165 = NameAndType        #167:#168        // INSTANCE:Lsun/nio/cs/ISO_8859_1;
+  #166 = Utf8               sun/nio/cs/ISO_8859_1
+  #167 = Utf8               INSTANCE
+  #168 = Utf8               Lsun/nio/cs/ISO_8859_1;
+  #169 = Methodref          #161.#170        // java/io/OutputStreamWriter."<init>":(Ljava/io/OutputStream;Ljava/nio/charset/Charset;)V
+  #170 = NameAndType        #5:#171          // "<init>":(Ljava/io/OutputStream;Ljava/nio/charset/Charset;)V
+  #171 = Utf8               (Ljava/io/OutputStream;Ljava/nio/charset/Charset;)V
+  #172 = Methodref          #2.#173          // java/util/Properties.writeComments:(Ljava/io/BufferedWriter;Ljava/lang/String;)V
+  #173 = NameAndType        #174:#175        // writeComments:(Ljava/io/BufferedWriter;Ljava/lang/String;)V
+  #174 = Utf8               writeComments
+  #175 = Utf8               (Ljava/io/BufferedWriter;Ljava/lang/String;)V
+  #176 = Methodref          #2.#177          // java/util/Properties.writeDateComment:(Ljava/io/BufferedWriter;)V
+  #177 = NameAndType        #178:#179        // writeDateComment:(Ljava/io/BufferedWriter;)V
+  #178 = Utf8               writeDateComment
+  #179 = Utf8               (Ljava/io/BufferedWriter;)V
+  #180 = Methodref          #2.#181          // java/util/Properties.entrySet:()Ljava/util/Set;
+  #181 = NameAndType        #182:#183        // entrySet:()Ljava/util/Set;
+  #182 = Utf8               entrySet
+  #183 = Utf8               ()Ljava/util/Set;
+  #184 = Class              #185             // java/util/Collections$SynchronizedSet
+  #185 = Utf8               java/util/Collections$SynchronizedSet
+  #186 = Fieldref           #184.#187        // java/util/Collections$SynchronizedSet.c:Ljava/util/Collection;
+  #187 = NameAndType        #188:#189        // c:Ljava/util/Collection;
+  #188 = Utf8               c
+  #189 = Utf8               Ljava/util/Collection;
+  #190 = Class              #191             // java/util/Properties$EntrySet
+  #191 = Utf8               java/util/Properties$EntrySet
+  #192 = Class              #193             // java/util/ArrayList
+  #193 = Utf8               java/util/ArrayList
+  #194 = Methodref          #192.#195        // java/util/ArrayList."<init>":(Ljava/util/Collection;)V
+  #195 = NameAndType        #5:#196          // "<init>":(Ljava/util/Collection;)V
+  #196 = Utf8               (Ljava/util/Collection;)V
+  #197 = Class              #198             // java/util/List
+  #198 = Utf8               java/util/List
+  #199 = InterfaceMethodref #200.#201        // java/util/Map$Entry.comparingByKey:()Ljava/util/Comparator;
+  #200 = Class              #202             // java/util/Map$Entry
+  #201 = NameAndType        #203:#204        // comparingByKey:()Ljava/util/Comparator;
+  #202 = Utf8               java/util/Map$Entry
+  #203 = Utf8               comparingByKey
+  #204 = Utf8               ()Ljava/util/Comparator;
+  #205 = InterfaceMethodref #197.#206        // java/util/List.sort:(Ljava/util/Comparator;)V
+  #206 = NameAndType        #207:#208        // sort:(Ljava/util/Comparator;)V
+  #207 = Utf8               sort
+  #208 = Utf8               (Ljava/util/Comparator;)V
+  #209 = InterfaceMethodref #210.#211        // java/util/Collection.iterator:()Ljava/util/Iterator;
+  #210 = Class              #212             // java/util/Collection
+  #211 = NameAndType        #213:#214        // iterator:()Ljava/util/Iterator;
+  #212 = Utf8               java/util/Collection
+  #213 = Utf8               iterator
+  #214 = Utf8               ()Ljava/util/Iterator;
+  #215 = InterfaceMethodref #216.#217        // java/util/Iterator.hasNext:()Z
+  #216 = Class              #218             // java/util/Iterator
+  #217 = NameAndType        #219:#220        // hasNext:()Z
+  #218 = Utf8               java/util/Iterator
+  #219 = Utf8               hasNext
+  #220 = Utf8               ()Z
+  #221 = InterfaceMethodref #216.#222        // java/util/Iterator.next:()Ljava/lang/Object;
+  #222 = NameAndType        #223:#224        // next:()Ljava/lang/Object;
+  #223 = Utf8               next
+  #224 = Utf8               ()Ljava/lang/Object;
+  #225 = InterfaceMethodref #200.#226        // java/util/Map$Entry.getKey:()Ljava/lang/Object;
+  #226 = NameAndType        #227:#224        // getKey:()Ljava/lang/Object;
+  #227 = Utf8               getKey
+  #228 = InterfaceMethodref #200.#229        // java/util/Map$Entry.getValue:()Ljava/lang/Object;
+  #229 = NameAndType        #230:#224        // getValue:()Ljava/lang/Object;
+  #230 = Utf8               getValue
+  #231 = Methodref          #2.#232          // java/util/Properties.saveConvert:(Ljava/lang/String;ZZ)Ljava/lang/String;
+  #232 = NameAndType        #233:#234        // saveConvert:(Ljava/lang/String;ZZ)Ljava/lang/String;
+  #233 = Utf8               saveConvert
+  #234 = Utf8               (Ljava/lang/String;ZZ)Ljava/lang/String;
+  #235 = String             #236             // =
+  #236 = Utf8               =
+  #237 = Methodref          #137.#238        // java/io/BufferedWriter.flush:()V
+  #238 = NameAndType        #239:#36         // flush:()V
+  #239 = Utf8               flush
+  #240 = Methodref          #241.#242        // jdk/internal/util/StaticProperty.javaPropertiesDate:()Ljava/lang/String;
+  #241 = Class              #243             // jdk/internal/util/StaticProperty
+  #242 = NameAndType        #244:#104        // javaPropertiesDate:()Ljava/lang/String;
+  #243 = Utf8               jdk/internal/util/StaticProperty
+  #244 = Utf8               javaPropertiesDate
+  #245 = Methodref          #79.#246         // java/lang/String.isEmpty:()Z
+  #246 = NameAndType        #247:#220        // isEmpty:()Z
+  #247 = Utf8               isEmpty
+  #248 = Class              #249             // java/util/Date
+  #249 = Utf8               java/util/Date
+  #250 = Methodref          #248.#66         // java/util/Date."<init>":()V
+  #251 = Methodref          #63.#252         // java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+  #252 = NameAndType        #89:#253         // append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+  #253 = Utf8               (Ljava/lang/Object;)Ljava/lang/StringBuilder;
+  #254 = Methodref          #44.#255         // java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+  #255 = NameAndType        #47:#256         // requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+  #256 = Utf8               (Ljava/lang/Object;)Ljava/lang/Object;
+  #257 = Class              #258             // jdk/internal/util/xml/PropertiesDefaultHandler
+  #258 = Utf8               jdk/internal/util/xml/PropertiesDefaultHandler
+  #259 = Methodref          #257.#66         // jdk/internal/util/xml/PropertiesDefaultHandler."<init>":()V
+  #260 = Methodref          #257.#261        // jdk/internal/util/xml/PropertiesDefaultHandler.load:(Ljava/util/Properties;Ljava/io/InputStream;)V
+  #261 = NameAndType        #262:#263        // load:(Ljava/util/Properties;Ljava/io/InputStream;)V
+  #262 = Utf8               load
+  #263 = Utf8               (Ljava/util/Properties;Ljava/io/InputStream;)V
+  #264 = Methodref          #265.#266        // java/io/InputStream.close:()V
+  #265 = Class              #267             // java/io/InputStream
+  #266 = NameAndType        #268:#36         // close:()V
+  #267 = Utf8               java/io/InputStream
+  #268 = Utf8               close
+  #269 = Fieldref           #270.#271        // sun/nio/cs/UTF_8.INSTANCE:Lsun/nio/cs/UTF_8;
+  #270 = Class              #272             // sun/nio/cs/UTF_8
+  #271 = NameAndType        #167:#273        // INSTANCE:Lsun/nio/cs/UTF_8;
+  #272 = Utf8               sun/nio/cs/UTF_8
+  #273 = Utf8               Lsun/nio/cs/UTF_8;
+  #274 = Methodref          #2.#275          // java/util/Properties.storeToXML:(Ljava/io/OutputStream;Ljava/lang/String;Ljava/nio/charset/Charset;)V
+  #275 = NameAndType        #276:#277        // storeToXML:(Ljava/io/OutputStream;Ljava/lang/String;Ljava/nio/charset/Charset;)V
+  #276 = Utf8               storeToXML
+  #277 = Utf8               (Ljava/io/OutputStream;Ljava/lang/String;Ljava/nio/charset/Charset;)V
+  #278 = Methodref          #279.#280        // java/nio/charset/Charset.forName:(Ljava/lang/String;)Ljava/nio/charset/Charset;
+  #279 = Class              #281             // java/nio/charset/Charset
+  #280 = NameAndType        #282:#283        // forName:(Ljava/lang/String;)Ljava/nio/charset/Charset;
+  #281 = Utf8               java/nio/charset/Charset
+  #282 = Utf8               forName
+  #283 = Utf8               (Ljava/lang/String;)Ljava/nio/charset/Charset;
+  #284 = Class              #285             // java/nio/charset/IllegalCharsetNameException
+  #285 = Utf8               java/nio/charset/IllegalCharsetNameException
+  #286 = Class              #287             // java/nio/charset/UnsupportedCharsetException
+  #287 = Utf8               java/nio/charset/UnsupportedCharsetException
+  #288 = Class              #289             // java/io/UnsupportedEncodingException
+  #289 = Utf8               java/io/UnsupportedEncodingException
+  #290 = Methodref          #288.#96         // java/io/UnsupportedEncodingException."<init>":(Ljava/lang/String;)V
+  #291 = String             #292             // OutputStream
+  #292 = Utf8               OutputStream
+  #293 = String             #294             // Charset
+  #294 = Utf8               Charset
+  #295 = Methodref          #257.#296        // jdk/internal/util/xml/PropertiesDefaultHandler.store:(Ljava/util/Properties;Ljava/io/OutputStream;Ljava/lang/String;Ljava/nio/charset/Charset;)V
+  #296 = NameAndType        #150:#297        // store:(Ljava/util/Properties;Ljava/io/OutputStream;Ljava/lang/String;Ljava/nio/charset/Charset;)V
+  #297 = Utf8               (Ljava/util/Properties;Ljava/io/OutputStream;Ljava/lang/String;Ljava/nio/charset/Charset;)V
+  #298 = Methodref          #14.#299         // java/util/concurrent/ConcurrentHashMap.get:(Ljava/lang/Object;)Ljava/lang/Object;
+  #299 = NameAndType        #300:#256        // get:(Ljava/lang/Object;)Ljava/lang/Object;
+  #300 = Utf8               get
+  #301 = Methodref          #2.#302          // java/util/Properties.getProperty:(Ljava/lang/String;)Ljava/lang/String;
+  #302 = NameAndType        #303:#304        // getProperty:(Ljava/lang/String;)Ljava/lang/String;
+  #303 = Utf8               getProperty
+  #304 = Utf8               (Ljava/lang/String;)Ljava/lang/String;
+  #305 = Methodref          #10.#66          // java/util/Hashtable."<init>":()V
+  #306 = Methodref          #2.#307          // java/util/Properties.enumerate:(Ljava/util/Map;)V
+  #307 = NameAndType        #308:#309        // enumerate:(Ljava/util/Map;)V
+  #308 = Utf8               enumerate
+  #309 = Utf8               (Ljava/util/Map;)V
+  #310 = Methodref          #10.#311         // java/util/Hashtable.keys:()Ljava/util/Enumeration;
+  #311 = NameAndType        #312:#313        // keys:()Ljava/util/Enumeration;
+  #312 = Utf8               keys
+  #313 = Utf8               ()Ljava/util/Enumeration;
+  #314 = Class              #315             // java/util/HashMap
+  #315 = Utf8               java/util/HashMap
+  #316 = Methodref          #314.#66         // java/util/HashMap."<init>":()V
+  #317 = Methodref          #2.#318          // java/util/Properties.enumerateStringProperties:(Ljava/util/Map;)V
+  #318 = NameAndType        #319:#309        // enumerateStringProperties:(Ljava/util/Map;)V
+  #319 = Utf8               enumerateStringProperties
+  #320 = InterfaceMethodref #321.#322        // java/util/Map.keySet:()Ljava/util/Set;
+  #321 = Class              #323             // java/util/Map
+  #322 = NameAndType        #324:#183        // keySet:()Ljava/util/Set;
+  #323 = Utf8               java/util/Map
+  #324 = Utf8               keySet
+  #325 = Methodref          #326.#327        // java/util/Collections.unmodifiableSet:(Ljava/util/Set;)Ljava/util/Set;
+  #326 = Class              #328             // java/util/Collections
+  #327 = NameAndType        #329:#330        // unmodifiableSet:(Ljava/util/Set;)Ljava/util/Set;
+  #328 = Utf8               java/util/Collections
+  #329 = Utf8               unmodifiableSet
+  #330 = Utf8               (Ljava/util/Set;)Ljava/util/Set;
+  #331 = String             #332             // -- listing properties --
+  #332 = Utf8               -- listing properties --
+  #333 = Methodref          #334.#335        // java/io/PrintStream.println:(Ljava/lang/String;)V
+  #334 = Class              #336             // java/io/PrintStream
+  #335 = NameAndType        #337:#97         // println:(Ljava/lang/String;)V
+  #336 = Utf8               java/io/PrintStream
+  #337 = Utf8               println
+  #338 = InterfaceMethodref #321.#181        // java/util/Map.entrySet:()Ljava/util/Set;
+  #339 = InterfaceMethodref #340.#211        // java/util/Set.iterator:()Ljava/util/Iterator;
+  #340 = Class              #341             // java/util/Set
+  #341 = Utf8               java/util/Set
+  #342 = String             #343             // ...
+  #343 = Utf8               ...
+  #344 = Methodref          #345.#335        // java/io/PrintWriter.println:(Ljava/lang/String;)V
+  #345 = Class              #346             // java/io/PrintWriter
+  #346 = Utf8               java/io/PrintWriter
+  #347 = InterfaceMethodref #321.#38         // java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+  #348 = Methodref          #14.#349         // java/util/concurrent/ConcurrentHashMap.size:()I
+  #349 = NameAndType        #350:#70         // size:()I
+  #350 = Utf8               size
+  #351 = Methodref          #14.#246         // java/util/concurrent/ConcurrentHashMap.isEmpty:()Z
+  #352 = Methodref          #14.#353         // java/util/concurrent/ConcurrentHashMap.keySet:()Ljava/util/concurrent/ConcurrentHashMap$KeySetView;
+  #353 = NameAndType        #324:#354        // keySet:()Ljava/util/concurrent/ConcurrentHashMap$KeySetView;
+  #354 = Utf8               ()Ljava/util/concurrent/ConcurrentHashMap$KeySetView;
+  #355 = Methodref          #326.#356        // java/util/Collections.enumeration:(Ljava/util/Collection;)Ljava/util/Enumeration;
+  #356 = NameAndType        #357:#358        // enumeration:(Ljava/util/Collection;)Ljava/util/Enumeration;
+  #357 = Utf8               enumeration
+  #358 = Utf8               (Ljava/util/Collection;)Ljava/util/Enumeration;
+  #359 = Methodref          #14.#360         // java/util/concurrent/ConcurrentHashMap.values:()Ljava/util/Collection;
+  #360 = NameAndType        #361:#362        // values:()Ljava/util/Collection;
+  #361 = Utf8               values
+  #362 = Utf8               ()Ljava/util/Collection;
+  #363 = Methodref          #14.#364         // java/util/concurrent/ConcurrentHashMap.contains:(Ljava/lang/Object;)Z
+  #364 = NameAndType        #365:#366        // contains:(Ljava/lang/Object;)Z
+  #365 = Utf8               contains
+  #366 = Utf8               (Ljava/lang/Object;)Z
+  #367 = Methodref          #14.#368         // java/util/concurrent/ConcurrentHashMap.containsValue:(Ljava/lang/Object;)Z
+  #368 = NameAndType        #369:#366        // containsValue:(Ljava/lang/Object;)Z
+  #369 = Utf8               containsValue
+  #370 = Methodref          #14.#371         // java/util/concurrent/ConcurrentHashMap.containsKey:(Ljava/lang/Object;)Z
+  #371 = NameAndType        #372:#366        // containsKey:(Ljava/lang/Object;)Z
+  #372 = Utf8               containsKey
+  #373 = Methodref          #14.#38          // java/util/concurrent/ConcurrentHashMap.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+  #374 = Methodref          #14.#375         // java/util/concurrent/ConcurrentHashMap.remove:(Ljava/lang/Object;)Ljava/lang/Object;
+  #375 = NameAndType        #376:#256        // remove:(Ljava/lang/Object;)Ljava/lang/Object;
+  #376 = Utf8               remove
+  #377 = Methodref          #14.#378         // java/util/concurrent/ConcurrentHashMap.putAll:(Ljava/util/Map;)V
+  #378 = NameAndType        #379:#309        // putAll:(Ljava/util/Map;)V
+  #379 = Utf8               putAll
+  #380 = Methodref          #14.#381         // java/util/concurrent/ConcurrentHashMap.clear:()V
+  #381 = NameAndType        #382:#36         // clear:()V
+  #382 = Utf8               clear
+  #383 = Methodref          #14.#102         // java/util/concurrent/ConcurrentHashMap.toString:()Ljava/lang/String;
+  #384 = Methodref          #326.#385        // java/util/Collections.synchronizedSet:(Ljava/util/Set;Ljava/lang/Object;)Ljava/util/Set;
+  #385 = NameAndType        #386:#387        // synchronizedSet:(Ljava/util/Set;Ljava/lang/Object;)Ljava/util/Set;
+  #386 = Utf8               synchronizedSet
+  #387 = Utf8               (Ljava/util/Set;Ljava/lang/Object;)Ljava/util/Set;
+  #388 = Methodref          #326.#389        // java/util/Collections.synchronizedCollection:(Ljava/util/Collection;Ljava/lang/Object;)Ljava/util/Collection;
+  #389 = NameAndType        #390:#391        // synchronizedCollection:(Ljava/util/Collection;Ljava/lang/Object;)Ljava/util/Collection;
+  #390 = Utf8               synchronizedCollection
+  #391 = Utf8               (Ljava/util/Collection;Ljava/lang/Object;)Ljava/util/Collection;
+  #392 = Methodref          #14.#181         // java/util/concurrent/ConcurrentHashMap.entrySet:()Ljava/util/Set;
+  #393 = Methodref          #190.#394        // java/util/Properties$EntrySet."<init>":(Ljava/util/Set;)V
+  #394 = NameAndType        #5:#395          // "<init>":(Ljava/util/Set;)V
+  #395 = Utf8               (Ljava/util/Set;)V
+  #396 = Methodref          #14.#397         // java/util/concurrent/ConcurrentHashMap.equals:(Ljava/lang/Object;)Z
+  #397 = NameAndType        #398:#366        // equals:(Ljava/lang/Object;)Z
+  #398 = Utf8               equals
+  #399 = Methodref          #14.#400         // java/util/concurrent/ConcurrentHashMap.hashCode:()I
+  #400 = NameAndType        #401:#70         // hashCode:()I
+  #401 = Utf8               hashCode
+  #402 = Methodref          #14.#403         // java/util/concurrent/ConcurrentHashMap.getOrDefault:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+  #403 = NameAndType        #404:#40         // getOrDefault:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+  #404 = Utf8               getOrDefault
+  #405 = Methodref          #14.#406         // java/util/concurrent/ConcurrentHashMap.forEach:(Ljava/util/function/BiConsumer;)V
+  #406 = NameAndType        #407:#408        // forEach:(Ljava/util/function/BiConsumer;)V
+  #407 = Utf8               forEach
+  #408 = Utf8               (Ljava/util/function/BiConsumer;)V
+  #409 = Methodref          #14.#410         // java/util/concurrent/ConcurrentHashMap.replaceAll:(Ljava/util/function/BiFunction;)V
+  #410 = NameAndType        #411:#412        // replaceAll:(Ljava/util/function/BiFunction;)V
+  #411 = Utf8               replaceAll
+  #412 = Utf8               (Ljava/util/function/BiFunction;)V
+  #413 = Methodref          #14.#414         // java/util/concurrent/ConcurrentHashMap.putIfAbsent:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+  #414 = NameAndType        #415:#40         // putIfAbsent:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+  #415 = Utf8               putIfAbsent
+  #416 = Methodref          #14.#417         // java/util/concurrent/ConcurrentHashMap.remove:(Ljava/lang/Object;Ljava/lang/Object;)Z
+  #417 = NameAndType        #376:#418        // remove:(Ljava/lang/Object;Ljava/lang/Object;)Z
+  #418 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;)Z
+  #419 = Methodref          #14.#420         // java/util/concurrent/ConcurrentHashMap.replace:(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Z
+  #420 = NameAndType        #421:#422        // replace:(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Z
+  #421 = Utf8               replace
+  #422 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Z
+  #423 = Methodref          #14.#424         // java/util/concurrent/ConcurrentHashMap.replace:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+  #424 = NameAndType        #421:#40         // replace:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+  #425 = Methodref          #14.#426         // java/util/concurrent/ConcurrentHashMap.computeIfAbsent:(Ljava/lang/Object;Ljava/util/function/Function;)Ljava/lang/Object;
+  #426 = NameAndType        #427:#428        // computeIfAbsent:(Ljava/lang/Object;Ljava/util/function/Function;)Ljava/lang/Object;
+  #427 = Utf8               computeIfAbsent
+  #428 = Utf8               (Ljava/lang/Object;Ljava/util/function/Function;)Ljava/lang/Object;
+  #429 = Methodref          #14.#430         // java/util/concurrent/ConcurrentHashMap.computeIfPresent:(Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+  #430 = NameAndType        #431:#432        // computeIfPresent:(Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+  #431 = Utf8               computeIfPresent
+  #432 = Utf8               (Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+  #433 = Methodref          #14.#434         // java/util/concurrent/ConcurrentHashMap.compute:(Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+  #434 = NameAndType        #435:#432        // compute:(Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+  #435 = Utf8               compute
+  #436 = Methodref          #14.#437         // java/util/concurrent/ConcurrentHashMap.merge:(Ljava/lang/Object;Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+  #437 = NameAndType        #438:#439        // merge:(Ljava/lang/Object;Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+  #438 = Utf8               merge
+  #439 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+  #440 = Methodref          #2.#441          // java/util/Properties.cloneHashtable:()Ljava/util/Hashtable;
+  #441 = NameAndType        #442:#443        // cloneHashtable:()Ljava/util/Hashtable;
+  #442 = Utf8               cloneHashtable
+  #443 = Utf8               ()Ljava/util/Hashtable;
+  #444 = Methodref          #14.#445         // java/util/concurrent/ConcurrentHashMap."<init>":(Ljava/util/Map;)V
+  #445 = NameAndType        #5:#309          // "<init>":(Ljava/util/Map;)V
+  #446 = Methodref          #192.#17         // java/util/ArrayList."<init>":(I)V
+  #447 = InterfaceMethodref #197.#448        // java/util/List.add:(Ljava/lang/Object;)Z
+  #448 = NameAndType        #449:#366        // add:(Ljava/lang/Object;)Z
+  #449 = Utf8               add
+  #450 = Float              0.75f
+  #451 = InterfaceMethodref #197.#349        // java/util/List.size:()I
+  #452 = Methodref          #2.#453          // java/util/Properties.defaultWriteHashtable:(Ljava/io/ObjectOutputStream;IF)V
+  #453 = NameAndType        #454:#455        // defaultWriteHashtable:(Ljava/io/ObjectOutputStream;IF)V
+  #454 = Utf8               defaultWriteHashtable
+  #455 = Utf8               (Ljava/io/ObjectOutputStream;IF)V
+  #456 = Methodref          #457.#458        // java/io/ObjectOutputStream.writeInt:(I)V
+  #457 = Class              #459             // java/io/ObjectOutputStream
+  #458 = NameAndType        #460:#18         // writeInt:(I)V
+  #459 = Utf8               java/io/ObjectOutputStream
+  #460 = Utf8               writeInt
+  #461 = InterfaceMethodref #197.#462        // java/util/List.get:(I)Ljava/lang/Object;
+  #462 = NameAndType        #300:#463        // get:(I)Ljava/lang/Object;
+  #463 = Utf8               (I)Ljava/lang/Object;
+  #464 = Methodref          #457.#465        // java/io/ObjectOutputStream.writeObject:(Ljava/lang/Object;)V
+  #465 = NameAndType        #466:#467        // writeObject:(Ljava/lang/Object;)V
+  #466 = Utf8               writeObject
+  #467 = Utf8               (Ljava/lang/Object;)V
+  #468 = Methodref          #469.#470        // java/io/ObjectInputStream.defaultReadObject:()V
+  #469 = Class              #471             // java/io/ObjectInputStream
+  #470 = NameAndType        #472:#36         // defaultReadObject:()V
+  #471 = Utf8               java/io/ObjectInputStream
+  #472 = Utf8               defaultReadObject
+  #473 = Methodref          #469.#474        // java/io/ObjectInputStream.readInt:()I
+  #474 = NameAndType        #475:#70         // readInt:()I
+  #475 = Utf8               readInt
+  #476 = Class              #477             // java/io/StreamCorruptedException
+  #477 = Utf8               java/io/StreamCorruptedException
+  #478 = String             #479             // Illegal # of Elements: 
+  #479 = Utf8               Illegal # of Elements: 
+  #480 = Methodref          #63.#481         // java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+  #481 = NameAndType        #89:#482         // append:(I)Ljava/lang/StringBuilder;
+  #482 = Utf8               (I)Ljava/lang/StringBuilder;
+  #483 = Methodref          #476.#96         // java/io/StreamCorruptedException."<init>":(Ljava/lang/String;)V
+  #484 = Methodref          #485.#486        // jdk/internal/access/SharedSecrets.getJavaObjectInputStreamAccess:()Ljdk/internal/access/JavaObjectInputStreamAccess;
+  #485 = Class              #487             // jdk/internal/access/SharedSecrets
+  #486 = NameAndType        #488:#489        // getJavaObjectInputStreamAccess:()Ljdk/internal/access/JavaObjectInputStreamAccess;
+  #487 = Utf8               jdk/internal/access/SharedSecrets
+  #488 = Utf8               getJavaObjectInputStreamAccess
+  #489 = Utf8               ()Ljdk/internal/access/JavaObjectInputStreamAccess;
+  #490 = Class              #491             // "[Ljava/util/Map$Entry;"
+  #491 = Utf8               [Ljava/util/Map$Entry;
+  #492 = Double             0.75d
+  #494 = Methodref          #314.#495        // java/util/HashMap.tableSizeFor:(I)I
+  #495 = NameAndType        #496:#497        // tableSizeFor:(I)I
+  #496 = Utf8               tableSizeFor
+  #497 = Utf8               (I)I
+  #498 = InterfaceMethodref #499.#500        // jdk/internal/access/JavaObjectInputStreamAccess.checkArray:(Ljava/io/ObjectInputStream;Ljava/lang/Class;I)V
+  #499 = Class              #501             // jdk/internal/access/JavaObjectInputStreamAccess
+  #500 = NameAndType        #502:#503        // checkArray:(Ljava/io/ObjectInputStream;Ljava/lang/Class;I)V
+  #501 = Utf8               jdk/internal/access/JavaObjectInputStreamAccess
+  #502 = Utf8               checkArray
+  #503 = Utf8               (Ljava/io/ObjectInputStream;Ljava/lang/Class;I)V
+  #504 = Methodref          #469.#505        // java/io/ObjectInputStream.readObject:()Ljava/lang/Object;
+  #505 = NameAndType        #506:#224        // readObject:()Ljava/lang/Object;
+  #506 = Utf8               readObject
+  #507 = Methodref          #32.#508         // jdk/internal/misc/Unsafe.getUnsafe:()Ljdk/internal/misc/Unsafe;
+  #508 = NameAndType        #509:#510        // getUnsafe:()Ljdk/internal/misc/Unsafe;
+  #509 = Utf8               getUnsafe
+  #510 = Utf8               ()Ljdk/internal/misc/Unsafe;
+  #511 = Utf8               serialVersionUID
+  #512 = Utf8               J
+  #513 = Utf8               ConstantValue
+  #514 = Long               4112578634029874840l
+  #516 = Utf8               Signature
+  #517 = Utf8               Ljava/util/concurrent/ConcurrentHashMap<Ljava/lang/Object;Ljava/lang/Object;>;
+  #518 = Utf8               Code
+  #519 = Utf8               LineNumberTable
+  #520 = Utf8               LocalVariableTable
+  #521 = Utf8               this
+  #522 = Utf8               initialCapacity
+  #523 = Utf8               I
+  #524 = Utf8               (Ljava/util/Properties;)V
+  #525 = Utf8               setProperty
+  #526 = Utf8               (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;
+  #527 = Utf8               key
+  #528 = Utf8               Ljava/lang/String;
+  #529 = Utf8               value
+  #530 = Utf8               reader
+  #531 = Utf8               Ljava/io/Reader;
+  #532 = Utf8               Exceptions
+  #533 = Utf8               inStream
+  #534 = Utf8               Ljava/io/InputStream;
+  #535 = Utf8               C
+  #536 = Utf8               keyLen
+  #537 = Utf8               valueStart
+  #538 = Utf8               hasSep
+  #539 = Utf8               Z
+  #540 = Utf8               precedingBackslash
+  #541 = Utf8               lr
+  #542 = Utf8               Ljava/util/Properties$LineReader;
+  #543 = Utf8               outBuffer
+  #544 = Utf8               Ljava/lang/StringBuilder;
+  #545 = Utf8               limit
+  #546 = Utf8               StackMapTable
+  #547 = Utf8               aChar
+  #548 = Utf8               i
+  #549 = Utf8               in
+  #550 = Utf8               off
+  #551 = Utf8               len
+  #552 = Utf8               out
+  #553 = Utf8               end
+  #554 = Utf8               start
+  #555 = Class              #74              // "[C"
+  #556 = Utf8               x
+  #557 = Utf8               theString
+  #558 = Utf8               escapeSpace
+  #559 = Utf8               escapeUnicode
+  #560 = Utf8               bufLen
+  #561 = Utf8               hex
+  #562 = Utf8               Ljava/util/HexFormat;
+  #563 = Utf8               bw
+  #564 = Utf8               Ljava/io/BufferedWriter;
+  #565 = Utf8               comments
+  #566 = Utf8               current
+  #567 = Utf8               last
+  #568 = Utf8               save
+  #569 = Utf8               Ljava/io/OutputStream;
+  #570 = Utf8               Deprecated
+  #571 = Utf8               RuntimeVisibleAnnotations
+  #572 = Utf8               Ljava/lang/Deprecated;
+  #573 = Utf8               (Ljava/io/Writer;Ljava/lang/String;)V
+  #574 = Utf8               writer
+  #575 = Utf8               Ljava/io/Writer;
+  #576 = Class              #577             // java/io/Writer
+  #577 = Utf8               java/io/Writer
+  #578 = Utf8               ss
+  #579 = Utf8               Ljava/util/Collections$SynchronizedSet;
+  #580 = Utf8               val
+  #581 = Utf8               e
+  #582 = Utf8               Ljava/util/Map$Entry;
+  #583 = Utf8               entries
+  #584 = Utf8               escUnicode
+  #585 = Utf8               LocalVariableTypeTable
+  #586 = Utf8               Ljava/util/Collections$SynchronizedSet<*>;
+  #587 = Utf8               Ljava/util/Map$Entry<Ljava/lang/String;Ljava/lang/String;>;
+  #588 = Utf8               Ljava/util/Collection<Ljava/util/Map$Entry<Ljava/lang/String;Ljava/lang/String;>;>;
+  #589 = Class              #590             // java/lang/Object
+  #590 = Utf8               java/lang/Object
+  #591 = Class              #592             // java/lang/Throwable
+  #592 = Utf8               java/lang/Throwable
+  #593 = Utf8               sysPropVal
+  #594 = Utf8               loadFromXML
+  #595 = Utf8               handler
+  #596 = Utf8               Ljdk/internal/util/xml/PropertiesDefaultHandler;
+  #597 = Class              #598             // java/util/InvalidPropertiesFormatException
+  #598 = Utf8               java/util/InvalidPropertiesFormatException
+  #599 = Utf8               os
+  #600 = Utf8               comment
+  #601 = Utf8               (Ljava/io/OutputStream;Ljava/lang/String;Ljava/lang/String;)V
+  #602 = Utf8               charset
+  #603 = Utf8               Ljava/nio/charset/Charset;
+  #604 = Utf8               Ljava/lang/IllegalArgumentException;
+  #605 = Utf8               encoding
+  #606 = Utf8               oval
+  #607 = Utf8               Ljava/lang/Object;
+  #608 = Utf8               sval
+  #609 = Utf8               (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+  #610 = Utf8               defaultValue
+  #611 = Utf8               propertyNames
+  #612 = Utf8               h
+  #613 = Utf8               Ljava/util/Hashtable;
+  #614 = Utf8               Ljava/util/Hashtable<Ljava/lang/String;Ljava/lang/Object;>;
+  #615 = Utf8               ()Ljava/util/Enumeration<*>;
+  #616 = Utf8               stringPropertyNames
+  #617 = Utf8               Ljava/util/Map;
+  #618 = Utf8               Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;
+  #619 = Utf8               ()Ljava/util/Set<Ljava/lang/String;>;
+  #620 = Utf8               list
+  #621 = Utf8               (Ljava/io/PrintStream;)V
+  #622 = Utf8               Ljava/io/PrintStream;
+  #623 = Utf8               Ljava/util/Map$Entry<Ljava/lang/String;Ljava/lang/Object;>;
+  #624 = Utf8               Ljava/util/Map<Ljava/lang/String;Ljava/lang/Object;>;
+  #625 = Utf8               (Ljava/io/PrintWriter;)V
+  #626 = Utf8               Ljava/io/PrintWriter;
+  #627 = Utf8               Ljava/util/Map$Entry<Ljava/lang/Object;Ljava/lang/Object;>;
+  #628 = Utf8               (Ljava/util/Map<Ljava/lang/String;Ljava/lang/Object;>;)V
+  #629 = Utf8               k
+  #630 = Utf8               v
+  #631 = Utf8               (Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;)V
+  #632 = Utf8               ()Ljava/util/Enumeration<Ljava/lang/Object;>;
+  #633 = Utf8               elements
+  #634 = Utf8               t
+  #635 = Utf8               Ljava/util/Map<**>;
+  #636 = Utf8               (Ljava/util/Map<**>;)V
+  #637 = Utf8               ()Ljava/util/Set<Ljava/lang/Object;>;
+  #638 = Utf8               ()Ljava/util/Collection<Ljava/lang/Object;>;
+  #639 = Utf8               ()Ljava/util/Set<Ljava/util/Map$Entry<Ljava/lang/Object;Ljava/lang/Object;>;>;
+  #640 = Utf8               o
+  #641 = Utf8               action
+  #642 = Utf8               Ljava/util/function/BiConsumer;
+  #643 = Utf8               Ljava/util/function/BiConsumer<-Ljava/lang/Object;-Ljava/lang/Object;>;
+  #644 = Utf8               (Ljava/util/function/BiConsumer<-Ljava/lang/Object;-Ljava/lang/Object;>;)V
+  #645 = Utf8               function
+  #646 = Utf8               Ljava/util/function/BiFunction;
+  #647 = Utf8               Ljava/util/function/BiFunction<-Ljava/lang/Object;-Ljava/lang/Object;*>;
+  #648 = Utf8               (Ljava/util/function/BiFunction<-Ljava/lang/Object;-Ljava/lang/Object;*>;)V
+  #649 = Utf8               oldValue
+  #650 = Utf8               newValue
+  #651 = Utf8               mappingFunction
+  #652 = Utf8               Ljava/util/function/Function;
+  #653 = Utf8               Ljava/util/function/Function<-Ljava/lang/Object;*>;
+  #654 = Utf8               (Ljava/lang/Object;Ljava/util/function/Function<-Ljava/lang/Object;*>;)Ljava/lang/Object;
+  #655 = Utf8               remappingFunction
+  #656 = Utf8               (Ljava/lang/Object;Ljava/util/function/BiFunction<-Ljava/lang/Object;-Ljava/lang/Object;*>;)Ljava/lang/Object;
+  #657 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;Ljava/util/function/BiFunction<-Ljava/lang/Object;-Ljava/lang/Object;*>;)Ljava/lang/Object;
+  #658 = Utf8               rehash
+  #659 = Utf8               clone
+  #660 = Utf8               writeHashtable
+  #661 = Utf8               (Ljava/io/ObjectOutputStream;)V
+  #662 = Utf8               entry
+  #663 = Utf8               s
+  #664 = Utf8               Ljava/io/ObjectOutputStream;
+  #665 = Utf8               entryStack
+  #666 = Utf8               Ljava/util/List;
+  #667 = Utf8               loadFactor
+  #668 = Utf8               F
+  #669 = Utf8               count
+  #670 = Utf8               Ljava/util/List<Ljava/lang/Object;>;
+  #671 = Utf8               readHashtable
+  #672 = Utf8               (Ljava/io/ObjectInputStream;)V
+  #673 = Utf8               Ljava/io/ObjectInputStream;
+  #674 = Utf8               origlength
+  #675 = Class              #676             // java/lang/ClassNotFoundException
+  #676 = Utf8               java/lang/ClassNotFoundException
+  #677 = Utf8               <clinit>
+  #678 = Utf8               Ljava/util/Hashtable<Ljava/lang/Object;Ljava/lang/Object;>;
+  #679 = Utf8               SourceFile
+  #680 = Utf8               Properties.java
+  #681 = Utf8               NestMembers
+  #682 = Utf8               InnerClasses
+  #683 = Utf8               LineReader
+  #684 = Utf8               SynchronizedSet
+  #685 = Utf8               EntrySet
+  #686 = Utf8               Entry
+  #687 = Class              #688             // java/util/concurrent/ConcurrentHashMap$KeySetView
+  #688 = Utf8               java/util/concurrent/ConcurrentHashMap$KeySetView
+  #689 = Utf8               KeySetView
+{
+  private static final long serialVersionUID;
+    descriptor: J
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: long 4112578634029874840l
+  
+  private static final jdk.internal.misc.Unsafe UNSAFE;
+    descriptor: Ljdk/internal/misc/Unsafe;
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+  
+  protected volatile java.util.Properties defaults;
+    descriptor: Ljava/util/Properties;
+    flags: (0x0044) ACC_PROTECTED, ACC_VOLATILE
+  
+  private volatile transient java.util.concurrent.ConcurrentHashMap<java.lang.Object, java.lang.Object> map;
+    descriptor: Ljava/util/concurrent/ConcurrentHashMap;
+    flags: (0x00c2) ACC_PRIVATE, ACC_VOLATILE, ACC_TRANSIENT
+    Signature: #517                        // Ljava/util/concurrent/ConcurrentHashMap<Ljava/lang/Object;Ljava/lang/Object;>;
+  
+  public java.util.Properties();
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=1, args_size=1
+         0: aload_0                 
+         1: aconst_null             
+         2: bipush        8                 
+         4: invokespecial #1                  // Method "<init>":(Ljava/util/Properties;I)V
+         7: return                  
+      LineNumberTable:
+        line 176: 0
+        line 177: 7
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/util/Properties;
+  
+  public java.util.Properties(int);
+    descriptor: (I)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=2, args_size=2
+         0: aload_0                 
+         1: aconst_null             
+         2: iload_1                 
+         3: invokespecial #1                  // Method "<init>":(Ljava/util/Properties;I)V
+         6: return                  
+      LineNumberTable:
+        line 191: 0
+        line 192: 6
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        7     0  this   Ljava/util/Properties;
+           0        7     1  initialCapacity I
+  
+  public java.util.Properties(java.util.Properties);
+    descriptor: (Ljava/util/Properties;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=2, args_size=2
+         0: aload_0                 
+         1: aload_1                 
+         2: bipush        8                 
+         4: invokespecial #1                  // Method "<init>":(Ljava/util/Properties;I)V
+         7: return                  
+      LineNumberTable:
+        line 203: 0
+        line 204: 7
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/util/Properties;
+           0        8     1  defaults Ljava/util/Properties;
+  
+  private java.util.Properties(java.util.Properties, int);
+    descriptor: (Ljava/util/Properties;I)V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=4, locals=3, args_size=3
+         0: aload_0                 
+         1: aconst_null             
+         2: checkcast     #7                  // class java/lang/Void
+         5: invokespecial #9                  // Method java/util/Hashtable."<init>":(Ljava/lang/Void;)V
+         8: aload_0                 
+         9: new           #14                 // class java/util/concurrent/ConcurrentHashMap
+        12: dup                     
+        13: iload_2                 
+        14: invokespecial #16                 // Method java/util/concurrent/ConcurrentHashMap."<init>":(I)V
+        17: putfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+        20: aload_0                 
+        21: aload_1                 
+        22: putfield      #23                 // Field defaults:Ljava/util/Properties;
+        25: getstatic     #27                 // Field UNSAFE:Ljdk/internal/misc/Unsafe;
+        28: invokevirtual #31                 // Method jdk/internal/misc/Unsafe.storeFence:()V
+        31: return                  
+      LineNumberTable:
+        line 209: 0
+        line 210: 8
+        line 211: 20
+        line 214: 25
+        line 215: 31
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       32     0  this   Ljava/util/Properties;
+           0       32     1  defaults Ljava/util/Properties;
+           0       32     2  initialCapacity I
+  
+  public synchronized java.lang.Object setProperty(java.lang.String, java.lang.String);
+    descriptor: (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;
+    flags: (0x0021) ACC_PUBLIC, ACC_SYNCHRONIZED
+    Code: 
+      stack=3, locals=3, args_size=3
+         0: aload_0                 
+         1: aload_1                 
+         2: aload_2                 
+         3: invokevirtual #37                 // Method put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+         6: areturn                 
+      LineNumberTable:
+        line 231: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        7     0  this   Ljava/util/Properties;
+           0        7     1  key    Ljava/lang/String;
+           0        7     2  value  Ljava/lang/String;
+  
+  public synchronized void load(java.io.Reader) throws java.io.IOException;
+    descriptor: (Ljava/io/Reader;)V
+    flags: (0x0021) ACC_PUBLIC, ACC_SYNCHRONIZED
+    Code: 
+      stack=4, locals=2, args_size=2
+         0: aload_1                 
+         1: ldc           #41                 // String reader parameter is null
+         3: invokestatic  #43                 // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+         6: pop                     
+         7: aload_0                 
+         8: new           #49                 // class java/util/Properties$LineReader
+        11: dup                     
+        12: aload_1                 
+        13: invokespecial #51                 // Method java/util/Properties$LineReader."<init>":(Ljava/io/Reader;)V
+        16: invokevirtual #54                 // Method load0:(Ljava/util/Properties$LineReader;)V
+        19: return                  
+      LineNumberTable:
+        line 383: 0
+        line 384: 7
+        line 385: 19
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       20     0  this   Ljava/util/Properties;
+           0       20     1  reader Ljava/io/Reader;
+    Exceptions:
+      throws java.io.IOException
+  
+  public synchronized void load(java.io.InputStream) throws java.io.IOException;
+    descriptor: (Ljava/io/InputStream;)V
+    flags: (0x0021) ACC_PUBLIC, ACC_SYNCHRONIZED
+    Code: 
+      stack=4, locals=2, args_size=2
+         0: aload_1                 
+         1: ldc           #58                 // String inStream parameter is null
+         3: invokestatic  #43                 // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+         6: pop                     
+         7: aload_0                 
+         8: new           #49                 // class java/util/Properties$LineReader
+        11: dup                     
+        12: aload_1                 
+        13: invokespecial #60                 // Method java/util/Properties$LineReader."<init>":(Ljava/io/InputStream;)V
+        16: invokevirtual #54                 // Method load0:(Ljava/util/Properties$LineReader;)V
+        19: return                  
+      LineNumberTable:
+        line 409: 0
+        line 410: 7
+        line 411: 19
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       20     0  this   Ljava/util/Properties;
+           0       20     1  inStream Ljava/io/InputStream;
+    Exceptions:
+      throws java.io.IOException
+  
+  private void load0(java.util.Properties$LineReader) throws java.io.IOException;
+    descriptor: (Ljava/util/Properties$LineReader;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=5, locals=10, args_size=2
+         0: new           #63                 // class java/lang/StringBuilder
+         3: dup                     
+         4: invokespecial #65                 // Method java/lang/StringBuilder."<init>":()V
+         7: astore_2                
+         8: aload_1                 
+         9: invokevirtual #67                 // Method java/util/Properties$LineReader.readLine:()I
+        12: dup                     
+        13: istore_3                
+        14: iflt          248               
+        17: iconst_0                
+        18: istore        4                 
+        20: iload_3                 
+        21: istore        5                 
+        23: iconst_0                
+        24: istore        6                 
+        26: iconst_0                
+        27: istore        7                 
+        29: iload         4                 
+        31: iload_3                 
+        32: if_icmpge     141               
+        35: aload_1                 
+        36: getfield      #71                 // Field java/util/Properties$LineReader.lineBuf:[C
+        39: iload         4                 
+        41: caload                  
+        42: istore        8                 
+        44: iload         8                 
+        46: bipush        61                
+        48: if_icmpeq     58                
+        51: iload         8                 
+        53: bipush        58                
+        55: if_icmpne     75                
+        58: iload         7                 
+        60: ifne          75                
+        63: iload         4                 
+        65: iconst_1                
+        66: iadd                    
+        67: istore        5                 
+        69: iconst_1                
+        70: istore        6                 
+        72: goto          141               
+        75: iload         8                 
+        77: bipush        32                
+        79: if_icmpeq     96                
+        82: iload         8                 
+        84: bipush        9                 
+        86: if_icmpeq     96                
+        89: iload         8                 
+        91: bipush        12                
+        93: if_icmpne     110               
+        96: iload         7                 
+        98: ifne          110               
+       101: iload         4                 
+       103: iconst_1                
+       104: iadd                    
+       105: istore        5                 
+       107: goto          141               
+       110: iload         8                 
+       112: bipush        92                
+       114: if_icmpne     132               
+       117: iload         7                 
+       119: ifne          126               
+       122: iconst_1                
+       123: goto          127               
+       126: iconst_0                
+       127: istore        7                 
+       129: goto          135               
+       132: iconst_0                
+       133: istore        7                 
+       135: iinc          4, 1              
+       138: goto          29                
+       141: iload         5                 
+       143: iload_3                 
+       144: if_icmpge     205               
+       147: aload_1                 
+       148: getfield      #71                 // Field java/util/Properties$LineReader.lineBuf:[C
+       151: iload         5                 
+       153: caload                  
+       154: istore        8                 
+       156: iload         8                 
+       158: bipush        32                
+       160: if_icmpeq     199               
+       163: iload         8                 
+       165: bipush        9                 
+       167: if_icmpeq     199               
+       170: iload         8                 
+       172: bipush        12                
+       174: if_icmpeq     199               
+       177: iload         6                 
+       179: ifne          205               
+       182: iload         8                 
+       184: bipush        61                
+       186: if_icmpeq     196               
+       189: iload         8                 
+       191: bipush        58                
+       193: if_icmpne     205               
+       196: iconst_1                
+       197: istore        6                 
+       199: iinc          5, 1              
+       202: goto          141               
+       205: aload_0                 
+       206: aload_1                 
+       207: getfield      #71                 // Field java/util/Properties$LineReader.lineBuf:[C
+       210: iconst_0                
+       211: iload         4                 
+       213: aload_2                 
+       214: invokevirtual #75                 // Method loadConvert:([CIILjava/lang/StringBuilder;)Ljava/lang/String;
+       217: astore        8                 
+       219: aload_0                 
+       220: aload_1                 
+       221: getfield      #71                 // Field java/util/Properties$LineReader.lineBuf:[C
+       224: iload         5                 
+       226: iload_3                 
+       227: iload         5                 
+       229: isub                    
+       230: aload_2                 
+       231: invokevirtual #75                 // Method loadConvert:([CIILjava/lang/StringBuilder;)Ljava/lang/String;
+       234: astore        9                 
+       236: aload_0                 
+       237: aload         8                 
+       239: aload         9                 
+       241: invokevirtual #37                 // Method put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+       244: pop                     
+       245: goto          8                 
+       248: return                  
+      LineNumberTable:
+        line 414: 0
+        line 421: 8
+        line 422: 17
+        line 423: 20
+        line 424: 23
+        line 427: 26
+        line 428: 29
+        line 429: 35
+        line 431: 44
+        line 432: 63
+        line 433: 69
+        line 434: 72
+        line 435: 75
+        line 436: 101
+        line 437: 107
+        line 439: 110
+        line 440: 117
+        line 442: 132
+        line 444: 135
+        line 445: 138
+        line 446: 141
+        line 447: 147
+        line 448: 156
+        line 449: 177
+        line 450: 196
+        line 455: 199
+        line 456: 202
+        line 457: 205
+        line 458: 219
+        line 459: 236
+        line 460: 245
+        line 461: 248
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          44       94     8  c      C
+         156       46     8  c      C
+         219       26     8  key    Ljava/lang/String;
+         236        9     9  value  Ljava/lang/String;
+          20      228     4  keyLen I
+          23      225     5  valueStart I
+          26      222     6  hasSep Z
+          29      219     7  precedingBackslash Z
+           0      249     0  this   Ljava/util/Properties;
+           0      249     1  lr     Ljava/util/Properties$LineReader;
+           8      241     2  outBuffer Ljava/lang/StringBuilder;
+          14      235     3  limit  I
+      StackMapTable: number_of_entries = 15
+        frame_type = 252 /* append */
+          offset_delta = 8
+          locals = [class java/lang/StringBuilder]
+        frame_type = 255 /* full_frame */
+          offset_delta = 20
+          locals = [class java/util/Properties, class java/util/Properties$LineReader, class java/lang/StringBuilder, int, int, int, int, int]
+          stack = []
+        frame_type = 252 /* append */
+          offset_delta = 28
+          locals = [int]
+        frame_type = 16 /* same */
+        frame_type = 20 /* same */
+        frame_type = 13 /* same */
+        frame_type = 15 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 4 /* same */
+        frame_type = 2 /* same */
+        frame_type = 250 /* chop */
+          offset_delta = 5
+        frame_type = 252 /* append */
+          offset_delta = 54
+          locals = [int]
+        frame_type = 2 /* same */
+        frame_type = 250 /* chop */
+          offset_delta = 5
+        frame_type = 255 /* full_frame */
+          offset_delta = 42
+          locals = [class java/util/Properties, class java/util/Properties$LineReader, class java/lang/StringBuilder, int]
+          stack = []
+    Exceptions:
+      throws java.io.IOException
+  
+  private java.lang.String loadConvert(char[], int, int, java.lang.StringBuilder);
+    descriptor: ([CIILjava/lang/StringBuilder;)Ljava/lang/String;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=5, locals=10, args_size=5
+         0: iload_2                 
+         1: iload_3                 
+         2: iadd                    
+         3: istore        6                 
+         5: iload_2                 
+         6: istore        7                 
+         8: iload_2                 
+         9: iload         6                 
+        11: if_icmpge     32                
+        14: aload_1                 
+        15: iload_2                 
+        16: iinc          2, 1              
+        19: caload                  
+        20: istore        5                 
+        22: iload         5                 
+        24: bipush        92                
+        26: if_icmpne     8                 
+        29: goto          32                
+        32: iload_2                 
+        33: iload         6                 
+        35: if_icmpne     50                
+        38: new           #79                 // class java/lang/String
+        41: dup                     
+        42: aload_1                 
+        43: iload         7                 
+        45: iload_3                 
+        46: invokespecial #81                 // Method java/lang/String."<init>":([CII)V
+        49: areturn                 
+        50: aload         4                 
+        52: iconst_0                
+        53: invokevirtual #84                 // Method java/lang/StringBuilder.setLength:(I)V
+        56: iinc          2, -1             
+        59: aload         4                 
+        61: aload_1                 
+        62: iload         7                 
+        64: iload_2                 
+        65: iload         7                 
+        67: isub                    
+        68: invokevirtual #87                 // Method java/lang/StringBuilder.append:([CII)Ljava/lang/StringBuilder;
+        71: pop                     
+        72: iload_2                 
+        73: iload         6                 
+        75: if_icmpge     534               
+        78: aload_1                 
+        79: iload_2                 
+        80: iinc          2, 1              
+        83: caload                  
+        84: istore        5                 
+        86: iload         5                 
+        88: bipush        92                
+        90: if_icmpne     523               
+        93: aload_1                 
+        94: iload_2                 
+        95: iinc          2, 1              
+        98: caload                  
+        99: istore        5                 
+       101: iload         5                 
+       103: bipush        117               
+       105: if_icmpne     459               
+       108: iload_2                 
+       109: iload         6                 
+       111: iconst_4                
+       112: isub                    
+       113: if_icmple     126               
+       116: new           #91                 // class java/lang/IllegalArgumentException
+       119: dup                     
+       120: ldc           #93                 // String Malformed \\uxxxx encoding.
+       122: invokespecial #95                 // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+       125: athrow                  
+       126: iconst_0                
+       127: istore        8                 
+       129: iconst_0                
+       130: istore        9                 
+       132: iload         9                 
+       134: iconst_4                
+       135: if_icmpge     447               
+       138: aload_1                 
+       139: iload_2                 
+       140: iinc          2, 1              
+       143: caload                  
+       144: istore        5                 
+       146: iload         5                 
+       148: tableswitch   { // 48 to 102
+                        48: 384
+                        49: 384
+                        50: 384
+                        51: 384
+                        52: 384
+                        53: 384
+                        54: 384
+                        55: 384
+                        56: 384
+                        57: 384
+                        58: 429
+                        59: 429
+                        60: 429
+                        61: 429
+                        62: 429
+                        63: 429
+                        64: 429
+                        65: 413
+                        66: 413
+                        67: 413
+                        68: 413
+                        69: 413
+                        70: 413
+                        71: 429
+                        72: 429
+                        73: 429
+                        74: 429
+                        75: 429
+                        76: 429
+                        77: 429
+                        78: 429
+                        79: 429
+                        80: 429
+                        81: 429
+                        82: 429
+                        83: 429
+                        84: 429
+                        85: 429
+                        86: 429
+                        87: 429
+                        88: 429
+                        89: 429
+                        90: 429
+                        91: 429
+                        92: 429
+                        93: 429
+                        94: 429
+                        95: 429
+                        96: 429
+                        97: 397
+                        98: 397
+                        99: 397
+                       100: 397
+                       101: 397
+                       102: 397
+                   default: 429
+            }
+       384: iload         8                 
+       386: iconst_4                
+       387: ishl                    
+       388: iload         5                 
+       390: iadd                    
+       391: bipush        48                
+       393: isub                    
+       394: goto          439               
+       397: iload         8                 
+       399: iconst_4                
+       400: ishl                    
+       401: bipush        10                
+       403: iadd                    
+       404: iload         5                 
+       406: iadd                    
+       407: bipush        97                
+       409: isub                    
+       410: goto          439               
+       413: iload         8                 
+       415: iconst_4                
+       416: ishl                    
+       417: bipush        10                
+       419: iadd                    
+       420: iload         5                 
+       422: iadd                    
+       423: bipush        65                
+       425: isub                    
+       426: goto          439               
+       429: new           #91                 // class java/lang/IllegalArgumentException
+       432: dup                     
+       433: ldc           #93                 // String Malformed \\uxxxx encoding.
+       435: invokespecial #95                 // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+       438: athrow                  
+       439: istore        8                 
+       441: iinc          9, 1              
+       444: goto          132               
+       447: aload         4                 
+       449: iload         8                 
+       451: i2c                     
+       452: invokevirtual #98                 // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+       455: pop                     
+       456: goto          72                
+       459: iload         5                 
+       461: bipush        116               
+       463: if_icmpne     473               
+       466: bipush        9                 
+       468: istore        5                 
+       470: goto          512               
+       473: iload         5                 
+       475: bipush        114               
+       477: if_icmpne     487               
+       480: bipush        13                
+       482: istore        5                 
+       484: goto          512               
+       487: iload         5                 
+       489: bipush        110               
+       491: if_icmpne     501               
+       494: bipush        10                
+       496: istore        5                 
+       498: goto          512               
+       501: iload         5                 
+       503: bipush        102               
+       505: if_icmpne     512               
+       508: bipush        12                
+       510: istore        5                 
+       512: aload         4                 
+       514: iload         5                 
+       516: invokevirtual #98                 // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+       519: pop                     
+       520: goto          72                
+       523: aload         4                 
+       525: iload         5                 
+       527: invokevirtual #98                 // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+       530: pop                     
+       531: goto          72                
+       534: aload         4                 
+       536: invokevirtual #101                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+       539: areturn                 
+      LineNumberTable:
+        line 629: 0
+        line 630: 5
+        line 631: 8
+        line 632: 14
+        line 633: 22
+        line 634: 29
+        line 637: 32
+        line 638: 38
+        line 642: 50
+        line 643: 56
+        line 644: 59
+        line 646: 72
+        line 647: 78
+        line 648: 86
+        line 651: 93
+        line 652: 101
+        line 654: 108
+        line 655: 116
+        line 657: 126
+        line 658: 129
+        line 659: 138
+        line 660: 146
+        line 661: 384
+        line 662: 397
+        line 663: 413
+        line 664: 429
+        line 665: 439
+        line 658: 441
+        line 667: 447
+        line 668: 456
+        line 669: 459
+        line 670: 473
+        line 671: 487
+        line 672: 501
+        line 673: 512
+        line 676: 523
+        line 679: 534
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          22       10     5  aChar  C
+         132      315     9  i      I
+         129      327     8  value  I
+          86      448     5  aChar  C
+           0      540     0  this   Ljava/util/Properties;
+           0      540     1  in     [C
+           0      540     2  off    I
+           0      540     3  len    I
+           0      540     4  out    Ljava/lang/StringBuilder;
+           5      535     6  end    I
+           8      532     7  start  I
+      StackMapTable: number_of_entries = 19
+        frame_type = 254 /* append */
+          offset_delta = 8
+          locals = [top, int, int]
+        frame_type = 23 /* same */
+        frame_type = 17 /* same */
+        frame_type = 21 /* same */
+        frame_type = 255 /* full_frame */
+          offset_delta = 53
+          locals = [class java/util/Properties, class "[C", int, int, class java/lang/StringBuilder, int, int, int]
+          stack = []
+        frame_type = 253 /* append */
+          offset_delta = 5
+          locals = [int, int]
+        frame_type = 251 /* same_frame_extended */
+          offset_delta = 251
+        frame_type = 12 /* same */
+        frame_type = 15 /* same */
+        frame_type = 15 /* same */
+        frame_type = 73 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 250 /* chop */
+          offset_delta = 7
+        frame_type = 250 /* chop */
+          offset_delta = 11
+        frame_type = 13 /* same */
+        frame_type = 13 /* same */
+        frame_type = 13 /* same */
+        frame_type = 10 /* same */
+        frame_type = 10 /* same */
+        frame_type = 255 /* full_frame */
+          offset_delta = 10
+          locals = [class java/util/Properties, class "[C", int, int, class java/lang/StringBuilder, top, int, int]
+          stack = []
+  
+  private java.lang.String saveConvert(java.lang.String, boolean, boolean);
+    descriptor: (Ljava/lang/String;ZZ)Ljava/lang/String;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=3, locals=10, args_size=4
+         0: aload_1                 
+         1: invokevirtual #105                // Method java/lang/String.length:()I
+         4: istore        4                 
+         6: iload         4                 
+         8: iconst_2                
+         9: imul                    
+        10: istore        5                 
+        12: iload         5                 
+        14: ifge          21                
+        17: ldc           #110                // int 2147483647
+        19: istore        5                 
+        21: new           #63                 // class java/lang/StringBuilder
+        24: dup                     
+        25: iload         5                 
+        27: invokespecial #111                // Method java/lang/StringBuilder."<init>":(I)V
+        30: astore        6                 
+        32: invokestatic  #112                // Method java/util/HexFormat.of:()Ljava/util/HexFormat;
+        35: invokevirtual #118                // Method java/util/HexFormat.withUpperCase:()Ljava/util/HexFormat;
+        38: astore        7                 
+        40: iconst_0                
+        41: istore        8                 
+        43: iload         8                 
+        45: iload         4                 
+        47: if_icmpge     377               
+        50: aload_1                 
+        51: iload         8                 
+        53: invokevirtual #121                // Method java/lang/String.charAt:(I)C
+        56: istore        9                 
+        58: iload         9                 
+        60: bipush        61                
+        62: if_icmple     109               
+        65: iload         9                 
+        67: bipush        127               
+        69: if_icmpge     109               
+        72: iload         9                 
+        74: bipush        92                
+        76: if_icmpne     98                
+        79: aload         6                 
+        81: bipush        92                
+        83: invokevirtual #98                 // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+        86: pop                     
+        87: aload         6                 
+        89: bipush        92                
+        91: invokevirtual #98                 // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+        94: pop                     
+        95: goto          371               
+        98: aload         6                 
+       100: iload         9                 
+       102: invokevirtual #98                 // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+       105: pop                     
+       106: goto          371               
+       109: iload         9                 
+       111: lookupswitch  { // 9
+                         9: 220
+                        10: 239
+                        12: 277
+                        13: 258
+                        32: 192
+                        33: 296
+                        35: 296
+                        58: 296
+                        61: 296
+                   default: 315
+            }
+       192: iload         8                 
+       194: ifeq          201               
+       197: iload_2                 
+       198: ifeq          209               
+       201: aload         6                 
+       203: bipush        92                
+       205: invokevirtual #98                 // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+       208: pop                     
+       209: aload         6                 
+       211: bipush        32                
+       213: invokevirtual #98                 // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+       216: pop                     
+       217: goto          371               
+       220: aload         6                 
+       222: bipush        92                
+       224: invokevirtual #98                 // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+       227: pop                     
+       228: aload         6                 
+       230: bipush        116               
+       232: invokevirtual #98                 // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+       235: pop                     
+       236: goto          371               
+       239: aload         6                 
+       241: bipush        92                
+       243: invokevirtual #98                 // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+       246: pop                     
+       247: aload         6                 
+       249: bipush        110               
+       251: invokevirtual #98                 // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+       254: pop                     
+       255: goto          371               
+       258: aload         6                 
+       260: bipush        92                
+       262: invokevirtual #98                 // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+       265: pop                     
+       266: aload         6                 
+       268: bipush        114               
+       270: invokevirtual #98                 // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+       273: pop                     
+       274: goto          371               
+       277: aload         6                 
+       279: bipush        92                
+       281: invokevirtual #98                 // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+       284: pop                     
+       285: aload         6                 
+       287: bipush        102               
+       289: invokevirtual #98                 // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+       292: pop                     
+       293: goto          371               
+       296: aload         6                 
+       298: bipush        92                
+       300: invokevirtual #98                 // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+       303: pop                     
+       304: aload         6                 
+       306: iload         9                 
+       308: invokevirtual #98                 // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+       311: pop                     
+       312: goto          371               
+       315: iload         9                 
+       317: bipush        32                
+       319: if_icmplt     329               
+       322: iload         9                 
+       324: bipush        126               
+       326: if_icmple     333               
+       329: iconst_1                
+       330: goto          334               
+       333: iconst_0                
+       334: iload_3                 
+       335: iand                    
+       336: ifeq          363               
+       339: aload         6                 
+       341: ldc           #125                // String \\u
+       343: invokevirtual #127                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+       346: pop                     
+       347: aload         6                 
+       349: aload         7                 
+       351: iload         9                 
+       353: invokevirtual #130                // Method java/util/HexFormat.toHexDigits:(C)Ljava/lang/String;
+       356: invokevirtual #127                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+       359: pop                     
+       360: goto          371               
+       363: aload         6                 
+       365: iload         9                 
+       367: invokevirtual #98                 // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+       370: pop                     
+       371: iinc          8, 1              
+       374: goto          43                
+       377: aload         6                 
+       379: invokevirtual #101                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+       382: areturn                 
+      LineNumberTable:
+        line 689: 0
+        line 690: 6
+        line 691: 12
+        line 692: 17
+        line 694: 21
+        line 695: 32
+        line 696: 40
+        line 697: 50
+        line 700: 58
+        line 701: 72
+        line 702: 79
+        line 703: 95
+        line 705: 98
+        line 706: 106
+        line 708: 109
+        line 710: 192
+        line 711: 201
+        line 712: 209
+        line 713: 217
+        line 714: 220
+        line 715: 236
+        line 716: 239
+        line 717: 255
+        line 718: 258
+        line 719: 274
+        line 720: 277
+        line 721: 293
+        line 726: 296
+        line 727: 312
+        line 729: 315
+        line 730: 339
+        line 731: 347
+        line 733: 363
+        line 696: 371
+        line 737: 377
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          58      313     9  aChar  C
+          43      334     8  x      I
+           0      383     0  this   Ljava/util/Properties;
+           0      383     1  theString Ljava/lang/String;
+           0      383     2  escapeSpace Z
+           0      383     3  escapeUnicode Z
+           6      377     4  len    I
+          12      371     5  bufLen I
+          32      351     6  outBuffer Ljava/lang/StringBuilder;
+          40      343     7  hex    Ljava/util/HexFormat;
+      StackMapTable: number_of_entries = 19
+        frame_type = 253 /* append */
+          offset_delta = 21
+          locals = [int, int]
+        frame_type = 254 /* append */
+          offset_delta = 21
+          locals = [class java/lang/StringBuilder, class java/util/HexFormat, int]
+        frame_type = 252 /* append */
+          offset_delta = 54
+          locals = [int]
+        frame_type = 10 /* same */
+        frame_type = 251 /* same_frame_extended */
+          offset_delta = 82
+        frame_type = 8 /* same */
+        frame_type = 7 /* same */
+        frame_type = 10 /* same */
+        frame_type = 18 /* same */
+        frame_type = 18 /* same */
+        frame_type = 18 /* same */
+        frame_type = 18 /* same */
+        frame_type = 18 /* same */
+        frame_type = 13 /* same */
+        frame_type = 3 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 28 /* same */
+        frame_type = 250 /* chop */
+          offset_delta = 7
+        frame_type = 250 /* chop */
+          offset_delta = 5
+  
+  private static void writeComments(java.io.BufferedWriter, java.lang.String) throws java.io.IOException;
+    descriptor: (Ljava/io/BufferedWriter;Ljava/lang/String;)V
+    flags: (0x000a) ACC_PRIVATE, ACC_STATIC
+    Code: 
+      stack=4, locals=7, args_size=2
+         0: invokestatic  #112                // Method java/util/HexFormat.of:()Ljava/util/HexFormat;
+         3: invokevirtual #118                // Method java/util/HexFormat.withUpperCase:()Ljava/util/HexFormat;
+         6: astore_2                
+         7: aload_0                 
+         8: ldc           #134                // String #
+        10: invokevirtual #136                // Method java/io/BufferedWriter.write:(Ljava/lang/String;)V
+        13: aload_1                 
+        14: invokevirtual #105                // Method java/lang/String.length:()I
+        17: istore_3                
+        18: iconst_0                
+        19: istore        4                 
+        21: iconst_0                
+        22: istore        5                 
+        24: iload         4                 
+        26: iload_3                 
+        27: if_icmpge     193               
+        30: aload_1                 
+        31: iload         4                 
+        33: invokevirtual #121                // Method java/lang/String.charAt:(I)C
+        36: istore        6                 
+        38: iload         6                 
+        40: sipush        255               
+        43: if_icmpgt     60                
+        46: iload         6                 
+        48: bipush        10                
+        50: if_icmpeq     60                
+        53: iload         6                 
+        55: bipush        13                
+        57: if_icmpne     187               
+        60: iload         5                 
+        62: iload         4                 
+        64: if_icmpeq     79                
+        67: aload_0                 
+        68: aload_1                 
+        69: iload         5                 
+        71: iload         4                 
+        73: invokevirtual #141                // Method java/lang/String.substring:(II)Ljava/lang/String;
+        76: invokevirtual #136                // Method java/io/BufferedWriter.write:(Ljava/lang/String;)V
+        79: iload         6                 
+        81: sipush        255               
+        84: if_icmple     106               
+        87: aload_0                 
+        88: ldc           #125                // String \\u
+        90: invokevirtual #136                // Method java/io/BufferedWriter.write:(Ljava/lang/String;)V
+        93: aload_0                 
+        94: aload_2                 
+        95: iload         6                 
+        97: invokevirtual #130                // Method java/util/HexFormat.toHexDigits:(C)Ljava/lang/String;
+       100: invokevirtual #136                // Method java/io/BufferedWriter.write:(Ljava/lang/String;)V
+       103: goto          181               
+       106: aload_0                 
+       107: invokevirtual #145                // Method java/io/BufferedWriter.newLine:()V
+       110: iload         6                 
+       112: bipush        13                
+       114: if_icmpne     141               
+       117: iload         4                 
+       119: iload_3                 
+       120: iconst_1                
+       121: isub                    
+       122: if_icmpeq     141               
+       125: aload_1                 
+       126: iload         4                 
+       128: iconst_1                
+       129: iadd                    
+       130: invokevirtual #121                // Method java/lang/String.charAt:(I)C
+       133: bipush        10                
+       135: if_icmpne     141               
+       138: iinc          4, 1              
+       141: iload         4                 
+       143: iload_3                 
+       144: iconst_1                
+       145: isub                    
+       146: if_icmpeq     175               
+       149: aload_1                 
+       150: iload         4                 
+       152: iconst_1                
+       153: iadd                    
+       154: invokevirtual #121                // Method java/lang/String.charAt:(I)C
+       157: bipush        35                
+       159: if_icmpeq     181               
+       162: aload_1                 
+       163: iload         4                 
+       165: iconst_1                
+       166: iadd                    
+       167: invokevirtual #121                // Method java/lang/String.charAt:(I)C
+       170: bipush        33                
+       172: if_icmpeq     181               
+       175: aload_0                 
+       176: ldc           #134                // String #
+       178: invokevirtual #136                // Method java/io/BufferedWriter.write:(Ljava/lang/String;)V
+       181: iload         4                 
+       183: iconst_1                
+       184: iadd                    
+       185: istore        5                 
+       187: iinc          4, 1              
+       190: goto          24                
+       193: iload         5                 
+       195: iload         4                 
+       197: if_icmpeq     212               
+       200: aload_0                 
+       201: aload_1                 
+       202: iload         5                 
+       204: iload         4                 
+       206: invokevirtual #141                // Method java/lang/String.substring:(II)Ljava/lang/String;
+       209: invokevirtual #136                // Method java/io/BufferedWriter.write:(Ljava/lang/String;)V
+       212: aload_0                 
+       213: invokevirtual #145                // Method java/io/BufferedWriter.newLine:()V
+       216: return                  
+      LineNumberTable:
+        line 742: 0
+        line 743: 7
+        line 744: 13
+        line 745: 18
+        line 746: 21
+        line 747: 24
+        line 748: 30
+        line 749: 38
+        line 750: 60
+        line 751: 67
+        line 752: 79
+        line 753: 87
+        line 754: 93
+        line 756: 106
+        line 757: 110
+        line 759: 130
+        line 760: 138
+        line 762: 141
+        line 763: 154
+        line 764: 167
+        line 765: 175
+        line 767: 181
+        line 769: 187
+        line 770: 190
+        line 771: 193
+        line 772: 200
+        line 773: 212
+        line 774: 216
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          38      152     6  c      C
+           0      217     0  bw     Ljava/io/BufferedWriter;
+           0      217     1  comments Ljava/lang/String;
+           7      210     2  hex    Ljava/util/HexFormat;
+          18      199     3  len    I
+          21      196     4  current I
+          24      193     5  last   I
+      StackMapTable: number_of_entries = 10
+        frame_type = 255 /* full_frame */
+          offset_delta = 24
+          locals = [class java/io/BufferedWriter, class java/lang/String, class java/util/HexFormat, int, int, int]
+          stack = []
+        frame_type = 252 /* append */
+          offset_delta = 35
+          locals = [int]
+        frame_type = 18 /* same */
+        frame_type = 26 /* same */
+        frame_type = 34 /* same */
+        frame_type = 33 /* same */
+        frame_type = 5 /* same */
+        frame_type = 5 /* same */
+        frame_type = 250 /* chop */
+          offset_delta = 5
+        frame_type = 18 /* same */
+    Exceptions:
+      throws java.io.IOException
+  
+  public void save(java.io.OutputStream, java.lang.String);
+    descriptor: (Ljava/io/OutputStream;Ljava/lang/String;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=4, args_size=3
+         0: aload_0                 
+         1: aload_1                 
+         2: aload_2                 
+         3: invokevirtual #148                // Method store:(Ljava/io/OutputStream;Ljava/lang/String;)V
+         6: goto          10                
+         9: astore_3                
+        10: return                  
+      Exception table:
+          from       to target type
+             0        6     9  Class java/io/IOException
+      LineNumberTable:
+        line 795: 0
+        line 797: 6
+        line 796: 9
+        line 798: 10
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       11     0  this   Ljava/util/Properties;
+           0       11     1  out    Ljava/io/OutputStream;
+           0       11     2  comments Ljava/lang/String;
+      StackMapTable: number_of_entries = 2
+        frame_type = 73 /* same_locals_1_stack_item */
+          stack = [ class java/io/IOException ]
+        frame_type = 0 /* same */
+    Deprecated: true
+    RuntimeVisibleAnnotations:
+      0: #572()
+        java.lang.Deprecated
+  
+  public void store(java.io.Writer, java.lang.String) throws java.io.IOException;
+    descriptor: (Ljava/io/Writer;Ljava/lang/String;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=3, args_size=3
+         0: aload_0                 
+         1: aload_1                 
+         2: instanceof    #137                // class java/io/BufferedWriter
+         5: ifeq          15                
+         8: aload_1                 
+         9: checkcast     #137                // class java/io/BufferedWriter
+        12: goto          23                
+        15: new           #137                // class java/io/BufferedWriter
+        18: dup                     
+        19: aload_1                 
+        20: invokespecial #154                // Method java/io/BufferedWriter."<init>":(Ljava/io/Writer;)V
+        23: aload_2                 
+        24: iconst_0                
+        25: invokevirtual #157                // Method store0:(Ljava/io/BufferedWriter;Ljava/lang/String;Z)V
+        28: return                  
+      LineNumberTable:
+        line 862: 0
+        line 863: 15
+        line 862: 25
+        line 866: 28
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       29     0  this   Ljava/util/Properties;
+           0       29     1  writer Ljava/io/Writer;
+           0       29     2  comments Ljava/lang/String;
+      StackMapTable: number_of_entries = 2
+        frame_type = 79 /* same_locals_1_stack_item */
+          stack = [ class java/util/Properties ]
+        frame_type = 255 /* full_frame */
+          offset_delta = 7
+          locals = [class java/util/Properties, class java/io/Writer, class java/lang/String]
+          stack = [class java/util/Properties, class java/io/BufferedWriter]
+    Exceptions:
+      throws java.io.IOException
+  
+  public void store(java.io.OutputStream, java.lang.String) throws java.io.IOException;
+    descriptor: (Ljava/io/OutputStream;Ljava/lang/String;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=7, locals=3, args_size=3
+         0: aload_0                 
+         1: new           #137                // class java/io/BufferedWriter
+         4: dup                     
+         5: new           #161                // class java/io/OutputStreamWriter
+         8: dup                     
+         9: aload_1                 
+        10: getstatic     #163                // Field sun/nio/cs/ISO_8859_1.INSTANCE:Lsun/nio/cs/ISO_8859_1;
+        13: invokespecial #169                // Method java/io/OutputStreamWriter."<init>":(Ljava/io/OutputStream;Ljava/nio/charset/Charset;)V
+        16: invokespecial #154                // Method java/io/BufferedWriter."<init>":(Ljava/io/Writer;)V
+        19: aload_2                 
+        20: iconst_1                
+        21: invokevirtual #157                // Method store0:(Ljava/io/BufferedWriter;Ljava/lang/String;Z)V
+        24: return                  
+      LineNumberTable:
+        line 909: 0
+        line 912: 24
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       25     0  this   Ljava/util/Properties;
+           0       25     1  out    Ljava/io/OutputStream;
+           0       25     2  comments Ljava/lang/String;
+    Exceptions:
+      throws java.io.IOException
+  
+  private void store0(java.io.BufferedWriter, java.lang.String, boolean) throws java.io.IOException;
+    descriptor: (Ljava/io/BufferedWriter;Ljava/lang/String;Z)V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=4, locals=11, args_size=4
+         0: aload_2                 
+         1: ifnull        9                 
+         4: aload_1                 
+         5: aload_2                 
+         6: invokestatic  #172                // Method writeComments:(Ljava/io/BufferedWriter;Ljava/lang/String;)V
+         9: aload_1                 
+        10: invokestatic  #176                // Method writeDateComment:(Ljava/io/BufferedWriter;)V
+        13: aload_0                 
+        14: dup                     
+        15: astore        4                 
+        17: monitorenter            
+        18: aload_0                 
+        19: invokevirtual #180                // Method entrySet:()Ljava/util/Set;
+        22: astore        5                 
+        24: aload         5                 
+        26: instanceof    #184                // class java/util/Collections$SynchronizedSet
+        29: ifeq          74                
+        32: aload         5                 
+        34: checkcast     #184                // class java/util/Collections$SynchronizedSet
+        37: astore        6                 
+        39: aload         6                 
+        41: getfield      #186                // Field java/util/Collections$SynchronizedSet.c:Ljava/util/Collection;
+        44: instanceof    #190                // class java/util/Properties$EntrySet
+        47: ifeq          74                
+        50: new           #192                // class java/util/ArrayList
+        53: dup                     
+        54: aload         5                 
+        56: invokespecial #194                // Method java/util/ArrayList."<init>":(Ljava/util/Collection;)V
+        59: astore        5                 
+        61: aload         5                 
+        63: checkcast     #197                // class java/util/List
+        66: invokestatic  #199                // InterfaceMethod java/util/Map$Entry.comparingByKey:()Ljava/util/Comparator;
+        69: invokeinterface #205, 2             // InterfaceMethod java/util/List.sort:(Ljava/util/Comparator;)V
+        74: aload         5                 
+        76: invokeinterface #209, 1             // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        81: astore        6                 
+        83: aload         6                 
+        85: invokeinterface #215, 1             // InterfaceMethod java/util/Iterator.hasNext:()Z
+        90: ifeq          185               
+        93: aload         6                 
+        95: invokeinterface #221, 1             // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       100: checkcast     #200                // class java/util/Map$Entry
+       103: astore        7                 
+       105: aload         7                 
+       107: invokeinterface #225, 1             // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+       112: checkcast     #79                 // class java/lang/String
+       115: astore        8                 
+       117: aload         7                 
+       119: invokeinterface #228, 1             // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+       124: checkcast     #79                 // class java/lang/String
+       127: astore        9                 
+       129: aload_0                 
+       130: aload         8                 
+       132: iconst_1                
+       133: iload_3                 
+       134: invokevirtual #231                // Method saveConvert:(Ljava/lang/String;ZZ)Ljava/lang/String;
+       137: astore        8                 
+       139: aload_0                 
+       140: aload         9                 
+       142: iconst_0                
+       143: iload_3                 
+       144: invokevirtual #231                // Method saveConvert:(Ljava/lang/String;ZZ)Ljava/lang/String;
+       147: astore        9                 
+       149: aload_1                 
+       150: new           #63                 // class java/lang/StringBuilder
+       153: dup                     
+       154: invokespecial #65                 // Method java/lang/StringBuilder."<init>":()V
+       157: aload         8                 
+       159: invokevirtual #127                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+       162: ldc           #235                // String =
+       164: invokevirtual #127                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+       167: aload         9                 
+       169: invokevirtual #127                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+       172: invokevirtual #101                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+       175: invokevirtual #136                // Method java/io/BufferedWriter.write:(Ljava/lang/String;)V
+       178: aload_1                 
+       179: invokevirtual #145                // Method java/io/BufferedWriter.newLine:()V
+       182: goto          83                
+       185: aload         4                 
+       187: monitorexit             
+       188: goto          199               
+       191: astore        10                
+       193: aload         4                 
+       195: monitorexit             
+       196: aload         10                
+       198: athrow                  
+       199: aload_1                 
+       200: invokevirtual #237                // Method java/io/BufferedWriter.flush:()V
+       203: return                  
+      Exception table:
+          from       to target type
+            18      188   191  any
+           191      196   191  any
+      LineNumberTable:
+        line 917: 0
+        line 918: 4
+        line 920: 9
+        line 922: 13
+        line 924: 18
+        line 931: 24
+        line 933: 50
+        line 934: 61
+        line 936: 74
+        line 937: 105
+        line 938: 117
+        line 939: 129
+        line 943: 139
+        line 944: 149
+        line 945: 178
+        line 946: 182
+        line 947: 185
+        line 948: 199
+        line 949: 203
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          39       35     6  ss     Ljava/util/Collections$SynchronizedSet;
+         117       65     8  key    Ljava/lang/String;
+         129       53     9  val    Ljava/lang/String;
+         105       77     7  e      Ljava/util/Map$Entry;
+          24      161     5  entries Ljava/util/Collection;
+           0      204     0  this   Ljava/util/Properties;
+           0      204     1  bw     Ljava/io/BufferedWriter;
+           0      204     2  comments Ljava/lang/String;
+           0      204     3  escUnicode Z
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            39       35     6  ss     Ljava/util/Collections$SynchronizedSet<*>;
+           105       77     7  e      Ljava/util/Map$Entry<Ljava/lang/String;Ljava/lang/String;>;
+            24      161     5  entries   Ljava/util/Collection<Ljava/util/Map$Entry<Ljava/lang/String;Ljava/lang/String;>;>;
+      StackMapTable: number_of_entries = 6
+        frame_type = 9 /* same */
+        frame_type = 253 /* append */
+          offset_delta = 64
+          locals = [class java/lang/Object, class java/util/Collection]
+        frame_type = 252 /* append */
+          offset_delta = 8
+          locals = [class java/util/Iterator]
+        frame_type = 249 /* chop */
+          offset_delta = 101
+        frame_type = 69 /* same_locals_1_stack_item */
+          stack = [ class java/lang/Throwable ]
+        frame_type = 250 /* chop */
+          offset_delta = 7
+    Exceptions:
+      throws java.io.IOException
+  
+  private static void writeDateComment(java.io.BufferedWriter) throws java.io.IOException;
+    descriptor: (Ljava/io/BufferedWriter;)V
+    flags: (0x000a) ACC_PRIVATE, ACC_STATIC
+    Code: 
+      stack=4, locals=2, args_size=1
+         0: invokestatic  #240                // Method jdk/internal/util/StaticProperty.javaPropertiesDate:()Ljava/lang/String;
+         3: astore_1                
+         4: aload_1                 
+         5: ifnull        23                
+         8: aload_1                 
+         9: invokevirtual #245                // Method java/lang/String.isEmpty:()Z
+        12: ifne          23                
+        15: aload_0                 
+        16: aload_1                 
+        17: invokestatic  #172                // Method writeComments:(Ljava/io/BufferedWriter;Ljava/lang/String;)V
+        20: goto          56                
+        23: aload_0                 
+        24: new           #63                 // class java/lang/StringBuilder
+        27: dup                     
+        28: invokespecial #65                 // Method java/lang/StringBuilder."<init>":()V
+        31: ldc           #134                // String #
+        33: invokevirtual #127                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        36: new           #248                // class java/util/Date
+        39: dup                     
+        40: invokespecial #250                // Method java/util/Date."<init>":()V
+        43: invokevirtual #251                // Method java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+        46: invokevirtual #101                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        49: invokevirtual #136                // Method java/io/BufferedWriter.write:(Ljava/lang/String;)V
+        52: aload_0                 
+        53: invokevirtual #145                // Method java/io/BufferedWriter.newLine:()V
+        56: return                  
+      LineNumberTable:
+        line 952: 0
+        line 953: 4
+        line 954: 15
+        line 956: 23
+        line 957: 52
+        line 959: 56
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       57     0  bw     Ljava/io/BufferedWriter;
+           4       53     1  sysPropVal Ljava/lang/String;
+      StackMapTable: number_of_entries = 2
+        frame_type = 252 /* append */
+          offset_delta = 23
+          locals = [class java/lang/String]
+        frame_type = 32 /* same */
+    Exceptions:
+      throws java.io.IOException
+  
+  public synchronized void loadFromXML(java.io.InputStream) throws java.io.IOException, java.util.InvalidPropertiesFormatException;
+    descriptor: (Ljava/io/InputStream;)V
+    flags: (0x0021) ACC_PUBLIC, ACC_SYNCHRONIZED
+    Code: 
+      stack=3, locals=3, args_size=2
+         0: aload_1                 
+         1: invokestatic  #254                // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+         4: pop                     
+         5: new           #257                // class jdk/internal/util/xml/PropertiesDefaultHandler
+         8: dup                     
+         9: invokespecial #259                // Method jdk/internal/util/xml/PropertiesDefaultHandler."<init>":()V
+        12: astore_2                
+        13: aload_2                 
+        14: aload_0                 
+        15: aload_1                 
+        16: invokevirtual #260                // Method jdk/internal/util/xml/PropertiesDefaultHandler.load:(Ljava/util/Properties;Ljava/io/InputStream;)V
+        19: aload_1                 
+        20: invokevirtual #264                // Method java/io/InputStream.close:()V
+        23: return                  
+      LineNumberTable:
+        line 997: 0
+        line 998: 5
+        line 999: 13
+        line 1000: 19
+        line 1001: 23
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       24     0  this   Ljava/util/Properties;
+           0       24     1  in     Ljava/io/InputStream;
+          13       11     2  handler Ljdk/internal/util/xml/PropertiesDefaultHandler;
+    Exceptions:
+      throws java.io.IOException, java.util.InvalidPropertiesFormatException
+  
+  public void storeToXML(java.io.OutputStream, java.lang.String) throws java.io.IOException;
+    descriptor: (Ljava/io/OutputStream;Ljava/lang/String;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=3, args_size=3
+         0: aload_0                 
+         1: aload_1                 
+         2: aload_2                 
+         3: getstatic     #269                // Field sun/nio/cs/UTF_8.INSTANCE:Lsun/nio/cs/UTF_8;
+         6: invokevirtual #274                // Method storeToXML:(Ljava/io/OutputStream;Ljava/lang/String;Ljava/nio/charset/Charset;)V
+         9: return                  
+      LineNumberTable:
+        line 1026: 0
+        line 1027: 9
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/util/Properties;
+           0       10     1  os     Ljava/io/OutputStream;
+           0       10     2  comment Ljava/lang/String;
+    Exceptions:
+      throws java.io.IOException
+  
+  public void storeToXML(java.io.OutputStream, java.lang.String, java.lang.String) throws java.io.IOException;
+    descriptor: (Ljava/io/OutputStream;Ljava/lang/String;Ljava/lang/String;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=5, args_size=4
+         0: aload_1                 
+         1: invokestatic  #254                // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+         4: pop                     
+         5: aload_3                 
+         6: invokestatic  #254                // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+         9: pop                     
+        10: aload_3                 
+        11: invokestatic  #278                // Method java/nio/charset/Charset.forName:(Ljava/lang/String;)Ljava/nio/charset/Charset;
+        14: astore        4                 
+        16: aload_0                 
+        17: aload_1                 
+        18: aload_2                 
+        19: aload         4                 
+        21: invokevirtual #274                // Method storeToXML:(Ljava/io/OutputStream;Ljava/lang/String;Ljava/nio/charset/Charset;)V
+        24: goto          38                
+        27: astore        4                 
+        29: new           #288                // class java/io/UnsupportedEncodingException
+        32: dup                     
+        33: aload_3                 
+        34: invokespecial #290                // Method java/io/UnsupportedEncodingException."<init>":(Ljava/lang/String;)V
+        37: athrow                  
+        38: return                  
+      Exception table:
+          from       to target type
+            10       24    27  Class java/nio/charset/IllegalCharsetNameException
+            10       24    27  Class java/nio/charset/UnsupportedCharsetException
+      LineNumberTable:
+        line 1076: 0
+        line 1077: 5
+        line 1080: 10
+        line 1081: 16
+        line 1084: 24
+        line 1082: 27
+        line 1083: 29
+        line 1085: 38
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          16        8     4  charset Ljava/nio/charset/Charset;
+          29        9     4  e      Ljava/lang/IllegalArgumentException;
+           0       39     0  this   Ljava/util/Properties;
+           0       39     1  os     Ljava/io/OutputStream;
+           0       39     2  comment Ljava/lang/String;
+           0       39     3  encoding Ljava/lang/String;
+      StackMapTable: number_of_entries = 2
+        frame_type = 91 /* same_locals_1_stack_item */
+          stack = [ class java/lang/IllegalArgumentException ]
+        frame_type = 10 /* same */
+    Exceptions:
+      throws java.io.IOException
+  
+  public void storeToXML(java.io.OutputStream, java.lang.String, java.nio.charset.Charset) throws java.io.IOException;
+    descriptor: (Ljava/io/OutputStream;Ljava/lang/String;Ljava/nio/charset/Charset;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=5, locals=5, args_size=4
+         0: aload_1                 
+         1: ldc_w         #291                // String OutputStream
+         4: invokestatic  #43                 // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+         7: pop                     
+         8: aload_3                 
+         9: ldc_w         #293                // String Charset
+        12: invokestatic  #43                 // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+        15: pop                     
+        16: new           #257                // class jdk/internal/util/xml/PropertiesDefaultHandler
+        19: dup                     
+        20: invokespecial #259                // Method jdk/internal/util/xml/PropertiesDefaultHandler."<init>":()V
+        23: astore        4                 
+        25: aload         4                 
+        27: aload_0                 
+        28: aload_1                 
+        29: aload_2                 
+        30: aload_3                 
+        31: invokevirtual #295                // Method jdk/internal/util/xml/PropertiesDefaultHandler.store:(Ljava/util/Properties;Ljava/io/OutputStream;Ljava/lang/String;Ljava/nio/charset/Charset;)V
+        34: return                  
+      LineNumberTable:
+        line 1127: 0
+        line 1128: 8
+        line 1129: 16
+        line 1130: 25
+        line 1131: 34
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       35     0  this   Ljava/util/Properties;
+           0       35     1  os     Ljava/io/OutputStream;
+           0       35     2  comment Ljava/lang/String;
+           0       35     3  charset Ljava/nio/charset/Charset;
+          25       10     4  handler Ljdk/internal/util/xml/PropertiesDefaultHandler;
+    Exceptions:
+      throws java.io.IOException
+  
+  public java.lang.String getProperty(java.lang.String);
+    descriptor: (Ljava/lang/String;)Ljava/lang/String;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=5, args_size=2
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: aload_1                 
+         5: invokevirtual #298                // Method java/util/concurrent/ConcurrentHashMap.get:(Ljava/lang/Object;)Ljava/lang/Object;
+         8: astore_2                
+         9: aload_2                 
+        10: instanceof    #79                 // class java/lang/String
+        13: ifeq          23                
+        16: aload_2                 
+        17: checkcast     #79                 // class java/lang/String
+        20: goto          24                
+        23: aconst_null             
+        24: astore_3                
+        25: aload_3                 
+        26: ifnonnull     48                
+        29: aload_0                 
+        30: getfield      #23                 // Field defaults:Ljava/util/Properties;
+        33: dup                     
+        34: astore        4                 
+        36: ifnull        48                
+        39: aload         4                 
+        41: aload_1                 
+        42: invokevirtual #301                // Method getProperty:(Ljava/lang/String;)Ljava/lang/String;
+        45: goto          49                
+        48: aload_3                 
+        49: areturn                 
+      LineNumberTable:
+        line 1145: 0
+        line 1146: 9
+        line 1148: 25
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          36       12     4  defaults Ljava/util/Properties;
+           0       50     0  this   Ljava/util/Properties;
+           0       50     1  key    Ljava/lang/String;
+           9       41     2  oval   Ljava/lang/Object;
+          25       25     3  sval   Ljava/lang/String;
+      StackMapTable: number_of_entries = 4
+        frame_type = 252 /* append */
+          offset_delta = 23
+          locals = [class java/lang/Object]
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ class java/lang/String ]
+        frame_type = 252 /* append */
+          offset_delta = 23
+          locals = [class java/lang/String]
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ class java/lang/String ]
+  
+  public java.lang.String getProperty(java.lang.String, java.lang.String);
+    descriptor: (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=4, args_size=3
+         0: aload_0                 
+         1: aload_1                 
+         2: invokevirtual #301                // Method getProperty:(Ljava/lang/String;)Ljava/lang/String;
+         5: astore_3                
+         6: aload_3                 
+         7: ifnonnull     14                
+        10: aload_2                 
+        11: goto          15                
+        14: aload_3                 
+        15: areturn                 
+      LineNumberTable:
+        line 1165: 0
+        line 1166: 6
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       16     0  this   Ljava/util/Properties;
+           0       16     1  key    Ljava/lang/String;
+           0       16     2  defaultValue Ljava/lang/String;
+           6       10     3  val    Ljava/lang/String;
+      StackMapTable: number_of_entries = 2
+        frame_type = 252 /* append */
+          offset_delta = 14
+          locals = [class java/lang/String]
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ class java/lang/String ]
+  
+  public java.util.Enumeration<?> propertyNames();
+    descriptor: ()Ljava/util/Enumeration;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=1
+         0: new           #10                 // class java/util/Hashtable
+         3: dup                     
+         4: invokespecial #305                // Method java/util/Hashtable."<init>":()V
+         7: astore_1                
+         8: aload_0                 
+         9: aload_1                 
+        10: invokevirtual #306                // Method enumerate:(Ljava/util/Map;)V
+        13: aload_1                 
+        14: invokevirtual #310                // Method java/util/Hashtable.keys:()Ljava/util/Enumeration;
+        17: areturn                 
+      LineNumberTable:
+        line 1184: 0
+        line 1185: 8
+        line 1186: 13
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       18     0  this   Ljava/util/Properties;
+           8       10     1  h      Ljava/util/Hashtable;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             8       10     1  h      Ljava/util/Hashtable<Ljava/lang/String;Ljava/lang/Object;>;
+    Signature: #615                        // ()Ljava/util/Enumeration<*>;
+  
+  public java.util.Set<java.lang.String> stringPropertyNames();
+    descriptor: ()Ljava/util/Set;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=1
+         0: new           #314                // class java/util/HashMap
+         3: dup                     
+         4: invokespecial #316                // Method java/util/HashMap."<init>":()V
+         7: astore_1                
+         8: aload_0                 
+         9: aload_1                 
+        10: invokevirtual #317                // Method enumerateStringProperties:(Ljava/util/Map;)V
+        13: aload_1                 
+        14: invokeinterface #320, 1             // InterfaceMethod java/util/Map.keySet:()Ljava/util/Set;
+        19: invokestatic  #325                // Method java/util/Collections.unmodifiableSet:(Ljava/util/Set;)Ljava/util/Set;
+        22: areturn                 
+      LineNumberTable:
+        line 1208: 0
+        line 1209: 8
+        line 1210: 13
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       23     0  this   Ljava/util/Properties;
+           8       15     1  h      Ljava/util/Map;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             8       15     1  h      Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;
+    Signature: #619                        // ()Ljava/util/Set<Ljava/lang/String;>;
+  
+  public void list(java.io.PrintStream);
+    descriptor: (Ljava/io/PrintStream;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=7, args_size=2
+         0: aload_1                 
+         1: ldc_w         #331                // String -- listing properties --
+         4: invokevirtual #333                // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+         7: new           #314                // class java/util/HashMap
+        10: dup                     
+        11: invokespecial #316                // Method java/util/HashMap."<init>":()V
+        14: astore_2                
+        15: aload_0                 
+        16: aload_2                 
+        17: invokevirtual #306                // Method enumerate:(Ljava/util/Map;)V
+        20: aload_2                 
+        21: invokeinterface #338, 1             // InterfaceMethod java/util/Map.entrySet:()Ljava/util/Set;
+        26: invokeinterface #339, 1             // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        31: astore_3                
+        32: aload_3                 
+        33: invokeinterface #215, 1             // InterfaceMethod java/util/Iterator.hasNext:()Z
+        38: ifeq          147               
+        41: aload_3                 
+        42: invokeinterface #221, 1             // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        47: checkcast     #200                // class java/util/Map$Entry
+        50: astore        4                 
+        52: aload         4                 
+        54: invokeinterface #225, 1             // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+        59: checkcast     #79                 // class java/lang/String
+        62: astore        5                 
+        64: aload         4                 
+        66: invokeinterface #228, 1             // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        71: checkcast     #79                 // class java/lang/String
+        74: astore        6                 
+        76: aload         6                 
+        78: invokevirtual #105                // Method java/lang/String.length:()I
+        81: bipush        40                
+        83: if_icmple     115               
+        86: new           #63                 // class java/lang/StringBuilder
+        89: dup                     
+        90: invokespecial #65                 // Method java/lang/StringBuilder."<init>":()V
+        93: aload         6                 
+        95: iconst_0                
+        96: bipush        37                
+        98: invokevirtual #141                // Method java/lang/String.substring:(II)Ljava/lang/String;
+       101: invokevirtual #127                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+       104: ldc_w         #342                // String ...
+       107: invokevirtual #127                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+       110: invokevirtual #101                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+       113: astore        6                 
+       115: aload_1                 
+       116: new           #63                 // class java/lang/StringBuilder
+       119: dup                     
+       120: invokespecial #65                 // Method java/lang/StringBuilder."<init>":()V
+       123: aload         5                 
+       125: invokevirtual #127                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+       128: ldc           #235                // String =
+       130: invokevirtual #127                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+       133: aload         6                 
+       135: invokevirtual #127                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+       138: invokevirtual #101                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+       141: invokevirtual #333                // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+       144: goto          32                
+       147: return                  
+      LineNumberTable:
+        line 1222: 0
+        line 1223: 7
+        line 1224: 15
+        line 1225: 20
+        line 1226: 52
+        line 1227: 64
+        line 1228: 76
+        line 1229: 86
+        line 1231: 115
+        line 1232: 144
+        line 1233: 147
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          64       80     5  key    Ljava/lang/String;
+          76       68     6  val    Ljava/lang/String;
+          52       92     4  e      Ljava/util/Map$Entry;
+           0      148     0  this   Ljava/util/Properties;
+           0      148     1  out    Ljava/io/PrintStream;
+          15      133     2  h      Ljava/util/Map;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            52       92     4  e      Ljava/util/Map$Entry<Ljava/lang/String;Ljava/lang/Object;>;
+            15      133     2  h      Ljava/util/Map<Ljava/lang/String;Ljava/lang/Object;>;
+      StackMapTable: number_of_entries = 3
+        frame_type = 253 /* append */
+          offset_delta = 32
+          locals = [class java/util/Map, class java/util/Iterator]
+        frame_type = 254 /* append */
+          offset_delta = 82
+          locals = [class java/util/Map$Entry, class java/lang/String, class java/lang/String]
+        frame_type = 255 /* full_frame */
+          offset_delta = 31
+          locals = [class java/util/Properties, class java/io/PrintStream, class java/util/Map]
+          stack = []
+  
+  public void list(java.io.PrintWriter);
+    descriptor: (Ljava/io/PrintWriter;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=7, args_size=2
+         0: aload_1                 
+         1: ldc_w         #331                // String -- listing properties --
+         4: invokevirtual #344                // Method java/io/PrintWriter.println:(Ljava/lang/String;)V
+         7: new           #314                // class java/util/HashMap
+        10: dup                     
+        11: invokespecial #316                // Method java/util/HashMap."<init>":()V
+        14: astore_2                
+        15: aload_0                 
+        16: aload_2                 
+        17: invokevirtual #306                // Method enumerate:(Ljava/util/Map;)V
+        20: aload_2                 
+        21: invokeinterface #338, 1             // InterfaceMethod java/util/Map.entrySet:()Ljava/util/Set;
+        26: invokeinterface #339, 1             // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        31: astore_3                
+        32: aload_3                 
+        33: invokeinterface #215, 1             // InterfaceMethod java/util/Iterator.hasNext:()Z
+        38: ifeq          147               
+        41: aload_3                 
+        42: invokeinterface #221, 1             // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        47: checkcast     #200                // class java/util/Map$Entry
+        50: astore        4                 
+        52: aload         4                 
+        54: invokeinterface #225, 1             // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+        59: checkcast     #79                 // class java/lang/String
+        62: astore        5                 
+        64: aload         4                 
+        66: invokeinterface #228, 1             // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        71: checkcast     #79                 // class java/lang/String
+        74: astore        6                 
+        76: aload         6                 
+        78: invokevirtual #105                // Method java/lang/String.length:()I
+        81: bipush        40                
+        83: if_icmple     115               
+        86: new           #63                 // class java/lang/StringBuilder
+        89: dup                     
+        90: invokespecial #65                 // Method java/lang/StringBuilder."<init>":()V
+        93: aload         6                 
+        95: iconst_0                
+        96: bipush        37                
+        98: invokevirtual #141                // Method java/lang/String.substring:(II)Ljava/lang/String;
+       101: invokevirtual #127                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+       104: ldc_w         #342                // String ...
+       107: invokevirtual #127                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+       110: invokevirtual #101                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+       113: astore        6                 
+       115: aload_1                 
+       116: new           #63                 // class java/lang/StringBuilder
+       119: dup                     
+       120: invokespecial #65                 // Method java/lang/StringBuilder."<init>":()V
+       123: aload         5                 
+       125: invokevirtual #127                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+       128: ldc           #235                // String =
+       130: invokevirtual #127                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+       133: aload         6                 
+       135: invokevirtual #127                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+       138: invokevirtual #101                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+       141: invokevirtual #344                // Method java/io/PrintWriter.println:(Ljava/lang/String;)V
+       144: goto          32                
+       147: return                  
+      LineNumberTable:
+        line 1250: 0
+        line 1251: 7
+        line 1252: 15
+        line 1253: 20
+        line 1254: 52
+        line 1255: 64
+        line 1256: 76
+        line 1257: 86
+        line 1259: 115
+        line 1260: 144
+        line 1261: 147
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          64       80     5  key    Ljava/lang/String;
+          76       68     6  val    Ljava/lang/String;
+          52       92     4  e      Ljava/util/Map$Entry;
+           0      148     0  this   Ljava/util/Properties;
+           0      148     1  out    Ljava/io/PrintWriter;
+          15      133     2  h      Ljava/util/Map;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            52       92     4  e      Ljava/util/Map$Entry<Ljava/lang/String;Ljava/lang/Object;>;
+            15      133     2  h      Ljava/util/Map<Ljava/lang/String;Ljava/lang/Object;>;
+      StackMapTable: number_of_entries = 3
+        frame_type = 253 /* append */
+          offset_delta = 32
+          locals = [class java/util/Map, class java/util/Iterator]
+        frame_type = 254 /* append */
+          offset_delta = 82
+          locals = [class java/util/Map$Entry, class java/lang/String, class java/lang/String]
+        frame_type = 255 /* full_frame */
+          offset_delta = 31
+          locals = [class java/util/Properties, class java/io/PrintWriter, class java/util/Map]
+          stack = []
+  
+  private void enumerate(java.util.Map<java.lang.String, java.lang.Object>);
+    descriptor: (Ljava/util/Map;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=3, locals=5, args_size=2
+         0: aload_0                 
+         1: getfield      #23                 // Field defaults:Ljava/util/Properties;
+         4: ifnull        15                
+         7: aload_0                 
+         8: getfield      #23                 // Field defaults:Ljava/util/Properties;
+        11: aload_1                 
+        12: invokevirtual #306                // Method enumerate:(Ljava/util/Map;)V
+        15: aload_0                 
+        16: invokevirtual #180                // Method entrySet:()Ljava/util/Set;
+        19: invokeinterface #339, 1             // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        24: astore_2                
+        25: aload_2                 
+        26: invokeinterface #215, 1             // InterfaceMethod java/util/Iterator.hasNext:()Z
+        31: ifeq          73                
+        34: aload_2                 
+        35: invokeinterface #221, 1             // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        40: checkcast     #200                // class java/util/Map$Entry
+        43: astore_3                
+        44: aload_3                 
+        45: invokeinterface #225, 1             // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+        50: checkcast     #79                 // class java/lang/String
+        53: astore        4                 
+        55: aload_1                 
+        56: aload         4                 
+        58: aload_3                 
+        59: invokeinterface #228, 1             // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        64: invokeinterface #347, 3             // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        69: pop                     
+        70: goto          25                
+        73: return                  
+      LineNumberTable:
+        line 1270: 0
+        line 1271: 7
+        line 1273: 15
+        line 1274: 44
+        line 1275: 55
+        line 1276: 70
+        line 1277: 73
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          55       15     4  key    Ljava/lang/String;
+          44       26     3  e      Ljava/util/Map$Entry;
+           0       74     0  this   Ljava/util/Properties;
+           0       74     1  h      Ljava/util/Map;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            44       26     3  e      Ljava/util/Map$Entry<Ljava/lang/Object;Ljava/lang/Object;>;
+             0       74     1  h      Ljava/util/Map<Ljava/lang/String;Ljava/lang/Object;>;
+      StackMapTable: number_of_entries = 3
+        frame_type = 15 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 9
+          locals = [class java/util/Iterator]
+        frame_type = 250 /* chop */
+          offset_delta = 47
+    Signature: #628                        // (Ljava/util/Map<Ljava/lang/String;Ljava/lang/Object;>;)V
+  
+  private void enumerateStringProperties(java.util.Map<java.lang.String, java.lang.String>);
+    descriptor: (Ljava/util/Map;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=3, locals=6, args_size=2
+         0: aload_0                 
+         1: getfield      #23                 // Field defaults:Ljava/util/Properties;
+         4: ifnull        15                
+         7: aload_0                 
+         8: getfield      #23                 // Field defaults:Ljava/util/Properties;
+        11: aload_1                 
+        12: invokevirtual #317                // Method enumerateStringProperties:(Ljava/util/Map;)V
+        15: aload_0                 
+        16: invokevirtual #180                // Method entrySet:()Ljava/util/Set;
+        19: invokeinterface #339, 1             // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        24: astore_2                
+        25: aload_2                 
+        26: invokeinterface #215, 1             // InterfaceMethod java/util/Iterator.hasNext:()Z
+        31: ifeq          96                
+        34: aload_2                 
+        35: invokeinterface #221, 1             // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        40: checkcast     #200                // class java/util/Map$Entry
+        43: astore_3                
+        44: aload_3                 
+        45: invokeinterface #225, 1             // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+        50: astore        4                 
+        52: aload_3                 
+        53: invokeinterface #228, 1             // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        58: astore        5                 
+        60: aload         4                 
+        62: instanceof    #79                 // class java/lang/String
+        65: ifeq          93                
+        68: aload         5                 
+        70: instanceof    #79                 // class java/lang/String
+        73: ifeq          93                
+        76: aload_1                 
+        77: aload         4                 
+        79: checkcast     #79                 // class java/lang/String
+        82: aload         5                 
+        84: checkcast     #79                 // class java/lang/String
+        87: invokeinterface #347, 3             // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        92: pop                     
+        93: goto          25                
+        96: return                  
+      LineNumberTable:
+        line 1285: 0
+        line 1286: 7
+        line 1288: 15
+        line 1289: 44
+        line 1290: 52
+        line 1291: 60
+        line 1292: 76
+        line 1294: 93
+        line 1295: 96
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          52       41     4  k      Ljava/lang/Object;
+          60       33     5  v      Ljava/lang/Object;
+          44       49     3  e      Ljava/util/Map$Entry;
+           0       97     0  this   Ljava/util/Properties;
+           0       97     1  h      Ljava/util/Map;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            44       49     3  e      Ljava/util/Map$Entry<Ljava/lang/Object;Ljava/lang/Object;>;
+             0       97     1  h      Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;
+      StackMapTable: number_of_entries = 4
+        frame_type = 15 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 9
+          locals = [class java/util/Iterator]
+        frame_type = 251 /* same_frame_extended */
+          offset_delta = 67
+        frame_type = 250 /* chop */
+          offset_delta = 2
+    Signature: #631                        // (Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;)V
+  
+  public int size();
+    descriptor: ()I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: invokevirtual #348                // Method java/util/concurrent/ConcurrentHashMap.size:()I
+         7: ireturn                 
+      LineNumberTable:
+        line 1302: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/util/Properties;
+  
+  public boolean isEmpty();
+    descriptor: ()Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: invokevirtual #351                // Method java/util/concurrent/ConcurrentHashMap.isEmpty:()Z
+         7: ireturn                 
+      LineNumberTable:
+        line 1307: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/util/Properties;
+  
+  public java.util.Enumeration<java.lang.Object> keys();
+    descriptor: ()Ljava/util/Enumeration;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: invokevirtual #352                // Method java/util/concurrent/ConcurrentHashMap.keySet:()Ljava/util/concurrent/ConcurrentHashMap$KeySetView;
+         7: invokestatic  #355                // Method java/util/Collections.enumeration:(Ljava/util/Collection;)Ljava/util/Enumeration;
+        10: areturn                 
+      LineNumberTable:
+        line 1313: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       11     0  this   Ljava/util/Properties;
+    Signature: #632                        // ()Ljava/util/Enumeration<Ljava/lang/Object;>;
+  
+  public java.util.Enumeration<java.lang.Object> elements();
+    descriptor: ()Ljava/util/Enumeration;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: invokevirtual #359                // Method java/util/concurrent/ConcurrentHashMap.values:()Ljava/util/Collection;
+         7: invokestatic  #355                // Method java/util/Collections.enumeration:(Ljava/util/Collection;)Ljava/util/Enumeration;
+        10: areturn                 
+      LineNumberTable:
+        line 1319: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       11     0  this   Ljava/util/Properties;
+    Signature: #632                        // ()Ljava/util/Enumeration<Ljava/lang/Object;>;
+  
+  public boolean contains(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: aload_1                 
+         5: invokevirtual #363                // Method java/util/concurrent/ConcurrentHashMap.contains:(Ljava/lang/Object;)Z
+         8: ireturn                 
+      LineNumberTable:
+        line 1324: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  this   Ljava/util/Properties;
+           0        9     1  value  Ljava/lang/Object;
+  
+  public boolean containsValue(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: aload_1                 
+         5: invokevirtual #367                // Method java/util/concurrent/ConcurrentHashMap.containsValue:(Ljava/lang/Object;)Z
+         8: ireturn                 
+      LineNumberTable:
+        line 1329: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  this   Ljava/util/Properties;
+           0        9     1  value  Ljava/lang/Object;
+  
+  public boolean containsKey(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: aload_1                 
+         5: invokevirtual #370                // Method java/util/concurrent/ConcurrentHashMap.containsKey:(Ljava/lang/Object;)Z
+         8: ireturn                 
+      LineNumberTable:
+        line 1334: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  this   Ljava/util/Properties;
+           0        9     1  key    Ljava/lang/Object;
+  
+  public java.lang.Object get(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Ljava/lang/Object;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: aload_1                 
+         5: invokevirtual #298                // Method java/util/concurrent/ConcurrentHashMap.get:(Ljava/lang/Object;)Ljava/lang/Object;
+         8: areturn                 
+      LineNumberTable:
+        line 1339: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  this   Ljava/util/Properties;
+           0        9     1  key    Ljava/lang/Object;
+  
+  public synchronized java.lang.Object put(java.lang.Object, java.lang.Object);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+    flags: (0x0021) ACC_PUBLIC, ACC_SYNCHRONIZED
+    Code: 
+      stack=3, locals=3, args_size=3
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: aload_1                 
+         5: aload_2                 
+         6: invokevirtual #373                // Method java/util/concurrent/ConcurrentHashMap.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+         9: areturn                 
+      LineNumberTable:
+        line 1344: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/util/Properties;
+           0       10     1  key    Ljava/lang/Object;
+           0       10     2  value  Ljava/lang/Object;
+  
+  public synchronized java.lang.Object remove(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Ljava/lang/Object;
+    flags: (0x0021) ACC_PUBLIC, ACC_SYNCHRONIZED
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: aload_1                 
+         5: invokevirtual #374                // Method java/util/concurrent/ConcurrentHashMap.remove:(Ljava/lang/Object;)Ljava/lang/Object;
+         8: areturn                 
+      LineNumberTable:
+        line 1349: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  this   Ljava/util/Properties;
+           0        9     1  key    Ljava/lang/Object;
+  
+  public synchronized void putAll(java.util.Map<?, ?>);
+    descriptor: (Ljava/util/Map;)V
+    flags: (0x0021) ACC_PUBLIC, ACC_SYNCHRONIZED
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: aload_1                 
+         5: invokevirtual #377                // Method java/util/concurrent/ConcurrentHashMap.putAll:(Ljava/util/Map;)V
+         8: return                  
+      LineNumberTable:
+        line 1354: 0
+        line 1355: 8
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  this   Ljava/util/Properties;
+           0        9     1  t      Ljava/util/Map;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        9     1  t      Ljava/util/Map<**>;
+    Signature: #636                        // (Ljava/util/Map<**>;)V
+  
+  public synchronized void clear();
+    descriptor: ()V
+    flags: (0x0021) ACC_PUBLIC, ACC_SYNCHRONIZED
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: invokevirtual #380                // Method java/util/concurrent/ConcurrentHashMap.clear:()V
+         7: return                  
+      LineNumberTable:
+        line 1359: 0
+        line 1360: 7
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/util/Properties;
+  
+  public synchronized java.lang.String toString();
+    descriptor: ()Ljava/lang/String;
+    flags: (0x0021) ACC_PUBLIC, ACC_SYNCHRONIZED
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: invokevirtual #383                // Method java/util/concurrent/ConcurrentHashMap.toString:()Ljava/lang/String;
+         7: areturn                 
+      LineNumberTable:
+        line 1364: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/util/Properties;
+  
+  public java.util.Set<java.lang.Object> keySet();
+    descriptor: ()Ljava/util/Set;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: invokevirtual #352                // Method java/util/concurrent/ConcurrentHashMap.keySet:()Ljava/util/concurrent/ConcurrentHashMap$KeySetView;
+         7: aload_0                 
+         8: invokestatic  #384                // Method java/util/Collections.synchronizedSet:(Ljava/util/Set;Ljava/lang/Object;)Ljava/util/Set;
+        11: areturn                 
+      LineNumberTable:
+        line 1369: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       12     0  this   Ljava/util/Properties;
+    Signature: #637                        // ()Ljava/util/Set<Ljava/lang/Object;>;
+  
+  public java.util.Collection<java.lang.Object> values();
+    descriptor: ()Ljava/util/Collection;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: invokevirtual #359                // Method java/util/concurrent/ConcurrentHashMap.values:()Ljava/util/Collection;
+         7: aload_0                 
+         8: invokestatic  #388                // Method java/util/Collections.synchronizedCollection:(Ljava/util/Collection;Ljava/lang/Object;)Ljava/util/Collection;
+        11: areturn                 
+      LineNumberTable:
+        line 1374: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       12     0  this   Ljava/util/Properties;
+    Signature: #638                        // ()Ljava/util/Collection<Ljava/lang/Object;>;
+  
+  public java.util.Set<java.util.Map$Entry<java.lang.Object, java.lang.Object>> entrySet();
+    descriptor: ()Ljava/util/Set;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=1, args_size=1
+         0: new           #190                // class java/util/Properties$EntrySet
+         3: dup                     
+         4: aload_0                 
+         5: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         8: invokevirtual #392                // Method java/util/concurrent/ConcurrentHashMap.entrySet:()Ljava/util/Set;
+        11: invokespecial #393                // Method java/util/Properties$EntrySet."<init>":(Ljava/util/Set;)V
+        14: aload_0                 
+        15: invokestatic  #384                // Method java/util/Collections.synchronizedSet:(Ljava/util/Set;Ljava/lang/Object;)Ljava/util/Set;
+        18: areturn                 
+      LineNumberTable:
+        line 1379: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       19     0  this   Ljava/util/Properties;
+    Signature: #639                        // ()Ljava/util/Set<Ljava/util/Map$Entry<Ljava/lang/Object;Ljava/lang/Object;>;>;
+  
+  public synchronized boolean equals(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Z
+    flags: (0x0021) ACC_PUBLIC, ACC_SYNCHRONIZED
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: aload_1                 
+         5: invokevirtual #396                // Method java/util/concurrent/ConcurrentHashMap.equals:(Ljava/lang/Object;)Z
+         8: ireturn                 
+      LineNumberTable:
+        line 1450: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  this   Ljava/util/Properties;
+           0        9     1  o      Ljava/lang/Object;
+  
+  public synchronized int hashCode();
+    descriptor: ()I
+    flags: (0x0021) ACC_PUBLIC, ACC_SYNCHRONIZED
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: invokevirtual #399                // Method java/util/concurrent/ConcurrentHashMap.hashCode:()I
+         7: ireturn                 
+      LineNumberTable:
+        line 1455: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/util/Properties;
+  
+  public java.lang.Object getOrDefault(java.lang.Object, java.lang.Object);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=3, args_size=3
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: aload_1                 
+         5: aload_2                 
+         6: invokevirtual #402                // Method java/util/concurrent/ConcurrentHashMap.getOrDefault:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+         9: areturn                 
+      LineNumberTable:
+        line 1460: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/util/Properties;
+           0       10     1  key    Ljava/lang/Object;
+           0       10     2  defaultValue Ljava/lang/Object;
+  
+  public synchronized void forEach(java.util.function.BiConsumer<? super java.lang.Object, ? super java.lang.Object>);
+    descriptor: (Ljava/util/function/BiConsumer;)V
+    flags: (0x0021) ACC_PUBLIC, ACC_SYNCHRONIZED
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: aload_1                 
+         5: invokevirtual #405                // Method java/util/concurrent/ConcurrentHashMap.forEach:(Ljava/util/function/BiConsumer;)V
+         8: return                  
+      LineNumberTable:
+        line 1465: 0
+        line 1466: 8
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  this   Ljava/util/Properties;
+           0        9     1  action Ljava/util/function/BiConsumer;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        9     1  action   Ljava/util/function/BiConsumer<-Ljava/lang/Object;-Ljava/lang/Object;>;
+    Signature: #644                        // (Ljava/util/function/BiConsumer<-Ljava/lang/Object;-Ljava/lang/Object;>;)V
+  
+  public synchronized void replaceAll(java.util.function.BiFunction<? super java.lang.Object, ? super java.lang.Object, ?>);
+    descriptor: (Ljava/util/function/BiFunction;)V
+    flags: (0x0021) ACC_PUBLIC, ACC_SYNCHRONIZED
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: aload_1                 
+         5: invokevirtual #409                // Method java/util/concurrent/ConcurrentHashMap.replaceAll:(Ljava/util/function/BiFunction;)V
+         8: return                  
+      LineNumberTable:
+        line 1470: 0
+        line 1471: 8
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  this   Ljava/util/Properties;
+           0        9     1  function Ljava/util/function/BiFunction;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        9     1  function   Ljava/util/function/BiFunction<-Ljava/lang/Object;-Ljava/lang/Object;*>;
+    Signature: #648                        // (Ljava/util/function/BiFunction<-Ljava/lang/Object;-Ljava/lang/Object;*>;)V
+  
+  public synchronized java.lang.Object putIfAbsent(java.lang.Object, java.lang.Object);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+    flags: (0x0021) ACC_PUBLIC, ACC_SYNCHRONIZED
+    Code: 
+      stack=3, locals=3, args_size=3
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: aload_1                 
+         5: aload_2                 
+         6: invokevirtual #413                // Method java/util/concurrent/ConcurrentHashMap.putIfAbsent:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+         9: areturn                 
+      LineNumberTable:
+        line 1475: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/util/Properties;
+           0       10     1  key    Ljava/lang/Object;
+           0       10     2  value  Ljava/lang/Object;
+  
+  public synchronized boolean remove(java.lang.Object, java.lang.Object);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;)Z
+    flags: (0x0021) ACC_PUBLIC, ACC_SYNCHRONIZED
+    Code: 
+      stack=3, locals=3, args_size=3
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: aload_1                 
+         5: aload_2                 
+         6: invokevirtual #416                // Method java/util/concurrent/ConcurrentHashMap.remove:(Ljava/lang/Object;Ljava/lang/Object;)Z
+         9: ireturn                 
+      LineNumberTable:
+        line 1480: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/util/Properties;
+           0       10     1  key    Ljava/lang/Object;
+           0       10     2  value  Ljava/lang/Object;
+  
+  public synchronized boolean replace(java.lang.Object, java.lang.Object, java.lang.Object);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Z
+    flags: (0x0021) ACC_PUBLIC, ACC_SYNCHRONIZED
+    Code: 
+      stack=4, locals=4, args_size=4
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: aload_1                 
+         5: aload_2                 
+         6: aload_3                 
+         7: invokevirtual #419                // Method java/util/concurrent/ConcurrentHashMap.replace:(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Z
+        10: ireturn                 
+      LineNumberTable:
+        line 1485: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       11     0  this   Ljava/util/Properties;
+           0       11     1  key    Ljava/lang/Object;
+           0       11     2  oldValue Ljava/lang/Object;
+           0       11     3  newValue Ljava/lang/Object;
+  
+  public synchronized java.lang.Object replace(java.lang.Object, java.lang.Object);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+    flags: (0x0021) ACC_PUBLIC, ACC_SYNCHRONIZED
+    Code: 
+      stack=3, locals=3, args_size=3
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: aload_1                 
+         5: aload_2                 
+         6: invokevirtual #423                // Method java/util/concurrent/ConcurrentHashMap.replace:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+         9: areturn                 
+      LineNumberTable:
+        line 1490: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/util/Properties;
+           0       10     1  key    Ljava/lang/Object;
+           0       10     2  value  Ljava/lang/Object;
+  
+  public synchronized java.lang.Object computeIfAbsent(java.lang.Object, java.util.function.Function<? super java.lang.Object, ?>);
+    descriptor: (Ljava/lang/Object;Ljava/util/function/Function;)Ljava/lang/Object;
+    flags: (0x0021) ACC_PUBLIC, ACC_SYNCHRONIZED
+    Code: 
+      stack=3, locals=3, args_size=3
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: aload_1                 
+         5: aload_2                 
+         6: invokevirtual #425                // Method java/util/concurrent/ConcurrentHashMap.computeIfAbsent:(Ljava/lang/Object;Ljava/util/function/Function;)Ljava/lang/Object;
+         9: areturn                 
+      LineNumberTable:
+        line 1496: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/util/Properties;
+           0       10     1  key    Ljava/lang/Object;
+           0       10     2  mappingFunction Ljava/util/function/Function;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       10     2  mappingFunction   Ljava/util/function/Function<-Ljava/lang/Object;*>;
+    Signature: #654                        // (Ljava/lang/Object;Ljava/util/function/Function<-Ljava/lang/Object;*>;)Ljava/lang/Object;
+  
+  public synchronized java.lang.Object computeIfPresent(java.lang.Object, java.util.function.BiFunction<? super java.lang.Object, ? super java.lang.Object, ?>);
+    descriptor: (Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+    flags: (0x0021) ACC_PUBLIC, ACC_SYNCHRONIZED
+    Code: 
+      stack=3, locals=3, args_size=3
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: aload_1                 
+         5: aload_2                 
+         6: invokevirtual #429                // Method java/util/concurrent/ConcurrentHashMap.computeIfPresent:(Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+         9: areturn                 
+      LineNumberTable:
+        line 1502: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/util/Properties;
+           0       10     1  key    Ljava/lang/Object;
+           0       10     2  remappingFunction Ljava/util/function/BiFunction;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       10     2  remappingFunction   Ljava/util/function/BiFunction<-Ljava/lang/Object;-Ljava/lang/Object;*>;
+    Signature: #656                        // (Ljava/lang/Object;Ljava/util/function/BiFunction<-Ljava/lang/Object;-Ljava/lang/Object;*>;)Ljava/lang/Object;
+  
+  public synchronized java.lang.Object compute(java.lang.Object, java.util.function.BiFunction<? super java.lang.Object, ? super java.lang.Object, ?>);
+    descriptor: (Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+    flags: (0x0021) ACC_PUBLIC, ACC_SYNCHRONIZED
+    Code: 
+      stack=3, locals=3, args_size=3
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: aload_1                 
+         5: aload_2                 
+         6: invokevirtual #433                // Method java/util/concurrent/ConcurrentHashMap.compute:(Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+         9: areturn                 
+      LineNumberTable:
+        line 1508: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/util/Properties;
+           0       10     1  key    Ljava/lang/Object;
+           0       10     2  remappingFunction Ljava/util/function/BiFunction;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       10     2  remappingFunction   Ljava/util/function/BiFunction<-Ljava/lang/Object;-Ljava/lang/Object;*>;
+    Signature: #656                        // (Ljava/lang/Object;Ljava/util/function/BiFunction<-Ljava/lang/Object;-Ljava/lang/Object;*>;)Ljava/lang/Object;
+  
+  public synchronized java.lang.Object merge(java.lang.Object, java.lang.Object, java.util.function.BiFunction<? super java.lang.Object, ? super java.lang.Object, ?>);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+    flags: (0x0021) ACC_PUBLIC, ACC_SYNCHRONIZED
+    Code: 
+      stack=4, locals=4, args_size=4
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: aload_1                 
+         5: aload_2                 
+         6: aload_3                 
+         7: invokevirtual #436                // Method java/util/concurrent/ConcurrentHashMap.merge:(Ljava/lang/Object;Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+        10: areturn                 
+      LineNumberTable:
+        line 1514: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       11     0  this   Ljava/util/Properties;
+           0       11     1  key    Ljava/lang/Object;
+           0       11     2  value  Ljava/lang/Object;
+           0       11     3  remappingFunction Ljava/util/function/BiFunction;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       11     3  remappingFunction   Ljava/util/function/BiFunction<-Ljava/lang/Object;-Ljava/lang/Object;*>;
+    Signature: #657                        // (Ljava/lang/Object;Ljava/lang/Object;Ljava/util/function/BiFunction<-Ljava/lang/Object;-Ljava/lang/Object;*>;)Ljava/lang/Object;
+  
+  protected void rehash();
+    descriptor: ()V
+    flags: (0x0004) ACC_PROTECTED
+    Code: 
+      stack=0, locals=1, args_size=1
+         0: return                  
+      LineNumberTable:
+        line 1521: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        1     0  this   Ljava/util/Properties;
+  
+  public synchronized java.lang.Object clone();
+    descriptor: ()Ljava/lang/Object;
+    flags: (0x0021) ACC_PUBLIC, ACC_SYNCHRONIZED
+    Code: 
+      stack=4, locals=2, args_size=1
+         0: aload_0                 
+         1: invokevirtual #440                // Method cloneHashtable:()Ljava/util/Hashtable;
+         4: checkcast     #2                  // class java/util/Properties
+         7: astore_1                
+         8: aload_1                 
+         9: new           #14                 // class java/util/concurrent/ConcurrentHashMap
+        12: dup                     
+        13: aload_0                 
+        14: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+        17: invokespecial #444                // Method java/util/concurrent/ConcurrentHashMap."<init>":(Ljava/util/Map;)V
+        20: putfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+        23: aload_1                 
+        24: areturn                 
+      LineNumberTable:
+        line 1525: 0
+        line 1526: 8
+        line 1527: 23
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       25     0  this   Ljava/util/Properties;
+           8       17     1  clone  Ljava/util/Properties;
+  
+  void writeHashtable(java.io.ObjectOutputStream) throws java.io.IOException;
+    descriptor: (Ljava/io/ObjectOutputStream;)V
+    flags: (0x0000) 
+    Code: 
+      stack=4, locals=9, args_size=2
+         0: aload_0                 
+         1: getfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+         4: astore_2                
+         5: new           #192                // class java/util/ArrayList
+         8: dup                     
+         9: aload_2                 
+        10: invokevirtual #348                // Method java/util/concurrent/ConcurrentHashMap.size:()I
+        13: iconst_2                
+        14: imul                    
+        15: invokespecial #446                // Method java/util/ArrayList."<init>":(I)V
+        18: astore_3                
+        19: aload_2                 
+        20: invokevirtual #392                // Method java/util/concurrent/ConcurrentHashMap.entrySet:()Ljava/util/Set;
+        23: invokeinterface #339, 1             // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        28: astore        4                 
+        30: aload         4                 
+        32: invokeinterface #215, 1             // InterfaceMethod java/util/Iterator.hasNext:()Z
+        37: ifeq          83                
+        40: aload         4                 
+        42: invokeinterface #221, 1             // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        47: checkcast     #200                // class java/util/Map$Entry
+        50: astore        5                 
+        52: aload_3                 
+        53: aload         5                 
+        55: invokeinterface #228, 1             // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        60: invokeinterface #447, 2             // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+        65: pop                     
+        66: aload_3                 
+        67: aload         5                 
+        69: invokeinterface #225, 1             // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+        74: invokeinterface #447, 2             // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+        79: pop                     
+        80: goto          30                
+        83: ldc_w         #450                // float 0.75f
+        86: fstore        4                 
+        88: aload_3                 
+        89: invokeinterface #451, 1             // InterfaceMethod java/util/List.size:()I
+        94: iconst_2                
+        95: idiv                    
+        96: istore        5                 
+        98: iload         5                 
+       100: i2f                     
+       101: fload         4                 
+       103: fdiv                    
+       104: f2i                     
+       105: iload         5                 
+       107: bipush        20                
+       109: idiv                    
+       110: iadd                    
+       111: iconst_3                
+       112: iadd                    
+       113: istore        6                 
+       115: iload         6                 
+       117: iload         5                 
+       119: if_icmple     132               
+       122: iload         6                 
+       124: iconst_1                
+       125: iand                    
+       126: ifne          132               
+       129: iinc          6, -1             
+       132: aload_2                 
+       133: dup                     
+       134: astore        7                 
+       136: monitorenter            
+       137: aload_0                 
+       138: aload_1                 
+       139: iload         6                 
+       141: fload         4                 
+       143: invokevirtual #452                // Method defaultWriteHashtable:(Ljava/io/ObjectOutputStream;IF)V
+       146: aload         7                 
+       148: monitorexit             
+       149: goto          160               
+       152: astore        8                 
+       154: aload         7                 
+       156: monitorexit             
+       157: aload         8                 
+       159: athrow                  
+       160: aload_1                 
+       161: iload         6                 
+       163: invokevirtual #456                // Method java/io/ObjectOutputStream.writeInt:(I)V
+       166: aload_1                 
+       167: iload         5                 
+       169: invokevirtual #456                // Method java/io/ObjectOutputStream.writeInt:(I)V
+       172: aload_3                 
+       173: invokeinterface #451, 1             // InterfaceMethod java/util/List.size:()I
+       178: iconst_1                
+       179: isub                    
+       180: istore        7                 
+       182: iload         7                 
+       184: iflt          205               
+       187: aload_1                 
+       188: aload_3                 
+       189: iload         7                 
+       191: invokeinterface #461, 2             // InterfaceMethod java/util/List.get:(I)Ljava/lang/Object;
+       196: invokevirtual #464                // Method java/io/ObjectOutputStream.writeObject:(Ljava/lang/Object;)V
+       199: iinc          7, -1             
+       202: goto          182               
+       205: return                  
+      Exception table:
+          from       to target type
+           137      149   152  any
+           152      157   152  any
+      LineNumberTable:
+        line 1536: 0
+        line 1537: 5
+        line 1539: 19
+        line 1540: 52
+        line 1541: 66
+        line 1542: 80
+        line 1545: 83
+        line 1546: 88
+        line 1547: 98
+        line 1548: 115
+        line 1549: 129
+        line 1551: 132
+        line 1552: 137
+        line 1553: 146
+        line 1556: 160
+        line 1557: 166
+        line 1560: 172
+        line 1561: 187
+        line 1560: 199
+        line 1563: 205
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          52       28     5  entry  Ljava/util/Map$Entry;
+         182       23     7  i      I
+           0      206     0  this   Ljava/util/Properties;
+           0      206     1  s      Ljava/io/ObjectOutputStream;
+           5      201     2  map    Ljava/util/concurrent/ConcurrentHashMap;
+          19      187     3  entryStack Ljava/util/List;
+          88      118     4  loadFactor F
+          98      108     5  count  I
+         115       91     6  length I
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            52       28     5  entry   Ljava/util/Map$Entry<Ljava/lang/Object;Ljava/lang/Object;>;
+             5      201     2  map    Ljava/util/concurrent/ConcurrentHashMap<Ljava/lang/Object;Ljava/lang/Object;>;
+            19      187     3  entryStack   Ljava/util/List<Ljava/lang/Object;>;
+      StackMapTable: number_of_entries = 7
+        frame_type = 254 /* append */
+          offset_delta = 30
+          locals = [class java/util/concurrent/ConcurrentHashMap, class java/util/List, class java/util/Iterator]
+        frame_type = 250 /* chop */
+          offset_delta = 52
+        frame_type = 254 /* append */
+          offset_delta = 48
+          locals = [float, int, int]
+        frame_type = 255 /* full_frame */
+          offset_delta = 19
+          locals = [class java/util/Properties, class java/io/ObjectOutputStream, class java/util/concurrent/ConcurrentHashMap, class java/util/List, float, int, int, class java/lang/Object]
+          stack = [class java/lang/Throwable]
+        frame_type = 250 /* chop */
+          offset_delta = 7
+        frame_type = 252 /* append */
+          offset_delta = 21
+          locals = [int]
+        frame_type = 250 /* chop */
+          offset_delta = 22
+    Exceptions:
+      throws java.io.IOException
+  
+  void readHashtable(java.io.ObjectInputStream) throws java.io.IOException, java.lang.ClassNotFoundException;
+    descriptor: (Ljava/io/ObjectInputStream;)V
+    flags: (0x0000) 
+    Code: 
+      stack=7, locals=7, args_size=2
+         0: aload_1                 
+         1: invokevirtual #468                // Method java/io/ObjectInputStream.defaultReadObject:()V
+         4: aload_1                 
+         5: invokevirtual #473                // Method java/io/ObjectInputStream.readInt:()I
+         8: istore_2                
+         9: aload_1                 
+        10: invokevirtual #473                // Method java/io/ObjectInputStream.readInt:()I
+        13: istore_3                
+        14: iload_3                 
+        15: ifge          46                
+        18: new           #476                // class java/io/StreamCorruptedException
+        21: dup                     
+        22: new           #63                 // class java/lang/StringBuilder
+        25: dup                     
+        26: invokespecial #65                 // Method java/lang/StringBuilder."<init>":()V
+        29: ldc_w         #478                // String Illegal # of Elements: 
+        32: invokevirtual #127                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        35: iload_3                 
+        36: invokevirtual #480                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+        39: invokevirtual #101                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        42: invokespecial #483                // Method java/io/StreamCorruptedException."<init>":(Ljava/lang/String;)V
+        45: athrow                  
+        46: invokestatic  #484                // Method jdk/internal/access/SharedSecrets.getJavaObjectInputStreamAccess:()Ljdk/internal/access/JavaObjectInputStreamAccess;
+        49: aload_1                 
+        50: ldc_w         #490                // class "[Ljava/util/Map$Entry;"
+        53: iload_3                 
+        54: i2d                     
+        55: ldc2_w        #492                // double 0.75d
+        58: ddiv                    
+        59: d2i                     
+        60: invokestatic  #494                // Method java/util/HashMap.tableSizeFor:(I)I
+        63: invokeinterface #498, 4             // InterfaceMethod jdk/internal/access/JavaObjectInputStreamAccess.checkArray:(Ljava/io/ObjectInputStream;Ljava/lang/Class;I)V
+        68: new           #14                 // class java/util/concurrent/ConcurrentHashMap
+        71: dup                     
+        72: iload_3                 
+        73: invokespecial #16                 // Method java/util/concurrent/ConcurrentHashMap."<init>":(I)V
+        76: astore        4                 
+        78: iload_3                 
+        79: ifle          110               
+        82: aload_1                 
+        83: invokevirtual #504                // Method java/io/ObjectInputStream.readObject:()Ljava/lang/Object;
+        86: astore        5                 
+        88: aload_1                 
+        89: invokevirtual #504                // Method java/io/ObjectInputStream.readObject:()Ljava/lang/Object;
+        92: astore        6                 
+        94: aload         4                 
+        96: aload         5                 
+        98: aload         6                 
+       100: invokevirtual #373                // Method java/util/concurrent/ConcurrentHashMap.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+       103: pop                     
+       104: iinc          3, -1             
+       107: goto          78                
+       110: aload_0                 
+       111: aload         4                 
+       113: putfield      #19                 // Field map:Ljava/util/concurrent/ConcurrentHashMap;
+       116: return                  
+      LineNumberTable:
+        line 1569: 0
+        line 1572: 4
+        line 1573: 9
+        line 1576: 14
+        line 1577: 18
+        line 1587: 46
+        line 1588: 60
+        line 1591: 68
+        line 1594: 78
+        line 1595: 82
+        line 1596: 88
+        line 1597: 94
+        line 1594: 104
+        line 1599: 110
+        line 1600: 116
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          88       16     5  key    Ljava/lang/Object;
+          94       10     6  value  Ljava/lang/Object;
+           0      117     0  this   Ljava/util/Properties;
+           0      117     1  s      Ljava/io/ObjectInputStream;
+           9      108     2  origlength I
+          14      103     3  elements I
+          78       39     4  map    Ljava/util/concurrent/ConcurrentHashMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            78       39     4  map    Ljava/util/concurrent/ConcurrentHashMap<Ljava/lang/Object;Ljava/lang/Object;>;
+      StackMapTable: number_of_entries = 3
+        frame_type = 253 /* append */
+          offset_delta = 46
+          locals = [int, int]
+        frame_type = 252 /* append */
+          offset_delta = 31
+          locals = [class java/util/concurrent/ConcurrentHashMap]
+        frame_type = 31 /* same */
+    Exceptions:
+      throws java.io.IOException, java.lang.ClassNotFoundException
+  
+  static {};
+    descriptor: ()V
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=1, locals=0, args_size=0
+         0: invokestatic  #507                // Method jdk/internal/misc/Unsafe.getUnsafe:()Ljdk/internal/misc/Unsafe;
+         3: putstatic     #27                 // Field UNSAFE:Ljdk/internal/misc/Unsafe;
+         6: return                  
+      LineNumberTable:
+        line 151: 0
+}
+Signature: #678                        // Ljava/util/Hashtable<Ljava/lang/Object;Ljava/lang/Object;>;
+SourceFile: "Properties.java"
+NestMembers:
+  java/util/Properties$EntrySet
+  java/util/Properties$LineReader
+InnerClasses:
+  private static #683= #49 of #2;             // LineReader=class java/util/Properties$LineReader of class java/util/Properties
+  static #684= #184 of #326;                  // SynchronizedSet=class java/util/Collections$SynchronizedSet of class java/util/Collections
+  private static #685= #190 of #2;            // EntrySet=class java/util/Properties$EntrySet of class java/util/Properties
+  public static #686= #200 of #321;           // Entry=class java/util/Map$Entry of class java/util/Map
+  public static final #689= #687 of #14;      // KeySetView=class java/util/concurrent/ConcurrentHashMap$KeySetView of class java/util/concurrent/ConcurrentHashMap

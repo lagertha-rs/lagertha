@@ -1,0 +1,1025 @@
+---
+source: jclass/src/lib.rs
+expression: display
+---
+public abstract class java.io.InputStream implements java.io.Closeable
+  minor version: 0
+  major version: 68
+  flags: (0x0421) ACC_PUBLIC, ACC_SUPER, ACC_ABSTRACT
+  this_class: #13                      //java/io/InputStream
+  super_class: #4                      //java/lang/Object
+  interfaces: 1, fields: 3, methods: 16, attributes: 3
+Constant pool:
+    #1 = Class              #2               // jdk/internal/util/ArraysSupport
+    #2 = Utf8               jdk/internal/util/ArraysSupport
+    #3 = Methodref          #4.#5            // java/lang/Object."<init>":()V
+    #4 = Class              #6               // java/lang/Object
+    #5 = NameAndType        #7:#8            // "<init>":()V
+    #6 = Utf8               java/lang/Object
+    #7 = Utf8               <init>
+    #8 = Utf8               ()V
+    #9 = Class              #10              // java/io/InputStream$1
+   #10 = Utf8               java/io/InputStream$1
+   #11 = Methodref          #9.#5            // java/io/InputStream$1."<init>":()V
+   #12 = Methodref          #13.#14          // java/io/InputStream.read:([BII)I
+   #13 = Class              #15              // java/io/InputStream
+   #14 = NameAndType        #16:#17          // read:([BII)I
+   #15 = Utf8               java/io/InputStream
+   #16 = Utf8               read
+   #17 = Utf8               ([BII)I
+   #18 = Methodref          #19.#20          // java/util/Objects.checkFromIndexSize:(III)I
+   #19 = Class              #21              // java/util/Objects
+   #20 = NameAndType        #22:#23          // checkFromIndexSize:(III)I
+   #21 = Utf8               java/util/Objects
+   #22 = Utf8               checkFromIndexSize
+   #23 = Utf8               (III)I
+   #24 = Methodref          #13.#25          // java/io/InputStream.read:()I
+   #25 = NameAndType        #16:#26          // read:()I
+   #26 = Utf8               ()I
+   #27 = Class              #28              // java/io/IOException
+   #28 = Utf8               java/io/IOException
+   #29 = Class              #30              // java/lang/Integer
+   #30 = Utf8               java/lang/Integer
+   #31 = Integer            2147483647
+   #32 = Methodref          #13.#33          // java/io/InputStream.readNBytes:(I)[B
+   #33 = NameAndType        #34:#35          // readNBytes:(I)[B
+   #34 = Utf8               readNBytes
+   #35 = Utf8               (I)[B
+   #36 = Class              #37              // java/lang/IllegalArgumentException
+   #37 = Utf8               java/lang/IllegalArgumentException
+   #38 = String             #39              // len < 0
+   #39 = Utf8               len < 0
+   #40 = Methodref          #36.#41          // java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+   #41 = NameAndType        #7:#42           // "<init>":(Ljava/lang/String;)V
+   #42 = Utf8               (Ljava/lang/String;)V
+   #43 = Methodref          #44.#45          // java/lang/Math.min:(II)I
+   #44 = Class              #46              // java/lang/Math
+   #45 = NameAndType        #47:#48          // min:(II)I
+   #46 = Utf8               java/lang/Math
+   #47 = Utf8               min
+   #48 = Utf8               (II)I
+   #49 = Integer            2147483639
+   #50 = Class              #51              // java/lang/OutOfMemoryError
+   #51 = Utf8               java/lang/OutOfMemoryError
+   #52 = String             #53              // Required array size too large
+   #53 = Utf8               Required array size too large
+   #54 = Methodref          #50.#41          // java/lang/OutOfMemoryError."<init>":(Ljava/lang/String;)V
+   #55 = Methodref          #56.#57          // java/util/Arrays.copyOfRange:([BII)[B
+   #56 = Class              #58              // java/util/Arrays
+   #57 = NameAndType        #59:#60          // copyOfRange:([BII)[B
+   #58 = Utf8               java/util/Arrays
+   #59 = Utf8               copyOfRange
+   #60 = Utf8               ([BII)[B
+   #61 = Class              #62              // java/util/ArrayList
+   #62 = Utf8               java/util/ArrayList
+   #63 = Methodref          #61.#5           // java/util/ArrayList."<init>":()V
+   #64 = InterfaceMethodref #65.#66          // java/util/List.add:(Ljava/lang/Object;)Z
+   #65 = Class              #67              // java/util/List
+   #66 = NameAndType        #68:#69          // add:(Ljava/lang/Object;)Z
+   #67 = Utf8               java/util/List
+   #68 = Utf8               add
+   #69 = Utf8               (Ljava/lang/Object;)Z
+   #70 = Methodref          #56.#71          // java/util/Arrays.copyOf:([BI)[B
+   #71 = NameAndType        #72:#73          // copyOf:([BI)[B
+   #72 = Utf8               copyOf
+   #73 = Utf8               ([BI)[B
+   #74 = InterfaceMethodref #65.#75          // java/util/List.iterator:()Ljava/util/Iterator;
+   #75 = NameAndType        #76:#77          // iterator:()Ljava/util/Iterator;
+   #76 = Utf8               iterator
+   #77 = Utf8               ()Ljava/util/Iterator;
+   #78 = InterfaceMethodref #79.#80          // java/util/Iterator.hasNext:()Z
+   #79 = Class              #81              // java/util/Iterator
+   #80 = NameAndType        #82:#83          // hasNext:()Z
+   #81 = Utf8               java/util/Iterator
+   #82 = Utf8               hasNext
+   #83 = Utf8               ()Z
+   #84 = InterfaceMethodref #79.#85          // java/util/Iterator.next:()Ljava/lang/Object;
+   #85 = NameAndType        #86:#87          // next:()Ljava/lang/Object;
+   #86 = Utf8               next
+   #87 = Utf8               ()Ljava/lang/Object;
+   #88 = Class              #89              // "[B"
+   #89 = Utf8               [B
+   #90 = Methodref          #91.#92          // java/lang/System.arraycopy:(Ljava/lang/Object;ILjava/lang/Object;II)V
+   #91 = Class              #93              // java/lang/System
+   #92 = NameAndType        #94:#95          // arraycopy:(Ljava/lang/Object;ILjava/lang/Object;II)V
+   #93 = Utf8               java/lang/System
+   #94 = Utf8               arraycopy
+   #95 = Utf8               (Ljava/lang/Object;ILjava/lang/Object;II)V
+   #96 = Long               2048l
+   #98 = Methodref          #44.#99          // java/lang/Math.min:(JJ)J
+   #99 = NameAndType        #47:#100         // min:(JJ)J
+  #100 = Utf8               (JJ)J
+  #101 = Methodref          #13.#102         // java/io/InputStream.skip:(J)J
+  #102 = NameAndType        #103:#104        // skip:(J)J
+  #103 = Utf8               skip
+  #104 = Utf8               (J)J
+  #105 = Class              #106             // java/io/EOFException
+  #106 = Utf8               java/io/EOFException
+  #107 = Methodref          #105.#5          // java/io/EOFException."<init>":()V
+  #108 = String             #109             // Unable to skip exactly
+  #109 = Utf8               Unable to skip exactly
+  #110 = Methodref          #27.#41          // java/io/IOException."<init>":(Ljava/lang/String;)V
+  #111 = String             #112             // mark/reset not supported
+  #112 = Utf8               mark/reset not supported
+  #113 = String             #114             // out
+  #114 = Utf8               out
+  #115 = Methodref          #19.#116         // java/util/Objects.requireNonNull:(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+  #116 = NameAndType        #117:#118        // requireNonNull:(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+  #117 = Utf8               requireNonNull
+  #118 = Utf8               (Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+  #119 = Methodref          #120.#121        // java/io/OutputStream.write:([BII)V
+  #120 = Class              #122             // java/io/OutputStream
+  #121 = NameAndType        #123:#124        // write:([BII)V
+  #122 = Utf8               java/io/OutputStream
+  #123 = Utf8               write
+  #124 = Utf8               ([BII)V
+  #125 = Class              #126             // java/lang/Long
+  #126 = Utf8               java/lang/Long
+  #127 = Long               9223372036854775807l
+  #129 = Methodref          #44.#130         // java/lang/Math.addExact:(JJ)J
+  #130 = NameAndType        #131:#100        // addExact:(JJ)J
+  #131 = Utf8               addExact
+  #132 = Class              #133             // java/lang/ArithmeticException
+  #133 = Utf8               java/lang/ArithmeticException
+  #134 = Class              #135             // java/io/Closeable
+  #135 = Utf8               java/io/Closeable
+  #136 = Utf8               MAX_SKIP_BUFFER_SIZE
+  #137 = Utf8               I
+  #138 = Utf8               ConstantValue
+  #139 = Integer            2048
+  #140 = Utf8               DEFAULT_BUFFER_SIZE
+  #141 = Integer            16384
+  #142 = Utf8               MAX_BUFFER_SIZE
+  #143 = Utf8               Code
+  #144 = Utf8               LineNumberTable
+  #145 = Utf8               LocalVariableTable
+  #146 = Utf8               this
+  #147 = Utf8               Ljava/io/InputStream;
+  #148 = Utf8               nullInputStream
+  #149 = Utf8               ()Ljava/io/InputStream;
+  #150 = Utf8               Exceptions
+  #151 = Utf8               ([B)I
+  #152 = Utf8               b
+  #153 = Utf8               off
+  #154 = Utf8               len
+  #155 = Utf8               c
+  #156 = Utf8               i
+  #157 = Utf8               StackMapTable
+  #158 = Utf8               readAllBytes
+  #159 = Utf8               ()[B
+  #160 = Utf8               buf
+  #161 = Utf8               nread
+  #162 = Utf8               count
+  #163 = Utf8               bufs
+  #164 = Utf8               Ljava/util/List;
+  #165 = Utf8               result
+  #166 = Utf8               total
+  #167 = Utf8               remaining
+  #168 = Utf8               n
+  #169 = Utf8               offset
+  #170 = Utf8               LocalVariableTypeTable
+  #171 = Utf8               Ljava/util/List<[B>;
+  #172 = Utf8               nr
+  #173 = Utf8               J
+  #174 = Utf8               size
+  #175 = Utf8               skipBuffer
+  #176 = Utf8               skipNBytes
+  #177 = Utf8               (J)V
+  #178 = Utf8               ns
+  #179 = Utf8               available
+  #180 = Utf8               close
+  #181 = Utf8               mark
+  #182 = Utf8               (I)V
+  #183 = Utf8               readlimit
+  #184 = Utf8               reset
+  #185 = Utf8               markSupported
+  #186 = Utf8               transferTo
+  #187 = Utf8               (Ljava/io/OutputStream;)J
+  #188 = Utf8               ignore
+  #189 = Utf8               Ljava/lang/ArithmeticException;
+  #190 = Utf8               Ljava/io/OutputStream;
+  #191 = Utf8               transferred
+  #192 = Utf8               buffer
+  #193 = Utf8               SourceFile
+  #194 = Utf8               InputStream.java
+  #195 = Utf8               NestMembers
+  #196 = Utf8               InnerClasses
+{
+  private static final int MAX_SKIP_BUFFER_SIZE;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 2048
+  
+  private static final int DEFAULT_BUFFER_SIZE;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 16384
+  
+  private static final int MAX_BUFFER_SIZE;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 2147483639
+  
+  public java.io.InputStream();
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: invokespecial #3                  // Method java/lang/Object."<init>":()V
+         4: return                  
+      LineNumberTable:
+        line 63: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/io/InputStream;
+  
+  public static java.io.InputStream nullInputStream();
+    descriptor: ()Ljava/io/InputStream;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=2, locals=0, args_size=0
+         0: new           #9                  // class java/io/InputStream$1
+         3: dup                     
+         4: invokespecial #11                 // Method java/io/InputStream$1."<init>":()V
+         7: areturn                 
+      LineNumberTable:
+        line 88: 0
+  
+  public abstract int read() throws java.io.IOException;
+    descriptor: ()I
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+    Exceptions:
+      throws java.io.IOException
+  
+  public int read(byte[]) throws java.io.IOException;
+    descriptor: ([B)I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=2, args_size=2
+         0: aload_0                 
+         1: aload_1                 
+         2: iconst_0                
+         3: aload_1                 
+         4: arraylength             
+         5: invokevirtual #12                 // Method read:([BII)I
+         8: ireturn                 
+      LineNumberTable:
+        line 222: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  this   Ljava/io/InputStream;
+           0        9     1  b      [B
+    Exceptions:
+      throws java.io.IOException
+  
+  public int read(byte[], int, int) throws java.io.IOException;
+    descriptor: ([BII)I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=7, args_size=4
+         0: iload_2                 
+         1: iload_3                 
+         2: aload_1                 
+         3: arraylength             
+         4: invokestatic  #18                 // Method java/util/Objects.checkFromIndexSize:(III)I
+         7: pop                     
+         8: iload_3                 
+         9: ifne          14                
+        12: iconst_0                
+        13: ireturn                 
+        14: aload_0                 
+        15: invokevirtual #24                 // Method read:()I
+        18: istore        4                 
+        20: iload         4                 
+        22: iconst_m1               
+        23: if_icmpne     28                
+        26: iconst_m1               
+        27: ireturn                 
+        28: aload_1                 
+        29: iload_2                 
+        30: iload         4                 
+        32: i2b                     
+        33: bastore                 
+        34: iconst_1                
+        35: istore        5                 
+        37: iload         5                 
+        39: iload_3                 
+        40: if_icmpge     73                
+        43: aload_0                 
+        44: invokevirtual #24                 // Method read:()I
+        47: istore        4                 
+        49: iload         4                 
+        51: iconst_m1               
+        52: if_icmpne     58                
+        55: goto          73                
+        58: aload_1                 
+        59: iload_2                 
+        60: iload         5                 
+        62: iadd                    
+        63: iload         4                 
+        65: i2b                     
+        66: bastore                 
+        67: iinc          5, 1              
+        70: goto          37                
+        73: goto          78                
+        76: astore        6                 
+        78: iload         5                 
+        80: ireturn                 
+      Exception table:
+          from       to target type
+            37       73    76  Class java/io/IOException
+      LineNumberTable:
+        line 284: 0
+        line 285: 8
+        line 286: 12
+        line 289: 14
+        line 290: 20
+        line 291: 26
+        line 293: 28
+        line 295: 34
+        line 297: 37
+        line 298: 43
+        line 299: 49
+        line 300: 55
+        line 302: 58
+        line 297: 67
+        line 305: 73
+        line 304: 76
+        line 306: 78
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       81     0  this   Ljava/io/InputStream;
+           0       81     1  b      [B
+           0       81     2  off    I
+           0       81     3  len    I
+          20       61     4  c      I
+          37       44     5  i      I
+      StackMapTable: number_of_entries = 7
+        frame_type = 14 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 13
+          locals = [int]
+        frame_type = 252 /* append */
+          offset_delta = 8
+          locals = [int]
+        frame_type = 20 /* same */
+        frame_type = 14 /* same */
+        frame_type = 66 /* same_locals_1_stack_item */
+          stack = [ class java/io/IOException ]
+        frame_type = 1 /* same */
+    Exceptions:
+      throws java.io.IOException
+  
+  public byte[] readAllBytes() throws java.io.IOException;
+    descriptor: ()[B
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: aload_0                 
+         1: ldc           #31                 // int 2147483647
+         3: invokevirtual #32                 // Method readNBytes:(I)[B
+         6: areturn                 
+      LineNumberTable:
+        line 348: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        7     0  this   Ljava/io/InputStream;
+    Exceptions:
+      throws java.io.IOException
+  
+  public byte[] readNBytes(int) throws java.io.IOException;
+    descriptor: (I)[B
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=5, locals=11, args_size=2
+         0: iload_1                 
+         1: ifge          14                
+         4: new           #36                 // class java/lang/IllegalArgumentException
+         7: dup                     
+         8: ldc           #38                 // String len < 0
+        10: invokespecial #40                 // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+        13: athrow                  
+        14: aconst_null             
+        15: astore_2                
+        16: aconst_null             
+        17: astore_3                
+        18: iconst_0                
+        19: istore        4                 
+        21: iload_1                 
+        22: istore        5                 
+        24: iload         5                 
+        26: sipush        16384             
+        29: invokestatic  #43                 // Method java/lang/Math.min:(II)I
+        32: newarray      byte              
+        34: astore        7                 
+        36: iconst_0                
+        37: istore        8                 
+        39: aload_0                 
+        40: aload         7                 
+        42: iload         8                 
+        44: aload         7                 
+        46: arraylength             
+        47: iload         8                 
+        49: isub                    
+        50: iload         5                 
+        52: invokestatic  #43                 // Method java/lang/Math.min:(II)I
+        55: invokevirtual #12                 // Method read:([BII)I
+        58: dup                     
+        59: istore        6                 
+        61: ifle          81                
+        64: iload         8                 
+        66: iload         6                 
+        68: iadd                    
+        69: istore        8                 
+        71: iload         5                 
+        73: iload         6                 
+        75: isub                    
+        76: istore        5                 
+        78: goto          39                
+        81: iload         8                 
+        83: ifle          170               
+        86: ldc           #49                 // int 2147483639
+        88: iload         4                 
+        90: isub                    
+        91: iload         8                 
+        93: if_icmpge     106               
+        96: new           #50                 // class java/lang/OutOfMemoryError
+        99: dup                     
+       100: ldc           #52                 // String Required array size too large
+       102: invokespecial #54                 // Method java/lang/OutOfMemoryError."<init>":(Ljava/lang/String;)V
+       105: athrow                  
+       106: iload         8                 
+       108: aload         7                 
+       110: arraylength             
+       111: if_icmpge     124               
+       114: aload         7                 
+       116: iconst_0                
+       117: iload         8                 
+       119: invokestatic  #55                 // Method java/util/Arrays.copyOfRange:([BII)[B
+       122: astore        7                 
+       124: iload         4                 
+       126: iload         8                 
+       128: iadd                    
+       129: istore        4                 
+       131: aload_3                 
+       132: ifnonnull     141               
+       135: aload         7                 
+       137: astore_3                
+       138: goto          170               
+       141: aload_2                 
+       142: ifnonnull     161               
+       145: new           #61                 // class java/util/ArrayList
+       148: dup                     
+       149: invokespecial #63                 // Method java/util/ArrayList."<init>":()V
+       152: astore_2                
+       153: aload_2                 
+       154: aload_3                 
+       155: invokeinterface #64, 2              // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       160: pop                     
+       161: aload_2                 
+       162: aload         7                 
+       164: invokeinterface #64, 2              // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       169: pop                     
+       170: iload         6                 
+       172: iflt          180               
+       175: iload         5                 
+       177: ifgt          24                
+       180: aload_2                 
+       181: ifnonnull     210               
+       184: aload_3                 
+       185: ifnonnull     192               
+       188: iconst_0                
+       189: newarray      byte              
+       191: areturn                 
+       192: aload_3                 
+       193: arraylength             
+       194: iload         4                 
+       196: if_icmpne     203               
+       199: aload_3                 
+       200: goto          209               
+       203: aload_3                 
+       204: iload         4                 
+       206: invokestatic  #70                 // Method java/util/Arrays.copyOf:([BI)[B
+       209: areturn                 
+       210: iload         4                 
+       212: newarray      byte              
+       214: astore_3                
+       215: iconst_0                
+       216: istore        7                 
+       218: iload         4                 
+       220: istore        5                 
+       222: aload_2                 
+       223: invokeinterface #74, 1              // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+       228: astore        8                 
+       230: aload         8                 
+       232: invokeinterface #78, 1              // InterfaceMethod java/util/Iterator.hasNext:()Z
+       237: ifeq          290               
+       240: aload         8                 
+       242: invokeinterface #84, 1              // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       247: checkcast     #88                 // class "[B"
+       250: astore        9                 
+       252: aload         9                 
+       254: arraylength             
+       255: iload         5                 
+       257: invokestatic  #43                 // Method java/lang/Math.min:(II)I
+       260: istore        10                
+       262: aload         9                 
+       264: iconst_0                
+       265: aload_3                 
+       266: iload         7                 
+       268: iload         10                
+       270: invokestatic  #90                 // Method java/lang/System.arraycopy:(Ljava/lang/Object;ILjava/lang/Object;II)V
+       273: iload         7                 
+       275: iload         10                
+       277: iadd                    
+       278: istore        7                 
+       280: iload         5                 
+       282: iload         10                
+       284: isub                    
+       285: istore        5                 
+       287: goto          230               
+       290: aload_3                 
+       291: areturn                 
+      LineNumberTable:
+        line 397: 0
+        line 398: 4
+        line 401: 14
+        line 402: 16
+        line 403: 18
+        line 404: 21
+        line 407: 24
+        line 408: 36
+        line 411: 39
+        line 412: 52
+        line 411: 55
+        line 413: 64
+        line 414: 71
+        line 417: 81
+        line 418: 86
+        line 419: 96
+        line 421: 106
+        line 422: 114
+        line 424: 124
+        line 425: 131
+        line 426: 135
+        line 428: 141
+        line 429: 145
+        line 430: 153
+        line 432: 161
+        line 437: 170
+        line 439: 180
+        line 440: 184
+        line 441: 188
+        line 443: 192
+        line 444: 199
+        line 443: 209
+        line 447: 210
+        line 448: 215
+        line 449: 218
+        line 450: 222
+        line 451: 252
+        line 452: 262
+        line 453: 273
+        line 454: 280
+        line 455: 287
+        line 457: 290
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          36      134     7  buf    [B
+          39      131     8  nread  I
+         262       25    10  count  I
+         252       35     9  b      [B
+           0      292     0  this   Ljava/io/InputStream;
+           0      292     1  len    I
+          16      276     2  bufs   Ljava/util/List;
+          18      274     3  result [B
+          21      271     4  total  I
+          24      268     5  remaining I
+          61      231     6  n      I
+         218       74     7  offset I
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            16      276     2  bufs   Ljava/util/List<[B>;
+      StackMapTable: number_of_entries = 16
+        frame_type = 14 /* same */
+        frame_type = 255 /* full_frame */
+          offset_delta = 9
+          locals = [class java/io/InputStream, int, class java/util/List, class "[B", int, int]
+          stack = []
+        frame_type = 254 /* append */
+          offset_delta = 14
+          locals = [top, class "[B", int]
+        frame_type = 255 /* full_frame */
+          offset_delta = 41
+          locals = [class java/io/InputStream, int, class java/util/List, class "[B", int, int, int, class "[B", int]
+          stack = []
+        frame_type = 24 /* same */
+        frame_type = 17 /* same */
+        frame_type = 16 /* same */
+        frame_type = 19 /* same */
+        frame_type = 249 /* chop */
+          offset_delta = 8
+        frame_type = 9 /* same */
+        frame_type = 11 /* same */
+        frame_type = 10 /* same */
+        frame_type = 69 /* same_locals_1_stack_item */
+          stack = [ class "[B" ]
+        frame_type = 0 /* same */
+        frame_type = 253 /* append */
+          offset_delta = 19
+          locals = [int, class java/util/Iterator]
+        frame_type = 250 /* chop */
+          offset_delta = 59
+    Exceptions:
+      throws java.io.IOException
+  
+  public int readNBytes(byte[], int, int) throws java.io.IOException;
+    descriptor: ([BII)I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=5, locals=6, args_size=4
+         0: iload_2                 
+         1: iload_3                 
+         2: aload_1                 
+         3: arraylength             
+         4: invokestatic  #18                 // Method java/util/Objects.checkFromIndexSize:(III)I
+         7: pop                     
+         8: iconst_0                
+         9: istore        4                 
+        11: iload         4                 
+        13: iload_3                 
+        14: if_icmpge     50                
+        17: aload_0                 
+        18: aload_1                 
+        19: iload_2                 
+        20: iload         4                 
+        22: iadd                    
+        23: iload_3                 
+        24: iload         4                 
+        26: isub                    
+        27: invokevirtual #12                 // Method read:([BII)I
+        30: istore        5                 
+        32: iload         5                 
+        34: ifge          40                
+        37: goto          50                
+        40: iload         4                 
+        42: iload         5                 
+        44: iadd                    
+        45: istore        4                 
+        47: goto          11                
+        50: iload         4                 
+        52: ireturn                 
+      LineNumberTable:
+        line 504: 0
+        line 506: 8
+        line 507: 11
+        line 508: 17
+        line 509: 32
+        line 510: 37
+        line 511: 40
+        line 512: 47
+        line 513: 50
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          32       15     5  count  I
+           0       53     0  this   Ljava/io/InputStream;
+           0       53     1  b      [B
+           0       53     2  off    I
+           0       53     3  len    I
+          11       42     4  n      I
+      StackMapTable: number_of_entries = 3
+        frame_type = 252 /* append */
+          offset_delta = 11
+          locals = [int]
+        frame_type = 252 /* append */
+          offset_delta = 28
+          locals = [int]
+        frame_type = 250 /* chop */
+          offset_delta = 9
+    Exceptions:
+      throws java.io.IOException
+  
+  public long skip(long) throws java.io.IOException;
+    descriptor: (J)J
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=7, locals=8, args_size=2
+         0: lload_1                 
+         1: lstore_3                
+         2: lload_1                 
+         3: lconst_0                
+         4: lcmp                    
+         5: ifgt          10                
+         8: lconst_0                
+         9: lreturn                 
+        10: ldc2_w        #96                 // long 2048l
+        13: lload_3                 
+        14: invokestatic  #98                 // Method java/lang/Math.min:(JJ)J
+        17: l2i                     
+        18: istore        6                 
+        20: iload         6                 
+        22: newarray      byte              
+        24: astore        7                 
+        26: lload_3                 
+        27: lconst_0                
+        28: lcmp                    
+        29: ifle          66                
+        32: aload_0                 
+        33: aload         7                 
+        35: iconst_0                
+        36: iload         6                 
+        38: i2l                     
+        39: lload_3                 
+        40: invokestatic  #98                 // Method java/lang/Math.min:(JJ)J
+        43: l2i                     
+        44: invokevirtual #12                 // Method read:([BII)I
+        47: istore        5                 
+        49: iload         5                 
+        51: ifge          57                
+        54: goto          66                
+        57: lload_3                 
+        58: iload         5                 
+        60: i2l                     
+        61: lsub                    
+        62: lstore_3                
+        63: goto          26                
+        66: lload_1                 
+        67: lload_3                 
+        68: lsub                    
+        69: lreturn                 
+      LineNumberTable:
+        line 540: 0
+        line 543: 2
+        line 544: 8
+        line 547: 10
+        line 548: 20
+        line 549: 26
+        line 550: 32
+        line 551: 49
+        line 552: 54
+        line 554: 57
+        line 557: 66
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          49       17     5  nr     I
+           0       70     0  this   Ljava/io/InputStream;
+           0       70     1  n      J
+           2       68     3  remaining J
+          20       50     6  size   I
+          26       44     7  skipBuffer [B
+      StackMapTable: number_of_entries = 4
+        frame_type = 252 /* append */
+          offset_delta = 10
+          locals = [long]
+        frame_type = 254 /* append */
+          offset_delta = 15
+          locals = [top, int, class "[B"]
+        frame_type = 255 /* full_frame */
+          offset_delta = 30
+          locals = [class java/io/InputStream, long, long, int, int, class "[B"]
+          stack = []
+        frame_type = 255 /* full_frame */
+          offset_delta = 8
+          locals = [class java/io/InputStream, long, long, top, int, class "[B"]
+          stack = []
+    Exceptions:
+      throws java.io.IOException
+  
+  public void skipNBytes(long) throws java.io.IOException;
+    descriptor: (J)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=5, args_size=2
+         0: lload_1                 
+         1: lconst_0                
+         2: lcmp                    
+         3: ifle          73                
+         6: aload_0                 
+         7: lload_1                 
+         8: invokevirtual #101                // Method skip:(J)J
+        11: lstore_3                
+        12: lload_3                 
+        13: lconst_0                
+        14: lcmp                    
+        15: ifle          31                
+        18: lload_3                 
+        19: lload_1                 
+        20: lcmp                    
+        21: ifgt          31                
+        24: lload_1                 
+        25: lload_3                 
+        26: lsub                    
+        27: lstore_1                
+        28: goto          70                
+        31: lload_3                 
+        32: lconst_0                
+        33: lcmp                    
+        34: ifne          60                
+        37: aload_0                 
+        38: invokevirtual #24                 // Method read:()I
+        41: iconst_m1               
+        42: if_icmpne     53                
+        45: new           #105                // class java/io/EOFException
+        48: dup                     
+        49: invokespecial #107                // Method java/io/EOFException."<init>":()V
+        52: athrow                  
+        53: lload_1                 
+        54: lconst_1                
+        55: lsub                    
+        56: lstore_1                
+        57: goto          70                
+        60: new           #27                 // class java/io/IOException
+        63: dup                     
+        64: ldc           #108                // String Unable to skip exactly
+        66: invokespecial #110                // Method java/io/IOException."<init>":(Ljava/lang/String;)V
+        69: athrow                  
+        70: goto          0                 
+        73: return                  
+      LineNumberTable:
+        line 604: 0
+        line 605: 6
+        line 606: 12
+        line 608: 24
+        line 609: 31
+        line 611: 37
+        line 612: 45
+        line 615: 53
+        line 617: 60
+        line 619: 70
+        line 620: 73
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          12       58     3  ns     J
+           0       74     0  this   Ljava/io/InputStream;
+           0       74     1  n      J
+      StackMapTable: number_of_entries = 6
+        frame_type = 0 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 30
+          locals = [long]
+        frame_type = 21 /* same */
+        frame_type = 6 /* same */
+        frame_type = 250 /* chop */
+          offset_delta = 9
+        frame_type = 2 /* same */
+    Exceptions:
+      throws java.io.IOException
+  
+  public int available() throws java.io.IOException;
+    descriptor: ()I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: iconst_0                
+         1: ireturn                 
+      LineNumberTable:
+        line 651: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        2     0  this   Ljava/io/InputStream;
+    Exceptions:
+      throws java.io.IOException
+  
+  public void close() throws java.io.IOException;
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=0, locals=1, args_size=1
+         0: return                  
+      LineNumberTable:
+        line 664: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        1     0  this   Ljava/io/InputStream;
+    Exceptions:
+      throws java.io.IOException
+  
+  public void mark(int);
+    descriptor: (I)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=0, locals=2, args_size=2
+         0: return                  
+      LineNumberTable:
+        line 692: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        1     0  this   Ljava/io/InputStream;
+           0        1     1  readlimit I
+  
+  public void reset() throws java.io.IOException;
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=1, args_size=1
+         0: new           #27                 // class java/io/IOException
+         3: dup                     
+         4: ldc           #111                // String mark/reset not supported
+         6: invokespecial #110                // Method java/io/IOException."<init>":(Ljava/lang/String;)V
+         9: athrow                  
+      LineNumberTable:
+        line 740: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/io/InputStream;
+    Exceptions:
+      throws java.io.IOException
+  
+  public boolean markSupported();
+    descriptor: ()Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: iconst_0                
+         1: ireturn                 
+      LineNumberTable:
+        line 759: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        2     0  this   Ljava/io/InputStream;
+  
+  public long transferTo(java.io.OutputStream) throws java.io.IOException;
+    descriptor: (Ljava/io/OutputStream;)J
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=7, args_size=2
+         0: aload_1                 
+         1: ldc           #113                // String out
+         3: invokestatic  #115                // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+         6: pop                     
+         7: lconst_0                
+         8: lstore_2                
+         9: sipush        16384             
+        12: newarray      byte              
+        14: astore        4                 
+        16: aload_0                 
+        17: aload         4                 
+        19: iconst_0                
+        20: sipush        16384             
+        23: invokevirtual #12                 // Method read:([BII)I
+        26: dup                     
+        27: istore        5                 
+        29: iflt          69                
+        32: aload_1                 
+        33: aload         4                 
+        35: iconst_0                
+        36: iload         5                 
+        38: invokevirtual #119                // Method java/io/OutputStream.write:([BII)V
+        41: lload_2                 
+        42: ldc2_w        #127                // long 9223372036854775807l
+        45: lcmp                    
+        46: ifge          16                
+        49: lload_2                 
+        50: iload         5                 
+        52: i2l                     
+        53: invokestatic  #129                // Method java/lang/Math.addExact:(JJ)J
+        56: lstore_2                
+        57: goto          16                
+        60: astore        6                 
+        62: ldc2_w        #127                // long 9223372036854775807l
+        65: lstore_2                
+        66: goto          16                
+        69: lload_2                 
+        70: lreturn                 
+      Exception table:
+          from       to target type
+            49       57    60  Class java/lang/ArithmeticException
+      LineNumberTable:
+        line 791: 0
+        line 792: 7
+        line 793: 9
+        line 795: 16
+        line 796: 32
+        line 797: 41
+        line 799: 49
+        line 802: 57
+        line 800: 60
+        line 801: 62
+        line 802: 66
+        line 805: 69
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          62        4     6  ignore Ljava/lang/ArithmeticException;
+           0       71     0  this   Ljava/io/InputStream;
+           0       71     1  out    Ljava/io/OutputStream;
+           9       62     2  transferred J
+          16       55     4  buffer [B
+          29       42     5  read   I
+      StackMapTable: number_of_entries = 3
+        frame_type = 253 /* append */
+          offset_delta = 16
+          locals = [long, class "[B"]
+        frame_type = 255 /* full_frame */
+          offset_delta = 43
+          locals = [class java/io/InputStream, class java/io/OutputStream, long, class "[B", int]
+          stack = [class java/lang/ArithmeticException]
+        frame_type = 8 /* same */
+    Exceptions:
+      throws java.io.IOException
+}
+SourceFile: "InputStream.java"
+NestMembers:
+  java/io/InputStream$1
+InnerClasses:
+  #9;                                         // class java/io/InputStream$1

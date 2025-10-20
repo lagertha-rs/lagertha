@@ -1,0 +1,823 @@
+---
+source: jclass/src/lib.rs
+expression: display
+---
+public class java.lang.Runtime 
+  minor version: 0
+  major version: 68
+  flags: (0x0021) ACC_PUBLIC, ACC_SUPER
+  this_class: #2                       //java/lang/Runtime
+  super_class: #8                      //java/lang/Object
+  interfaces: 0, fields: 2, methods: 24, attributes: 3
+Constant pool:
+    #1 = Fieldref           #2.#3            // java/lang/Runtime.currentRuntime:Ljava/lang/Runtime;
+    #2 = Class              #4               // java/lang/Runtime
+    #3 = NameAndType        #5:#6            // currentRuntime:Ljava/lang/Runtime;
+    #4 = Utf8               java/lang/Runtime
+    #5 = Utf8               currentRuntime
+    #6 = Utf8               Ljava/lang/Runtime;
+    #7 = Methodref          #8.#9            // java/lang/Object."<init>":()V
+    #8 = Class              #10              // java/lang/Object
+    #9 = NameAndType        #11:#12          // "<init>":()V
+   #10 = Utf8               java/lang/Object
+   #11 = Utf8               <init>
+   #12 = Utf8               ()V
+   #13 = Methodref          #14.#15          // java/lang/Shutdown.exit:(I)V
+   #14 = Class              #16              // java/lang/Shutdown
+   #15 = NameAndType        #17:#18          // exit:(I)V
+   #16 = Utf8               java/lang/Shutdown
+   #17 = Utf8               exit
+   #18 = Utf8               (I)V
+   #19 = Methodref          #20.#21          // java/lang/ApplicationShutdownHooks.add:(Ljava/lang/Thread;)V
+   #20 = Class              #22              // java/lang/ApplicationShutdownHooks
+   #21 = NameAndType        #23:#24          // add:(Ljava/lang/Thread;)V
+   #22 = Utf8               java/lang/ApplicationShutdownHooks
+   #23 = Utf8               add
+   #24 = Utf8               (Ljava/lang/Thread;)V
+   #25 = Methodref          #20.#26          // java/lang/ApplicationShutdownHooks.remove:(Ljava/lang/Thread;)Z
+   #26 = NameAndType        #27:#28          // remove:(Ljava/lang/Thread;)Z
+   #27 = Utf8               remove
+   #28 = Utf8               (Ljava/lang/Thread;)Z
+   #29 = Methodref          #14.#30          // java/lang/Shutdown.beforeHalt:()V
+   #30 = NameAndType        #31:#12          // beforeHalt:()V
+   #31 = Utf8               beforeHalt
+   #32 = Methodref          #14.#33          // java/lang/Shutdown.halt:(I)V
+   #33 = NameAndType        #34:#18          // halt:(I)V
+   #34 = Utf8               halt
+   #35 = Methodref          #2.#36           // java/lang/Runtime.exec:(Ljava/lang/String;[Ljava/lang/String;Ljava/io/File;)Ljava/lang/Process;
+   #36 = NameAndType        #37:#38          // exec:(Ljava/lang/String;[Ljava/lang/String;Ljava/io/File;)Ljava/lang/Process;
+   #37 = Utf8               exec
+   #38 = Utf8               (Ljava/lang/String;[Ljava/lang/String;Ljava/io/File;)Ljava/lang/Process;
+   #39 = Methodref          #40.#41          // java/lang/String.isEmpty:()Z
+   #40 = Class              #42              // java/lang/String
+   #41 = NameAndType        #43:#44          // isEmpty:()Z
+   #42 = Utf8               java/lang/String
+   #43 = Utf8               isEmpty
+   #44 = Utf8               ()Z
+   #45 = Class              #46              // java/lang/IllegalArgumentException
+   #46 = Utf8               java/lang/IllegalArgumentException
+   #47 = String             #48              // Empty command
+   #48 = Utf8               Empty command
+   #49 = Methodref          #45.#50          // java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+   #50 = NameAndType        #11:#51          // "<init>":(Ljava/lang/String;)V
+   #51 = Utf8               (Ljava/lang/String;)V
+   #52 = Class              #53              // java/util/StringTokenizer
+   #53 = Utf8               java/util/StringTokenizer
+   #54 = Methodref          #52.#50          // java/util/StringTokenizer."<init>":(Ljava/lang/String;)V
+   #55 = Methodref          #52.#56          // java/util/StringTokenizer.countTokens:()I
+   #56 = NameAndType        #57:#58          // countTokens:()I
+   #57 = Utf8               countTokens
+   #58 = Utf8               ()I
+   #59 = Methodref          #52.#60          // java/util/StringTokenizer.hasMoreTokens:()Z
+   #60 = NameAndType        #61:#44          // hasMoreTokens:()Z
+   #61 = Utf8               hasMoreTokens
+   #62 = Methodref          #52.#63          // java/util/StringTokenizer.nextToken:()Ljava/lang/String;
+   #63 = NameAndType        #64:#65          // nextToken:()Ljava/lang/String;
+   #64 = Utf8               nextToken
+   #65 = Utf8               ()Ljava/lang/String;
+   #66 = Methodref          #2.#67           // java/lang/Runtime.exec:([Ljava/lang/String;[Ljava/lang/String;Ljava/io/File;)Ljava/lang/Process;
+   #67 = NameAndType        #37:#68          // exec:([Ljava/lang/String;[Ljava/lang/String;Ljava/io/File;)Ljava/lang/Process;
+   #68 = Utf8               ([Ljava/lang/String;[Ljava/lang/String;Ljava/io/File;)Ljava/lang/Process;
+   #69 = Class              #70              // java/lang/ProcessBuilder
+   #70 = Utf8               java/lang/ProcessBuilder
+   #71 = Methodref          #69.#72          // java/lang/ProcessBuilder."<init>":([Ljava/lang/String;)V
+   #72 = NameAndType        #11:#73          // "<init>":([Ljava/lang/String;)V
+   #73 = Utf8               ([Ljava/lang/String;)V
+   #74 = Methodref          #69.#75          // java/lang/ProcessBuilder.environment:([Ljava/lang/String;)Ljava/lang/ProcessBuilder;
+   #75 = NameAndType        #76:#77          // environment:([Ljava/lang/String;)Ljava/lang/ProcessBuilder;
+   #76 = Utf8               environment
+   #77 = Utf8               ([Ljava/lang/String;)Ljava/lang/ProcessBuilder;
+   #78 = Methodref          #69.#79          // java/lang/ProcessBuilder.directory:(Ljava/io/File;)Ljava/lang/ProcessBuilder;
+   #79 = NameAndType        #80:#81          // directory:(Ljava/io/File;)Ljava/lang/ProcessBuilder;
+   #80 = Utf8               directory
+   #81 = Utf8               (Ljava/io/File;)Ljava/lang/ProcessBuilder;
+   #82 = Methodref          #69.#83          // java/lang/ProcessBuilder.start:()Ljava/lang/Process;
+   #83 = NameAndType        #84:#85          // start:()Ljava/lang/Process;
+   #84 = Utf8               start
+   #85 = Utf8               ()Ljava/lang/Process;
+   #86 = Methodref          #87.#88          // jdk/internal/access/SharedSecrets.getJavaLangRefAccess:()Ljdk/internal/access/JavaLangRefAccess;
+   #87 = Class              #89              // jdk/internal/access/SharedSecrets
+   #88 = NameAndType        #90:#91          // getJavaLangRefAccess:()Ljdk/internal/access/JavaLangRefAccess;
+   #89 = Utf8               jdk/internal/access/SharedSecrets
+   #90 = Utf8               getJavaLangRefAccess
+   #91 = Utf8               ()Ljdk/internal/access/JavaLangRefAccess;
+   #92 = InterfaceMethodref #93.#94          // jdk/internal/access/JavaLangRefAccess.runFinalization:()V
+   #93 = Class              #95              // jdk/internal/access/JavaLangRefAccess
+   #94 = NameAndType        #96:#12          // runFinalization:()V
+   #95 = Utf8               jdk/internal/access/JavaLangRefAccess
+   #96 = Utf8               runFinalization
+   #97 = Methodref          #98.#99          // jdk/internal/reflect/Reflection.getCallerClass:()Ljava/lang/Class;
+   #98 = Class              #100             // jdk/internal/reflect/Reflection
+   #99 = NameAndType        #101:#102        // getCallerClass:()Ljava/lang/Class;
+  #100 = Utf8               jdk/internal/reflect/Reflection
+  #101 = Utf8               getCallerClass
+  #102 = Utf8               ()Ljava/lang/Class;
+  #103 = String             #104             // load
+  #104 = Utf8               load
+  #105 = Methodref          #98.#106         // jdk/internal/reflect/Reflection.ensureNativeAccess:(Ljava/lang/Class;Ljava/lang/Class;Ljava/lang/String;Z)V
+  #106 = NameAndType        #107:#108        // ensureNativeAccess:(Ljava/lang/Class;Ljava/lang/Class;Ljava/lang/String;Z)V
+  #107 = Utf8               ensureNativeAccess
+  #108 = Utf8               (Ljava/lang/Class;Ljava/lang/Class;Ljava/lang/String;Z)V
+  #109 = Methodref          #2.#110          // java/lang/Runtime.load0:(Ljava/lang/Class;Ljava/lang/String;)V
+  #110 = NameAndType        #111:#112        // load0:(Ljava/lang/Class;Ljava/lang/String;)V
+  #111 = Utf8               load0
+  #112 = Utf8               (Ljava/lang/Class;Ljava/lang/String;)V
+  #113 = Class              #114             // java/io/File
+  #114 = Utf8               java/io/File
+  #115 = Methodref          #113.#50         // java/io/File."<init>":(Ljava/lang/String;)V
+  #116 = Methodref          #113.#117        // java/io/File.isAbsolute:()Z
+  #117 = NameAndType        #118:#44         // isAbsolute:()Z
+  #118 = Utf8               isAbsolute
+  #119 = Class              #120             // java/lang/UnsatisfiedLinkError
+  #120 = Utf8               java/lang/UnsatisfiedLinkError
+  #121 = Class              #122             // java/lang/StringBuilder
+  #122 = Utf8               java/lang/StringBuilder
+  #123 = Methodref          #121.#9          // java/lang/StringBuilder."<init>":()V
+  #124 = String             #125             // Expecting an absolute path of the library: 
+  #125 = Utf8               Expecting an absolute path of the library: 
+  #126 = Methodref          #121.#127        // java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+  #127 = NameAndType        #128:#129        // append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+  #128 = Utf8               append
+  #129 = Utf8               (Ljava/lang/String;)Ljava/lang/StringBuilder;
+  #130 = Methodref          #121.#131        // java/lang/StringBuilder.toString:()Ljava/lang/String;
+  #131 = NameAndType        #132:#65         // toString:()Ljava/lang/String;
+  #132 = Utf8               toString
+  #133 = Methodref          #119.#50         // java/lang/UnsatisfiedLinkError."<init>":(Ljava/lang/String;)V
+  #134 = Methodref          #135.#136        // java/lang/ClassLoader.loadLibrary:(Ljava/lang/Class;Ljava/io/File;)Ljdk/internal/loader/NativeLibrary;
+  #135 = Class              #137             // java/lang/ClassLoader
+  #136 = NameAndType        #138:#139        // loadLibrary:(Ljava/lang/Class;Ljava/io/File;)Ljdk/internal/loader/NativeLibrary;
+  #137 = Utf8               java/lang/ClassLoader
+  #138 = Utf8               loadLibrary
+  #139 = Utf8               (Ljava/lang/Class;Ljava/io/File;)Ljdk/internal/loader/NativeLibrary;
+  #140 = String             #138             // loadLibrary
+  #141 = Methodref          #2.#142          // java/lang/Runtime.loadLibrary0:(Ljava/lang/Class;Ljava/lang/String;)V
+  #142 = NameAndType        #143:#112        // loadLibrary0:(Ljava/lang/Class;Ljava/lang/String;)V
+  #143 = Utf8               loadLibrary0
+  #144 = Fieldref           #113.#145        // java/io/File.separatorChar:C
+  #145 = NameAndType        #146:#147        // separatorChar:C
+  #146 = Utf8               separatorChar
+  #147 = Utf8               C
+  #148 = Methodref          #40.#149         // java/lang/String.indexOf:(I)I
+  #149 = NameAndType        #150:#151        // indexOf:(I)I
+  #150 = Utf8               indexOf
+  #151 = Utf8               (I)I
+  #152 = String             #153             // Directory separator should not appear in library name: 
+  #153 = Utf8               Directory separator should not appear in library name: 
+  #154 = Methodref          #135.#155        // java/lang/ClassLoader.loadLibrary:(Ljava/lang/Class;Ljava/lang/String;)Ljdk/internal/loader/NativeLibrary;
+  #155 = NameAndType        #138:#156        // loadLibrary:(Ljava/lang/Class;Ljava/lang/String;)Ljdk/internal/loader/NativeLibrary;
+  #156 = Utf8               (Ljava/lang/Class;Ljava/lang/String;)Ljdk/internal/loader/NativeLibrary;
+  #157 = Fieldref           #2.#158          // java/lang/Runtime.version:Ljava/lang/Runtime$Version;
+  #158 = NameAndType        #159:#160        // version:Ljava/lang/Runtime$Version;
+  #159 = Utf8               version
+  #160 = Utf8               Ljava/lang/Runtime$Version;
+  #161 = Class              #162             // java/lang/Runtime$Version
+  #162 = Utf8               java/lang/Runtime$Version
+  #163 = Methodref          #164.#165        // java/lang/VersionProps.versionNumbers:()Ljava/util/List;
+  #164 = Class              #166             // java/lang/VersionProps
+  #165 = NameAndType        #167:#168        // versionNumbers:()Ljava/util/List;
+  #166 = Utf8               java/lang/VersionProps
+  #167 = Utf8               versionNumbers
+  #168 = Utf8               ()Ljava/util/List;
+  #169 = Methodref          #164.#170        // java/lang/VersionProps.pre:()Ljava/util/Optional;
+  #170 = NameAndType        #171:#172        // pre:()Ljava/util/Optional;
+  #171 = Utf8               pre
+  #172 = Utf8               ()Ljava/util/Optional;
+  #173 = Methodref          #164.#174        // java/lang/VersionProps.build:()Ljava/util/Optional;
+  #174 = NameAndType        #175:#172        // build:()Ljava/util/Optional;
+  #175 = Utf8               build
+  #176 = Methodref          #164.#177        // java/lang/VersionProps.optional:()Ljava/util/Optional;
+  #177 = NameAndType        #178:#172        // optional:()Ljava/util/Optional;
+  #178 = Utf8               optional
+  #179 = Methodref          #161.#180        // java/lang/Runtime$Version."<init>":(Ljava/util/List;Ljava/util/Optional;Ljava/util/Optional;Ljava/util/Optional;)V
+  #180 = NameAndType        #11:#181         // "<init>":(Ljava/util/List;Ljava/util/Optional;Ljava/util/Optional;Ljava/util/Optional;)V
+  #181 = Utf8               (Ljava/util/List;Ljava/util/Optional;Ljava/util/Optional;Ljava/util/Optional;)V
+  #182 = Methodref          #2.#9            // java/lang/Runtime."<init>":()V
+  #183 = Utf8               getRuntime
+  #184 = Utf8               ()Ljava/lang/Runtime;
+  #185 = Utf8               Code
+  #186 = Utf8               LineNumberTable
+  #187 = Utf8               LocalVariableTable
+  #188 = Utf8               this
+  #189 = Utf8               status
+  #190 = Utf8               I
+  #191 = Utf8               addShutdownHook
+  #192 = Utf8               hook
+  #193 = Utf8               Ljava/lang/Thread;
+  #194 = Utf8               removeShutdownHook
+  #195 = Utf8               (Ljava/lang/String;)Ljava/lang/Process;
+  #196 = Utf8               command
+  #197 = Utf8               Ljava/lang/String;
+  #198 = Utf8               Exceptions
+  #199 = Class              #200             // java/io/IOException
+  #200 = Utf8               java/io/IOException
+  #201 = Utf8               Deprecated
+  #202 = Utf8               RuntimeVisibleAnnotations
+  #203 = Utf8               Ljava/lang/Deprecated;
+  #204 = Utf8               since
+  #205 = Utf8               18
+  #206 = Utf8               (Ljava/lang/String;[Ljava/lang/String;)Ljava/lang/Process;
+  #207 = Utf8               envp
+  #208 = Utf8               [Ljava/lang/String;
+  #209 = Utf8               i
+  #210 = Utf8               dir
+  #211 = Utf8               Ljava/io/File;
+  #212 = Utf8               st
+  #213 = Utf8               Ljava/util/StringTokenizer;
+  #214 = Utf8               cmdarray
+  #215 = Utf8               StackMapTable
+  #216 = Class              #208             // "[Ljava/lang/String;"
+  #217 = Utf8               ([Ljava/lang/String;)Ljava/lang/Process;
+  #218 = Utf8               ([Ljava/lang/String;[Ljava/lang/String;)Ljava/lang/Process;
+  #219 = Utf8               availableProcessors
+  #220 = Utf8               freeMemory
+  #221 = Utf8               ()J
+  #222 = Utf8               totalMemory
+  #223 = Utf8               maxMemory
+  #224 = Utf8               gc
+  #225 = Utf8               forRemoval
+  #226 = Integer            1
+  #227 = Utf8               filename
+  #228 = Utf8               caller
+  #229 = Utf8               Ljava/lang/Class;
+  #230 = Utf8               LocalVariableTypeTable
+  #231 = Utf8               Ljava/lang/Class<*>;
+  #232 = Utf8               Ljdk/internal/reflect/CallerSensitive;
+  #233 = Utf8               Ljdk/internal/javac/Restricted;
+  #234 = Utf8               fromClass
+  #235 = Utf8               file
+  #236 = Utf8               Signature
+  #237 = Utf8               (Ljava/lang/Class<*>;Ljava/lang/String;)V
+  #238 = Utf8               libname
+  #239 = Utf8               ()Ljava/lang/Runtime$Version;
+  #240 = Utf8               v
+  #241 = Utf8               <clinit>
+  #242 = Utf8               SourceFile
+  #243 = Utf8               Runtime.java
+  #244 = Utf8               NestMembers
+  #245 = Class              #246             // java/lang/Runtime$VersionPattern
+  #246 = Utf8               java/lang/Runtime$VersionPattern
+  #247 = Utf8               InnerClasses
+  #248 = Utf8               Version
+  #249 = Utf8               VersionPattern
+{
+  private static final java.lang.Runtime currentRuntime;
+    descriptor: Ljava/lang/Runtime;
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+  
+  private static java.lang.Runtime$Version version;
+    descriptor: Ljava/lang/Runtime$Version;
+    flags: (0x000a) ACC_PRIVATE, ACC_STATIC
+  
+  public static java.lang.Runtime getRuntime();
+    descriptor: ()Ljava/lang/Runtime;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=1, locals=0, args_size=0
+         0: getstatic     #1                  // Field currentRuntime:Ljava/lang/Runtime;
+         3: areturn                 
+      LineNumberTable:
+        line 137: 0
+  
+  private java.lang.Runtime();
+    descriptor: ()V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: invokespecial #7                  // Method java/lang/Object."<init>":()V
+         4: return                  
+      LineNumberTable:
+        line 141: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/lang/Runtime;
+  
+  public void exit(int);
+    descriptor: (I)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: iload_1                 
+         1: invokestatic  #13                 // Method java/lang/Shutdown.exit:(I)V
+         4: return                  
+      LineNumberTable:
+        line 177: 0
+        line 178: 4
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/lang/Runtime;
+           0        5     1  status I
+  
+  public void addShutdownHook(java.lang.Thread);
+    descriptor: (Ljava/lang/Thread;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: aload_1                 
+         1: invokestatic  #19                 // Method java/lang/ApplicationShutdownHooks.add:(Ljava/lang/Thread;)V
+         4: return                  
+      LineNumberTable:
+        line 230: 0
+        line 231: 4
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/lang/Runtime;
+           0        5     1  hook   Ljava/lang/Thread;
+  
+  public boolean removeShutdownHook(java.lang.Thread);
+    descriptor: (Ljava/lang/Thread;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: aload_1                 
+         1: invokestatic  #25                 // Method java/lang/ApplicationShutdownHooks.remove:(Ljava/lang/Thread;)Z
+         4: ireturn                 
+      LineNumberTable:
+        line 252: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/lang/Runtime;
+           0        5     1  hook   Ljava/lang/Thread;
+  
+  public void halt(int);
+    descriptor: (I)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: invokestatic  #29                 // Method java/lang/Shutdown.beforeHalt:()V
+         3: iload_1                 
+         4: invokestatic  #32                 // Method java/lang/Shutdown.halt:(I)V
+         7: return                  
+      LineNumberTable:
+        line 281: 0
+        line 282: 3
+        line 283: 7
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/lang/Runtime;
+           0        8     1  status I
+  
+  public java.lang.Process exec(java.lang.String) throws java.io.IOException;
+    descriptor: (Ljava/lang/String;)Ljava/lang/Process;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=2, args_size=2
+         0: aload_0                 
+         1: aload_1                 
+         2: aconst_null             
+         3: aconst_null             
+         4: invokevirtual #35                 // Method exec:(Ljava/lang/String;[Ljava/lang/String;Ljava/io/File;)Ljava/lang/Process;
+         7: areturn                 
+      LineNumberTable:
+        line 321: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/lang/Runtime;
+           0        8     1  command Ljava/lang/String;
+    Exceptions:
+      throws java.io.IOException
+    Deprecated: true
+    RuntimeVisibleAnnotations:
+      0: #203(#204=s#205)
+        java.lang.Deprecated(
+          since="18"
+        )
+  
+  public java.lang.Process exec(java.lang.String, java.lang.String[]) throws java.io.IOException;
+    descriptor: (Ljava/lang/String;[Ljava/lang/String;)Ljava/lang/Process;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=3, args_size=3
+         0: aload_0                 
+         1: aload_1                 
+         2: aload_2                 
+         3: aconst_null             
+         4: invokevirtual #35                 // Method exec:(Ljava/lang/String;[Ljava/lang/String;Ljava/io/File;)Ljava/lang/Process;
+         7: areturn                 
+      LineNumberTable:
+        line 368: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/lang/Runtime;
+           0        8     1  command Ljava/lang/String;
+           0        8     2  envp   [Ljava/lang/String;
+    Exceptions:
+      throws java.io.IOException
+    Deprecated: true
+    RuntimeVisibleAnnotations:
+      0: #203(#204=s#205)
+        java.lang.Deprecated(
+          since="18"
+        )
+  
+  public java.lang.Process exec(java.lang.String, java.lang.String[], java.io.File) throws java.io.IOException;
+    descriptor: (Ljava/lang/String;[Ljava/lang/String;Ljava/io/File;)Ljava/lang/Process;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=7, args_size=4
+         0: aload_1                 
+         1: invokevirtual #39                 // Method java/lang/String.isEmpty:()Z
+         4: ifeq          17                
+         7: new           #45                 // class java/lang/IllegalArgumentException
+        10: dup                     
+        11: ldc           #47                 // String Empty command
+        13: invokespecial #49                 // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+        16: athrow                  
+        17: new           #52                 // class java/util/StringTokenizer
+        20: dup                     
+        21: aload_1                 
+        22: invokespecial #54                 // Method java/util/StringTokenizer."<init>":(Ljava/lang/String;)V
+        25: astore        4                 
+        27: aload         4                 
+        29: invokevirtual #55                 // Method java/util/StringTokenizer.countTokens:()I
+        32: anewarray     #40                 // class java/lang/String
+        35: astore        5                 
+        37: iconst_0                
+        38: istore        6                 
+        40: aload         4                 
+        42: invokevirtual #59                 // Method java/util/StringTokenizer.hasMoreTokens:()Z
+        45: ifeq          64                
+        48: aload         5                 
+        50: iload         6                 
+        52: aload         4                 
+        54: invokevirtual #62                 // Method java/util/StringTokenizer.nextToken:()Ljava/lang/String;
+        57: aastore                 
+        58: iinc          6, 1              
+        61: goto          40                
+        64: aload_0                 
+        65: aload         5                 
+        67: aload_2                 
+        68: aload_3                 
+        69: invokevirtual #66                 // Method exec:([Ljava/lang/String;[Ljava/lang/String;Ljava/io/File;)Ljava/lang/Process;
+        72: areturn                 
+      LineNumberTable:
+        line 429: 0
+        line 430: 7
+        line 432: 17
+        line 433: 27
+        line 434: 37
+        line 435: 48
+        line 434: 58
+        line 436: 64
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          40       24     6  i      I
+           0       73     0  this   Ljava/lang/Runtime;
+           0       73     1  command Ljava/lang/String;
+           0       73     2  envp   [Ljava/lang/String;
+           0       73     3  dir    Ljava/io/File;
+          27       46     4  st     Ljava/util/StringTokenizer;
+          37       36     5  cmdarray [Ljava/lang/String;
+      StackMapTable: number_of_entries = 3
+        frame_type = 17 /* same */
+        frame_type = 254 /* append */
+          offset_delta = 22
+          locals = [class java/util/StringTokenizer, class "[Ljava/lang/String;", int]
+        frame_type = 250 /* chop */
+          offset_delta = 23
+    Exceptions:
+      throws java.io.IOException
+    Deprecated: true
+    RuntimeVisibleAnnotations:
+      0: #203(#204=s#205)
+        java.lang.Deprecated(
+          since="18"
+        )
+  
+  public java.lang.Process exec(java.lang.String[]) throws java.io.IOException;
+    descriptor: ([Ljava/lang/String;)Ljava/lang/Process;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=2, args_size=2
+         0: aload_0                 
+         1: aload_1                 
+         2: aconst_null             
+         3: aconst_null             
+         4: invokevirtual #66                 // Method exec:([Ljava/lang/String;[Ljava/lang/String;Ljava/io/File;)Ljava/lang/Process;
+         7: areturn                 
+      LineNumberTable:
+        line 470: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/lang/Runtime;
+           0        8     1  cmdarray [Ljava/lang/String;
+    Exceptions:
+      throws java.io.IOException
+  
+  public java.lang.Process exec(java.lang.String[], java.lang.String[]) throws java.io.IOException;
+    descriptor: ([Ljava/lang/String;[Ljava/lang/String;)Ljava/lang/Process;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=3, args_size=3
+         0: aload_0                 
+         1: aload_1                 
+         2: aload_2                 
+         3: aconst_null             
+         4: invokevirtual #66                 // Method exec:([Ljava/lang/String;[Ljava/lang/String;Ljava/io/File;)Ljava/lang/Process;
+         7: areturn                 
+      LineNumberTable:
+        line 512: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/lang/Runtime;
+           0        8     1  cmdarray [Ljava/lang/String;
+           0        8     2  envp   [Ljava/lang/String;
+    Exceptions:
+      throws java.io.IOException
+  
+  public java.lang.Process exec(java.lang.String[], java.lang.String[], java.io.File) throws java.io.IOException;
+    descriptor: ([Ljava/lang/String;[Ljava/lang/String;Ljava/io/File;)Ljava/lang/Process;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=4, args_size=4
+         0: new           #69                 // class java/lang/ProcessBuilder
+         3: dup                     
+         4: aload_1                 
+         5: invokespecial #71                 // Method java/lang/ProcessBuilder."<init>":([Ljava/lang/String;)V
+         8: aload_2                 
+         9: invokevirtual #74                 // Method java/lang/ProcessBuilder.environment:([Ljava/lang/String;)Ljava/lang/ProcessBuilder;
+        12: aload_3                 
+        13: invokevirtual #78                 // Method java/lang/ProcessBuilder.directory:(Ljava/io/File;)Ljava/lang/ProcessBuilder;
+        16: invokevirtual #82                 // Method java/lang/ProcessBuilder.start:()Ljava/lang/Process;
+        19: areturn                 
+      LineNumberTable:
+        line 602: 0
+        line 603: 9
+        line 604: 13
+        line 605: 16
+        line 602: 19
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       20     0  this   Ljava/lang/Runtime;
+           0       20     1  cmdarray [Ljava/lang/String;
+           0       20     2  envp   [Ljava/lang/String;
+           0       20     3  dir    Ljava/io/File;
+    Exceptions:
+      throws java.io.IOException
+  
+  public native int availableProcessors();
+    descriptor: ()I
+    flags: (0x0101) ACC_PUBLIC, ACC_NATIVE
+  
+  public native long freeMemory();
+    descriptor: ()J
+    flags: (0x0101) ACC_PUBLIC, ACC_NATIVE
+  
+  public native long totalMemory();
+    descriptor: ()J
+    flags: (0x0101) ACC_PUBLIC, ACC_NATIVE
+  
+  public native long maxMemory();
+    descriptor: ()J
+    flags: (0x0101) ACC_PUBLIC, ACC_NATIVE
+  
+  public native void gc();
+    descriptor: ()V
+    flags: (0x0101) ACC_PUBLIC, ACC_NATIVE
+  
+  public void runFinalization();
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: invokestatic  #86                 // Method jdk/internal/access/SharedSecrets.getJavaLangRefAccess:()Ljdk/internal/access/JavaLangRefAccess;
+         3: invokeinterface #92, 1              // InterfaceMethod jdk/internal/access/JavaLangRefAccess.runFinalization:()V
+         8: return                  
+      LineNumberTable:
+        line 712: 0
+        line 713: 8
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  this   Ljava/lang/Runtime;
+    Deprecated: true
+    RuntimeVisibleAnnotations:
+      0: #203(#204=s#205,#225=Z#226)
+        java.lang.Deprecated(
+          since="18"
+          forRemoval=true
+        )
+  
+  public void load(java.lang.String);
+    descriptor: (Ljava/lang/String;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=3, args_size=2
+         0: invokestatic  #97                 // Method jdk/internal/reflect/Reflection.getCallerClass:()Ljava/lang/Class;
+         3: astore_2                
+         4: aload_2                 
+         5: ldc           #2                  // class java/lang/Runtime
+         7: ldc           #103                // String load
+         9: iconst_0                
+        10: invokestatic  #105                // Method jdk/internal/reflect/Reflection.ensureNativeAccess:(Ljava/lang/Class;Ljava/lang/Class;Ljava/lang/String;Z)V
+        13: aload_0                 
+        14: aload_2                 
+        15: aload_1                 
+        16: invokevirtual #109                // Method load0:(Ljava/lang/Class;Ljava/lang/String;)V
+        19: return                  
+      LineNumberTable:
+        line 756: 0
+        line 757: 4
+        line 758: 13
+        line 759: 19
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       20     0  this   Ljava/lang/Runtime;
+           0       20     1  filename Ljava/lang/String;
+           4       16     2  caller Ljava/lang/Class;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             4       16     2  caller   Ljava/lang/Class<*>;
+    RuntimeVisibleAnnotations:
+      0: #232()
+        jdk.internal.reflect.CallerSensitive
+      1: #233()
+        jdk.internal.javac.Restricted
+  
+  void load0(java.lang.Class<?>, java.lang.String);
+    descriptor: (Ljava/lang/Class;Ljava/lang/String;)V
+    flags: (0x0000) 
+    Code: 
+      stack=4, locals=4, args_size=3
+         0: new           #113                // class java/io/File
+         3: dup                     
+         4: aload_2                 
+         5: invokespecial #115                // Method java/io/File."<init>":(Ljava/lang/String;)V
+         8: astore_3                
+         9: aload_3                 
+        10: invokevirtual #116                // Method java/io/File.isAbsolute:()Z
+        13: ifne          43                
+        16: new           #119                // class java/lang/UnsatisfiedLinkError
+        19: dup                     
+        20: new           #121                // class java/lang/StringBuilder
+        23: dup                     
+        24: invokespecial #123                // Method java/lang/StringBuilder."<init>":()V
+        27: ldc           #124                // String Expecting an absolute path of the library: 
+        29: invokevirtual #126                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        32: aload_2                 
+        33: invokevirtual #126                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        36: invokevirtual #130                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        39: invokespecial #133                // Method java/lang/UnsatisfiedLinkError."<init>":(Ljava/lang/String;)V
+        42: athrow                  
+        43: aload_1                 
+        44: aload_3                 
+        45: invokestatic  #134                // Method java/lang/ClassLoader.loadLibrary:(Ljava/lang/Class;Ljava/io/File;)Ljdk/internal/loader/NativeLibrary;
+        48: pop                     
+        49: return                  
+      LineNumberTable:
+        line 762: 0
+        line 763: 9
+        line 764: 16
+        line 767: 43
+        line 768: 49
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       50     0  this   Ljava/lang/Runtime;
+           0       50     1  fromClass Ljava/lang/Class;
+           0       50     2  filename Ljava/lang/String;
+           9       41     3  file   Ljava/io/File;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       50     1  fromClass   Ljava/lang/Class<*>;
+      StackMapTable: number_of_entries = 1
+        frame_type = 252 /* append */
+          offset_delta = 43
+          locals = [class java/io/File]
+    Signature: #237                        // (Ljava/lang/Class<*>;Ljava/lang/String;)V
+  
+  public void loadLibrary(java.lang.String);
+    descriptor: (Ljava/lang/String;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=3, args_size=2
+         0: invokestatic  #97                 // Method jdk/internal/reflect/Reflection.getCallerClass:()Ljava/lang/Class;
+         3: astore_2                
+         4: aload_2                 
+         5: ldc           #2                  // class java/lang/Runtime
+         7: ldc           #140                // String loadLibrary
+         9: iconst_0                
+        10: invokestatic  #105                // Method jdk/internal/reflect/Reflection.ensureNativeAccess:(Ljava/lang/Class;Ljava/lang/Class;Ljava/lang/String;Z)V
+        13: aload_0                 
+        14: aload_2                 
+        15: aload_1                 
+        16: invokevirtual #141                // Method loadLibrary0:(Ljava/lang/Class;Ljava/lang/String;)V
+        19: return                  
+      LineNumberTable:
+        line 812: 0
+        line 813: 4
+        line 814: 13
+        line 815: 19
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       20     0  this   Ljava/lang/Runtime;
+           0       20     1  libname Ljava/lang/String;
+           4       16     2  caller Ljava/lang/Class;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             4       16     2  caller   Ljava/lang/Class<*>;
+    RuntimeVisibleAnnotations:
+      0: #232()
+        jdk.internal.reflect.CallerSensitive
+      1: #233()
+        jdk.internal.javac.Restricted
+  
+  void loadLibrary0(java.lang.Class<?>, java.lang.String);
+    descriptor: (Ljava/lang/Class;Ljava/lang/String;)V
+    flags: (0x0000) 
+    Code: 
+      stack=4, locals=3, args_size=3
+         0: aload_2                 
+         1: getstatic     #144                // Field java/io/File.separatorChar:C
+         4: invokevirtual #148                // Method java/lang/String.indexOf:(I)I
+         7: iconst_m1               
+         8: if_icmpeq     38                
+        11: new           #119                // class java/lang/UnsatisfiedLinkError
+        14: dup                     
+        15: new           #121                // class java/lang/StringBuilder
+        18: dup                     
+        19: invokespecial #123                // Method java/lang/StringBuilder."<init>":()V
+        22: ldc           #152                // String Directory separator should not appear in library name: 
+        24: invokevirtual #126                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        27: aload_2                 
+        28: invokevirtual #126                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        31: invokevirtual #130                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        34: invokespecial #133                // Method java/lang/UnsatisfiedLinkError."<init>":(Ljava/lang/String;)V
+        37: athrow                  
+        38: aload_1                 
+        39: aload_2                 
+        40: invokestatic  #154                // Method java/lang/ClassLoader.loadLibrary:(Ljava/lang/Class;Ljava/lang/String;)Ljdk/internal/loader/NativeLibrary;
+        43: pop                     
+        44: return                  
+      LineNumberTable:
+        line 818: 0
+        line 819: 11
+        line 822: 38
+        line 823: 44
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       45     0  this   Ljava/lang/Runtime;
+           0       45     1  fromClass Ljava/lang/Class;
+           0       45     2  libname Ljava/lang/String;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       45     1  fromClass   Ljava/lang/Class<*>;
+      StackMapTable: number_of_entries = 1
+        frame_type = 38 /* same */
+    Signature: #237                        // (Ljava/lang/Class<*>;Ljava/lang/String;)V
+  
+  public static java.lang.Runtime$Version version();
+    descriptor: ()Ljava/lang/Runtime$Version;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=6, locals=1, args_size=0
+         0: getstatic     #157                // Field version:Ljava/lang/Runtime$Version;
+         3: astore_0                
+         4: aload_0                 
+         5: ifnonnull     32                
+         8: new           #161                // class java/lang/Runtime$Version
+        11: dup                     
+        12: invokestatic  #163                // Method java/lang/VersionProps.versionNumbers:()Ljava/util/List;
+        15: invokestatic  #169                // Method java/lang/VersionProps.pre:()Ljava/util/Optional;
+        18: invokestatic  #173                // Method java/lang/VersionProps.build:()Ljava/util/Optional;
+        21: invokestatic  #176                // Method java/lang/VersionProps.optional:()Ljava/util/Optional;
+        24: invokespecial #179                // Method java/lang/Runtime$Version."<init>":(Ljava/util/List;Ljava/util/Optional;Ljava/util/Optional;Ljava/util/Optional;)V
+        27: astore_0                
+        28: aload_0                 
+        29: putstatic     #157                // Field version:Ljava/lang/Runtime$Version;
+        32: aload_0                 
+        33: areturn                 
+      LineNumberTable:
+        line 833: 0
+        line 834: 4
+        line 835: 8
+        line 836: 15
+        line 837: 21
+        line 838: 28
+        line 840: 32
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           4       30     0  v      Ljava/lang/Runtime$Version;
+      StackMapTable: number_of_entries = 1
+        frame_type = 252 /* append */
+          offset_delta = 32
+          locals = [class java/lang/Runtime$Version]
+  
+  static {};
+    descriptor: ()V
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=2, locals=0, args_size=0
+         0: new           #2                  // class java/lang/Runtime
+         3: dup                     
+         4: invokespecial #182                // Method "<init>":()V
+         7: putstatic     #1                  // Field currentRuntime:Ljava/lang/Runtime;
+        10: return                  
+      LineNumberTable:
+        line 124: 0
+}
+SourceFile: "Runtime.java"
+NestMembers:
+  java/lang/Runtime$VersionPattern
+  java/lang/Runtime$Version
+InnerClasses:
+  public static final #248= #161 of #2;       // Version=class java/lang/Runtime$Version of class java/lang/Runtime
+  private static #249= #245 of #2;            // VersionPattern=class java/lang/Runtime$VersionPattern of class java/lang/Runtime

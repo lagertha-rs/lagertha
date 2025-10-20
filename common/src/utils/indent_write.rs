@@ -23,7 +23,7 @@ macro_rules! pretty_try {
     };
 }
 
-// TODO: next 2 macros are specific to class files, move them to class_file crate?
+// TODO: next 2 macros are specific to class files, move them to jclass crate?
 
 #[doc(hidden)]
 #[macro_export]

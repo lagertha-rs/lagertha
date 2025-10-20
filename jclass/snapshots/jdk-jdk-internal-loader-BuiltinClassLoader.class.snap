@@ -1,0 +1,3003 @@
+---
+source: jclass/src/lib.rs
+expression: display
+---
+public class jdk.internal.loader.BuiltinClassLoader extends java.security.SecureClassLoader
+  minor version: 0
+  major version: 68
+  flags: (0x0021) ACC_PUBLIC, ACC_SUPER
+  this_class: #2                       //jdk/internal/loader/BuiltinClassLoader
+  super_class: #14                     //java/security/SecureClassLoader
+  interfaces: 0, fields: 7, methods: 34, attributes: 3
+Constant pool:
+    #1 = Fieldref           #2.#3            // jdk/internal/loader/BuiltinClassLoader.packageToModule:Ljava/util/Map;
+    #2 = Class              #4               // jdk/internal/loader/BuiltinClassLoader
+    #3 = NameAndType        #5:#6            // packageToModule:Ljava/util/Map;
+    #4 = Utf8               jdk/internal/loader/BuiltinClassLoader
+    #5 = Utf8               packageToModule
+    #6 = Utf8               Ljava/util/Map;
+    #7 = Methodref          #8.#9            // jdk/internal/loader/ClassLoaders.bootLoader:()Ljdk/internal/loader/BuiltinClassLoader;
+    #8 = Class              #10              // jdk/internal/loader/ClassLoaders
+    #9 = NameAndType        #11:#12          // bootLoader:()Ljdk/internal/loader/BuiltinClassLoader;
+   #10 = Utf8               jdk/internal/loader/ClassLoaders
+   #11 = Utf8               bootLoader
+   #12 = Utf8               ()Ljdk/internal/loader/BuiltinClassLoader;
+   #13 = Methodref          #14.#15          // java/security/SecureClassLoader."<init>":(Ljava/lang/String;Ljava/lang/ClassLoader;)V
+   #14 = Class              #16              // java/security/SecureClassLoader
+   #15 = NameAndType        #17:#18          // "<init>":(Ljava/lang/String;Ljava/lang/ClassLoader;)V
+   #16 = Utf8               java/security/SecureClassLoader
+   #17 = Utf8               <init>
+   #18 = Utf8               (Ljava/lang/String;Ljava/lang/ClassLoader;)V
+   #19 = Fieldref           #2.#20           // jdk/internal/loader/BuiltinClassLoader.parent:Ljdk/internal/loader/BuiltinClassLoader;
+   #20 = NameAndType        #21:#22          // parent:Ljdk/internal/loader/BuiltinClassLoader;
+   #21 = Utf8               parent
+   #22 = Utf8               Ljdk/internal/loader/BuiltinClassLoader;
+   #23 = Fieldref           #2.#24           // jdk/internal/loader/BuiltinClassLoader.ucp:Ljdk/internal/loader/URLClassPath;
+   #24 = NameAndType        #25:#26          // ucp:Ljdk/internal/loader/URLClassPath;
+   #25 = Utf8               ucp
+   #26 = Utf8               Ljdk/internal/loader/URLClassPath;
+   #27 = Class              #28              // java/util/concurrent/ConcurrentHashMap
+   #28 = Utf8               java/util/concurrent/ConcurrentHashMap
+   #29 = Methodref          #27.#30          // java/util/concurrent/ConcurrentHashMap."<init>":(I)V
+   #30 = NameAndType        #17:#31          // "<init>":(I)V
+   #31 = Utf8               (I)V
+   #32 = Fieldref           #2.#33           // jdk/internal/loader/BuiltinClassLoader.nameToModule:Ljava/util/Map;
+   #33 = NameAndType        #34:#6           // nameToModule:Ljava/util/Map;
+   #34 = Utf8               nameToModule
+   #35 = Methodref          #27.#36          // java/util/concurrent/ConcurrentHashMap."<init>":()V
+   #36 = NameAndType        #17:#37          // "<init>":()V
+   #37 = Utf8               ()V
+   #38 = Fieldref           #2.#39           // jdk/internal/loader/BuiltinClassLoader.moduleToReader:Ljava/util/Map;
+   #39 = NameAndType        #40:#6           // moduleToReader:Ljava/util/Map;
+   #40 = Utf8               moduleToReader
+   #41 = Methodref          #42.#43          // jdk/internal/loader/URLClassPath.addFile:(Ljava/lang/String;)V
+   #42 = Class              #44              // jdk/internal/loader/URLClassPath
+   #43 = NameAndType        #45:#46          // addFile:(Ljava/lang/String;)V
+   #44 = Utf8               jdk/internal/loader/URLClassPath
+   #45 = Utf8               addFile
+   #46 = Utf8               (Ljava/lang/String;)V
+   #47 = Methodref          #48.#49          // java/lang/module/ModuleReference.descriptor:()Ljava/lang/module/ModuleDescriptor;
+   #48 = Class              #50              // java/lang/module/ModuleReference
+   #49 = NameAndType        #51:#52          // descriptor:()Ljava/lang/module/ModuleDescriptor;
+   #50 = Utf8               java/lang/module/ModuleReference
+   #51 = Utf8               descriptor
+   #52 = Utf8               ()Ljava/lang/module/ModuleDescriptor;
+   #53 = Methodref          #54.#55          // java/lang/module/ModuleDescriptor.name:()Ljava/lang/String;
+   #54 = Class              #56              // java/lang/module/ModuleDescriptor
+   #55 = NameAndType        #57:#58          // name:()Ljava/lang/String;
+   #56 = Utf8               java/lang/module/ModuleDescriptor
+   #57 = Utf8               name
+   #58 = Utf8               ()Ljava/lang/String;
+   #59 = InterfaceMethodref #60.#61          // java/util/Map.putIfAbsent:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+   #60 = Class              #62              // java/util/Map
+   #61 = NameAndType        #63:#64          // putIfAbsent:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+   #62 = Utf8               java/util/Map
+   #63 = Utf8               putIfAbsent
+   #64 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+   #65 = Class              #66              // java/lang/InternalError
+   #66 = Utf8               java/lang/InternalError
+   #67 = Class              #68              // java/lang/StringBuilder
+   #68 = Utf8               java/lang/StringBuilder
+   #69 = Methodref          #67.#36          // java/lang/StringBuilder."<init>":()V
+   #70 = Methodref          #67.#71          // java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+   #71 = NameAndType        #72:#73          // append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+   #72 = Utf8               append
+   #73 = Utf8               (Ljava/lang/String;)Ljava/lang/StringBuilder;
+   #74 = String             #75              //  already defined to this loader
+   #75 = Utf8                already defined to this loader
+   #76 = Methodref          #67.#77          // java/lang/StringBuilder.toString:()Ljava/lang/String;
+   #77 = NameAndType        #78:#58          // toString:()Ljava/lang/String;
+   #78 = Utf8               toString
+   #79 = Methodref          #65.#80          // java/lang/InternalError."<init>":(Ljava/lang/String;)V
+   #80 = NameAndType        #17:#46          // "<init>":(Ljava/lang/String;)V
+   #81 = Class              #82              // jdk/internal/loader/BuiltinClassLoader$LoadedModule
+   #82 = Utf8               jdk/internal/loader/BuiltinClassLoader$LoadedModule
+   #83 = Methodref          #81.#84          // jdk/internal/loader/BuiltinClassLoader$LoadedModule."<init>":(Ljdk/internal/loader/BuiltinClassLoader;Ljava/lang/module/ModuleReference;)V
+   #84 = NameAndType        #17:#85          // "<init>":(Ljdk/internal/loader/BuiltinClassLoader;Ljava/lang/module/ModuleReference;)V
+   #85 = Utf8               (Ljdk/internal/loader/BuiltinClassLoader;Ljava/lang/module/ModuleReference;)V
+   #86 = Methodref          #54.#87          // java/lang/module/ModuleDescriptor.packages:()Ljava/util/Set;
+   #87 = NameAndType        #88:#89          // packages:()Ljava/util/Set;
+   #88 = Utf8               packages
+   #89 = Utf8               ()Ljava/util/Set;
+   #90 = InterfaceMethodref #91.#92          // java/util/Set.iterator:()Ljava/util/Iterator;
+   #91 = Class              #93              // java/util/Set
+   #92 = NameAndType        #94:#95          // iterator:()Ljava/util/Iterator;
+   #93 = Utf8               java/util/Set
+   #94 = Utf8               iterator
+   #95 = Utf8               ()Ljava/util/Iterator;
+   #96 = InterfaceMethodref #97.#98          // java/util/Iterator.hasNext:()Z
+   #97 = Class              #99              // java/util/Iterator
+   #98 = NameAndType        #100:#101        // hasNext:()Z
+   #99 = Utf8               java/util/Iterator
+  #100 = Utf8               hasNext
+  #101 = Utf8               ()Z
+  #102 = InterfaceMethodref #97.#103         // java/util/Iterator.next:()Ljava/lang/Object;
+  #103 = NameAndType        #104:#105        // next:()Ljava/lang/Object;
+  #104 = Utf8               next
+  #105 = Utf8               ()Ljava/lang/Object;
+  #106 = Class              #107             // java/lang/String
+  #107 = Utf8               java/lang/String
+  #108 = String             #109             //  in modules 
+  #109 = Utf8                in modules 
+  #110 = String             #111             //  and 
+  #111 = Utf8                and 
+  #112 = Methodref          #81.#55          // jdk/internal/loader/BuiltinClassLoader$LoadedModule.name:()Ljava/lang/String;
+  #113 = Fieldref           #2.#114          // jdk/internal/loader/BuiltinClassLoader.resourceCache:Ljava/lang/ref/SoftReference;
+  #114 = NameAndType        #115:#116        // resourceCache:Ljava/lang/ref/SoftReference;
+  #115 = Utf8               resourceCache
+  #116 = Utf8               Ljava/lang/ref/SoftReference;
+  #117 = Methodref          #118.#119        // jdk/internal/misc/VM.isModuleSystemInited:()Z
+  #118 = Class              #120             // jdk/internal/misc/VM
+  #119 = NameAndType        #121:#101        // isModuleSystemInited:()Z
+  #120 = Utf8               jdk/internal/misc/VM
+  #121 = Utf8               isModuleSystemInited
+  #122 = InterfaceMethodref #60.#123         // java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+  #123 = NameAndType        #124:#125        // get:(Ljava/lang/Object;)Ljava/lang/Object;
+  #124 = Utf8               get
+  #125 = Utf8               (Ljava/lang/Object;)Ljava/lang/Object;
+  #126 = Methodref          #2.#127          // jdk/internal/loader/BuiltinClassLoader.findResource:(Ljava/lang/module/ModuleReference;Ljava/lang/String;)Ljava/net/URL;
+  #127 = NameAndType        #128:#129        // findResource:(Ljava/lang/module/ModuleReference;Ljava/lang/String;)Ljava/net/URL;
+  #128 = Utf8               findResource
+  #129 = Utf8               (Ljava/lang/module/ModuleReference;Ljava/lang/String;)Ljava/net/URL;
+  #130 = Methodref          #2.#131          // jdk/internal/loader/BuiltinClassLoader.findResourceOnClassPath:(Ljava/lang/String;)Ljava/net/URL;
+  #131 = NameAndType        #132:#133        // findResourceOnClassPath:(Ljava/lang/String;)Ljava/net/URL;
+  #132 = Utf8               findResourceOnClassPath
+  #133 = Utf8               (Ljava/lang/String;)Ljava/net/URL;
+  #134 = Methodref          #2.#135          // jdk/internal/loader/BuiltinClassLoader.moduleReaderFor:(Ljava/lang/module/ModuleReference;)Ljava/lang/module/ModuleReader;
+  #135 = NameAndType        #136:#137        // moduleReaderFor:(Ljava/lang/module/ModuleReference;)Ljava/lang/module/ModuleReader;
+  #136 = Utf8               moduleReaderFor
+  #137 = Utf8               (Ljava/lang/module/ModuleReference;)Ljava/lang/module/ModuleReader;
+  #138 = InterfaceMethodref #139.#140        // java/lang/module/ModuleReader.open:(Ljava/lang/String;)Ljava/util/Optional;
+  #139 = Class              #141             // java/lang/module/ModuleReader
+  #140 = NameAndType        #142:#143        // open:(Ljava/lang/String;)Ljava/util/Optional;
+  #141 = Utf8               java/lang/module/ModuleReader
+  #142 = Utf8               open
+  #143 = Utf8               (Ljava/lang/String;)Ljava/util/Optional;
+  #144 = Methodref          #145.#146        // java/util/Optional.orElse:(Ljava/lang/Object;)Ljava/lang/Object;
+  #145 = Class              #147             // java/util/Optional
+  #146 = NameAndType        #148:#125        // orElse:(Ljava/lang/Object;)Ljava/lang/Object;
+  #147 = Utf8               java/util/Optional
+  #148 = Utf8               orElse
+  #149 = Class              #150             // java/io/InputStream
+  #150 = Utf8               java/io/InputStream
+  #151 = Methodref          #152.#153        // java/net/URL.openStream:()Ljava/io/InputStream;
+  #152 = Class              #154             // java/net/URL
+  #153 = NameAndType        #155:#156        // openStream:()Ljava/io/InputStream;
+  #154 = Utf8               java/net/URL
+  #155 = Utf8               openStream
+  #156 = Utf8               ()Ljava/io/InputStream;
+  #157 = Methodref          #158.#159        // jdk/internal/module/Resources.toPackageName:(Ljava/lang/String;)Ljava/lang/String;
+  #158 = Class              #160             // jdk/internal/module/Resources
+  #159 = NameAndType        #161:#162        // toPackageName:(Ljava/lang/String;)Ljava/lang/String;
+  #160 = Utf8               jdk/internal/module/Resources
+  #161 = Utf8               toPackageName
+  #162 = Utf8               (Ljava/lang/String;)Ljava/lang/String;
+  #163 = Methodref          #81.#164         // jdk/internal/loader/BuiltinClassLoader$LoadedModule.loader:()Ljdk/internal/loader/BuiltinClassLoader;
+  #164 = NameAndType        #165:#12         // loader:()Ljdk/internal/loader/BuiltinClassLoader;
+  #165 = Utf8               loader
+  #166 = Methodref          #2.#167          // jdk/internal/loader/BuiltinClassLoader.findResource:(Ljava/lang/String;Ljava/lang/String;)Ljava/net/URL;
+  #167 = NameAndType        #128:#168        // findResource:(Ljava/lang/String;Ljava/lang/String;)Ljava/net/URL;
+  #168 = Utf8               (Ljava/lang/String;Ljava/lang/String;)Ljava/net/URL;
+  #169 = Class              #170             // java/io/IOException
+  #170 = Utf8               java/io/IOException
+  #171 = String             #172             // .class
+  #172 = Utf8               .class
+  #173 = Methodref          #106.#174        // java/lang/String.endsWith:(Ljava/lang/String;)Z
+  #174 = NameAndType        #175:#176        // endsWith:(Ljava/lang/String;)Z
+  #175 = Utf8               endsWith
+  #176 = Utf8               (Ljava/lang/String;)Z
+  #177 = Methodref          #152.#77         // java/net/URL.toString:()Ljava/lang/String;
+  #178 = String             #179             // /
+  #179 = Utf8               /
+  #180 = Methodref          #81.#181         // jdk/internal/loader/BuiltinClassLoader$LoadedModule.mref:()Ljava/lang/module/ModuleReference;
+  #181 = NameAndType        #182:#183        // mref:()Ljava/lang/module/ModuleReference;
+  #182 = Utf8               mref
+  #183 = Utf8               ()Ljava/lang/module/ModuleReference;
+  #184 = Methodref          #2.#185          // jdk/internal/loader/BuiltinClassLoader.isOpen:(Ljava/lang/module/ModuleReference;Ljava/lang/String;)Z
+  #185 = NameAndType        #186:#187        // isOpen:(Ljava/lang/module/ModuleReference;Ljava/lang/String;)Z
+  #186 = Utf8               isOpen
+  #187 = Utf8               (Ljava/lang/module/ModuleReference;Ljava/lang/String;)Z
+  #188 = Methodref          #2.#189          // jdk/internal/loader/BuiltinClassLoader.findMiscResource:(Ljava/lang/String;)Ljava/util/List;
+  #189 = NameAndType        #190:#191        // findMiscResource:(Ljava/lang/String;)Ljava/util/List;
+  #190 = Utf8               findMiscResource
+  #191 = Utf8               (Ljava/lang/String;)Ljava/util/List;
+  #192 = InterfaceMethodref #193.#194        // java/util/List.isEmpty:()Z
+  #193 = Class              #195             // java/util/List
+  #194 = NameAndType        #196:#101        // isEmpty:()Z
+  #195 = Utf8               java/util/List
+  #196 = Utf8               isEmpty
+  #197 = InterfaceMethodref #193.#198        // java/util/List.get:(I)Ljava/lang/Object;
+  #198 = NameAndType        #124:#199        // get:(I)Ljava/lang/Object;
+  #199 = Utf8               (I)Ljava/lang/Object;
+  #200 = Class              #201             // java/util/ArrayList
+  #201 = Utf8               java/util/ArrayList
+  #202 = Methodref          #200.#36         // java/util/ArrayList."<init>":()V
+  #203 = InterfaceMethodref #193.#204        // java/util/List.add:(Ljava/lang/Object;)Z
+  #204 = NameAndType        #205:#206        // add:(Ljava/lang/Object;)Z
+  #205 = Utf8               add
+  #206 = Utf8               (Ljava/lang/Object;)Z
+  #207 = InterfaceMethodref #193.#92         // java/util/List.iterator:()Ljava/util/Iterator;
+  #208 = Methodref          #2.#209          // jdk/internal/loader/BuiltinClassLoader.findResourcesOnClassPath:(Ljava/lang/String;)Ljava/util/Enumeration;
+  #209 = NameAndType        #210:#211        // findResourcesOnClassPath:(Ljava/lang/String;)Ljava/util/Enumeration;
+  #210 = Utf8               findResourcesOnClassPath
+  #211 = Utf8               (Ljava/lang/String;)Ljava/util/Enumeration;
+  #212 = Class              #213             // jdk/internal/loader/BuiltinClassLoader$1
+  #213 = Utf8               jdk/internal/loader/BuiltinClassLoader$1
+  #214 = Methodref          #212.#215        // jdk/internal/loader/BuiltinClassLoader$1."<init>":(Ljdk/internal/loader/BuiltinClassLoader;Ljava/util/List;Ljava/util/Enumeration;)V
+  #215 = NameAndType        #17:#216         // "<init>":(Ljdk/internal/loader/BuiltinClassLoader;Ljava/util/List;Ljava/util/Enumeration;)V
+  #216 = Utf8               (Ljdk/internal/loader/BuiltinClassLoader;Ljava/util/List;Ljava/util/Enumeration;)V
+  #217 = Methodref          #218.#219        // java/lang/ref/SoftReference.get:()Ljava/lang/Object;
+  #218 = Class              #220             // java/lang/ref/SoftReference
+  #219 = NameAndType        #124:#105        // get:()Ljava/lang/Object;
+  #220 = Utf8               java/lang/ref/SoftReference
+  #221 = Methodref          #218.#222        // java/lang/ref/SoftReference."<init>":(Ljava/lang/Object;)V
+  #222 = NameAndType        #17:#223         // "<init>":(Ljava/lang/Object;)V
+  #223 = Utf8               (Ljava/lang/Object;)V
+  #224 = InterfaceMethodref #60.#225         // java/util/Map.values:()Ljava/util/Collection;
+  #225 = NameAndType        #226:#227        // values:()Ljava/util/Collection;
+  #226 = Utf8               values
+  #227 = Utf8               ()Ljava/util/Collection;
+  #228 = InterfaceMethodref #229.#92         // java/util/Collection.iterator:()Ljava/util/Iterator;
+  #229 = Class              #230             // java/util/Collection
+  #230 = Utf8               java/util/Collection
+  #231 = InterfaceMethodref #139.#232        // java/lang/module/ModuleReader.find:(Ljava/lang/String;)Ljava/util/Optional;
+  #232 = NameAndType        #233:#143        // find:(Ljava/lang/String;)Ljava/util/Optional;
+  #233 = Utf8               find
+  #234 = Class              #235             // java/net/URI
+  #235 = Utf8               java/net/URI
+  #236 = Methodref          #234.#237        // java/net/URI.toURL:()Ljava/net/URL;
+  #237 = NameAndType        #238:#239        // toURL:()Ljava/net/URL;
+  #238 = Utf8               toURL
+  #239 = Utf8               ()Ljava/net/URL;
+  #240 = Class              #241             // java/net/MalformedURLException
+  #241 = Utf8               java/net/MalformedURLException
+  #242 = Class              #243             // java/lang/IllegalArgumentException
+  #243 = Utf8               java/lang/IllegalArgumentException
+  #244 = InterfaceMethodref #193.#245        // java/util/List.of:()Ljava/util/List;
+  #245 = NameAndType        #246:#247        // of:()Ljava/util/List;
+  #246 = Utf8               of
+  #247 = Utf8               ()Ljava/util/List;
+  #248 = Methodref          #2.#249          // jdk/internal/loader/BuiltinClassLoader.hasClassPath:()Z
+  #249 = NameAndType        #250:#101        // hasClassPath:()Z
+  #250 = Utf8               hasClassPath
+  #251 = Methodref          #42.#252         // jdk/internal/loader/URLClassPath.findResource:(Ljava/lang/String;)Ljava/net/URL;
+  #252 = NameAndType        #128:#133        // findResource:(Ljava/lang/String;)Ljava/net/URL;
+  #253 = Methodref          #42.#254         // jdk/internal/loader/URLClassPath.findResources:(Ljava/lang/String;)Ljava/util/Enumeration;
+  #254 = NameAndType        #255:#211        // findResources:(Ljava/lang/String;)Ljava/util/Enumeration;
+  #255 = Utf8               findResources
+  #256 = Methodref          #257.#258        // java/util/Collections.emptyEnumeration:()Ljava/util/Enumeration;
+  #257 = Class              #259             // java/util/Collections
+  #258 = NameAndType        #260:#261        // emptyEnumeration:()Ljava/util/Enumeration;
+  #259 = Utf8               java/util/Collections
+  #260 = Utf8               emptyEnumeration
+  #261 = Utf8               ()Ljava/util/Enumeration;
+  #262 = Class              #263             // java/lang/ClassNotFoundException
+  #263 = Utf8               java/lang/ClassNotFoundException
+  #264 = Methodref          #262.#80         // java/lang/ClassNotFoundException."<init>":(Ljava/lang/String;)V
+  #265 = Methodref          #2.#266          // jdk/internal/loader/BuiltinClassLoader.findLoadedModule:(Ljava/lang/String;)Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;
+  #266 = NameAndType        #267:#268        // findLoadedModule:(Ljava/lang/String;)Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;
+  #267 = Utf8               findLoadedModule
+  #268 = Utf8               (Ljava/lang/String;)Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;
+  #269 = Methodref          #2.#270          // jdk/internal/loader/BuiltinClassLoader.findClassInModuleOrNull:(Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;Ljava/lang/String;)Ljava/lang/Class;
+  #270 = NameAndType        #271:#272        // findClassInModuleOrNull:(Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;Ljava/lang/String;)Ljava/lang/Class;
+  #271 = Utf8               findClassInModuleOrNull
+  #272 = Utf8               (Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;Ljava/lang/String;)Ljava/lang/Class;
+  #273 = Methodref          #2.#274          // jdk/internal/loader/BuiltinClassLoader.findClassOnClassPathOrNull:(Ljava/lang/String;)Ljava/lang/Class;
+  #274 = NameAndType        #275:#276        // findClassOnClassPathOrNull:(Ljava/lang/String;)Ljava/lang/Class;
+  #275 = Utf8               findClassOnClassPathOrNull
+  #276 = Utf8               (Ljava/lang/String;)Ljava/lang/Class;
+  #277 = Methodref          #2.#278          // jdk/internal/loader/BuiltinClassLoader.findLoadedModule:(Ljava/lang/String;Ljava/lang/String;)Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;
+  #278 = NameAndType        #267:#279        // findLoadedModule:(Ljava/lang/String;Ljava/lang/String;)Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;
+  #279 = Utf8               (Ljava/lang/String;Ljava/lang/String;)Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;
+  #280 = Fieldref           #2.#281          // jdk/internal/loader/BuiltinClassLoader.$assertionsDisabled:Z
+  #281 = NameAndType        #282:#283        // $assertionsDisabled:Z
+  #282 = Utf8               $assertionsDisabled
+  #283 = Utf8               Z
+  #284 = Class              #285             // java/lang/AssertionError
+  #285 = Utf8               java/lang/AssertionError
+  #286 = Methodref          #284.#36         // java/lang/AssertionError."<init>":()V
+  #287 = Methodref          #2.#288          // jdk/internal/loader/BuiltinClassLoader.loadClassOrNull:(Ljava/lang/String;Z)Ljava/lang/Class;
+  #288 = NameAndType        #289:#290        // loadClassOrNull:(Ljava/lang/String;Z)Ljava/lang/Class;
+  #289 = Utf8               loadClassOrNull
+  #290 = Utf8               (Ljava/lang/String;Z)Ljava/lang/Class;
+  #291 = Methodref          #2.#292          // jdk/internal/loader/BuiltinClassLoader.getClassLoadingLock:(Ljava/lang/String;)Ljava/lang/Object;
+  #292 = NameAndType        #293:#294        // getClassLoadingLock:(Ljava/lang/String;)Ljava/lang/Object;
+  #293 = Utf8               getClassLoadingLock
+  #294 = Utf8               (Ljava/lang/String;)Ljava/lang/Object;
+  #295 = Methodref          #2.#296          // jdk/internal/loader/BuiltinClassLoader.findLoadedClass:(Ljava/lang/String;)Ljava/lang/Class;
+  #296 = NameAndType        #297:#276        // findLoadedClass:(Ljava/lang/String;)Ljava/lang/Class;
+  #297 = Utf8               findLoadedClass
+  #298 = Methodref          #2.#299          // jdk/internal/loader/BuiltinClassLoader.loadClassOrNull:(Ljava/lang/String;)Ljava/lang/Class;
+  #299 = NameAndType        #289:#276        // loadClassOrNull:(Ljava/lang/String;)Ljava/lang/Class;
+  #300 = Methodref          #2.#301          // jdk/internal/loader/BuiltinClassLoader.resolveClass:(Ljava/lang/Class;)V
+  #301 = NameAndType        #302:#303        // resolveClass:(Ljava/lang/Class;)V
+  #302 = Utf8               resolveClass
+  #303 = Utf8               (Ljava/lang/Class;)V
+  #304 = Methodref          #106.#305        // java/lang/String.lastIndexOf:(I)I
+  #305 = NameAndType        #306:#307        // lastIndexOf:(I)I
+  #306 = Utf8               lastIndexOf
+  #307 = Utf8               (I)I
+  #308 = Methodref          #106.#309        // java/lang/String.substring:(II)Ljava/lang/String;
+  #309 = NameAndType        #310:#311        // substring:(II)Ljava/lang/String;
+  #310 = Utf8               substring
+  #311 = Utf8               (II)Ljava/lang/String;
+  #312 = Methodref          #106.#313        // java/lang/String.equals:(Ljava/lang/Object;)Z
+  #313 = NameAndType        #314:#206        // equals:(Ljava/lang/Object;)Z
+  #314 = Utf8               equals
+  #315 = Methodref          #2.#316          // jdk/internal/loader/BuiltinClassLoader.defineClass:(Ljava/lang/String;Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;)Ljava/lang/Class;
+  #316 = NameAndType        #317:#318        // defineClass:(Ljava/lang/String;Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;)Ljava/lang/Class;
+  #317 = Utf8               defineClass
+  #318 = Utf8               (Ljava/lang/String;Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;)Ljava/lang/Class;
+  #319 = Methodref          #106.#320        // java/lang/String.replace:(CC)Ljava/lang/String;
+  #320 = NameAndType        #321:#322        // replace:(CC)Ljava/lang/String;
+  #321 = Utf8               replace
+  #322 = Utf8               (CC)Ljava/lang/String;
+  #323 = Methodref          #106.#324        // java/lang/String.concat:(Ljava/lang/String;)Ljava/lang/String;
+  #324 = NameAndType        #325:#162        // concat:(Ljava/lang/String;)Ljava/lang/String;
+  #325 = Utf8               concat
+  #326 = Methodref          #42.#327         // jdk/internal/loader/URLClassPath.getResource:(Ljava/lang/String;)Ljdk/internal/loader/Resource;
+  #327 = NameAndType        #328:#329        // getResource:(Ljava/lang/String;)Ljdk/internal/loader/Resource;
+  #328 = Utf8               getResource
+  #329 = Utf8               (Ljava/lang/String;)Ljdk/internal/loader/Resource;
+  #330 = Methodref          #2.#331          // jdk/internal/loader/BuiltinClassLoader.defineClass:(Ljava/lang/String;Ljdk/internal/loader/Resource;)Ljava/lang/Class;
+  #331 = NameAndType        #317:#332        // defineClass:(Ljava/lang/String;Ljdk/internal/loader/Resource;)Ljava/lang/Class;
+  #332 = Utf8               (Ljava/lang/String;Ljdk/internal/loader/Resource;)Ljava/lang/Class;
+  #333 = Class              #334             // jdk/internal/module/ModulePatcher$PatchedModuleReader
+  #334 = Utf8               jdk/internal/module/ModulePatcher$PatchedModuleReader
+  #335 = Methodref          #333.#336        // jdk/internal/module/ModulePatcher$PatchedModuleReader.findResource:(Ljava/lang/String;)Ljdk/internal/loader/Resource;
+  #336 = NameAndType        #128:#329        // findResource:(Ljava/lang/String;)Ljdk/internal/loader/Resource;
+  #337 = Methodref          #338.#339        // jdk/internal/loader/Resource.getByteBuffer:()Ljava/nio/ByteBuffer;
+  #338 = Class              #340             // jdk/internal/loader/Resource
+  #339 = NameAndType        #341:#342        // getByteBuffer:()Ljava/nio/ByteBuffer;
+  #340 = Utf8               jdk/internal/loader/Resource
+  #341 = Utf8               getByteBuffer
+  #342 = Utf8               ()Ljava/nio/ByteBuffer;
+  #343 = Methodref          #338.#344        // jdk/internal/loader/Resource.getCodeSourceURL:()Ljava/net/URL;
+  #344 = NameAndType        #345:#239        // getCodeSourceURL:()Ljava/net/URL;
+  #345 = Utf8               getCodeSourceURL
+  #346 = InterfaceMethodref #139.#347        // java/lang/module/ModuleReader.read:(Ljava/lang/String;)Ljava/util/Optional;
+  #347 = NameAndType        #348:#143        // read:(Ljava/lang/String;)Ljava/util/Optional;
+  #348 = Utf8               read
+  #349 = Class              #350             // java/nio/ByteBuffer
+  #350 = Utf8               java/nio/ByteBuffer
+  #351 = Methodref          #81.#352         // jdk/internal/loader/BuiltinClassLoader$LoadedModule.codeSourceURL:()Ljava/net/URL;
+  #352 = NameAndType        #353:#239        // codeSourceURL:()Ljava/net/URL;
+  #353 = Utf8               codeSourceURL
+  #354 = Class              #355             // java/security/CodeSource
+  #355 = Utf8               java/security/CodeSource
+  #356 = Class              #357             // "[Ljava/security/CodeSigner;"
+  #357 = Utf8               [Ljava/security/CodeSigner;
+  #358 = Methodref          #354.#359        // java/security/CodeSource."<init>":(Ljava/net/URL;[Ljava/security/CodeSigner;)V
+  #359 = NameAndType        #17:#360         // "<init>":(Ljava/net/URL;[Ljava/security/CodeSigner;)V
+  #360 = Utf8               (Ljava/net/URL;[Ljava/security/CodeSigner;)V
+  #361 = Methodref          #2.#362          // jdk/internal/loader/BuiltinClassLoader.defineClass:(Ljava/lang/String;Ljava/nio/ByteBuffer;Ljava/security/CodeSource;)Ljava/lang/Class;
+  #362 = NameAndType        #317:#363        // defineClass:(Ljava/lang/String;Ljava/nio/ByteBuffer;Ljava/security/CodeSource;)Ljava/lang/Class;
+  #363 = Utf8               (Ljava/lang/String;Ljava/nio/ByteBuffer;Ljava/security/CodeSource;)Ljava/lang/Class;
+  #364 = InterfaceMethodref #139.#365        // java/lang/module/ModuleReader.release:(Ljava/nio/ByteBuffer;)V
+  #365 = NameAndType        #366:#367        // release:(Ljava/nio/ByteBuffer;)V
+  #366 = Utf8               release
+  #367 = Utf8               (Ljava/nio/ByteBuffer;)V
+  #368 = Methodref          #338.#369        // jdk/internal/loader/Resource.getManifest:()Ljava/util/jar/Manifest;
+  #369 = NameAndType        #370:#371        // getManifest:()Ljava/util/jar/Manifest;
+  #370 = Utf8               getManifest
+  #371 = Utf8               ()Ljava/util/jar/Manifest;
+  #372 = Methodref          #2.#373          // jdk/internal/loader/BuiltinClassLoader.defineOrCheckPackage:(Ljava/lang/String;Ljava/util/jar/Manifest;Ljava/net/URL;)Ljava/lang/Package;
+  #373 = NameAndType        #374:#375        // defineOrCheckPackage:(Ljava/lang/String;Ljava/util/jar/Manifest;Ljava/net/URL;)Ljava/lang/Package;
+  #374 = Utf8               defineOrCheckPackage
+  #375 = Utf8               (Ljava/lang/String;Ljava/util/jar/Manifest;Ljava/net/URL;)Ljava/lang/Package;
+  #376 = Methodref          #338.#377        // jdk/internal/loader/Resource.getCodeSigners:()[Ljava/security/CodeSigner;
+  #377 = NameAndType        #378:#379        // getCodeSigners:()[Ljava/security/CodeSigner;
+  #378 = Utf8               getCodeSigners
+  #379 = Utf8               ()[Ljava/security/CodeSigner;
+  #380 = Methodref          #338.#381        // jdk/internal/loader/Resource.getBytes:()[B
+  #381 = NameAndType        #382:#383        // getBytes:()[B
+  #382 = Utf8               getBytes
+  #383 = Utf8               ()[B
+  #384 = Methodref          #2.#385          // jdk/internal/loader/BuiltinClassLoader.defineClass:(Ljava/lang/String;[BIILjava/security/CodeSource;)Ljava/lang/Class;
+  #385 = NameAndType        #317:#386        // defineClass:(Ljava/lang/String;[BIILjava/security/CodeSource;)Ljava/lang/Class;
+  #386 = Utf8               (Ljava/lang/String;[BIILjava/security/CodeSource;)Ljava/lang/Class;
+  #387 = Methodref          #2.#388          // jdk/internal/loader/BuiltinClassLoader.getAndVerifyPackage:(Ljava/lang/String;Ljava/util/jar/Manifest;Ljava/net/URL;)Ljava/lang/Package;
+  #388 = NameAndType        #389:#375        // getAndVerifyPackage:(Ljava/lang/String;Ljava/util/jar/Manifest;Ljava/net/URL;)Ljava/lang/Package;
+  #389 = Utf8               getAndVerifyPackage
+  #390 = Methodref          #2.#391          // jdk/internal/loader/BuiltinClassLoader.definePackage:(Ljava/lang/String;Ljava/util/jar/Manifest;Ljava/net/URL;)Ljava/lang/Package;
+  #391 = NameAndType        #392:#375        // definePackage:(Ljava/lang/String;Ljava/util/jar/Manifest;Ljava/net/URL;)Ljava/lang/Package;
+  #392 = Utf8               definePackage
+  #393 = Methodref          #2.#394          // jdk/internal/loader/BuiltinClassLoader.definePackage:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/net/URL;)Ljava/lang/Package;
+  #394 = NameAndType        #392:#395        // definePackage:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/net/URL;)Ljava/lang/Package;
+  #395 = Utf8               (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/net/URL;)Ljava/lang/Package;
+  #396 = String             #397             // Cannot find package: 
+  #397 = Utf8               Cannot find package: 
+  #398 = Methodref          #2.#399          // jdk/internal/loader/BuiltinClassLoader.getDefinedPackage:(Ljava/lang/String;)Ljava/lang/Package;
+  #399 = NameAndType        #400:#401        // getDefinedPackage:(Ljava/lang/String;)Ljava/lang/Package;
+  #400 = Utf8               getDefinedPackage
+  #401 = Utf8               (Ljava/lang/String;)Ljava/lang/Package;
+  #402 = Methodref          #403.#404        // java/lang/Package.isSealed:()Z
+  #403 = Class              #405             // java/lang/Package
+  #404 = NameAndType        #406:#101        // isSealed:()Z
+  #405 = Utf8               java/lang/Package
+  #406 = Utf8               isSealed
+  #407 = Methodref          #403.#408        // java/lang/Package.isSealed:(Ljava/net/URL;)Z
+  #408 = NameAndType        #406:#409        // isSealed:(Ljava/net/URL;)Z
+  #409 = Utf8               (Ljava/net/URL;)Z
+  #410 = Class              #411             // java/lang/SecurityException
+  #411 = Utf8               java/lang/SecurityException
+  #412 = String             #413             // sealing violation: package 
+  #413 = Utf8               sealing violation: package 
+  #414 = String             #415             //  is sealed
+  #415 = Utf8                is sealed
+  #416 = Methodref          #410.#80         // java/lang/SecurityException."<init>":(Ljava/lang/String;)V
+  #417 = Methodref          #2.#418          // jdk/internal/loader/BuiltinClassLoader.isSealed:(Ljava/lang/String;Ljava/util/jar/Manifest;)Z
+  #418 = NameAndType        #406:#419        // isSealed:(Ljava/lang/String;Ljava/util/jar/Manifest;)Z
+  #419 = Utf8               (Ljava/lang/String;Ljava/util/jar/Manifest;)Z
+  #420 = String             #421             // sealing violation: can\'t seal package 
+  #421 = Utf8               sealing violation: can\'t seal package 
+  #422 = String             #423             // : already defined
+  #423 = Utf8               : already defined
+  #424 = Methodref          #425.#426        // jdk/internal/access/SharedSecrets.javaUtilJarAccess:()Ljdk/internal/access/JavaUtilJarAccess;
+  #425 = Class              #427             // jdk/internal/access/SharedSecrets
+  #426 = NameAndType        #428:#429        // javaUtilJarAccess:()Ljdk/internal/access/JavaUtilJarAccess;
+  #427 = Utf8               jdk/internal/access/SharedSecrets
+  #428 = Utf8               javaUtilJarAccess
+  #429 = Utf8               ()Ljdk/internal/access/JavaUtilJarAccess;
+  #430 = InterfaceMethodref #431.#432        // jdk/internal/access/JavaUtilJarAccess.getTrustedAttributes:(Ljava/util/jar/Manifest;Ljava/lang/String;)Ljava/util/jar/Attributes;
+  #431 = Class              #433             // jdk/internal/access/JavaUtilJarAccess
+  #432 = NameAndType        #434:#435        // getTrustedAttributes:(Ljava/util/jar/Manifest;Ljava/lang/String;)Ljava/util/jar/Attributes;
+  #433 = Utf8               jdk/internal/access/JavaUtilJarAccess
+  #434 = Utf8               getTrustedAttributes
+  #435 = Utf8               (Ljava/util/jar/Manifest;Ljava/lang/String;)Ljava/util/jar/Attributes;
+  #436 = Fieldref           #437.#438        // java/util/jar/Attributes$Name.SPECIFICATION_TITLE:Ljava/util/jar/Attributes$Name;
+  #437 = Class              #439             // java/util/jar/Attributes$Name
+  #438 = NameAndType        #440:#441        // SPECIFICATION_TITLE:Ljava/util/jar/Attributes$Name;
+  #439 = Utf8               java/util/jar/Attributes$Name
+  #440 = Utf8               SPECIFICATION_TITLE
+  #441 = Utf8               Ljava/util/jar/Attributes$Name;
+  #442 = Methodref          #443.#444        // java/util/jar/Attributes.getValue:(Ljava/util/jar/Attributes$Name;)Ljava/lang/String;
+  #443 = Class              #445             // java/util/jar/Attributes
+  #444 = NameAndType        #446:#447        // getValue:(Ljava/util/jar/Attributes$Name;)Ljava/lang/String;
+  #445 = Utf8               java/util/jar/Attributes
+  #446 = Utf8               getValue
+  #447 = Utf8               (Ljava/util/jar/Attributes$Name;)Ljava/lang/String;
+  #448 = Fieldref           #437.#449        // java/util/jar/Attributes$Name.SPECIFICATION_VERSION:Ljava/util/jar/Attributes$Name;
+  #449 = NameAndType        #450:#441        // SPECIFICATION_VERSION:Ljava/util/jar/Attributes$Name;
+  #450 = Utf8               SPECIFICATION_VERSION
+  #451 = Fieldref           #437.#452        // java/util/jar/Attributes$Name.SPECIFICATION_VENDOR:Ljava/util/jar/Attributes$Name;
+  #452 = NameAndType        #453:#441        // SPECIFICATION_VENDOR:Ljava/util/jar/Attributes$Name;
+  #453 = Utf8               SPECIFICATION_VENDOR
+  #454 = Fieldref           #437.#455        // java/util/jar/Attributes$Name.IMPLEMENTATION_TITLE:Ljava/util/jar/Attributes$Name;
+  #455 = NameAndType        #456:#441        // IMPLEMENTATION_TITLE:Ljava/util/jar/Attributes$Name;
+  #456 = Utf8               IMPLEMENTATION_TITLE
+  #457 = Fieldref           #437.#458        // java/util/jar/Attributes$Name.IMPLEMENTATION_VERSION:Ljava/util/jar/Attributes$Name;
+  #458 = NameAndType        #459:#441        // IMPLEMENTATION_VERSION:Ljava/util/jar/Attributes$Name;
+  #459 = Utf8               IMPLEMENTATION_VERSION
+  #460 = Fieldref           #437.#461        // java/util/jar/Attributes$Name.IMPLEMENTATION_VENDOR:Ljava/util/jar/Attributes$Name;
+  #461 = NameAndType        #462:#441        // IMPLEMENTATION_VENDOR:Ljava/util/jar/Attributes$Name;
+  #462 = Utf8               IMPLEMENTATION_VENDOR
+  #463 = Fieldref           #437.#464        // java/util/jar/Attributes$Name.SEALED:Ljava/util/jar/Attributes$Name;
+  #464 = NameAndType        #465:#441        // SEALED:Ljava/util/jar/Attributes$Name;
+  #465 = Utf8               SEALED
+  #466 = Methodref          #467.#468        // java/util/jar/Manifest.getMainAttributes:()Ljava/util/jar/Attributes;
+  #467 = Class              #469             // java/util/jar/Manifest
+  #468 = NameAndType        #470:#471        // getMainAttributes:()Ljava/util/jar/Attributes;
+  #469 = Utf8               java/util/jar/Manifest
+  #470 = Utf8               getMainAttributes
+  #471 = Utf8               ()Ljava/util/jar/Attributes;
+  #472 = String             #473             // true
+  #473 = Utf8               true
+  #474 = Methodref          #106.#475        // java/lang/String.equalsIgnoreCase:(Ljava/lang/String;)Z
+  #475 = NameAndType        #476:#176        // equalsIgnoreCase:(Ljava/lang/String;)Z
+  #476 = Utf8               equalsIgnoreCase
+  #477 = Class              #478             // jdk/internal/loader/BuiltinClassLoader$2
+  #478 = Utf8               jdk/internal/loader/BuiltinClassLoader$2
+  #479 = Methodref          #477.#84         // jdk/internal/loader/BuiltinClassLoader$2."<init>":(Ljdk/internal/loader/BuiltinClassLoader;Ljava/lang/module/ModuleReference;)V
+  #480 = InterfaceMethodref #60.#481         // java/util/Map.computeIfAbsent:(Ljava/lang/Object;Ljava/util/function/Function;)Ljava/lang/Object;
+  #481 = NameAndType        #482:#483        // computeIfAbsent:(Ljava/lang/Object;Ljava/util/function/Function;)Ljava/lang/Object;
+  #482 = Utf8               computeIfAbsent
+  #483 = Utf8               (Ljava/lang/Object;Ljava/util/function/Function;)Ljava/lang/Object;
+  #484 = Methodref          #54.#485         // java/lang/module/ModuleDescriptor.isOpen:()Z
+  #485 = NameAndType        #186:#101        // isOpen:()Z
+  #486 = Methodref          #54.#487         // java/lang/module/ModuleDescriptor.isAutomatic:()Z
+  #487 = NameAndType        #488:#101        // isAutomatic:()Z
+  #488 = Utf8               isAutomatic
+  #489 = Methodref          #54.#490         // java/lang/module/ModuleDescriptor.opens:()Ljava/util/Set;
+  #490 = NameAndType        #491:#89         // opens:()Ljava/util/Set;
+  #491 = Utf8               opens
+  #492 = Class              #493             // java/lang/module/ModuleDescriptor$Opens
+  #493 = Utf8               java/lang/module/ModuleDescriptor$Opens
+  #494 = Methodref          #492.#495        // java/lang/module/ModuleDescriptor$Opens.source:()Ljava/lang/String;
+  #495 = NameAndType        #496:#58         // source:()Ljava/lang/String;
+  #496 = Utf8               source
+  #497 = Methodref          #492.#498        // java/lang/module/ModuleDescriptor$Opens.isQualified:()Z
+  #498 = NameAndType        #499:#101        // isQualified:()Z
+  #499 = Utf8               isQualified
+  #500 = InterfaceMethodref #60.#194         // java/util/Map.isEmpty:()Z
+  #501 = InterfaceMethodref #60.#502         // java/util/Map.clear:()V
+  #502 = NameAndType        #503:#37         // clear:()V
+  #503 = Utf8               clear
+  #504 = Methodref          #505.#506        // java/lang/Class.desiredAssertionStatus:()Z
+  #505 = Class              #507             // java/lang/Class
+  #506 = NameAndType        #508:#101        // desiredAssertionStatus:()Z
+  #507 = Utf8               java/lang/Class
+  #508 = Utf8               desiredAssertionStatus
+  #509 = Methodref          #510.#511        // java/lang/ClassLoader.registerAsParallelCapable:()Z
+  #510 = Class              #512             // java/lang/ClassLoader
+  #511 = NameAndType        #513:#101        // registerAsParallelCapable:()Z
+  #512 = Utf8               java/lang/ClassLoader
+  #513 = Utf8               registerAsParallelCapable
+  #514 = String             #515             // Unable to register as parallel capable
+  #515 = Utf8               Unable to register as parallel capable
+  #516 = Methodref          #517.#518        // jdk/internal/loader/ArchivedClassLoaders.get:()Ljdk/internal/loader/ArchivedClassLoaders;
+  #517 = Class              #519             // jdk/internal/loader/ArchivedClassLoaders
+  #518 = NameAndType        #124:#520        // get:()Ljdk/internal/loader/ArchivedClassLoaders;
+  #519 = Utf8               jdk/internal/loader/ArchivedClassLoaders
+  #520 = Utf8               ()Ljdk/internal/loader/ArchivedClassLoaders;
+  #521 = Methodref          #517.#522        // jdk/internal/loader/ArchivedClassLoaders.packageToModule:()Ljava/util/Map;
+  #522 = NameAndType        #5:#523          // packageToModule:()Ljava/util/Map;
+  #523 = Utf8               ()Ljava/util/Map;
+  #524 = Utf8               RuntimeVisibleAnnotations
+  #525 = Utf8               Ljdk/internal/vm/annotation/Stable;
+  #526 = Utf8               Signature
+  #527 = Utf8               Ljava/util/Map<Ljava/lang/String;Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;>;
+  #528 = Utf8               Ljava/util/Map<Ljava/lang/String;Ljava/lang/module/ModuleReference;>;
+  #529 = Utf8               Ljava/util/Map<Ljava/lang/module/ModuleReference;Ljava/lang/module/ModuleReader;>;
+  #530 = Utf8               Ljava/lang/ref/SoftReference<Ljava/util/Map<Ljava/lang/String;Ljava/util/List<Ljava/net/URL;>;>;>;
+  #531 = Utf8               Code
+  #532 = Utf8               LineNumberTable
+  #533 = Utf8               ()Ljava/util/Map<Ljava/lang/String;*>;
+  #534 = Utf8               (Ljava/lang/String;Ljdk/internal/loader/BuiltinClassLoader;Ljdk/internal/loader/URLClassPath;)V
+  #535 = Utf8               LocalVariableTable
+  #536 = Utf8               this
+  #537 = Utf8               Ljava/lang/String;
+  #538 = Utf8               StackMapTable
+  #539 = Utf8               appendClassPath
+  #540 = Utf8               path
+  #541 = Utf8               setClassPath
+  #542 = Utf8               (Ljdk/internal/loader/URLClassPath;)V
+  #543 = Utf8               loadModule
+  #544 = Utf8               (Ljava/lang/module/ModuleReference;)V
+  #545 = Utf8               other
+  #546 = Utf8               Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;
+  #547 = Utf8               pn
+  #548 = Utf8               Ljava/lang/module/ModuleReference;
+  #549 = Utf8               Ljava/lang/module/ModuleDescriptor;
+  #550 = Utf8               mn
+  #551 = Utf8               loadedModule
+  #552 = Utf8               findModule
+  #553 = Utf8               (Ljava/lang/String;)Ljava/lang/module/ModuleReference;
+  #554 = Utf8               url
+  #555 = Utf8               Ljava/net/URL;
+  #556 = Utf8               Exceptions
+  #557 = Utf8               findResourceAsStream
+  #558 = Utf8               (Ljava/lang/String;Ljava/lang/String;)Ljava/io/InputStream;
+  #559 = Utf8               in
+  #560 = Utf8               Ljava/io/InputStream;
+  #561 = Utf8               ioe
+  #562 = Utf8               Ljava/io/IOException;
+  #563 = Utf8               urls
+  #564 = Utf8               Ljava/util/List;
+  #565 = Utf8               module
+  #566 = Utf8               LocalVariableTypeTable
+  #567 = Utf8               Ljava/util/List<Ljava/net/URL;>;
+  #568 = Utf8               resources
+  #569 = Utf8               e
+  #570 = Utf8               Ljava/util/Enumeration;
+  #571 = Utf8               Ljava/util/Enumeration<Ljava/net/URL;>;
+  #572 = Utf8               (Ljava/lang/String;)Ljava/util/Enumeration<Ljava/net/URL;>;
+  #573 = Utf8               u
+  #574 = Utf8               Ljava/net/URI;
+  #575 = Utf8               ref
+  #576 = Utf8               map
+  #577 = Utf8               Ljava/util/Map<Ljava/lang/String;Ljava/util/List<Ljava/net/URL;>;>;
+  #578 = Class              #579             // java/lang/Exception
+  #579 = Utf8               java/lang/Exception
+  #580 = Utf8               (Ljava/lang/String;)Ljava/util/List<Ljava/net/URL;>;
+  #581 = Utf8               findClass
+  #582 = Utf8               cn
+  #583 = Utf8               c
+  #584 = Utf8               Ljava/lang/Class;
+  #585 = Utf8               Ljava/lang/Class<*>;
+  #586 = Utf8               (Ljava/lang/String;)Ljava/lang/Class<*>;
+  #587 = Utf8               (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Class;
+  #588 = Utf8               (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Class<*>;
+  #589 = Utf8               loadClass
+  #590 = Utf8               resolve
+  #591 = Utf8               (Ljava/lang/String;Z)Ljava/lang/Class<*>;
+  #592 = Class              #593             // java/lang/Object
+  #593 = Utf8               java/lang/Object
+  #594 = Class              #595             // java/lang/Throwable
+  #595 = Utf8               java/lang/Throwable
+  #596 = Utf8               pos
+  #597 = Utf8               I
+  #598 = Utf8               (Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;Ljava/lang/String;)Ljava/lang/Class<*>;
+  #599 = Utf8               res
+  #600 = Utf8               Ljdk/internal/loader/Resource;
+  #601 = Utf8               r
+  #602 = Utf8               bb
+  #603 = Utf8               Ljava/nio/ByteBuffer;
+  #604 = Utf8               csURL
+  #605 = Utf8               rn
+  #606 = Utf8               cs
+  #607 = Utf8               Ljava/security/CodeSource;
+  #608 = Utf8               reader
+  #609 = Utf8               Ljava/lang/module/ModuleReader;
+  #610 = Utf8               (Ljava/lang/String;Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;)Ljava/lang/Class<*>;
+  #611 = Utf8               man
+  #612 = Utf8               Ljava/util/jar/Manifest;
+  #613 = Utf8               signers
+  #614 = Utf8               b
+  #615 = Utf8               [B
+  #616 = Utf8               (Ljava/lang/String;Ljdk/internal/loader/Resource;)Ljava/lang/Class<*>;
+  #617 = Utf8               iae
+  #618 = Utf8               Ljava/lang/IllegalArgumentException;
+  #619 = Utf8               pkg
+  #620 = Utf8               Ljava/lang/Package;
+  #621 = Utf8               attr
+  #622 = Utf8               Ljava/util/jar/Attributes;
+  #623 = Utf8               specTitle
+  #624 = Utf8               specVersion
+  #625 = Utf8               specVendor
+  #626 = Utf8               implTitle
+  #627 = Utf8               implVersion
+  #628 = Utf8               implVendor
+  #629 = Utf8               sealed
+  #630 = Utf8               sealBase
+  #631 = Utf8               create
+  #632 = Utf8               Ljava/util/function/Function;
+  #633 = Utf8               Ljava/util/function/Function<Ljava/lang/module/ModuleReference;Ljava/lang/module/ModuleReader;>;
+  #634 = Utf8               Ljava/lang/module/ModuleDescriptor$Opens;
+  #635 = Utf8               resetArchivedStates
+  #636 = Utf8               <clinit>
+  #637 = Utf8               archivedClassLoaders
+  #638 = Utf8               Ljdk/internal/loader/ArchivedClassLoaders;
+  #639 = Utf8               SourceFile
+  #640 = Utf8               BuiltinClassLoader.java
+  #641 = Utf8               NestMembers
+  #642 = Class              #643             // jdk/internal/loader/BuiltinClassLoader$NullModuleReader
+  #643 = Utf8               jdk/internal/loader/BuiltinClassLoader$NullModuleReader
+  #644 = Utf8               InnerClasses
+  #645 = Utf8               LoadedModule
+  #646 = Class              #647             // jdk/internal/module/ModulePatcher
+  #647 = Utf8               jdk/internal/module/ModulePatcher
+  #648 = Utf8               PatchedModuleReader
+  #649 = Utf8               Name
+  #650 = Utf8               Opens
+  #651 = Utf8               NullModuleReader
+{
+  private final jdk.internal.loader.BuiltinClassLoader parent;
+    descriptor: Ljdk/internal/loader/BuiltinClassLoader;
+    flags: (0x0012) ACC_PRIVATE, ACC_FINAL
+  
+  private jdk.internal.loader.URLClassPath ucp;
+    descriptor: Ljdk/internal/loader/URLClassPath;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #525()
+        jdk.internal.vm.annotation.Stable
+  
+  private static final java.util.Map<java.lang.String, jdk.internal.loader.BuiltinClassLoader$LoadedModule> packageToModule;
+    descriptor: Ljava/util/Map;
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    Signature: #527                        // Ljava/util/Map<Ljava/lang/String;Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;>;
+  
+  private final java.util.Map<java.lang.String, java.lang.module.ModuleReference> nameToModule;
+    descriptor: Ljava/util/Map;
+    flags: (0x0012) ACC_PRIVATE, ACC_FINAL
+    Signature: #528                        // Ljava/util/Map<Ljava/lang/String;Ljava/lang/module/ModuleReference;>;
+  
+  private final java.util.Map<java.lang.module.ModuleReference, java.lang.module.ModuleReader> moduleToReader;
+    descriptor: Ljava/util/Map;
+    flags: (0x0012) ACC_PRIVATE, ACC_FINAL
+    Signature: #529                        // Ljava/util/Map<Ljava/lang/module/ModuleReference;Ljava/lang/module/ModuleReader;>;
+  
+  private volatile java.lang.ref.SoftReference<java.util.Map<java.lang.String, java.util.List<java.net.URL>>> resourceCache;
+    descriptor: Ljava/lang/ref/SoftReference;
+    flags: (0x0042) ACC_PRIVATE, ACC_VOLATILE
+    Signature: #530                        // Ljava/lang/ref/SoftReference<Ljava/util/Map<Ljava/lang/String;Ljava/util/List<Ljava/net/URL;>;>;>;
+  
+  static final boolean $assertionsDisabled;
+    descriptor: Z
+    flags: (0x1018) ACC_STATIC, ACC_FINAL, ACC_SYNTHETIC
+  
+  static java.util.Map<java.lang.String, ?> packageToModule();
+    descriptor: ()Ljava/util/Map;
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=1, locals=0, args_size=0
+         0: getstatic     #1                  // Field packageToModule:Ljava/util/Map;
+         3: areturn                 
+      LineNumberTable:
+        line 170: 0
+    Signature: #533                        // ()Ljava/util/Map<Ljava/lang/String;*>;
+  
+  jdk.internal.loader.BuiltinClassLoader(java.lang.String, jdk.internal.loader.BuiltinClassLoader, jdk.internal.loader.URLClassPath);
+    descriptor: (Ljava/lang/String;Ljdk/internal/loader/BuiltinClassLoader;Ljdk/internal/loader/URLClassPath;)V
+    flags: (0x0000) 
+    Code: 
+      stack=4, locals=4, args_size=4
+         0: aload_0                 
+         1: aload_1                 
+         2: aload_2                 
+         3: ifnull        13                
+         6: aload_2                 
+         7: invokestatic  #7                  // Method jdk/internal/loader/ClassLoaders.bootLoader:()Ljdk/internal/loader/BuiltinClassLoader;
+        10: if_acmpne     17                
+        13: aconst_null             
+        14: goto          18                
+        17: aload_2                 
+        18: invokespecial #13                 // Method java/security/SecureClassLoader."<init>":(Ljava/lang/String;Ljava/lang/ClassLoader;)V
+        21: aload_0                 
+        22: aload_2                 
+        23: putfield      #19                 // Field parent:Ljdk/internal/loader/BuiltinClassLoader;
+        26: aload_0                 
+        27: aload_3                 
+        28: putfield      #23                 // Field ucp:Ljdk/internal/loader/URLClassPath;
+        31: aload_0                 
+        32: new           #27                 // class java/util/concurrent/ConcurrentHashMap
+        35: dup                     
+        36: bipush        32                
+        38: invokespecial #29                 // Method java/util/concurrent/ConcurrentHashMap."<init>":(I)V
+        41: putfield      #32                 // Field nameToModule:Ljava/util/Map;
+        44: aload_0                 
+        45: new           #27                 // class java/util/concurrent/ConcurrentHashMap
+        48: dup                     
+        49: invokespecial #35                 // Method java/util/concurrent/ConcurrentHashMap."<init>":()V
+        52: putfield      #38                 // Field moduleToReader:Ljava/util/Map;
+        55: return                  
+      LineNumberTable:
+        line 188: 0
+        line 190: 21
+        line 191: 26
+        line 193: 31
+        line 194: 44
+        line 195: 55
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       56     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0       56     1  name   Ljava/lang/String;
+           0       56     2  parent Ljdk/internal/loader/BuiltinClassLoader;
+           0       56     3  ucp    Ljdk/internal/loader/URLClassPath;
+      StackMapTable: number_of_entries = 3
+        frame_type = 255 /* full_frame */
+          offset_delta = 13
+          locals = [this, class java/lang/String, class jdk/internal/loader/BuiltinClassLoader, class jdk/internal/loader/URLClassPath]
+          stack = [this, class java/lang/String]
+        frame_type = 255 /* full_frame */
+          offset_delta = 3
+          locals = [this, class java/lang/String, class jdk/internal/loader/BuiltinClassLoader, class jdk/internal/loader/URLClassPath]
+          stack = [this, class java/lang/String]
+        frame_type = 255 /* full_frame */
+          offset_delta = 0
+          locals = [this, class java/lang/String, class jdk/internal/loader/BuiltinClassLoader, class jdk/internal/loader/URLClassPath]
+          stack = [this, class java/lang/String, class java/lang/ClassLoader]
+  
+  void appendClassPath(java.lang.String);
+    descriptor: (Ljava/lang/String;)V
+    flags: (0x0000) 
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #23                 // Field ucp:Ljdk/internal/loader/URLClassPath;
+         4: aload_1                 
+         5: invokevirtual #41                 // Method jdk/internal/loader/URLClassPath.addFile:(Ljava/lang/String;)V
+         8: return                  
+      LineNumberTable:
+        line 202: 0
+        line 203: 8
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0        9     1  path   Ljava/lang/String;
+  
+  void setClassPath(jdk.internal.loader.URLClassPath);
+    descriptor: (Ljdk/internal/loader/URLClassPath;)V
+    flags: (0x0000) 
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: aload_1                 
+         2: putfield      #23                 // Field ucp:Ljdk/internal/loader/URLClassPath;
+         5: return                  
+      LineNumberTable:
+        line 209: 0
+        line 210: 5
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        6     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0        6     1  ucp    Ljdk/internal/loader/URLClassPath;
+  
+  boolean hasClassPath();
+    descriptor: ()Z
+    flags: (0x0000) 
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #23                 // Field ucp:Ljdk/internal/loader/URLClassPath;
+         4: ifnull        11                
+         7: iconst_1                
+         8: goto          12                
+        11: iconst_0                
+        12: ireturn                 
+      LineNumberTable:
+        line 217: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       13     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+      StackMapTable: number_of_entries = 2
+        frame_type = 11 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  public void loadModule(java.lang.module.ModuleReference);
+    descriptor: (Ljava/lang/module/ModuleReference;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=8, args_size=2
+         0: aload_1                 
+         1: invokevirtual #47                 // Method java/lang/module/ModuleReference.descriptor:()Ljava/lang/module/ModuleDescriptor;
+         4: astore_2                
+         5: aload_2                 
+         6: invokevirtual #53                 // Method java/lang/module/ModuleDescriptor.name:()Ljava/lang/String;
+         9: astore_3                
+        10: aload_0                 
+        11: getfield      #32                 // Field nameToModule:Ljava/util/Map;
+        14: aload_3                 
+        15: aload_1                 
+        16: invokeinterface #59, 3              // InterfaceMethod java/util/Map.putIfAbsent:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        21: ifnull        51                
+        24: new           #65                 // class java/lang/InternalError
+        27: dup                     
+        28: new           #67                 // class java/lang/StringBuilder
+        31: dup                     
+        32: invokespecial #69                 // Method java/lang/StringBuilder."<init>":()V
+        35: aload_3                 
+        36: invokevirtual #70                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        39: ldc           #74                 // String  already defined to this loader
+        41: invokevirtual #70                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        44: invokevirtual #76                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        47: invokespecial #79                 // Method java/lang/InternalError."<init>":(Ljava/lang/String;)V
+        50: athrow                  
+        51: new           #81                 // class jdk/internal/loader/BuiltinClassLoader$LoadedModule
+        54: dup                     
+        55: aload_0                 
+        56: aload_1                 
+        57: invokespecial #83                 // Method jdk/internal/loader/BuiltinClassLoader$LoadedModule."<init>":(Ljdk/internal/loader/BuiltinClassLoader;Ljava/lang/module/ModuleReference;)V
+        60: astore        4                 
+        62: aload_2                 
+        63: invokevirtual #86                 // Method java/lang/module/ModuleDescriptor.packages:()Ljava/util/Set;
+        66: invokeinterface #90, 1              // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        71: astore        5                 
+        73: aload         5                 
+        75: invokeinterface #96, 1              // InterfaceMethod java/util/Iterator.hasNext:()Z
+        80: ifeq          165               
+        83: aload         5                 
+        85: invokeinterface #102, 1             // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        90: checkcast     #106                // class java/lang/String
+        93: astore        6                 
+        95: getstatic     #1                  // Field packageToModule:Ljava/util/Map;
+        98: aload         6                 
+       100: aload         4                 
+       102: invokeinterface #59, 3              // InterfaceMethod java/util/Map.putIfAbsent:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+       107: checkcast     #81                 // class jdk/internal/loader/BuiltinClassLoader$LoadedModule
+       110: astore        7                 
+       112: aload         7                 
+       114: ifnull        162               
+       117: new           #65                 // class java/lang/InternalError
+       120: dup                     
+       121: new           #67                 // class java/lang/StringBuilder
+       124: dup                     
+       125: invokespecial #69                 // Method java/lang/StringBuilder."<init>":()V
+       128: aload         6                 
+       130: invokevirtual #70                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+       133: ldc           #108                // String  in modules 
+       135: invokevirtual #70                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+       138: aload_3                 
+       139: invokevirtual #70                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+       142: ldc           #110                // String  and 
+       144: invokevirtual #70                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+       147: aload         7                 
+       149: invokevirtual #112                // Method jdk/internal/loader/BuiltinClassLoader$LoadedModule.name:()Ljava/lang/String;
+       152: invokevirtual #70                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+       155: invokevirtual #76                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+       158: invokespecial #79                 // Method java/lang/InternalError."<init>":(Ljava/lang/String;)V
+       161: athrow                  
+       162: goto          73                
+       165: aload_0                 
+       166: getfield      #113                // Field resourceCache:Ljava/lang/ref/SoftReference;
+       169: ifnull        183               
+       172: invokestatic  #117                // Method jdk/internal/misc/VM.isModuleSystemInited:()Z
+       175: ifeq          183               
+       178: aload_0                 
+       179: aconst_null             
+       180: putfield      #113                // Field resourceCache:Ljava/lang/ref/SoftReference;
+       183: return                  
+      LineNumberTable:
+        line 225: 0
+        line 226: 5
+        line 227: 10
+        line 228: 24
+        line 231: 51
+        line 232: 62
+        line 233: 95
+        line 234: 112
+        line 235: 117
+        line 236: 149
+        line 238: 162
+        line 241: 165
+        line 242: 178
+        line 244: 183
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+         112       50     7  other  Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;
+          95       67     6  pn     Ljava/lang/String;
+           0      184     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0      184     1  mref   Ljava/lang/module/ModuleReference;
+           5      179     2  descriptor Ljava/lang/module/ModuleDescriptor;
+          10      174     3  mn     Ljava/lang/String;
+          62      122     4  loadedModule Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;
+      StackMapTable: number_of_entries = 5
+        frame_type = 253 /* append */
+          offset_delta = 51
+          locals = [class java/lang/module/ModuleDescriptor, class java/lang/String]
+        frame_type = 253 /* append */
+          offset_delta = 21
+          locals = [class jdk/internal/loader/BuiltinClassLoader$LoadedModule, class java/util/Iterator]
+        frame_type = 251 /* same_frame_extended */
+          offset_delta = 88
+        frame_type = 250 /* chop */
+          offset_delta = 2
+        frame_type = 17 /* same */
+  
+  protected java.lang.module.ModuleReference findModule(java.lang.String);
+    descriptor: (Ljava/lang/String;)Ljava/lang/module/ModuleReference;
+    flags: (0x0004) ACC_PROTECTED
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #32                 // Field nameToModule:Ljava/util/Map;
+         4: aload_1                 
+         5: invokeinterface #122, 2             // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        10: checkcast     #48                 // class java/lang/module/ModuleReference
+        13: areturn                 
+      LineNumberTable:
+        line 253: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       14     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0       14     1  name   Ljava/lang/String;
+  
+  public java.net.URL findResource(java.lang.String, java.lang.String) throws java.io.IOException;
+    descriptor: (Ljava/lang/String;Ljava/lang/String;)Ljava/net/URL;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=5, args_size=3
+         0: aconst_null             
+         1: astore_3                
+         2: aload_1                 
+         3: ifnull        37                
+         6: aload_0                 
+         7: getfield      #32                 // Field nameToModule:Ljava/util/Map;
+        10: aload_1                 
+        11: invokeinterface #122, 2             // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        16: checkcast     #48                 // class java/lang/module/ModuleReference
+        19: astore        4                 
+        21: aload         4                 
+        23: ifnull        34                
+        26: aload_0                 
+        27: aload         4                 
+        29: aload_2                 
+        30: invokevirtual #126                // Method findResource:(Ljava/lang/module/ModuleReference;Ljava/lang/String;)Ljava/net/URL;
+        33: astore_3                
+        34: goto          43                
+        37: aload_0                 
+        38: aload_2                 
+        39: invokevirtual #130                // Method findResourceOnClassPath:(Ljava/lang/String;)Ljava/net/URL;
+        42: astore_3                
+        43: aload_3                 
+        44: areturn                 
+      LineNumberTable:
+        line 265: 0
+        line 267: 2
+        line 269: 6
+        line 270: 21
+        line 271: 26
+        line 273: 34
+        line 275: 37
+        line 278: 43
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          21       13     4  mref   Ljava/lang/module/ModuleReference;
+           0       45     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0       45     1  mn     Ljava/lang/String;
+           0       45     2  name   Ljava/lang/String;
+           2       43     3  url    Ljava/net/URL;
+      StackMapTable: number_of_entries = 3
+        frame_type = 252 /* append */
+          offset_delta = 34
+          locals = [class java/net/URL]
+        frame_type = 2 /* same */
+        frame_type = 5 /* same */
+    Exceptions:
+      throws java.io.IOException
+  
+  public java.io.InputStream findResourceAsStream(java.lang.String, java.lang.String) throws java.io.IOException;
+    descriptor: (Ljava/lang/String;Ljava/lang/String;)Ljava/io/InputStream;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=5, args_size=3
+         0: aconst_null             
+         1: astore_3                
+         2: aload_1                 
+         3: ifnull        49                
+         6: aload_0                 
+         7: getfield      #32                 // Field nameToModule:Ljava/util/Map;
+        10: aload_1                 
+        11: invokeinterface #122, 2             // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        16: checkcast     #48                 // class java/lang/module/ModuleReference
+        19: astore        4                 
+        21: aload         4                 
+        23: ifnull        46                
+        26: aload_0                 
+        27: aload         4                 
+        29: invokevirtual #134                // Method moduleReaderFor:(Ljava/lang/module/ModuleReference;)Ljava/lang/module/ModuleReader;
+        32: aload_2                 
+        33: invokeinterface #138, 2             // InterfaceMethod java/lang/module/ModuleReader.open:(Ljava/lang/String;)Ljava/util/Optional;
+        38: aconst_null             
+        39: invokevirtual #144                // Method java/util/Optional.orElse:(Ljava/lang/Object;)Ljava/lang/Object;
+        42: checkcast     #149                // class java/io/InputStream
+        45: astore_3                
+        46: goto          67                
+        49: aload_0                 
+        50: aload_2                 
+        51: invokevirtual #130                // Method findResourceOnClassPath:(Ljava/lang/String;)Ljava/net/URL;
+        54: astore        4                 
+        56: aload         4                 
+        58: ifnull        67                
+        61: aload         4                 
+        63: invokevirtual #151                // Method java/net/URL.openStream:()Ljava/io/InputStream;
+        66: astore_3                
+        67: aload_3                 
+        68: areturn                 
+      LineNumberTable:
+        line 288: 0
+        line 289: 2
+        line 291: 6
+        line 292: 21
+        line 293: 26
+        line 295: 46
+        line 296: 49
+        line 297: 56
+        line 298: 61
+        line 301: 67
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          21       25     4  mref   Ljava/lang/module/ModuleReference;
+          56       11     4  url    Ljava/net/URL;
+           0       69     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0       69     1  mn     Ljava/lang/String;
+           0       69     2  name   Ljava/lang/String;
+           2       67     3  in     Ljava/io/InputStream;
+      StackMapTable: number_of_entries = 3
+        frame_type = 252 /* append */
+          offset_delta = 46
+          locals = [class java/io/InputStream]
+        frame_type = 2 /* same */
+        frame_type = 17 /* same */
+    Exceptions:
+      throws java.io.IOException
+  
+  public java.net.URL findResource(java.lang.String);
+    descriptor: (Ljava/lang/String;)Ljava/net/URL;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=6, args_size=2
+         0: aload_1                 
+         1: invokestatic  #157                // Method jdk/internal/module/Resources.toPackageName:(Ljava/lang/String;)Ljava/lang/String;
+         4: astore_2                
+         5: getstatic     #1                  // Field packageToModule:Ljava/util/Map;
+         8: aload_2                 
+         9: invokeinterface #122, 2             // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        14: checkcast     #81                 // class jdk/internal/loader/BuiltinClassLoader$LoadedModule
+        17: astore_3                
+        18: aload_3                 
+        19: ifnull        93                
+        22: aload_3                 
+        23: invokevirtual #163                // Method jdk/internal/loader/BuiltinClassLoader$LoadedModule.loader:()Ljdk/internal/loader/BuiltinClassLoader;
+        26: aload_0                 
+        27: if_acmpne     138               
+        30: aload_0                 
+        31: aload_3                 
+        32: invokevirtual #112                // Method jdk/internal/loader/BuiltinClassLoader$LoadedModule.name:()Ljava/lang/String;
+        35: aload_1                 
+        36: invokevirtual #166                // Method findResource:(Ljava/lang/String;Ljava/lang/String;)Ljava/net/URL;
+        39: astore        4                 
+        41: goto          48                
+        44: astore        5                 
+        46: aconst_null             
+        47: areturn                 
+        48: aload         4                 
+        50: ifnull        90                
+        53: aload_1                 
+        54: ldc           #171                // String .class
+        56: invokevirtual #173                // Method java/lang/String.endsWith:(Ljava/lang/String;)Z
+        59: ifne          87                
+        62: aload         4                 
+        64: invokevirtual #177                // Method java/net/URL.toString:()Ljava/lang/String;
+        67: ldc           #178                // String /
+        69: invokevirtual #173                // Method java/lang/String.endsWith:(Ljava/lang/String;)Z
+        72: ifne          87                
+        75: aload_0                 
+        76: aload_3                 
+        77: invokevirtual #180                // Method jdk/internal/loader/BuiltinClassLoader$LoadedModule.mref:()Ljava/lang/module/ModuleReference;
+        80: aload_2                 
+        81: invokevirtual #184                // Method isOpen:(Ljava/lang/module/ModuleReference;Ljava/lang/String;)Z
+        84: ifeq          90                
+        87: aload         4                 
+        89: areturn                 
+        90: goto          138               
+        93: aload_0                 
+        94: aload_1                 
+        95: invokevirtual #188                // Method findMiscResource:(Ljava/lang/String;)Ljava/util/List;
+        98: astore        4                 
+       100: aload         4                 
+       102: invokeinterface #192, 1             // InterfaceMethod java/util/List.isEmpty:()Z
+       107: ifne          131               
+       110: aload         4                 
+       112: iconst_0                
+       113: invokeinterface #197, 2             // InterfaceMethod java/util/List.get:(I)Ljava/lang/Object;
+       118: checkcast     #152                // class java/net/URL
+       121: astore        5                 
+       123: aload         5                 
+       125: ifnull        131               
+       128: aload         5                 
+       130: areturn                 
+       131: goto          138               
+       134: astore        4                 
+       136: aconst_null             
+       137: areturn                 
+       138: aload_0                 
+       139: aload_1                 
+       140: invokevirtual #130                // Method findResourceOnClassPath:(Ljava/lang/String;)Ljava/net/URL;
+       143: areturn                 
+      Exception table:
+          from       to target type
+            30       41    44  Class java/io/IOException
+            93      130   134  Class java/io/IOException
+      LineNumberTable:
+        line 310: 0
+        line 311: 5
+        line 312: 18
+        line 315: 22
+        line 318: 30
+        line 321: 41
+        line 319: 44
+        line 320: 46
+        line 322: 48
+        line 323: 56
+        line 324: 64
+        line 325: 77
+        line 326: 87
+        line 328: 90
+        line 334: 93
+        line 335: 100
+        line 336: 110
+        line 337: 123
+        line 338: 128
+        line 343: 131
+        line 341: 134
+        line 342: 136
+        line 348: 138
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          41        3     4  url    Ljava/net/URL;
+          46        2     5  ioe    Ljava/io/IOException;
+          48       42     4  url    Ljava/net/URL;
+         123        8     5  url    Ljava/net/URL;
+         100       31     4  urls   Ljava/util/List;
+         136        2     4  ioe    Ljava/io/IOException;
+           0      144     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0      144     1  name   Ljava/lang/String;
+           5      139     2  pn     Ljava/lang/String;
+          18      126     3  module Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+           100       31     4  urls   Ljava/util/List<Ljava/net/URL;>;
+      StackMapTable: number_of_entries = 8
+        frame_type = 255 /* full_frame */
+          offset_delta = 44
+          locals = [class jdk/internal/loader/BuiltinClassLoader, class java/lang/String, class java/lang/String, class jdk/internal/loader/BuiltinClassLoader$LoadedModule]
+          stack = [class java/io/IOException]
+        frame_type = 252 /* append */
+          offset_delta = 3
+          locals = [class java/net/URL]
+        frame_type = 38 /* same */
+        frame_type = 250 /* chop */
+          offset_delta = 2
+        frame_type = 2 /* same */
+        frame_type = 37 /* same */
+        frame_type = 66 /* same_locals_1_stack_item */
+          stack = [ class java/io/IOException ]
+        frame_type = 3 /* same */
+  
+  public java.util.Enumeration<java.net.URL> findResources(java.lang.String) throws java.io.IOException;
+    descriptor: (Ljava/lang/String;)Ljava/util/Enumeration;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=5, locals=7, args_size=2
+         0: new           #200                // class java/util/ArrayList
+         3: dup                     
+         4: invokespecial #202                // Method java/util/ArrayList."<init>":()V
+         7: astore_2                
+         8: aload_1                 
+         9: invokestatic  #157                // Method jdk/internal/module/Resources.toPackageName:(Ljava/lang/String;)Ljava/lang/String;
+        12: astore_3                
+        13: getstatic     #1                  // Field packageToModule:Ljava/util/Map;
+        16: aload_3                 
+        17: invokeinterface #122, 2             // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        22: checkcast     #81                 // class jdk/internal/loader/BuiltinClassLoader$LoadedModule
+        25: astore        4                 
+        27: aload         4                 
+        29: ifnull        105               
+        32: aload         4                 
+        34: invokevirtual #163                // Method jdk/internal/loader/BuiltinClassLoader$LoadedModule.loader:()Ljdk/internal/loader/BuiltinClassLoader;
+        37: aload_0                 
+        38: if_acmpne     156               
+        41: aload_0                 
+        42: aload         4                 
+        44: invokevirtual #112                // Method jdk/internal/loader/BuiltinClassLoader$LoadedModule.name:()Ljava/lang/String;
+        47: aload_1                 
+        48: invokevirtual #166                // Method findResource:(Ljava/lang/String;Ljava/lang/String;)Ljava/net/URL;
+        51: astore        5                 
+        53: aload         5                 
+        55: ifnull        102               
+        58: aload_1                 
+        59: ldc           #171                // String .class
+        61: invokevirtual #173                // Method java/lang/String.endsWith:(Ljava/lang/String;)Z
+        64: ifne          93                
+        67: aload         5                 
+        69: invokevirtual #177                // Method java/net/URL.toString:()Ljava/lang/String;
+        72: ldc           #178                // String /
+        74: invokevirtual #173                // Method java/lang/String.endsWith:(Ljava/lang/String;)Z
+        77: ifne          93                
+        80: aload_0                 
+        81: aload         4                 
+        83: invokevirtual #180                // Method jdk/internal/loader/BuiltinClassLoader$LoadedModule.mref:()Ljava/lang/module/ModuleReference;
+        86: aload_3                 
+        87: invokevirtual #184                // Method isOpen:(Ljava/lang/module/ModuleReference;Ljava/lang/String;)Z
+        90: ifeq          102               
+        93: aload_2                 
+        94: aload         5                 
+        96: invokeinterface #203, 2             // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       101: pop                     
+       102: goto          156               
+       105: aload_0                 
+       106: aload_1                 
+       107: invokevirtual #188                // Method findMiscResource:(Ljava/lang/String;)Ljava/util/List;
+       110: invokeinterface #207, 1             // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+       115: astore        5                 
+       117: aload         5                 
+       119: invokeinterface #96, 1              // InterfaceMethod java/util/Iterator.hasNext:()Z
+       124: ifeq          156               
+       127: aload         5                 
+       129: invokeinterface #102, 1             // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       134: checkcast     #152                // class java/net/URL
+       137: astore        6                 
+       139: aload         6                 
+       141: ifnull        153               
+       144: aload_2                 
+       145: aload         6                 
+       147: invokeinterface #203, 2             // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       152: pop                     
+       153: goto          117               
+       156: aload_0                 
+       157: aload_1                 
+       158: invokevirtual #208                // Method findResourcesOnClassPath:(Ljava/lang/String;)Ljava/util/Enumeration;
+       161: astore        5                 
+       163: new           #212                // class jdk/internal/loader/BuiltinClassLoader$1
+       166: dup                     
+       167: aload_0                 
+       168: aload_2                 
+       169: aload         5                 
+       171: invokespecial #214                // Method jdk/internal/loader/BuiltinClassLoader$1."<init>":(Ljdk/internal/loader/BuiltinClassLoader;Ljava/util/List;Ljava/util/Enumeration;)V
+       174: areturn                 
+      LineNumberTable:
+        line 358: 0
+        line 360: 8
+        line 361: 13
+        line 362: 27
+        line 365: 32
+        line 366: 41
+        line 367: 53
+        line 368: 61
+        line 369: 69
+        line 370: 83
+        line 371: 93
+        line 373: 102
+        line 377: 105
+        line 378: 139
+        line 379: 144
+        line 381: 153
+        line 385: 156
+        line 388: 163
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          53       49     5  url    Ljava/net/URL;
+         139       14     6  url    Ljava/net/URL;
+           0      175     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0      175     1  name   Ljava/lang/String;
+           8      167     2  resources Ljava/util/List;
+          13      162     3  pn     Ljava/lang/String;
+          27      148     4  module Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;
+         163       12     5  e      Ljava/util/Enumeration;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             8      167     2  resources   Ljava/util/List<Ljava/net/URL;>;
+           163       12     5  e      Ljava/util/Enumeration<Ljava/net/URL;>;
+      StackMapTable: number_of_entries = 6
+        frame_type = 255 /* full_frame */
+          offset_delta = 93
+          locals = [class jdk/internal/loader/BuiltinClassLoader, class java/lang/String, class java/util/List, class java/lang/String, class jdk/internal/loader/BuiltinClassLoader$LoadedModule, class java/net/URL]
+          stack = []
+        frame_type = 250 /* chop */
+          offset_delta = 8
+        frame_type = 2 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 11
+          locals = [class java/util/Iterator]
+        frame_type = 35 /* same */
+        frame_type = 250 /* chop */
+          offset_delta = 2
+    Exceptions:
+      throws java.io.IOException
+    Signature: #572                        // (Ljava/lang/String;)Ljava/util/Enumeration<Ljava/net/URL;>;
+  
+  private java.util.List<java.net.URL> findMiscResource(java.lang.String) throws java.io.IOException;
+    descriptor: (Ljava/lang/String;)Ljava/util/List;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=4, locals=9, args_size=2
+         0: aload_0                 
+         1: getfield      #113                // Field resourceCache:Ljava/lang/ref/SoftReference;
+         4: astore_2                
+         5: aload_2                 
+         6: ifnull        19                
+         9: aload_2                 
+        10: invokevirtual #217                // Method java/lang/ref/SoftReference.get:()Ljava/lang/Object;
+        13: checkcast     #60                 // class java/util/Map
+        16: goto          20                
+        19: aconst_null             
+        20: astore_3                
+        21: aload_3                 
+        22: ifnonnull     54                
+        25: invokestatic  #117                // Method jdk/internal/misc/VM.isModuleSystemInited:()Z
+        28: ifeq          74                
+        31: new           #27                 // class java/util/concurrent/ConcurrentHashMap
+        34: dup                     
+        35: invokespecial #35                 // Method java/util/concurrent/ConcurrentHashMap."<init>":()V
+        38: astore_3                
+        39: aload_0                 
+        40: new           #218                // class java/lang/ref/SoftReference
+        43: dup                     
+        44: aload_3                 
+        45: invokespecial #221                // Method java/lang/ref/SoftReference."<init>":(Ljava/lang/Object;)V
+        48: putfield      #113                // Field resourceCache:Ljava/lang/ref/SoftReference;
+        51: goto          74                
+        54: aload_3                 
+        55: aload_1                 
+        56: invokeinterface #122, 2             // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        61: checkcast     #193                // class java/util/List
+        64: astore        4                 
+        66: aload         4                 
+        68: ifnull        74                
+        71: aload         4                 
+        73: areturn                 
+        74: aconst_null             
+        75: astore        4                 
+        77: aload_0                 
+        78: getfield      #32                 // Field nameToModule:Ljava/util/Map;
+        81: invokeinterface #224, 1             // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        86: invokeinterface #228, 1             // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        91: astore        5                 
+        93: aload         5                 
+        95: invokeinterface #96, 1              // InterfaceMethod java/util/Iterator.hasNext:()Z
+       100: ifeq          176               
+       103: aload         5                 
+       105: invokeinterface #102, 1             // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       110: checkcast     #48                 // class java/lang/module/ModuleReference
+       113: astore        6                 
+       115: aload_0                 
+       116: aload         6                 
+       118: invokevirtual #134                // Method moduleReaderFor:(Ljava/lang/module/ModuleReference;)Ljava/lang/module/ModuleReader;
+       121: aload_1                 
+       122: invokeinterface #231, 2             // InterfaceMethod java/lang/module/ModuleReader.find:(Ljava/lang/String;)Ljava/util/Optional;
+       127: aconst_null             
+       128: invokevirtual #144                // Method java/util/Optional.orElse:(Ljava/lang/Object;)Ljava/lang/Object;
+       131: checkcast     #234                // class java/net/URI
+       134: astore        7                 
+       136: aload         7                 
+       138: ifnull        173               
+       141: aload         4                 
+       143: ifnonnull     155               
+       146: new           #200                // class java/util/ArrayList
+       149: dup                     
+       150: invokespecial #202                // Method java/util/ArrayList."<init>":()V
+       153: astore        4                 
+       155: aload         4                 
+       157: aload         7                 
+       159: invokevirtual #236                // Method java/net/URI.toURL:()Ljava/net/URL;
+       162: invokeinterface #203, 2             // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       167: pop                     
+       168: goto          173               
+       171: astore        8                 
+       173: goto          93                
+       176: aload         4                 
+       178: ifnonnull     186               
+       181: invokestatic  #244                // InterfaceMethod java/util/List.of:()Ljava/util/List;
+       184: astore        4                 
+       186: aload_3                 
+       187: ifnull        200               
+       190: aload_3                 
+       191: aload_1                 
+       192: aload         4                 
+       194: invokeinterface #59, 3              // InterfaceMethod java/util/Map.putIfAbsent:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+       199: pop                     
+       200: aload         4                 
+       202: areturn                 
+      Exception table:
+          from       to target type
+           141      168   171  Class java/net/MalformedURLException
+           141      168   171  Class java/lang/IllegalArgumentException
+      LineNumberTable:
+        line 430: 0
+        line 431: 5
+        line 432: 21
+        line 434: 25
+        line 435: 31
+        line 436: 39
+        line 439: 54
+        line 440: 66
+        line 441: 71
+        line 445: 74
+        line 446: 77
+        line 447: 115
+        line 448: 136
+        line 450: 141
+        line 451: 146
+        line 452: 155
+        line 454: 168
+        line 453: 171
+        line 456: 173
+        line 457: 176
+        line 458: 181
+        line 462: 186
+        line 463: 190
+        line 466: 200
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          66        8     4  urls   Ljava/util/List;
+         136       37     7  u      Ljava/net/URI;
+         115       58     6  mref   Ljava/lang/module/ModuleReference;
+           0      203     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0      203     1  name   Ljava/lang/String;
+           5      198     2  ref    Ljava/lang/ref/SoftReference;
+          21      182     3  map    Ljava/util/Map;
+          77      126     4  urls   Ljava/util/List;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            66        8     4  urls   Ljava/util/List<Ljava/net/URL;>;
+             5      198     2  ref    Ljava/lang/ref/SoftReference<Ljava/util/Map<Ljava/lang/String;Ljava/util/List<Ljava/net/URL;>;>;>;
+            21      182     3  map    Ljava/util/Map<Ljava/lang/String;Ljava/util/List<Ljava/net/URL;>;>;
+            77      126     4  urls   Ljava/util/List<Ljava/net/URL;>;
+      StackMapTable: number_of_entries = 11
+        frame_type = 252 /* append */
+          offset_delta = 19
+          locals = [class java/lang/ref/SoftReference]
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ class java/util/Map ]
+        frame_type = 252 /* append */
+          offset_delta = 33
+          locals = [class java/util/Map]
+        frame_type = 19 /* same */
+        frame_type = 253 /* append */
+          offset_delta = 18
+          locals = [class java/util/List, class java/util/Iterator]
+        frame_type = 253 /* append */
+          offset_delta = 61
+          locals = [class java/lang/module/ModuleReference, class java/net/URI]
+        frame_type = 79 /* same_locals_1_stack_item */
+          stack = [ class java/lang/Exception ]
+        frame_type = 249 /* chop */
+          offset_delta = 1
+        frame_type = 250 /* chop */
+          offset_delta = 2
+        frame_type = 9 /* same */
+        frame_type = 13 /* same */
+    Exceptions:
+      throws java.io.IOException
+    Signature: #580                        // (Ljava/lang/String;)Ljava/util/List<Ljava/net/URL;>;
+  
+  private java.net.URL findResource(java.lang.module.ModuleReference, java.lang.String) throws java.io.IOException;
+    descriptor: (Ljava/lang/module/ModuleReference;Ljava/lang/String;)Ljava/net/URL;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=2, locals=5, args_size=3
+         0: aload_0                 
+         1: aload_1                 
+         2: invokevirtual #134                // Method moduleReaderFor:(Ljava/lang/module/ModuleReference;)Ljava/lang/module/ModuleReader;
+         5: aload_2                 
+         6: invokeinterface #231, 2             // InterfaceMethod java/lang/module/ModuleReader.find:(Ljava/lang/String;)Ljava/util/Optional;
+        11: aconst_null             
+        12: invokevirtual #144                // Method java/util/Optional.orElse:(Ljava/lang/Object;)Ljava/lang/Object;
+        15: checkcast     #234                // class java/net/URI
+        18: astore_3                
+        19: aload_3                 
+        20: ifnull        30                
+        23: aload_3                 
+        24: invokevirtual #236                // Method java/net/URI.toURL:()Ljava/net/URL;
+        27: areturn                 
+        28: astore        4                 
+        30: aconst_null             
+        31: areturn                 
+      Exception table:
+          from       to target type
+            23       27    28  Class java/net/MalformedURLException
+            23       27    28  Class java/lang/IllegalArgumentException
+      LineNumberTable:
+        line 473: 0
+        line 474: 19
+        line 476: 23
+        line 477: 28
+        line 479: 30
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       32     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0       32     1  mref   Ljava/lang/module/ModuleReference;
+           0       32     2  name   Ljava/lang/String;
+          19       13     3  u      Ljava/net/URI;
+      StackMapTable: number_of_entries = 2
+        frame_type = 255 /* full_frame */
+          offset_delta = 28
+          locals = [class jdk/internal/loader/BuiltinClassLoader, class java/lang/module/ModuleReference, class java/lang/String, class java/net/URI]
+          stack = [class java/lang/Exception]
+        frame_type = 1 /* same */
+    Exceptions:
+      throws java.io.IOException
+  
+  private java.net.URL findResourceOnClassPath(java.lang.String);
+    descriptor: (Ljava/lang/String;)Ljava/net/URL;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: invokevirtual #248                // Method hasClassPath:()Z
+         4: ifeq          16                
+         7: aload_0                 
+         8: getfield      #23                 // Field ucp:Ljdk/internal/loader/URLClassPath;
+        11: aload_1                 
+        12: invokevirtual #251                // Method jdk/internal/loader/URLClassPath.findResource:(Ljava/lang/String;)Ljava/net/URL;
+        15: areturn                 
+        16: aconst_null             
+        17: areturn                 
+      LineNumberTable:
+        line 486: 0
+        line 487: 7
+        line 490: 16
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       18     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0       18     1  name   Ljava/lang/String;
+      StackMapTable: number_of_entries = 1
+        frame_type = 16 /* same */
+  
+  private java.util.Enumeration<java.net.URL> findResourcesOnClassPath(java.lang.String);
+    descriptor: (Ljava/lang/String;)Ljava/util/Enumeration;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: invokevirtual #248                // Method hasClassPath:()Z
+         4: ifeq          16                
+         7: aload_0                 
+         8: getfield      #23                 // Field ucp:Ljdk/internal/loader/URLClassPath;
+        11: aload_1                 
+        12: invokevirtual #253                // Method jdk/internal/loader/URLClassPath.findResources:(Ljava/lang/String;)Ljava/util/Enumeration;
+        15: areturn                 
+        16: invokestatic  #256                // Method java/util/Collections.emptyEnumeration:()Ljava/util/Enumeration;
+        19: areturn                 
+      LineNumberTable:
+        line 498: 0
+        line 499: 7
+        line 502: 16
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       20     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0       20     1  name   Ljava/lang/String;
+      StackMapTable: number_of_entries = 1
+        frame_type = 16 /* same */
+    Signature: #572                        // (Ljava/lang/String;)Ljava/util/Enumeration<Ljava/net/URL;>;
+  
+  protected java.lang.Class<?> findClass(java.lang.String) throws java.lang.ClassNotFoundException;
+    descriptor: (Ljava/lang/String;)Ljava/lang/Class;
+    flags: (0x0004) ACC_PROTECTED
+    Code: 
+      stack=3, locals=4, args_size=2
+         0: invokestatic  #117                // Method jdk/internal/misc/VM.isModuleSystemInited:()Z
+         3: ifne          15                
+         6: new           #262                // class java/lang/ClassNotFoundException
+         9: dup                     
+        10: aload_1                 
+        11: invokespecial #264                // Method java/lang/ClassNotFoundException."<init>":(Ljava/lang/String;)V
+        14: athrow                  
+        15: aload_0                 
+        16: aload_1                 
+        17: invokevirtual #265                // Method findLoadedModule:(Ljava/lang/String;)Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;
+        20: astore_2                
+        21: aconst_null             
+        22: astore_3                
+        23: aload_2                 
+        24: ifnull        45                
+        27: aload_2                 
+        28: invokevirtual #163                // Method jdk/internal/loader/BuiltinClassLoader$LoadedModule.loader:()Ljdk/internal/loader/BuiltinClassLoader;
+        31: aload_0                 
+        32: if_acmpne     58                
+        35: aload_0                 
+        36: aload_2                 
+        37: aload_1                 
+        38: invokevirtual #269                // Method findClassInModuleOrNull:(Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;Ljava/lang/String;)Ljava/lang/Class;
+        41: astore_3                
+        42: goto          58                
+        45: aload_0                 
+        46: invokevirtual #248                // Method hasClassPath:()Z
+        49: ifeq          58                
+        52: aload_0                 
+        53: aload_1                 
+        54: invokevirtual #273                // Method findClassOnClassPathOrNull:(Ljava/lang/String;)Ljava/lang/Class;
+        57: astore_3                
+        58: aload_3                 
+        59: ifnonnull     71                
+        62: new           #262                // class java/lang/ClassNotFoundException
+        65: dup                     
+        66: aload_1                 
+        67: invokespecial #264                // Method java/lang/ClassNotFoundException."<init>":(Ljava/lang/String;)V
+        70: athrow                  
+        71: aload_3                 
+        72: areturn                 
+      LineNumberTable:
+        line 514: 0
+        line 515: 6
+        line 518: 15
+        line 520: 21
+        line 521: 23
+        line 524: 27
+        line 525: 35
+        line 531: 45
+        line 532: 52
+        line 538: 58
+        line 539: 62
+        line 541: 71
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       73     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0       73     1  cn     Ljava/lang/String;
+          21       52     2  loadedModule Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;
+          23       50     3  c      Ljava/lang/Class;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            23       50     3  c      Ljava/lang/Class<*>;
+      StackMapTable: number_of_entries = 4
+        frame_type = 15 /* same */
+        frame_type = 253 /* append */
+          offset_delta = 29
+          locals = [class jdk/internal/loader/BuiltinClassLoader$LoadedModule, class java/lang/Class]
+        frame_type = 12 /* same */
+        frame_type = 12 /* same */
+    Exceptions:
+      throws java.lang.ClassNotFoundException
+    Signature: #586                        // (Ljava/lang/String;)Ljava/lang/Class<*>;
+  
+  protected java.lang.Class<?> findClass(java.lang.String, java.lang.String);
+    descriptor: (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Class;
+    flags: (0x0004) ACC_PROTECTED
+    Code: 
+      stack=3, locals=4, args_size=3
+         0: aload_1                 
+         1: ifnull        46                
+         4: aload_0                 
+         5: aload_1                 
+         6: aload_2                 
+         7: invokevirtual #277                // Method findLoadedModule:(Ljava/lang/String;Ljava/lang/String;)Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;
+        10: astore_3                
+        11: aload_3                 
+        12: ifnonnull     17                
+        15: aconst_null             
+        16: areturn                 
+        17: getstatic     #280                // Field $assertionsDisabled:Z
+        20: ifne          39                
+        23: aload_3                 
+        24: invokevirtual #163                // Method jdk/internal/loader/BuiltinClassLoader$LoadedModule.loader:()Ljdk/internal/loader/BuiltinClassLoader;
+        27: aload_0                 
+        28: if_acmpeq     39                
+        31: new           #284                // class java/lang/AssertionError
+        34: dup                     
+        35: invokespecial #286                // Method java/lang/AssertionError."<init>":()V
+        38: athrow                  
+        39: aload_0                 
+        40: aload_3                 
+        41: aload_2                 
+        42: invokevirtual #269                // Method findClassInModuleOrNull:(Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;Ljava/lang/String;)Ljava/lang/Class;
+        45: areturn                 
+        46: aload_0                 
+        47: invokevirtual #248                // Method hasClassPath:()Z
+        50: ifeq          59                
+        53: aload_0                 
+        54: aload_2                 
+        55: invokevirtual #273                // Method findClassOnClassPathOrNull:(Ljava/lang/String;)Ljava/lang/Class;
+        58: areturn                 
+        59: aconst_null             
+        60: areturn                 
+      LineNumberTable:
+        line 551: 0
+        line 553: 4
+        line 554: 11
+        line 555: 15
+        line 559: 17
+        line 560: 39
+        line 564: 46
+        line 565: 53
+        line 568: 59
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          11       35     3  loadedModule Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;
+           0       61     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0       61     1  mn     Ljava/lang/String;
+           0       61     2  cn     Ljava/lang/String;
+      StackMapTable: number_of_entries = 4
+        frame_type = 252 /* append */
+          offset_delta = 17
+          locals = [class jdk/internal/loader/BuiltinClassLoader$LoadedModule]
+        frame_type = 21 /* same */
+        frame_type = 250 /* chop */
+          offset_delta = 6
+        frame_type = 12 /* same */
+    Signature: #588                        // (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Class<*>;
+  
+  protected java.lang.Class<?> loadClass(java.lang.String, boolean) throws java.lang.ClassNotFoundException;
+    descriptor: (Ljava/lang/String;Z)Ljava/lang/Class;
+    flags: (0x0004) ACC_PROTECTED
+    Code: 
+      stack=3, locals=4, args_size=3
+         0: aload_0                 
+         1: aload_1                 
+         2: iload_2                 
+         3: invokevirtual #287                // Method loadClassOrNull:(Ljava/lang/String;Z)Ljava/lang/Class;
+         6: astore_3                
+         7: aload_3                 
+         8: ifnonnull     20                
+        11: new           #262                // class java/lang/ClassNotFoundException
+        14: dup                     
+        15: aload_1                 
+        16: invokespecial #264                // Method java/lang/ClassNotFoundException."<init>":(Ljava/lang/String;)V
+        19: athrow                  
+        20: aload_3                 
+        21: areturn                 
+      LineNumberTable:
+        line 578: 0
+        line 579: 7
+        line 580: 11
+        line 581: 20
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       22     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0       22     1  cn     Ljava/lang/String;
+           0       22     2  resolve Z
+           7       15     3  c      Ljava/lang/Class;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             7       15     3  c      Ljava/lang/Class<*>;
+      StackMapTable: number_of_entries = 1
+        frame_type = 252 /* append */
+          offset_delta = 20
+          locals = [class java/lang/Class]
+    Exceptions:
+      throws java.lang.ClassNotFoundException
+    Signature: #591                        // (Ljava/lang/String;Z)Ljava/lang/Class<*>;
+  
+  protected java.lang.Class<?> loadClassOrNull(java.lang.String, boolean);
+    descriptor: (Ljava/lang/String;Z)Ljava/lang/Class;
+    flags: (0x0004) ACC_PROTECTED
+    Code: 
+      stack=3, locals=8, args_size=3
+         0: aload_0                 
+         1: aload_1                 
+         2: invokevirtual #291                // Method getClassLoadingLock:(Ljava/lang/String;)Ljava/lang/Object;
+         5: dup                     
+         6: astore_3                
+         7: monitorenter            
+         8: aload_0                 
+         9: aload_1                 
+        10: invokevirtual #295                // Method findLoadedClass:(Ljava/lang/String;)Ljava/lang/Class;
+        13: astore        4                 
+        15: aload         4                 
+        17: ifnonnull     116               
+        20: aload_0                 
+        21: aload_1                 
+        22: invokevirtual #265                // Method findLoadedModule:(Ljava/lang/String;)Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;
+        25: astore        5                 
+        27: aload         5                 
+        29: ifnull        74                
+        32: aload         5                 
+        34: invokevirtual #163                // Method jdk/internal/loader/BuiltinClassLoader$LoadedModule.loader:()Ljdk/internal/loader/BuiltinClassLoader;
+        37: astore        6                 
+        39: aload         6                 
+        41: aload_0                 
+        42: if_acmpne     63                
+        45: invokestatic  #117                // Method jdk/internal/misc/VM.isModuleSystemInited:()Z
+        48: ifeq          71                
+        51: aload_0                 
+        52: aload         5                 
+        54: aload_1                 
+        55: invokevirtual #269                // Method findClassInModuleOrNull:(Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;Ljava/lang/String;)Ljava/lang/Class;
+        58: astore        4                 
+        60: goto          71                
+        63: aload         6                 
+        65: aload_1                 
+        66: invokevirtual #298                // Method loadClassOrNull:(Ljava/lang/String;)Ljava/lang/Class;
+        69: astore        4                 
+        71: goto          116               
+        74: aload_0                 
+        75: getfield      #19                 // Field parent:Ljdk/internal/loader/BuiltinClassLoader;
+        78: ifnull        91                
+        81: aload_0                 
+        82: getfield      #19                 // Field parent:Ljdk/internal/loader/BuiltinClassLoader;
+        85: aload_1                 
+        86: invokevirtual #298                // Method loadClassOrNull:(Ljava/lang/String;)Ljava/lang/Class;
+        89: astore        4                 
+        91: aload         4                 
+        93: ifnonnull     116               
+        96: aload_0                 
+        97: invokevirtual #248                // Method hasClassPath:()Z
+       100: ifeq          116               
+       103: invokestatic  #117                // Method jdk/internal/misc/VM.isModuleSystemInited:()Z
+       106: ifeq          116               
+       109: aload_0                 
+       110: aload_1                 
+       111: invokevirtual #273                // Method findClassOnClassPathOrNull:(Ljava/lang/String;)Ljava/lang/Class;
+       114: astore        4                 
+       116: iload_2                 
+       117: ifeq          131               
+       120: aload         4                 
+       122: ifnull        131               
+       125: aload_0                 
+       126: aload         4                 
+       128: invokevirtual #300                // Method resolveClass:(Ljava/lang/Class;)V
+       131: aload         4                 
+       133: aload_3                 
+       134: monitorexit             
+       135: areturn                 
+       136: astore        7                 
+       138: aload_3                 
+       139: monitorexit             
+       140: aload         7                 
+       142: athrow                  
+      Exception table:
+          from       to target type
+             8      135   136  any
+           136      140   136  any
+      LineNumberTable:
+        line 590: 0
+        line 592: 8
+        line 594: 15
+        line 597: 20
+        line 598: 27
+        line 601: 32
+        line 602: 39
+        line 603: 45
+        line 604: 51
+        line 608: 63
+        line 611: 71
+        line 614: 74
+        line 615: 81
+        line 619: 91
+        line 620: 109
+        line 626: 116
+        line 627: 125
+        line 629: 131
+        line 630: 136
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          39       32     6  loader Ljdk/internal/loader/BuiltinClassLoader;
+          27       89     5  loadedModule Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;
+          15      121     4  c      Ljava/lang/Class;
+           0      143     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0      143     1  cn     Ljava/lang/String;
+           0      143     2  resolve Z
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            15      121     4  c      Ljava/lang/Class<*>;
+      StackMapTable: number_of_entries = 7
+        frame_type = 255 /* full_frame */
+          offset_delta = 63
+          locals = [class jdk/internal/loader/BuiltinClassLoader, class java/lang/String, int, class java/lang/Object, class java/lang/Class, class jdk/internal/loader/BuiltinClassLoader$LoadedModule, class jdk/internal/loader/BuiltinClassLoader]
+          stack = []
+        frame_type = 250 /* chop */
+          offset_delta = 7
+        frame_type = 2 /* same */
+        frame_type = 16 /* same */
+        frame_type = 250 /* chop */
+          offset_delta = 24
+        frame_type = 14 /* same */
+        frame_type = 255 /* full_frame */
+          offset_delta = 4
+          locals = [class jdk/internal/loader/BuiltinClassLoader, class java/lang/String, int, class java/lang/Object]
+          stack = [class java/lang/Throwable]
+    Signature: #591                        // (Ljava/lang/String;Z)Ljava/lang/Class<*>;
+  
+  protected final java.lang.Class<?> loadClassOrNull(java.lang.String);
+    descriptor: (Ljava/lang/String;)Ljava/lang/Class;
+    flags: (0x0014) ACC_PROTECTED, ACC_FINAL
+    Code: 
+      stack=3, locals=2, args_size=2
+         0: aload_0                 
+         1: aload_1                 
+         2: iconst_0                
+         3: invokevirtual #287                // Method loadClassOrNull:(Ljava/lang/String;Z)Ljava/lang/Class;
+         6: areturn                 
+      LineNumberTable:
+        line 639: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        7     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0        7     1  cn     Ljava/lang/String;
+    Signature: #586                        // (Ljava/lang/String;)Ljava/lang/Class<*>;
+  
+  private jdk.internal.loader.BuiltinClassLoader$LoadedModule findLoadedModule(java.lang.String);
+    descriptor: (Ljava/lang/String;)Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=3, locals=4, args_size=2
+         0: aload_1                 
+         1: bipush        46                
+         3: invokevirtual #304                // Method java/lang/String.lastIndexOf:(I)I
+         6: istore_2                
+         7: iload_2                 
+         8: ifge          13                
+        11: aconst_null             
+        12: areturn                 
+        13: aload_1                 
+        14: iconst_0                
+        15: iload_2                 
+        16: invokevirtual #308                // Method java/lang/String.substring:(II)Ljava/lang/String;
+        19: astore_3                
+        20: getstatic     #1                  // Field packageToModule:Ljava/util/Map;
+        23: aload_3                 
+        24: invokeinterface #122, 2             // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        29: checkcast     #81                 // class jdk/internal/loader/BuiltinClassLoader$LoadedModule
+        32: areturn                 
+      LineNumberTable:
+        line 648: 0
+        line 649: 7
+        line 650: 11
+        line 652: 13
+        line 653: 20
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       33     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0       33     1  cn     Ljava/lang/String;
+           7       26     2  pos    I
+          20       13     3  pn     Ljava/lang/String;
+      StackMapTable: number_of_entries = 1
+        frame_type = 252 /* append */
+          offset_delta = 13
+          locals = [int]
+  
+  private jdk.internal.loader.BuiltinClassLoader$LoadedModule findLoadedModule(java.lang.String, java.lang.String);
+    descriptor: (Ljava/lang/String;Ljava/lang/String;)Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=2, locals=4, args_size=3
+         0: aload_0                 
+         1: aload_2                 
+         2: invokevirtual #265                // Method findLoadedModule:(Ljava/lang/String;)Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;
+         5: astore_3                
+         6: aload_3                 
+         7: ifnull        23                
+        10: aload_1                 
+        11: aload_3                 
+        12: invokevirtual #112                // Method jdk/internal/loader/BuiltinClassLoader$LoadedModule.name:()Ljava/lang/String;
+        15: invokevirtual #312                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+        18: ifeq          23                
+        21: aload_3                 
+        22: areturn                 
+        23: aconst_null             
+        24: areturn                 
+      LineNumberTable:
+        line 663: 0
+        line 664: 6
+        line 665: 21
+        line 667: 23
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       25     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0       25     1  mn     Ljava/lang/String;
+           0       25     2  cn     Ljava/lang/String;
+           6       19     3  loadedModule Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;
+      StackMapTable: number_of_entries = 1
+        frame_type = 252 /* append */
+          offset_delta = 23
+          locals = [class jdk/internal/loader/BuiltinClassLoader$LoadedModule]
+  
+  private java.lang.Class<?> findClassInModuleOrNull(jdk.internal.loader.BuiltinClassLoader$LoadedModule, java.lang.String);
+    descriptor: (Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;Ljava/lang/String;)Ljava/lang/Class;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=3, locals=3, args_size=3
+         0: aload_0                 
+         1: aload_2                 
+         2: aload_1                 
+         3: invokevirtual #315                // Method defineClass:(Ljava/lang/String;Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;)Ljava/lang/Class;
+         6: areturn                 
+      LineNumberTable:
+        line 678: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        7     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0        7     1  loadedModule Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;
+           0        7     2  cn     Ljava/lang/String;
+    Signature: #598                        // (Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;Ljava/lang/String;)Ljava/lang/Class<*>;
+  
+  private java.lang.Class<?> findClassOnClassPathOrNull(java.lang.String);
+    descriptor: (Ljava/lang/String;)Ljava/lang/Class;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=3, locals=5, args_size=2
+         0: aload_1                 
+         1: bipush        46                
+         3: bipush        47                
+         5: invokevirtual #319                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+         8: ldc           #171                // String .class
+        10: invokevirtual #323                // Method java/lang/String.concat:(Ljava/lang/String;)Ljava/lang/String;
+        13: astore_2                
+        14: aload_0                 
+        15: getfield      #23                 // Field ucp:Ljdk/internal/loader/URLClassPath;
+        18: aload_2                 
+        19: invokevirtual #326                // Method jdk/internal/loader/URLClassPath.getResource:(Ljava/lang/String;)Ljdk/internal/loader/Resource;
+        22: astore_3                
+        23: aload_3                 
+        24: ifnull        36                
+        27: aload_0                 
+        28: aload_1                 
+        29: aload_3                 
+        30: invokevirtual #330                // Method defineClass:(Ljava/lang/String;Ljdk/internal/loader/Resource;)Ljava/lang/Class;
+        33: areturn                 
+        34: astore        4                 
+        36: aconst_null             
+        37: areturn                 
+      Exception table:
+          from       to target type
+            27       33    34  Class java/io/IOException
+      LineNumberTable:
+        line 687: 0
+        line 688: 14
+        line 689: 23
+        line 691: 27
+        line 692: 34
+        line 696: 36
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       38     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0       38     1  cn     Ljava/lang/String;
+          14       24     2  path   Ljava/lang/String;
+          23       15     3  res    Ljdk/internal/loader/Resource;
+      StackMapTable: number_of_entries = 2
+        frame_type = 255 /* full_frame */
+          offset_delta = 34
+          locals = [class jdk/internal/loader/BuiltinClassLoader, class java/lang/String, class java/lang/String, class jdk/internal/loader/Resource]
+          stack = [class java/io/IOException]
+        frame_type = 1 /* same */
+    Signature: #586                        // (Ljava/lang/String;)Ljava/lang/Class<*>;
+  
+  private java.lang.Class<?> defineClass(java.lang.String, jdk.internal.loader.BuiltinClassLoader$LoadedModule);
+    descriptor: (Ljava/lang/String;Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;)Ljava/lang/Class;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=4, locals=11, args_size=3
+         0: aload_2                 
+         1: invokevirtual #180                // Method jdk/internal/loader/BuiltinClassLoader$LoadedModule.mref:()Ljava/lang/module/ModuleReference;
+         4: astore_3                
+         5: aload_0                 
+         6: aload_3                 
+         7: invokevirtual #134                // Method moduleReaderFor:(Ljava/lang/module/ModuleReference;)Ljava/lang/module/ModuleReader;
+        10: astore        4                 
+        12: aconst_null             
+        13: astore        5                 
+        15: aconst_null             
+        16: astore        6                 
+        18: aload_1                 
+        19: bipush        46                
+        21: bipush        47                
+        23: invokevirtual #319                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+        26: ldc           #171                // String .class
+        28: invokevirtual #323                // Method java/lang/String.concat:(Ljava/lang/String;)Ljava/lang/String;
+        31: astore        7                 
+        33: aload         4                 
+        35: instanceof    #333                // class jdk/internal/module/ModulePatcher$PatchedModuleReader
+        38: ifeq          75                
+        41: aload         4                 
+        43: checkcast     #333                // class jdk/internal/module/ModulePatcher$PatchedModuleReader
+        46: aload         7                 
+        48: invokevirtual #335                // Method jdk/internal/module/ModulePatcher$PatchedModuleReader.findResource:(Ljava/lang/String;)Ljdk/internal/loader/Resource;
+        51: astore        8                 
+        53: aload         8                 
+        55: ifnull        72                
+        58: aload         8                 
+        60: invokevirtual #337                // Method jdk/internal/loader/Resource.getByteBuffer:()Ljava/nio/ByteBuffer;
+        63: astore        5                 
+        65: aload         8                 
+        67: invokevirtual #343                // Method jdk/internal/loader/Resource.getCodeSourceURL:()Ljava/net/URL;
+        70: astore        6                 
+        72: goto          99                
+        75: aload         4                 
+        77: aload         7                 
+        79: invokeinterface #346, 2             // InterfaceMethod java/lang/module/ModuleReader.read:(Ljava/lang/String;)Ljava/util/Optional;
+        84: aconst_null             
+        85: invokevirtual #144                // Method java/util/Optional.orElse:(Ljava/lang/Object;)Ljava/lang/Object;
+        88: checkcast     #349                // class java/nio/ByteBuffer
+        91: astore        5                 
+        93: aload_2                 
+        94: invokevirtual #351                // Method jdk/internal/loader/BuiltinClassLoader$LoadedModule.codeSourceURL:()Ljava/net/URL;
+        97: astore        6                 
+        99: aload         5                 
+       101: ifnonnull     106               
+       104: aconst_null             
+       105: areturn                 
+       106: new           #354                // class java/security/CodeSource
+       109: dup                     
+       110: aload         6                 
+       112: aconst_null             
+       113: checkcast     #356                // class "[Ljava/security/CodeSigner;"
+       116: invokespecial #358                // Method java/security/CodeSource."<init>":(Ljava/net/URL;[Ljava/security/CodeSigner;)V
+       119: astore        8                 
+       121: aload_0                 
+       122: aload_1                 
+       123: aload         5                 
+       125: aload         8                 
+       127: invokevirtual #361                // Method defineClass:(Ljava/lang/String;Ljava/nio/ByteBuffer;Ljava/security/CodeSource;)Ljava/lang/Class;
+       130: astore        9                 
+       132: aload         4                 
+       134: aload         5                 
+       136: invokeinterface #364, 2             // InterfaceMethod java/lang/module/ModuleReader.release:(Ljava/nio/ByteBuffer;)V
+       141: aload         9                 
+       143: areturn                 
+       144: astore        10                
+       146: aload         4                 
+       148: aload         5                 
+       150: invokeinterface #364, 2             // InterfaceMethod java/lang/module/ModuleReader.release:(Ljava/nio/ByteBuffer;)V
+       155: aload         10                
+       157: athrow                  
+       158: astore        5                 
+       160: aconst_null             
+       161: areturn                 
+      Exception table:
+          from       to target type
+           121      132   144  any
+           144      146   144  any
+            12      105   158  Class java/io/IOException
+           106      141   158  Class java/io/IOException
+           144      158   158  Class java/io/IOException
+      LineNumberTable:
+        line 706: 0
+        line 707: 5
+        line 710: 12
+        line 711: 15
+        line 715: 18
+        line 716: 33
+        line 717: 41
+        line 718: 53
+        line 719: 58
+        line 720: 65
+        line 722: 72
+        line 723: 75
+        line 724: 93
+        line 727: 99
+        line 729: 104
+        line 732: 106
+        line 735: 121
+        line 738: 132
+        line 735: 141
+        line 738: 144
+        line 739: 155
+        line 741: 158
+        line 743: 160
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          53       19     8  r      Ljdk/internal/loader/Resource;
+          15      143     5  bb     Ljava/nio/ByteBuffer;
+          18      140     6  csURL  Ljava/net/URL;
+          33      125     7  rn     Ljava/lang/String;
+         121       37     8  cs     Ljava/security/CodeSource;
+         160        2     5  ioe    Ljava/io/IOException;
+           0      162     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0      162     1  cn     Ljava/lang/String;
+           0      162     2  loadedModule Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;
+           5      157     3  mref   Ljava/lang/module/ModuleReference;
+          12      150     4  reader Ljava/lang/module/ModuleReader;
+      StackMapTable: number_of_entries = 6
+        frame_type = 255 /* full_frame */
+          offset_delta = 72
+          locals = [class jdk/internal/loader/BuiltinClassLoader, class java/lang/String, class jdk/internal/loader/BuiltinClassLoader$LoadedModule, class java/lang/module/ModuleReference, class java/lang/module/ModuleReader, class java/nio/ByteBuffer, class java/net/URL, class java/lang/String]
+          stack = []
+        frame_type = 2 /* same */
+        frame_type = 23 /* same */
+        frame_type = 6 /* same */
+        frame_type = 255 /* full_frame */
+          offset_delta = 37
+          locals = [class jdk/internal/loader/BuiltinClassLoader, class java/lang/String, class jdk/internal/loader/BuiltinClassLoader$LoadedModule, class java/lang/module/ModuleReference, class java/lang/module/ModuleReader, class java/nio/ByteBuffer, class java/net/URL, class java/lang/String, class java/security/CodeSource]
+          stack = [class java/lang/Throwable]
+        frame_type = 255 /* full_frame */
+          offset_delta = 13
+          locals = [class jdk/internal/loader/BuiltinClassLoader, class java/lang/String, class jdk/internal/loader/BuiltinClassLoader$LoadedModule, class java/lang/module/ModuleReference, class java/lang/module/ModuleReader]
+          stack = [class java/io/IOException]
+    Signature: #610                        // (Ljava/lang/String;Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;)Ljava/lang/Class<*>;
+  
+  private java.lang.Class<?> defineClass(java.lang.String, jdk.internal.loader.Resource) throws java.io.IOException;
+    descriptor: (Ljava/lang/String;Ljdk/internal/loader/Resource;)Ljava/lang/Class;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=6, locals=9, args_size=3
+         0: aload_2                 
+         1: invokevirtual #343                // Method jdk/internal/loader/Resource.getCodeSourceURL:()Ljava/net/URL;
+         4: astore_3                
+         5: aload_1                 
+         6: bipush        46                
+         8: invokevirtual #304                // Method java/lang/String.lastIndexOf:(I)I
+        11: istore        4                 
+        13: iload         4                 
+        15: iconst_m1               
+        16: if_icmpeq     44                
+        19: aload_1                 
+        20: iconst_0                
+        21: iload         4                 
+        23: invokevirtual #308                // Method java/lang/String.substring:(II)Ljava/lang/String;
+        26: astore        5                 
+        28: aload_2                 
+        29: invokevirtual #368                // Method jdk/internal/loader/Resource.getManifest:()Ljava/util/jar/Manifest;
+        32: astore        6                 
+        34: aload_0                 
+        35: aload         5                 
+        37: aload         6                 
+        39: aload_3                 
+        40: invokevirtual #372                // Method defineOrCheckPackage:(Ljava/lang/String;Ljava/util/jar/Manifest;Ljava/net/URL;)Ljava/lang/Package;
+        43: pop                     
+        44: aload_2                 
+        45: invokevirtual #337                // Method jdk/internal/loader/Resource.getByteBuffer:()Ljava/nio/ByteBuffer;
+        48: astore        5                 
+        50: aload         5                 
+        52: ifnull        83                
+        55: aload_2                 
+        56: invokevirtual #376                // Method jdk/internal/loader/Resource.getCodeSigners:()[Ljava/security/CodeSigner;
+        59: astore        6                 
+        61: new           #354                // class java/security/CodeSource
+        64: dup                     
+        65: aload_3                 
+        66: aload         6                 
+        68: invokespecial #358                // Method java/security/CodeSource."<init>":(Ljava/net/URL;[Ljava/security/CodeSigner;)V
+        71: astore        7                 
+        73: aload_0                 
+        74: aload_1                 
+        75: aload         5                 
+        77: aload         7                 
+        79: invokevirtual #361                // Method defineClass:(Ljava/lang/String;Ljava/nio/ByteBuffer;Ljava/security/CodeSource;)Ljava/lang/Class;
+        82: areturn                 
+        83: aload_2                 
+        84: invokevirtual #380                // Method jdk/internal/loader/Resource.getBytes:()[B
+        87: astore        6                 
+        89: aload_2                 
+        90: invokevirtual #376                // Method jdk/internal/loader/Resource.getCodeSigners:()[Ljava/security/CodeSigner;
+        93: astore        7                 
+        95: new           #354                // class java/security/CodeSource
+        98: dup                     
+        99: aload_3                 
+       100: aload         7                 
+       102: invokespecial #358                // Method java/security/CodeSource."<init>":(Ljava/net/URL;[Ljava/security/CodeSigner;)V
+       105: astore        8                 
+       107: aload_0                 
+       108: aload_1                 
+       109: aload         6                 
+       111: iconst_0                
+       112: aload         6                 
+       114: arraylength             
+       115: aload         8                 
+       117: invokevirtual #384                // Method defineClass:(Ljava/lang/String;[BIILjava/security/CodeSource;)Ljava/lang/Class;
+       120: areturn                 
+      LineNumberTable:
+        line 756: 0
+        line 759: 5
+        line 760: 13
+        line 761: 19
+        line 762: 28
+        line 763: 34
+        line 767: 44
+        line 768: 50
+        line 769: 55
+        line 770: 61
+        line 771: 73
+        line 773: 83
+        line 774: 89
+        line 775: 95
+        line 776: 107
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          28       16     5  pn     Ljava/lang/String;
+          34       10     6  man    Ljava/util/jar/Manifest;
+          61       22     6  signers [Ljava/security/CodeSigner;
+          73       10     7  cs     Ljava/security/CodeSource;
+          89       32     6  b      [B
+          95       26     7  signers [Ljava/security/CodeSigner;
+         107       14     8  cs     Ljava/security/CodeSource;
+           0      121     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0      121     1  cn     Ljava/lang/String;
+           0      121     2  res    Ljdk/internal/loader/Resource;
+           5      116     3  url    Ljava/net/URL;
+          13      108     4  pos    I
+          50       71     5  bb     Ljava/nio/ByteBuffer;
+      StackMapTable: number_of_entries = 2
+        frame_type = 253 /* append */
+          offset_delta = 44
+          locals = [class java/net/URL, int]
+        frame_type = 252 /* append */
+          offset_delta = 38
+          locals = [class java/nio/ByteBuffer]
+    Exceptions:
+      throws java.io.IOException
+    Signature: #616                        // (Ljava/lang/String;Ljdk/internal/loader/Resource;)Ljava/lang/Class<*>;
+  
+  protected java.lang.Package defineOrCheckPackage(java.lang.String, java.util.jar.Manifest, java.net.URL);
+    descriptor: (Ljava/lang/String;Ljava/util/jar/Manifest;Ljava/net/URL;)Ljava/lang/Package;
+    flags: (0x0004) ACC_PROTECTED
+    Code: 
+      stack=9, locals=6, args_size=4
+         0: aload_0                 
+         1: aload_1                 
+         2: aload_2                 
+         3: aload_3                 
+         4: invokevirtual #387                // Method getAndVerifyPackage:(Ljava/lang/String;Ljava/util/jar/Manifest;Ljava/net/URL;)Ljava/lang/Package;
+         7: astore        4                 
+         9: aload         4                 
+        11: ifnonnull     91                
+        14: aload_2                 
+        15: ifnull        30                
+        18: aload_0                 
+        19: aload_1                 
+        20: aload_2                 
+        21: aload_3                 
+        22: invokevirtual #390                // Method definePackage:(Ljava/lang/String;Ljava/util/jar/Manifest;Ljava/net/URL;)Ljava/lang/Package;
+        25: astore        4                 
+        27: goto          44                
+        30: aload_0                 
+        31: aload_1                 
+        32: aconst_null             
+        33: aconst_null             
+        34: aconst_null             
+        35: aconst_null             
+        36: aconst_null             
+        37: aconst_null             
+        38: aconst_null             
+        39: invokevirtual #393                // Method definePackage:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/net/URL;)Ljava/lang/Package;
+        42: astore        4                 
+        44: goto          91                
+        47: astore        5                 
+        49: aload_0                 
+        50: aload_1                 
+        51: aload_2                 
+        52: aload_3                 
+        53: invokevirtual #387                // Method getAndVerifyPackage:(Ljava/lang/String;Ljava/util/jar/Manifest;Ljava/net/URL;)Ljava/lang/Package;
+        56: astore        4                 
+        58: aload         4                 
+        60: ifnonnull     91                
+        63: new           #65                 // class java/lang/InternalError
+        66: dup                     
+        67: new           #67                 // class java/lang/StringBuilder
+        70: dup                     
+        71: invokespecial #69                 // Method java/lang/StringBuilder."<init>":()V
+        74: ldc_w         #396                // String Cannot find package: 
+        77: invokevirtual #70                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        80: aload_1                 
+        81: invokevirtual #70                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        84: invokevirtual #76                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        87: invokespecial #79                 // Method java/lang/InternalError."<init>":(Ljava/lang/String;)V
+        90: athrow                  
+        91: aload         4                 
+        93: areturn                 
+      Exception table:
+          from       to target type
+            14       44    47  Class java/lang/IllegalArgumentException
+      LineNumberTable:
+        line 791: 0
+        line 792: 9
+        line 794: 14
+        line 795: 18
+        line 797: 30
+        line 804: 44
+        line 799: 47
+        line 801: 49
+        line 802: 58
+        line 803: 63
+        line 806: 91
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          49       42     5  iae    Ljava/lang/IllegalArgumentException;
+           0       94     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0       94     1  pn     Ljava/lang/String;
+           0       94     2  man    Ljava/util/jar/Manifest;
+           0       94     3  url    Ljava/net/URL;
+           9       85     4  pkg    Ljava/lang/Package;
+      StackMapTable: number_of_entries = 4
+        frame_type = 252 /* append */
+          offset_delta = 30
+          locals = [class java/lang/Package]
+        frame_type = 13 /* same */
+        frame_type = 66 /* same_locals_1_stack_item */
+          stack = [ class java/lang/IllegalArgumentException ]
+        frame_type = 43 /* same */
+  
+  private java.lang.Package getAndVerifyPackage(java.lang.String, java.util.jar.Manifest, java.net.URL);
+    descriptor: (Ljava/lang/String;Ljava/util/jar/Manifest;Ljava/net/URL;)Ljava/lang/Package;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=4, locals=5, args_size=4
+         0: aload_0                 
+         1: aload_1                 
+         2: invokevirtual #398                // Method getDefinedPackage:(Ljava/lang/String;)Ljava/lang/Package;
+         5: astore        4                 
+         7: aload         4                 
+         9: ifnull        110               
+        12: aload         4                 
+        14: invokevirtual #402                // Method java/lang/Package.isSealed:()Z
+        17: ifeq          63                
+        20: aload         4                 
+        22: aload_3                 
+        23: invokevirtual #407                // Method java/lang/Package.isSealed:(Ljava/net/URL;)Z
+        26: ifne          110               
+        29: new           #410                // class java/lang/SecurityException
+        32: dup                     
+        33: new           #67                 // class java/lang/StringBuilder
+        36: dup                     
+        37: invokespecial #69                 // Method java/lang/StringBuilder."<init>":()V
+        40: ldc_w         #412                // String sealing violation: package 
+        43: invokevirtual #70                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        46: aload_1                 
+        47: invokevirtual #70                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        50: ldc_w         #414                // String  is sealed
+        53: invokevirtual #70                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        56: invokevirtual #76                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        59: invokespecial #416                // Method java/lang/SecurityException."<init>":(Ljava/lang/String;)V
+        62: athrow                  
+        63: aload_2                 
+        64: ifnull        110               
+        67: aload_0                 
+        68: aload_1                 
+        69: aload_2                 
+        70: invokevirtual #417                // Method isSealed:(Ljava/lang/String;Ljava/util/jar/Manifest;)Z
+        73: ifeq          110               
+        76: new           #410                // class java/lang/SecurityException
+        79: dup                     
+        80: new           #67                 // class java/lang/StringBuilder
+        83: dup                     
+        84: invokespecial #69                 // Method java/lang/StringBuilder."<init>":()V
+        87: ldc_w         #420                // String sealing violation: can\'t seal package 
+        90: invokevirtual #70                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        93: aload_1                 
+        94: invokevirtual #70                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        97: ldc_w         #422                // String : already defined
+       100: invokevirtual #70                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+       103: invokevirtual #76                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+       106: invokespecial #416                // Method java/lang/SecurityException."<init>":(Ljava/lang/String;)V
+       109: athrow                  
+       110: aload         4                 
+       112: areturn                 
+      LineNumberTable:
+        line 816: 0
+        line 817: 7
+        line 818: 12
+        line 819: 20
+        line 820: 29
+        line 825: 63
+        line 826: 76
+        line 832: 110
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0      113     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0      113     1  pn     Ljava/lang/String;
+           0      113     2  man    Ljava/util/jar/Manifest;
+           0      113     3  url    Ljava/net/URL;
+           7      106     4  pkg    Ljava/lang/Package;
+      StackMapTable: number_of_entries = 2
+        frame_type = 252 /* append */
+          offset_delta = 63
+          locals = [class java/lang/Package]
+        frame_type = 46 /* same */
+  
+  private java.lang.Package definePackage(java.lang.String, java.util.jar.Manifest, java.net.URL);
+    descriptor: (Ljava/lang/String;Ljava/util/jar/Manifest;Ljava/net/URL;)Ljava/lang/Package;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=9, locals=13, args_size=4
+         0: aconst_null             
+         1: astore        4                 
+         3: aconst_null             
+         4: astore        5                 
+         6: aconst_null             
+         7: astore        6                 
+         9: aconst_null             
+        10: astore        7                 
+        12: aconst_null             
+        13: astore        8                 
+        15: aconst_null             
+        16: astore        9                 
+        18: aconst_null             
+        19: astore        10                
+        21: aconst_null             
+        22: astore        11                
+        24: aload_2                 
+        25: ifnull        257               
+        28: invokestatic  #424                // Method jdk/internal/access/SharedSecrets.javaUtilJarAccess:()Ljdk/internal/access/JavaUtilJarAccess;
+        31: aload_2                 
+        32: aload_1                 
+        33: bipush        46                
+        35: bipush        47                
+        37: invokevirtual #319                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+        40: ldc           #178                // String /
+        42: invokevirtual #323                // Method java/lang/String.concat:(Ljava/lang/String;)Ljava/lang/String;
+        45: invokeinterface #430, 3             // InterfaceMethod jdk/internal/access/JavaUtilJarAccess.getTrustedAttributes:(Ljava/util/jar/Manifest;Ljava/lang/String;)Ljava/util/jar/Attributes;
+        50: astore        12                
+        52: aload         12                
+        54: ifnull        127               
+        57: aload         12                
+        59: getstatic     #436                // Field java/util/jar/Attributes$Name.SPECIFICATION_TITLE:Ljava/util/jar/Attributes$Name;
+        62: invokevirtual #442                // Method java/util/jar/Attributes.getValue:(Ljava/util/jar/Attributes$Name;)Ljava/lang/String;
+        65: astore        4                 
+        67: aload         12                
+        69: getstatic     #448                // Field java/util/jar/Attributes$Name.SPECIFICATION_VERSION:Ljava/util/jar/Attributes$Name;
+        72: invokevirtual #442                // Method java/util/jar/Attributes.getValue:(Ljava/util/jar/Attributes$Name;)Ljava/lang/String;
+        75: astore        5                 
+        77: aload         12                
+        79: getstatic     #451                // Field java/util/jar/Attributes$Name.SPECIFICATION_VENDOR:Ljava/util/jar/Attributes$Name;
+        82: invokevirtual #442                // Method java/util/jar/Attributes.getValue:(Ljava/util/jar/Attributes$Name;)Ljava/lang/String;
+        85: astore        6                 
+        87: aload         12                
+        89: getstatic     #454                // Field java/util/jar/Attributes$Name.IMPLEMENTATION_TITLE:Ljava/util/jar/Attributes$Name;
+        92: invokevirtual #442                // Method java/util/jar/Attributes.getValue:(Ljava/util/jar/Attributes$Name;)Ljava/lang/String;
+        95: astore        7                 
+        97: aload         12                
+        99: getstatic     #457                // Field java/util/jar/Attributes$Name.IMPLEMENTATION_VERSION:Ljava/util/jar/Attributes$Name;
+       102: invokevirtual #442                // Method java/util/jar/Attributes.getValue:(Ljava/util/jar/Attributes$Name;)Ljava/lang/String;
+       105: astore        8                 
+       107: aload         12                
+       109: getstatic     #460                // Field java/util/jar/Attributes$Name.IMPLEMENTATION_VENDOR:Ljava/util/jar/Attributes$Name;
+       112: invokevirtual #442                // Method java/util/jar/Attributes.getValue:(Ljava/util/jar/Attributes$Name;)Ljava/lang/String;
+       115: astore        9                 
+       117: aload         12                
+       119: getstatic     #463                // Field java/util/jar/Attributes$Name.SEALED:Ljava/util/jar/Attributes$Name;
+       122: invokevirtual #442                // Method java/util/jar/Attributes.getValue:(Ljava/util/jar/Attributes$Name;)Ljava/lang/String;
+       125: astore        10                
+       127: aload_2                 
+       128: invokevirtual #466                // Method java/util/jar/Manifest.getMainAttributes:()Ljava/util/jar/Attributes;
+       131: astore        12                
+       133: aload         12                
+       135: ifnull        243               
+       138: aload         4                 
+       140: ifnonnull     153               
+       143: aload         12                
+       145: getstatic     #436                // Field java/util/jar/Attributes$Name.SPECIFICATION_TITLE:Ljava/util/jar/Attributes$Name;
+       148: invokevirtual #442                // Method java/util/jar/Attributes.getValue:(Ljava/util/jar/Attributes$Name;)Ljava/lang/String;
+       151: astore        4                 
+       153: aload         5                 
+       155: ifnonnull     168               
+       158: aload         12                
+       160: getstatic     #448                // Field java/util/jar/Attributes$Name.SPECIFICATION_VERSION:Ljava/util/jar/Attributes$Name;
+       163: invokevirtual #442                // Method java/util/jar/Attributes.getValue:(Ljava/util/jar/Attributes$Name;)Ljava/lang/String;
+       166: astore        5                 
+       168: aload         6                 
+       170: ifnonnull     183               
+       173: aload         12                
+       175: getstatic     #451                // Field java/util/jar/Attributes$Name.SPECIFICATION_VENDOR:Ljava/util/jar/Attributes$Name;
+       178: invokevirtual #442                // Method java/util/jar/Attributes.getValue:(Ljava/util/jar/Attributes$Name;)Ljava/lang/String;
+       181: astore        6                 
+       183: aload         7                 
+       185: ifnonnull     198               
+       188: aload         12                
+       190: getstatic     #454                // Field java/util/jar/Attributes$Name.IMPLEMENTATION_TITLE:Ljava/util/jar/Attributes$Name;
+       193: invokevirtual #442                // Method java/util/jar/Attributes.getValue:(Ljava/util/jar/Attributes$Name;)Ljava/lang/String;
+       196: astore        7                 
+       198: aload         8                 
+       200: ifnonnull     213               
+       203: aload         12                
+       205: getstatic     #457                // Field java/util/jar/Attributes$Name.IMPLEMENTATION_VERSION:Ljava/util/jar/Attributes$Name;
+       208: invokevirtual #442                // Method java/util/jar/Attributes.getValue:(Ljava/util/jar/Attributes$Name;)Ljava/lang/String;
+       211: astore        8                 
+       213: aload         9                 
+       215: ifnonnull     228               
+       218: aload         12                
+       220: getstatic     #460                // Field java/util/jar/Attributes$Name.IMPLEMENTATION_VENDOR:Ljava/util/jar/Attributes$Name;
+       223: invokevirtual #442                // Method java/util/jar/Attributes.getValue:(Ljava/util/jar/Attributes$Name;)Ljava/lang/String;
+       226: astore        9                 
+       228: aload         10                
+       230: ifnonnull     243               
+       233: aload         12                
+       235: getstatic     #463                // Field java/util/jar/Attributes$Name.SEALED:Ljava/util/jar/Attributes$Name;
+       238: invokevirtual #442                // Method java/util/jar/Attributes.getValue:(Ljava/util/jar/Attributes$Name;)Ljava/lang/String;
+       241: astore        10                
+       243: ldc_w         #472                // String true
+       246: aload         10                
+       248: invokevirtual #474                // Method java/lang/String.equalsIgnoreCase:(Ljava/lang/String;)Z
+       251: ifeq          257               
+       254: aload_3                 
+       255: astore        11                
+       257: aload_0                 
+       258: aload_1                 
+       259: aload         4                 
+       261: aload         5                 
+       263: aload         6                 
+       265: aload         7                 
+       267: aload         8                 
+       269: aload         9                 
+       271: aload         11                
+       273: invokevirtual #393                // Method definePackage:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/net/URL;)Ljava/lang/Package;
+       276: areturn                 
+      LineNumberTable:
+        line 844: 0
+        line 845: 3
+        line 846: 6
+        line 847: 9
+        line 848: 12
+        line 849: 15
+        line 850: 18
+        line 851: 21
+        line 853: 24
+        line 854: 28
+        line 855: 37
+        line 856: 52
+        line 857: 57
+        line 858: 67
+        line 859: 77
+        line 860: 87
+        line 861: 97
+        line 862: 107
+        line 863: 117
+        line 866: 127
+        line 867: 133
+        line 868: 138
+        line 869: 143
+        line 870: 153
+        line 871: 158
+        line 872: 168
+        line 873: 173
+        line 874: 183
+        line 875: 188
+        line 876: 198
+        line 877: 203
+        line 878: 213
+        line 879: 218
+        line 880: 228
+        line 881: 233
+        line 885: 243
+        line 886: 254
+        line 888: 257
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          52      205    12  attr   Ljava/util/jar/Attributes;
+           0      277     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0      277     1  pn     Ljava/lang/String;
+           0      277     2  man    Ljava/util/jar/Manifest;
+           0      277     3  url    Ljava/net/URL;
+           3      274     4  specTitle Ljava/lang/String;
+           6      271     5  specVersion Ljava/lang/String;
+           9      268     6  specVendor Ljava/lang/String;
+          12      265     7  implTitle Ljava/lang/String;
+          15      262     8  implVersion Ljava/lang/String;
+          18      259     9  implVendor Ljava/lang/String;
+          21      256    10  sealed Ljava/lang/String;
+          24      253    11  sealBase Ljava/net/URL;
+      StackMapTable: number_of_entries = 9
+        frame_type = 255 /* full_frame */
+          offset_delta = 127
+          locals = [class jdk/internal/loader/BuiltinClassLoader, class java/lang/String, class java/util/jar/Manifest, class java/net/URL, class java/lang/String, class java/lang/String, class java/lang/String, class java/lang/String, class java/lang/String, class java/lang/String, class java/lang/String, class java/net/URL, class java/util/jar/Attributes]
+          stack = []
+        frame_type = 25 /* same */
+        frame_type = 14 /* same */
+        frame_type = 14 /* same */
+        frame_type = 14 /* same */
+        frame_type = 14 /* same */
+        frame_type = 14 /* same */
+        frame_type = 14 /* same */
+        frame_type = 250 /* chop */
+          offset_delta = 13
+  
+  private boolean isSealed(java.lang.String, java.util.jar.Manifest);
+    descriptor: (Ljava/lang/String;Ljava/util/jar/Manifest;)Z
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=5, locals=5, args_size=3
+         0: invokestatic  #424                // Method jdk/internal/access/SharedSecrets.javaUtilJarAccess:()Ljdk/internal/access/JavaUtilJarAccess;
+         3: aload_2                 
+         4: aload_1                 
+         5: bipush        46                
+         7: bipush        47                
+         9: invokevirtual #319                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+        12: ldc           #178                // String /
+        14: invokevirtual #323                // Method java/lang/String.concat:(Ljava/lang/String;)Ljava/lang/String;
+        17: invokeinterface #430, 3             // InterfaceMethod jdk/internal/access/JavaUtilJarAccess.getTrustedAttributes:(Ljava/util/jar/Manifest;Ljava/lang/String;)Ljava/util/jar/Attributes;
+        22: astore_3                
+        23: aconst_null             
+        24: astore        4                 
+        26: aload_3                 
+        27: ifnull        39                
+        30: aload_3                 
+        31: getstatic     #463                // Field java/util/jar/Attributes$Name.SEALED:Ljava/util/jar/Attributes$Name;
+        34: invokevirtual #442                // Method java/util/jar/Attributes.getValue:(Ljava/util/jar/Attributes$Name;)Ljava/lang/String;
+        37: astore        4                 
+        39: aload         4                 
+        41: ifnonnull     62                
+        44: aload_2                 
+        45: invokevirtual #466                // Method java/util/jar/Manifest.getMainAttributes:()Ljava/util/jar/Attributes;
+        48: dup                     
+        49: astore_3                
+        50: ifnull        62                
+        53: aload_3                 
+        54: getstatic     #463                // Field java/util/jar/Attributes$Name.SEALED:Ljava/util/jar/Attributes$Name;
+        57: invokevirtual #442                // Method java/util/jar/Attributes.getValue:(Ljava/util/jar/Attributes$Name;)Ljava/lang/String;
+        60: astore        4                 
+        62: ldc_w         #472                // String true
+        65: aload         4                 
+        67: invokevirtual #474                // Method java/lang/String.equalsIgnoreCase:(Ljava/lang/String;)Z
+        70: ireturn                 
+      LineNumberTable:
+        line 905: 0
+        line 906: 9
+        line 907: 23
+        line 908: 26
+        line 909: 30
+        line 910: 39
+        line 911: 53
+        line 912: 62
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       71     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0       71     1  pn     Ljava/lang/String;
+           0       71     2  man    Ljava/util/jar/Manifest;
+          23       48     3  attr   Ljava/util/jar/Attributes;
+          26       45     4  sealed Ljava/lang/String;
+      StackMapTable: number_of_entries = 2
+        frame_type = 253 /* append */
+          offset_delta = 39
+          locals = [class java/util/jar/Attributes, class java/lang/String]
+        frame_type = 22 /* same */
+  
+  private java.lang.module.ModuleReader moduleReaderFor(java.lang.module.ModuleReference);
+    descriptor: (Ljava/lang/module/ModuleReference;)Ljava/lang/module/ModuleReader;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=4, locals=4, args_size=2
+         0: aload_0                 
+         1: getfield      #38                 // Field moduleToReader:Ljava/util/Map;
+         4: aload_1                 
+         5: invokeinterface #122, 2             // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        10: checkcast     #139                // class java/lang/module/ModuleReader
+        13: astore_2                
+        14: aload_2                 
+        15: ifnonnull     43                
+        18: new           #477                // class jdk/internal/loader/BuiltinClassLoader$2
+        21: dup                     
+        22: aload_0                 
+        23: aload_1                 
+        24: invokespecial #479                // Method jdk/internal/loader/BuiltinClassLoader$2."<init>":(Ljdk/internal/loader/BuiltinClassLoader;Ljava/lang/module/ModuleReference;)V
+        27: astore_3                
+        28: aload_0                 
+        29: getfield      #38                 // Field moduleToReader:Ljava/util/Map;
+        32: aload_1                 
+        33: aload_3                 
+        34: invokeinterface #480, 3             // InterfaceMethod java/util/Map.computeIfAbsent:(Ljava/lang/Object;Ljava/util/function/Function;)Ljava/lang/Object;
+        39: checkcast     #139                // class java/lang/module/ModuleReader
+        42: astore_2                
+        43: aload_2                 
+        44: areturn                 
+      LineNumberTable:
+        line 921: 0
+        line 922: 14
+        line 924: 18
+        line 935: 28
+        line 937: 43
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          28       15     3  create Ljava/util/function/Function;
+           0       45     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0       45     1  mref   Ljava/lang/module/ModuleReference;
+          14       31     2  reader Ljava/lang/module/ModuleReader;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            28       15     3  create   Ljava/util/function/Function<Ljava/lang/module/ModuleReference;Ljava/lang/module/ModuleReader;>;
+      StackMapTable: number_of_entries = 1
+        frame_type = 252 /* append */
+          offset_delta = 43
+          locals = [class java/lang/module/ModuleReader]
+  
+  private boolean isOpen(java.lang.module.ModuleReference, java.lang.String);
+    descriptor: (Ljava/lang/module/ModuleReference;Ljava/lang/String;)Z
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=2, locals=7, args_size=3
+         0: aload_1                 
+         1: invokevirtual #47                 // Method java/lang/module/ModuleReference.descriptor:()Ljava/lang/module/ModuleDescriptor;
+         4: astore_3                
+         5: aload_3                 
+         6: invokevirtual #484                // Method java/lang/module/ModuleDescriptor.isOpen:()Z
+         9: ifne          19                
+        12: aload_3                 
+        13: invokevirtual #486                // Method java/lang/module/ModuleDescriptor.isAutomatic:()Z
+        16: ifeq          21                
+        19: iconst_1                
+        20: ireturn                 
+        21: aload_3                 
+        22: invokevirtual #489                // Method java/lang/module/ModuleDescriptor.opens:()Ljava/util/Set;
+        25: invokeinterface #90, 1              // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        30: astore        4                 
+        32: aload         4                 
+        34: invokeinterface #96, 1              // InterfaceMethod java/util/Iterator.hasNext:()Z
+        39: ifeq          83                
+        42: aload         4                 
+        44: invokeinterface #102, 1             // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        49: checkcast     #492                // class java/lang/module/ModuleDescriptor$Opens
+        52: astore        5                 
+        54: aload         5                 
+        56: invokevirtual #494                // Method java/lang/module/ModuleDescriptor$Opens.source:()Ljava/lang/String;
+        59: astore        6                 
+        61: aload         5                 
+        63: invokevirtual #497                // Method java/lang/module/ModuleDescriptor$Opens.isQualified:()Z
+        66: ifne          80                
+        69: aload         6                 
+        71: aload_2                 
+        72: invokevirtual #312                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+        75: ifeq          80                
+        78: iconst_1                
+        79: ireturn                 
+        80: goto          32                
+        83: iconst_0                
+        84: ireturn                 
+      LineNumberTable:
+        line 967: 0
+        line 968: 5
+        line 969: 19
+        line 970: 21
+        line 971: 54
+        line 972: 61
+        line 973: 78
+        line 975: 80
+        line 976: 83
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          61       19     6  source Ljava/lang/String;
+          54       26     5  opens  Ljava/lang/module/ModuleDescriptor$Opens;
+           0       85     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+           0       85     1  mref   Ljava/lang/module/ModuleReference;
+           0       85     2  pn     Ljava/lang/String;
+           5       80     3  descriptor Ljava/lang/module/ModuleDescriptor;
+      StackMapTable: number_of_entries = 5
+        frame_type = 252 /* append */
+          offset_delta = 19
+          locals = [class java/lang/module/ModuleDescriptor]
+        frame_type = 1 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 10
+          locals = [class java/util/Iterator]
+        frame_type = 47 /* same */
+        frame_type = 250 /* chop */
+          offset_delta = 2
+  
+  private void resetArchivedStates();
+    descriptor: ()V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: aload_0                 
+         1: aconst_null             
+         2: putfield      #23                 // Field ucp:Ljdk/internal/loader/URLClassPath;
+         5: aload_0                 
+         6: aconst_null             
+         7: putfield      #113                // Field resourceCache:Ljava/lang/ref/SoftReference;
+        10: aload_0                 
+        11: getfield      #38                 // Field moduleToReader:Ljava/util/Map;
+        14: invokeinterface #500, 1             // InterfaceMethod java/util/Map.isEmpty:()Z
+        19: ifne          31                
+        22: aload_0                 
+        23: getfield      #38                 // Field moduleToReader:Ljava/util/Map;
+        26: invokeinterface #501, 1             // InterfaceMethod java/util/Map.clear:()V
+        31: return                  
+      LineNumberTable:
+        line 981: 0
+        line 982: 5
+        line 983: 10
+        line 984: 22
+        line 986: 31
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       32     0  this   Ljdk/internal/loader/BuiltinClassLoader;
+      StackMapTable: number_of_entries = 1
+        frame_type = 31 /* same */
+  
+  static {};
+    descriptor: ()V
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=3, locals=2, args_size=0
+         0: ldc           #2                  // class jdk/internal/loader/BuiltinClassLoader
+         2: invokevirtual #504                // Method java/lang/Class.desiredAssertionStatus:()Z
+         5: ifne          12                
+         8: iconst_1                
+         9: goto          13                
+        12: iconst_0                
+        13: putstatic     #280                // Field $assertionsDisabled:Z
+        16: invokestatic  #509                // Method java/lang/ClassLoader.registerAsParallelCapable:()Z
+        19: ifne          33                
+        22: new           #65                 // class java/lang/InternalError
+        25: dup                     
+        26: ldc_w         #514                // String Unable to register as parallel capable
+        29: invokespecial #79                 // Method java/lang/InternalError."<init>":(Ljava/lang/String;)V
+        32: athrow                  
+        33: invokestatic  #516                // Method jdk/internal/loader/ArchivedClassLoaders.get:()Ljdk/internal/loader/ArchivedClassLoaders;
+        36: astore_0                
+        37: aload_0                 
+        38: ifnull        53                
+        41: aload_0                 
+        42: invokevirtual #521                // Method jdk/internal/loader/ArchivedClassLoaders.packageToModule:()Ljava/util/Map;
+        45: astore_1                
+        46: aload_1                 
+        47: putstatic     #1                  // Field packageToModule:Ljava/util/Map;
+        50: goto          66                
+        53: new           #27                 // class java/util/concurrent/ConcurrentHashMap
+        56: dup                     
+        57: sipush        1024              
+        60: invokespecial #29                 // Method java/util/concurrent/ConcurrentHashMap."<init>":(I)V
+        63: putstatic     #1                  // Field packageToModule:Ljava/util/Map;
+        66: return                  
+      LineNumberTable:
+        line 89: 0
+        line 93: 16
+        line 94: 22
+        line 155: 33
+        line 156: 37
+        line 158: 41
+        line 159: 42
+        line 160: 46
+        line 161: 50
+        line 162: 53
+        line 164: 66
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          46        4     1  map    Ljava/util/Map;
+          37       29     0  archivedClassLoaders Ljdk/internal/loader/ArchivedClassLoaders;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            46        4     1  map    Ljava/util/Map<Ljava/lang/String;Ljdk/internal/loader/BuiltinClassLoader$LoadedModule;>;
+      StackMapTable: number_of_entries = 5
+        frame_type = 12 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 19 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 19
+          locals = [class jdk/internal/loader/ArchivedClassLoaders]
+        frame_type = 250 /* chop */
+          offset_delta = 12
+}
+SourceFile: "BuiltinClassLoader.java"
+NestMembers:
+  jdk/internal/loader/BuiltinClassLoader$NullModuleReader
+  jdk/internal/loader/BuiltinClassLoader$LoadedModule
+  jdk/internal/loader/BuiltinClassLoader$2
+  jdk/internal/loader/BuiltinClassLoader$1
+InnerClasses:
+  private static #645= #81 of #2;             // LoadedModule=class jdk/internal/loader/BuiltinClassLoader$LoadedModule of class jdk/internal/loader/BuiltinClassLoader
+  #212;                                       // class jdk/internal/loader/BuiltinClassLoader$1
+  public static #648= #333 of #646;           // PatchedModuleReader=class jdk/internal/module/ModulePatcher$PatchedModuleReader of class jdk/internal/module/ModulePatcher
+  public static #649= #437 of #443;           // Name=class java/util/jar/Attributes$Name of class java/util/jar/Attributes
+  #477;                                       // class jdk/internal/loader/BuiltinClassLoader$2
+  public static final #650= #492 of #54;      // Opens=class java/lang/module/ModuleDescriptor$Opens of class java/lang/module/ModuleDescriptor
+  private static #651= #642 of #2;            // NullModuleReader=class jdk/internal/loader/BuiltinClassLoader$NullModuleReader of class jdk/internal/loader/BuiltinClassLoader

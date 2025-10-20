@@ -23,7 +23,7 @@ pub struct BootstrapJmodClassLoader {
 impl BootstrapJmodClassLoader {
     //TODO: remove afterwards
     fn prepare_tested_classes() -> HashSet<String> {
-        let fixtures_toml = include_str!("../../../class_file/fixtures.toml");
+        let fixtures_toml = include_str!("../../../jclass/fixtures.toml");
         let root_value: Value = fixtures_toml.parse().expect("Failed to parse TOML");
 
         let classes_set: HashSet<String> = root_value

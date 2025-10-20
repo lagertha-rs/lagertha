@@ -1,0 +1,627 @@
+---
+source: jclass/src/lib.rs
+expression: display
+---
+public final class java.lang.Boolean extends java.lang.Object implements java.io.Serializable, java.lang.Comparable<java.lang.Boolean>, java.lang.constant.Constable
+  minor version: 0
+  major version: 68
+  flags: (0x0031) ACC_PUBLIC, ACC_FINAL, ACC_SUPER
+  this_class: #8                       //java/lang/Boolean
+  super_class: #2                      //java/lang/Object
+  interfaces: 3, fields: 5, methods: 20, attributes: 3
+Constant pool:
+    #1 = Methodref          #2.#3            // java/lang/Object."<init>":()V
+    #2 = Class              #4               // java/lang/Object
+    #3 = NameAndType        #5:#6            // "<init>":()V
+    #4 = Utf8               java/lang/Object
+    #5 = Utf8               <init>
+    #6 = Utf8               ()V
+    #7 = Fieldref           #8.#9            // java/lang/Boolean.value:Z
+    #8 = Class              #10              // java/lang/Boolean
+    #9 = NameAndType        #11:#12          // value:Z
+   #10 = Utf8               java/lang/Boolean
+   #11 = Utf8               value
+   #12 = Utf8               Z
+   #13 = Methodref          #8.#14           // java/lang/Boolean.parseBoolean:(Ljava/lang/String;)Z
+   #14 = NameAndType        #15:#16          // parseBoolean:(Ljava/lang/String;)Z
+   #15 = Utf8               parseBoolean
+   #16 = Utf8               (Ljava/lang/String;)Z
+   #17 = Methodref          #8.#18           // java/lang/Boolean."<init>":(Z)V
+   #18 = NameAndType        #5:#19           // "<init>":(Z)V
+   #19 = Utf8               (Z)V
+   #20 = String             #21              // true
+   #21 = Utf8               true
+   #22 = Methodref          #23.#24          // java/lang/String.equalsIgnoreCase:(Ljava/lang/String;)Z
+   #23 = Class              #25              // java/lang/String
+   #24 = NameAndType        #26:#16          // equalsIgnoreCase:(Ljava/lang/String;)Z
+   #25 = Utf8               java/lang/String
+   #26 = Utf8               equalsIgnoreCase
+   #27 = Fieldref           #8.#28           // java/lang/Boolean.TRUE:Ljava/lang/Boolean;
+   #28 = NameAndType        #29:#30          // TRUE:Ljava/lang/Boolean;
+   #29 = Utf8               TRUE
+   #30 = Utf8               Ljava/lang/Boolean;
+   #31 = Fieldref           #8.#32           // java/lang/Boolean.FALSE:Ljava/lang/Boolean;
+   #32 = NameAndType        #33:#30          // FALSE:Ljava/lang/Boolean;
+   #33 = Utf8               FALSE
+   #34 = Methodref          #23.#35          // java/lang/String.valueOf:(Z)Ljava/lang/String;
+   #35 = NameAndType        #36:#37          // valueOf:(Z)Ljava/lang/String;
+   #36 = Utf8               valueOf
+   #37 = Utf8               (Z)Ljava/lang/String;
+   #38 = Methodref          #8.#39           // java/lang/Boolean.hashCode:(Z)I
+   #39 = NameAndType        #40:#41          // hashCode:(Z)I
+   #40 = Utf8               hashCode
+   #41 = Utf8               (Z)I
+   #42 = Methodref          #8.#43           // java/lang/Boolean.booleanValue:()Z
+   #43 = NameAndType        #44:#45          // booleanValue:()Z
+   #44 = Utf8               booleanValue
+   #45 = Utf8               ()Z
+   #46 = Methodref          #23.#47          // java/lang/String.isEmpty:()Z
+   #47 = NameAndType        #48:#45          // isEmpty:()Z
+   #48 = Utf8               isEmpty
+   #49 = Methodref          #50.#51          // java/lang/System.getProperty:(Ljava/lang/String;)Ljava/lang/String;
+   #50 = Class              #52              // java/lang/System
+   #51 = NameAndType        #53:#54          // getProperty:(Ljava/lang/String;)Ljava/lang/String;
+   #52 = Utf8               java/lang/System
+   #53 = Utf8               getProperty
+   #54 = Utf8               (Ljava/lang/String;)Ljava/lang/String;
+   #55 = Methodref          #8.#56           // java/lang/Boolean.compare:(ZZ)I
+   #56 = NameAndType        #57:#58          // compare:(ZZ)I
+   #57 = Utf8               compare
+   #58 = Utf8               (ZZ)I
+   #59 = Fieldref           #60.#61          // java/lang/constant/ConstantDescs.TRUE:Ljava/lang/constant/DynamicConstantDesc;
+   #60 = Class              #62              // java/lang/constant/ConstantDescs
+   #61 = NameAndType        #29:#63          // TRUE:Ljava/lang/constant/DynamicConstantDesc;
+   #62 = Utf8               java/lang/constant/ConstantDescs
+   #63 = Utf8               Ljava/lang/constant/DynamicConstantDesc;
+   #64 = Fieldref           #60.#65          // java/lang/constant/ConstantDescs.FALSE:Ljava/lang/constant/DynamicConstantDesc;
+   #65 = NameAndType        #33:#63          // FALSE:Ljava/lang/constant/DynamicConstantDesc;
+   #66 = Methodref          #67.#68          // java/util/Optional.of:(Ljava/lang/Object;)Ljava/util/Optional;
+   #67 = Class              #69              // java/util/Optional
+   #68 = NameAndType        #70:#71          // of:(Ljava/lang/Object;)Ljava/util/Optional;
+   #69 = Utf8               java/util/Optional
+   #70 = Utf8               of
+   #71 = Utf8               (Ljava/lang/Object;)Ljava/util/Optional;
+   #72 = Methodref          #8.#73           // java/lang/Boolean.compareTo:(Ljava/lang/Boolean;)I
+   #73 = NameAndType        #74:#75          // compareTo:(Ljava/lang/Boolean;)I
+   #74 = Utf8               compareTo
+   #75 = Utf8               (Ljava/lang/Boolean;)I
+   #76 = String             #77              // boolean
+   #77 = Utf8               boolean
+   #78 = Methodref          #79.#80          // java/lang/Class.getPrimitiveClass:(Ljava/lang/String;)Ljava/lang/Class;
+   #79 = Class              #81              // java/lang/Class
+   #80 = NameAndType        #82:#83          // getPrimitiveClass:(Ljava/lang/String;)Ljava/lang/Class;
+   #81 = Utf8               java/lang/Class
+   #82 = Utf8               getPrimitiveClass
+   #83 = Utf8               (Ljava/lang/String;)Ljava/lang/Class;
+   #84 = Fieldref           #8.#85           // java/lang/Boolean.TYPE:Ljava/lang/Class;
+   #85 = NameAndType        #86:#87          // TYPE:Ljava/lang/Class;
+   #86 = Utf8               TYPE
+   #87 = Utf8               Ljava/lang/Class;
+   #88 = Class              #89              // java/io/Serializable
+   #89 = Utf8               java/io/Serializable
+   #90 = Class              #91              // java/lang/Comparable
+   #91 = Utf8               java/lang/Comparable
+   #92 = Class              #93              // java/lang/constant/Constable
+   #93 = Utf8               java/lang/constant/Constable
+   #94 = Utf8               Signature
+   #95 = Utf8               Ljava/lang/Class<Ljava/lang/Boolean;>;
+   #96 = Utf8               serialVersionUID
+   #97 = Utf8               J
+   #98 = Utf8               ConstantValue
+   #99 = Long               -3665804199014368530l
+  #101 = Utf8               Code
+  #102 = Utf8               LineNumberTable
+  #103 = Utf8               LocalVariableTable
+  #104 = Utf8               this
+  #105 = Utf8               Deprecated
+  #106 = Utf8               RuntimeVisibleAnnotations
+  #107 = Utf8               Ljava/lang/Deprecated;
+  #108 = Utf8               since
+  #109 = Utf8               9
+  #110 = Utf8               forRemoval
+  #111 = Integer            1
+  #112 = Utf8               (Ljava/lang/String;)V
+  #113 = Utf8               s
+  #114 = Utf8               Ljava/lang/String;
+  #115 = Utf8               Ljdk/internal/vm/annotation/IntrinsicCandidate;
+  #116 = Utf8               (Z)Ljava/lang/Boolean;
+  #117 = Utf8               b
+  #118 = Utf8               StackMapTable
+  #119 = Utf8               (Ljava/lang/String;)Ljava/lang/Boolean;
+  #120 = Utf8               toString
+  #121 = Utf8               ()Ljava/lang/String;
+  #122 = Utf8               ()I
+  #123 = Utf8               equals
+  #124 = Utf8               (Ljava/lang/Object;)Z
+  #125 = Utf8               obj
+  #126 = Utf8               Ljava/lang/Object;
+  #127 = Utf8               getBoolean
+  #128 = Utf8               name
+  #129 = Utf8               x
+  #130 = Utf8               y
+  #131 = Utf8               logicalAnd
+  #132 = Utf8               (ZZ)Z
+  #133 = Utf8               a
+  #134 = Utf8               logicalOr
+  #135 = Utf8               logicalXor
+  #136 = Utf8               describeConstable
+  #137 = Utf8               ()Ljava/util/Optional;
+  #138 = Class              #139             // java/lang/constant/DynamicConstantDesc
+  #139 = Utf8               java/lang/constant/DynamicConstantDesc
+  #140 = Utf8               ()Ljava/util/Optional<Ljava/lang/constant/DynamicConstantDesc<Ljava/lang/Boolean;>;>;
+  #141 = Utf8               (Ljava/lang/Object;)I
+  #142 = Utf8               MethodParameters
+  #143 = Utf8               <clinit>
+  #144 = Utf8               Ljava/lang/Object;Ljava/io/Serializable;Ljava/lang/Comparable<Ljava/lang/Boolean;>;Ljava/lang/constant/Constable;
+  #145 = Utf8               SourceFile
+  #146 = Utf8               Boolean.java
+  #147 = Utf8               Ljdk/internal/ValueBased;
+{
+  public static final java.lang.Boolean TRUE;
+    descriptor: Ljava/lang/Boolean;
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+  
+  public static final java.lang.Boolean FALSE;
+    descriptor: Ljava/lang/Boolean;
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+  
+  public static final java.lang.Class<java.lang.Boolean> TYPE;
+    descriptor: Ljava/lang/Class;
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+    Signature: #95                         // Ljava/lang/Class<Ljava/lang/Boolean;>;
+  
+  private final boolean value;
+    descriptor: Z
+    flags: (0x0012) ACC_PRIVATE, ACC_FINAL
+  
+  private static final long serialVersionUID;
+    descriptor: J
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: long -3665804199014368530l
+  
+  public java.lang.Boolean(boolean);
+    descriptor: (Z)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: aload_0                 
+         5: iload_1                 
+         6: putfield      #7                  // Field value:Z
+         9: return                  
+      LineNumberTable:
+        line 108: 0
+        line 109: 4
+        line 110: 9
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/lang/Boolean;
+           0       10     1  value  Z
+    Deprecated: true
+    RuntimeVisibleAnnotations:
+      0: #107(#108=s#109,#110=Z#111)
+        java.lang.Deprecated(
+          since="9"
+          forRemoval=true
+        )
+  
+  public java.lang.Boolean(java.lang.String);
+    descriptor: (Ljava/lang/String;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: aload_1                 
+         2: invokestatic  #13                 // Method parseBoolean:(Ljava/lang/String;)Z
+         5: invokespecial #17                 // Method "<init>":(Z)V
+         8: return                  
+      LineNumberTable:
+        line 129: 0
+        line 130: 8
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  this   Ljava/lang/Boolean;
+           0        9     1  s      Ljava/lang/String;
+    Deprecated: true
+    RuntimeVisibleAnnotations:
+      0: #107(#108=s#109,#110=Z#111)
+        java.lang.Deprecated(
+          since="9"
+          forRemoval=true
+        )
+  
+  public static boolean parseBoolean(java.lang.String);
+    descriptor: (Ljava/lang/String;)Z
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=2, locals=1, args_size=1
+         0: ldc           #20                 // String true
+         2: aload_0                 
+         3: invokevirtual #22                 // Method java/lang/String.equalsIgnoreCase:(Ljava/lang/String;)Z
+         6: ireturn                 
+      LineNumberTable:
+        line 148: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        7     0  s      Ljava/lang/String;
+  
+  public boolean booleanValue();
+    descriptor: ()Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #7                  // Field value:Z
+         4: ireturn                 
+      LineNumberTable:
+        line 159: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/lang/Boolean;
+    RuntimeVisibleAnnotations:
+      0: #115()
+        jdk.internal.vm.annotation.IntrinsicCandidate
+  
+  public static java.lang.Boolean valueOf(boolean);
+    descriptor: (Z)Ljava/lang/Boolean;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: iload_0                 
+         1: ifeq          10                
+         4: getstatic     #27                 // Field TRUE:Ljava/lang/Boolean;
+         7: goto          13                
+        10: getstatic     #31                 // Field FALSE:Ljava/lang/Boolean;
+        13: areturn                 
+      LineNumberTable:
+        line 178: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       14     0  b      Z
+      StackMapTable: number_of_entries = 2
+        frame_type = 10 /* same */
+        frame_type = 66 /* same_locals_1_stack_item */
+          stack = [ class java/lang/Boolean ]
+    RuntimeVisibleAnnotations:
+      0: #115()
+        jdk.internal.vm.annotation.IntrinsicCandidate
+  
+  public static java.lang.Boolean valueOf(java.lang.String);
+    descriptor: (Ljava/lang/String;)Ljava/lang/Boolean;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: invokestatic  #13                 // Method parseBoolean:(Ljava/lang/String;)Z
+         4: ifeq          13                
+         7: getstatic     #27                 // Field TRUE:Ljava/lang/Boolean;
+        10: goto          16                
+        13: getstatic     #31                 // Field FALSE:Ljava/lang/Boolean;
+        16: areturn                 
+      LineNumberTable:
+        line 193: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       17     0  s      Ljava/lang/String;
+      StackMapTable: number_of_entries = 2
+        frame_type = 13 /* same */
+        frame_type = 66 /* same_locals_1_stack_item */
+          stack = [ class java/lang/Boolean ]
+  
+  public static java.lang.String toString(boolean);
+    descriptor: (Z)Ljava/lang/String;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: iload_0                 
+         1: invokestatic  #34                 // Method java/lang/String.valueOf:(Z)Ljava/lang/String;
+         4: areturn                 
+      LineNumberTable:
+        line 207: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  b      Z
+  
+  public java.lang.String toString();
+    descriptor: ()Ljava/lang/String;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #7                  // Field value:Z
+         4: invokestatic  #34                 // Method java/lang/String.valueOf:(Z)Ljava/lang/String;
+         7: areturn                 
+      LineNumberTable:
+        line 220: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/lang/Boolean;
+  
+  public int hashCode();
+    descriptor: ()I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #7                  // Field value:Z
+         4: invokestatic  #38                 // Method hashCode:(Z)I
+         7: ireturn                 
+      LineNumberTable:
+        line 232: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/lang/Boolean;
+  
+  public static int hashCode(boolean);
+    descriptor: (Z)I
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: iload_0                 
+         1: ifeq          10                
+         4: sipush        1231              
+         7: goto          13                
+        10: sipush        1237              
+        13: ireturn                 
+      LineNumberTable:
+        line 244: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       14     0  value  Z
+      StackMapTable: number_of_entries = 2
+        frame_type = 10 /* same */
+        frame_type = 66 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  public boolean equals(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=3, args_size=2
+         0: aload_1                 
+         1: instanceof    #8                  // class java/lang/Boolean
+         4: ifeq          29                
+         7: aload_1                 
+         8: checkcast     #8                  // class java/lang/Boolean
+        11: astore_2                
+        12: aload_0                 
+        13: getfield      #7                  // Field value:Z
+        16: aload_2                 
+        17: invokevirtual #42                 // Method booleanValue:()Z
+        20: if_icmpne     27                
+        23: iconst_1                
+        24: goto          28                
+        27: iconst_0                
+        28: ireturn                 
+        29: iconst_0                
+        30: ireturn                 
+      LineNumberTable:
+        line 257: 0
+        line 258: 12
+        line 260: 29
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          12       17     2  b      Ljava/lang/Boolean;
+           0       31     0  this   Ljava/lang/Boolean;
+           0       31     1  obj    Ljava/lang/Object;
+      StackMapTable: number_of_entries = 3
+        frame_type = 252 /* append */
+          offset_delta = 27
+          locals = [class java/lang/Boolean]
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 250 /* chop */
+          offset_delta = 0
+  
+  public static boolean getBoolean(java.lang.String);
+    descriptor: (Ljava/lang/String;)Z
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: ifnull        25                
+         4: aload_0                 
+         5: invokevirtual #46                 // Method java/lang/String.isEmpty:()Z
+         8: ifne          25                
+        11: aload_0                 
+        12: invokestatic  #49                 // Method java/lang/System.getProperty:(Ljava/lang/String;)Ljava/lang/String;
+        15: invokestatic  #13                 // Method parseBoolean:(Ljava/lang/String;)Z
+        18: ifeq          25                
+        21: iconst_1                
+        22: goto          26                
+        25: iconst_0                
+        26: ireturn                 
+      LineNumberTable:
+        line 278: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       27     0  name   Ljava/lang/String;
+      StackMapTable: number_of_entries = 2
+        frame_type = 25 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  public int compareTo(java.lang.Boolean);
+    descriptor: (Ljava/lang/Boolean;)I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #7                  // Field value:Z
+         4: aload_1                 
+         5: getfield      #7                  // Field value:Z
+         8: invokestatic  #55                 // Method compare:(ZZ)I
+        11: ireturn                 
+      LineNumberTable:
+        line 294: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       12     0  this   Ljava/lang/Boolean;
+           0       12     1  b      Ljava/lang/Boolean;
+  
+  public static int compare(boolean, boolean);
+    descriptor: (ZZ)I
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: iload_0                 
+         1: iload_1                 
+         2: if_icmpne     9                 
+         5: iconst_0                
+         6: goto          18                
+         9: iload_0                 
+        10: ifeq          17                
+        13: iconst_1                
+        14: goto          18                
+        17: iconst_m1               
+        18: ireturn                 
+      LineNumberTable:
+        line 312: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       19     0  x      Z
+           0       19     1  y      Z
+      StackMapTable: number_of_entries = 3
+        frame_type = 9 /* same */
+        frame_type = 7 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  public static boolean logicalAnd(boolean, boolean);
+    descriptor: (ZZ)Z
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: iload_0                 
+         1: ifeq          12                
+         4: iload_1                 
+         5: ifeq          12                
+         8: iconst_1                
+         9: goto          13                
+        12: iconst_0                
+        13: ireturn                 
+      LineNumberTable:
+        line 326: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       14     0  a      Z
+           0       14     1  b      Z
+      StackMapTable: number_of_entries = 2
+        frame_type = 12 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  public static boolean logicalOr(boolean, boolean);
+    descriptor: (ZZ)Z
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: iload_0                 
+         1: ifne          8                 
+         4: iload_1                 
+         5: ifeq          12                
+         8: iconst_1                
+         9: goto          13                
+        12: iconst_0                
+        13: ireturn                 
+      LineNumberTable:
+        line 340: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       14     0  a      Z
+           0       14     1  b      Z
+      StackMapTable: number_of_entries = 3
+        frame_type = 8 /* same */
+        frame_type = 3 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  public static boolean logicalXor(boolean, boolean);
+    descriptor: (ZZ)Z
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: iload_0                 
+         1: iload_1                 
+         2: ixor                    
+         3: ireturn                 
+      LineNumberTable:
+        line 354: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        4     0  a      Z
+           0        4     1  b      Z
+  
+  public java.util.Optional<java.lang.constant.DynamicConstantDesc<java.lang.Boolean>> describeConstable();
+    descriptor: ()Ljava/util/Optional;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #7                  // Field value:Z
+         4: ifeq          13                
+         7: getstatic     #59                 // Field java/lang/constant/ConstantDescs.TRUE:Ljava/lang/constant/DynamicConstantDesc;
+        10: goto          16                
+        13: getstatic     #64                 // Field java/lang/constant/ConstantDescs.FALSE:Ljava/lang/constant/DynamicConstantDesc;
+        16: invokestatic  #66                 // Method java/util/Optional.of:(Ljava/lang/Object;)Ljava/util/Optional;
+        19: areturn                 
+      LineNumberTable:
+        line 366: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       20     0  this   Ljava/lang/Boolean;
+      StackMapTable: number_of_entries = 2
+        frame_type = 13 /* same */
+        frame_type = 66 /* same_locals_1_stack_item */
+          stack = [ class java/lang/constant/DynamicConstantDesc ]
+    Signature: #140                        // ()Ljava/util/Optional<Ljava/lang/constant/DynamicConstantDesc<Ljava/lang/Boolean;>;>;
+  
+  public int compareTo(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)I
+    flags: (0x1041) ACC_PUBLIC, ACC_BRIDGE, ACC_SYNTHETIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: aload_1                 
+         2: checkcast     #8                  // class java/lang/Boolean
+         5: invokevirtual #72                 // Method compareTo:(Ljava/lang/Boolean;)I
+         8: ireturn                 
+      LineNumberTable:
+        line 60: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  this   Ljava/lang/Boolean;
+    MethodParameters:
+      Name                             Flags
+      <no name>                        synthetic 
+  
+  static {};
+    descriptor: ()V
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=3, locals=0, args_size=0
+         0: new           #8                  // class java/lang/Boolean
+         3: dup                     
+         4: iconst_1                
+         5: invokespecial #17                 // Method "<init>":(Z)V
+         8: putstatic     #27                 // Field TRUE:Ljava/lang/Boolean;
+        11: new           #8                  // class java/lang/Boolean
+        14: dup                     
+        15: iconst_0                
+        16: invokespecial #17                 // Method "<init>":(Z)V
+        19: putstatic     #31                 // Field FALSE:Ljava/lang/Boolean;
+        22: ldc           #76                 // String boolean
+        24: invokestatic  #78                 // Method java/lang/Class.getPrimitiveClass:(Ljava/lang/String;)Ljava/lang/Class;
+        27: putstatic     #84                 // Field TYPE:Ljava/lang/Class;
+        30: return                  
+      LineNumberTable:
+        line 68: 0
+        line 74: 11
+        line 81: 22
+}
+Signature: #144                        // Ljava/lang/Object;Ljava/io/Serializable;Ljava/lang/Comparable<Ljava/lang/Boolean;>;Ljava/lang/constant/Constable;
+SourceFile: "Boolean.java"
+RuntimeVisibleAnnotations:
+  0: #147()
+    jdk.internal.ValueBased

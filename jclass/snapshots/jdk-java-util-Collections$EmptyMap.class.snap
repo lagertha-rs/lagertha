@@ -1,0 +1,625 @@
+---
+source: jclass/src/lib.rs
+expression: display
+---
+class java.util.Collections$EmptyMap <K extends java.lang.Object, V extends java.lang.Object> extends java.util.AbstractMap<K, V> implements java.io.Serializable
+  minor version: 0
+  major version: 68
+  flags: (0x0020) ACC_SUPER
+  this_class: #32                      //java/util/Collections$EmptyMap
+  super_class: #2                      //java/util/AbstractMap
+  interfaces: 1, fields: 1, methods: 24, attributes: 4
+Constant pool:
+    #1 = Methodref          #2.#3            // java/util/AbstractMap."<init>":()V
+    #2 = Class              #4               // java/util/AbstractMap
+    #3 = NameAndType        #5:#6            // "<init>":()V
+    #4 = Utf8               java/util/AbstractMap
+    #5 = Utf8               <init>
+    #6 = Utf8               ()V
+    #7 = Methodref          #8.#9            // java/util/Collections.emptySet:()Ljava/util/Set;
+    #8 = Class              #10              // java/util/Collections
+    #9 = NameAndType        #11:#12          // emptySet:()Ljava/util/Set;
+   #10 = Utf8               java/util/Collections
+   #11 = Utf8               emptySet
+   #12 = Utf8               ()Ljava/util/Set;
+   #13 = Class              #14              // java/util/Map
+   #14 = Utf8               java/util/Map
+   #15 = InterfaceMethodref #13.#16          // java/util/Map.isEmpty:()Z
+   #16 = NameAndType        #17:#18          // isEmpty:()Z
+   #17 = Utf8               isEmpty
+   #18 = Utf8               ()Z
+   #19 = Methodref          #20.#21          // java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+   #20 = Class              #22              // java/util/Objects
+   #21 = NameAndType        #23:#24          // requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+   #22 = Utf8               java/util/Objects
+   #23 = Utf8               requireNonNull
+   #24 = Utf8               (Ljava/lang/Object;)Ljava/lang/Object;
+   #25 = Class              #26              // java/lang/UnsupportedOperationException
+   #26 = Utf8               java/lang/UnsupportedOperationException
+   #27 = Methodref          #25.#3           // java/lang/UnsupportedOperationException."<init>":()V
+   #28 = Fieldref           #8.#29           // java/util/Collections.EMPTY_MAP:Ljava/util/Map;
+   #29 = NameAndType        #30:#31          // EMPTY_MAP:Ljava/util/Map;
+   #30 = Utf8               EMPTY_MAP
+   #31 = Utf8               Ljava/util/Map;
+   #32 = Class              #33              // java/util/Collections$EmptyMap
+   #33 = Utf8               java/util/Collections$EmptyMap
+   #34 = Class              #35              // java/io/Serializable
+   #35 = Utf8               java/io/Serializable
+   #36 = Utf8               serialVersionUID
+   #37 = Utf8               J
+   #38 = Utf8               ConstantValue
+   #39 = Long               6428348081105594320l
+   #41 = Utf8               Code
+   #42 = Utf8               LineNumberTable
+   #43 = Utf8               LocalVariableTable
+   #44 = Utf8               this
+   #45 = Utf8               Ljava/util/Collections$EmptyMap;
+   #46 = Utf8               LocalVariableTypeTable
+   #47 = Utf8               Ljava/util/Collections$EmptyMap<TK;TV;>;
+   #48 = Utf8               size
+   #49 = Utf8               ()I
+   #50 = Utf8               clear
+   #51 = Utf8               containsKey
+   #52 = Utf8               (Ljava/lang/Object;)Z
+   #53 = Utf8               key
+   #54 = Utf8               Ljava/lang/Object;
+   #55 = Utf8               containsValue
+   #56 = Utf8               value
+   #57 = Utf8               get
+   #58 = Utf8               Signature
+   #59 = Utf8               (Ljava/lang/Object;)TV;
+   #60 = Utf8               keySet
+   #61 = Utf8               ()Ljava/util/Set<TK;>;
+   #62 = Utf8               values
+   #63 = Utf8               ()Ljava/util/Collection;
+   #64 = Utf8               ()Ljava/util/Collection<TV;>;
+   #65 = Utf8               entrySet
+   #66 = Utf8               ()Ljava/util/Set<Ljava/util/Map$Entry<TK;TV;>;>;
+   #67 = Utf8               equals
+   #68 = Utf8               o
+   #69 = Utf8               StackMapTable
+   #70 = Utf8               hashCode
+   #71 = Utf8               getOrDefault
+   #72 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+   #73 = Utf8               k
+   #74 = Utf8               defaultValue
+   #75 = Utf8               TV;
+   #76 = Utf8               (Ljava/lang/Object;TV;)TV;
+   #77 = Utf8               forEach
+   #78 = Utf8               (Ljava/util/function/BiConsumer;)V
+   #79 = Utf8               action
+   #80 = Utf8               Ljava/util/function/BiConsumer;
+   #81 = Utf8               Ljava/util/function/BiConsumer<-TK;-TV;>;
+   #82 = Utf8               (Ljava/util/function/BiConsumer<-TK;-TV;>;)V
+   #83 = Utf8               replaceAll
+   #84 = Utf8               (Ljava/util/function/BiFunction;)V
+   #85 = Utf8               function
+   #86 = Utf8               Ljava/util/function/BiFunction;
+   #87 = Utf8               Ljava/util/function/BiFunction<-TK;-TV;+TV;>;
+   #88 = Utf8               (Ljava/util/function/BiFunction<-TK;-TV;+TV;>;)V
+   #89 = Utf8               putIfAbsent
+   #90 = Utf8               TK;
+   #91 = Utf8               (TK;TV;)TV;
+   #92 = Utf8               remove
+   #93 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;)Z
+   #94 = Utf8               replace
+   #95 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Z
+   #96 = Utf8               oldValue
+   #97 = Utf8               newValue
+   #98 = Utf8               (TK;TV;TV;)Z
+   #99 = Utf8               computeIfAbsent
+  #100 = Utf8               (Ljava/lang/Object;Ljava/util/function/Function;)Ljava/lang/Object;
+  #101 = Utf8               mappingFunction
+  #102 = Utf8               Ljava/util/function/Function;
+  #103 = Utf8               Ljava/util/function/Function<-TK;+TV;>;
+  #104 = Utf8               (TK;Ljava/util/function/Function<-TK;+TV;>;)TV;
+  #105 = Utf8               computeIfPresent
+  #106 = Utf8               (Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+  #107 = Utf8               remappingFunction
+  #108 = Utf8               (TK;Ljava/util/function/BiFunction<-TK;-TV;+TV;>;)TV;
+  #109 = Utf8               compute
+  #110 = Utf8               merge
+  #111 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+  #112 = Utf8               Ljava/util/function/BiFunction<-TV;-TV;+TV;>;
+  #113 = Utf8               (TK;TV;Ljava/util/function/BiFunction<-TV;-TV;+TV;>;)TV;
+  #114 = Utf8               readResolve
+  #115 = Utf8               ()Ljava/lang/Object;
+  #116 = Utf8               <K:Ljava/lang/Object;V:Ljava/lang/Object;>Ljava/util/AbstractMap<TK;TV;>;Ljava/io/Serializable;
+  #117 = Utf8               SourceFile
+  #118 = Utf8               Collections.java
+  #119 = Utf8               NestHost
+  #120 = Utf8               InnerClasses
+  #121 = Utf8               EmptyMap
+  #122 = Class              #123             // java/util/Map$Entry
+  #123 = Utf8               java/util/Map$Entry
+  #124 = Utf8               Entry
+{
+  private static final long serialVersionUID;
+    descriptor: J
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: long 6428348081105594320l
+  
+  private java.util.Collections$EmptyMap();
+    descriptor: ()V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: invokespecial #1                  // Method java/util/AbstractMap."<init>":()V
+         4: return                  
+      LineNumberTable:
+        line 4924: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/util/Collections$EmptyMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        5     0  this   Ljava/util/Collections$EmptyMap<TK;TV;>;
+  
+  public int size();
+    descriptor: ()I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: iconst_0                
+         1: ireturn                 
+      LineNumberTable:
+        line 4931: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        2     0  this   Ljava/util/Collections$EmptyMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        2     0  this   Ljava/util/Collections$EmptyMap<TK;TV;>;
+  
+  public boolean isEmpty();
+    descriptor: ()Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: iconst_1                
+         1: ireturn                 
+      LineNumberTable:
+        line 4932: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        2     0  this   Ljava/util/Collections$EmptyMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        2     0  this   Ljava/util/Collections$EmptyMap<TK;TV;>;
+  
+  public void clear();
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=0, locals=1, args_size=1
+         0: return                  
+      LineNumberTable:
+        line 4933: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        1     0  this   Ljava/util/Collections$EmptyMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        1     0  this   Ljava/util/Collections$EmptyMap<TK;TV;>;
+  
+  public boolean containsKey(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: iconst_0                
+         1: ireturn                 
+      LineNumberTable:
+        line 4934: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        2     0  this   Ljava/util/Collections$EmptyMap;
+           0        2     1  key    Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        2     0  this   Ljava/util/Collections$EmptyMap<TK;TV;>;
+  
+  public boolean containsValue(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: iconst_0                
+         1: ireturn                 
+      LineNumberTable:
+        line 4935: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        2     0  this   Ljava/util/Collections$EmptyMap;
+           0        2     1  value  Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        2     0  this   Ljava/util/Collections$EmptyMap<TK;TV;>;
+  
+  public V get(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Ljava/lang/Object;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: aconst_null             
+         1: areturn                 
+      LineNumberTable:
+        line 4936: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        2     0  this   Ljava/util/Collections$EmptyMap;
+           0        2     1  key    Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        2     0  this   Ljava/util/Collections$EmptyMap<TK;TV;>;
+    Signature: #59                         // (Ljava/lang/Object;)TV;
+  
+  public java.util.Set<K> keySet();
+    descriptor: ()Ljava/util/Set;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: invokestatic  #7                  // Method java/util/Collections.emptySet:()Ljava/util/Set;
+         3: areturn                 
+      LineNumberTable:
+        line 4937: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        4     0  this   Ljava/util/Collections$EmptyMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        4     0  this   Ljava/util/Collections$EmptyMap<TK;TV;>;
+    Signature: #61                         // ()Ljava/util/Set<TK;>;
+  
+  public java.util.Collection<V> values();
+    descriptor: ()Ljava/util/Collection;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: invokestatic  #7                  // Method java/util/Collections.emptySet:()Ljava/util/Set;
+         3: areturn                 
+      LineNumberTable:
+        line 4938: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        4     0  this   Ljava/util/Collections$EmptyMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        4     0  this   Ljava/util/Collections$EmptyMap<TK;TV;>;
+    Signature: #64                         // ()Ljava/util/Collection<TV;>;
+  
+  public java.util.Set<java.util.Map$Entry<K, V>> entrySet();
+    descriptor: ()Ljava/util/Set;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: invokestatic  #7                  // Method java/util/Collections.emptySet:()Ljava/util/Set;
+         3: areturn                 
+      LineNumberTable:
+        line 4939: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        4     0  this   Ljava/util/Collections$EmptyMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        4     0  this   Ljava/util/Collections$EmptyMap<TK;TV;>;
+    Signature: #66                         // ()Ljava/util/Set<Ljava/util/Map$Entry<TK;TV;>;>;
+  
+  public boolean equals(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: aload_1                 
+         1: instanceof    #13                 // class java/util/Map
+         4: ifeq          23                
+         7: aload_1                 
+         8: checkcast     #13                 // class java/util/Map
+        11: invokeinterface #15, 1              // InterfaceMethod java/util/Map.isEmpty:()Z
+        16: ifeq          23                
+        19: iconst_1                
+        20: goto          24                
+        23: iconst_0                
+        24: ireturn                 
+      LineNumberTable:
+        line 4942: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       25     0  this   Ljava/util/Collections$EmptyMap;
+           0       25     1  o      Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       25     0  this   Ljava/util/Collections$EmptyMap<TK;TV;>;
+      StackMapTable: number_of_entries = 2
+        frame_type = 23 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  public int hashCode();
+    descriptor: ()I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: iconst_0                
+         1: ireturn                 
+      LineNumberTable:
+        line 4945: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        2     0  this   Ljava/util/Collections$EmptyMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        2     0  this   Ljava/util/Collections$EmptyMap<TK;TV;>;
+  
+  public V getOrDefault(java.lang.Object, V);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=3, args_size=3
+         0: aload_2                 
+         1: areturn                 
+      LineNumberTable:
+        line 4950: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        2     0  this   Ljava/util/Collections$EmptyMap;
+           0        2     1  k      Ljava/lang/Object;
+           0        2     2  defaultValue Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        2     0  this   Ljava/util/Collections$EmptyMap<TK;TV;>;
+             0        2     2  defaultValue   TV;
+    Signature: #76                         // (Ljava/lang/Object;TV;)TV;
+  
+  public void forEach(java.util.function.BiConsumer<? super K, ? super V>);
+    descriptor: (Ljava/util/function/BiConsumer;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: aload_1                 
+         1: invokestatic  #19                 // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+         4: pop                     
+         5: return                  
+      LineNumberTable:
+        line 4955: 0
+        line 4956: 5
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        6     0  this   Ljava/util/Collections$EmptyMap;
+           0        6     1  action Ljava/util/function/BiConsumer;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        6     0  this   Ljava/util/Collections$EmptyMap<TK;TV;>;
+             0        6     1  action   Ljava/util/function/BiConsumer<-TK;-TV;>;
+    Signature: #82                         // (Ljava/util/function/BiConsumer<-TK;-TV;>;)V
+  
+  public void replaceAll(java.util.function.BiFunction<? super K, ? super V, ? extends V>);
+    descriptor: (Ljava/util/function/BiFunction;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: aload_1                 
+         1: invokestatic  #19                 // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+         4: pop                     
+         5: return                  
+      LineNumberTable:
+        line 4960: 0
+        line 4961: 5
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        6     0  this   Ljava/util/Collections$EmptyMap;
+           0        6     1  function Ljava/util/function/BiFunction;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        6     0  this   Ljava/util/Collections$EmptyMap<TK;TV;>;
+             0        6     1  function   Ljava/util/function/BiFunction<-TK;-TV;+TV;>;
+    Signature: #88                         // (Ljava/util/function/BiFunction<-TK;-TV;+TV;>;)V
+  
+  public V putIfAbsent(K, V);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=3, args_size=3
+         0: new           #25                 // class java/lang/UnsupportedOperationException
+         3: dup                     
+         4: invokespecial #27                 // Method java/lang/UnsupportedOperationException."<init>":()V
+         7: athrow                  
+      LineNumberTable:
+        line 4965: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/util/Collections$EmptyMap;
+           0        8     1  key    Ljava/lang/Object;
+           0        8     2  value  Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        8     0  this   Ljava/util/Collections$EmptyMap<TK;TV;>;
+             0        8     1  key    TK;
+             0        8     2  value   TV;
+    Signature: #91                         // (TK;TV;)TV;
+  
+  public boolean remove(java.lang.Object, java.lang.Object);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=3, args_size=3
+         0: new           #25                 // class java/lang/UnsupportedOperationException
+         3: dup                     
+         4: invokespecial #27                 // Method java/lang/UnsupportedOperationException."<init>":()V
+         7: athrow                  
+      LineNumberTable:
+        line 4970: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/util/Collections$EmptyMap;
+           0        8     1  key    Ljava/lang/Object;
+           0        8     2  value  Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        8     0  this   Ljava/util/Collections$EmptyMap<TK;TV;>;
+  
+  public boolean replace(K, V, V);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=4, args_size=4
+         0: new           #25                 // class java/lang/UnsupportedOperationException
+         3: dup                     
+         4: invokespecial #27                 // Method java/lang/UnsupportedOperationException."<init>":()V
+         7: athrow                  
+      LineNumberTable:
+        line 4975: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/util/Collections$EmptyMap;
+           0        8     1  key    Ljava/lang/Object;
+           0        8     2  oldValue Ljava/lang/Object;
+           0        8     3  newValue Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        8     0  this   Ljava/util/Collections$EmptyMap<TK;TV;>;
+             0        8     1  key    TK;
+             0        8     2  oldValue   TV;
+             0        8     3  newValue   TV;
+    Signature: #98                         // (TK;TV;TV;)Z
+  
+  public V replace(K, V);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=3, args_size=3
+         0: new           #25                 // class java/lang/UnsupportedOperationException
+         3: dup                     
+         4: invokespecial #27                 // Method java/lang/UnsupportedOperationException."<init>":()V
+         7: athrow                  
+      LineNumberTable:
+        line 4980: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/util/Collections$EmptyMap;
+           0        8     1  key    Ljava/lang/Object;
+           0        8     2  value  Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        8     0  this   Ljava/util/Collections$EmptyMap<TK;TV;>;
+             0        8     1  key    TK;
+             0        8     2  value   TV;
+    Signature: #91                         // (TK;TV;)TV;
+  
+  public V computeIfAbsent(K, java.util.function.Function<? super K, ? extends V>);
+    descriptor: (Ljava/lang/Object;Ljava/util/function/Function;)Ljava/lang/Object;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=3, args_size=3
+         0: new           #25                 // class java/lang/UnsupportedOperationException
+         3: dup                     
+         4: invokespecial #27                 // Method java/lang/UnsupportedOperationException."<init>":()V
+         7: athrow                  
+      LineNumberTable:
+        line 4986: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/util/Collections$EmptyMap;
+           0        8     1  key    Ljava/lang/Object;
+           0        8     2  mappingFunction Ljava/util/function/Function;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        8     0  this   Ljava/util/Collections$EmptyMap<TK;TV;>;
+             0        8     1  key    TK;
+             0        8     2  mappingFunction   Ljava/util/function/Function<-TK;+TV;>;
+    Signature: #104                        // (TK;Ljava/util/function/Function<-TK;+TV;>;)TV;
+  
+  public V computeIfPresent(K, java.util.function.BiFunction<? super K, ? super V, ? extends V>);
+    descriptor: (Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=3, args_size=3
+         0: new           #25                 // class java/lang/UnsupportedOperationException
+         3: dup                     
+         4: invokespecial #27                 // Method java/lang/UnsupportedOperationException."<init>":()V
+         7: athrow                  
+      LineNumberTable:
+        line 4992: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/util/Collections$EmptyMap;
+           0        8     1  key    Ljava/lang/Object;
+           0        8     2  remappingFunction Ljava/util/function/BiFunction;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        8     0  this   Ljava/util/Collections$EmptyMap<TK;TV;>;
+             0        8     1  key    TK;
+             0        8     2  remappingFunction   Ljava/util/function/BiFunction<-TK;-TV;+TV;>;
+    Signature: #108                        // (TK;Ljava/util/function/BiFunction<-TK;-TV;+TV;>;)TV;
+  
+  public V compute(K, java.util.function.BiFunction<? super K, ? super V, ? extends V>);
+    descriptor: (Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=3, args_size=3
+         0: new           #25                 // class java/lang/UnsupportedOperationException
+         3: dup                     
+         4: invokespecial #27                 // Method java/lang/UnsupportedOperationException."<init>":()V
+         7: athrow                  
+      LineNumberTable:
+        line 4998: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/util/Collections$EmptyMap;
+           0        8     1  key    Ljava/lang/Object;
+           0        8     2  remappingFunction Ljava/util/function/BiFunction;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        8     0  this   Ljava/util/Collections$EmptyMap<TK;TV;>;
+             0        8     1  key    TK;
+             0        8     2  remappingFunction   Ljava/util/function/BiFunction<-TK;-TV;+TV;>;
+    Signature: #108                        // (TK;Ljava/util/function/BiFunction<-TK;-TV;+TV;>;)TV;
+  
+  public V merge(K, V, java.util.function.BiFunction<? super V, ? super V, ? extends V>);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=4, args_size=4
+         0: new           #25                 // class java/lang/UnsupportedOperationException
+         3: dup                     
+         4: invokespecial #27                 // Method java/lang/UnsupportedOperationException."<init>":()V
+         7: athrow                  
+      LineNumberTable:
+        line 5004: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/util/Collections$EmptyMap;
+           0        8     1  key    Ljava/lang/Object;
+           0        8     2  value  Ljava/lang/Object;
+           0        8     3  remappingFunction Ljava/util/function/BiFunction;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        8     0  this   Ljava/util/Collections$EmptyMap<TK;TV;>;
+             0        8     1  key    TK;
+             0        8     2  value   TV;
+             0        8     3  remappingFunction   Ljava/util/function/BiFunction<-TV;-TV;+TV;>;
+    Signature: #113                        // (TK;TV;Ljava/util/function/BiFunction<-TV;-TV;+TV;>;)TV;
+  
+  private java.lang.Object readResolve();
+    descriptor: ()Ljava/lang/Object;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: getstatic     #28                 // Field java/util/Collections.EMPTY_MAP:Ljava/util/Map;
+         3: areturn                 
+      LineNumberTable:
+        line 5010: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        4     0  this   Ljava/util/Collections$EmptyMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        4     0  this   Ljava/util/Collections$EmptyMap<TK;TV;>;
+}
+Signature: #116                        // <K:Ljava/lang/Object;V:Ljava/lang/Object;>Ljava/util/AbstractMap<TK;TV;>;Ljava/io/Serializable;
+SourceFile: "Collections.java"
+NestHost: class java/util/Collections
+InnerClasses:
+  private static #121= #32 of #8;             // EmptyMap=class java/util/Collections$EmptyMap of class java/util/Collections
+  public static #124= #122 of #13;            // Entry=class java/util/Map$Entry of class java/util/Map

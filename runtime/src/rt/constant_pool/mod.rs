@@ -4,10 +4,10 @@ use crate::rt::constant_pool::reference::{
     MethodDescriptorReference, MethodHandleReference, MethodReference, MethodTypeReference,
     NameAndTypeReference, StringReference,
 };
-use class_file::constant::{ConstantInfo, ReferenceInfo};
 use common::descriptor::MethodDescriptor;
 use common::jtype::Type;
 use dashmap::DashMap;
+use jclass::constant::{ConstantInfo, ReferenceInfo};
 use std::sync::Arc;
 
 pub mod error;

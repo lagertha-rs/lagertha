@@ -1,0 +1,458 @@
+---
+source: jclass/src/lib.rs
+expression: display
+---
+public abstract class sun.util.PreHashedMap <V extends java.lang.Object> extends java.util.AbstractMap<java.lang.String, V>
+  minor version: 0
+  major version: 68
+  flags: (0x0421) ACC_PUBLIC, ACC_SUPER, ACC_ABSTRACT
+  this_class: #8                       //sun/util/PreHashedMap
+  super_class: #2                      //java/util/AbstractMap
+  interfaces: 0, fields: 5, methods: 8, attributes: 4
+Constant pool:
+    #1 = Methodref          #2.#3            // java/util/AbstractMap."<init>":()V
+    #2 = Class              #4               // java/util/AbstractMap
+    #3 = NameAndType        #5:#6            // "<init>":()V
+    #4 = Utf8               java/util/AbstractMap
+    #5 = Utf8               <init>
+    #6 = Utf8               ()V
+    #7 = Fieldref           #8.#9            // sun/util/PreHashedMap.rows:I
+    #8 = Class              #10              // sun/util/PreHashedMap
+    #9 = NameAndType        #11:#12          // rows:I
+   #10 = Utf8               sun/util/PreHashedMap
+   #11 = Utf8               rows
+   #12 = Utf8               I
+   #13 = Fieldref           #8.#14           // sun/util/PreHashedMap.size:I
+   #14 = NameAndType        #15:#12          // size:I
+   #15 = Utf8               size
+   #16 = Fieldref           #8.#17           // sun/util/PreHashedMap.shift:I
+   #17 = NameAndType        #18:#12          // shift:I
+   #18 = Utf8               shift
+   #19 = Fieldref           #8.#20           // sun/util/PreHashedMap.mask:I
+   #20 = NameAndType        #21:#12          // mask:I
+   #21 = Utf8               mask
+   #22 = Class              #23              // java/lang/Object
+   #23 = Utf8               java/lang/Object
+   #24 = Fieldref           #8.#25           // sun/util/PreHashedMap.ht:[Ljava/lang/Object;
+   #25 = NameAndType        #26:#27          // ht:[Ljava/lang/Object;
+   #26 = Utf8               ht
+   #27 = Utf8               [Ljava/lang/Object;
+   #28 = Methodref          #8.#29           // sun/util/PreHashedMap.init:([Ljava/lang/Object;)V
+   #29 = NameAndType        #30:#31          // init:([Ljava/lang/Object;)V
+   #30 = Utf8               init
+   #31 = Utf8               ([Ljava/lang/Object;)V
+   #32 = Methodref          #22.#33          // java/lang/Object.hashCode:()I
+   #33 = NameAndType        #34:#35          // hashCode:()I
+   #34 = Utf8               hashCode
+   #35 = Utf8               ()I
+   #36 = Class              #27              // "[Ljava/lang/Object;"
+   #37 = Methodref          #22.#38          // java/lang/Object.equals:(Ljava/lang/Object;)Z
+   #38 = NameAndType        #39:#40          // equals:(Ljava/lang/Object;)Z
+   #39 = Utf8               equals
+   #40 = Utf8               (Ljava/lang/Object;)Z
+   #41 = Methodref          #8.#42           // sun/util/PreHashedMap.toV:(Ljava/lang/Object;)Ljava/lang/Object;
+   #42 = NameAndType        #43:#44          // toV:(Ljava/lang/Object;)Ljava/lang/Object;
+   #43 = Utf8               toV
+   #44 = Utf8               (Ljava/lang/Object;)Ljava/lang/Object;
+   #45 = Methodref          #46.#33          // java/lang/String.hashCode:()I
+   #46 = Class              #47              // java/lang/String
+   #47 = Utf8               java/lang/String
+   #48 = Class              #49              // java/lang/UnsupportedOperationException
+   #49 = Utf8               java/lang/UnsupportedOperationException
+   #50 = Methodref          #48.#51          // java/lang/UnsupportedOperationException."<init>":(Ljava/lang/String;)V
+   #51 = NameAndType        #5:#52           // "<init>":(Ljava/lang/String;)V
+   #52 = Utf8               (Ljava/lang/String;)V
+   #53 = Class              #54              // sun/util/PreHashedMap$1
+   #54 = Utf8               sun/util/PreHashedMap$1
+   #55 = Methodref          #53.#56          // sun/util/PreHashedMap$1."<init>":(Lsun/util/PreHashedMap;)V
+   #56 = NameAndType        #5:#57           // "<init>":(Lsun/util/PreHashedMap;)V
+   #57 = Utf8               (Lsun/util/PreHashedMap;)V
+   #58 = Class              #59              // sun/util/PreHashedMap$2
+   #59 = Utf8               sun/util/PreHashedMap$2
+   #60 = Methodref          #58.#56          // sun/util/PreHashedMap$2."<init>":(Lsun/util/PreHashedMap;)V
+   #61 = Methodref          #8.#62           // sun/util/PreHashedMap.put:(Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+   #62 = NameAndType        #63:#64          // put:(Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+   #63 = Utf8               put
+   #64 = Utf8               (Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+   #65 = Utf8               (IIII)V
+   #66 = Utf8               Code
+   #67 = Utf8               LineNumberTable
+   #68 = Utf8               LocalVariableTable
+   #69 = Utf8               this
+   #70 = Utf8               Lsun/util/PreHashedMap;
+   #71 = Utf8               LocalVariableTypeTable
+   #72 = Utf8               Lsun/util/PreHashedMap<TV;>;
+   #73 = Utf8               x
+   #74 = Utf8               Ljava/lang/Object;
+   #75 = Utf8               Signature
+   #76 = Utf8               (Ljava/lang/Object;)TV;
+   #77 = Utf8               get
+   #78 = Utf8               k
+   #79 = Utf8               h
+   #80 = Utf8               a
+   #81 = Utf8               StackMapTable
+   #82 = Utf8               ov
+   #83 = Utf8               Ljava/lang/String;
+   #84 = Utf8               v
+   #85 = Utf8               TV;
+   #86 = Utf8               (Ljava/lang/String;TV;)TV;
+   #87 = Utf8               keySet
+   #88 = Utf8               ()Ljava/util/Set;
+   #89 = Utf8               ()Ljava/util/Set<Ljava/lang/String;>;
+   #90 = Utf8               entrySet
+   #91 = Utf8               ()Ljava/util/Set<Ljava/util/Map$Entry<Ljava/lang/String;TV;>;>;
+   #92 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+   #93 = Utf8               MethodParameters
+   #94 = Utf8               <V:Ljava/lang/Object;>Ljava/util/AbstractMap<Ljava/lang/String;TV;>;
+   #95 = Utf8               SourceFile
+   #96 = Utf8               PreHashedMap.java
+   #97 = Utf8               NestMembers
+   #98 = Class              #99              // sun/util/PreHashedMap$2$1
+   #99 = Utf8               sun/util/PreHashedMap$2$1
+  #100 = Class              #101             // sun/util/PreHashedMap$2$1$1
+  #101 = Utf8               sun/util/PreHashedMap$2$1$1
+  #102 = Class              #103             // sun/util/PreHashedMap$1$1
+  #103 = Utf8               sun/util/PreHashedMap$1$1
+  #104 = Utf8               InnerClasses
+  #105 = Class              #106             // java/util/Map$Entry
+  #106 = Utf8               java/util/Map$Entry
+  #107 = Class              #108             // java/util/Map
+  #108 = Utf8               java/util/Map
+  #109 = Utf8               Entry
+{
+  private final int rows;
+    descriptor: I
+    flags: (0x0012) ACC_PRIVATE, ACC_FINAL
+  
+  private final int size;
+    descriptor: I
+    flags: (0x0012) ACC_PRIVATE, ACC_FINAL
+  
+  private final int shift;
+    descriptor: I
+    flags: (0x0012) ACC_PRIVATE, ACC_FINAL
+  
+  private final int mask;
+    descriptor: I
+    flags: (0x0012) ACC_PRIVATE, ACC_FINAL
+  
+  private final java.lang.Object[] ht;
+    descriptor: [Ljava/lang/Object;
+    flags: (0x0012) ACC_PRIVATE, ACC_FINAL
+  
+  protected sun.util.PreHashedMap(int, int, int, int);
+    descriptor: (IIII)V
+    flags: (0x0004) ACC_PROTECTED
+    Code: 
+      stack=2, locals=5, args_size=5
+         0: aload_0                 
+         1: invokespecial #1                  // Method java/util/AbstractMap."<init>":()V
+         4: aload_0                 
+         5: iload_1                 
+         6: putfield      #7                  // Field rows:I
+         9: aload_0                 
+        10: iload_2                 
+        11: putfield      #13                 // Field size:I
+        14: aload_0                 
+        15: iload_3                 
+        16: putfield      #16                 // Field shift:I
+        19: aload_0                 
+        20: iload         4                 
+        22: putfield      #19                 // Field mask:I
+        25: aload_0                 
+        26: iload_1                 
+        27: anewarray     #22                 // class java/lang/Object
+        30: putfield      #24                 // Field ht:[Ljava/lang/Object;
+        33: aload_0                 
+        34: aload_0                 
+        35: getfield      #24                 // Field ht:[Ljava/lang/Object;
+        38: invokevirtual #28                 // Method init:([Ljava/lang/Object;)V
+        41: return                  
+      LineNumberTable:
+        line 109: 0
+        line 110: 4
+        line 111: 9
+        line 112: 14
+        line 113: 19
+        line 114: 25
+        line 115: 33
+        line 116: 41
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       42     0  this   Lsun/util/PreHashedMap;
+           0       42     1  rows   I
+           0       42     2  size   I
+           0       42     3  shift  I
+           0       42     4  mask   I
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       42     0  this   Lsun/util/PreHashedMap<TV;>;
+  
+  protected abstract void init(java.lang.Object[]);
+    descriptor: ([Ljava/lang/Object;)V
+    flags: (0x0404) ACC_PROTECTED, ACC_ABSTRACT
+  
+  private V toV(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Ljava/lang/Object;
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=1, locals=2, args_size=2
+         0: aload_1                 
+         1: areturn                 
+      LineNumberTable:
+        line 130: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        2     0  this   Lsun/util/PreHashedMap;
+           0        2     1  x      Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        2     0  this   Lsun/util/PreHashedMap<TV;>;
+    Signature: #76                         // (Ljava/lang/Object;)TV;
+  
+  public V get(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Ljava/lang/Object;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=4, args_size=2
+         0: aload_1                 
+         1: invokevirtual #32                 // Method java/lang/Object.hashCode:()I
+         4: aload_0                 
+         5: getfield      #16                 // Field shift:I
+         8: ishr                    
+         9: aload_0                 
+        10: getfield      #19                 // Field mask:I
+        13: iand                    
+        14: istore_2                
+        15: aload_0                 
+        16: getfield      #24                 // Field ht:[Ljava/lang/Object;
+        19: iload_2                 
+        20: aaload                  
+        21: checkcast     #36                 // class "[Ljava/lang/Object;"
+        24: astore_3                
+        25: aload_3                 
+        26: ifnonnull     31                
+        29: aconst_null             
+        30: areturn                 
+        31: aload_3                 
+        32: iconst_0                
+        33: aaload                  
+        34: aload_1                 
+        35: invokevirtual #37                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+        38: ifeq          49                
+        41: aload_0                 
+        42: aload_3                 
+        43: iconst_1                
+        44: aaload                  
+        45: invokevirtual #41                 // Method toV:(Ljava/lang/Object;)Ljava/lang/Object;
+        48: areturn                 
+        49: aload_3                 
+        50: arraylength             
+        51: iconst_3                
+        52: if_icmpge     57                
+        55: aconst_null             
+        56: areturn                 
+        57: aload_3                 
+        58: iconst_2                
+        59: aaload                  
+        60: checkcast     #36                 // class "[Ljava/lang/Object;"
+        63: astore_3                
+        64: goto          31                
+      LineNumberTable:
+        line 134: 0
+        line 135: 15
+        line 136: 25
+        line 138: 31
+        line 139: 41
+        line 140: 49
+        line 141: 55
+        line 142: 57
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       67     0  this   Lsun/util/PreHashedMap;
+           0       67     1  k      Ljava/lang/Object;
+          15       52     2  h      I
+          25       42     3  a      [Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       67     0  this   Lsun/util/PreHashedMap<TV;>;
+      StackMapTable: number_of_entries = 3
+        frame_type = 253 /* append */
+          offset_delta = 31
+          locals = [int, class "[Ljava/lang/Object;"]
+        frame_type = 17 /* same */
+        frame_type = 7 /* same */
+    Signature: #76                         // (Ljava/lang/Object;)TV;
+  
+  public V put(java.lang.String, V);
+    descriptor: (Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=6, args_size=3
+         0: aload_1                 
+         1: invokevirtual #45                 // Method java/lang/String.hashCode:()I
+         4: aload_0                 
+         5: getfield      #16                 // Field shift:I
+         8: ishr                    
+         9: aload_0                 
+        10: getfield      #19                 // Field mask:I
+        13: iand                    
+        14: istore_3                
+        15: aload_0                 
+        16: getfield      #24                 // Field ht:[Ljava/lang/Object;
+        19: iload_3                 
+        20: aaload                  
+        21: checkcast     #36                 // class "[Ljava/lang/Object;"
+        24: astore        4                 
+        26: aload         4                 
+        28: ifnonnull     40                
+        31: new           #48                 // class java/lang/UnsupportedOperationException
+        34: dup                     
+        35: aload_1                 
+        36: invokespecial #50                 // Method java/lang/UnsupportedOperationException."<init>":(Ljava/lang/String;)V
+        39: athrow                  
+        40: aload         4                 
+        42: iconst_0                
+        43: aaload                  
+        44: aload_1                 
+        45: invokevirtual #37                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+        48: ifeq          69                
+        51: aload_0                 
+        52: aload         4                 
+        54: iconst_1                
+        55: aaload                  
+        56: invokevirtual #41                 // Method toV:(Ljava/lang/Object;)Ljava/lang/Object;
+        59: astore        5                 
+        61: aload         4                 
+        63: iconst_1                
+        64: aload_2                 
+        65: aastore                 
+        66: aload         5                 
+        68: areturn                 
+        69: aload         4                 
+        71: arraylength             
+        72: iconst_3                
+        73: if_icmpge     85                
+        76: new           #48                 // class java/lang/UnsupportedOperationException
+        79: dup                     
+        80: aload_1                 
+        81: invokespecial #50                 // Method java/lang/UnsupportedOperationException."<init>":(Ljava/lang/String;)V
+        84: athrow                  
+        85: aload         4                 
+        87: iconst_2                
+        88: aaload                  
+        89: checkcast     #36                 // class "[Ljava/lang/Object;"
+        92: astore        4                 
+        94: goto          40                
+      LineNumberTable:
+        line 151: 0
+        line 152: 15
+        line 153: 26
+        line 154: 31
+        line 156: 40
+        line 157: 51
+        line 158: 61
+        line 159: 66
+        line 161: 69
+        line 162: 76
+        line 163: 85
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          61        8     5  ov     Ljava/lang/Object;
+           0       97     0  this   Lsun/util/PreHashedMap;
+           0       97     1  k      Ljava/lang/String;
+           0       97     2  v      Ljava/lang/Object;
+          15       82     3  h      I
+          26       71     4  a      [Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            61        8     5  ov     TV;
+             0       97     0  this   Lsun/util/PreHashedMap<TV;>;
+             0       97     2  v      TV;
+      StackMapTable: number_of_entries = 3
+        frame_type = 253 /* append */
+          offset_delta = 40
+          locals = [int, class "[Ljava/lang/Object;"]
+        frame_type = 28 /* same */
+        frame_type = 15 /* same */
+    Signature: #86                         // (Ljava/lang/String;TV;)TV;
+  
+  public java.util.Set<java.lang.String> keySet();
+    descriptor: ()Ljava/util/Set;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=1, args_size=1
+         0: new           #53                 // class sun/util/PreHashedMap$1
+         3: dup                     
+         4: aload_0                 
+         5: invokespecial #55                 // Method sun/util/PreHashedMap$1."<init>":(Lsun/util/PreHashedMap;)V
+         8: areturn                 
+      LineNumberTable:
+        line 168: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  this   Lsun/util/PreHashedMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        9     0  this   Lsun/util/PreHashedMap<TV;>;
+    Signature: #89                         // ()Ljava/util/Set<Ljava/lang/String;>;
+  
+  public java.util.Set<java.util.Map$Entry<java.lang.String, V>> entrySet();
+    descriptor: ()Ljava/util/Set;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=1, args_size=1
+         0: new           #58                 // class sun/util/PreHashedMap$2
+         3: dup                     
+         4: aload_0                 
+         5: invokespecial #60                 // Method sun/util/PreHashedMap$2."<init>":(Lsun/util/PreHashedMap;)V
+         8: areturn                 
+      LineNumberTable:
+        line 230: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  this   Lsun/util/PreHashedMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        9     0  this   Lsun/util/PreHashedMap<TV;>;
+    Signature: #91                         // ()Ljava/util/Set<Ljava/util/Map$Entry<Ljava/lang/String;TV;>;>;
+  
+  public java.lang.Object put(java.lang.Object, java.lang.Object);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+    flags: (0x1041) ACC_PUBLIC, ACC_BRIDGE, ACC_SYNTHETIC
+    Code: 
+      stack=3, locals=3, args_size=3
+         0: aload_0                 
+         1: aload_1                 
+         2: checkcast     #46                 // class java/lang/String
+         5: aload_2                 
+         6: invokevirtual #61                 // Method put:(Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+         9: areturn                 
+      LineNumberTable:
+        line 84: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Lsun/util/PreHashedMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       10     0  this   Lsun/util/PreHashedMap<TV;>;
+    MethodParameters:
+      Name                             Flags
+      <no name>                        synthetic 
+      <no name>                        synthetic 
+}
+Signature: #94                         // <V:Ljava/lang/Object;>Ljava/util/AbstractMap<Ljava/lang/String;TV;>;
+SourceFile: "PreHashedMap.java"
+NestMembers:
+  sun/util/PreHashedMap$2
+  sun/util/PreHashedMap$2$1
+  sun/util/PreHashedMap$2$1$1
+  sun/util/PreHashedMap$1
+  sun/util/PreHashedMap$1$1
+InnerClasses:
+  #53;                                        // class sun/util/PreHashedMap$1
+  #58;                                        // class sun/util/PreHashedMap$2
+  public static #109= #105 of #107;           // Entry=class java/util/Map$Entry of class java/util/Map
+  #98;                                        // class sun/util/PreHashedMap$2$1
+  #100;                                       // class sun/util/PreHashedMap$2$1$1
+  #102;                                       // class sun/util/PreHashedMap$1$1

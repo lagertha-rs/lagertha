@@ -1,0 +1,265 @@
+---
+source: jclass/src/lib.rs
+expression: display
+---
+public class java.io.FilterInputStream extends java.io.InputStream
+  minor version: 0
+  major version: 68
+  flags: (0x0021) ACC_PUBLIC, ACC_SUPER
+  this_class: #8                       //java/io/FilterInputStream
+  super_class: #2                      //java/io/InputStream
+  interfaces: 0, fields: 1, methods: 10, attributes: 1
+Constant pool:
+   #1 = Methodref          #2.#3            // java/io/InputStream."<init>":()V
+   #2 = Class              #4               // java/io/InputStream
+   #3 = NameAndType        #5:#6            // "<init>":()V
+   #4 = Utf8               java/io/InputStream
+   #5 = Utf8               <init>
+   #6 = Utf8               ()V
+   #7 = Fieldref           #8.#9            // java/io/FilterInputStream.in:Ljava/io/InputStream;
+   #8 = Class              #10              // java/io/FilterInputStream
+   #9 = NameAndType        #11:#12          // in:Ljava/io/InputStream;
+  #10 = Utf8               java/io/FilterInputStream
+  #11 = Utf8               in
+  #12 = Utf8               Ljava/io/InputStream;
+  #13 = Methodref          #2.#14           // java/io/InputStream.read:()I
+  #14 = NameAndType        #15:#16          // read:()I
+  #15 = Utf8               read
+  #16 = Utf8               ()I
+  #17 = Methodref          #8.#18           // java/io/FilterInputStream.read:([BII)I
+  #18 = NameAndType        #15:#19          // read:([BII)I
+  #19 = Utf8               ([BII)I
+  #20 = Methodref          #2.#18           // java/io/InputStream.read:([BII)I
+  #21 = Methodref          #2.#22           // java/io/InputStream.skip:(J)J
+  #22 = NameAndType        #23:#24          // skip:(J)J
+  #23 = Utf8               skip
+  #24 = Utf8               (J)J
+  #25 = Methodref          #2.#26           // java/io/InputStream.available:()I
+  #26 = NameAndType        #27:#16          // available:()I
+  #27 = Utf8               available
+  #28 = Methodref          #2.#29           // java/io/InputStream.close:()V
+  #29 = NameAndType        #30:#6           // close:()V
+  #30 = Utf8               close
+  #31 = Methodref          #2.#32           // java/io/InputStream.mark:(I)V
+  #32 = NameAndType        #33:#34          // mark:(I)V
+  #33 = Utf8               mark
+  #34 = Utf8               (I)V
+  #35 = Methodref          #2.#36           // java/io/InputStream.reset:()V
+  #36 = NameAndType        #37:#6           // reset:()V
+  #37 = Utf8               reset
+  #38 = Methodref          #2.#39           // java/io/InputStream.markSupported:()Z
+  #39 = NameAndType        #40:#41          // markSupported:()Z
+  #40 = Utf8               markSupported
+  #41 = Utf8               ()Z
+  #42 = Utf8               (Ljava/io/InputStream;)V
+  #43 = Utf8               Code
+  #44 = Utf8               LineNumberTable
+  #45 = Utf8               LocalVariableTable
+  #46 = Utf8               this
+  #47 = Utf8               Ljava/io/FilterInputStream;
+  #48 = Utf8               Exceptions
+  #49 = Class              #50              // java/io/IOException
+  #50 = Utf8               java/io/IOException
+  #51 = Utf8               ([B)I
+  #52 = Utf8               b
+  #53 = Utf8               [B
+  #54 = Utf8               off
+  #55 = Utf8               I
+  #56 = Utf8               len
+  #57 = Utf8               n
+  #58 = Utf8               J
+  #59 = Utf8               readlimit
+  #60 = Utf8               SourceFile
+  #61 = Utf8               FilterInputStream.java
+{
+  protected volatile java.io.InputStream in;
+    descriptor: Ljava/io/InputStream;
+    flags: (0x0044) ACC_PROTECTED, ACC_VOLATILE
+  
+  protected java.io.FilterInputStream(java.io.InputStream);
+    descriptor: (Ljava/io/InputStream;)V
+    flags: (0x0004) ACC_PROTECTED
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: invokespecial #1                  // Method java/io/InputStream."<init>":()V
+         4: aload_0                 
+         5: aload_1                 
+         6: putfield      #7                  // Field in:Ljava/io/InputStream;
+         9: return                  
+      LineNumberTable:
+        line 56: 0
+        line 57: 4
+        line 58: 9
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/io/FilterInputStream;
+           0       10     1  in     Ljava/io/InputStream;
+  
+  public int read() throws java.io.IOException;
+    descriptor: ()I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #7                  // Field in:Ljava/io/InputStream;
+         4: invokevirtual #13                 // Method java/io/InputStream.read:()I
+         7: ireturn                 
+      LineNumberTable:
+        line 71: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/io/FilterInputStream;
+    Exceptions:
+      throws java.io.IOException
+  
+  public int read(byte[]) throws java.io.IOException;
+    descriptor: ([B)I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=2, args_size=2
+         0: aload_0                 
+         1: aload_1                 
+         2: iconst_0                
+         3: aload_1                 
+         4: arraylength             
+         5: invokevirtual #17                 // Method read:([BII)I
+         8: ireturn                 
+      LineNumberTable:
+        line 95: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  this   Ljava/io/FilterInputStream;
+           0        9     1  b      [B
+    Exceptions:
+      throws java.io.IOException
+  
+  public int read(byte[], int, int) throws java.io.IOException;
+    descriptor: ([BII)I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=4, args_size=4
+         0: aload_0                 
+         1: getfield      #7                  // Field in:Ljava/io/InputStream;
+         4: aload_1                 
+         5: iload_2                 
+         6: iload_3                 
+         7: invokevirtual #20                 // Method java/io/InputStream.read:([BII)I
+        10: ireturn                 
+      LineNumberTable:
+        line 119: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       11     0  this   Ljava/io/FilterInputStream;
+           0       11     1  b      [B
+           0       11     2  off    I
+           0       11     3  len    I
+    Exceptions:
+      throws java.io.IOException
+  
+  public long skip(long) throws java.io.IOException;
+    descriptor: (J)J
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=3, args_size=2
+         0: aload_0                 
+         1: getfield      #7                  // Field in:Ljava/io/InputStream;
+         4: lload_1                 
+         5: invokevirtual #21                 // Method java/io/InputStream.skip:(J)J
+         8: lreturn                 
+      LineNumberTable:
+        line 138: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  this   Ljava/io/FilterInputStream;
+           0        9     1  n      J
+    Exceptions:
+      throws java.io.IOException
+  
+  public int available() throws java.io.IOException;
+    descriptor: ()I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #7                  // Field in:Ljava/io/InputStream;
+         4: invokevirtual #25                 // Method java/io/InputStream.available:()I
+         7: ireturn                 
+      LineNumberTable:
+        line 157: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/io/FilterInputStream;
+    Exceptions:
+      throws java.io.IOException
+  
+  public void close() throws java.io.IOException;
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #7                  // Field in:Ljava/io/InputStream;
+         4: invokevirtual #28                 // Method java/io/InputStream.close:()V
+         7: return                  
+      LineNumberTable:
+        line 170: 0
+        line 171: 7
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/io/FilterInputStream;
+    Exceptions:
+      throws java.io.IOException
+  
+  public void mark(int);
+    descriptor: (I)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: getfield      #7                  // Field in:Ljava/io/InputStream;
+         4: iload_1                 
+         5: invokevirtual #31                 // Method java/io/InputStream.mark:(I)V
+         8: return                  
+      LineNumberTable:
+        line 191: 0
+        line 192: 8
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        9     0  this   Ljava/io/FilterInputStream;
+           0        9     1  readlimit I
+  
+  public void reset() throws java.io.IOException;
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #7                  // Field in:Ljava/io/InputStream;
+         4: invokevirtual #35                 // Method java/io/InputStream.reset:()V
+         7: return                  
+      LineNumberTable:
+        line 216: 0
+        line 217: 7
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/io/FilterInputStream;
+    Exceptions:
+      throws java.io.IOException
+  
+  public boolean markSupported();
+    descriptor: ()Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #7                  // Field in:Ljava/io/InputStream;
+         4: invokevirtual #38                 // Method java/io/InputStream.markSupported:()Z
+         7: ireturn                 
+      LineNumberTable:
+        line 235: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/io/FilterInputStream;
+}
+SourceFile: "FilterInputStream.java"

@@ -1,0 +1,146 @@
+---
+source: jclass/src/lib.rs
+expression: display
+---
+public class java.lang.IndexOutOfBoundsException extends java.lang.RuntimeException
+  minor version: 0
+  major version: 68
+  flags: (0x0021) ACC_PUBLIC, ACC_SUPER
+  this_class: #29                      //java/lang/IndexOutOfBoundsException
+  super_class: #2                      //java/lang/RuntimeException
+  interfaces: 0, fields: 1, methods: 4, attributes: 1
+Constant pool:
+   #1 = Methodref          #2.#3            // java/lang/RuntimeException."<init>":()V
+   #2 = Class              #4               // java/lang/RuntimeException
+   #3 = NameAndType        #5:#6            // "<init>":()V
+   #4 = Utf8               java/lang/RuntimeException
+   #5 = Utf8               <init>
+   #6 = Utf8               ()V
+   #7 = Methodref          #2.#8            // java/lang/RuntimeException."<init>":(Ljava/lang/String;)V
+   #8 = NameAndType        #5:#9            // "<init>":(Ljava/lang/String;)V
+   #9 = Utf8               (Ljava/lang/String;)V
+  #10 = Class              #11              // java/lang/StringBuilder
+  #11 = Utf8               java/lang/StringBuilder
+  #12 = Methodref          #10.#3           // java/lang/StringBuilder."<init>":()V
+  #13 = String             #14              // Index out of range: 
+  #14 = Utf8               Index out of range: 
+  #15 = Methodref          #10.#16          // java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+  #16 = NameAndType        #17:#18          // append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+  #17 = Utf8               append
+  #18 = Utf8               (Ljava/lang/String;)Ljava/lang/StringBuilder;
+  #19 = Methodref          #10.#20          // java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+  #20 = NameAndType        #17:#21          // append:(I)Ljava/lang/StringBuilder;
+  #21 = Utf8               (I)Ljava/lang/StringBuilder;
+  #22 = Methodref          #10.#23          // java/lang/StringBuilder.toString:()Ljava/lang/String;
+  #23 = NameAndType        #24:#25          // toString:()Ljava/lang/String;
+  #24 = Utf8               toString
+  #25 = Utf8               ()Ljava/lang/String;
+  #26 = Methodref          #10.#27          // java/lang/StringBuilder.append:(J)Ljava/lang/StringBuilder;
+  #27 = NameAndType        #17:#28          // append:(J)Ljava/lang/StringBuilder;
+  #28 = Utf8               (J)Ljava/lang/StringBuilder;
+  #29 = Class              #30              // java/lang/IndexOutOfBoundsException
+  #30 = Utf8               java/lang/IndexOutOfBoundsException
+  #31 = Utf8               serialVersionUID
+  #32 = Utf8               J
+  #33 = Utf8               ConstantValue
+  #34 = Long               234122996006267687l
+  #36 = Utf8               Code
+  #37 = Utf8               LineNumberTable
+  #38 = Utf8               LocalVariableTable
+  #39 = Utf8               this
+  #40 = Utf8               Ljava/lang/IndexOutOfBoundsException;
+  #41 = Utf8               s
+  #42 = Utf8               Ljava/lang/String;
+  #43 = Utf8               (I)V
+  #44 = Utf8               index
+  #45 = Utf8               I
+  #46 = Utf8               (J)V
+  #47 = Utf8               SourceFile
+  #48 = Utf8               IndexOutOfBoundsException.java
+{
+  private static final long serialVersionUID;
+    descriptor: J
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: long 234122996006267687l
+  
+  public java.lang.IndexOutOfBoundsException();
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: invokespecial #1                  // Method java/lang/RuntimeException."<init>":()V
+         4: return                  
+      LineNumberTable:
+        line 45: 0
+        line 46: 4
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/lang/IndexOutOfBoundsException;
+  
+  public java.lang.IndexOutOfBoundsException(java.lang.String);
+    descriptor: (Ljava/lang/String;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: aload_1                 
+         2: invokespecial #7                  // Method java/lang/RuntimeException."<init>":(Ljava/lang/String;)V
+         5: return                  
+      LineNumberTable:
+        line 55: 0
+        line 56: 5
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        6     0  this   Ljava/lang/IndexOutOfBoundsException;
+           0        6     1  s      Ljava/lang/String;
+  
+  public java.lang.IndexOutOfBoundsException(int);
+    descriptor: (I)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=2, args_size=2
+         0: aload_0                 
+         1: new           #10                 // class java/lang/StringBuilder
+         4: dup                     
+         5: invokespecial #12                 // Method java/lang/StringBuilder."<init>":()V
+         8: ldc           #13                 // String Index out of range: 
+        10: invokevirtual #15                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        13: iload_1                 
+        14: invokevirtual #19                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+        17: invokevirtual #22                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        20: invokespecial #7                  // Method java/lang/RuntimeException."<init>":(Ljava/lang/String;)V
+        23: return                  
+      LineNumberTable:
+        line 69: 0
+        line 70: 23
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       24     0  this   Ljava/lang/IndexOutOfBoundsException;
+           0       24     1  index  I
+  
+  public java.lang.IndexOutOfBoundsException(long);
+    descriptor: (J)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=3, args_size=2
+         0: aload_0                 
+         1: new           #10                 // class java/lang/StringBuilder
+         4: dup                     
+         5: invokespecial #12                 // Method java/lang/StringBuilder."<init>":()V
+         8: ldc           #13                 // String Index out of range: 
+        10: invokevirtual #15                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        13: lload_1                 
+        14: invokevirtual #26                 // Method java/lang/StringBuilder.append:(J)Ljava/lang/StringBuilder;
+        17: invokevirtual #22                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        20: invokespecial #7                  // Method java/lang/RuntimeException."<init>":(Ljava/lang/String;)V
+        23: return                  
+      LineNumberTable:
+        line 83: 0
+        line 84: 23
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       24     0  this   Ljava/lang/IndexOutOfBoundsException;
+           0       24     1  index  J
+}
+SourceFile: "IndexOutOfBoundsException.java"

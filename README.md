@@ -16,7 +16,7 @@ not.
 
 This workspace consists of several crates:
 
-- **class_file** - Library that parses and maps the binary representation of `.class` files to Rust structures
+- **jclass** - Library that parses and maps the binary representation of `.class` files to Rust structures
 - **common** - Utility library with shared functionality used across the workspace
 - **classp** - Binary tool similar to `javap -v -p` for inspecting class files
 - **runtime** - Library implementing the virtual machine that executes Java bytecode
@@ -69,13 +69,13 @@ that I don't break anything.
   It compiles all Java files, from all crates and organizes them into the appropriate directory structure. For the
   classes from `fixtures.toml` it extracts the required classes from the JDK. For the rest of java source files. It
   compiles all of them using `javac` with java 24.
-- `class_file` tests reads all `.class` complied from all classes from `fixtures.toml`, all classes used in `runtime`
+- `jclass` tests reads all `.class` complied from all classes from `fixtures.toml`, all classes used in `runtime`
   tests, and all classes from `vm/tests`. It checks that it is parsed correctly. Right now it uses both snapshots
   and compare against `javap -v -p` output. In the future I want to remove one of them, because testing the same thing
   twice looks redundant, on the one hand snapshots are more predictable, on the other hand comparing against `javap` is
   more sure that the parsing is correct.
-- `class_file/fixtures.toml`: A configuration file defining test fixtures from java standard libraries. Used only by
-  `class_file` to test parsing of real-world class files. There is an assertion somewhere in `runtime` crate, whenever
+- `jclass/fixtures.toml`: A configuration file defining test fixtures from java standard libraries. Used only by
+  `jclass` to test parsing of real-world class files. There is an assertion somewhere in `runtime` crate, whenever
   a jdk class is loaded, it is checked if it is present in this file. This is to ensure that the class file is correctly
   parsed and mapped to Rust structures.
 - `runtime/testdata`: A directory containing Java source files for runtime tests. Each subdirectory represents a test

@@ -1,0 +1,1183 @@
+---
+source: jclass/src/lib.rs
+expression: display
+---
+public abstract class java.util.AbstractMap <K extends java.lang.Object, V extends java.lang.Object> extends java.lang.Object implements java.util.Map<K, V>
+  minor version: 0
+  major version: 68
+  flags: (0x0421) ACC_PUBLIC, ACC_SUPER, ACC_ABSTRACT
+  this_class: #8                       //java/util/AbstractMap
+  super_class: #2                      //java/lang/Object
+  interfaces: 1, fields: 2, methods: 18, attributes: 4
+Constant pool:
+    #1 = Methodref          #2.#3            // java/lang/Object."<init>":()V
+    #2 = Class              #4               // java/lang/Object
+    #3 = NameAndType        #5:#6            // "<init>":()V
+    #4 = Utf8               java/lang/Object
+    #5 = Utf8               <init>
+    #6 = Utf8               ()V
+    #7 = Methodref          #8.#9            // java/util/AbstractMap.entrySet:()Ljava/util/Set;
+    #8 = Class              #10              // java/util/AbstractMap
+    #9 = NameAndType        #11:#12          // entrySet:()Ljava/util/Set;
+   #10 = Utf8               java/util/AbstractMap
+   #11 = Utf8               entrySet
+   #12 = Utf8               ()Ljava/util/Set;
+   #13 = InterfaceMethodref #14.#15          // java/util/Set.size:()I
+   #14 = Class              #16              // java/util/Set
+   #15 = NameAndType        #17:#18          // size:()I
+   #16 = Utf8               java/util/Set
+   #17 = Utf8               size
+   #18 = Utf8               ()I
+   #19 = Methodref          #8.#15           // java/util/AbstractMap.size:()I
+   #20 = InterfaceMethodref #14.#21          // java/util/Set.iterator:()Ljava/util/Iterator;
+   #21 = NameAndType        #22:#23          // iterator:()Ljava/util/Iterator;
+   #22 = Utf8               iterator
+   #23 = Utf8               ()Ljava/util/Iterator;
+   #24 = InterfaceMethodref #25.#26          // java/util/Iterator.hasNext:()Z
+   #25 = Class              #27              // java/util/Iterator
+   #26 = NameAndType        #28:#29          // hasNext:()Z
+   #27 = Utf8               java/util/Iterator
+   #28 = Utf8               hasNext
+   #29 = Utf8               ()Z
+   #30 = InterfaceMethodref #25.#31          // java/util/Iterator.next:()Ljava/lang/Object;
+   #31 = NameAndType        #32:#33          // next:()Ljava/lang/Object;
+   #32 = Utf8               next
+   #33 = Utf8               ()Ljava/lang/Object;
+   #34 = Class              #35              // java/util/Map$Entry
+   #35 = Utf8               java/util/Map$Entry
+   #36 = InterfaceMethodref #34.#37          // java/util/Map$Entry.getValue:()Ljava/lang/Object;
+   #37 = NameAndType        #38:#33          // getValue:()Ljava/lang/Object;
+   #38 = Utf8               getValue
+   #39 = Methodref          #2.#40           // java/lang/Object.equals:(Ljava/lang/Object;)Z
+   #40 = NameAndType        #41:#42          // equals:(Ljava/lang/Object;)Z
+   #41 = Utf8               equals
+   #42 = Utf8               (Ljava/lang/Object;)Z
+   #43 = InterfaceMethodref #34.#44          // java/util/Map$Entry.getKey:()Ljava/lang/Object;
+   #44 = NameAndType        #45:#33          // getKey:()Ljava/lang/Object;
+   #45 = Utf8               getKey
+   #46 = Class              #47              // java/lang/UnsupportedOperationException
+   #47 = Utf8               java/lang/UnsupportedOperationException
+   #48 = Methodref          #46.#3           // java/lang/UnsupportedOperationException."<init>":()V
+   #49 = InterfaceMethodref #25.#50          // java/util/Iterator.remove:()V
+   #50 = NameAndType        #51:#6           // remove:()V
+   #51 = Utf8               remove
+   #52 = InterfaceMethodref #53.#9           // java/util/Map.entrySet:()Ljava/util/Set;
+   #53 = Class              #54              // java/util/Map
+   #54 = Utf8               java/util/Map
+   #55 = Methodref          #8.#56           // java/util/AbstractMap.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+   #56 = NameAndType        #57:#58          // put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+   #57 = Utf8               put
+   #58 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+   #59 = InterfaceMethodref #14.#60          // java/util/Set.clear:()V
+   #60 = NameAndType        #61:#6           // clear:()V
+   #61 = Utf8               clear
+   #62 = Fieldref           #8.#63           // java/util/AbstractMap.keySet:Ljava/util/Set;
+   #63 = NameAndType        #64:#65          // keySet:Ljava/util/Set;
+   #64 = Utf8               keySet
+   #65 = Utf8               Ljava/util/Set;
+   #66 = Class              #67              // java/util/AbstractMap$1
+   #67 = Utf8               java/util/AbstractMap$1
+   #68 = Methodref          #66.#69          // java/util/AbstractMap$1."<init>":(Ljava/util/AbstractMap;)V
+   #69 = NameAndType        #5:#70           // "<init>":(Ljava/util/AbstractMap;)V
+   #70 = Utf8               (Ljava/util/AbstractMap;)V
+   #71 = Fieldref           #8.#72           // java/util/AbstractMap.values:Ljava/util/Collection;
+   #72 = NameAndType        #73:#74          // values:Ljava/util/Collection;
+   #73 = Utf8               values
+   #74 = Utf8               Ljava/util/Collection;
+   #75 = Class              #76              // java/util/AbstractMap$2
+   #76 = Utf8               java/util/AbstractMap$2
+   #77 = Methodref          #75.#69          // java/util/AbstractMap$2."<init>":(Ljava/util/AbstractMap;)V
+   #78 = InterfaceMethodref #53.#15          // java/util/Map.size:()I
+   #79 = InterfaceMethodref #53.#80          // java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+   #80 = NameAndType        #81:#82          // get:(Ljava/lang/Object;)Ljava/lang/Object;
+   #81 = Utf8               get
+   #82 = Utf8               (Ljava/lang/Object;)Ljava/lang/Object;
+   #83 = InterfaceMethodref #53.#84          // java/util/Map.containsKey:(Ljava/lang/Object;)Z
+   #84 = NameAndType        #85:#42          // containsKey:(Ljava/lang/Object;)Z
+   #85 = Utf8               containsKey
+   #86 = Class              #87              // java/lang/ClassCastException
+   #87 = Utf8               java/lang/ClassCastException
+   #88 = Class              #89              // java/lang/NullPointerException
+   #89 = Utf8               java/lang/NullPointerException
+   #90 = InterfaceMethodref #34.#91          // java/util/Map$Entry.hashCode:()I
+   #91 = NameAndType        #92:#18          // hashCode:()I
+   #92 = Utf8               hashCode
+   #93 = String             #94              // {}
+   #94 = Utf8               {}
+   #95 = Class              #96              // java/lang/StringBuilder
+   #96 = Utf8               java/lang/StringBuilder
+   #97 = Methodref          #95.#3           // java/lang/StringBuilder."<init>":()V
+   #98 = Methodref          #95.#99          // java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+   #99 = NameAndType        #100:#101        // append:(C)Ljava/lang/StringBuilder;
+  #100 = Utf8               append
+  #101 = Utf8               (C)Ljava/lang/StringBuilder;
+  #102 = String             #103             // (this Map)
+  #103 = Utf8               (this Map)
+  #104 = Methodref          #95.#105         // java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+  #105 = NameAndType        #100:#106        // append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+  #106 = Utf8               (Ljava/lang/Object;)Ljava/lang/StringBuilder;
+  #107 = Methodref          #95.#108         // java/lang/StringBuilder.toString:()Ljava/lang/String;
+  #108 = NameAndType        #109:#110        // toString:()Ljava/lang/String;
+  #109 = Utf8               toString
+  #110 = Utf8               ()Ljava/lang/String;
+  #111 = Methodref          #2.#112          // java/lang/Object.clone:()Ljava/lang/Object;
+  #112 = NameAndType        #113:#33         // clone:()Ljava/lang/Object;
+  #113 = Utf8               clone
+  #114 = Utf8               Signature
+  #115 = Utf8               Ljava/util/Set<TK;>;
+  #116 = Utf8               Ljava/util/Collection<TV;>;
+  #117 = Utf8               Code
+  #118 = Utf8               LineNumberTable
+  #119 = Utf8               LocalVariableTable
+  #120 = Utf8               this
+  #121 = Utf8               Ljava/util/AbstractMap;
+  #122 = Utf8               LocalVariableTypeTable
+  #123 = Utf8               Ljava/util/AbstractMap<TK;TV;>;
+  #124 = Utf8               isEmpty
+  #125 = Utf8               StackMapTable
+  #126 = Utf8               containsValue
+  #127 = Utf8               e
+  #128 = Utf8               Ljava/util/Map$Entry;
+  #129 = Utf8               value
+  #130 = Utf8               Ljava/lang/Object;
+  #131 = Utf8               i
+  #132 = Utf8               Ljava/util/Iterator;
+  #133 = Utf8               Ljava/util/Map$Entry<TK;TV;>;
+  #134 = Utf8               Ljava/util/Iterator<Ljava/util/Map$Entry<TK;TV;>;>;
+  #135 = Utf8               key
+  #136 = Utf8               (Ljava/lang/Object;)TV;
+  #137 = Utf8               TK;
+  #138 = Utf8               TV;
+  #139 = Utf8               (TK;TV;)TV;
+  #140 = Utf8               correctEntry
+  #141 = Utf8               oldValue
+  #142 = Utf8               putAll
+  #143 = Utf8               (Ljava/util/Map;)V
+  #144 = Utf8               m
+  #145 = Utf8               Ljava/util/Map;
+  #146 = Utf8               Ljava/util/Map$Entry<+TK;+TV;>;
+  #147 = Utf8               Ljava/util/Map<+TK;+TV;>;
+  #148 = Utf8               (Ljava/util/Map<+TK;+TV;>;)V
+  #149 = Utf8               ks
+  #150 = Utf8               ()Ljava/util/Set<TK;>;
+  #151 = Utf8               ()Ljava/util/Collection;
+  #152 = Utf8               vals
+  #153 = Class              #154             // java/util/Collection
+  #154 = Utf8               java/util/Collection
+  #155 = Utf8               ()Ljava/util/Collection<TV;>;
+  #156 = Utf8               ()Ljava/util/Set<Ljava/util/Map$Entry<TK;TV;>;>;
+  #157 = Utf8               unused
+  #158 = Utf8               Ljava/lang/RuntimeException;
+  #159 = Utf8               o
+  #160 = Utf8               Ljava/util/Map<**>;
+  #161 = Class              #162             // java/lang/RuntimeException
+  #162 = Utf8               java/lang/RuntimeException
+  #163 = Utf8               entry
+  #164 = Utf8               h
+  #165 = Utf8               I
+  #166 = Utf8               sb
+  #167 = Utf8               Ljava/lang/StringBuilder;
+  #168 = Utf8               result
+  #169 = Utf8               Ljava/util/AbstractMap<**>;
+  #170 = Utf8               Exceptions
+  #171 = Class              #172             // java/lang/CloneNotSupportedException
+  #172 = Utf8               java/lang/CloneNotSupportedException
+  #173 = Utf8               eq
+  #174 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;)Z
+  #175 = Utf8               o1
+  #176 = Utf8               o2
+  #177 = Utf8               <K:Ljava/lang/Object;V:Ljava/lang/Object;>Ljava/lang/Object;Ljava/util/Map<TK;TV;>;
+  #178 = Utf8               SourceFile
+  #179 = Utf8               AbstractMap.java
+  #180 = Utf8               NestMembers
+  #181 = Class              #182             // java/util/AbstractMap$ValueIterator
+  #182 = Utf8               java/util/AbstractMap$ValueIterator
+  #183 = Class              #184             // java/util/AbstractMap$KeyIterator
+  #184 = Utf8               java/util/AbstractMap$KeyIterator
+  #185 = Class              #186             // java/util/AbstractMap$ViewCollection
+  #186 = Utf8               java/util/AbstractMap$ViewCollection
+  #187 = Class              #188             // java/util/AbstractMap$SimpleImmutableEntry
+  #188 = Utf8               java/util/AbstractMap$SimpleImmutableEntry
+  #189 = Class              #190             // java/util/AbstractMap$SimpleEntry
+  #190 = Utf8               java/util/AbstractMap$SimpleEntry
+  #191 = Utf8               InnerClasses
+  #192 = Utf8               Entry
+  #193 = Utf8               ValueIterator
+  #194 = Utf8               KeyIterator
+  #195 = Utf8               ViewCollection
+  #196 = Utf8               SimpleImmutableEntry
+  #197 = Utf8               SimpleEntry
+{
+  transient java.util.Set<K> keySet;
+    descriptor: Ljava/util/Set;
+    flags: (0x0080) ACC_TRANSIENT
+    Signature: #115                        // Ljava/util/Set<TK;>;
+  
+  transient java.util.Collection<V> values;
+    descriptor: Ljava/util/Collection;
+    flags: (0x0080) ACC_TRANSIENT
+    Signature: #116                        // Ljava/util/Collection<TV;>;
+  
+  protected java.util.AbstractMap();
+    descriptor: ()V
+    flags: (0x0004) ACC_PROTECTED
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return                  
+      LineNumberTable:
+        line 77: 0
+        line 78: 4
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/util/AbstractMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        5     0  this   Ljava/util/AbstractMap<TK;TV;>;
+  
+  public int size();
+    descriptor: ()I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: invokevirtual #7                  // Method entrySet:()Ljava/util/Set;
+         4: invokeinterface #13, 1              // InterfaceMethod java/util/Set.size:()I
+         9: ireturn                 
+      LineNumberTable:
+        line 89: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/util/AbstractMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       10     0  this   Ljava/util/AbstractMap<TK;TV;>;
+  
+  public boolean isEmpty();
+    descriptor: ()Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: invokevirtual #19                 // Method size:()I
+         4: ifne          11                
+         7: iconst_1                
+         8: goto          12                
+        11: iconst_0                
+        12: ireturn                 
+      LineNumberTable:
+        line 99: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       13     0  this   Ljava/util/AbstractMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       13     0  this   Ljava/util/AbstractMap<TK;TV;>;
+      StackMapTable: number_of_entries = 2
+        frame_type = 11 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  public boolean containsValue(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=4, args_size=2
+         0: aload_0                 
+         1: invokevirtual #7                  // Method entrySet:()Ljava/util/Set;
+         4: invokeinterface #20, 1              // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+         9: astore_2                
+        10: aload_1                 
+        11: ifnonnull     47                
+        14: aload_2                 
+        15: invokeinterface #24, 1              // InterfaceMethod java/util/Iterator.hasNext:()Z
+        20: ifeq          84                
+        23: aload_2                 
+        24: invokeinterface #30, 1              // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        29: checkcast     #34                 // class java/util/Map$Entry
+        32: astore_3                
+        33: aload_3                 
+        34: invokeinterface #36, 1              // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        39: ifnonnull     44                
+        42: iconst_1                
+        43: ireturn                 
+        44: goto          14                
+        47: aload_2                 
+        48: invokeinterface #24, 1              // InterfaceMethod java/util/Iterator.hasNext:()Z
+        53: ifeq          84                
+        56: aload_2                 
+        57: invokeinterface #30, 1              // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        62: checkcast     #34                 // class java/util/Map$Entry
+        65: astore_3                
+        66: aload_1                 
+        67: aload_3                 
+        68: invokeinterface #36, 1              // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        73: invokevirtual #39                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+        76: ifeq          81                
+        79: iconst_1                
+        80: ireturn                 
+        81: goto          47                
+        84: iconst_0                
+        85: ireturn                 
+      LineNumberTable:
+        line 116: 0
+        line 117: 10
+        line 118: 14
+        line 119: 23
+        line 120: 33
+        line 121: 42
+        line 122: 44
+        line 124: 47
+        line 125: 56
+        line 126: 66
+        line 127: 79
+        line 128: 81
+        line 130: 84
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          33       11     3  e      Ljava/util/Map$Entry;
+          66       15     3  e      Ljava/util/Map$Entry;
+           0       86     0  this   Ljava/util/AbstractMap;
+           0       86     1  value  Ljava/lang/Object;
+          10       76     2  i      Ljava/util/Iterator;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            33       11     3  e      Ljava/util/Map$Entry<TK;TV;>;
+            66       15     3  e      Ljava/util/Map$Entry<TK;TV;>;
+             0       86     0  this   Ljava/util/AbstractMap<TK;TV;>;
+            10       76     2  i      Ljava/util/Iterator<Ljava/util/Map$Entry<TK;TV;>;>;
+      StackMapTable: number_of_entries = 5
+        frame_type = 252 /* append */
+          offset_delta = 14
+          locals = [class java/util/Iterator]
+        frame_type = 29 /* same */
+        frame_type = 2 /* same */
+        frame_type = 33 /* same */
+        frame_type = 2 /* same */
+  
+  public boolean containsKey(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=4, args_size=2
+         0: aload_0                 
+         1: invokevirtual #7                  // Method entrySet:()Ljava/util/Set;
+         4: invokeinterface #20, 1              // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+         9: astore_2                
+        10: aload_1                 
+        11: ifnonnull     47                
+        14: aload_2                 
+        15: invokeinterface #24, 1              // InterfaceMethod java/util/Iterator.hasNext:()Z
+        20: ifeq          84                
+        23: aload_2                 
+        24: invokeinterface #30, 1              // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        29: checkcast     #34                 // class java/util/Map$Entry
+        32: astore_3                
+        33: aload_3                 
+        34: invokeinterface #43, 1              // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+        39: ifnonnull     44                
+        42: iconst_1                
+        43: ireturn                 
+        44: goto          14                
+        47: aload_2                 
+        48: invokeinterface #24, 1              // InterfaceMethod java/util/Iterator.hasNext:()Z
+        53: ifeq          84                
+        56: aload_2                 
+        57: invokeinterface #30, 1              // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        62: checkcast     #34                 // class java/util/Map$Entry
+        65: astore_3                
+        66: aload_1                 
+        67: aload_3                 
+        68: invokeinterface #43, 1              // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+        73: invokevirtual #39                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+        76: ifeq          81                
+        79: iconst_1                
+        80: ireturn                 
+        81: goto          47                
+        84: iconst_0                
+        85: ireturn                 
+      LineNumberTable:
+        line 148: 0
+        line 149: 10
+        line 150: 14
+        line 151: 23
+        line 152: 33
+        line 153: 42
+        line 154: 44
+        line 156: 47
+        line 157: 56
+        line 158: 66
+        line 159: 79
+        line 160: 81
+        line 162: 84
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          33       11     3  e      Ljava/util/Map$Entry;
+          66       15     3  e      Ljava/util/Map$Entry;
+           0       86     0  this   Ljava/util/AbstractMap;
+           0       86     1  key    Ljava/lang/Object;
+          10       76     2  i      Ljava/util/Iterator;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            33       11     3  e      Ljava/util/Map$Entry<TK;TV;>;
+            66       15     3  e      Ljava/util/Map$Entry<TK;TV;>;
+             0       86     0  this   Ljava/util/AbstractMap<TK;TV;>;
+            10       76     2  i      Ljava/util/Iterator<Ljava/util/Map$Entry<TK;TV;>;>;
+      StackMapTable: number_of_entries = 5
+        frame_type = 252 /* append */
+          offset_delta = 14
+          locals = [class java/util/Iterator]
+        frame_type = 29 /* same */
+        frame_type = 2 /* same */
+        frame_type = 33 /* same */
+        frame_type = 2 /* same */
+  
+  public V get(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Ljava/lang/Object;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=4, args_size=2
+         0: aload_0                 
+         1: invokevirtual #7                  // Method entrySet:()Ljava/util/Set;
+         4: invokeinterface #20, 1              // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+         9: astore_2                
+        10: aload_1                 
+        11: ifnonnull     52                
+        14: aload_2                 
+        15: invokeinterface #24, 1              // InterfaceMethod java/util/Iterator.hasNext:()Z
+        20: ifeq          94                
+        23: aload_2                 
+        24: invokeinterface #30, 1              // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        29: checkcast     #34                 // class java/util/Map$Entry
+        32: astore_3                
+        33: aload_3                 
+        34: invokeinterface #43, 1              // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+        39: ifnonnull     49                
+        42: aload_3                 
+        43: invokeinterface #36, 1              // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        48: areturn                 
+        49: goto          14                
+        52: aload_2                 
+        53: invokeinterface #24, 1              // InterfaceMethod java/util/Iterator.hasNext:()Z
+        58: ifeq          94                
+        61: aload_2                 
+        62: invokeinterface #30, 1              // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        67: checkcast     #34                 // class java/util/Map$Entry
+        70: astore_3                
+        71: aload_1                 
+        72: aload_3                 
+        73: invokeinterface #43, 1              // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+        78: invokevirtual #39                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+        81: ifeq          91                
+        84: aload_3                 
+        85: invokeinterface #36, 1              // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        90: areturn                 
+        91: goto          52                
+        94: aconst_null             
+        95: areturn                 
+      LineNumberTable:
+        line 180: 0
+        line 181: 10
+        line 182: 14
+        line 183: 23
+        line 184: 33
+        line 185: 42
+        line 186: 49
+        line 188: 52
+        line 189: 61
+        line 190: 71
+        line 191: 84
+        line 192: 91
+        line 194: 94
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          33       16     3  e      Ljava/util/Map$Entry;
+          71       20     3  e      Ljava/util/Map$Entry;
+           0       96     0  this   Ljava/util/AbstractMap;
+           0       96     1  key    Ljava/lang/Object;
+          10       86     2  i      Ljava/util/Iterator;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            33       16     3  e      Ljava/util/Map$Entry<TK;TV;>;
+            71       20     3  e      Ljava/util/Map$Entry<TK;TV;>;
+             0       96     0  this   Ljava/util/AbstractMap<TK;TV;>;
+            10       86     2  i      Ljava/util/Iterator<Ljava/util/Map$Entry<TK;TV;>;>;
+      StackMapTable: number_of_entries = 5
+        frame_type = 252 /* append */
+          offset_delta = 14
+          locals = [class java/util/Iterator]
+        frame_type = 34 /* same */
+        frame_type = 2 /* same */
+        frame_type = 38 /* same */
+        frame_type = 2 /* same */
+    Signature: #136                        // (Ljava/lang/Object;)TV;
+  
+  public V put(K, V);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=3, args_size=3
+         0: new           #46                 // class java/lang/UnsupportedOperationException
+         3: dup                     
+         4: invokespecial #48                 // Method java/lang/UnsupportedOperationException."<init>":()V
+         7: athrow                  
+      LineNumberTable:
+        line 213: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        8     0  this   Ljava/util/AbstractMap;
+           0        8     1  key    Ljava/lang/Object;
+           0        8     2  value  Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0        8     0  this   Ljava/util/AbstractMap<TK;TV;>;
+             0        8     1  key    TK;
+             0        8     2  value   TV;
+    Signature: #139                        // (TK;TV;)TV;
+  
+  public V remove(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Ljava/lang/Object;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=5, args_size=2
+         0: aload_0                 
+         1: invokevirtual #7                  // Method entrySet:()Ljava/util/Set;
+         4: invokeinterface #20, 1              // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+         9: astore_2                
+        10: aconst_null             
+        11: astore_3                
+        12: aload_1                 
+        13: ifnonnull     56                
+        16: aload_3                 
+        17: ifnonnull     100               
+        20: aload_2                 
+        21: invokeinterface #24, 1              // InterfaceMethod java/util/Iterator.hasNext:()Z
+        26: ifeq          100               
+        29: aload_2                 
+        30: invokeinterface #30, 1              // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        35: checkcast     #34                 // class java/util/Map$Entry
+        38: astore        4                 
+        40: aload         4                 
+        42: invokeinterface #43, 1              // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+        47: ifnonnull     53                
+        50: aload         4                 
+        52: astore_3                
+        53: goto          16                
+        56: aload_3                 
+        57: ifnonnull     100               
+        60: aload_2                 
+        61: invokeinterface #24, 1              // InterfaceMethod java/util/Iterator.hasNext:()Z
+        66: ifeq          100               
+        69: aload_2                 
+        70: invokeinterface #30, 1              // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        75: checkcast     #34                 // class java/util/Map$Entry
+        78: astore        4                 
+        80: aload_1                 
+        81: aload         4                 
+        83: invokeinterface #43, 1              // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+        88: invokevirtual #39                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+        91: ifeq          97                
+        94: aload         4                 
+        96: astore_3                
+        97: goto          56                
+       100: aconst_null             
+       101: astore        4                 
+       103: aload_3                 
+       104: ifnull        121               
+       107: aload_3                 
+       108: invokeinterface #36, 1              // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+       113: astore        4                 
+       115: aload_2                 
+       116: invokeinterface #49, 1              // InterfaceMethod java/util/Iterator.remove:()V
+       121: aload         4                 
+       123: areturn                 
+      LineNumberTable:
+        line 239: 0
+        line 240: 10
+        line 241: 12
+        line 242: 16
+        line 243: 29
+        line 244: 40
+        line 245: 50
+        line 246: 53
+        line 248: 56
+        line 249: 69
+        line 250: 80
+        line 251: 94
+        line 252: 97
+        line 255: 100
+        line 256: 103
+        line 257: 107
+        line 258: 115
+        line 260: 121
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          40       13     4  e      Ljava/util/Map$Entry;
+          80       17     4  e      Ljava/util/Map$Entry;
+           0      124     0  this   Ljava/util/AbstractMap;
+           0      124     1  key    Ljava/lang/Object;
+          10      114     2  i      Ljava/util/Iterator;
+          12      112     3  correctEntry Ljava/util/Map$Entry;
+         103       21     4  oldValue Ljava/lang/Object;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            40       13     4  e      Ljava/util/Map$Entry<TK;TV;>;
+            80       17     4  e      Ljava/util/Map$Entry<TK;TV;>;
+             0      124     0  this   Ljava/util/AbstractMap<TK;TV;>;
+            10      114     2  i      Ljava/util/Iterator<Ljava/util/Map$Entry<TK;TV;>;>;
+            12      112     3  correctEntry   Ljava/util/Map$Entry<TK;TV;>;
+           103       21     4  oldValue   TV;
+      StackMapTable: number_of_entries = 6
+        frame_type = 253 /* append */
+          offset_delta = 16
+          locals = [class java/util/Iterator, class java/util/Map$Entry]
+        frame_type = 36 /* same */
+        frame_type = 2 /* same */
+        frame_type = 40 /* same */
+        frame_type = 2 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 20
+          locals = [class java/lang/Object]
+    Signature: #136                        // (Ljava/lang/Object;)TV;
+  
+  public void putAll(java.util.Map<? extends K, ? extends V>);
+    descriptor: (Ljava/util/Map;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=4, args_size=2
+         0: aload_1                 
+         1: invokeinterface #52, 1              // InterfaceMethod java/util/Map.entrySet:()Ljava/util/Set;
+         6: invokeinterface #20, 1              // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        11: astore_2                
+        12: aload_2                 
+        13: invokeinterface #24, 1              // InterfaceMethod java/util/Iterator.hasNext:()Z
+        18: ifeq          51                
+        21: aload_2                 
+        22: invokeinterface #30, 1              // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        27: checkcast     #34                 // class java/util/Map$Entry
+        30: astore_3                
+        31: aload_0                 
+        32: aload_3                 
+        33: invokeinterface #43, 1              // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+        38: aload_3                 
+        39: invokeinterface #36, 1              // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        44: invokevirtual #55                 // Method put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        47: pop                     
+        48: goto          12                
+        51: return                  
+      LineNumberTable:
+        line 284: 0
+        line 285: 31
+        line 286: 51
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          31       17     3  e      Ljava/util/Map$Entry;
+           0       52     0  this   Ljava/util/AbstractMap;
+           0       52     1  m      Ljava/util/Map;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            31       17     3  e      Ljava/util/Map$Entry<+TK;+TV;>;
+             0       52     0  this   Ljava/util/AbstractMap<TK;TV;>;
+             0       52     1  m      Ljava/util/Map<+TK;+TV;>;
+      StackMapTable: number_of_entries = 2
+        frame_type = 252 /* append */
+          offset_delta = 12
+          locals = [class java/util/Iterator]
+        frame_type = 250 /* chop */
+          offset_delta = 38
+    Signature: #148                        // (Ljava/util/Map<+TK;+TV;>;)V
+  
+  public void clear();
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: invokevirtual #7                  // Method entrySet:()Ljava/util/Set;
+         4: invokeinterface #59, 1              // InterfaceMethod java/util/Set.clear:()V
+         9: return                  
+      LineNumberTable:
+        line 301: 0
+        line 302: 9
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/util/AbstractMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       10     0  this   Ljava/util/AbstractMap<TK;TV;>;
+  
+  public java.util.Set<K> keySet();
+    descriptor: ()Ljava/util/Set;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=2, args_size=1
+         0: aload_0                 
+         1: getfield      #62                 // Field keySet:Ljava/util/Set;
+         4: astore_1                
+         5: aload_1                 
+         6: ifnonnull     23                
+         9: new           #66                 // class java/util/AbstractMap$1
+        12: dup                     
+        13: aload_0                 
+        14: invokespecial #68                 // Method java/util/AbstractMap$1."<init>":(Ljava/util/AbstractMap;)V
+        17: astore_1                
+        18: aload_0                 
+        19: aload_1                 
+        20: putfield      #62                 // Field keySet:Ljava/util/Set;
+        23: aload_1                 
+        24: areturn                 
+      LineNumberTable:
+        line 351: 0
+        line 352: 5
+        line 353: 9
+        line 374: 18
+        line 376: 23
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       25     0  this   Ljava/util/AbstractMap;
+           5       20     1  ks     Ljava/util/Set;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       25     0  this   Ljava/util/AbstractMap<TK;TV;>;
+             5       20     1  ks     Ljava/util/Set<TK;>;
+      StackMapTable: number_of_entries = 1
+        frame_type = 252 /* append */
+          offset_delta = 23
+          locals = [class java/util/Set]
+    Signature: #150                        // ()Ljava/util/Set<TK;>;
+  
+  public java.util.Collection<V> values();
+    descriptor: ()Ljava/util/Collection;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=2, args_size=1
+         0: aload_0                 
+         1: getfield      #71                 // Field values:Ljava/util/Collection;
+         4: astore_1                
+         5: aload_1                 
+         6: ifnonnull     23                
+         9: new           #75                 // class java/util/AbstractMap$2
+        12: dup                     
+        13: aload_0                 
+        14: invokespecial #77                 // Method java/util/AbstractMap$2."<init>":(Ljava/util/AbstractMap;)V
+        17: astore_1                
+        18: aload_0                 
+        19: aload_1                 
+        20: putfield      #71                 // Field values:Ljava/util/Collection;
+        23: aload_1                 
+        24: areturn                 
+      LineNumberTable:
+        line 396: 0
+        line 397: 5
+        line 398: 9
+        line 419: 18
+        line 421: 23
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       25     0  this   Ljava/util/AbstractMap;
+           5       20     1  vals   Ljava/util/Collection;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       25     0  this   Ljava/util/AbstractMap<TK;TV;>;
+             5       20     1  vals   Ljava/util/Collection<TV;>;
+      StackMapTable: number_of_entries = 1
+        frame_type = 252 /* append */
+          offset_delta = 23
+          locals = [class java/util/Collection]
+    Signature: #155                        // ()Ljava/util/Collection<TV;>;
+  
+  public abstract java.util.Set<java.util.Map$Entry<K, V>> entrySet();
+    descriptor: ()Ljava/util/Set;
+    flags: (0x0401) ACC_PUBLIC, ACC_ABSTRACT
+    Signature: #156                        // ()Ljava/util/Set<Ljava/util/Map$Entry<TK;TV;>;>;
+  
+  public boolean equals(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Z
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=7, args_size=2
+         0: aload_1                 
+         1: aload_0                 
+         2: if_acmpne     7                 
+         5: iconst_1                
+         6: ireturn                 
+         7: aload_1                 
+         8: instanceof    #53                 // class java/util/Map
+        11: ifeq          22                
+        14: aload_1                 
+        15: checkcast     #53                 // class java/util/Map
+        18: astore_2                
+        19: goto          24                
+        22: iconst_0                
+        23: ireturn                 
+        24: aload_2                 
+        25: invokeinterface #78, 1              // InterfaceMethod java/util/Map.size:()I
+        30: aload_0                 
+        31: invokevirtual #19                 // Method size:()I
+        34: if_icmpeq     39                
+        37: iconst_0                
+        38: ireturn                 
+        39: aload_0                 
+        40: invokevirtual #7                  // Method entrySet:()Ljava/util/Set;
+        43: invokeinterface #20, 1              // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        48: astore_3                
+        49: aload_3                 
+        50: invokeinterface #24, 1              // InterfaceMethod java/util/Iterator.hasNext:()Z
+        55: ifeq          137               
+        58: aload_3                 
+        59: invokeinterface #30, 1              // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        64: checkcast     #34                 // class java/util/Map$Entry
+        67: astore        4                 
+        69: aload         4                 
+        71: invokeinterface #43, 1              // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+        76: astore        5                 
+        78: aload         4                 
+        80: invokeinterface #36, 1              // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        85: astore        6                 
+        87: aload         6                 
+        89: ifnonnull     116               
+        92: aload_2                 
+        93: aload         5                 
+        95: invokeinterface #79, 2              // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+       100: ifnonnull     114               
+       103: aload_2                 
+       104: aload         5                 
+       106: invokeinterface #83, 2              // InterfaceMethod java/util/Map.containsKey:(Ljava/lang/Object;)Z
+       111: ifne          134               
+       114: iconst_0                
+       115: ireturn                 
+       116: aload         6                 
+       118: aload_2                 
+       119: aload         5                 
+       121: invokeinterface #79, 2              // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+       126: invokevirtual #39                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+       129: ifne          134               
+       132: iconst_0                
+       133: ireturn                 
+       134: goto          49                
+       137: goto          143               
+       140: astore_3                
+       141: iconst_0                
+       142: ireturn                 
+       143: iconst_1                
+       144: ireturn                 
+      Exception table:
+          from       to target type
+            39      115   140  Class java/lang/ClassCastException
+            39      115   140  Class java/lang/NullPointerException
+           116      133   140  Class java/lang/ClassCastException
+           116      133   140  Class java/lang/NullPointerException
+           134      137   140  Class java/lang/ClassCastException
+           134      137   140  Class java/lang/NullPointerException
+      LineNumberTable:
+        line 452: 0
+        line 453: 5
+        line 455: 7
+        line 456: 22
+        line 457: 24
+        line 458: 37
+        line 461: 39
+        line 462: 69
+        line 463: 78
+        line 464: 87
+        line 465: 92
+        line 466: 114
+        line 468: 116
+        line 469: 132
+        line 471: 134
+        line 474: 137
+        line 472: 140
+        line 473: 141
+        line 476: 143
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          19        3     2  m      Ljava/util/Map;
+          78       56     5  key    Ljava/lang/Object;
+          87       47     6  value  Ljava/lang/Object;
+          69       65     4  e      Ljava/util/Map$Entry;
+         141        2     3  unused Ljava/lang/RuntimeException;
+           0      145     0  this   Ljava/util/AbstractMap;
+           0      145     1  o      Ljava/lang/Object;
+          24      121     2  m      Ljava/util/Map;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            19        3     2  m      Ljava/util/Map<**>;
+            78       56     5  key    TK;
+            87       47     6  value   TV;
+            69       65     4  e      Ljava/util/Map$Entry<TK;TV;>;
+             0      145     0  this   Ljava/util/AbstractMap<TK;TV;>;
+            24      121     2  m      Ljava/util/Map<**>;
+      StackMapTable: number_of_entries = 11
+        frame_type = 7 /* same */
+        frame_type = 14 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 1
+          locals = [class java/util/Map]
+        frame_type = 14 /* same */
+        frame_type = 252 /* append */
+          offset_delta = 9
+          locals = [class java/util/Iterator]
+        frame_type = 254 /* append */
+          offset_delta = 64
+          locals = [class java/util/Map$Entry, class java/lang/Object, class java/lang/Object]
+        frame_type = 1 /* same */
+        frame_type = 248 /* chop */
+          offset_delta = 17
+        frame_type = 250 /* chop */
+          offset_delta = 2
+        frame_type = 66 /* same_locals_1_stack_item */
+          stack = [ class java/lang/RuntimeException ]
+        frame_type = 2 /* same */
+  
+  public int hashCode();
+    descriptor: ()I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=2, locals=4, args_size=1
+         0: iconst_0                
+         1: istore_1                
+         2: aload_0                 
+         3: invokevirtual #7                  // Method entrySet:()Ljava/util/Set;
+         6: invokeinterface #20, 1              // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        11: astore_2                
+        12: aload_2                 
+        13: invokeinterface #24, 1              // InterfaceMethod java/util/Iterator.hasNext:()Z
+        18: ifeq          43                
+        21: aload_2                 
+        22: invokeinterface #30, 1              // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        27: checkcast     #34                 // class java/util/Map$Entry
+        30: astore_3                
+        31: iload_1                 
+        32: aload_3                 
+        33: invokeinterface #90, 1              // InterfaceMethod java/util/Map$Entry.hashCode:()I
+        38: iadd                    
+        39: istore_1                
+        40: goto          12                
+        43: iload_1                 
+        44: ireturn                 
+      LineNumberTable:
+        line 498: 0
+        line 499: 2
+        line 500: 31
+        line 501: 43
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          31        9     3  entry  Ljava/util/Map$Entry;
+           0       45     0  this   Ljava/util/AbstractMap;
+           2       43     1  h      I
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            31        9     3  entry   Ljava/util/Map$Entry<TK;TV;>;
+             0       45     0  this   Ljava/util/AbstractMap<TK;TV;>;
+      StackMapTable: number_of_entries = 2
+        frame_type = 253 /* append */
+          offset_delta = 12
+          locals = [int, class java/util/Iterator]
+        frame_type = 250 /* chop */
+          offset_delta = 30
+  
+  public java.lang.String toString();
+    descriptor: ()Ljava/lang/String;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=6, args_size=1
+         0: aload_0                 
+         1: invokevirtual #7                  // Method entrySet:()Ljava/util/Set;
+         4: invokeinterface #20, 1              // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+         9: astore_1                
+        10: aload_1                 
+        11: invokeinterface #24, 1              // InterfaceMethod java/util/Iterator.hasNext:()Z
+        16: ifne          22                
+        19: ldc           #93                 // String {}
+        21: areturn                 
+        22: new           #95                 // class java/lang/StringBuilder
+        25: dup                     
+        26: invokespecial #97                 // Method java/lang/StringBuilder."<init>":()V
+        29: astore_2                
+        30: aload_2                 
+        31: bipush        123               
+        33: invokevirtual #98                 // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+        36: pop                     
+        37: aload_1                 
+        38: invokeinterface #30, 1              // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        43: checkcast     #34                 // class java/util/Map$Entry
+        46: astore_3                
+        47: aload_3                 
+        48: invokeinterface #43, 1              // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+        53: astore        4                 
+        55: aload_3                 
+        56: invokeinterface #36, 1              // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        61: astore        5                 
+        63: aload_2                 
+        64: aload         4                 
+        66: aload_0                 
+        67: if_acmpne     75                
+        70: ldc           #102                // String (this Map)
+        72: goto          77                
+        75: aload         4                 
+        77: invokevirtual #104                // Method java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+        80: pop                     
+        81: aload_2                 
+        82: bipush        61                
+        84: invokevirtual #98                 // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+        87: pop                     
+        88: aload_2                 
+        89: aload         5                 
+        91: aload_0                 
+        92: if_acmpne     100               
+        95: ldc           #102                // String (this Map)
+        97: goto          102               
+       100: aload         5                 
+       102: invokevirtual #104                // Method java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+       105: pop                     
+       106: aload_1                 
+       107: invokeinterface #24, 1              // InterfaceMethod java/util/Iterator.hasNext:()Z
+       112: ifne          125               
+       115: aload_2                 
+       116: bipush        125               
+       118: invokevirtual #98                 // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+       121: invokevirtual #107                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+       124: areturn                 
+       125: aload_2                 
+       126: bipush        44                
+       128: invokevirtual #98                 // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+       131: bipush        32                
+       133: invokevirtual #98                 // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+       136: pop                     
+       137: goto          37                
+      LineNumberTable:
+        line 517: 0
+        line 518: 10
+        line 519: 19
+        line 521: 22
+        line 522: 30
+        line 524: 37
+        line 525: 47
+        line 526: 55
+        line 527: 63
+        line 528: 81
+        line 529: 88
+        line 530: 106
+        line 531: 115
+        line 532: 125
+        line 533: 137
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          47       90     3  e      Ljava/util/Map$Entry;
+          55       82     4  key    Ljava/lang/Object;
+          63       74     5  value  Ljava/lang/Object;
+           0      140     0  this   Ljava/util/AbstractMap;
+          10      130     1  i      Ljava/util/Iterator;
+          30      110     2  sb     Ljava/lang/StringBuilder;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+            47       90     3  e      Ljava/util/Map$Entry<TK;TV;>;
+            55       82     4  key    TK;
+            63       74     5  value   TV;
+             0      140     0  this   Ljava/util/AbstractMap<TK;TV;>;
+            10      130     1  i      Ljava/util/Iterator<Ljava/util/Map$Entry<TK;TV;>;>;
+      StackMapTable: number_of_entries = 7
+        frame_type = 252 /* append */
+          offset_delta = 22
+          locals = [class java/util/Iterator]
+        frame_type = 252 /* append */
+          offset_delta = 14
+          locals = [class java/lang/StringBuilder]
+        frame_type = 255 /* full_frame */
+          offset_delta = 37
+          locals = [class java/util/AbstractMap, class java/util/Iterator, class java/lang/StringBuilder, class java/util/Map$Entry, class java/lang/Object, class java/lang/Object]
+          stack = [class java/lang/StringBuilder]
+        frame_type = 255 /* full_frame */
+          offset_delta = 1
+          locals = [class java/util/AbstractMap, class java/util/Iterator, class java/lang/StringBuilder, class java/util/Map$Entry, class java/lang/Object, class java/lang/Object]
+          stack = [class java/lang/StringBuilder, class java/lang/Object]
+        frame_type = 86 /* same_locals_1_stack_item */
+          stack = [ class java/lang/StringBuilder ]
+        frame_type = 255 /* full_frame */
+          offset_delta = 1
+          locals = [class java/util/AbstractMap, class java/util/Iterator, class java/lang/StringBuilder, class java/util/Map$Entry, class java/lang/Object, class java/lang/Object]
+          stack = [class java/lang/StringBuilder, class java/lang/Object]
+        frame_type = 22 /* same */
+  
+  protected java.lang.Object clone() throws java.lang.CloneNotSupportedException;
+    descriptor: ()Ljava/lang/Object;
+    flags: (0x0004) ACC_PROTECTED
+    Code: 
+      stack=2, locals=2, args_size=1
+         0: aload_0                 
+         1: invokespecial #111                // Method java/lang/Object.clone:()Ljava/lang/Object;
+         4: checkcast     #8                  // class java/util/AbstractMap
+         7: astore_1                
+         8: aload_1                 
+         9: aconst_null             
+        10: putfield      #62                 // Field keySet:Ljava/util/Set;
+        13: aload_1                 
+        14: aconst_null             
+        15: putfield      #71                 // Field values:Ljava/util/Collection;
+        18: aload_1                 
+        19: areturn                 
+      LineNumberTable:
+        line 543: 0
+        line 544: 8
+        line 545: 13
+        line 546: 18
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       20     0  this   Ljava/util/AbstractMap;
+           8       12     1  result Ljava/util/AbstractMap;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       20     0  this   Ljava/util/AbstractMap<TK;TV;>;
+             8       12     1  result   Ljava/util/AbstractMap<**>;
+    Exceptions:
+      throws java.lang.CloneNotSupportedException
+  
+  private static boolean eq(java.lang.Object, java.lang.Object);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;)Z
+    flags: (0x000a) ACC_PRIVATE, ACC_STATIC
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: ifnonnull     16                
+         4: aload_1                 
+         5: ifnonnull     12                
+         8: iconst_1                
+         9: goto          21                
+        12: iconst_0                
+        13: goto          21                
+        16: aload_0                 
+        17: aload_1                 
+        18: invokevirtual #39                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+        21: ireturn                 
+      LineNumberTable:
+        line 556: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       22     0  o1     Ljava/lang/Object;
+           0       22     1  o2     Ljava/lang/Object;
+      StackMapTable: number_of_entries = 3
+        frame_type = 12 /* same */
+        frame_type = 3 /* same */
+        frame_type = 68 /* same_locals_1_stack_item */
+          stack = [ int ]
+}
+Signature: #177                        // <K:Ljava/lang/Object;V:Ljava/lang/Object;>Ljava/lang/Object;Ljava/util/Map<TK;TV;>;
+SourceFile: "AbstractMap.java"
+NestMembers:
+  java/util/AbstractMap$ValueIterator
+  java/util/AbstractMap$KeyIterator
+  java/util/AbstractMap$ViewCollection
+  java/util/AbstractMap$SimpleImmutableEntry
+  java/util/AbstractMap$SimpleEntry
+  java/util/AbstractMap$2
+  java/util/AbstractMap$1
+InnerClasses:
+  public static #192= #34 of #53;             // Entry=class java/util/Map$Entry of class java/util/Map
+  #66;                                        // class java/util/AbstractMap$1
+  #75;                                        // class java/util/AbstractMap$2
+  final #193= #181 of #8;                     // ValueIterator=class java/util/AbstractMap$ValueIterator of class java/util/AbstractMap
+  final #194= #183 of #8;                     // KeyIterator=class java/util/AbstractMap$KeyIterator of class java/util/AbstractMap
+  static abstract #195= #185 of #8;           // ViewCollection=class java/util/AbstractMap$ViewCollection of class java/util/AbstractMap
+  public static #196= #187 of #8;             // SimpleImmutableEntry=class java/util/AbstractMap$SimpleImmutableEntry of class java/util/AbstractMap
+  public static #197= #189 of #8;             // SimpleEntry=class java/util/AbstractMap$SimpleEntry of class java/util/AbstractMap

@@ -1,7 +1,7 @@
 use crate::rt::constant_pool::error::RuntimePoolError;
-use class_file::error::ClassFormatErr;
 use common::InstructionErr;
 use common::utils::cursor::CursorError;
+use jclass::error::ClassFormatErr;
 use thiserror::Error;
 
 pub mod class;

@@ -1,0 +1,148 @@
+---
+source: jclass/src/lib.rs
+expression: display
+---
+class jdk.internal.util.Preconditions$4 extends java.lang.Object implements java.util.function.BiFunction<java.lang.String, java.util.List<java.lang.Number>, X>
+  minor version: 0
+  major version: 68
+  flags: (0x0020) ACC_SUPER
+  this_class: #2                       //jdk/internal/util/Preconditions$4
+  super_class: #8                      //java/lang/Object
+  interfaces: 1, fields: 1, methods: 3, attributes: 5
+Constant pool:
+   #1 = Fieldref           #2.#3            // jdk/internal/util/Preconditions$4.val$f:Ljava/util/function/Function;
+   #2 = Class              #4               // jdk/internal/util/Preconditions$4
+   #3 = NameAndType        #5:#6            // val$f:Ljava/util/function/Function;
+   #4 = Utf8               jdk/internal/util/Preconditions$4
+   #5 = Utf8               val$f
+   #6 = Utf8               Ljava/util/function/Function;
+   #7 = Methodref          #8.#9            // java/lang/Object."<init>":()V
+   #8 = Class              #10              // java/lang/Object
+   #9 = NameAndType        #11:#12          // "<init>":()V
+  #10 = Utf8               java/lang/Object
+  #11 = Utf8               <init>
+  #12 = Utf8               ()V
+  #13 = Methodref          #14.#15          // jdk/internal/util/Preconditions.outOfBoundsMessage:(Ljava/lang/String;Ljava/util/List;)Ljava/lang/String;
+  #14 = Class              #16              // jdk/internal/util/Preconditions
+  #15 = NameAndType        #17:#18          // outOfBoundsMessage:(Ljava/lang/String;Ljava/util/List;)Ljava/lang/String;
+  #16 = Utf8               jdk/internal/util/Preconditions
+  #17 = Utf8               outOfBoundsMessage
+  #18 = Utf8               (Ljava/lang/String;Ljava/util/List;)Ljava/lang/String;
+  #19 = InterfaceMethodref #20.#21          // java/util/function/Function.apply:(Ljava/lang/Object;)Ljava/lang/Object;
+  #20 = Class              #22              // java/util/function/Function
+  #21 = NameAndType        #23:#24          // apply:(Ljava/lang/Object;)Ljava/lang/Object;
+  #22 = Utf8               java/util/function/Function
+  #23 = Utf8               apply
+  #24 = Utf8               (Ljava/lang/Object;)Ljava/lang/Object;
+  #25 = Class              #26              // java/lang/RuntimeException
+  #26 = Utf8               java/lang/RuntimeException
+  #27 = Class              #28              // java/lang/String
+  #28 = Utf8               java/lang/String
+  #29 = Class              #30              // java/util/List
+  #30 = Utf8               java/util/List
+  #31 = Methodref          #2.#32           // jdk/internal/util/Preconditions$4.apply:(Ljava/lang/String;Ljava/util/List;)Ljava/lang/RuntimeException;
+  #32 = NameAndType        #23:#33          // apply:(Ljava/lang/String;Ljava/util/List;)Ljava/lang/RuntimeException;
+  #33 = Utf8               (Ljava/lang/String;Ljava/util/List;)Ljava/lang/RuntimeException;
+  #34 = Class              #35              // java/util/function/BiFunction
+  #35 = Utf8               java/util/function/BiFunction
+  #36 = Utf8               (Ljava/util/function/Function;)V
+  #37 = Utf8               Code
+  #38 = Utf8               LineNumberTable
+  #39 = Utf8               LocalVariableTable
+  #40 = Utf8               this
+  #41 = Utf8               Ljdk/internal/util/Preconditions$4;
+  #42 = Utf8               Signature
+  #43 = Utf8               checkKind
+  #44 = Utf8               Ljava/lang/String;
+  #45 = Utf8               args
+  #46 = Utf8               Ljava/util/List;
+  #47 = Utf8               LocalVariableTypeTable
+  #48 = Utf8               Ljava/util/List<Ljava/lang/Number;>;
+  #49 = Utf8               (Ljava/lang/String;Ljava/util/List<Ljava/lang/Number;>;)TX;
+  #50 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+  #51 = Utf8               MethodParameters
+  #52 = Utf8               Ljava/lang/Object;Ljava/util/function/BiFunction<Ljava/lang/String;Ljava/util/List<Ljava/lang/Number;>;TX;>;
+  #53 = Utf8               SourceFile
+  #54 = Utf8               Preconditions.java
+  #55 = Utf8               EnclosingMethod
+  #56 = NameAndType        #57:#58          // outOfBoundsExceptionFormatter:(Ljava/util/function/Function;)Ljava/util/function/BiFunction;
+  #57 = Utf8               outOfBoundsExceptionFormatter
+  #58 = Utf8               (Ljava/util/function/Function;)Ljava/util/function/BiFunction;
+  #59 = Utf8               NestHost
+  #60 = Utf8               InnerClasses
+{
+  final java.util.function.Function val$f;
+    descriptor: Ljava/util/function/Function;
+    flags: (0x1010) ACC_FINAL, ACC_SYNTHETIC
+  
+  jdk.internal.util.Preconditions$4();
+    descriptor: (Ljava/util/function/Function;)V
+    flags: (0x0000) 
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: aload_1                 
+         2: putfield      #1                  // Field val$f:Ljava/util/function/Function;
+         5: aload_0                 
+         6: invokespecial #7                  // Method java/lang/Object."<init>":()V
+         9: return                  
+      LineNumberTable:
+        line 210: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljdk/internal/util/Preconditions$4;
+    Signature: #12                         // ()V
+  
+  public X apply(java.lang.String, java.util.List<java.lang.Number>);
+    descriptor: (Ljava/lang/String;Ljava/util/List;)Ljava/lang/RuntimeException;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=3, locals=3, args_size=3
+         0: aload_0                 
+         1: getfield      #1                  // Field val$f:Ljava/util/function/Function;
+         4: aload_1                 
+         5: aload_2                 
+         6: invokestatic  #13                 // Method jdk/internal/util/Preconditions.outOfBoundsMessage:(Ljava/lang/String;Ljava/util/List;)Ljava/lang/String;
+         9: invokeinterface #19, 2              // InterfaceMethod java/util/function/Function.apply:(Ljava/lang/Object;)Ljava/lang/Object;
+        14: checkcast     #25                 // class java/lang/RuntimeException
+        17: areturn                 
+      LineNumberTable:
+        line 213: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       18     0  this   Ljdk/internal/util/Preconditions$4;
+           0       18     1  checkKind Ljava/lang/String;
+           0       18     2  args   Ljava/util/List;
+      LocalVariableTypeTable:
+         Start   Length  Slot  Name   Signature
+             0       18     2  args   Ljava/util/List<Ljava/lang/Number;>;
+    Signature: #49                         // (Ljava/lang/String;Ljava/util/List<Ljava/lang/Number;>;)TX;
+  
+  public java.lang.Object apply(java.lang.Object, java.lang.Object);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+    flags: (0x1041) ACC_PUBLIC, ACC_BRIDGE, ACC_SYNTHETIC
+    Code: 
+      stack=3, locals=3, args_size=3
+         0: aload_0                 
+         1: aload_1                 
+         2: checkcast     #27                 // class java/lang/String
+         5: aload_2                 
+         6: checkcast     #29                 // class java/util/List
+         9: invokevirtual #31                 // Method apply:(Ljava/lang/String;Ljava/util/List;)Ljava/lang/RuntimeException;
+        12: areturn                 
+      LineNumberTable:
+        line 210: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       13     0  this   Ljdk/internal/util/Preconditions$4;
+    MethodParameters:
+      Name                             Flags
+      <no name>                        synthetic 
+      <no name>                        synthetic 
+}
+Signature: #52                         // Ljava/lang/Object;Ljava/util/function/BiFunction<Ljava/lang/String;Ljava/util/List<Ljava/lang/Number;>;TX;>;
+SourceFile: "Preconditions.java"
+EnclosingMethod: #14.#56 // jdk.internal.util.Preconditions.outOfBoundsExceptionFormatter
+NestHost: class jdk/internal/util/Preconditions
+InnerClasses:
+  #2;                                         // class jdk/internal/util/Preconditions$4

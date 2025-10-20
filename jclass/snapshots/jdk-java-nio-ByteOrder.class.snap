@@ -1,0 +1,157 @@
+---
+source: jclass/src/lib.rs
+expression: display
+---
+public final class java.nio.ByteOrder 
+  minor version: 0
+  major version: 68
+  flags: (0x0031) ACC_PUBLIC, ACC_FINAL, ACC_SUPER
+  this_class: #8                       //java/nio/ByteOrder
+  super_class: #2                      //java/lang/Object
+  interfaces: 0, fields: 4, methods: 4, attributes: 1
+Constant pool:
+   #1 = Methodref          #2.#3            // java/lang/Object."<init>":()V
+   #2 = Class              #4               // java/lang/Object
+   #3 = NameAndType        #5:#6            // "<init>":()V
+   #4 = Utf8               java/lang/Object
+   #5 = Utf8               <init>
+   #6 = Utf8               ()V
+   #7 = Fieldref           #8.#9            // java/nio/ByteOrder.name:Ljava/lang/String;
+   #8 = Class              #10              // java/nio/ByteOrder
+   #9 = NameAndType        #11:#12          // name:Ljava/lang/String;
+  #10 = Utf8               java/nio/ByteOrder
+  #11 = Utf8               name
+  #12 = Utf8               Ljava/lang/String;
+  #13 = Fieldref           #8.#14           // java/nio/ByteOrder.NATIVE_ORDER:Ljava/nio/ByteOrder;
+  #14 = NameAndType        #15:#16          // NATIVE_ORDER:Ljava/nio/ByteOrder;
+  #15 = Utf8               NATIVE_ORDER
+  #16 = Utf8               Ljava/nio/ByteOrder;
+  #17 = String             #18              // BIG_ENDIAN
+  #18 = Utf8               BIG_ENDIAN
+  #19 = Methodref          #8.#20           // java/nio/ByteOrder."<init>":(Ljava/lang/String;)V
+  #20 = NameAndType        #5:#21           // "<init>":(Ljava/lang/String;)V
+  #21 = Utf8               (Ljava/lang/String;)V
+  #22 = Fieldref           #8.#23           // java/nio/ByteOrder.BIG_ENDIAN:Ljava/nio/ByteOrder;
+  #23 = NameAndType        #18:#16          // BIG_ENDIAN:Ljava/nio/ByteOrder;
+  #24 = String             #25              // LITTLE_ENDIAN
+  #25 = Utf8               LITTLE_ENDIAN
+  #26 = Fieldref           #8.#27           // java/nio/ByteOrder.LITTLE_ENDIAN:Ljava/nio/ByteOrder;
+  #27 = NameAndType        #25:#16          // LITTLE_ENDIAN:Ljava/nio/ByteOrder;
+  #28 = Methodref          #29.#30          // jdk/internal/misc/Unsafe.getUnsafe:()Ljdk/internal/misc/Unsafe;
+  #29 = Class              #31              // jdk/internal/misc/Unsafe
+  #30 = NameAndType        #32:#33          // getUnsafe:()Ljdk/internal/misc/Unsafe;
+  #31 = Utf8               jdk/internal/misc/Unsafe
+  #32 = Utf8               getUnsafe
+  #33 = Utf8               ()Ljdk/internal/misc/Unsafe;
+  #34 = Methodref          #29.#35          // jdk/internal/misc/Unsafe.isBigEndian:()Z
+  #35 = NameAndType        #36:#37          // isBigEndian:()Z
+  #36 = Utf8               isBigEndian
+  #37 = Utf8               ()Z
+  #38 = Utf8               Code
+  #39 = Utf8               LineNumberTable
+  #40 = Utf8               LocalVariableTable
+  #41 = Utf8               this
+  #42 = Utf8               nativeOrder
+  #43 = Utf8               ()Ljava/nio/ByteOrder;
+  #44 = Utf8               toString
+  #45 = Utf8               ()Ljava/lang/String;
+  #46 = Utf8               <clinit>
+  #47 = Utf8               StackMapTable
+  #48 = Utf8               SourceFile
+  #49 = Utf8               ByteOrder.java
+{
+  private final java.lang.String name;
+    descriptor: Ljava/lang/String;
+    flags: (0x0012) ACC_PRIVATE, ACC_FINAL
+  
+  public static final java.nio.ByteOrder BIG_ENDIAN;
+    descriptor: Ljava/nio/ByteOrder;
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+  
+  public static final java.nio.ByteOrder LITTLE_ENDIAN;
+    descriptor: Ljava/nio/ByteOrder;
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+  
+  private static final java.nio.ByteOrder NATIVE_ORDER;
+    descriptor: Ljava/nio/ByteOrder;
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+  
+  private java.nio.ByteOrder(java.lang.String);
+    descriptor: (Ljava/lang/String;)V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: aload_0                 
+         5: aload_1                 
+         6: putfield      #7                  // Field name:Ljava/lang/String;
+         9: return                  
+      LineNumberTable:
+        line 42: 0
+        line 43: 4
+        line 44: 9
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljava/nio/ByteOrder;
+           0       10     1  name   Ljava/lang/String;
+  
+  public static java.nio.ByteOrder nativeOrder();
+    descriptor: ()Ljava/nio/ByteOrder;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=1, locals=0, args_size=0
+         0: getstatic     #13                 // Field NATIVE_ORDER:Ljava/nio/ByteOrder;
+         3: areturn                 
+      LineNumberTable:
+        line 79: 0
+  
+  public java.lang.String toString();
+    descriptor: ()Ljava/lang/String;
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: aload_0                 
+         1: getfield      #7                  // Field name:Ljava/lang/String;
+         4: areturn                 
+      LineNumberTable:
+        line 92: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        5     0  this   Ljava/nio/ByteOrder;
+  
+  static {};
+    descriptor: ()V
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=3, locals=0, args_size=0
+         0: new           #8                  // class java/nio/ByteOrder
+         3: dup                     
+         4: ldc           #17                 // String BIG_ENDIAN
+         6: invokespecial #19                 // Method "<init>":(Ljava/lang/String;)V
+         9: putstatic     #22                 // Field BIG_ENDIAN:Ljava/nio/ByteOrder;
+        12: new           #8                  // class java/nio/ByteOrder
+        15: dup                     
+        16: ldc           #24                 // String LITTLE_ENDIAN
+        18: invokespecial #19                 // Method "<init>":(Ljava/lang/String;)V
+        21: putstatic     #26                 // Field LITTLE_ENDIAN:Ljava/nio/ByteOrder;
+        24: invokestatic  #28                 // Method jdk/internal/misc/Unsafe.getUnsafe:()Ljdk/internal/misc/Unsafe;
+        27: invokevirtual #34                 // Method jdk/internal/misc/Unsafe.isBigEndian:()Z
+        30: ifeq          39                
+        33: getstatic     #22                 // Field BIG_ENDIAN:Ljava/nio/ByteOrder;
+        36: goto          42                
+        39: getstatic     #26                 // Field LITTLE_ENDIAN:Ljava/nio/ByteOrder;
+        42: putstatic     #13                 // Field NATIVE_ORDER:Ljava/nio/ByteOrder;
+        45: return                  
+      LineNumberTable:
+        line 50: 0
+        line 58: 12
+        line 64: 24
+        line 65: 33
+        line 63: 45
+      StackMapTable: number_of_entries = 2
+        frame_type = 39 /* same */
+        frame_type = 66 /* same_locals_1_stack_item */
+          stack = [ class java/nio/ByteOrder ]
+}
+SourceFile: "ByteOrder.java"
