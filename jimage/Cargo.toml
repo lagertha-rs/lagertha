@@ -1,0 +1,8 @@
+[package]
+name = "jimage"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+common = { path = "../common" }
+memmap2 = "0.9.8"

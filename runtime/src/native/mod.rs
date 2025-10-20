@@ -602,7 +602,7 @@ fn jdk_internal_util_system_props_raw_vm_properties(
     let string_class = vm.method_area.get_class("java/lang/String").unwrap();
     let h = vm.heap.alloc_array(string_class, 4).unwrap();
     let java_home_key = vm.heap.get_or_new_string("java.home");
-    let java_home_value = vm.heap.get_or_new_string(&vm.config.home);
+    let java_home_value = vm.heap.get_or_new_string(&vm.config.home.to_str().unwrap());
     let sun_page_align_stub = vm.heap.get_or_new_string("sun.nio.PageAlignDirectMemory");
     let false_str = vm.heap.get_or_new_string("false");
     vm.heap

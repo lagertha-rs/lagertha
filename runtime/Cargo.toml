@@ -13,6 +13,7 @@ thiserror = { workspace = true }
 tracing-log = { workspace = true }
 
 jclass = { path = "../jclass" }
+jimage = { path = "../jimage" }
 common = { path = "../common" }
 
 # TODO to be deleted

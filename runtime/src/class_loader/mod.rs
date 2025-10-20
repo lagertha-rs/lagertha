@@ -40,11 +40,7 @@ impl ClassLoader {
     pub fn new(vm_config: &VmConfig) -> Result<Self, ClassLoaderErr> {
         debug!("Creating BootstrapClassLoader...");
         let java_home = &vm_config.home;
-        let jmods_dir = format!("{}/jmods", java_home);
-        debug!(
-            "Using JAVA_HOME at \"{}\" -> using jmods dir \"{}\"",
-            java_home, jmods_dir
-        );
+        let jmods_dir = java_home.join("jmods");
         let jmod_loader = BootstrapJmodClassLoader::from_jmods_dir(jmods_dir)?;
         debug!("Creating SystemClassLoader...");
         let system_loader = SystemClassLoader::new(&vm_config.class_path)?;

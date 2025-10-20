@@ -20,6 +20,7 @@ pub struct Args {
 
 fn create_vm_configuration(args: Args) -> Result<VmConfig, String> {
     let java_home = std::env::var("JAVA_HOME").expect("JAVA_HOME not set");
+    let home = std::path::PathBuf::from(&java_home);
     let release_file = format!("{}/release", java_home);
 
     let contents = std::fs::read_to_string(release_file).expect("cannot read release file");
@@ -27,7 +28,7 @@ fn create_vm_configuration(args: Args) -> Result<VmConfig, String> {
     for line in contents.lines() {
         if let Some(value) = line.strip_prefix("JAVA_VERSION=") {
             return Ok(VmConfig {
-                home: java_home,
+                home,
                 version: value.trim_matches('"').to_string(),
                 class_path: args.class_path,
                 initial_heap_size: 0,

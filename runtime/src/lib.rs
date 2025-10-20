@@ -5,6 +5,8 @@ use crate::interpreter::Interpreter;
 use crate::native::NativeRegistry;
 use crate::stack::FrameStack;
 use common::jtype::Value;
+use jimage::JImage;
+use std::path::PathBuf;
 use tracing_log::log::debug;
 
 mod class_loader;
@@ -20,7 +22,7 @@ pub type MethodId = usize;
 
 #[derive(Debug)]
 pub struct VmConfig {
-    pub home: String,
+    pub home: PathBuf,
     pub version: String,
     pub class_path: Vec<String>,
     pub initial_heap_size: usize,
@@ -70,6 +72,10 @@ pub fn start(main_class: Vec<u8>, config: VmConfig) -> Result<(), JvmError> {
     debug!("Starting VM with config: {:?}", config);
 
     let vm = VirtualMachine::new(config)?;
+
+    let jimage = JImage::new(vm.config.home.join("lib").join("modules"));
+
+    std::process::exit(1);
 
     let mut interpreter = Interpreter::new(vm);
     match interpreter.start(main_class) {
@@ -141,9 +147,10 @@ mod tests {
 
     fn vm_config() -> VmConfig {
         let java_home = std::env::var("JAVA_HOME").expect("JAVA_HOME must be set for tests");
+        let home = PathBuf::from(java_home);
 
         VmConfig {
-            home: java_home,
+            home,
             version: "24.0.2".to_string(),
             class_path: vec![],
             initial_heap_size: 16 * 1024 * 1024,
