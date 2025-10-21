@@ -73,6 +73,7 @@ impl ClassLoader {
         })
     }
 
+    // TODO: Can return &[u8] to avoid copying, but need to support proper SystemClassLoader first
     pub fn load(&self, name: &str) -> Result<Vec<u8>, JvmError> {
         debug!(r#"Searching for bytecode of "{name}"..."#);
 

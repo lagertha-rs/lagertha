@@ -175,9 +175,8 @@ impl<'a> ByteCursor<'a> {
         if self.remaining() < n {
             return Err(CursorError::UnexpectedEof);
         }
-        unsafe {
-            std::ptr::copy_nonoverlapping(self.data.as_ptr().add(self.pos), buf.as_mut_ptr(), n);
-        }
+
+        buf.copy_from_slice(&self.data[self.pos..self.pos + n]);
         self.pos += n;
         Ok(())
     }
