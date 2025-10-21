@@ -70,12 +70,7 @@ impl VirtualMachine {
 
 pub fn start(main_class: Vec<u8>, config: VmConfig) -> Result<(), JvmError> {
     debug!("Starting VM with config: {:?}", config);
-
     let vm = VirtualMachine::new(config)?;
-
-    let jimage = JImage::new(vm.config.home.join("lib").join("modules"));
-
-    std::process::exit(1);
 
     let mut interpreter = Interpreter::new(vm);
     match interpreter.start(main_class) {
