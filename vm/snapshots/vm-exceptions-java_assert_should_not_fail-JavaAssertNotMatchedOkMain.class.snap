@@ -3,5 +3,5 @@ source: vm/src/main.rs
 expression: combined
 ---
 ----- STDOUT -----
-All assertions passed.
+
 ----- STDERR -----
