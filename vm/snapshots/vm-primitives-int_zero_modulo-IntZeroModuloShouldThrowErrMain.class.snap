@@ -1,0 +1,9 @@
+---
+source: vm/src/main.rs
+expression: "&combined"
+---
+----- STDOUT -----
+
+----- STDERR -----
+java.lang.ArithmeticException: / by zero
+	at primitives.int_zero_modulo.IntZeroModuloShouldThrowErrMain.main(IntZeroModuloShouldThrowErrMain.java:5)

@@ -1,4 +1,4 @@
-use crate::error::JvmError;
+use crate::error::{JavaExceptionFromJvm, JavaLangError, JvmError};
 use crate::native::MethodKey;
 use crate::rt::class::{Class, InitState};
 use crate::rt::constant_pool::RuntimeConstant;
@@ -75,12 +75,37 @@ impl Interpreter {
         Ok(())
     }
 
+    //TODO: probably need to move it, refactor and it will still probably will not work for catch
+    fn allocate_and_throw(&mut self, exception: JavaExceptionFromJvm) -> Result<(), JvmError> {
+        let exception_ref = exception.as_reference();
+        let class_id = self.vm.method_area.get_class_id(exception_ref.class)?;
+        let message = self.vm.heap.get_or_new_string(exception.get_message());
+        let class = self.vm.method_area.get_class_by_id(class_id)?.clone();
+        let instance = self.vm.heap.alloc_instance(&class)?;
+        let method = class.get_virtual_method(exception_ref.name, exception_ref.descriptor)?;
+        let params = vec![Value::Ref(instance), Value::Ref(message)];
+        self.run_instance_method(method, params)?;
+        Err(JvmError::JavaExceptionThrown(instance))
+    }
+
     fn interpret_method_code(&mut self, code: &Vec<u8>, frame: Frame) -> Result<(), JvmError> {
         self.vm.frame_stack.push_frame(frame)?;
         loop {
             let instruction = Instruction::new_at(code, *self.vm.frame_stack.pc()?)?;
-            if self.interpret_instruction(instruction)? {
-                break;
+            // TODO: cleanup here and interpret_instruction return type
+            let res = self.interpret_instruction(instruction);
+            match res {
+                Ok(should_return) => {
+                    if should_return {
+                        break;
+                    }
+                }
+                Err(e) => match e {
+                    JvmError::JavaException(exception) => {
+                        self.allocate_and_throw(exception)?;
+                    }
+                    e => return Err(e),
+                },
             }
         }
 
@@ -1020,8 +1045,8 @@ impl Interpreter {
                 let v2 = self.vm.frame_stack.pop_int_val()?;
                 let v1 = self.vm.frame_stack.pop_int_val()?;
                 if v2 == 0 {
-                    Err(JvmError::ArithmeticException(
-                        "Division by zero".to_string(),
+                    Err(JavaExceptionFromJvm::JavaLang(
+                        JavaLangError::ArithmeticException("/ by zero".to_string()),
                     ))?
                 }
                 self.vm.frame_stack.push_operand(Value::Integer(v1 / v2))?;

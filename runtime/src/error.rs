@@ -70,4 +70,57 @@ pub enum JvmError {
     WrongHeapAddress(HeapAddr),
     #[error("TODO map to correct error: `{0}`")]
     Todo(String),
+    #[error("JavaLangError: {0}")]
+    JavaException(#[from] JavaExceptionFromJvm),
+}
+
+// TODO: everything below needs to be refactored
+#[derive(Debug, Error)]
+pub enum JavaExceptionFromJvm {
+    #[error("LinkageError: {0}")]
+    JavaLang(JavaLangError),
+}
+
+impl JavaExceptionFromJvm {
+    pub fn as_reference(&self) -> JavaExceptionReference {
+        match self {
+            JavaExceptionFromJvm::JavaLang(err) => err.as_reference(),
+        }
+    }
+
+    pub fn get_message(&self) -> &String {
+        match self {
+            JavaExceptionFromJvm::JavaLang(err) => err.get_message(),
+        }
+    }
+}
+
+pub struct JavaExceptionReference {
+    pub class: &'static str,
+    pub name: &'static str,
+    pub descriptor: &'static str,
+}
+
+#[derive(Debug, Error)]
+pub enum JavaLangError {
+    #[error("java.lang.ArithmeticException: {0}")]
+    ArithmeticException(String),
+}
+
+impl JavaLangError {
+    pub fn as_reference(&self) -> JavaExceptionReference {
+        match self {
+            JavaLangError::ArithmeticException(_) => JavaExceptionReference {
+                class: "java/lang/ArithmeticException",
+                name: "<init>",
+                descriptor: "(Ljava/lang/String;)V",
+            },
+        }
+    }
+
+    pub fn get_message(&self) -> &String {
+        match self {
+            JavaLangError::ArithmeticException(msg) => msg,
+        }
+    }
 }
