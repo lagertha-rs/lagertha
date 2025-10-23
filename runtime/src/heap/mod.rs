@@ -1,9 +1,9 @@
 // TODO: very primitive implementation, ok for right now
 
-use crate::ClassId;
-use crate::error::JvmError;
+use crate::error::{JavaExceptionFromJvm, JavaLangError, JvmError};
 use crate::heap::method_area::MethodArea;
 use crate::rt::class::Class;
+use crate::{ClassId, throw_index_out_of_bounds_exception};
 use common::jtype::{HeapAddr, Value};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -46,12 +46,32 @@ impl Instance {
         self.data.len()
     }
 
-    pub fn get_element(&self, index: usize) -> &Value {
-        self.data.get(index).expect("invalid array index")
+    pub fn get_element(&self, index: i32) -> Result<&Value, JvmError> {
+        // TODO: this block is repeated at least 3 times, refactor
+        let index = if index >= 0 && (index as usize) < self.data.len() {
+            index as usize
+        } else {
+            throw_index_out_of_bounds_exception!(
+                "Index {} out of bounds for length {}",
+                index,
+                self.data.len()
+            )?
+        };
+        Ok(&self.data[index])
     }
 
-    pub fn get_element_mut(&mut self, index: usize) -> &mut Value {
-        self.data.get_mut(index).expect("invalid array index")
+    pub fn get_element_mut(&mut self, index: i32) -> Result<&mut Value, JvmError> {
+        // TODO: this block is repeated at least 3 times, refactor
+        let index = if index >= 0 && (index as usize) < self.data.len() {
+            index as usize
+        } else {
+            throw_index_out_of_bounds_exception!(
+                "Index {} out of bounds for length {}",
+                index,
+                self.data.len()
+            )?
+        };
+        Ok(&mut self.data[index])
     }
 }
 
@@ -245,7 +265,7 @@ impl Heap {
     //TODO: design it lightweight
     pub fn get_string(&self, h: HeapAddr) -> Result<String, JvmError> {
         let instance = self.get_instance(&h)?;
-        let value_field = instance.get_element(0); // "value" field is always the first field in java.lang.String
+        let value_field = instance.get_element(0)?; // "value" field is always the first field in java.lang.String
         let array_addr = match value_field {
             Value::Ref(addr) => *addr,
             _ => {
@@ -267,14 +287,20 @@ impl Heap {
     pub fn write_array_element(
         &mut self,
         h: HeapAddr,
-        index: usize,
+        index: i32,
         val: Value,
     ) -> Result<(), JvmError> {
         match self.get_mut(h) {
             HeapObject::Array(array) => {
-                if index >= array.data.len() {
-                    return Err(JvmError::ArrayIndexOutOfBoundsException);
-                }
+                let index = if index >= 0 && (index as usize) < array.length() {
+                    index as usize
+                } else {
+                    throw_index_out_of_bounds_exception!(
+                        "Index {} out of bounds for length {}",
+                        index,
+                        array.length()
+                    )?
+                };
                 array.data[index] = val;
             }
             _ => panic!("heap: write_array_element on non-array"),

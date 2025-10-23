@@ -1,4 +1,4 @@
-package primitives.int_arithmetic_ok;
+package primitives.integer.arithmetic_ok;
 
 public class IntArithmeticOkMain {
     public static void main(String[] args) {

@@ -5,7 +5,10 @@ use crate::rt::constant_pool::RuntimeConstant;
 use crate::rt::constant_pool::reference::MethodReference;
 use crate::rt::method::{Method, MethodType};
 use crate::stack::Frame;
-use crate::{ClassId, VirtualMachine};
+use crate::{
+    ClassId, VirtualMachine, throw_arithmetic_exception, throw_negative_array_size_exception,
+    throw_unsupported_operation,
+};
 use common::instruction::Instruction;
 use common::jtype::Value;
 use log::warn;
@@ -220,6 +223,22 @@ impl Interpreter {
                 let value = self.vm.frame_stack.pop_float()?;
                 self.vm.frame_stack.set_local(n as usize, value)?;
             }
+            Instruction::Fstore0 => {
+                let value = self.vm.frame_stack.pop_float()?;
+                self.vm.frame_stack.set_local(0, value)?;
+            }
+            Instruction::Fstore1 => {
+                let value = self.vm.frame_stack.pop_float()?;
+                self.vm.frame_stack.set_local(1, value)?;
+            }
+            Instruction::Fstore2 => {
+                let value = self.vm.frame_stack.pop_float()?;
+                self.vm.frame_stack.set_local(2, value)?;
+            }
+            Instruction::Fstore3 => {
+                let value = self.vm.frame_stack.pop_float()?;
+                self.vm.frame_stack.set_local(3, value)?;
+            }
             Instruction::Istore0 => {
                 let value = self.vm.frame_stack.pop_int()?;
                 self.vm.frame_stack.set_local(0, value)?;
@@ -263,11 +282,7 @@ impl Interpreter {
             Instruction::Aaload => {
                 let index = self.vm.frame_stack.pop_int_val()?;
                 let array_addr = self.vm.frame_stack.pop_obj_val()?;
-                let value = *self
-                    .vm
-                    .heap
-                    .get_array(&array_addr)
-                    .get_element(index as usize);
+                let value = *self.vm.heap.get_array(&array_addr).get_element(index)?;
                 if matches!(value, Value::Ref(_) | Value::Null) {
                     self.vm.frame_stack.push_operand(value)?;
                 } else {
@@ -277,11 +292,7 @@ impl Interpreter {
             Instruction::Caload | Instruction::Baload | Instruction::Iaload => {
                 let index = self.vm.frame_stack.pop_int_val()?;
                 let array_addr = self.vm.frame_stack.pop_obj_val()?;
-                let value = *self
-                    .vm
-                    .heap
-                    .get_array(&array_addr)
-                    .get_element(index as usize);
+                let value = *self.vm.heap.get_array(&array_addr).get_element(index)?;
                 if let Value::Integer(i) = value {
                     self.vm.frame_stack.push_operand(Value::Integer(i & 0xFF))?;
                 } else {
@@ -330,6 +341,9 @@ impl Interpreter {
             }
             Instruction::Fconst0 => {
                 self.vm.frame_stack.push_operand(Value::Float(0.0))?;
+            }
+            Instruction::Fconst1 => {
+                self.vm.frame_stack.push_operand(Value::Float(1.0))?;
             }
             Instruction::Lcmp => {
                 let v2 = self.vm.frame_stack.pop_long_val()?;
@@ -656,7 +670,7 @@ impl Interpreter {
                     RuntimeConstant::Long(value) => {
                         self.vm.frame_stack.push_operand(Value::Long(*value))?;
                     }
-                    _ => unimplemented!("Ldc for constant {:?}", raw),
+                    _ => throw_unsupported_operation!("Ldc for constant {:?}", raw)?,
                 }
             }
             Instruction::Anewarray(idx) => {
@@ -668,7 +682,7 @@ impl Interpreter {
                     let addr = self.vm.heap.alloc_array(class, size as usize)?;
                     self.vm.frame_stack.push_operand(Value::Ref(addr))?;
                 } else {
-                    return Err(JvmError::NegativeArraySizeException)?;
+                    throw_negative_array_size_exception!(size.to_string())?
                 }
             }
             Instruction::Newarray(array_type) => {
@@ -679,7 +693,7 @@ impl Interpreter {
                     let addr = self.vm.heap.alloc_array(primitive_class, count as usize)?;
                     self.vm.frame_stack.push_operand(Value::Ref(addr))?;
                 } else {
-                    Err(JvmError::NegativeArraySizeException)?
+                    throw_negative_array_size_exception!(count.to_string())?
                 }
             }
             Instruction::New(idx) => {
@@ -797,7 +811,7 @@ impl Interpreter {
                 let array_addr = self.vm.frame_stack.pop_obj_val()?;
                 self.vm.heap.write_array_element(
                     array_addr,
-                    index as usize,
+                    index,
                     Value::Integer(value & 0xFF),
                 )?;
             }
@@ -807,18 +821,14 @@ impl Interpreter {
                 let array_addr = self.vm.frame_stack.pop_obj_val()?;
                 self.vm.heap.write_array_element(
                     array_addr,
-                    index as usize,
+                    index,
                     Value::Integer(value & 0xFFFF),
                 )?;
             }
             Instruction::Saload => {
                 let index = self.vm.frame_stack.pop_int_val()?;
                 let array_addr = self.vm.frame_stack.pop_obj_val()?;
-                let value = *self
-                    .vm
-                    .heap
-                    .get_array(&array_addr)
-                    .get_element(index as usize);
+                let value = *self.vm.heap.get_array(&array_addr).get_element(index)?;
                 if let Value::Integer(i) = value {
                     self.vm
                         .frame_stack
@@ -833,7 +843,7 @@ impl Interpreter {
                 let array_addr = self.vm.frame_stack.pop_obj_val()?;
                 self.vm.heap.write_array_element(
                     array_addr,
-                    index as usize,
+                    index,
                     Value::Integer(value & 0xFF),
                 )?;
             }
@@ -857,19 +867,15 @@ impl Interpreter {
                 let value = self.vm.frame_stack.pop_int_val()?;
                 let index = self.vm.frame_stack.pop_int_val()?;
                 let array_addr = self.vm.frame_stack.pop_obj_val()?;
-                self.vm.heap.write_array_element(
-                    array_addr,
-                    index as usize,
-                    Value::Integer(value),
-                )?;
+                self.vm
+                    .heap
+                    .write_array_element(array_addr, index, Value::Integer(value))?;
             }
             Instruction::Aastore => {
                 let value = self.vm.frame_stack.pop_nullable_ref()?;
                 let index = self.vm.frame_stack.pop_int_val()?;
                 let array_addr = self.vm.frame_stack.pop_obj_val()?;
-                self.vm
-                    .heap
-                    .write_array_element(array_addr, index as usize, value)?;
+                self.vm.heap.write_array_element(array_addr, index, value)?;
             }
             Instruction::Astore0 => {
                 let value = self.vm.frame_stack.pop_nullable_ref()?;
@@ -998,20 +1004,13 @@ impl Interpreter {
             Instruction::Fdiv => {
                 let v2 = self.vm.frame_stack.pop_float_val()?;
                 let v1 = self.vm.frame_stack.pop_float_val()?;
-                if v2 == 0.0 {
-                    Err(JvmError::ArithmeticException(
-                        "Division by zero".to_string(),
-                    ))?
-                }
                 self.vm.frame_stack.push_operand(Value::Float(v1 / v2))?;
             }
             Instruction::Irem => {
                 let v2 = self.vm.frame_stack.pop_int_val()?;
                 let v1 = self.vm.frame_stack.pop_int_val()?;
                 if v2 == 0 {
-                    Err(JvmError::ArithmeticException(
-                        "Division by zero".to_string(),
-                    ))?
+                    throw_arithmetic_exception!("Division by zero")?
                 }
                 self.vm.frame_stack.push_operand(Value::Integer(v1 % v2))?;
             }
@@ -1136,7 +1135,7 @@ impl Interpreter {
             Instruction::Monitorexit => {
                 let _obj = self.vm.frame_stack.pop_obj_val()?;
             }
-            unimp => unimplemented!("Instruction {:?} not implemented", unimp),
+            unimpl => throw_unsupported_operation!("Instruction {:?} is not implemented", unimpl)?,
         }
         Ok(false)
     }
@@ -1166,7 +1165,7 @@ impl Interpreter {
             .vm
             .native_registry
             .get(&method_key)
-            .ok_or(JvmError::NoSuchMethod(format!("{method_key:?}")))?;
+            .ok_or(JvmError::NoSuchMethod(format!("{method_key}")))?;
 
         if let Some(ret_value) = method(&mut self.vm, params.as_slice()) {
             self.vm.frame_stack.push_operand(ret_value)?;
@@ -1293,7 +1292,7 @@ impl Interpreter {
             .vm
             .native_registry
             .get(&method_key)
-            .ok_or(JvmError::NoSuchMethod(format!("{method_key:?}")))?;
+            .ok_or(JvmError::NoSuchMethod(format!("{method_key}")))?;
         if let Some(ret_value) = method(&mut self.vm, params.as_slice()) {
             self.vm.frame_stack.push_operand(ret_value)?;
         }

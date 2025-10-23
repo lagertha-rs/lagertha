@@ -3,10 +3,11 @@ use crate::heap::HeapObject;
 use common::instruction::ArrayType;
 use common::jtype::Value;
 use std::collections::HashMap;
+use std::fmt::Display;
 use tracing_log::log::debug;
 
 //TODO: redesign, avoid string allocations here
-#[derive(Hash, Eq, PartialEq, Clone, Debug)]
+#[derive(Hash, Eq, PartialEq, Clone)]
 pub struct MethodKey {
     pub class: String,
     pub name: String,
@@ -16,6 +17,16 @@ pub struct MethodKey {
 impl MethodKey {
     pub fn new(class: String, name: String, desc: String) -> Self {
         Self { class, name, desc }
+    }
+}
+
+impl Display for MethodKey {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "class name: \"{}\", method name: \"{}\", descriptor: \"{}\"",
+            self.class, self.name, self.desc
+        )
     }
 }
 
@@ -397,12 +408,20 @@ impl NativeRegistry {
             ),
             java_lang_stack_trace_element_init_stack_trace_elements,
         );
+        instance.register(
+            MethodKey::new(
+                "java/lang/Float".to_string(),
+                "intBitsToFloat".to_string(),
+                "(I)F".to_string(),
+            ),
+            java_lang_float_int_bits_to_float,
+        );
 
         instance
     }
 
     fn register(&mut self, key: MethodKey, f: NativeFn) {
-        debug!("Registering native method: {:?}", key);
+        debug!("Registering native method: {}", key);
         self.map.insert(key, f);
     }
 
@@ -473,7 +492,7 @@ fn java_lang_system_arraycopy(vm: &mut VirtualMachine, args: &[Value]) -> Native
 
         for i in 0..length {
             vm.heap
-                .write_array_element(dest, dest_pos + i, tmp[i].clone())
+                .write_array_element(dest, (dest_pos + i) as i32, tmp[i].clone())
                 .unwrap();
         }
     }
@@ -661,19 +680,23 @@ fn java_lang_throwable_fill_in_stack_trace(vm: &mut VirtualMachine, args: &[Valu
         vm.heap
             .write_array_element(
                 class_id_array,
-                pos,
+                pos as i32,
                 Value::Integer(frame.method().class_id().unwrap() as i32),
             )
             .unwrap();
         vm.heap
             .write_array_element(
                 method_id_array,
-                pos,
+                pos as i32,
                 Value::Integer(frame.method().id().unwrap() as i32),
             )
             .unwrap();
         vm.heap
-            .write_array_element(line_nbr_array, pos, Value::Integer(frame.pc() as i32))
+            .write_array_element(
+                line_nbr_array,
+                pos as i32,
+                Value::Integer(frame.pc() as i32),
+            )
             .unwrap();
     }
     let obj_class = vm.method_area.get_class("java/lang/Object").unwrap();
@@ -741,7 +764,7 @@ fn jdk_internal_misc_unsafe_compare_and_set_int(
         _ => panic!("jdk.internal.misc.Unsafe.compareAndSetLong: expected long new value"),
     };
     let instance = vm.heap.get_instance_mut(object);
-    let field = instance.get_element_mut(offset);
+    let field = instance.get_element_mut(offset as i32).unwrap();
     if let Value::Integer(current_value) = field {
         if *current_value == expected {
             *field = Value::Integer(new_value);
@@ -776,7 +799,7 @@ fn jdk_internal_misc_unsafe_compare_and_set_long(
         _ => panic!("jdk.internal.misc.Unsafe.compareAndSetLong: expected long new value"),
     };
     let instance = vm.heap.get_instance_mut(object);
-    let field = instance.get_element_mut(offset);
+    let field = instance.get_element_mut(offset as i32).unwrap();
     if let Value::Long(current_value) = field {
         if *current_value == expected {
             *field = Value::Long(new_value);
@@ -806,7 +829,7 @@ fn jdk_internal_misc_unsafe_get_reference_volatile(
     };
     match vm.heap.get(base) {
         Some(HeapObject::Instance(instance)) => {
-            let field = instance.get_element(off as usize);
+            let field = instance.get_element(off as i32).unwrap();
             match field {
                 Value::Ref(_) => Some(*field),
                 _ => panic!("Unsafe.getReferenceVolatile field is not an object"),
@@ -903,7 +926,7 @@ fn jdk_internal_misc_unsafe_compare_and_set_reference(
             }
         }
         HeapObject::Instance(instance) => {
-            let field = instance.get_element_mut(offset);
+            let field = instance.get_element_mut(offset as i32).unwrap();
             if *field == expected {
                 *field = Value::Ref(new_value);
                 Some(Value::Integer(1))
@@ -1025,16 +1048,19 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
 
     // TODO: obviously need to clean this up
     for i in 0..depth {
+        let i = i as i32;
         let class_id = vm
             .heap
             .get_array(
                 &vm.heap
                     .get_array(&object)
                     .get_element(0)
+                    .unwrap()
                     .as_obj_ref()
                     .unwrap(),
             )
             .get_element(i)
+            .unwrap()
             .as_int()
             .unwrap() as usize;
         let method_id = vm
@@ -1043,10 +1069,12 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
                 &vm.heap
                     .get_array(&object)
                     .get_element(1)
+                    .unwrap()
                     .as_obj_ref()
                     .unwrap(),
             )
             .get_element(i)
+            .unwrap()
             .as_int()
             .unwrap() as usize;
         let cp = vm
@@ -1055,10 +1083,12 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
                 &vm.heap
                     .get_array(&object)
                     .get_element(2)
+                    .unwrap()
                     .as_obj_ref()
                     .unwrap(),
             )
             .get_element(i)
+            .unwrap()
             .as_int()
             .unwrap() as usize;
         let class = vm.method_area.get_class_by_id(class_id).unwrap();
@@ -1072,6 +1102,7 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
             .heap
             .get_array(&elements_array)
             .get_element(i)
+            .unwrap()
             .as_obj_ref()
             .unwrap();
 
@@ -1243,7 +1274,7 @@ fn java_io_file_output_stream_write_bytes(vm: &mut VirtualMachine, args: &[Value
         .unwrap();
     let array = vm.heap.get_array(&bytes_array);
     for i in offset..offset + length {
-        let byte = match array.get_element(i) {
+        let byte = match array.get_element(i as i32).unwrap() {
             Value::Integer(b) => b,
             _ => panic!("java.io.FileOutputStream.writeBytes: expected byte element"),
         };
@@ -1258,4 +1289,13 @@ fn java_io_file_output_stream_write_bytes(vm: &mut VirtualMachine, args: &[Value
         }
     }
     None
+}
+
+fn java_lang_float_int_bits_to_float(_vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
+    debug!("TODO: Stub: java.lang.Float.intBitsToFloat");
+    if let Value::Integer(i) = args[0] {
+        Some(Value::Float(f32::from_bits(i as u32)))
+    } else {
+        panic!("java.lang.Float.intBitsToFloat: expected int argument");
+    }
 }

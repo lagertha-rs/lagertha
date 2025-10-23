@@ -1,0 +1,9 @@
+---
+source: vm/src/main.rs
+expression: "&combined"
+---
+----- STDOUT -----
+
+----- STDERR -----
+java.lang.ArrayIndexOutOfBoundsException: Index -1 out of bounds for length 1
+	at arrays.objects.set_negative_array_index_should_throw_err.SetNegativeArrayIndexShouldThrowErrMain.main(SetNegativeArrayIndexShouldThrowErrMain.java:5)

@@ -2,11 +2,11 @@
 source: jclass/src/lib.rs
 expression: display
 ---
-public class primitives.int_arithmetic_ok.IntArithmeticOkMain 
+public class primitives.integer.arithmetic_ok.IntArithmeticOkMain 
   minor version: 0
   major version: 68
   flags: (0x0021) ACC_PUBLIC, ACC_SUPER
-  this_class: #12                      //primitives/int_arithmetic_ok/IntArithmeticOkMain
+  this_class: #12                      //primitives/integer/arithmetic_ok/IntArithmeticOkMain
   super_class: #2                      //java/lang/Object
   interfaces: 0, fields: 1, methods: 3, attributes: 1
 Constant pool:
@@ -20,10 +20,10 @@ Constant pool:
    #8 = Utf8               java/lang/Integer
    #9 = Integer            2147483647
   #10 = Integer            -2147483648
-  #11 = Fieldref           #12.#13          // primitives/int_arithmetic_ok/IntArithmeticOkMain.$assertionsDisabled:Z
-  #12 = Class              #14              // primitives/int_arithmetic_ok/IntArithmeticOkMain
+  #11 = Fieldref           #12.#13          // primitives/integer/arithmetic_ok/IntArithmeticOkMain.$assertionsDisabled:Z
+  #12 = Class              #14              // primitives/integer/arithmetic_ok/IntArithmeticOkMain
   #13 = NameAndType        #15:#16          // $assertionsDisabled:Z
-  #14 = Utf8               primitives/int_arithmetic_ok/IntArithmeticOkMain
+  #14 = Utf8               primitives/integer/arithmetic_ok/IntArithmeticOkMain
   #15 = Utf8               $assertionsDisabled
   #16 = Utf8               Z
   #17 = Class              #18              // java/lang/AssertionError
@@ -69,7 +69,7 @@ Constant pool:
   #57 = Utf8               LineNumberTable
   #58 = Utf8               LocalVariableTable
   #59 = Utf8               this
-  #60 = Utf8               Lprimitives/int_arithmetic_ok/IntArithmeticOkMain;
+  #60 = Utf8               Lprimitives/integer/arithmetic_ok/IntArithmeticOkMain;
   #61 = Utf8               main
   #62 = Utf8               ([Ljava/lang/String;)V
   #63 = Utf8               args
@@ -92,7 +92,7 @@ Constant pool:
     descriptor: Z
     flags: (0x1018) ACC_STATIC, ACC_FINAL, ACC_SYNTHETIC
   
-  public primitives.int_arithmetic_ok.IntArithmeticOkMain();
+  public primitives.integer.arithmetic_ok.IntArithmeticOkMain();
     descriptor: ()V
     flags: (0x0001) ACC_PUBLIC
     Code: 
@@ -104,7 +104,7 @@ Constant pool:
         line 3: 0
       LocalVariableTable:
        Start   Length  Slot  Name   Signature
-           0        5     0  this   Lprimitives/int_arithmetic_ok/IntArithmeticOkMain;
+           0        5     0  this   Lprimitives/integer/arithmetic_ok/IntArithmeticOkMain;
   
   public static void main(java.lang.String[]);
     descriptor: ([Ljava/lang/String;)V
@@ -239,7 +239,7 @@ Constant pool:
     flags: (0x0008) ACC_STATIC
     Code: 
       stack=1, locals=0, args_size=0
-         0: ldc           #12                 // class primitives/int_arithmetic_ok/IntArithmeticOkMain
+         0: ldc           #12                 // class primitives/integer/arithmetic_ok/IntArithmeticOkMain
          2: invokevirtual #50                 // Method java/lang/Class.desiredAssertionStatus:()Z
          5: ifne          12                
          8: iconst_1                

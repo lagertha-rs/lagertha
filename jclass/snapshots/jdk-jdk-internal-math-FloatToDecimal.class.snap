@@ -1,0 +1,1473 @@
+---
+source: jclass/src/lib.rs
+expression: display
+---
+public final class jdk.internal.math.FloatToDecimal extends jdk.internal.math.ToDecimal
+  minor version: 0
+  major version: 68
+  flags: (0x0031) ACC_PUBLIC, ACC_FINAL, ACC_SUPER
+  this_class: #3                       //jdk/internal/math/FloatToDecimal
+  super_class: #6                      //jdk/internal/math/ToDecimal
+  interfaces: 0, fields: 18, methods: 12, attributes: 1
+Constant pool:
+    #1 = Class              #2               // java/lang/Float
+    #2 = Utf8               java/lang/Float
+    #3 = Class              #4               // jdk/internal/math/FloatToDecimal
+    #4 = Utf8               jdk/internal/math/FloatToDecimal
+    #5 = Methodref          #6.#7            // jdk/internal/math/ToDecimal."<init>":(Z)V
+    #6 = Class              #8               // jdk/internal/math/ToDecimal
+    #7 = NameAndType        #9:#10           // "<init>":(Z)V
+    #8 = Utf8               jdk/internal/math/ToDecimal
+    #9 = Utf8               <init>
+   #10 = Utf8               (Z)V
+   #11 = Fieldref           #3.#12           // jdk/internal/math/FloatToDecimal.LATIN1:Ljdk/internal/math/FloatToDecimal;
+   #12 = NameAndType        #13:#14          // LATIN1:Ljdk/internal/math/FloatToDecimal;
+   #13 = Utf8               LATIN1
+   #14 = Utf8               Ljdk/internal/math/FloatToDecimal;
+   #15 = Methodref          #3.#16           // jdk/internal/math/FloatToDecimal.toDecimal:([BIF)I
+   #16 = NameAndType        #17:#18          // toDecimal:([BIF)I
+   #17 = Utf8               toDecimal
+   #18 = Utf8               ([BIF)I
+   #19 = Integer            65280
+   #20 = Class              #21              // java/lang/String
+   #21 = Utf8               java/lang/String
+   #22 = Fieldref           #23.#24          // sun/nio/cs/ISO_8859_1.INSTANCE:Lsun/nio/cs/ISO_8859_1;
+   #23 = Class              #25              // sun/nio/cs/ISO_8859_1
+   #24 = NameAndType        #26:#27          // INSTANCE:Lsun/nio/cs/ISO_8859_1;
+   #25 = Utf8               sun/nio/cs/ISO_8859_1
+   #26 = Utf8               INSTANCE
+   #27 = Utf8               Lsun/nio/cs/ISO_8859_1;
+   #28 = Methodref          #20.#29          // java/lang/String."<init>":([BIILjava/nio/charset/Charset;)V
+   #29 = NameAndType        #9:#30           // "<init>":([BIILjava/nio/charset/Charset;)V
+   #30 = Utf8               ([BIILjava/nio/charset/Charset;)V
+   #31 = Methodref          #3.#32           // jdk/internal/math/FloatToDecimal.special:(I)Ljava/lang/String;
+   #32 = NameAndType        #33:#34          // special:(I)Ljava/lang/String;
+   #33 = Utf8               special
+   #34 = Utf8               (I)Ljava/lang/String;
+   #35 = Fieldref           #3.#36           // jdk/internal/math/FloatToDecimal.$assertionsDisabled:Z
+   #36 = NameAndType        #37:#38          // $assertionsDisabled:Z
+   #37 = Utf8               $assertionsDisabled
+   #38 = Utf8               Z
+   #39 = Methodref          #3.#40           // jdk/internal/math/FloatToDecimal.length:([B)I
+   #40 = NameAndType        #41:#42          // length:([B)I
+   #41 = Utf8               length
+   #42 = Utf8               ([B)I
+   #43 = Class              #44              // java/lang/AssertionError
+   #44 = Utf8               java/lang/AssertionError
+   #45 = String             #46              // Trusted caller missed bounds check
+   #46 = Utf8               Trusted caller missed bounds check
+   #47 = Methodref          #43.#48          // java/lang/AssertionError."<init>":(Ljava/lang/Object;)V
+   #48 = NameAndType        #9:#49           // "<init>":(Ljava/lang/Object;)V
+   #49 = Utf8               (Ljava/lang/Object;)V
+   #50 = Methodref          #3.#51           // jdk/internal/math/FloatToDecimal.putSpecial:([BII)I
+   #51 = NameAndType        #52:#53          // putSpecial:([BII)I
+   #52 = Utf8               putSpecial
+   #53 = Utf8               ([BII)I
+   #54 = Methodref          #1.#55           // java/lang/Float.floatToRawIntBits:(F)I
+   #55 = NameAndType        #56:#57          // floatToRawIntBits:(F)I
+   #56 = Utf8               floatToRawIntBits
+   #57 = Utf8               (F)I
+   #58 = Integer            8388607
+   #59 = Methodref          #3.#60           // jdk/internal/math/FloatToDecimal.putChar:([BII)I
+   #60 = NameAndType        #61:#53          // putChar:([BII)I
+   #61 = Utf8               putChar
+   #62 = Integer            8388608
+   #63 = Methodref          #3.#64           // jdk/internal/math/FloatToDecimal.toChars:([BIII)I
+   #64 = NameAndType        #65:#66          // toChars:([BIII)I
+   #65 = Utf8               toChars
+   #66 = Utf8               ([BIII)I
+   #67 = Methodref          #3.#68           // jdk/internal/math/FloatToDecimal.toDecimal:([BIIII)I
+   #68 = NameAndType        #17:#69          // toDecimal:([BIIII)I
+   #69 = Utf8               ([BIIII)I
+   #70 = Long               2l
+   #72 = Methodref          #73.#74          // jdk/internal/math/MathUtils.flog10pow2:(I)I
+   #73 = Class              #75              // jdk/internal/math/MathUtils
+   #74 = NameAndType        #76:#77          // flog10pow2:(I)I
+   #75 = Utf8               jdk/internal/math/MathUtils
+   #76 = Utf8               flog10pow2
+   #77 = Utf8               (I)I
+   #78 = Methodref          #73.#79          // jdk/internal/math/MathUtils.flog10threeQuartersPow2:(I)I
+   #79 = NameAndType        #80:#77          // flog10threeQuartersPow2:(I)I
+   #80 = Utf8               flog10threeQuartersPow2
+   #81 = Methodref          #73.#82          // jdk/internal/math/MathUtils.flog2pow10:(I)I
+   #82 = NameAndType        #83:#77          // flog2pow10:(I)I
+   #83 = Utf8               flog2pow10
+   #84 = Methodref          #73.#85          // jdk/internal/math/MathUtils.g1:(I)J
+   #85 = NameAndType        #86:#87          // g1:(I)J
+   #86 = Utf8               g1
+   #87 = Utf8               (I)J
+   #88 = Methodref          #3.#89           // jdk/internal/math/FloatToDecimal.rop:(JJ)I
+   #89 = NameAndType        #90:#91          // rop:(JJ)I
+   #90 = Utf8               rop
+   #91 = Utf8               (JJ)I
+   #92 = Long               1717986919l
+   #94 = Methodref          #95.#96          // java/lang/Math.multiplyHigh:(JJ)J
+   #95 = Class              #97              // java/lang/Math
+   #96 = NameAndType        #98:#99          // multiplyHigh:(JJ)J
+   #97 = Utf8               java/lang/Math
+   #98 = Utf8               multiplyHigh
+   #99 = Utf8               (JJ)J
+  #100 = Long               4294967295l
+  #102 = Class              #103             // java/lang/Integer
+  #103 = Utf8               java/lang/Integer
+  #104 = Methodref          #102.#105        // java/lang/Integer.numberOfLeadingZeros:(I)I
+  #105 = NameAndType        #106:#77         // numberOfLeadingZeros:(I)I
+  #106 = Utf8               numberOfLeadingZeros
+  #107 = Methodref          #73.#108         // jdk/internal/math/MathUtils.pow10:(I)J
+  #108 = NameAndType        #109:#87         // pow10:(I)J
+  #109 = Utf8               pow10
+  #110 = Long               1441151881l
+  #112 = Integer            100000000
+  #113 = Methodref          #3.#114          // jdk/internal/math/FloatToDecimal.toChars1:([BIIII)I
+  #114 = NameAndType        #115:#69         // toChars1:([BIIII)I
+  #115 = Utf8               toChars1
+  #116 = Methodref          #3.#117          // jdk/internal/math/FloatToDecimal.toChars2:([BIIII)I
+  #117 = NameAndType        #118:#69         // toChars2:([BIIII)I
+  #118 = Utf8               toChars2
+  #119 = Methodref          #3.#120          // jdk/internal/math/FloatToDecimal.toChars3:([BIIII)I
+  #120 = NameAndType        #121:#69         // toChars3:([BIIII)I
+  #121 = Utf8               toChars3
+  #122 = Methodref          #3.#123          // jdk/internal/math/FloatToDecimal.putDigit:([BII)I
+  #123 = NameAndType        #124:#53         // putDigit:([BII)I
+  #124 = Utf8               putDigit
+  #125 = Methodref          #3.#126          // jdk/internal/math/FloatToDecimal.y:(I)I
+  #126 = NameAndType        #127:#77         // y:(I)I
+  #127 = Utf8               y
+  #128 = Integer            268435455
+  #129 = Methodref          #3.#130          // jdk/internal/math/FloatToDecimal.removeTrailingZeroes:([BI)I
+  #130 = NameAndType        #131:#132        // removeTrailingZeroes:([BI)I
+  #131 = Utf8               removeTrailingZeroes
+  #132 = Utf8               ([BI)I
+  #133 = Methodref          #3.#134          // jdk/internal/math/FloatToDecimal.put8Digits:([BII)I
+  #134 = NameAndType        #135:#53         // put8Digits:([BII)I
+  #135 = Utf8               put8Digits
+  #136 = Methodref          #3.#137          // jdk/internal/math/FloatToDecimal.exponent:([BII)I
+  #137 = NameAndType        #138:#53         // exponent:([BII)I
+  #138 = Utf8               exponent
+  #139 = Methodref          #140.#141        // java/lang/Class.desiredAssertionStatus:()Z
+  #140 = Class              #142             // java/lang/Class
+  #141 = NameAndType        #143:#144        // desiredAssertionStatus:()Z
+  #142 = Utf8               java/lang/Class
+  #143 = Utf8               desiredAssertionStatus
+  #144 = Utf8               ()Z
+  #145 = Methodref          #3.#7            // jdk/internal/math/FloatToDecimal."<init>":(Z)V
+  #146 = Fieldref           #3.#147          // jdk/internal/math/FloatToDecimal.UTF16:Ljdk/internal/math/FloatToDecimal;
+  #147 = NameAndType        #148:#14         // UTF16:Ljdk/internal/math/FloatToDecimal;
+  #148 = Utf8               UTF16
+  #149 = Utf8               P
+  #150 = Utf8               I
+  #151 = Utf8               ConstantValue
+  #152 = Integer            24
+  #153 = Utf8               W
+  #154 = Integer            8
+  #155 = Utf8               Q_MIN
+  #156 = Integer            -149
+  #157 = Utf8               Q_MAX
+  #158 = Integer            104
+  #159 = Utf8               E_MIN
+  #160 = Integer            -44
+  #161 = Utf8               E_MAX
+  #162 = Integer            39
+  #163 = Utf8               C_TINY
+  #164 = Utf8               K_MIN
+  #165 = Integer            -45
+  #166 = Utf8               K_MAX
+  #167 = Integer            31
+  #168 = Utf8               H
+  #169 = Integer            9
+  #170 = Utf8               C_MIN
+  #171 = Utf8               BQ_MASK
+  #172 = Integer            255
+  #173 = Utf8               T_MASK
+  #174 = Utf8               MASK_32
+  #175 = Utf8               J
+  #176 = Utf8               MAX_CHARS
+  #177 = Integer            15
+  #178 = Utf8               Code
+  #179 = Utf8               LineNumberTable
+  #180 = Utf8               LocalVariableTable
+  #181 = Utf8               this
+  #182 = Utf8               latin1
+  #183 = Utf8               toString
+  #184 = Utf8               (F)Ljava/lang/String;
+  #185 = Utf8               size
+  #186 = Utf8               v
+  #187 = Utf8               F
+  #188 = Utf8               str
+  #189 = Utf8               [B
+  #190 = Utf8               pair
+  #191 = Utf8               type
+  #192 = Utf8               StackMapTable
+  #193 = Class              #189             // "[B"
+  #194 = Utf8               putDecimal
+  #195 = Utf8               index
+  #196 = Utf8               f
+  #197 = Utf8               mq
+  #198 = Utf8               c
+  #199 = Utf8               start
+  #200 = Utf8               bits
+  #201 = Utf8               t
+  #202 = Utf8               bq
+  #203 = Utf8               cbl
+  #204 = Utf8               k
+  #205 = Utf8               sp10
+  #206 = Utf8               tp10
+  #207 = Utf8               upin
+  #208 = Utf8               wpin
+  #209 = Utf8               q
+  #210 = Utf8               dk
+  #211 = Utf8               out
+  #212 = Utf8               cb
+  #213 = Utf8               cbr
+  #214 = Utf8               h
+  #215 = Utf8               g
+  #216 = Utf8               vb
+  #217 = Utf8               vbl
+  #218 = Utf8               vbr
+  #219 = Utf8               s
+  #220 = Utf8               uin
+  #221 = Utf8               win
+  #222 = Utf8               cmp
+  #223 = Utf8               cp
+  #224 = Utf8               x1
+  #225 = Utf8               vbp
+  #226 = Utf8               e
+  #227 = Utf8               len
+  #228 = Utf8               l
+  #229 = Utf8               i
+  #230 = Utf8               d
+  #231 = Utf8               <clinit>
+  #232 = Utf8               ()V
+  #233 = Utf8               SourceFile
+  #234 = Utf8               FloatToDecimal.java
+{
+  public static final jdk.internal.math.FloatToDecimal LATIN1;
+    descriptor: Ljdk/internal/math/FloatToDecimal;
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+  
+  public static final jdk.internal.math.FloatToDecimal UTF16;
+    descriptor: Ljdk/internal/math/FloatToDecimal;
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+  
+  static final int P;
+    descriptor: I
+    flags: (0x0018) ACC_STATIC, ACC_FINAL
+    ConstantValue: int 24
+  
+  private static final int W;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 8
+  
+  static final int Q_MIN;
+    descriptor: I
+    flags: (0x0018) ACC_STATIC, ACC_FINAL
+    ConstantValue: int -149
+  
+  static final int Q_MAX;
+    descriptor: I
+    flags: (0x0018) ACC_STATIC, ACC_FINAL
+    ConstantValue: int 104
+  
+  static final int E_MIN;
+    descriptor: I
+    flags: (0x0018) ACC_STATIC, ACC_FINAL
+    ConstantValue: int -44
+  
+  static final int E_MAX;
+    descriptor: I
+    flags: (0x0018) ACC_STATIC, ACC_FINAL
+    ConstantValue: int 39
+  
+  static final int C_TINY;
+    descriptor: I
+    flags: (0x0018) ACC_STATIC, ACC_FINAL
+    ConstantValue: int 8
+  
+  static final int K_MIN;
+    descriptor: I
+    flags: (0x0018) ACC_STATIC, ACC_FINAL
+    ConstantValue: int -45
+  
+  static final int K_MAX;
+    descriptor: I
+    flags: (0x0018) ACC_STATIC, ACC_FINAL
+    ConstantValue: int 31
+  
+  static final int H;
+    descriptor: I
+    flags: (0x0018) ACC_STATIC, ACC_FINAL
+    ConstantValue: int 9
+  
+  private static final int C_MIN;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 8388608
+  
+  private static final int BQ_MASK;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 255
+  
+  private static final int T_MASK;
+    descriptor: I
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 8388607
+  
+  private static final long MASK_32;
+    descriptor: J
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+    ConstantValue: long 4294967295l
+  
+  public static final int MAX_CHARS;
+    descriptor: I
+    flags: (0x0019) ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 15
+  
+  static final boolean $assertionsDisabled;
+    descriptor: Z
+    flags: (0x1018) ACC_STATIC, ACC_FINAL, ACC_SYNTHETIC
+  
+  private jdk.internal.math.FloatToDecimal(boolean);
+    descriptor: (Z)V
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: iload_1                 
+         2: invokespecial #5                  // Method jdk/internal/math/ToDecimal."<init>":(Z)V
+         5: return                  
+      LineNumberTable:
+        line 119: 0
+        line 120: 5
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0        6     0  this   Ljdk/internal/math/FloatToDecimal;
+           0        6     1  latin1 Z
+  
+  public static java.lang.String toString(float);
+    descriptor: (F)Ljava/lang/String;
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code: 
+      stack=6, locals=5, args_size=1
+         0: bipush        15                
+         2: newarray      byte              
+         4: astore_1                
+         5: getstatic     #11                 // Field LATIN1:Ljdk/internal/math/FloatToDecimal;
+         8: aload_1                 
+         9: iconst_0                
+        10: fload_0                 
+        11: invokevirtual #15                 // Method toDecimal:([BIF)I
+        14: istore_2                
+        15: iload_2                 
+        16: ldc           #19                 // int 65280
+        18: iand                    
+        19: istore_3                
+        20: iload_3                 
+        21: ifne          46                
+        24: iload_2                 
+        25: sipush        255               
+        28: iand                    
+        29: istore        4                 
+        31: new           #20                 // class java/lang/String
+        34: dup                     
+        35: aload_1                 
+        36: iconst_0                
+        37: iload         4                 
+        39: getstatic     #22                 // Field sun/nio/cs/ISO_8859_1.INSTANCE:Lsun/nio/cs/ISO_8859_1;
+        42: invokespecial #28                 // Method java/lang/String."<init>":([BIILjava/nio/charset/Charset;)V
+        45: areturn                 
+        46: iload_3                 
+        47: invokestatic  #31                 // Method special:(I)Ljava/lang/String;
+        50: areturn                 
+      LineNumberTable:
+        line 131: 0
+        line 132: 5
+        line 133: 15
+        line 134: 20
+        line 135: 24
+        line 136: 31
+        line 138: 46
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          31       15     4  size   I
+           0       51     0  v      F
+           5       46     1  str    [B
+          15       36     2  pair   I
+          20       31     3  type   I
+      StackMapTable: number_of_entries = 1
+        frame_type = 254 /* append */
+          offset_delta = 46
+          locals = [class "[B", int, int]
+  
+  public int putDecimal(byte[], int, float);
+    descriptor: ([BIF)I
+    flags: (0x0001) ACC_PUBLIC
+    Code: 
+      stack=4, locals=6, args_size=4
+         0: getstatic     #35                 // Field $assertionsDisabled:Z
+         3: ifne          33                
+         6: iconst_0                
+         7: iload_2                 
+         8: if_icmpgt     23                
+        11: iload_2                 
+        12: aload_0                 
+        13: aload_1                 
+        14: invokevirtual #39                 // Method length:([B)I
+        17: bipush        15                
+        19: isub                    
+        20: if_icmple     33                
+        23: new           #43                 // class java/lang/AssertionError
+        26: dup                     
+        27: ldc           #45                 // String Trusted caller missed bounds check
+        29: invokespecial #47                 // Method java/lang/AssertionError."<init>":(Ljava/lang/Object;)V
+        32: athrow                  
+        33: aload_0                 
+        34: aload_1                 
+        35: iload_2                 
+        36: fload_3                 
+        37: invokevirtual #15                 // Method toDecimal:([BIF)I
+        40: istore        4                 
+        42: iload         4                 
+        44: ldc           #19                 // int 65280
+        46: iand                    
+        47: istore        5                 
+        49: iload         5                 
+        51: ifne          63                
+        54: iload_2                 
+        55: iload         4                 
+        57: sipush        255               
+        60: iand                    
+        61: iadd                    
+        62: ireturn                 
+        63: aload_0                 
+        64: aload_1                 
+        65: iload_2                 
+        66: iload         5                 
+        68: invokevirtual #50                 // Method putSpecial:([BII)I
+        71: ireturn                 
+      LineNumberTable:
+        line 153: 0
+        line 155: 33
+        line 156: 42
+        line 157: 49
+        line 158: 54
+        line 160: 63
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       72     0  this   Ljdk/internal/math/FloatToDecimal;
+           0       72     1  str    [B
+           0       72     2  index  I
+           0       72     3  v      F
+          42       30     4  pair   I
+          49       23     5  type   I
+      StackMapTable: number_of_entries = 3
+        frame_type = 23 /* same */
+        frame_type = 9 /* same */
+        frame_type = 253 /* append */
+          offset_delta = 29
+          locals = [int, int]
+  
+  private int toDecimal(byte[], int, float);
+    descriptor: ([BIF)I
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=6, locals=11, args_size=4
+         0: fload_3                 
+         1: invokestatic  #54                 // Method java/lang/Float.floatToRawIntBits:(F)I
+         4: istore        4                 
+         6: iload         4                 
+         8: ldc           #58                 // int 8388607
+        10: iand                    
+        11: istore        5                 
+        13: iload         4                 
+        15: bipush        23                
+        17: iushr                   
+        18: sipush        255               
+        21: iand                    
+        22: istore        6                 
+        24: iload         6                 
+        26: sipush        255               
+        29: if_icmpge     203               
+        32: iload_2                 
+        33: istore        7                 
+        35: iload         4                 
+        37: ifge          49                
+        40: aload_0                 
+        41: aload_1                 
+        42: iload_2                 
+        43: bipush        45                
+        45: invokevirtual #59                 // Method putChar:([BII)I
+        48: istore_2                
+        49: iload         6                 
+        51: ifeq          142               
+        54: sipush        150               
+        57: iload         6                 
+        59: isub                    
+        60: istore        8                 
+        62: ldc           #62                 // int 8388608
+        64: iload         5                 
+        66: ior                     
+        67: istore        9                 
+        69: iconst_0                
+        70: iload         8                 
+        72: if_icmpge     79                
+        75: iconst_1                
+        76: goto          80                
+        79: iconst_0                
+        80: iload         8                 
+        82: bipush        24                
+        84: if_icmpge     91                
+        87: iconst_1                
+        88: goto          92                
+        91: iconst_0                
+        92: iand                    
+        93: ifeq          126               
+        96: iload         9                 
+        98: iload         8                 
+       100: ishr                    
+       101: istore        10                
+       103: iload         10                
+       105: iload         8                 
+       107: ishl                    
+       108: iload         9                 
+       110: if_icmpne     126               
+       113: aload_0                 
+       114: aload_1                 
+       115: iload_2                 
+       116: iload         10                
+       118: iconst_0                
+       119: invokevirtual #63                 // Method toChars:([BIII)I
+       122: iload         7                 
+       124: isub                    
+       125: ireturn                 
+       126: aload_0                 
+       127: aload_1                 
+       128: iload_2                 
+       129: iload         8                 
+       131: ineg                    
+       132: iload         9                 
+       134: iconst_0                
+       135: invokevirtual #67                 // Method toDecimal:([BIIII)I
+       138: iload         7                 
+       140: isub                    
+       141: ireturn                 
+       142: iload         5                 
+       144: ifeq          188               
+       147: iload         5                 
+       149: bipush        8                 
+       151: if_icmpge     172               
+       154: aload_0                 
+       155: aload_1                 
+       156: iload_2                 
+       157: sipush        -149              
+       160: bipush        10                
+       162: iload         5                 
+       164: imul                    
+       165: iconst_m1               
+       166: invokevirtual #67                 // Method toDecimal:([BIIII)I
+       169: goto          184               
+       172: aload_0                 
+       173: aload_1                 
+       174: iload_2                 
+       175: sipush        -149              
+       178: iload         5                 
+       180: iconst_0                
+       181: invokevirtual #67                 // Method toDecimal:([BIIII)I
+       184: iload         7                 
+       186: isub                    
+       187: ireturn                 
+       188: iload         4                 
+       190: ifne          199               
+       193: sipush        256               
+       196: goto          202               
+       199: sipush        512               
+       202: ireturn                 
+       203: iload         5                 
+       205: ifeq          212               
+       208: sipush        1280              
+       211: ireturn                 
+       212: iload         4                 
+       214: ifle          223               
+       217: sipush        768               
+       220: goto          226               
+       223: sipush        1024              
+       226: ireturn                 
+      LineNumberTable:
+        line 183: 0
+        line 184: 6
+        line 185: 13
+        line 186: 24
+        line 187: 32
+        line 188: 35
+        line 189: 40
+        line 191: 49
+        line 193: 54
+        line 194: 62
+        line 196: 69
+        line 197: 96
+        line 198: 103
+        line 199: 113
+        line 202: 126
+        line 204: 142
+        line 206: 147
+        line 207: 154
+        line 208: 172
+        line 206: 187
+        line 210: 188
+        line 212: 203
+        line 213: 208
+        line 215: 212
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+         103       23    10  f      I
+          62       80     8  mq     I
+          69       73     9  c      I
+          35      168     7  start  I
+           0      227     0  this   Ljdk/internal/math/FloatToDecimal;
+           0      227     1  str    [B
+           0      227     2  index  I
+           0      227     3  v      F
+           6      221     4  bits   I
+          13      214     5  t      I
+          24      203     6  bq     I
+      StackMapTable: number_of_entries = 16
+        frame_type = 255 /* full_frame */
+          offset_delta = 49
+          locals = [class jdk/internal/math/FloatToDecimal, class "[B", int, float, int, int, int, int]
+          stack = []
+        frame_type = 253 /* append */
+          offset_delta = 29
+          locals = [int, int]
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 74 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 255 /* full_frame */
+          offset_delta = 0
+          locals = [class jdk/internal/math/FloatToDecimal, class "[B", int, float, int, int, int, int, int, int]
+          stack = [int, int]
+        frame_type = 33 /* same */
+        frame_type = 249 /* chop */
+          offset_delta = 15
+        frame_type = 29 /* same */
+        frame_type = 75 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 3 /* same */
+        frame_type = 10 /* same */
+        frame_type = 66 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 250 /* chop */
+          offset_delta = 0
+        frame_type = 8 /* same */
+        frame_type = 10 /* same */
+        frame_type = 66 /* same_locals_1_stack_item */
+          stack = [ int ]
+  
+  private int toDecimal(byte[], int, int, int, int);
+    descriptor: ([BIIII)I
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=6, locals=25, args_size=6
+         0: iload         4                 
+         2: iconst_1                
+         3: iand                    
+         4: istore        6                 
+         6: iload         4                 
+         8: iconst_2                
+         9: ishl                    
+        10: i2l                     
+        11: lstore        7                 
+        13: lload         7                 
+        15: ldc2_w        #70                 // long 2l
+        18: ladd                    
+        19: lstore        9                 
+        21: iload         4                 
+        23: ldc           #62                 // int 8388608
+        25: if_icmpeq     32                
+        28: iconst_1                
+        29: goto          33                
+        32: iconst_0                
+        33: iload_3                 
+        34: sipush        -149              
+        37: if_icmpne     44                
+        40: iconst_1                
+        41: goto          45                
+        44: iconst_0                
+        45: ior                     
+        46: ifeq          66                
+        49: lload         7                 
+        51: ldc2_w        #70                 // long 2l
+        54: lsub                    
+        55: lstore        11                
+        57: iload_3                 
+        58: invokestatic  #72                 // Method jdk/internal/math/MathUtils.flog10pow2:(I)I
+        61: istore        13                
+        63: goto          78                
+        66: lload         7                 
+        68: lconst_1                
+        69: lsub                    
+        70: lstore        11                
+        72: iload_3                 
+        73: invokestatic  #78                 // Method jdk/internal/math/MathUtils.flog10threeQuartersPow2:(I)I
+        76: istore        13                
+        78: iload_3                 
+        79: iload         13                
+        81: ineg                    
+        82: invokestatic  #81                 // Method jdk/internal/math/MathUtils.flog2pow10:(I)I
+        85: iadd                    
+        86: bipush        33                
+        88: iadd                    
+        89: istore        14                
+        91: iload         13                
+        93: invokestatic  #84                 // Method jdk/internal/math/MathUtils.g1:(I)J
+        96: lconst_1                
+        97: ladd                    
+        98: lstore        15                
+       100: lload         15                
+       102: lload         7                 
+       104: iload         14                
+       106: lshl                    
+       107: invokestatic  #88                 // Method rop:(JJ)I
+       110: istore        17                
+       112: lload         15                
+       114: lload         11                
+       116: iload         14                
+       118: lshl                    
+       119: invokestatic  #88                 // Method rop:(JJ)I
+       122: istore        18                
+       124: lload         15                
+       126: lload         9                 
+       128: iload         14                
+       130: lshl                    
+       131: invokestatic  #88                 // Method rop:(JJ)I
+       134: istore        19                
+       136: iload         17                
+       138: iconst_2                
+       139: ishr                    
+       140: istore        20                
+       142: iload         20                
+       144: bipush        100               
+       146: if_icmplt     238               
+       149: bipush        10                
+       151: iload         20                
+       153: i2l                     
+       154: ldc2_w        #92                 // long 1717986919l
+       157: lmul                    
+       158: bipush        34                
+       160: lushr                   
+       161: l2i                     
+       162: imul                    
+       163: istore        21                
+       165: iload         21                
+       167: bipush        10                
+       169: iadd                    
+       170: istore        22                
+       172: iload         18                
+       174: iload         6                 
+       176: iadd                    
+       177: iload         21                
+       179: iconst_2                
+       180: ishl                    
+       181: if_icmpgt     188               
+       184: iconst_1                
+       185: goto          189               
+       188: iconst_0                
+       189: istore        23                
+       191: iload         22                
+       193: iconst_2                
+       194: ishl                    
+       195: iload         6                 
+       197: iadd                    
+       198: iload         19                
+       200: if_icmpgt     207               
+       203: iconst_1                
+       204: goto          208               
+       207: iconst_0                
+       208: istore        24                
+       210: iload         23                
+       212: iload         24                
+       214: if_icmpeq     238               
+       217: aload_0                 
+       218: aload_1                 
+       219: iload_2                 
+       220: iload         23                
+       222: ifeq          230               
+       225: iload         21                
+       227: goto          232               
+       230: iload         22                
+       232: iload         13                
+       234: invokevirtual #63                 // Method toChars:([BIII)I
+       237: ireturn                 
+       238: iload         20                
+       240: iconst_1                
+       241: iadd                    
+       242: istore        21                
+       244: iload         18                
+       246: iload         6                 
+       248: iadd                    
+       249: iload         20                
+       251: iconst_2                
+       252: ishl                    
+       253: if_icmpgt     260               
+       256: iconst_1                
+       257: goto          261               
+       260: iconst_0                
+       261: istore        22                
+       263: iload         21                
+       265: iconst_2                
+       266: ishl                    
+       267: iload         6                 
+       269: iadd                    
+       270: iload         19                
+       272: if_icmpgt     279               
+       275: iconst_1                
+       276: goto          280               
+       279: iconst_0                
+       280: istore        23                
+       282: iload         22                
+       284: iload         23                
+       286: if_icmpeq     313               
+       289: aload_0                 
+       290: aload_1                 
+       291: iload_2                 
+       292: iload         22                
+       294: ifeq          302               
+       297: iload         20                
+       299: goto          304               
+       302: iload         21                
+       304: iload         13                
+       306: iload         5                 
+       308: iadd                    
+       309: invokevirtual #63                 // Method toChars:([BIII)I
+       312: ireturn                 
+       313: iload         17                
+       315: iload         20                
+       317: iload         21                
+       319: iadd                    
+       320: iconst_1                
+       321: ishl                    
+       322: isub                    
+       323: istore        24                
+       325: aload_0                 
+       326: aload_1                 
+       327: iload_2                 
+       328: iload         24                
+       330: iflt          345               
+       333: iload         24                
+       335: ifne          350               
+       338: iload         20                
+       340: iconst_1                
+       341: iand                    
+       342: ifne          350               
+       345: iload         20                
+       347: goto          352               
+       350: iload         21                
+       352: iload         13                
+       354: iload         5                 
+       356: iadd                    
+       357: invokevirtual #63                 // Method toChars:([BIII)I
+       360: ireturn                 
+      LineNumberTable:
+        line 237: 0
+        line 238: 6
+        line 239: 13
+        line 247: 21
+        line 249: 49
+        line 250: 57
+        line 253: 66
+        line 254: 72
+        line 256: 78
+        line 259: 91
+        line 261: 100
+        line 262: 112
+        line 263: 124
+        line 265: 136
+        line 266: 142
+        line 277: 149
+        line 278: 165
+        line 279: 172
+        line 280: 191
+        line 281: 210
+        line 282: 217
+        line 292: 238
+        line 293: 244
+        line 294: 263
+        line 295: 282
+        line 297: 289
+        line 303: 313
+        line 304: 325
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          57        9    11  cbl    J
+          63        3    13  k      I
+         165       73    21  sp10   I
+         172       66    22  tp10   I
+         191       47    23  upin   Z
+         210       28    24  wpin   Z
+           0      361     0  this   Ljdk/internal/math/FloatToDecimal;
+           0      361     1  str    [B
+           0      361     2  index  I
+           0      361     3  q      I
+           0      361     4  c      I
+           0      361     5  dk     I
+           6      355     6  out    I
+          13      348     7  cb     J
+          21      340     9  cbr    J
+          72      289    11  cbl    J
+          78      283    13  k      I
+          91      270    14  h      I
+         100      261    15  g      J
+         112      249    17  vb     I
+         124      237    18  vbl    I
+         136      225    19  vbr    I
+         142      219    20  s      I
+         244      117    21  t      I
+         263       98    22  uin    Z
+         282       79    23  win    Z
+         325       36    24  cmp    I
+      StackMapTable: number_of_entries = 23
+        frame_type = 254 /* append */
+          offset_delta = 32
+          locals = [int, long, long]
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 74 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 255 /* full_frame */
+          offset_delta = 0
+          locals = [class jdk/internal/math/FloatToDecimal, class "[B", int, int, int, int, int, long, long]
+          stack = [int, int]
+        frame_type = 20 /* same */
+        frame_type = 253 /* append */
+          offset_delta = 11
+          locals = [long, int]
+        frame_type = 255 /* full_frame */
+          offset_delta = 109
+          locals = [class jdk/internal/math/FloatToDecimal, class "[B", int, int, int, int, int, long, long, long, int, int, long, int, int, int, int, int, int]
+          stack = []
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 252 /* append */
+          offset_delta = 17
+          locals = [int]
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 255 /* full_frame */
+          offset_delta = 21
+          locals = [class jdk/internal/math/FloatToDecimal, class "[B", int, int, int, int, int, long, long, long, int, int, long, int, int, int, int, int, int, int, int]
+          stack = [class jdk/internal/math/FloatToDecimal, class "[B", int]
+        frame_type = 255 /* full_frame */
+          offset_delta = 1
+          locals = [class jdk/internal/math/FloatToDecimal, class "[B", int, int, int, int, int, long, long, long, int, int, long, int, int, int, int, int, int, int, int]
+          stack = [class jdk/internal/math/FloatToDecimal, class "[B", int, int]
+        frame_type = 255 /* full_frame */
+          offset_delta = 5
+          locals = [class jdk/internal/math/FloatToDecimal, class "[B", int, int, int, int, int, long, long, long, int, int, long, int, int, int, int]
+          stack = []
+        frame_type = 252 /* append */
+          offset_delta = 21
+          locals = [int]
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 252 /* append */
+          offset_delta = 17
+          locals = [int]
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 255 /* full_frame */
+          offset_delta = 21
+          locals = [class jdk/internal/math/FloatToDecimal, class "[B", int, int, int, int, int, long, long, long, int, int, long, int, int, int, int, int, int, int]
+          stack = [class jdk/internal/math/FloatToDecimal, class "[B", int]
+        frame_type = 255 /* full_frame */
+          offset_delta = 1
+          locals = [class jdk/internal/math/FloatToDecimal, class "[B", int, int, int, int, int, long, long, long, int, int, long, int, int, int, int, int, int, int]
+          stack = [class jdk/internal/math/FloatToDecimal, class "[B", int, int]
+        frame_type = 8 /* same */
+        frame_type = 255 /* full_frame */
+          offset_delta = 31
+          locals = [class jdk/internal/math/FloatToDecimal, class "[B", int, int, int, int, int, long, long, long, int, int, long, int, int, int, int, int, int, int, int]
+          stack = [class jdk/internal/math/FloatToDecimal, class "[B", int]
+        frame_type = 255 /* full_frame */
+          offset_delta = 4
+          locals = [class jdk/internal/math/FloatToDecimal, class "[B", int, int, int, int, int, long, long, long, int, int, long, int, int, int, int, int, int, int, int]
+          stack = [class jdk/internal/math/FloatToDecimal, class "[B", int]
+        frame_type = 255 /* full_frame */
+          offset_delta = 1
+          locals = [class jdk/internal/math/FloatToDecimal, class "[B", int, int, int, int, int, long, long, long, int, int, long, int, int, int, int, int, int, int, int]
+          stack = [class jdk/internal/math/FloatToDecimal, class "[B", int, int]
+  
+  private static int rop(long, long);
+    descriptor: (JJ)I
+    flags: (0x000a) ACC_PRIVATE, ACC_STATIC
+    Code: 
+      stack=6, locals=8, args_size=2
+         0: lload_0                 
+         1: lload_2                 
+         2: invokestatic  #94                 // Method java/lang/Math.multiplyHigh:(JJ)J
+         5: lstore        4                 
+         7: lload         4                 
+         9: bipush        31                
+        11: lushr                   
+        12: lstore        6                 
+        14: lload         6                 
+        16: lload         4                 
+        18: ldc2_w        #100                // long 4294967295l
+        21: land                    
+        22: ldc2_w        #100                // long 4294967295l
+        25: ladd                    
+        26: bipush        32                
+        28: lushr                   
+        29: lor                     
+        30: l2i                     
+        31: ireturn                 
+      LineNumberTable:
+        line 312: 0
+        line 313: 7
+        line 314: 14
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       32     0  g      J
+           0       32     2  cp     J
+           7       25     4  x1     J
+          14       18     6  vbp    J
+  
+  private int toChars(byte[], int, int, int);
+    descriptor: ([BIII)I
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=6, locals=8, args_size=5
+         0: bipush        32                
+         2: iload_3                 
+         3: invokestatic  #104                // Method java/lang/Integer.numberOfLeadingZeros:(I)I
+         6: isub                    
+         7: invokestatic  #72                 // Method jdk/internal/math/MathUtils.flog10pow2:(I)I
+        10: istore        5                 
+        12: iload_3                 
+        13: i2l                     
+        14: iload         5                 
+        16: invokestatic  #107                // Method jdk/internal/math/MathUtils.pow10:(I)J
+        19: lcmp                    
+        20: iflt          26                
+        23: iinc          5, 1              
+        26: iload_3                 
+        27: bipush        9                 
+        29: iload         5                 
+        31: isub                    
+        32: invokestatic  #107                // Method jdk/internal/math/MathUtils.pow10:(I)J
+        35: l2i                     
+        36: imul                    
+        37: istore_3                
+        38: iload         4                 
+        40: iload         5                 
+        42: iadd                    
+        43: istore        4                 
+        45: iload_3                 
+        46: i2l                     
+        47: ldc2_w        #110                // long 1441151881l
+        50: lmul                    
+        51: bipush        57                
+        53: lushr                   
+        54: l2i                     
+        55: istore        6                 
+        57: iload_3                 
+        58: ldc           #112                // int 100000000
+        60: iload         6                 
+        62: imul                    
+        63: isub                    
+        64: istore        7                 
+        66: iconst_0                
+        67: iload         4                 
+        69: if_icmpge     92                
+        72: iload         4                 
+        74: bipush        7                 
+        76: if_icmpgt     92                
+        79: aload_0                 
+        80: aload_1                 
+        81: iload_2                 
+        82: iload         6                 
+        84: iload         7                 
+        86: iload         4                 
+        88: invokevirtual #113                // Method toChars1:([BIIII)I
+        91: ireturn                 
+        92: bipush        -3                
+        94: iload         4                 
+        96: if_icmpge     117               
+        99: iload         4                 
+       101: ifgt          117               
+       104: aload_0                 
+       105: aload_1                 
+       106: iload_2                 
+       107: iload         6                 
+       109: iload         7                 
+       111: iload         4                 
+       113: invokevirtual #116                // Method toChars2:([BIIII)I
+       116: ireturn                 
+       117: aload_0                 
+       118: aload_1                 
+       119: iload_2                 
+       120: iload         6                 
+       122: iload         7                 
+       124: iload         4                 
+       126: invokevirtual #119                // Method toChars3:([BIIII)I
+       129: ireturn                 
+      LineNumberTable:
+        line 327: 0
+        line 328: 12
+        line 329: 23
+        line 338: 26
+        line 339: 38
+        line 351: 45
+        line 352: 57
+        line 354: 66
+        line 355: 79
+        line 357: 92
+        line 358: 104
+        line 360: 117
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0      130     0  this   Ljdk/internal/math/FloatToDecimal;
+           0      130     1  str    [B
+           0      130     2  index  I
+           0      130     3  f      I
+           0      130     4  e      I
+          12      118     5  len    I
+          57       73     6  h      I
+          66       64     7  l      I
+      StackMapTable: number_of_entries = 3
+        frame_type = 252 /* append */
+          offset_delta = 26
+          locals = [int]
+        frame_type = 253 /* append */
+          offset_delta = 65
+          locals = [int, int]
+        frame_type = 24 /* same */
+  
+  private int toChars1(byte[], int, int, int, int);
+    descriptor: ([BIIII)I
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=5, locals=9, args_size=6
+         0: aload_0                 
+         1: aload_1                 
+         2: iload_2                 
+         3: iload_3                 
+         4: invokevirtual #122                // Method putDigit:([BII)I
+         7: istore_2                
+         8: iload         4                 
+        10: invokestatic  #125                // Method y:(I)I
+        13: istore        6                 
+        15: iconst_1                
+        16: istore        8                 
+        18: iload         8                 
+        20: iload         5                 
+        22: if_icmpge     57                
+        25: bipush        10                
+        27: iload         6                 
+        29: imul                    
+        30: istore        7                 
+        32: aload_0                 
+        33: aload_1                 
+        34: iload_2                 
+        35: iload         7                 
+        37: bipush        28                
+        39: iushr                   
+        40: invokevirtual #122                // Method putDigit:([BII)I
+        43: istore_2                
+        44: iload         7                 
+        46: ldc           #128                // int 268435455
+        48: iand                    
+        49: istore        6                 
+        51: iinc          8, 1              
+        54: goto          18                
+        57: aload_0                 
+        58: aload_1                 
+        59: iload_2                 
+        60: bipush        46                
+        62: invokevirtual #59                 // Method putChar:([BII)I
+        65: istore_2                
+        66: iload         8                 
+        68: bipush        8                 
+        70: if_icmpgt     105               
+        73: bipush        10                
+        75: iload         6                 
+        77: imul                    
+        78: istore        7                 
+        80: aload_0                 
+        81: aload_1                 
+        82: iload_2                 
+        83: iload         7                 
+        85: bipush        28                
+        87: iushr                   
+        88: invokevirtual #122                // Method putDigit:([BII)I
+        91: istore_2                
+        92: iload         7                 
+        94: ldc           #128                // int 268435455
+        96: iand                    
+        97: istore        6                 
+        99: iinc          8, 1              
+       102: goto          66                
+       105: aload_0                 
+       106: aload_1                 
+       107: iload_2                 
+       108: invokevirtual #129                // Method removeTrailingZeroes:([BI)I
+       111: ireturn                 
+      LineNumberTable:
+        line 369: 0
+        line 370: 8
+        line 372: 15
+        line 373: 18
+        line 374: 25
+        line 375: 32
+        line 376: 44
+        line 373: 51
+        line 378: 57
+        line 379: 66
+        line 380: 73
+        line 381: 80
+        line 382: 92
+        line 379: 99
+        line 384: 105
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          32       25     7  t      I
+          80       25     7  t      I
+           0      112     0  this   Ljdk/internal/math/FloatToDecimal;
+           0      112     1  str    [B
+           0      112     2  index  I
+           0      112     3  h      I
+           0      112     4  l      I
+           0      112     5  e      I
+          15       97     6  y      I
+          18       94     8  i      I
+      StackMapTable: number_of_entries = 4
+        frame_type = 254 /* append */
+          offset_delta = 18
+          locals = [int, top, int]
+        frame_type = 38 /* same */
+        frame_type = 8 /* same */
+        frame_type = 38 /* same */
+  
+  private int toChars2(byte[], int, int, int, int);
+    descriptor: ([BIIII)I
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=4, locals=6, args_size=6
+         0: aload_0                 
+         1: aload_1                 
+         2: iload_2                 
+         3: iconst_0                
+         4: invokevirtual #122                // Method putDigit:([BII)I
+         7: istore_2                
+         8: aload_0                 
+         9: aload_1                 
+        10: iload_2                 
+        11: bipush        46                
+        13: invokevirtual #59                 // Method putChar:([BII)I
+        16: istore_2                
+        17: iload         5                 
+        19: ifge          36                
+        22: aload_0                 
+        23: aload_1                 
+        24: iload_2                 
+        25: iconst_0                
+        26: invokevirtual #122                // Method putDigit:([BII)I
+        29: istore_2                
+        30: iinc          5, 1              
+        33: goto          17                
+        36: aload_0                 
+        37: aload_1                 
+        38: iload_2                 
+        39: iload_3                 
+        40: invokevirtual #122                // Method putDigit:([BII)I
+        43: istore_2                
+        44: aload_0                 
+        45: aload_1                 
+        46: iload_2                 
+        47: iload         4                 
+        49: invokevirtual #133                // Method put8Digits:([BII)I
+        52: istore_2                
+        53: aload_0                 
+        54: aload_1                 
+        55: iload_2                 
+        56: invokevirtual #129                // Method removeTrailingZeroes:([BI)I
+        59: ireturn                 
+      LineNumberTable:
+        line 389: 0
+        line 390: 8
+        line 391: 17
+        line 392: 22
+        line 391: 30
+        line 394: 36
+        line 395: 44
+        line 396: 53
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       60     0  this   Ljdk/internal/math/FloatToDecimal;
+           0       60     1  str    [B
+           0       60     2  index  I
+           0       60     3  h      I
+           0       60     4  l      I
+           0       60     5  e      I
+      StackMapTable: number_of_entries = 2
+        frame_type = 17 /* same */
+        frame_type = 18 /* same */
+  
+  private int toChars3(byte[], int, int, int, int);
+    descriptor: ([BIIII)I
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=5, locals=6, args_size=6
+         0: aload_0                 
+         1: aload_1                 
+         2: iload_2                 
+         3: iload_3                 
+         4: invokevirtual #122                // Method putDigit:([BII)I
+         7: istore_2                
+         8: aload_0                 
+         9: aload_1                 
+        10: iload_2                 
+        11: bipush        46                
+        13: invokevirtual #59                 // Method putChar:([BII)I
+        16: istore_2                
+        17: aload_0                 
+        18: aload_1                 
+        19: iload_2                 
+        20: iload         4                 
+        22: invokevirtual #133                // Method put8Digits:([BII)I
+        25: istore_2                
+        26: aload_0                 
+        27: aload_1                 
+        28: iload_2                 
+        29: invokevirtual #129                // Method removeTrailingZeroes:([BI)I
+        32: istore_2                
+        33: aload_0                 
+        34: aload_1                 
+        35: iload_2                 
+        36: iload         5                 
+        38: iconst_1                
+        39: isub                    
+        40: invokevirtual #136                // Method exponent:([BII)I
+        43: ireturn                 
+      LineNumberTable:
+        line 401: 0
+        line 402: 8
+        line 403: 17
+        line 404: 26
+        line 405: 33
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       44     0  this   Ljdk/internal/math/FloatToDecimal;
+           0       44     1  str    [B
+           0       44     2  index  I
+           0       44     3  h      I
+           0       44     4  l      I
+           0       44     5  e      I
+  
+  private int exponent(byte[], int, int);
+    descriptor: ([BII)I
+    flags: (0x0002) ACC_PRIVATE
+    Code: 
+      stack=6, locals=5, args_size=4
+         0: aload_0                 
+         1: aload_1                 
+         2: iload_2                 
+         3: bipush        69                
+         5: invokevirtual #59                 // Method putChar:([BII)I
+         8: istore_2                
+         9: iload_3                 
+        10: ifge          25                
+        13: aload_0                 
+        14: aload_1                 
+        15: iload_2                 
+        16: bipush        45                
+        18: invokevirtual #59                 // Method putChar:([BII)I
+        21: istore_2                
+        22: iload_3                 
+        23: ineg                    
+        24: istore_3                
+        25: iload_3                 
+        26: bipush        10                
+        28: if_icmpge     39                
+        31: aload_0                 
+        32: aload_1                 
+        33: iload_2                 
+        34: iload_3                 
+        35: invokevirtual #122                // Method putDigit:([BII)I
+        38: ireturn                 
+        39: iload_3                 
+        40: bipush        103               
+        42: imul                    
+        43: bipush        10                
+        45: iushr                   
+        46: istore        4                 
+        48: aload_0                 
+        49: aload_1                 
+        50: iload_2                 
+        51: iload         4                 
+        53: invokevirtual #122                // Method putDigit:([BII)I
+        56: istore_2                
+        57: aload_0                 
+        58: aload_1                 
+        59: iload_2                 
+        60: iload_3                 
+        61: bipush        10                
+        63: iload         4                 
+        65: imul                    
+        66: isub                    
+        67: invokevirtual #122                // Method putDigit:([BII)I
+        70: ireturn                 
+      LineNumberTable:
+        line 409: 0
+        line 410: 9
+        line 411: 13
+        line 412: 22
+        line 414: 25
+        line 415: 31
+        line 421: 39
+        line 422: 48
+        line 423: 57
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       71     0  this   Ljdk/internal/math/FloatToDecimal;
+           0       71     1  str    [B
+           0       71     2  index  I
+           0       71     3  e      I
+          48       23     4  d      I
+      StackMapTable: number_of_entries = 2
+        frame_type = 25 /* same */
+        frame_type = 13 /* same */
+  
+  static {};
+    descriptor: ()V
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=3, locals=0, args_size=0
+         0: ldc           #3                  // class jdk/internal/math/FloatToDecimal
+         2: invokevirtual #139                // Method java/lang/Class.desiredAssertionStatus:()Z
+         5: ifne          12                
+         8: iconst_1                
+         9: goto          13                
+        12: iconst_0                
+        13: putstatic     #35                 // Field $assertionsDisabled:Z
+        16: new           #3                  // class jdk/internal/math/FloatToDecimal
+        19: dup                     
+        20: iconst_1                
+        21: invokespecial #145                // Method "<init>":(Z)V
+        24: putstatic     #11                 // Field LATIN1:Ljdk/internal/math/FloatToDecimal;
+        27: new           #3                  // class jdk/internal/math/FloatToDecimal
+        30: dup                     
+        31: iconst_0                
+        32: invokespecial #145                // Method "<init>":(Z)V
+        35: putstatic     #146                // Field UTF16:Ljdk/internal/math/FloatToDecimal;
+        38: return                  
+      LineNumberTable:
+        line 41: 0
+        line 46: 16
+        line 52: 27
+      StackMapTable: number_of_entries = 2
+        frame_type = 12 /* same */
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+}
+SourceFile: "FloatToDecimal.java"

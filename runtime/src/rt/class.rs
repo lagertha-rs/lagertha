@@ -399,16 +399,34 @@ impl Class {
         self.get_static_method(name, descriptor)
     }
 
+    fn get_static_method_recursive(&self, name: &str, descriptor: &str) -> Option<&Arc<Method>> {
+        if let Some(m) = self
+            .static_method_idx
+            .get(name)
+            .and_then(|m| m.get(descriptor))
+        {
+            let method = self.static_methods.get(m).unwrap();
+            return Some(method);
+        }
+
+        match &self.super_class {
+            Some(super_class) => super_class.get_static_method_recursive(name, descriptor),
+            None => None,
+        }
+    }
+
     pub fn get_static_method(
         &self,
         name: &str,
         descriptor: &str,
     ) -> Result<&Arc<Method>, JvmError> {
-        self.static_method_idx
-            .get(name)
-            .and_then(|m| m.get(descriptor))
-            .and_then(|i| self.static_methods.get(i))
-            .ok_or(JvmError::NoSuchMethod(format!("{}.{}", name, descriptor)))
+        self.get_static_method_recursive(name, descriptor)
+            .ok_or(JvmError::NoSuchMethod(format!(
+                "{}.{}.{}",
+                self.name(),
+                name,
+                descriptor
+            )))
     }
 
     pub fn get_virtual_method_by_nat(

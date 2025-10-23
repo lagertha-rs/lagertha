@@ -6,4 +6,4 @@ expression: "&combined"
 
 ----- STDERR -----
 java.lang.ArithmeticException: / by zero
-	at primitives.int_zero_division.IntZeroDivisionShouldThrowErrMain.main(IntZeroDivisionShouldThrowErrMain.java:5)
+	at primitives.integer.zero_division.IntZeroDivisionShouldThrowErrMain.main(IntZeroDivisionShouldThrowErrMain.java:5)

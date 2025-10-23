@@ -1,0 +1,673 @@
+---
+source: jclass/src/lib.rs
+expression: display
+---
+abstract class jdk.internal.math.ToDecimal 
+  minor version: 0
+  major version: 68
+  flags: (0x0420) ACC_SUPER, ACC_ABSTRACT
+  this_class: #8                       //jdk/internal/math/ToDecimal
+  super_class: #2                      //java/lang/Object
+  interfaces: 0, fields: 9, methods: 12, attributes: 2
+Constant pool:
+    #1 = Methodref          #2.#3            // java/lang/Object."<init>":()V
+    #2 = Class              #4               // java/lang/Object
+    #3 = NameAndType        #5:#6            // "<init>":()V
+    #4 = Utf8               java/lang/Object
+    #5 = Utf8               <init>
+    #6 = Utf8               ()V
+    #7 = Fieldref           #8.#9            // jdk/internal/math/ToDecimal.latin1:Z
+    #8 = Class              #10              // jdk/internal/math/ToDecimal
+    #9 = NameAndType        #11:#12          // latin1:Z
+   #10 = Utf8               jdk/internal/math/ToDecimal
+   #11 = Utf8               latin1
+   #12 = Utf8               Z
+   #13 = Fieldref           #8.#14           // jdk/internal/math/ToDecimal.JLA:Ljdk/internal/access/JavaLangAccess;
+   #14 = NameAndType        #15:#16          // JLA:Ljdk/internal/access/JavaLangAccess;
+   #15 = Utf8               JLA
+   #16 = Utf8               Ljdk/internal/access/JavaLangAccess;
+   #17 = InterfaceMethodref #18.#19          // jdk/internal/access/JavaLangAccess.putCharUTF16:([BII)V
+   #18 = Class              #20              // jdk/internal/access/JavaLangAccess
+   #19 = NameAndType        #21:#22          // putCharUTF16:([BII)V
+   #20 = Utf8               jdk/internal/access/JavaLangAccess
+   #21 = Utf8               putCharUTF16
+   #22 = Utf8               ([BII)V
+   #23 = Methodref          #8.#24           // jdk/internal/math/ToDecimal.putChar:([BII)I
+   #24 = NameAndType        #25:#26          // putChar:([BII)I
+   #25 = Utf8               putChar
+   #26 = Utf8               ([BII)I
+   #27 = Methodref          #8.#28           // jdk/internal/math/ToDecimal.put8DigitsLatin1:([BII)V
+   #28 = NameAndType        #29:#22          // put8DigitsLatin1:([BII)V
+   #29 = Utf8               put8DigitsLatin1
+   #30 = Methodref          #8.#31           // jdk/internal/math/ToDecimal.put8DigitsUTF16:([BII)V
+   #31 = NameAndType        #32:#22          // put8DigitsUTF16:([BII)V
+   #32 = Utf8               put8DigitsUTF16
+   #33 = Methodref          #8.#34           // jdk/internal/math/ToDecimal.y:(I)I
+   #34 = NameAndType        #35:#36          // y:(I)I
+   #35 = Utf8               y
+   #36 = Utf8               (I)I
+   #37 = Integer            268435455
+   #38 = Long               193428131138340668l
+   #40 = Methodref          #41.#42          // java/lang/Math.multiplyHigh:(JJ)J
+   #41 = Class              #43              // java/lang/Math
+   #42 = NameAndType        #44:#45          // multiplyHigh:(JJ)J
+   #43 = Utf8               java/lang/Math
+   #44 = Utf8               multiplyHigh
+   #45 = Utf8               (JJ)J
+   #46 = InterfaceMethodref #18.#47          // jdk/internal/access/JavaLangAccess.getUTF16Char:([BI)C
+   #47 = NameAndType        #48:#49          // getUTF16Char:([BI)C
+   #48 = Utf8               getUTF16Char
+   #49 = Utf8               ([BI)C
+   #50 = Methodref          #8.#51           // jdk/internal/math/ToDecimal.special:(I)Ljava/lang/String;
+   #51 = NameAndType        #52:#53          // special:(I)Ljava/lang/String;
+   #52 = Utf8               special
+   #53 = Utf8               (I)Ljava/lang/String;
+   #54 = Methodref          #55.#56          // java/lang/String.length:()I
+   #55 = Class              #57              // java/lang/String
+   #56 = NameAndType        #58:#59          // length:()I
+   #57 = Utf8               java/lang/String
+   #58 = Utf8               length
+   #59 = Utf8               ()I
+   #60 = Methodref          #55.#61          // java/lang/String.getBytes:(II[BI)V
+   #61 = NameAndType        #62:#63          // getBytes:(II[BI)V
+   #62 = Utf8               getBytes
+   #63 = Utf8               (II[BI)V
+   #64 = Methodref          #55.#65          // java/lang/String.charAt:(I)C
+   #65 = NameAndType        #66:#67          // charAt:(I)C
+   #66 = Utf8               charAt
+   #67 = Utf8               (I)C
+   #68 = String             #69              // 0.0
+   #69 = Utf8               0.0
+   #70 = String             #71              // -0.0
+   #71 = Utf8               -0.0
+   #72 = String             #73              // Infinity
+   #73 = Utf8               Infinity
+   #74 = String             #75              // -Infinity
+   #75 = Utf8               -Infinity
+   #76 = String             #77              // NaN
+   #77 = Utf8               NaN
+   #78 = Methodref          #79.#80          // jdk/internal/access/SharedSecrets.getJavaLangAccess:()Ljdk/internal/access/JavaLangAccess;
+   #79 = Class              #81              // jdk/internal/access/SharedSecrets
+   #80 = NameAndType        #82:#83          // getJavaLangAccess:()Ljdk/internal/access/JavaLangAccess;
+   #81 = Utf8               jdk/internal/access/SharedSecrets
+   #82 = Utf8               getJavaLangAccess
+   #83 = Utf8               ()Ljdk/internal/access/JavaLangAccess;
+   #84 = Utf8               MASK_28
+   #85 = Utf8               I
+   #86 = Utf8               ConstantValue
+   #87 = Utf8               NON_SPECIAL
+   #88 = Integer            0
+   #89 = Utf8               PLUS_ZERO
+   #90 = Integer            256
+   #91 = Utf8               MINUS_ZERO
+   #92 = Integer            512
+   #93 = Utf8               PLUS_INF
+   #94 = Integer            768
+   #95 = Utf8               MINUS_INF
+   #96 = Integer            1024
+   #97 = Utf8               NAN
+   #98 = Integer            1280
+   #99 = Utf8               (Z)V
+  #100 = Utf8               Code
+  #101 = Utf8               LineNumberTable
+  #102 = Utf8               LocalVariableTable
+  #103 = Utf8               this
+  #104 = Utf8               Ljdk/internal/math/ToDecimal;
+  #105 = Utf8               str
+  #106 = Utf8               [B
+  #107 = Utf8               index
+  #108 = Utf8               c
+  #109 = Utf8               StackMapTable
+  #110 = Utf8               putDigit
+  #111 = Utf8               d
+  #112 = Utf8               put8Digits
+  #113 = Utf8               m
+  #114 = Utf8               t
+  #115 = Utf8               i
+  #116 = Utf8               a
+  #117 = Utf8               removeTrailingZeroes
+  #118 = Utf8               ([BI)I
+  #119 = Utf8               putSpecial
+  #120 = Utf8               type
+  #121 = Utf8               s
+  #122 = Utf8               Ljava/lang/String;
+  #123 = Utf8               ([B)I
+  #124 = Class              #106             // "[B"
+  #125 = Utf8               <clinit>
+  #126 = Utf8               SourceFile
+  #127 = Utf8               ToDecimal.java
+  #128 = Utf8               PermittedSubclasses
+  #129 = Class              #130             // jdk/internal/math/DoubleToDecimal
+  #130 = Utf8               jdk/internal/math/DoubleToDecimal
+  #131 = Class              #132             // jdk/internal/math/FloatToDecimal
+  #132 = Utf8               jdk/internal/math/FloatToDecimal
+{
+  private static final jdk.internal.access.JavaLangAccess JLA;
+    descriptor: Ljdk/internal/access/JavaLangAccess;
+    flags: (0x001a) ACC_PRIVATE, ACC_STATIC, ACC_FINAL
+  
+  static final int MASK_28;
+    descriptor: I
+    flags: (0x0018) ACC_STATIC, ACC_FINAL
+    ConstantValue: int 268435455
+  
+  static final int NON_SPECIAL;
+    descriptor: I
+    flags: (0x0018) ACC_STATIC, ACC_FINAL
+    ConstantValue: int 0
+  
+  static final int PLUS_ZERO;
+    descriptor: I
+    flags: (0x0018) ACC_STATIC, ACC_FINAL
+    ConstantValue: int 256
+  
+  static final int MINUS_ZERO;
+    descriptor: I
+    flags: (0x0018) ACC_STATIC, ACC_FINAL
+    ConstantValue: int 512
+  
+  static final int PLUS_INF;
+    descriptor: I
+    flags: (0x0018) ACC_STATIC, ACC_FINAL
+    ConstantValue: int 768
+  
+  static final int MINUS_INF;
+    descriptor: I
+    flags: (0x0018) ACC_STATIC, ACC_FINAL
+    ConstantValue: int 1024
+  
+  static final int NAN;
+    descriptor: I
+    flags: (0x0018) ACC_STATIC, ACC_FINAL
+    ConstantValue: int 1280
+  
+  private final boolean latin1;
+    descriptor: Z
+    flags: (0x0012) ACC_PRIVATE, ACC_FINAL
+  
+  jdk.internal.math.ToDecimal(boolean);
+    descriptor: (Z)V
+    flags: (0x0000) 
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_0                 
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: aload_0                 
+         5: iload_1                 
+         6: putfield      #7                  // Field latin1:Z
+         9: return                  
+      LineNumberTable:
+        line 53: 0
+        line 54: 4
+        line 55: 9
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       10     0  this   Ljdk/internal/math/ToDecimal;
+           0       10     1  latin1 Z
+  
+  final int putChar(byte[], int, int);
+    descriptor: ([BII)I
+    flags: (0x0010) ACC_FINAL
+    Code: 
+      stack=4, locals=4, args_size=4
+         0: aload_0                 
+         1: getfield      #7                  // Field latin1:Z
+         4: ifeq          15                
+         7: aload_1                 
+         8: iload_2                 
+         9: iload_3                 
+        10: i2b                     
+        11: bastore                 
+        12: goto          27                
+        15: getstatic     #13                 // Field JLA:Ljdk/internal/access/JavaLangAccess;
+        18: aload_1                 
+        19: iload_2                 
+        20: iload_3                 
+        21: i2c                     
+        22: invokeinterface #17, 4              // InterfaceMethod jdk/internal/access/JavaLangAccess.putCharUTF16:([BII)V
+        27: iload_2                 
+        28: iconst_1                
+        29: iadd                    
+        30: ireturn                 
+      LineNumberTable:
+        line 58: 0
+        line 59: 7
+        line 61: 15
+        line 63: 27
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       31     0  this   Ljdk/internal/math/ToDecimal;
+           0       31     1  str    [B
+           0       31     2  index  I
+           0       31     3  c      I
+      StackMapTable: number_of_entries = 2
+        frame_type = 15 /* same */
+        frame_type = 11 /* same */
+  
+  final int putDigit(byte[], int, int);
+    descriptor: ([BII)I
+    flags: (0x0010) ACC_FINAL
+    Code: 
+      stack=5, locals=4, args_size=4
+         0: aload_0                 
+         1: aload_1                 
+         2: iload_2                 
+         3: bipush        48                
+         5: iload_3                 
+         6: iadd                    
+         7: i2b                     
+         8: invokevirtual #23                 // Method putChar:([BII)I
+        11: ireturn                 
+      LineNumberTable:
+        line 67: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       12     0  this   Ljdk/internal/math/ToDecimal;
+           0       12     1  str    [B
+           0       12     2  index  I
+           0       12     3  d      I
+  
+  final int put8Digits(byte[], int, int);
+    descriptor: ([BII)I
+    flags: (0x0010) ACC_FINAL
+    Code: 
+      stack=3, locals=4, args_size=4
+         0: aload_0                 
+         1: getfield      #7                  // Field latin1:Z
+         4: ifeq          16                
+         7: aload_1                 
+         8: iload_2                 
+         9: iload_3                 
+        10: invokestatic  #27                 // Method put8DigitsLatin1:([BII)V
+        13: goto          22                
+        16: aload_1                 
+        17: iload_2                 
+        18: iload_3                 
+        19: invokestatic  #30                 // Method put8DigitsUTF16:([BII)V
+        22: iload_2                 
+        23: bipush        8                 
+        25: iadd                    
+        26: ireturn                 
+      LineNumberTable:
+        line 75: 0
+        line 76: 7
+        line 78: 16
+        line 80: 22
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       27     0  this   Ljdk/internal/math/ToDecimal;
+           0       27     1  str    [B
+           0       27     2  index  I
+           0       27     3  m      I
+      StackMapTable: number_of_entries = 2
+        frame_type = 16 /* same */
+        frame_type = 5 /* same */
+  
+  private static void put8DigitsLatin1(byte[], int, int);
+    descriptor: ([BII)V
+    flags: (0x000a) ACC_PRIVATE, ACC_STATIC
+    Code: 
+      stack=5, locals=6, args_size=3
+         0: iload_2                 
+         1: invokestatic  #33                 // Method y:(I)I
+         4: istore_3                
+         5: iconst_0                
+         6: istore        4                 
+         8: iload         4                 
+        10: bipush        8                 
+        12: if_icmpge     48                
+        15: bipush        10                
+        17: iload_3                 
+        18: imul                    
+        19: istore        5                 
+        21: aload_0                 
+        22: iload_1                 
+        23: iload         4                 
+        25: iadd                    
+        26: bipush        48                
+        28: iload         5                 
+        30: bipush        28                
+        32: iushr                   
+        33: iadd                    
+        34: i2b                     
+        35: bastore                 
+        36: iload         5                 
+        38: ldc           #37                 // int 268435455
+        40: iand                    
+        41: istore_3                
+        42: iinc          4, 1              
+        45: goto          8                 
+        48: return                  
+      LineNumberTable:
+        line 84: 0
+        line 85: 5
+        line 86: 15
+        line 87: 21
+        line 88: 36
+        line 85: 42
+        line 90: 48
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          21       21     5  t      I
+           8       40     4  i      I
+           0       49     0  str    [B
+           0       49     1  index  I
+           0       49     2  m      I
+           5       44     3  y      I
+      StackMapTable: number_of_entries = 2
+        frame_type = 253 /* append */
+          offset_delta = 8
+          locals = [int, int]
+        frame_type = 250 /* chop */
+          offset_delta = 39
+  
+  private static void put8DigitsUTF16(byte[], int, int);
+    descriptor: ([BII)V
+    flags: (0x000a) ACC_PRIVATE, ACC_STATIC
+    Code: 
+      stack=6, locals=6, args_size=3
+         0: iload_2                 
+         1: invokestatic  #33                 // Method y:(I)I
+         4: istore_3                
+         5: iconst_0                
+         6: istore        4                 
+         8: iload         4                 
+        10: bipush        8                 
+        12: if_icmpge     54                
+        15: bipush        10                
+        17: iload_3                 
+        18: imul                    
+        19: istore        5                 
+        21: getstatic     #13                 // Field JLA:Ljdk/internal/access/JavaLangAccess;
+        24: aload_0                 
+        25: iload_1                 
+        26: iload         4                 
+        28: iadd                    
+        29: bipush        48                
+        31: iload         5                 
+        33: bipush        28                
+        35: iushr                   
+        36: iadd                    
+        37: invokeinterface #17, 4              // InterfaceMethod jdk/internal/access/JavaLangAccess.putCharUTF16:([BII)V
+        42: iload         5                 
+        44: ldc           #37                 // int 268435455
+        46: iand                    
+        47: istore_3                
+        48: iinc          4, 1              
+        51: goto          8                 
+        54: return                  
+      LineNumberTable:
+        line 93: 0
+        line 94: 5
+        line 95: 15
+        line 96: 21
+        line 97: 42
+        line 94: 48
+        line 99: 54
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          21       27     5  t      I
+           8       46     4  i      I
+           0       55     0  str    [B
+           0       55     1  index  I
+           0       55     2  m      I
+           5       50     3  y      I
+      StackMapTable: number_of_entries = 2
+        frame_type = 253 /* append */
+          offset_delta = 8
+          locals = [int, int]
+        frame_type = 250 /* chop */
+          offset_delta = 45
+  
+  static int y(int);
+    descriptor: (I)I
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=4, locals=1, args_size=1
+         0: iload_0                 
+         1: iconst_1                
+         2: iadd                    
+         3: i2l                     
+         4: bipush        28                
+         6: lshl                    
+         7: ldc2_w        #38                 // long 193428131138340668l
+        10: invokestatic  #40                 // Method java/lang/Math.multiplyHigh:(JJ)J
+        13: bipush        20                
+        15: lushr                   
+        16: l2i                     
+        17: iconst_1                
+        18: isub                    
+        19: ireturn                 
+      LineNumberTable:
+        line 110: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       20     0  a      I
+  
+  final int removeTrailingZeroes(byte[], int);
+    descriptor: ([BI)I
+    flags: (0x0010) ACC_FINAL
+    Code: 
+      stack=4, locals=3, args_size=3
+         0: aload_0                 
+         1: getfield      #7                  // Field latin1:Z
+         4: ifeq          39                
+         7: aload_1                 
+         8: iload_2                 
+         9: iconst_1                
+        10: isub                    
+        11: baload                  
+        12: bipush        48                
+        14: if_icmpne     23                
+        17: iinc          2, -1             
+        20: goto          7                 
+        23: aload_1                 
+        24: iload_2                 
+        25: iconst_1                
+        26: isub                    
+        27: baload                  
+        28: bipush        46                
+        30: if_icmpne     82                
+        33: iinc          2, 1              
+        36: goto          82                
+        39: getstatic     #13                 // Field JLA:Ljdk/internal/access/JavaLangAccess;
+        42: aload_1                 
+        43: iload_2                 
+        44: iconst_1                
+        45: isub                    
+        46: invokeinterface #46, 3              // InterfaceMethod jdk/internal/access/JavaLangAccess.getUTF16Char:([BI)C
+        51: bipush        48                
+        53: if_icmpne     62                
+        56: iinc          2, -1             
+        59: goto          39                
+        62: getstatic     #13                 // Field JLA:Ljdk/internal/access/JavaLangAccess;
+        65: aload_1                 
+        66: iload_2                 
+        67: iconst_1                
+        68: isub                    
+        69: invokeinterface #46, 3              // InterfaceMethod jdk/internal/access/JavaLangAccess.getUTF16Char:([BI)C
+        74: bipush        46                
+        76: if_icmpne     82                
+        79: iinc          2, 1              
+        82: iload_2                 
+        83: ireturn                 
+      LineNumberTable:
+        line 116: 0
+        line 117: 7
+        line 118: 17
+        line 121: 23
+        line 122: 33
+        line 125: 39
+        line 126: 56
+        line 129: 62
+        line 130: 79
+        line 133: 82
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       84     0  this   Ljdk/internal/math/ToDecimal;
+           0       84     1  str    [B
+           0       84     2  index  I
+      StackMapTable: number_of_entries = 5
+        frame_type = 7 /* same */
+        frame_type = 15 /* same */
+        frame_type = 15 /* same */
+        frame_type = 22 /* same */
+        frame_type = 19 /* same */
+  
+  final int putSpecial(byte[], int, int);
+    descriptor: ([BII)I
+    flags: (0x0010) ACC_FINAL
+    Code: 
+      stack=5, locals=7, args_size=4
+         0: iload_3                 
+         1: invokestatic  #50                 // Method special:(I)Ljava/lang/String;
+         4: astore        4                 
+         6: aload         4                 
+         8: invokevirtual #54                 // Method java/lang/String.length:()I
+        11: istore        5                 
+        13: aload_0                 
+        14: getfield      #7                  // Field latin1:Z
+        17: ifeq          33                
+        20: aload         4                 
+        22: iconst_0                
+        23: iload         5                 
+        25: aload_1                 
+        26: iload_2                 
+        27: invokevirtual #60                 // Method java/lang/String.getBytes:(II[BI)V
+        30: goto          66                
+        33: iconst_0                
+        34: istore        6                 
+        36: iload         6                 
+        38: iload         5                 
+        40: if_icmpge     66                
+        43: aload_0                 
+        44: aload_1                 
+        45: iload_2                 
+        46: iload         6                 
+        48: iadd                    
+        49: aload         4                 
+        51: iload         6                 
+        53: invokevirtual #64                 // Method java/lang/String.charAt:(I)C
+        56: invokevirtual #23                 // Method putChar:([BII)I
+        59: pop                     
+        60: iinc          6, 1              
+        63: goto          36                
+        66: iload_2                 
+        67: iload         5                 
+        69: iadd                    
+        70: ireturn                 
+      LineNumberTable:
+        line 138: 0
+        line 139: 6
+        line 140: 13
+        line 141: 20
+        line 143: 33
+        line 144: 43
+        line 143: 60
+        line 147: 66
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+          36       30     6  i      I
+           0       71     0  this   Ljdk/internal/math/ToDecimal;
+           0       71     1  str    [B
+           0       71     2  index  I
+           0       71     3  type   I
+           6       65     4  s      Ljava/lang/String;
+          13       58     5  length I
+      StackMapTable: number_of_entries = 3
+        frame_type = 253 /* append */
+          offset_delta = 33
+          locals = [class java/lang/String, int]
+        frame_type = 252 /* append */
+          offset_delta = 2
+          locals = [int]
+        frame_type = 250 /* chop */
+          offset_delta = 29
+  
+  final int length(byte[]);
+    descriptor: ([B)I
+    flags: (0x0010) ACC_FINAL
+    Code: 
+      stack=2, locals=2, args_size=2
+         0: aload_1                 
+         1: arraylength             
+         2: aload_0                 
+         3: getfield      #7                  // Field latin1:Z
+         6: ifeq          13                
+         9: iconst_0                
+        10: goto          14                
+        13: iconst_1                
+        14: ishr                    
+        15: ireturn                 
+      LineNumberTable:
+        line 151: 0
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       16     0  this   Ljdk/internal/math/ToDecimal;
+           0       16     1  str    [B
+      StackMapTable: number_of_entries = 2
+        frame_type = 77 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 255 /* full_frame */
+          offset_delta = 0
+          locals = [class jdk/internal/math/ToDecimal, class "[B"]
+          stack = [int, int]
+  
+  static java.lang.String special(int);
+    descriptor: (I)Ljava/lang/String;
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=1, locals=1, args_size=1
+         0: iload_0                 
+         1: lookupswitch  { // 4
+                       256: 44
+                       512: 49
+                       768: 54
+                      1024: 59
+                   default: 64
+            }
+        44: ldc           #68                 // String 0.0
+        46: goto          66                
+        49: ldc           #70                 // String -0.0
+        51: goto          66                
+        54: ldc           #72                 // String Infinity
+        56: goto          66                
+        59: ldc           #74                 // String -Infinity
+        61: goto          66                
+        64: ldc           #76                 // String NaN
+        66: areturn                 
+      LineNumberTable:
+        line 155: 0
+        line 156: 44
+        line 157: 49
+        line 158: 54
+        line 159: 59
+        line 160: 64
+        line 155: 66
+      LocalVariableTable:
+       Start   Length  Slot  Name   Signature
+           0       67     0  type   I
+      StackMapTable: number_of_entries = 6
+        frame_type = 44 /* same */
+        frame_type = 4 /* same */
+        frame_type = 4 /* same */
+        frame_type = 4 /* same */
+        frame_type = 4 /* same */
+        frame_type = 65 /* same_locals_1_stack_item */
+          stack = [ class java/lang/String ]
+  
+  static {};
+    descriptor: ()V
+    flags: (0x0008) ACC_STATIC
+    Code: 
+      stack=1, locals=0, args_size=0
+         0: invokestatic  #78                 // Method jdk/internal/access/SharedSecrets.getJavaLangAccess:()Ljdk/internal/access/JavaLangAccess;
+         3: putstatic     #13                 // Field JLA:Ljdk/internal/access/JavaLangAccess;
+         6: return                  
+      LineNumberTable:
+        line 35: 0
+}
+SourceFile: "ToDecimal.java"
+PermittedSubclasses:
+  jdk/internal/math/DoubleToDecimal
+  jdk/internal/math/FloatToDecimal

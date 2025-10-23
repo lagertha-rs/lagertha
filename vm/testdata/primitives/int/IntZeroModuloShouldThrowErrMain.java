@@ -1,4 +1,4 @@
-package primitives.int_zero_modulo;
+package primitives.integer.zero_modulo;
 
 public class IntZeroModuloShouldThrowErrMain {
     public static void main(String[] args) {

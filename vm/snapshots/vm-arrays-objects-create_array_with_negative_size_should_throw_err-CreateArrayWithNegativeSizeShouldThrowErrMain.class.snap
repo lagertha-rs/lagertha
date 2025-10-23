@@ -1,0 +1,9 @@
+---
+source: vm/src/main.rs
+expression: "&combined"
+---
+----- STDOUT -----
+
+----- STDERR -----
+java.lang.NegativeArraySizeException: -1
+	at arrays.objects.create_array_with_negative_size_should_throw_err.CreateArrayWithNegativeSizeShouldThrowErrMain.main(CreateArrayWithNegativeSizeShouldThrowErrMain.java:5)
