@@ -2,6 +2,6 @@ package primitives.integer.zero_division;
 
 public class IntZeroDivisionShouldThrowErrMain {
     public static void main(String[] args) {
-        var _ = 1 / 0;
+        var a = 1 / 0;
     }
 }

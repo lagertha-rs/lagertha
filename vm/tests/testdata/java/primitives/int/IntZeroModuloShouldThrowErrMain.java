@@ -2,6 +2,6 @@ package primitives.integer.zero_modulo;
 
 public class IntZeroModuloShouldThrowErrMain {
     public static void main(String[] args) {
-        var _ = 1 / 0;
+        var a = 1 / 0;
     }
 }

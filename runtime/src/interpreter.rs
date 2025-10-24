@@ -1320,6 +1320,18 @@ impl Interpreter {
             .method_area
             .add_raw_bytecode(main_class_id, data)?
             .clone();
+        /*
+        TODO: should have check like this but later
+        if main_class.name() != name {
+            eprintln!(
+                "\
+            Error: Could not find or load main class {name}\n\
+            Caused by: java.lang.NoClassDefFoundError: NpeShouldPrintStackTraceErrMain (wrong name: {})",
+                main_class.name()
+            );
+            return Err(JvmError::NoMainClassFound(name.to_string()));
+        }
+         */
         self.ensure_initialized(&main_class_id)?;
         let main_method = main_class
             .find_main_method()

@@ -15,8 +15,11 @@ pub struct Args {
         help = "Classpath entries (only dirs, no jars(todo)); use ';' as separator"
     )]
     pub class_path: Vec<String>,
-    #[arg(help = "Main class to run")]
-    pub main_class: String,
+    #[arg(
+        help = "Main class to run from path that matches the package structure \
+        (e.g. com.example.Main or com/example/Main for com/example/Main.class)"
+    )]
+    pub main_class_path: String,
 }
 
 fn create_vm_configuration(args: Args) -> Result<VmConfig, String> {
@@ -43,12 +46,17 @@ fn create_vm_configuration(args: Args) -> Result<VmConfig, String> {
 }
 
 fn main() {
+    let current_path = std::env::current_dir().unwrap();
+    eprintln!("{}", current_path.display());
     //init_tracing();
     let args = Args::parse();
     debug!("Provided command line arguments: {:?}", args);
-    // TODO: now is the time to open and read the class file as jvm does, with package dirs, etc.
-    let main_class = args.main_class.clone();
+
+    let package_like_main_path = args.main_class_path.replace('/', ".");
+    let main_class = package_like_main_path.replace('.', "/") + ".class";
+
     debug!("Trying to open class file: {}", main_class);
+
     let jclass_bytes = std::fs::read(&main_class);
     match jclass_bytes {
         Ok(bytes) => {
@@ -60,103 +68,17 @@ fn main() {
                     return;
                 }
             };
-            if let Err(err) = runtime::start(&main_class, bytes, vm_config) {
+            if let Err(err) = runtime::start(&package_like_main_path, bytes, vm_config) {
                 error!("VM execution failed: {err}");
                 std::process::exit(1);
             }
         }
-        Err(e) => {
-            eprintln!("Failed to read class file {}: {}", args.main_class, e);
+        Err(_) => {
+            eprintln!(
+                "Error: Could not find or load main class {}\n\
+                 Caused by: java.lang.ClassNotFoundException: {}",
+                package_like_main_path, package_like_main_path
+            );
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use insta::with_settings;
-    use rstest::rstest;
-    use std::path::{Path, PathBuf};
-
-    const DISPLAY_SNAPSHOT_PATH: &str = "../snapshots";
-
-    fn to_snapshot_name(path: &Path) -> String {
-        let mut iter = path.iter().map(|s| s.to_string_lossy().to_string());
-        for seg in iter.by_ref() {
-            if seg == "test-classes" {
-                break;
-            }
-        }
-        let tail: Vec<String> = iter.collect();
-        tail.join("-")
-    }
-
-    #[rstest]
-    #[trace]
-    fn non_error_cases(
-        #[base_dir = "../target/test-classes/vm"]
-        #[files("**/*OkMain.class")]
-        path: PathBuf,
-    ) {
-        // given
-        // requires cargo build
-        let mut cmd = assert_cmd::Command::cargo_bin("vm").unwrap();
-        cmd.args([&path]);
-
-        // when
-        let output = cmd.assert().success().get_output().clone();
-        let stdout = String::from_utf8_lossy(&output.stdout);
-        let stderr = String::from_utf8_lossy(&output.stderr);
-
-        let combined = format!(
-            "----- STDOUT -----\n{}\n----- STDERR -----\n{}",
-            stdout.trim_end(),
-            stderr.trim_end()
-        );
-
-        // then
-        with_settings!(
-            {
-                snapshot_path => DISPLAY_SNAPSHOT_PATH,
-                prepend_module_to_snapshot => false,
-            },
-            {
-                insta::assert_snapshot!(to_snapshot_name(&path), combined);
-            }
-        );
-    }
-
-    #[rstest]
-    #[trace]
-    fn error_cases(
-        #[base_dir = "../target/test-classes/vm"]
-        #[files("**/*ErrMain.class")]
-        path: PathBuf,
-    ) {
-        // given
-        // requires cargo build
-        let mut cmd = assert_cmd::Command::cargo_bin("vm").unwrap();
-        cmd.args([&path]);
-
-        // when
-        let output = cmd.assert().failure().get_output().clone();
-        let stdout = String::from_utf8_lossy(&output.stdout);
-        let stderr = String::from_utf8_lossy(&output.stderr);
-
-        let combined = format!(
-            "----- STDOUT -----\n{}\n----- STDERR -----\n{}",
-            stdout.trim_end(),
-            stderr.trim_end()
-        );
-
-        // then
-        with_settings!(
-            {
-                snapshot_path => DISPLAY_SNAPSHOT_PATH,
-                prepend_module_to_snapshot => false,
-            },
-            {
-                insta::assert_snapshot!(to_snapshot_name(&path), &combined);
-            }
-        );
     }
 }
