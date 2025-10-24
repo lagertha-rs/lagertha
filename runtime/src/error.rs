@@ -82,8 +82,6 @@ pub enum JvmError {
     TrailingBytes,
     #[error("ClassNotFoundException: {0}")]
     ClassNotFound(String),
-    #[error("ClassNotFoundException: {0}")]
-    ClassNotFound2(ClassId),
     #[error("stack overflow")]
     StackOverflow,
     #[error("Frame stack is empty")]

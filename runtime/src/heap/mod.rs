@@ -99,9 +99,13 @@ pub struct Heap {
 impl Heap {
     pub fn new(method_area: &mut MethodArea) -> Result<Self, JvmError> {
         debug!("Creating Heap...");
-        let char_class = method_area.get_class("[C")?.clone();
-        let string_class = method_area.get_class("java/lang/String")?.clone();
-        let class_class = method_area.get_class("java/lang/Class")?.clone();
+        let char_class = method_area.get_class_or_load_by_name("[C")?.clone();
+        let string_class = method_area
+            .get_class_or_load_by_name("java/lang/String")?
+            .clone();
+        let class_class = method_area
+            .get_class_or_load_by_name("java/lang/Class")?
+            .clone();
         Ok(Self {
             string_pool: HashMap::new(),
             objects: Vec::new(),
@@ -133,7 +137,7 @@ impl Heap {
             Value::Null
         };
         let elements = vec![default_value; length];
-        Ok(self.push(HeapObject::Array(Instance::new(class.id()?, elements))))
+        Ok(self.push(HeapObject::Array(Instance::new(*class.id(), elements))))
     }
 
     pub fn alloc_array_with_value(
@@ -143,7 +147,7 @@ impl Heap {
         value: Value,
     ) -> Result<HeapAddr, JvmError> {
         let elements = vec![value; length];
-        Ok(self.push(HeapObject::Array(Instance::new(class.id()?, elements))))
+        Ok(self.push(HeapObject::Array(Instance::new(*class.id(), elements))))
     }
 
     fn create_default_fields(class: &Arc<Class>) -> Vec<Value> {
@@ -170,7 +174,7 @@ impl Heap {
         };
         let fields = Self::create_default_fields(class);
         Ok(self.push(HeapObject::Instance(Instance {
-            class_id: class.id()?,
+            class_id: *class.id(),
             data: fields,
         })))
     }
@@ -196,7 +200,7 @@ impl Heap {
 
         let chars = s.chars().map(|c| Value::Integer(c as i32)).collect();
         let value = self.push(HeapObject::Array(Instance::new(
-            self.char_class.id().unwrap(),
+            *self.char_class.id(),
             chars,
         )));
 
@@ -204,7 +208,7 @@ impl Heap {
         fields[0] = Value::Ref(value);
 
         self.push(HeapObject::Instance(Instance {
-            class_id: self.string_class.id().unwrap(),
+            class_id: *self.string_class.id(),
             data: fields,
         }))
     }
@@ -382,102 +386,5 @@ impl Heap {
 
     pub fn addr_is_primitive(&self, addr: &HeapAddr) -> bool {
         self.primitives.values().any(|v| v == addr)
-    }
-}
-
-#[cfg(test)]
-impl serde::Serialize for Instance {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        use serde::ser::SerializeStruct;
-
-        let mut state = serializer.serialize_struct("ClassInstance", 2)?;
-        state.serialize_field("class", &self.class_id)?;
-        state.serialize_field("fields", &self.data)?;
-        state.end()
-    }
-}
-
-#[cfg(test)]
-impl serde::Serialize for Heap {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        use serde::ser::SerializeStruct;
-
-        struct SerializableHeapObject<'a> {
-            address: usize,
-            object: &'a HeapObject,
-        }
-
-        impl<'a> serde::Serialize for SerializableHeapObject<'a> {
-            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-            where
-                S: serde::Serializer,
-            {
-                match self.object {
-                    HeapObject::Instance(inst) => {
-                        let mut state = serializer.serialize_struct("HeapObject", 3)?;
-                        state.serialize_field("address", &self.address)?;
-                        state.serialize_field("type", "Instance")?;
-                        state.serialize_field("value", inst)?;
-                        state.end()
-                    }
-                    HeapObject::Array(arr) => {
-                        let mut state = serializer.serialize_struct("HeapObject", 4)?;
-                        state.serialize_field("address", &self.address)?;
-                        state.serialize_field("type", "Array")?;
-                        state.serialize_field("class", arr.class_id())?;
-                        state.serialize_field("elements", arr.elements())?;
-                        state.end()
-                    }
-                }
-            }
-        }
-
-        struct SerializableStringPoolEntry<'a> {
-            string: &'a String,
-            address: HeapAddr,
-        }
-
-        impl<'a> serde::Serialize for SerializableStringPoolEntry<'a> {
-            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-            where
-                S: serde::Serializer,
-            {
-                let mut state = serializer.serialize_struct("StringPoolEntry", 2)?;
-                state.serialize_field("string", self.string)?;
-                state.serialize_field("address", &self.address)?;
-                state.end()
-            }
-        }
-
-        let mut state = serializer.serialize_struct("Heap", 2)?;
-
-        let serializable_objects: Vec<_> = self
-            .objects
-            .iter()
-            .enumerate()
-            .map(|(address, object)| SerializableHeapObject { address, object })
-            .collect();
-
-        let mut string_pool: Vec<_> = self
-            .string_pool
-            .iter()
-            .map(|(s, &addr)| SerializableStringPoolEntry {
-                string: s,
-                address: addr,
-            })
-            .collect();
-
-        string_pool.sort_by_key(|entry| entry.string);
-
-        state.serialize_field("objects", &serializable_objects)?;
-        state.serialize_field("string_pool", &string_pool)?;
-
-        state.end()
     }
 }

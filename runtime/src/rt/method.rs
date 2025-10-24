@@ -1,4 +1,5 @@
 use crate::error::JvmError;
+use crate::native::MethodKey;
 use crate::rt::LinkageError;
 use crate::rt::class::Class;
 use crate::rt::constant_pool::RuntimeConstantPool;
@@ -11,6 +12,7 @@ use jclass::attribute::method::{CodeAttribute, MethodAttribute};
 use jclass::attribute::{Annotation, SharedAttribute};
 use jclass::flags::MethodFlags;
 use jclass::method::MethodInfo;
+use lasso::ThreadedRodeo;
 use log::warn;
 use once_cell::sync::OnceCell as SyncOnceCell;
 use std::cell::OnceCell;
@@ -168,7 +170,7 @@ impl Method {
     }
 
     pub fn class_id(&self) -> Result<ClassId, JvmError> {
-        self.class()?.id()
+        Ok(*self.class()?.id())
     }
 
     pub fn instructions(&self) -> Result<&Vec<u8>, JvmError> {
@@ -227,6 +229,29 @@ impl Method {
             }
         }
         res
+    }
+
+    // TODO: avoid str interner, need to provide lazy resolution for that
+    pub fn build_method_key(
+        &self,
+        string_interner: &ThreadedRodeo,
+    ) -> Result<MethodKey, LinkageError> {
+        let class = self.class.get().ok_or(LinkageError::MethodClassIsNotSet)?;
+        let class_name = class.name();
+        if class_name.starts_with('[') {
+            Ok(MethodKey::new_internal_with_str(
+                self.name(),
+                self.descriptor.raw(),
+                string_interner,
+            ))
+        } else {
+            Ok(MethodKey::new_with_str(
+                class_name,
+                &self.name,
+                self.descriptor().raw(),
+                string_interner,
+            ))
+        }
     }
 }
 

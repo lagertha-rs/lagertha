@@ -31,7 +31,7 @@ pub enum InitState {
 }
 
 pub struct Class {
-    id: OnceCell<ClassId>,
+    id: ClassId,
     primitive: Option<ArrayType>,
     name: Arc<str>,
     access: ClassFlags,
@@ -54,7 +54,11 @@ pub struct Class {
 }
 
 impl Class {
-    pub fn new(cf: ClassFile, method_area: &mut MethodArea) -> Result<Arc<Self>, JvmError> {
+    pub fn new(
+        id: ClassId,
+        cf: ClassFile,
+        method_area: &mut MethodArea,
+    ) -> Result<Arc<Self>, JvmError> {
         let cp = Arc::new(RuntimeConstantPool::new(cf.cp.inner));
         let minor_version = cf.minor_version;
         let major_version = cf.major_version;
@@ -144,7 +148,7 @@ impl Class {
         let super_class = if cf.super_class != 0 {
             Some(
                 method_area
-                    .get_class(cp.get_class_name(&cf.super_class)?)?
+                    .get_class_or_load_by_name(cp.get_class_name(&cf.super_class)?)?
                     .clone(),
             ) // FIXME
         } else {
@@ -183,7 +187,7 @@ impl Class {
             cp,
             state: initialized,
             mirror: OnceCell::new(),
-            id: OnceCell::new(),
+            id,
             methods,
             static_methods,
         });
@@ -204,19 +208,20 @@ impl Class {
         Ok(class)
     }
 
-    pub fn new_array(class_name: &str) -> Result<Arc<Self>, JvmError> {
-        Ok(Self::default(Arc::from(class_name), None))
+    pub fn new_array(id: ClassId, class_name: &str) -> Result<Arc<Self>, JvmError> {
+        Ok(Self::default(id, Arc::from(class_name), None))
     }
 
-    pub fn new_primitive_array(primitive: ArrayType) -> Result<Arc<Self>, JvmError> {
+    pub fn new_primitive_array(id: ClassId, primitive: ArrayType) -> Result<Arc<Self>, JvmError> {
         Ok(Self::default(
+            id,
             Arc::from(primitive.descriptor()),
             Some(primitive),
         ))
     }
 
-    pub fn id(&self) -> Result<ClassId, JvmError> {
-        self.id.get().copied().ok_or(JvmError::Uninitialized)
+    pub fn id(&self) -> &ClassId {
+        &self.id
     }
 
     pub fn primitive(&self) -> Option<ArrayType> {
@@ -224,18 +229,13 @@ impl Class {
     }
 
     pub fn instance_of(&self, id: &ClassId) -> bool {
-        if &self.id().unwrap() == id {
+        if self.id() == id {
             return true;
         }
         match &self.super_class {
             Some(super_class) => super_class.instance_of(id),
             None => false,
         }
-    }
-
-    // TODO: proper error
-    pub fn set_id(&self, id: ClassId) -> Result<(), JvmError> {
-        self.id.set(id).map_err(|_| JvmError::Uninitialized)
     }
 
     pub fn name(&self) -> &str {
@@ -512,7 +512,7 @@ impl Class {
     }
 
     //TODO: stub, need to cleanup
-    pub fn default(class_name: Arc<str>, primitive: Option<ArrayType>) -> Arc<Self> {
+    pub fn default(id: ClassId, class_name: Arc<str>, primitive: Option<ArrayType>) -> Arc<Self> {
         let clone_method_name: Arc<str> = Arc::from("clone");
         let raw_descriptor: &str = "()Ljava/lang/Object;";
 
@@ -532,7 +532,7 @@ impl Class {
         )]);
         let methods = HashMap::from([(0, clone_method)]);
         let class = Arc::new(Self {
-            id: OnceCell::new(),
+            id,
             primitive,
             source_file: None,
             name: class_name,

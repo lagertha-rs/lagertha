@@ -1,4 +1,5 @@
 use clap::Parser;
+use common::utils::telemetry::init_tracing;
 use runtime::VmConfig;
 use tracing_log::log::{debug, error};
 
@@ -45,8 +46,10 @@ fn main() {
     //init_tracing();
     let args = Args::parse();
     debug!("Provided command line arguments: {:?}", args);
-    debug!("Trying to open class file: {}", args.main_class);
-    let jclass_bytes = std::fs::read(&args.main_class);
+    // TODO: now is the time to open and read the class file as jvm does, with package dirs, etc.
+    let main_class = args.main_class.clone();
+    debug!("Trying to open class file: {}", main_class);
+    let jclass_bytes = std::fs::read(&main_class);
     match jclass_bytes {
         Ok(bytes) => {
             debug!("Class file read successfully, size: {} bytes", bytes.len());
@@ -57,7 +60,7 @@ fn main() {
                     return;
                 }
             };
-            if let Err(err) = runtime::start(bytes, vm_config) {
+            if let Err(err) = runtime::start(&main_class, bytes, vm_config) {
                 error!("VM execution failed: {err}");
                 std::process::exit(1);
             }

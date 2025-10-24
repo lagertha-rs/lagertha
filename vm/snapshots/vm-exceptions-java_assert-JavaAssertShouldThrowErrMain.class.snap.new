@@ -1,0 +1,9 @@
+---
+source: vm/src/main.rs
+assertion_line: 157
+expression: "&combined"
+---
+----- STDOUT -----
+
+----- STDERR -----
+VM execution failed with error: ClassLoader(ClassNotFound("exceptions/java_assert/JavaAssertShouldThrowErrMain"))

@@ -5,6 +5,7 @@ use crate::rt::class::Class;
 use crate::{ClassId, VmConfig};
 use common::instruction::ArrayType;
 use jclass::ClassFile;
+use lasso::ThreadedRodeo;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tracing_log::log::debug;
@@ -14,75 +15,74 @@ use tracing_log::log::debug;
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.5.4
 pub struct MethodArea {
     bootstrap_class_loader: ClassLoader,
-    // TODO: make class name Arc<str>?
-    classes_idx: HashMap<String, ClassId>,
-    classes: Vec<Arc<Class>>,
+    classes: HashMap<ClassId, Arc<Class>>,
+    string_interner: Arc<ThreadedRodeo>,
 }
 
 impl MethodArea {
-    pub fn new(vm_config: &VmConfig) -> Result<Self, JvmError> {
+    pub fn new(
+        vm_config: &VmConfig,
+        string_interner: Arc<ThreadedRodeo>,
+    ) -> Result<Self, JvmError> {
         debug!("Initializing MethodArea...");
         let bootstrap_class_loader = ClassLoader::new(vm_config)?;
         let method_area = Self {
-            classes_idx: HashMap::new(),
-            classes: Vec::new(),
+            classes: HashMap::new(),
             bootstrap_class_loader,
+            string_interner,
         };
 
         debug!("MethodArea initialized");
         Ok(method_area)
     }
 
-    pub fn get_class_by_id(&self, class_id: ClassId) -> Result<&Arc<Class>, JvmError> {
-        self.classes
-            .get(class_id)
-            .ok_or(JvmError::ClassNotFound2(class_id))
+    pub fn get_class_or_load_by_name(&mut self, name: &str) -> Result<&Arc<Class>, JvmError> {
+        let id = self.string_interner.get_or_intern(name);
+        if self.classes.contains_key(&id) {
+            return Ok(self.classes.get(&id).unwrap());
+        }
+        if name.starts_with("[") {
+            self.create_array_class(id, name)
+        } else {
+            let class_data = self.bootstrap_class_loader.load(name)?;
+            self.add_raw_bytecode(id, class_data)
+        }
     }
 
-    pub fn add_raw_bytecode(&mut self, data: Vec<u8>) -> Result<&Arc<Class>, JvmError> {
+    // assumes if there is a class_id, the class must be loaded
+    pub fn get_class_by_id(&self, class_id: &ClassId) -> Result<&Arc<Class>, JvmError> {
+        self.classes.get(class_id).ok_or(JvmError::ClassNotFound(
+            self.string_interner.resolve(class_id).to_string(),
+        ))
+    }
+
+    pub fn add_raw_bytecode(
+        &mut self,
+        id: ClassId,
+        data: Vec<u8>,
+    ) -> Result<&Arc<Class>, JvmError> {
         let cf = ClassFile::try_from(data).map_err(LinkageError::from)?;
-        let class = Class::new(cf, self)?;
+        let class = Class::new(id, cf, self)?;
         self.add_class(class)
     }
 
     fn add_class(&mut self, class: Arc<Class>) -> Result<&Arc<Class>, JvmError> {
-        let id = self.classes.len();
-        class.set_id(id)?;
-        self.classes.push(class.clone());
-        self.classes_idx.insert(class.name().to_string(), id);
-        Ok(&self.classes[id])
+        let class_id = *class.id();
+        self.classes.insert(class_id, class);
+        self.get_class_by_id(&class_id)
     }
 
-    pub fn get_class(&mut self, name: &str) -> Result<&Arc<Class>, JvmError> {
-        if let Some(class_id) = self.classes_idx.get(name) {
-            return self.get_class_by_id(*class_id);
-        }
-        if name.starts_with("[") {
-            self.create_array_class(name)
-        } else {
-            let class_data = self.bootstrap_class_loader.load(name)?;
-            self.add_raw_bytecode(class_data)
-        }
-    }
-
-    fn create_array_class(&mut self, name: &str) -> Result<&Arc<Class>, JvmError> {
-        if let Some(class_id) = self.classes_idx.get(name) {
-            return self.get_class_by_id(*class_id);
-        }
+    fn create_array_class(&mut self, id: ClassId, name: &str) -> Result<&Arc<Class>, JvmError> {
         let class = if let Ok(primitive) = ArrayType::try_from(name) {
-            Class::new_primitive_array(primitive)?
+            Class::new_primitive_array(id, primitive)?
         } else {
-            Class::new_array(name)?
+            Class::new_array(id, name)?
         };
-        self.add_class(class.clone())
+        self.add_class(class)
     }
 
     pub fn get_class_id(&mut self, name: &str) -> Result<ClassId, JvmError> {
-        if let Some(class_id) = self.classes_idx.get(name) {
-            Ok(*class_id)
-        } else {
-            let class = self.get_class(name)?;
-            class.id()
-        }
+        let class = self.get_class_or_load_by_name(name)?;
+        Ok(*class.id())
     }
 }
