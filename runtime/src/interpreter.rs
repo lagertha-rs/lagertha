@@ -1313,26 +1313,13 @@ impl Interpreter {
     }
 
     //TODO: redisign start method (maybe return Value, maybe take args)
-    pub fn start(&mut self, name: &str, data: Vec<u8>) -> Result<(), JvmError> {
-        let main_class_id = self.vm.string_interner.get_or_intern(name);
+    pub fn start(&mut self) -> Result<(), JvmError> {
         let main_class = self
             .vm
             .method_area
-            .add_raw_bytecode(main_class_id, data)?
+            .get_class_or_load_by_name(&self.vm.config.main_class)?
             .clone();
-        /*
-        TODO: should have check like this but later
-        if main_class.name() != name {
-            eprintln!(
-                "\
-            Error: Could not find or load main class {name}\n\
-            Caused by: java.lang.NoClassDefFoundError: NpeShouldPrintStackTraceErrMain (wrong name: {})",
-                main_class.name()
-            );
-            return Err(JvmError::NoMainClassFound(name.to_string()));
-        }
-         */
-        self.ensure_initialized(&main_class_id)?;
+        self.ensure_initialized(main_class.id())?;
         let main_method = main_class
             .find_main_method()
             .ok_or(JvmError::NoMainClassFound(main_class.name().to_string()))?;

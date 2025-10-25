@@ -2,7 +2,7 @@ use constcat::concat;
 use sha2::{Digest, Sha256};
 use std::fs;
 use std::io::{Read, Write};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::process::Command;
 use walkdir::WalkDir;
 
@@ -10,11 +10,46 @@ const JAVA_FIXTURES_ROOT: &str = "tests/testdata/java";
 const COMPILED_FIXTURES_ROOT: &str = "../compiled";
 const HASH_FILE_PATH: &str = concat!(COMPILED_FIXTURES_ROOT, "/.hash");
 
-fn set_current_dir_to_java_fixtures() {
-    let current_dir = std::env::current_dir().expect("Failed to get current directory");
-    let java_fixtures_path = current_dir.join(JAVA_FIXTURES_ROOT);
-    std::env::set_current_dir(&java_fixtures_path)
-        .expect("Failed to set current directory to Java fixtures");
+pub fn setup() {
+    let prev_dir = std::env::current_dir().expect("Failed to get current directory");
+    let java_fixtures_path = prev_dir.clone().join(JAVA_FIXTURES_ROOT);
+    std::env::set_current_dir(&java_fixtures_path).unwrap_or_else(|_| {
+        panic!(
+            "Failed to set current directory to Java fixtures: {}",
+            java_fixtures_path.display()
+        )
+    });
+
+    let java_files = collect_java_files();
+    if java_files.is_empty() {
+        panic!("No Java files found in fixtures.");
+    }
+
+    let hash = compute_hash(&java_files).expect("Failed to compute folder hash");
+    if hashes_match(&hash) {
+        //No changes detected in Java sources, skipping compilation
+        std::env::set_current_dir(&prev_dir)
+            .expect("Failed to set current directory back to previous");
+        return;
+    }
+
+    remove_compiled_dir_if_exists();
+
+    let mut cmd = Command::new("javac");
+    cmd.arg("-d").arg(COMPILED_FIXTURES_ROOT);
+    for file in &java_files {
+        cmd.arg(file);
+    }
+
+    // Run javac
+    let output = cmd.output().expect("Failed to run javac");
+
+    if !output.status.success() {
+        panic!("javac failed: {}", String::from_utf8_lossy(&output.stderr));
+    }
+
+    write_hash(&hash).expect("Failed to write hash file");
+    std::env::set_current_dir(&prev_dir).expect("Failed to set current directory back to previous");
 }
 
 fn collect_java_files() -> Vec<PathBuf> {
@@ -69,36 +104,4 @@ fn write_hash(hash: &[u8]) -> std::io::Result<()> {
     let mut f = fs::File::create(HASH_FILE_PATH)?;
     f.write_all(hash)?;
     Ok(())
-}
-
-pub fn setup() {
-    set_current_dir_to_java_fixtures();
-
-    let java_files = collect_java_files();
-    if java_files.is_empty() {
-        panic!("No Java files found in fixtures.");
-    }
-
-    let hash = compute_hash(&java_files).expect("Failed to compute folder hash");
-    if hashes_match(&hash) {
-        //No changes detected in Java sources, skipping compilation
-        return;
-    }
-
-    remove_compiled_dir_if_exists();
-
-    let mut cmd = Command::new("javac");
-    cmd.arg("-d").arg(COMPILED_FIXTURES_ROOT);
-    for file in &java_files {
-        cmd.arg(file);
-    }
-
-    // Run javac
-    let output = cmd.output().expect("Failed to run javac");
-
-    if !output.status.success() {
-        panic!("javac failed: {}", String::from_utf8_lossy(&output.stderr));
-    }
-
-    write_hash(&hash).expect("Failed to write hash file");
 }

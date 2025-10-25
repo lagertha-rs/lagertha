@@ -714,6 +714,7 @@ dependencies = [
  "thiserror",
  "toml",
  "tracing-log",
+ "walkdir",
 ]
 
 [[package]]

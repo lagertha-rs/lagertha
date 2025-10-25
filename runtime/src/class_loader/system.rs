@@ -5,6 +5,7 @@ use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 use tracing_log::log::debug;
+use walkdir::WalkDir;
 
 #[derive(Debug)]
 pub(super) struct SystemClassLoader {
@@ -17,18 +18,25 @@ impl SystemClassLoader {
         let mut index = HashMap::new();
 
         for entry in path {
-            let base = PathBuf::from(entry);
-            if !base.exists() {
-                continue;
-            }
-            if base.is_dir() {
-                debug!("Indexing classes under {}", base.display());
-                Self::index_dir(&base, &mut index)?;
-            } else {
-                debug!(
-                    "Classpath entry is not a directory, skipping: {}",
-                    base.display()
-                );
+            let files_and_folders = WalkDir::new(entry);
+            let files_and_folders = files_and_folders.into_iter().collect::<Vec<_>>();
+            let java_classes: Vec<_> = files_and_folders
+                .into_iter()
+                .filter_map(Result::ok)
+                .map(|e| e.into_path())
+                .filter(|path| {
+                    path.is_file() && path.extension().map(|ext| ext == "class").unwrap_or(false)
+                })
+                .collect();
+            for class in java_classes {
+                let rel = class.strip_prefix(entry).unwrap_or(&class);
+                let rel_str = Self::path_to_forward_slash(rel);
+                if let Some(key) = Self::binary_name_from_rel(&rel_str) {
+                    index.entry(key).or_insert_with(|| ClassSource {
+                        jmod_path: PathBuf::from(entry),
+                        entry_name: rel.to_string_lossy().into_owned(),
+                    });
+                }
             }
         }
 
@@ -52,35 +60,6 @@ impl SystemClassLoader {
         file.read_to_end(&mut buf)
             .map_err(|_| ClassLoaderErr::CanNotAccessSource)?;
         Ok(buf)
-    }
-
-    fn index_dir(
-        base_dir: &Path,
-        index: &mut HashMap<String, ClassSource>,
-    ) -> Result<(), ClassLoaderErr> {
-        let mut stack = vec![base_dir.to_path_buf()];
-        while let Some(dir) = stack.pop() {
-            let rd = fs::read_dir(&dir).map_err(|_| ClassLoaderErr::CanNotAccessSource)?;
-            for entry in rd {
-                let entry = entry.map_err(|_| ClassLoaderErr::CanNotAccessSource)?;
-                let path = entry.path();
-                if path.is_dir() {
-                    stack.push(path);
-                } else if path.is_file() {
-                    if path.extension().map(|e| e == "class").unwrap_or(false) {
-                        let rel = path.strip_prefix(base_dir).unwrap_or(&path);
-                        let rel_str = Self::path_to_forward_slash(rel);
-                        if let Some(key) = Self::binary_name_from_rel(&rel_str) {
-                            index.entry(key).or_insert_with(|| ClassSource {
-                                jmod_path: base_dir.to_path_buf(),
-                                entry_name: rel.to_string_lossy().into_owned(), // keep OS separators for joining
-                            });
-                        }
-                    }
-                }
-            }
-        }
-        Ok(())
     }
 
     fn path_to_forward_slash(p: &Path) -> String {

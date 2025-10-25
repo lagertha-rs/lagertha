@@ -22,8 +22,12 @@ pub struct Args {
     pub main_class_path: String,
 }
 
-fn create_vm_configuration(args: Args) -> Result<VmConfig, String> {
+fn create_vm_configuration(mut args: Args, main_class: String) -> Result<VmConfig, String> {
     let java_home = std::env::var("JAVA_HOME").expect("JAVA_HOME not set");
+    let current_dir = std::env::current_dir()
+        .map(|v| v.to_string_lossy().to_string())
+        .expect("cannot get current dir");
+    args.class_path.push(current_dir);
     let home = std::path::PathBuf::from(&java_home);
     let release_file = format!("{}/release", java_home);
 
@@ -33,6 +37,7 @@ fn create_vm_configuration(args: Args) -> Result<VmConfig, String> {
         if let Some(value) = line.strip_prefix("JAVA_VERSION=") {
             return Ok(VmConfig {
                 home,
+                main_class,
                 version: value.trim_matches('"').to_string(),
                 class_path: args.class_path,
                 initial_heap_size: 0,
@@ -46,39 +51,21 @@ fn create_vm_configuration(args: Args) -> Result<VmConfig, String> {
 }
 
 fn main() {
-    let current_path = std::env::current_dir().unwrap();
-    eprintln!("{}", current_path.display());
     //init_tracing();
     let args = Args::parse();
     debug!("Provided command line arguments: {:?}", args);
 
-    let package_like_main_path = args.main_class_path.replace('/', ".");
-    let main_class = package_like_main_path.replace('.', "/") + ".class";
+    let main_class = args.main_class_path.replace('.', "/");
 
-    debug!("Trying to open class file: {}", main_class);
-
-    let jclass_bytes = std::fs::read(&main_class);
-    match jclass_bytes {
-        Ok(bytes) => {
-            debug!("Class file read successfully, size: {} bytes", bytes.len());
-            let vm_config = match create_vm_configuration(args) {
-                Ok(config) => config,
-                Err(e) => {
-                    eprintln!("Error creating VM configuration: {}", e);
-                    return;
-                }
-            };
-            if let Err(err) = runtime::start(&package_like_main_path, bytes, vm_config) {
-                error!("VM execution failed: {err}");
-                std::process::exit(1);
-            }
+    let vm_config = match create_vm_configuration(args, main_class) {
+        Ok(config) => config,
+        Err(e) => {
+            eprintln!("Error creating VM configuration: {}", e);
+            return;
         }
-        Err(_) => {
-            eprintln!(
-                "Error: Could not find or load main class {}\n\
-                 Caused by: java.lang.ClassNotFoundException: {}",
-                package_like_main_path, package_like_main_path
-            );
-        }
+    };
+    if let Err(err) = runtime::start(vm_config) {
+        error!("VM execution failed: {err}");
+        std::process::exit(1);
     }
 }

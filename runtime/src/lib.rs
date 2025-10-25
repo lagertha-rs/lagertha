@@ -26,6 +26,7 @@ pub type MethodId = usize;
 pub struct VmConfig {
     pub home: PathBuf,
     pub version: String,
+    pub main_class: String,
     pub class_path: Vec<String>,
     pub initial_heap_size: usize,
     pub max_heap_size: usize,
@@ -73,12 +74,12 @@ impl VirtualMachine {
     }
 }
 
-pub fn start(name: &str, main_class: Vec<u8>, config: VmConfig) -> Result<(), JvmError> {
+pub fn start(config: VmConfig) -> Result<(), JvmError> {
     debug!("Starting VM with config: {:?}", config);
     let vm = VirtualMachine::new(config)?;
 
     let mut interpreter = Interpreter::new(vm);
-    match interpreter.start(name, main_class) {
+    match interpreter.start() {
         Ok(_) => {
             debug!("VM execution finished successfully");
             Ok(())
