@@ -1,28 +1,15 @@
 use crate::VmConfig;
 use crate::class_loader::system::SystemClassLoader;
-use crate::error::JvmError;
+use common::error::{ClassLoaderErr, JvmError};
 use jimage::JImage;
 use std::collections::HashSet;
 use std::path::PathBuf;
-use thiserror::Error;
 use toml::Value;
 use tracing_log::log::debug;
 
 mod system;
 
 // TODO: It is more like a stub for now, need to respect the doc
-
-#[derive(Debug, Error)]
-pub enum ClassLoaderErr {
-    #[error("JavaHomeIsNotSet")]
-    JavaHomeIsNotSet,
-    #[error("CanNotAccessSource")]
-    CanNotAccessSource,
-    #[error("ClassNotFoundException: {0}")]
-    ClassNotFound(String),
-    #[error("ArchiveErr")]
-    ArchiveErr,
-}
 
 #[derive(Debug, Clone)]
 struct ClassSource {

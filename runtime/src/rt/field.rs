@@ -1,6 +1,6 @@
-use crate::error::JvmError;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::constant_pool::reference::FieldDescriptorReference;
+use common::error::JvmError;
 use common::jtype::Value;
 use jclass::field::FieldInfo;
 use jclass::flags::FieldFlags;

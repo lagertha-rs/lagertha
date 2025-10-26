@@ -1,11 +1,10 @@
-use crate::error::JvmError;
 use crate::heap::Heap;
 use crate::heap::method_area::MethodArea;
 use crate::interpreter::Interpreter;
 use crate::native::NativeRegistry;
 use crate::stack::FrameStack;
+use common::error::JvmError;
 use common::jtype::Value;
-use jimage::JImage;
 use lasso::{Spur, ThreadedRodeo};
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -18,6 +17,7 @@ mod interpreter;
 mod native;
 pub mod rt;
 pub mod stack;
+mod throw;
 
 pub type ClassId = Spur;
 pub type MethodId = usize;

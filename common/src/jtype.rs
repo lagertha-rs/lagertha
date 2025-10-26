@@ -1,4 +1,4 @@
-use crate::TypeDescriptorErr;
+use crate::error::TypeDescriptorErr;
 use core::fmt;
 use std::fmt::Formatter;
 use std::iter::Peekable;

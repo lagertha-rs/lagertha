@@ -117,30 +117,30 @@ fn java_io_file_output_stream_write_bytes(vm: &mut VirtualMachine, args: &[Value
             );
         }
     }
-    None
+    Ok(None)
 }
 
 fn java_io_file_input_stream_init_ids(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.io.FileInputStream.initIDs");
-    None
+    Ok(None)
 }
 
 fn java_io_file_descriptor_init_ids(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.io.FileDescriptor.initIDs");
-    None
+    Ok(None)
 }
 
 fn java_io_file_descriptor_get_handle(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.io.FileDescriptor.getHandle");
-    Some(Value::Long(0))
+    Ok(Some(Value::Long(0)))
 }
 
 fn java_io_file_descriptor_get_append(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.io.FileDescriptor.getAppend");
-    Some(Value::Integer(0))
+    Ok(Some(Value::Integer(0)))
 }
 
 fn java_io_file_output_stream_init_ids(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.io.FileInputStream.initIDs");
-    None
+    Ok(None)
 }

@@ -1,4 +1,3 @@
-use crate::error::{JavaExceptionFromJvm, JavaLangError, JvmError};
 use crate::rt::class::{Class, InitState};
 use crate::rt::constant_pool::RuntimeConstant;
 use crate::rt::constant_pool::reference::MethodReference;
@@ -8,6 +7,9 @@ use crate::{
     ClassId, VirtualMachine, throw_arithmetic_exception, throw_negative_array_size_exception,
     throw_unsupported_operation,
 };
+use common::error::JavaExceptionFromJvm;
+use common::error::JavaLangError;
+use common::error::JvmError;
 use common::instruction::Instruction;
 use common::jtype::Value;
 use log::warn;
@@ -70,11 +72,17 @@ impl Interpreter {
     fn allocate_and_throw(&mut self, exception: JavaExceptionFromJvm) -> Result<(), JvmError> {
         let exception_ref = exception.as_reference();
         let class_id = self.vm.method_area.get_class_id(exception_ref.class)?;
-        let message = self.vm.heap.get_or_new_string(exception.get_message());
         let class = self.vm.method_area.get_class_by_id(&class_id)?.clone();
         let instance = self.vm.heap.alloc_instance(&class)?;
         let method = class.get_virtual_method(exception_ref.name, exception_ref.descriptor)?;
-        let params = vec![Value::Ref(instance), Value::Ref(message)];
+        let params = if let Some(msg) = exception.get_message() {
+            vec![
+                Value::Ref(instance),
+                Value::Ref(self.vm.heap.get_or_new_string(msg)),
+            ]
+        } else {
+            vec![Value::Ref(instance)]
+        };
         self.run_instance_method(method, params)?;
         Err(JvmError::JavaExceptionThrown(instance))
     }
@@ -1166,7 +1174,7 @@ impl Interpreter {
                 method.descriptor().raw()
             )))?;
 
-        if let Some(ret_value) = method(&mut self.vm, params.as_slice()) {
+        if let Some(ret_value) = method(&mut self.vm, params.as_slice())? {
             self.vm.frame_stack.push_operand(ret_value)?;
         }
 
@@ -1293,9 +1301,19 @@ impl Interpreter {
                 method.name(),
                 method.descriptor().raw()
             )))?;
-        if let Some(ret_value) = method(&mut self.vm, params.as_slice()) {
-            self.vm.frame_stack.push_operand(ret_value)?;
-        }
+        match method(&mut self.vm, params.as_slice()) {
+            Ok(ret_value) => {
+                if let Some(ret_value) = ret_value {
+                    self.vm.frame_stack.push_operand(ret_value)?;
+                }
+            }
+            Err(e) => match e {
+                JvmError::JavaException(exception) => {
+                    self.allocate_and_throw(exception)?;
+                }
+                e => return Err(e),
+            },
+        };
         Ok(())
     }
 

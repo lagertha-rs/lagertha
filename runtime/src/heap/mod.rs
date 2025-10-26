@@ -1,9 +1,11 @@
 // TODO: very primitive implementation, ok for right now
 
-use crate::error::{JavaExceptionFromJvm, JavaLangError, JvmError};
 use crate::heap::method_area::MethodArea;
 use crate::rt::class::Class;
 use crate::{ClassId, throw_index_out_of_bounds_exception};
+use common::error::JavaExceptionFromJvm;
+use common::error::JavaLangError;
+use common::error::JvmError;
 use common::jtype::{HeapAddr, Value};
 use std::collections::HashMap;
 use std::sync::Arc;

@@ -1,5 +1,5 @@
 use crate::constant::pool::ConstantPool;
-use crate::error::ClassFormatErr;
+use common::error::ClassFormatErr;
 use common::instruction::Instruction;
 use std::fmt::Write;
 

@@ -21,5 +21,5 @@ fn vm_internal_clone(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
         _ => panic!("internal clone: expected object"),
     };
     let cloned = vm.heap.clone_object(obj);
-    Some(Value::Ref(cloned))
+    Ok(Some(Value::Ref(cloned)))
 }

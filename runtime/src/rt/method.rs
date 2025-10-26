@@ -1,10 +1,9 @@
-use crate::error::JvmError;
 use crate::native::MethodKey;
-use crate::rt::LinkageError;
 use crate::rt::class::Class;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::constant_pool::reference::MethodDescriptorReference;
 use crate::{ClassId, MethodId};
+use common::error::{JvmError, LinkageError};
 use jclass::attribute::method::code::{
     CodeAttributeInfo, LineNumberEntry, LocalVariableEntry, LocalVariableTypeEntry, StackMapFrame,
 };

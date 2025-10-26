@@ -1,5 +1,4 @@
-use crate::ClassFormatErr;
-
+use common::error::ClassFormatErr;
 use common::utils::cursor::ByteCursor;
 use num_enum::TryFromPrimitive;
 use std::fmt::{Display, Formatter};

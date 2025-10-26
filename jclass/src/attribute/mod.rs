@@ -85,7 +85,7 @@ impl<'a> SharedAttribute {
             }
             AttributeType::RuntimeInvisibleTypeAnnotations
             | AttributeType::RuntimeVisibleTypeAnnotations => unimplemented!(),
-            _ => Err(ClassFormatErr::AttributeIsNotShared(attr_type)),
+            _ => Err(ClassFormatErr::AttributeIsNotShared(attr_type.to_string())),
         }
     }
 

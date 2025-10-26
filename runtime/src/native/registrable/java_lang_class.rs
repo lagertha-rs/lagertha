@@ -42,7 +42,7 @@ pub(super) fn java_lang_class_register_natives(
         java_lang_class_is_primitive,
     );
 
-    None
+    Ok(None)
 }
 
 fn java_lang_class_desired_assertion_status_0(
@@ -50,14 +50,14 @@ fn java_lang_class_desired_assertion_status_0(
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.desiredAssertionStatus0");
-    Some(Value::Integer(1))
+    Ok(Some(Value::Integer(1)))
 }
 
 fn java_lang_class_is_primitive(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.isPrimitive");
     if let Value::Ref(h) = &args[0] {
         let is_primitive = vm.heap.addr_is_primitive(h);
-        Some(Value::Integer(if is_primitive { 1 } else { 0 }))
+        Ok(Some(Value::Integer(if is_primitive { 1 } else { 0 })))
     } else {
         panic!("java.lang.Class.isPrimitive: expected object");
     }
@@ -67,7 +67,7 @@ fn java_lang_class_get_primitive_class(vm: &mut VirtualMachine, args: &[Value]) 
     debug!("TODO: Stub: java.lang.Class.getPrimitiveClass");
     if let Value::Ref(h) = &args[0] {
         let v = vm.heap.get_primitive_mirror_addr(h).unwrap();
-        Some(Value::Ref(v))
+        Ok(Some(Value::Ref(v)))
     } else {
         panic!("java.lang.Class.getPrimitiveClass: expected object");
     }
@@ -88,7 +88,7 @@ fn java_lang_class_init_class_name(vm: &mut VirtualMachine, args: &[Value]) -> N
         vm.heap
             .write_instance_field(*h, class.get_field_index("name").unwrap(), val)
             .unwrap();
-        Some(val)
+        Ok(Some(val))
     } else {
         panic!("java.lang.Class.initClassName: expected object as argument");
     }

@@ -92,7 +92,7 @@ fn jdk_internal_util_system_props_raw_platform_properties(
     vm.heap.write_array_element(h, 28, Value::Ref(enc)).unwrap();
     vm.heap.write_array_element(h, 34, Value::Ref(enc)).unwrap();
 
-    Some(Value::Ref(h))
+    Ok(Some(Value::Ref(h)))
 }
 
 fn jdk_internal_util_system_props_raw_vm_properties(
@@ -121,12 +121,12 @@ fn jdk_internal_util_system_props_raw_vm_properties(
     vm.heap
         .write_array_element(h, 3, Value::Ref(false_str))
         .unwrap();
-    Some(Value::Ref(h))
+    Ok(Some(Value::Ref(h)))
 }
 
 fn jdk_internal_misc_vm_initialize(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.VM.initialize");
-    None
+    Ok(None)
 }
 
 fn jdk_internal_misc_signal_find_signal_0(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
@@ -160,12 +160,12 @@ fn jdk_internal_misc_signal_find_signal_0(vm: &mut VirtualMachine, args: &[Value
         "TTOU" => 22,
         _ => -1,
     };
-    Some(Value::Integer(signal_number))
+    Ok(Some(Value::Integer(signal_number)))
 }
 
 fn jdk_internal_misc_signal_handle_0(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Signal.handle0");
-    Some(Value::Long(1))
+    Ok(Some(Value::Long(1)))
 }
 
 fn jdk_internal_misc_cds_get_cds_config_status(
@@ -173,7 +173,7 @@ fn jdk_internal_misc_cds_get_cds_config_status(
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.CDS.getCDSConfigStatus");
-    Some(Value::Integer(0))
+    Ok(Some(Value::Integer(0)))
 }
 
 fn jdk_internal_misc_cds_initialize_from_archive(
@@ -181,5 +181,5 @@ fn jdk_internal_misc_cds_initialize_from_archive(
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.CDS.initializeFromArchive");
-    None
+    Ok(None)
 }

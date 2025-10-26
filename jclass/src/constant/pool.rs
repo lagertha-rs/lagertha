@@ -1,5 +1,5 @@
 use crate::constant::{ConstantInfo, ConstantTag};
-use crate::error::ClassFormatErr;
+use common::error::ClassFormatErr;
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.4
 #[derive(Debug, Clone, PartialEq)]
@@ -16,8 +16,8 @@ impl ConstantPool {
                 ConstantInfo::Utf8(value) => Ok(value.as_str()),
                 e => Err(ClassFormatErr::TypeError(
                     *idx,
-                    ConstantTag::Utf8,
-                    e.get_tag(),
+                    ConstantTag::Utf8.to_string(),
+                    e.get_tag().to_string(),
                 )),
             })
     }
@@ -44,8 +44,8 @@ impl ConstantPool {
                 ConstantInfo::Integer(value) => Ok(value),
                 e => Err(ClassFormatErr::TypeError(
                     *idx,
-                    ConstantTag::Integer,
-                    e.get_tag(),
+                    ConstantTag::Integer.to_string(),
+                    e.get_tag().to_string(),
                 )),
             })
     }
@@ -58,8 +58,8 @@ impl ConstantPool {
                 ConstantInfo::Class(name_index) => Ok(*name_index),
                 e => Err(ClassFormatErr::TypeError(
                     *idx,
-                    ConstantTag::Class,
-                    e.get_tag(),
+                    ConstantTag::Class.to_string(),
+                    e.get_tag().to_string(),
                 )),
             })
     }
@@ -102,8 +102,8 @@ impl ConstantPool {
                 ConstantInfo::InterfaceMethodRef(ref_info) => Ok(ref_info),
                 e => Err(ClassFormatErr::TypeError(
                     *idx,
-                    ConstantTag::MethodRef,
-                    e.get_tag(),
+                    ConstantTag::MethodRef.to_string(),
+                    e.get_tag().to_string(),
                 )),
             })
     }
@@ -119,8 +119,8 @@ impl ConstantPool {
                 ConstantInfo::NameAndType(ref_info) => Ok(ref_info),
                 e => Err(ClassFormatErr::TypeError(
                     *idx,
-                    ConstantTag::NameAndType,
-                    e.get_tag(),
+                    ConstantTag::NameAndType.to_string(),
+                    e.get_tag().to_string(),
                 )),
             })
     }

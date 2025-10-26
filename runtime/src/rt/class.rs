@@ -1,5 +1,4 @@
 use crate::ClassId;
-use crate::error::JvmError;
 use crate::heap::method_area::MethodArea;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::constant_pool::reference::{
@@ -8,6 +7,7 @@ use crate::rt::constant_pool::reference::{
 use crate::rt::field::{Field, StaticField};
 use crate::rt::method::{Method, MethodType};
 use common::descriptor::MethodDescriptor;
+use common::error::JvmError;
 use common::instruction::ArrayType;
 use common::jtype::{HeapAddr, Value};
 use jclass::ClassFile;

@@ -1,4 +1,4 @@
-use crate::TypeDescriptorErr;
+use crate::error::SignatureErr;
 use crate::jtype::Type;
 use std::fmt;
 use std::fmt::Formatter;
@@ -25,28 +25,6 @@ pub struct FormalTypeParam {
     pub name: String,
     pub class_bound: Option<Type>,
     pub interface_bounds: Vec<Type>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
-pub enum SignatureErr {
-    #[error("Unexpected end of signature")]
-    UnexpectedEnd,
-    #[error("Expected '(' after formal type parameters")]
-    MissingParamsOpenParen,
-    #[error("Expected ')' to close parameter list")]
-    MissingParamsCloseParen,
-    #[error("Trailing characters after method signature")]
-    TrailingCharacters,
-    #[error("Invalid identifier for type parameter")]
-    InvalidIdentifier,
-    #[error("Missing superclass signature")]
-    MissingSuper,
-    #[error("Invalid type after ':' in bound")]
-    InvalidBound,
-    #[error("Type parse error: {0}")]
-    Type(#[from] TypeDescriptorErr),
-    #[error("Superclass must be a class type signature")]
-    InvalidSuperClassType,
 }
 
 impl TryFrom<&str> for MethodSignature {

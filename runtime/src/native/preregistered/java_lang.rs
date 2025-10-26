@@ -115,7 +115,7 @@ fn java_lang_object_get_class(vm: &mut VirtualMachine, args: &[Value]) -> Native
         };
         let class = vm.method_area.get_class_by_id(target_class_id).unwrap();
         let res = vm.heap.get_mirror_addr(class).unwrap();
-        Some(Value::Ref(res))
+        Ok(Some(Value::Ref(res)))
     } else {
         panic!("java.lang.Class.getClass: expected object as argument");
     }
@@ -124,7 +124,7 @@ fn java_lang_object_get_class(vm: &mut VirtualMachine, args: &[Value]) -> Native
 fn java_lang_object_hash_code(_vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Object.hashCode");
     if let Value::Ref(h) = &args[0] {
-        Some(Value::Integer(*h as i32))
+        Ok(Some(Value::Integer(*h as i32)))
     } else {
         panic!("java.lang.Object.hashCode: expected object as argument");
     }
@@ -217,13 +217,13 @@ fn java_lang_throwable_fill_in_stack_trace(vm: &mut VirtualMachine, args: &[Valu
         )
         .unwrap();
 
-    Some(Value::Ref(throwable_addr))
+    Ok(Some(Value::Ref(throwable_addr)))
 }
 
 fn java_lang_float_float_to_raw_int_bits(_vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Float.floatToRawIntBits");
     if let Value::Float(f) = args[0] {
-        Some(Value::Integer(f.to_bits() as i32))
+        Ok(Some(Value::Integer(f.to_bits() as i32)))
     } else {
         panic!("java.lang.Float.floatToRawIntBits: expected float argument");
     }
@@ -232,7 +232,7 @@ fn java_lang_float_float_to_raw_int_bits(_vm: &mut VirtualMachine, args: &[Value
 fn java_lang_double_double_to_raw_long_bits(_vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Double.doubleToRawLongBits");
     if let Value::Double(d) = args[0] {
-        Some(Value::Long(d.to_bits() as i64))
+        Ok(Some(Value::Long(d.to_bits() as i64)))
     } else {
         panic!("java.lang.Double.doubleToRawLongBits: expected double argument");
     }
@@ -240,12 +240,12 @@ fn java_lang_double_double_to_raw_long_bits(_vm: &mut VirtualMachine, args: &[Va
 
 fn java_lang_runtime_max_memory(vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Runtime.maxMemory");
-    Some(Value::Long(vm.config.max_heap_size as i64))
+    Ok(Some(Value::Long(vm.config.max_heap_size as i64)))
 }
 
 fn java_lang_runtime_available_processors(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Runtime.availableProcessors");
-    Some(Value::Integer(1))
+    Ok(Some(Value::Integer(1)))
 }
 
 fn java_lang_stack_trace_element_init_stack_trace_elements(
@@ -374,18 +374,18 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
             )
             .unwrap();
     }
-    None
+    Ok(None)
 }
 
 fn java_lang_object_notify_all(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Object.notifyAll");
-    None
+    Ok(None)
 }
 
 fn java_lang_float_int_bits_to_float(_vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Float.intBitsToFloat");
     if let Value::Integer(i) = args[0] {
-        Some(Value::Float(f32::from_bits(i as u32)))
+        Ok(Some(Value::Float(f32::from_bits(i as u32))))
     } else {
         panic!("java.lang.Float.intBitsToFloat: expected int argument");
     }

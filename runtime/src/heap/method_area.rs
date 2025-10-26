@@ -1,8 +1,7 @@
 use crate::class_loader::ClassLoader;
-use crate::error::JvmError;
-use crate::rt::LinkageError;
 use crate::rt::class::Class;
 use crate::{ClassId, VmConfig};
+use common::error::{JvmError, LinkageError};
 use common::instruction::ArrayType;
 use jclass::ClassFile;
 use lasso::ThreadedRodeo;

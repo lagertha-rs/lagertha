@@ -52,7 +52,7 @@ pub(super) fn java_lang_system_register_natives(
         ),
         java_lang_system_identity_hash_code,
     );
-    None
+    Ok(None)
 }
 
 fn java_lang_system_set_out_0(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
@@ -68,7 +68,7 @@ fn java_lang_system_set_out_0(vm: &mut VirtualMachine, args: &[Value]) -> Native
     system_class
         .set_static_field("out", "Ljava/io/PrintStream;", Value::Ref(val))
         .unwrap();
-    None
+    Ok(None)
 }
 
 fn java_lang_system_set_err_0(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
@@ -84,7 +84,7 @@ fn java_lang_system_set_err_0(vm: &mut VirtualMachine, args: &[Value]) -> Native
     system_class
         .set_static_field("err", "Ljava/io/PrintStream;", Value::Ref(val))
         .unwrap();
-    None
+    Ok(None)
 }
 
 fn java_lang_system_arraycopy(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
@@ -137,13 +137,13 @@ fn java_lang_system_arraycopy(vm: &mut VirtualMachine, args: &[Value]) -> Native
                 .unwrap();
         }
     }
-    None
+    Ok(None)
 }
 
 fn java_lang_system_identity_hash_code(_vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.System.identityHashCode");
     if let Value::Ref(h) = &args[0] {
-        Some(Value::Integer(*h as i32))
+        Ok(Some(Value::Integer(*h as i32)))
     } else {
         panic!("java.lang.System.identityHashCode: expected object as argument");
     }
@@ -151,5 +151,5 @@ fn java_lang_system_identity_hash_code(_vm: &mut VirtualMachine, args: &[Value])
 
 fn java_lang_system_set_in_0(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.System.setIn0");
-    None
+    Ok(None)
 }

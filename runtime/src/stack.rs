@@ -1,7 +1,7 @@
 use crate::VmConfig;
-use crate::error::JvmError;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::method::Method;
+use common::error::JvmError;
 use common::jtype::{HeapAddr, Value};
 use log::debug;
 use std::sync::Arc;

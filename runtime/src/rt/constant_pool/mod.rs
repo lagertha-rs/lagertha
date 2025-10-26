@@ -1,16 +1,16 @@
-use crate::rt::constant_pool::error::RuntimePoolError;
 use crate::rt::constant_pool::reference::{
     ClassReference, FieldDescriptorReference, FieldReference, InvokeDynamicReference,
     MethodDescriptorReference, MethodHandleReference, MethodReference, MethodTypeReference,
     NameAndTypeReference, StringReference,
 };
 use common::descriptor::MethodDescriptor;
+use common::error::RuntimePoolError;
 use common::jtype::Type;
 use dashmap::DashMap;
-use jclass::constant::{ConstantInfo, ReferenceInfo};
+use jclass::constant::ConstantInfo;
+use std::fmt::Display;
 use std::sync::Arc;
 
-pub mod error;
 pub mod reference;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -32,6 +32,31 @@ pub enum RuntimeConstantType {
     FieldNameAndType,
     MethodTypeRef,
     MethodHandleRef,
+}
+
+impl Display for RuntimeConstantType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let type_str = match self {
+            RuntimeConstantType::Unused => "Unused",
+            RuntimeConstantType::Utf8 => "Utf8",
+            RuntimeConstantType::Integer => "Integer",
+            RuntimeConstantType::Float => "Float",
+            RuntimeConstantType::Long => "Long",
+            RuntimeConstantType::Double => "Double",
+            RuntimeConstantType::Class => "Class",
+            RuntimeConstantType::String => "String",
+            RuntimeConstantType::MethodRef => "MethodRef",
+            RuntimeConstantType::FieldRef => "FieldRef",
+            RuntimeConstantType::InvokeDynamicRef => "InvokeDynamicRef",
+            RuntimeConstantType::InterfaceMethodRef => "InterfaceMethodRef",
+            RuntimeConstantType::NameAndType => "NameAndType",
+            RuntimeConstantType::MethodNameAndType => "MethodNameAndType",
+            RuntimeConstantType::FieldNameAndType => "FieldNameAndType",
+            RuntimeConstantType::MethodTypeRef => "MethodTypeRef",
+            RuntimeConstantType::MethodHandleRef => "MethodHandleRef",
+        };
+        write!(f, "{}", type_str)
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -188,8 +213,8 @@ impl RuntimeConstantPool {
             RuntimeConstant::Utf8(string) => Ok(string),
             other => Err(RuntimePoolError::TypeError(
                 *idx,
-                RuntimeConstantType::Utf8,
-                other.get_type(),
+                RuntimeConstantType::Utf8.to_string(),
+                other.get_type().to_string(),
             )),
         }
     }
@@ -199,8 +224,8 @@ impl RuntimeConstantPool {
             RuntimeConstant::Utf8(string) => Ok(string.clone()),
             other => Err(RuntimePoolError::TypeError(
                 *idx,
-                RuntimeConstantType::Utf8,
-                other.get_type(),
+                RuntimeConstantType::Utf8.to_string(),
+                other.get_type().to_string(),
             )),
         }
     }
@@ -215,8 +240,8 @@ impl RuntimeConstantPool {
             }
             other => Err(RuntimePoolError::TypeError(
                 *idx,
-                RuntimeConstantType::String,
-                other.get_type(),
+                RuntimeConstantType::String.to_string(),
+                other.get_type().to_string(),
             )),
         }
     }
@@ -231,8 +256,8 @@ impl RuntimeConstantPool {
             }
             other => Err(RuntimePoolError::TypeError(
                 *idx,
-                RuntimeConstantType::Class,
-                other.get_type(),
+                RuntimeConstantType::Class.to_string(),
+                other.get_type().to_string(),
             )),
         }
     }
@@ -289,8 +314,8 @@ impl RuntimeConstantPool {
             }
             other => Err(RuntimePoolError::TypeError(
                 *idx,
-                RuntimeConstantType::MethodNameAndType,
-                other.get_type(),
+                RuntimeConstantType::MethodNameAndType.to_string(),
+                other.get_type().to_string(),
             )),
         }
     }
@@ -310,8 +335,8 @@ impl RuntimeConstantPool {
             }
             other => Err(RuntimePoolError::TypeError(
                 *idx,
-                RuntimeConstantType::FieldNameAndType,
-                other.get_type(),
+                RuntimeConstantType::FieldNameAndType.to_string(),
+                other.get_type().to_string(),
             )),
         }
     }
@@ -333,8 +358,8 @@ impl RuntimeConstantPool {
             }
             other => Err(RuntimePoolError::TypeError(
                 *idx,
-                RuntimeConstantType::MethodRef,
-                other.get_type(),
+                RuntimeConstantType::MethodRef.to_string(),
+                other.get_type().to_string(),
             )),
         }
     }
@@ -359,8 +384,8 @@ impl RuntimeConstantPool {
             }
             other => Err(RuntimePoolError::TypeError(
                 *idx,
-                RuntimeConstantType::InterfaceMethodRef,
-                other.get_type(),
+                RuntimeConstantType::InterfaceMethodRef.to_string(),
+                other.get_type().to_string(),
             )),
         }
     }
@@ -380,8 +405,8 @@ impl RuntimeConstantPool {
             }
             other => Err(RuntimePoolError::TypeError(
                 *idx,
-                RuntimeConstantType::FieldRef,
-                other.get_type(),
+                RuntimeConstantType::FieldRef.to_string(),
+                other.get_type().to_string(),
             )),
         }
     }

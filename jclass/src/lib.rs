@@ -1,7 +1,7 @@
 use crate::attribute::class::ClassAttribute;
 use crate::constant::pool::ConstantPool;
-use crate::error::ClassFormatErr;
 use crate::flags::ClassFlags;
+use common::error::ClassFormatErr;
 use common::utils::cursor::ByteCursor;
 use constant::ConstantInfo;
 use field::FieldInfo;
@@ -9,7 +9,6 @@ use method::MethodInfo;
 
 pub mod attribute;
 pub mod constant;
-pub mod error;
 pub mod field;
 pub mod flags;
 pub mod method;

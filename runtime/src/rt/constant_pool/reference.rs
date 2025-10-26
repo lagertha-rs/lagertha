@@ -1,6 +1,6 @@
 use crate::rt::constant_pool::RuntimeConstantType;
-use crate::rt::constant_pool::error::RuntimePoolError;
 use common::descriptor::MethodDescriptor;
+use common::error::RuntimePoolError;
 use common::jtype::Type;
 use std::sync::Arc;
 
@@ -36,7 +36,7 @@ impl ClassReference {
             .map(AsRef::as_ref)
             .ok_or(RuntimePoolError::TryingToAccessUnresolved(
                 self.cp_index,
-                RuntimeConstantType::Class,
+                RuntimeConstantType::Class.to_string(),
             ))
     }
 
@@ -71,7 +71,7 @@ impl StringReference {
             .map(AsRef::as_ref)
             .ok_or(RuntimePoolError::TryingToAccessUnresolved(
                 self.cp_index,
-                RuntimeConstantType::String,
+                RuntimeConstantType::String.to_string(),
             ))
     }
 }
@@ -109,7 +109,7 @@ impl MethodReference {
             .get()
             .ok_or(RuntimePoolError::TryingToAccessUnresolved(
                 self.cp_index,
-                RuntimeConstantType::MethodRef,
+                RuntimeConstantType::MethodRef.to_string(),
             ))
     }
 
@@ -118,7 +118,7 @@ impl MethodReference {
             .get()
             .ok_or(RuntimePoolError::TryingToAccessUnresolved(
                 self.cp_index,
-                RuntimeConstantType::MethodRef,
+                RuntimeConstantType::MethodRef.to_string(),
             ))
     }
 }
@@ -156,7 +156,7 @@ impl FieldReference {
             .get()
             .ok_or(RuntimePoolError::TryingToAccessUnresolved(
                 self.cp_index,
-                RuntimeConstantType::FieldRef,
+                RuntimeConstantType::FieldRef.to_string(),
             ))
     }
 
@@ -165,7 +165,7 @@ impl FieldReference {
             .get()
             .ok_or(RuntimePoolError::TryingToAccessUnresolved(
                 self.cp_index,
-                RuntimeConstantType::FieldRef,
+                RuntimeConstantType::FieldRef.to_string(),
             ))
     }
 }
@@ -207,7 +207,7 @@ impl NameAndTypeReference {
             .map(AsRef::as_ref)
             .ok_or(RuntimePoolError::TryingToAccessUnresolved(
                 self.cp_index,
-                RuntimeConstantType::NameAndType,
+                RuntimeConstantType::NameAndType.to_string(),
             ))
     }
 
@@ -218,7 +218,7 @@ impl NameAndTypeReference {
             .get()
             .ok_or(RuntimePoolError::TryingToAccessUnresolved(
                 self.cp_index,
-                RuntimeConstantType::NameAndType,
+                RuntimeConstantType::NameAndType.to_string(),
             ))
     }
 
@@ -227,7 +227,7 @@ impl NameAndTypeReference {
             .get()
             .ok_or(RuntimePoolError::TryingToAccessUnresolved(
                 self.cp_index,
-                RuntimeConstantType::NameAndType,
+                RuntimeConstantType::NameAndType.to_string(),
             ))
     }
 }
@@ -319,7 +319,7 @@ impl InvokeDynamicReference {
             .get()
             .ok_or(RuntimePoolError::TryingToAccessUnresolved(
                 self.name_and_type_index,
-                RuntimeConstantType::NameAndType,
+                RuntimeConstantType::NameAndType.to_string(),
             ))
     }
 }
@@ -347,7 +347,7 @@ impl MethodTypeReference {
             .get()
             .ok_or(RuntimePoolError::TryingToAccessUnresolved(
                 self.descriptor_index,
-                RuntimeConstantType::MethodTypeRef,
+                RuntimeConstantType::MethodTypeRef.to_string(),
             ))
     }
 }

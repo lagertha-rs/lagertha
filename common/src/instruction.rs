@@ -1,4 +1,4 @@
-use crate::InstructionErr;
+use crate::error::InstructionErr;
 use crate::jtype::Value;
 use crate::utils::cursor::ByteCursor;
 use num_enum::TryFromPrimitive;

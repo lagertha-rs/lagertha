@@ -83,7 +83,7 @@ pub(super) fn jdk_internal_misc_unsafe_register_natives(
         jdk_internal_misc_unsafe_compare_and_set_long,
     );
 
-    None
+    Ok(None)
 }
 
 fn jdk_internal_misc_unsafe_array_base_offset_0(
@@ -91,7 +91,7 @@ fn jdk_internal_misc_unsafe_array_base_offset_0(
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.arrayBaseOffset0");
-    Some(Value::Integer(0))
+    Ok(Some(Value::Integer(0)))
 }
 
 fn jdk_internal_misc_unsafe_compare_and_set_int(
@@ -120,9 +120,9 @@ fn jdk_internal_misc_unsafe_compare_and_set_int(
     if let Value::Integer(current_value) = field {
         if *current_value == expected {
             *field = Value::Integer(new_value);
-            Some(Value::Integer(1))
+            Ok(Some(Value::Integer(1)))
         } else {
-            Some(Value::Integer(0))
+            Ok(Some(Value::Integer(0)))
         }
     } else {
         panic!("jdk.internal.misc.Unsafe.compareAndSetLong: field at offset is not long");
@@ -155,9 +155,9 @@ fn jdk_internal_misc_unsafe_compare_and_set_long(
     if let Value::Long(current_value) = field {
         if *current_value == expected {
             *field = Value::Long(new_value);
-            Some(Value::Integer(1))
+            Ok(Some(Value::Integer(1)))
         } else {
-            Some(Value::Integer(0))
+            Ok(Some(Value::Integer(0)))
         }
     } else {
         panic!("jdk.internal.misc.Unsafe.compareAndSetLong: field at offset is not long");
@@ -183,7 +183,7 @@ fn jdk_internal_misc_unsafe_get_reference_volatile(
         Some(HeapObject::Instance(instance)) => {
             let field = instance.get_element(off as i32).unwrap();
             match field {
-                Value::Ref(_) => Some(*field),
+                Value::Ref(_) => Ok(Some(*field)),
                 _ => panic!("Unsafe.getReferenceVolatile field is not an object"),
             }
         }
@@ -194,7 +194,7 @@ fn jdk_internal_misc_unsafe_get_reference_volatile(
             }
             let element = &array.elements()[idx];
             match element {
-                Value::Ref(_) | Value::Null => Some(*element),
+                Value::Ref(_) | Value::Null => Ok(Some(*element)),
                 _ => panic!("Unsafe.getReferenceVolatile array element is not an object"),
             }
         }
@@ -220,7 +220,7 @@ fn jdk_internal_misc_unsafe_object_field_offset_1(
     };
     let class = vm.heap.get_class_by_mirror(class_addr).unwrap();
     let offset = class.get_field_index(&field_name).unwrap();
-    Some(Value::Long(offset as i64))
+    Ok(Some(Value::Long(offset as i64)))
 }
 
 fn jdk_internal_misc_unsafe_array_index_scale_0(
@@ -228,12 +228,12 @@ fn jdk_internal_misc_unsafe_array_index_scale_0(
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.arrayIndexScale0");
-    Some(Value::Integer(1))
+    Ok(Some(Value::Integer(1)))
 }
 
 fn jdk_internal_misc_unsafe_full_fence(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.fullFence");
-    None
+    Ok(None)
 }
 
 // TODO: pure mess
@@ -272,18 +272,18 @@ fn jdk_internal_misc_unsafe_compare_and_set_reference(
             let field = &mut array.elements_mut()[offset];
             if *field == expected {
                 *field = Value::Ref(new_value);
-                Some(Value::Integer(1))
+                Ok(Some(Value::Integer(1)))
             } else {
-                Some(Value::Integer(0))
+                Ok(Some(Value::Integer(0)))
             }
         }
         HeapObject::Instance(instance) => {
             let field = instance.get_element_mut(offset as i32).unwrap();
             if *field == expected {
                 *field = Value::Ref(new_value);
-                Some(Value::Integer(1))
+                Ok(Some(Value::Integer(1)))
             } else {
-                Some(Value::Integer(0))
+                Ok(Some(Value::Integer(0)))
             }
         }
     }

@@ -1,4 +1,4 @@
-use crate::MethodDescriptorErr;
+use crate::error::MethodDescriptorErr;
 use crate::jtype::Type;
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.3

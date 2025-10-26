@@ -9,5 +9,5 @@ pub(super) fn jdk_internal_misc_scoped_memory_access_register_natives(
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.ScopedMemoryAccess.registerNatives");
-    None
+    Ok(None)
 }
