@@ -2,7 +2,7 @@ use chrono::{DateTime, Local};
 use jclass::ClassFile;
 use jclass::attribute::class::ClassAttribute;
 use sha2::Digest;
-use std::fs::{File, metadata};
+use std::fs::File;
 use std::io::Read;
 use std::path::PathBuf;
 
@@ -45,15 +45,13 @@ fn main() {
         formatted_date, file_size
     );
     println!("  SHA-256 checksum {}", class_hash);
-    class
+    if let Some(ClassAttribute::SourceFile(sourcefile_index)) = class
         .attributes
         .iter()
         .find(|v| matches!(v, ClassAttribute::SourceFile(_)))
-        .map(|attr| {
-            if let ClassAttribute::SourceFile(sourcefile_index) = attr {
-                let source_file_name = class.cp.get_utf8(sourcefile_index).unwrap();
-                println!("  Compiled from \"{}\"", source_file_name);
-            }
-        });
+    {
+        let source_file_name = class.cp.get_utf8(sourcefile_index).unwrap();
+        println!("  Compiled from \"{}\"", source_file_name);
+    }
     print!("{class}");
 }
