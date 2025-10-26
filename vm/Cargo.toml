@@ -13,6 +13,6 @@ runtime = { path = "../runtime" }
 assert_cmd = "2"
 insta = { version = "1.42.2", features = ["yaml"] }
 rstest = "0.26.1"
-walkdir = "2"
-constcat = "0.6.1"
-sha2 = "0.10.9"
+
+[build-dependencies]
+walkdir = "2.5.0"

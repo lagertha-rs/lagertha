@@ -118,14 +118,14 @@ impl<'a> StackMapFrame {
                 stack: VerificationTypeInfo::read(cursor)?,
             }),
             248..=250 => Ok(StackMapFrame::Chop {
-                k: (251 - frame_type),
+                k: 251 - frame_type,
                 offset_delta: cursor.u16()?,
             }),
             251 => Ok(StackMapFrame::SameExtended {
                 offset_delta: cursor.u16()?,
             }),
             252..=254 => Ok(StackMapFrame::Append {
-                k: (frame_type - 251),
+                k: frame_type - 251,
                 offset_delta: cursor.u16()?,
                 locals: (0..usize::from(frame_type - 251))
                     .map(|_| VerificationTypeInfo::read(cursor)) // -> Result<_, E>

@@ -1,17 +1,9 @@
-mod common;
-
 use assert_cmd::Command;
 use insta::with_settings;
-use rstest::{fixture, rstest};
+use rstest::rstest;
 use std::path::{Path, PathBuf};
 
 const DISPLAY_SNAPSHOT_PATH: &str = "../snapshots";
-
-#[fixture]
-#[once]
-fn setup() -> () {
-    common::setup();
-}
 
 fn transform_absolute_path_to_package(path: &Path) -> PathBuf {
     let marker = Path::new("tests/testdata/compiled");
@@ -49,9 +41,7 @@ fn non_error_cases(
     #[base_dir = "tests/testdata/compiled"]
     #[files("**/*OkMain.class")]
     path: PathBuf,
-    _setup: &(),
 ) {
-    // given
     // requires cargo build
     let current_dir = std::env::current_dir().expect("Cannot get current dir");
     let class_path = current_dir.join("tests/testdata/compiled");
@@ -59,7 +49,6 @@ fn non_error_cases(
     let mut cmd = Command::cargo_bin("vm").unwrap();
     cmd.arg("-c").arg(class_path).arg(&main_class_path);
 
-    // when
     let output = cmd.assert().success().get_output().clone();
     let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);
@@ -70,7 +59,6 @@ fn non_error_cases(
         stderr.trim_end()
     );
 
-    // then
     with_settings!(
         {
             snapshot_path => DISPLAY_SNAPSHOT_PATH,
@@ -88,7 +76,6 @@ fn error_cases(
     #[base_dir = "tests/testdata/compiled"]
     #[files("**/*ErrMain.class")]
     path: PathBuf,
-    _setup: &(),
 ) {
     // given
     // requires cargo build

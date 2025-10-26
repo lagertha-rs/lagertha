@@ -4,3 +4,4 @@ target
 *.class
 
 vm/tests/testdata/compiled
+javap/tests/testdata/compiled
