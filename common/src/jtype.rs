@@ -1,4 +1,4 @@
-use crate::error::TypeDescriptorErr;
+use crate::error::{JavaExceptionFromJvm, JavaLangError, JvmError, TypeDescriptorErr};
 use core::fmt;
 use std::fmt::Formatter;
 use std::iter::Peekable;
@@ -58,11 +58,15 @@ pub enum Value {
 }
 
 impl Value {
-    pub fn as_obj_ref(&self) -> Option<HeapAddr> {
+    pub fn as_obj_ref(&self) -> Result<HeapAddr, JvmError> {
         match self {
-            Value::Ref(addr) => Some(*addr),
-            Value::Null => None,
-            _ => None,
+            Value::Ref(addr) => Ok(*addr),
+            Value::Null => Err(JvmError::JavaException(JavaExceptionFromJvm::JavaLang(
+                JavaLangError::NullPointerException,
+            ))),
+            _ => Err(JvmError::Todo(
+                "Value::as_obj_ref called on non-reference value".to_string(),
+            )),
         }
     }
 

@@ -187,8 +187,6 @@ pub enum JvmError {
     LocalVariableNotInitialized(u8),
     #[error("TypeDescriptorErr: {0}")]
     TypeDescriptorErr(#[from] TypeDescriptorErr),
-    #[error("NullPointerException")]
-    NullPointerException,
     #[error("InstructionErr: {0}")]
     InstructionErr(#[from] InstructionErr),
     #[error("ClassMirrorIsAlreadyCreated")]

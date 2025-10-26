@@ -1,3 +1,5 @@
+use common::error::JavaLangError;
+
 //TODO: there is a way to not copy-paste macros? refactor later
 #[macro_export]
 macro_rules! throw_unsupported_operation {

@@ -1,5 +1,6 @@
 use crate::heap::HeapObject;
 use crate::native::{MethodKey, NativeRegistry, NativeRet};
+use crate::stack::FrameType;
 use crate::{ClassId, VirtualMachine};
 use common::instruction::ArrayType;
 use common::jtype::Value;
@@ -100,6 +101,15 @@ pub(super) fn do_register_java_lang_preregistered_natives(native_registry: &mut 
         ),
         java_lang_float_int_bits_to_float,
     );
+    native_registry.register(
+        MethodKey::new_with_str(
+            "java/lang/NullPointerException",
+            "getExtendedNPEMessage",
+            "()Ljava/lang/String;",
+            &native_registry.string_interner,
+        ),
+        java_lang_null_pointer_exception_get_extended_npe_message,
+    )
 }
 
 fn java_lang_object_get_class(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
@@ -178,7 +188,10 @@ fn java_lang_throwable_fill_in_stack_trace(vm: &mut VirtualMachine, args: &[Valu
             .write_array_element(
                 line_nbr_array,
                 pos as i32,
-                Value::Integer(frame.pc() as i32),
+                Value::Integer(match frame {
+                    FrameType::JavaFrame(f) => f.pc() as i32,
+                    FrameType::NativeFrame(_) => -2,
+                }),
             )
             .unwrap();
     }
@@ -314,7 +327,7 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
             .get_element(i)
             .unwrap()
             .as_int()
-            .unwrap() as usize;
+            .unwrap();
         let class = vm.method_area.get_class_by_id(&class_id).unwrap();
         let declaring_class_object = vm.heap.get_mirror_addr(class).unwrap();
         let method = class.get_method_by_id(&method_id).unwrap();
@@ -389,4 +402,12 @@ fn java_lang_float_int_bits_to_float(_vm: &mut VirtualMachine, args: &[Value]) -
     } else {
         panic!("java.lang.Float.intBitsToFloat: expected int argument");
     }
+}
+
+fn java_lang_null_pointer_exception_get_extended_npe_message(
+    _vm: &mut VirtualMachine,
+    _args: &[Value],
+) -> NativeRet {
+    debug!("TODO: Stub: java.lang.NullPointerException.getExtendedNPEMessage");
+    Ok(Some(Value::Null))
 }

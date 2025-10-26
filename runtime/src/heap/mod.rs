@@ -275,7 +275,9 @@ impl Heap {
         let array_addr = match value_field {
             Value::Ref(addr) => *addr,
             _ => {
-                return Err(JvmError::NullPointerException);
+                return Err(JvmError::JavaException(JavaExceptionFromJvm::JavaLang(
+                    JavaLangError::NullPointerException,
+                )));
             }
         };
         let char_array = self.get_array(&array_addr);

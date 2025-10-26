@@ -1,0 +1,10 @@
+---
+source: vm/tests/integration_test.rs
+expression: "&combined"
+---
+----- STDOUT -----
+
+----- STDERR -----
+java.lang.NullPointerException
+	at java.lang.System.arraycopy(Native Method)
+	at natives.java.lang.system_arraycopy_should_throw_with_null_dest_err.SystemArrayCopyShouldThrowWithNullSrcErrMain.main(SystemArrayCopyShouldThrowWithNullSrcErrMain.java:7)

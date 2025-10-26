@@ -89,18 +89,12 @@ fn java_lang_system_set_err_0(vm: &mut VirtualMachine, args: &[Value]) -> Native
 
 fn java_lang_system_arraycopy(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.System.arraycopy");
-    let src = match &args[0] {
-        Value::Ref(h) => *h,
-        _ => panic!("java.lang.System.arraycopy: expected source array object"),
-    };
+    let src = args[0].as_obj_ref()?;
     let src_pos = match args[1] {
         Value::Integer(i) if i >= 0 => i as usize,
         _ => panic!("java.lang.System.arraycopy: expected non-negative source position"),
     };
-    let dest = match &args[2] {
-        Value::Ref(h) => *h,
-        _ => panic!("java.lang.System.arraycopy: expected destination array object"),
-    };
+    let dest = args[2].as_obj_ref()?;
     let dest_pos = match args[3] {
         Value::Integer(i) if i >= 0 => i as usize,
         _ => panic!("java.lang.System.arraycopy: expected non-negative destination position"),

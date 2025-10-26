@@ -2,7 +2,7 @@ use crate::rt::class::{Class, InitState};
 use crate::rt::constant_pool::RuntimeConstant;
 use crate::rt::constant_pool::reference::MethodReference;
 use crate::rt::method::{Method, MethodType};
-use crate::stack::Frame;
+use crate::stack::{FrameType, JavaFrame, NativeFrame};
 use crate::{
     ClassId, VirtualMachine, throw_arithmetic_exception, throw_negative_array_size_exception,
     throw_unsupported_operation,
@@ -87,8 +87,10 @@ impl Interpreter {
         Err(JvmError::JavaExceptionThrown(instance))
     }
 
-    fn interpret_method_code(&mut self, code: &Vec<u8>, frame: Frame) -> Result<(), JvmError> {
-        self.vm.frame_stack.push_frame(frame)?;
+    fn interpret_method_code(&mut self, code: &Vec<u8>, frame: JavaFrame) -> Result<(), JvmError> {
+        self.vm
+            .frame_stack
+            .push_frame(FrameType::JavaFrame(frame))?;
         loop {
             let instruction = Instruction::new_at(code, *self.vm.frame_stack.pc()?)?;
             // TODO: cleanup here and interpret_instruction return type
@@ -123,7 +125,7 @@ impl Interpreter {
     // TODO: replace return bool with enum or set special cp values
     fn interpret_instruction(&mut self, instruction: Instruction) -> Result<bool, JvmError> {
         debug!("Executing instruction: {:?}", instruction);
-        if !matches!(
+        let need_increase_pc = !matches!(
             instruction,
             Instruction::Goto(_)
                 | Instruction::Lookupswitch(_)
@@ -144,9 +146,9 @@ impl Interpreter {
                 | Instruction::IfIcmple(_)
                 | Instruction::IfGt(_)
                 | Instruction::Ifnull(_)
-        ) {
-            *self.vm.frame_stack.pc_mut()? += instruction.byte_size() as usize;
-        }
+        );
+        let instruction_byte_size = instruction.byte_size();
+
         match instruction {
             Instruction::Athrow => {
                 let exception_ref = self.vm.frame_stack.pop_obj_val()?;
@@ -759,7 +761,7 @@ impl Interpreter {
                 let params = self.prepare_method_params(method)?;
                 let locals = self.params_to_frame_locals(method, params)?;
 
-                let frame = Frame::new(class.cp().clone(), method.clone(), locals)?;
+                let frame = JavaFrame::new(class.cp().clone(), method.clone(), locals)?;
 
                 self.interpret_method_code(method.instructions()?, frame)?;
             }
@@ -786,7 +788,9 @@ impl Interpreter {
                     Some(Value::Ref(_)) => {
                         self.run_instance_method_type(method, &method_ref, params)
                     }
-                    Some(Value::Null) => Err(JvmError::NullPointerException),
+                    Some(Value::Null) => Err(JavaExceptionFromJvm::JavaLang(
+                        JavaLangError::NullPointerException,
+                    ))?,
                     _ => panic!("First parameter of instance method must be object reference"),
                 }?;
             }
@@ -1142,6 +1146,9 @@ impl Interpreter {
             }
             unimpl => throw_unsupported_operation!("Instruction {:?} is not implemented", unimpl)?,
         }
+        if need_increase_pc {
+            *self.vm.frame_stack.pc_mut()? += instruction_byte_size as usize;
+        }
         Ok(false)
     }
 
@@ -1222,7 +1229,7 @@ impl Interpreter {
         let class = method.class()?;
         let locals = self.params_to_frame_locals(method, params)?;
 
-        let frame = Frame::new(class.cp().clone(), method.clone(), locals)?;
+        let frame = JavaFrame::new(class.cp().clone(), method.clone(), locals)?;
 
         self.interpret_method_code(method.instructions()?, frame)?;
         Ok(())
@@ -1234,16 +1241,13 @@ impl Interpreter {
         method_ref: &MethodReference,
         params: Vec<Value>,
     ) -> Result<(), JvmError> {
-        let class_id = match &params[0] {
-            Value::Ref(o) => self.vm.heap.get_instance(o)?.class_id(),
-            Value::Null => return Err(JvmError::NullPointerException),
-            _ => panic!("Abstract method called on non-object"),
-        };
+        let obj_ref = params[0].as_obj_ref()?;
+        let class_id = self.vm.heap.get_instance(&obj_ref)?.class_id();
         let class = self.vm.method_area.get_class_by_id(class_id)?.clone(); // FIXME
         let (method, cp) = class.get_virtual_method_and_cp_by_nat(method_ref)?;
 
         let locals = self.params_to_frame_locals(&method, params)?;
-        let frame = Frame::new(cp.clone(), method.clone(), locals)?;
+        let frame = JavaFrame::new(cp.clone(), method.clone(), locals)?;
 
         self.interpret_method_code(method.instructions()?, frame)?;
         Ok(())
@@ -1270,7 +1274,7 @@ impl Interpreter {
         params: Vec<Value>,
     ) -> Result<(), JvmError> {
         let locals = self.params_to_frame_locals(method, params)?;
-        let frame = Frame::new(class.cp().clone(), method.clone(), locals)?;
+        let frame = JavaFrame::new(class.cp().clone(), method.clone(), locals)?;
 
         self.interpret_method_code(method.instructions()?, frame)?;
 
@@ -1280,7 +1284,7 @@ impl Interpreter {
     fn run_static_native_method(
         &mut self,
         class: &Arc<Class>,
-        method: &Method,
+        method: &Arc<Method>,
         params: Vec<Value>,
     ) -> Result<(), JvmError> {
         debug!(
@@ -1291,6 +1295,7 @@ impl Interpreter {
         );
 
         let method_key = method.build_method_key(&self.vm.string_interner)?;
+        let frame = FrameType::NativeFrame(NativeFrame::new(method.clone()));
         let method = self
             .vm
             .native_registry
@@ -1301,8 +1306,10 @@ impl Interpreter {
                 method.name(),
                 method.descriptor().raw()
             )))?;
+        self.vm.frame_stack.push_frame(frame)?;
         match method(&mut self.vm, params.as_slice()) {
             Ok(ret_value) => {
+                self.vm.frame_stack.pop_native_frame()?;
                 if let Some(ret_value) = ret_value {
                     self.vm.frame_stack.push_operand(ret_value)?;
                 }
@@ -1344,7 +1351,7 @@ impl Interpreter {
         debug!("Found main method of class {}", main_class.name());
         let instructions = main_method.instructions()?;
         //TODO: handle args
-        let frame = Frame::new(
+        let frame = JavaFrame::new(
             main_class.cp().clone(),
             main_method.clone(),
             vec![None; main_method.max_locals()?],

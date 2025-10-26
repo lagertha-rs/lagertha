@@ -213,21 +213,28 @@ impl Method {
         self.descriptor.resolved().params.len() + if !self.flags.is_static() { 1 } else { 0 }
     }
 
-    pub fn get_line_number_by_cp(&self, cp: usize) -> Option<usize> {
-        let mut res = None;
-        if let Some(ctx) = &self.code_context {
-            if let Some(ln_table) = &ctx.line_numbers {
-                if !ln_table.is_empty() {
-                    res = Some(ln_table[0].line_number as usize);
-                }
-                for entry in ln_table {
-                    if (entry.start_pc as usize) <= cp && cp < (entry.start_pc as usize) {
-                        return Some(entry.line_number as usize);
-                    }
+    pub fn get_line_number_by_cp(&self, cp: i32) -> Option<i32> {
+        if cp == -2 {
+            return Some(-2);
+        }
+
+        let cp = cp as usize;
+        let ctx = self.code_context.as_ref()?;
+        let ln_table = ctx.line_numbers.as_ref()?;
+
+        if ln_table.is_empty() {
+            return None;
+        }
+
+        for (i, entry) in ln_table.iter().enumerate() {
+            if i + 1 == ln_table.len() || cp < ln_table[i + 1].start_pc as usize {
+                if cp >= entry.start_pc as usize {
+                    return Some(entry.line_number as i32);
                 }
             }
         }
-        res
+
+        Some(ln_table[0].line_number as i32)
     }
 
     // TODO: avoid str interner, need to provide lazy resolution for that

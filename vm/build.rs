@@ -1,3 +1,4 @@
+use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use walkdir::WalkDir;
@@ -16,6 +17,10 @@ fn main() {
     compile_test_fixtures();
 }
 
+fn remove_compiled_dir_if_exists() {
+    let _ = fs::remove_dir_all(COMPILED_FIXTURES_ROOT);
+}
+
 fn compile_test_fixtures() {
     let java_files = collect_vm_java_fixtures();
     if java_files.is_empty() {
@@ -28,6 +33,8 @@ fn compile_test_fixtures() {
         .filter(|p| p.exists())
         .map(|p| p.into_os_string())
         .unwrap_or_else(|| "javac".into());
+
+    remove_compiled_dir_if_exists();
 
     let mut cmd = Command::new(javac);
     cmd.arg("-encoding")

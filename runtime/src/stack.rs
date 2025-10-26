@@ -1,16 +1,15 @@
 use crate::VmConfig;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::method::Method;
-use common::error::JvmError;
+use common::error::{JavaExceptionFromJvm, JavaLangError, JvmError};
 use common::jtype::{HeapAddr, Value};
 use log::debug;
 use std::sync::Arc;
 
-#[derive(Clone)]
 pub struct FrameStack {
     max_size: usize,
     max_operand_stack_size: usize,
-    frames: Vec<Frame>,
+    frames: Vec<FrameType>,
 }
 
 impl FrameStack {
@@ -23,11 +22,11 @@ impl FrameStack {
         }
     }
 
-    pub fn frames(&self) -> &Vec<Frame> {
+    pub fn frames(&self) -> &Vec<FrameType> {
         &self.frames
     }
 
-    fn debug_fn_parameters(frame: &Frame) -> String {
+    fn debug_fn_parameters(frame: &JavaFrame) -> String {
         frame
             .locals
             .iter()
@@ -37,13 +36,22 @@ impl FrameStack {
             .join(", ")
     }
 
-    pub fn push_frame(&mut self, frame: Frame) -> Result<(), JvmError> {
-        debug!(
-            "🚀 Executing {}.{}({})",
-            frame.method.class()?.name(),
-            frame.method.name(),
-            Self::debug_fn_parameters(&frame)
-        );
+    pub fn push_frame(&mut self, frame: FrameType) -> Result<(), JvmError> {
+        match &frame {
+            FrameType::JavaFrame(f) => debug!(
+                "🚀 Executing {}.{}({})",
+                f.method.class()?.name(),
+                f.method.name(),
+                Self::debug_fn_parameters(&f)
+            ),
+            FrameType::NativeFrame(f) => {
+                debug!(
+                    "🚀 Executing native {}.{}",
+                    f.method.class()?.name(),
+                    f.method.name()
+                )
+            }
+        }
         if self.frames.len() >= self.max_size {
             return Err(JvmError::StackOverflow);
         }
@@ -51,49 +59,83 @@ impl FrameStack {
         Ok(())
     }
 
-    pub fn pop_frame(&mut self) -> Result<Frame, JvmError> {
+    pub fn pop_frame(&mut self) -> Result<FrameType, JvmError> {
         let res = self.frames.pop().ok_or(JvmError::FrameStackIsEmpty)?;
-        debug!(
-            "🏁 Execution finished of {}.{}",
-            res.method.class()?.name(),
-            res.method.name()
-        );
+        match &res {
+            FrameType::JavaFrame(f) => debug!(
+                "🏁 Execution finished of {}.{}",
+                f.method.class()?.name(),
+                f.method.name()
+            ),
+            FrameType::NativeFrame(f) => debug!(
+                "🏁 Execution finished of native {}.{}",
+                f.method.class()?.name(),
+                f.method.name()
+            ),
+        }
         if let Some(frame) = self.frames.last() {
-            debug!(
-                "🔄 Resuming execution of {}.{}",
-                frame.method.class()?.name(),
-                frame.method.name()
-            );
+            match frame {
+                FrameType::JavaFrame(f) => debug!(
+                    "🔄 Resuming execution of {}.{}",
+                    f.method.class()?.name(),
+                    f.method.name()
+                ),
+                FrameType::NativeFrame(f) => debug!(
+                    "🔄 Resuming execution of native {}.{}",
+                    f.method.class()?.name(),
+                    f.method.name()
+                ),
+            }
         }
         Ok(res)
     }
 
-    fn cur_frame_mut(&mut self) -> Result<&mut Frame, JvmError> {
-        if self.frames.is_empty() {
-            return Err(JvmError::FrameStackIsEmpty);
+    pub fn pop_java_frame(&mut self) -> Result<JavaFrame, JvmError> {
+        match self.pop_frame()? {
+            FrameType::JavaFrame(f) => Ok(f),
+            FrameType::NativeFrame(_) => Err(JvmError::UnexpectedType(
+                "Expected Java frame on top of the stack".to_string(),
+            )),
         }
-
-        self.frames.last_mut().ok_or(JvmError::FrameStackIsEmpty)
     }
 
-    fn cur_frame(&self) -> Result<&Frame, JvmError> {
-        if self.frames.is_empty() {
-            return Err(JvmError::FrameStackIsEmpty);
+    pub fn pop_native_frame(&mut self) -> Result<NativeFrame, JvmError> {
+        match self.pop_frame()? {
+            FrameType::NativeFrame(f) => Ok(f),
+            FrameType::JavaFrame(_) => Err(JvmError::UnexpectedType(
+                "Expected Native frame on top of the stack".to_string(),
+            )),
         }
+    }
 
-        self.frames.last().ok_or(JvmError::FrameStackIsEmpty)
+    fn cur_java_frame_mut(&mut self) -> Result<&mut JavaFrame, JvmError> {
+        match self.frames.last_mut().ok_or(JvmError::FrameStackIsEmpty)? {
+            FrameType::JavaFrame(f) => Ok(f),
+            FrameType::NativeFrame(_) => Err(JvmError::UnexpectedType(
+                "Expected Java frame on top of the stack".to_string(),
+            )),
+        }
+    }
+
+    fn cur_java_frame(&self) -> Result<&JavaFrame, JvmError> {
+        match self.frames.last().ok_or(JvmError::FrameStackIsEmpty)? {
+            FrameType::JavaFrame(f) => Ok(f),
+            FrameType::NativeFrame(_) => Err(JvmError::UnexpectedType(
+                "Expected Java frame on top of the stack".to_string(),
+            )),
+        }
     }
 
     pub fn pc(&self) -> Result<&usize, JvmError> {
-        self.cur_frame().map(|v| &v.pc)
+        self.cur_java_frame().map(|v| &v.pc)
     }
 
     pub fn pc_mut(&mut self) -> Result<&mut usize, JvmError> {
-        self.cur_frame_mut().map(|v| &mut v.pc)
+        self.cur_java_frame_mut().map(|v| &mut v.pc)
     }
 
     fn get_local(&self, index: u8) -> Result<&Value, JvmError> {
-        self.cur_frame()?.get_local(index)
+        self.cur_java_frame()?.get_local(index)
     }
 
     pub fn get_local_long(&self, index: u8) -> Result<&Value, JvmError> {
@@ -148,15 +190,15 @@ impl FrameStack {
 
     // TODO: check index bounds
     pub fn set_local(&mut self, idx: usize, value: Value) -> Result<(), JvmError> {
-        self.cur_frame_mut()?.locals[idx] = Some(value);
+        self.cur_java_frame_mut()?.locals[idx] = Some(value);
         Ok(())
     }
 
     pub fn push_operand(&mut self, value: Value) -> Result<(), JvmError> {
-        if self.cur_frame()?.operands.len() >= self.max_operand_stack_size {
+        if self.cur_java_frame()?.operands.len() >= self.max_operand_stack_size {
             return Err(JvmError::StackOverflow);
         }
-        self.cur_frame_mut()?.operands.push(value);
+        self.cur_java_frame_mut()?.operands.push(value);
         Ok(())
     }
 
@@ -254,25 +296,56 @@ impl FrameStack {
 
     pub fn pop_obj_val(&mut self) -> Result<HeapAddr, JvmError> {
         self.pop_nullable_ref_val()?
-            .ok_or(JvmError::NullPointerException)
+            .ok_or(JvmError::JavaException(JavaExceptionFromJvm::JavaLang(
+                JavaLangError::NullPointerException,
+            )))
     }
 
     pub fn pop_operand(&mut self) -> Result<Value, JvmError> {
-        self.cur_frame_mut()?.pop_operand()
+        self.cur_java_frame_mut()?.pop_operand()
     }
 
     pub fn cp(&self) -> Result<&RuntimeConstantPool, JvmError> {
-        self.cur_frame().map(|v| v.cp.as_ref())
+        self.cur_java_frame().map(|v| v.cp.as_ref())
     }
 
     pub fn peek(&self) -> Result<&Value, JvmError> {
-        self.cur_frame()?.peek()
+        self.cur_java_frame()?.peek()
+    }
+}
+
+pub enum FrameType {
+    JavaFrame(JavaFrame),
+    NativeFrame(NativeFrame),
+}
+
+impl FrameType {
+    pub fn method(&self) -> &Arc<Method> {
+        match self {
+            FrameType::JavaFrame(f) => &f.method,
+            FrameType::NativeFrame(f) => &f.method,
+        }
+    }
+}
+
+#[derive(Clone)]
+pub struct NativeFrame {
+    method: Arc<Method>,
+}
+
+impl NativeFrame {
+    pub fn new(method: Arc<Method>) -> Self {
+        Self { method }
+    }
+
+    pub fn method(&self) -> &Arc<Method> {
+        &self.method
     }
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.6
 #[derive(Clone)]
-pub struct Frame {
+pub struct JavaFrame {
     locals: Vec<Option<Value>>,
     operands: Vec<Value>,
     cp: Arc<RuntimeConstantPool>,
@@ -280,7 +353,7 @@ pub struct Frame {
     method: Arc<Method>,
 }
 
-impl Frame {
+impl JavaFrame {
     pub fn new(
         cp: Arc<RuntimeConstantPool>,
         method: Arc<Method>,

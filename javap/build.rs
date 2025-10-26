@@ -22,6 +22,10 @@ fn set_rebuild_when_changed() {
     println!("cargo:rerun-if-env-changed=JAVA_HOME");
 }
 
+fn remove_compiled_dir_if_exists() {
+    let _ = fs::remove_dir_all(COMPILED_FIXTURES_PATH);
+}
+
 fn main() {
     set_rebuild_when_changed();
 
@@ -53,6 +57,8 @@ fn main() {
             java_home.display()
         );
     }
+
+    remove_compiled_dir_if_exists();
 
     extract_from_jmods(&fixtures, &jmods_dir, &out_root);
 }
