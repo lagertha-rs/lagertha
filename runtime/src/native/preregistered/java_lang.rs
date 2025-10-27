@@ -405,9 +405,11 @@ fn java_lang_float_int_bits_to_float(_vm: &mut VirtualMachine, args: &[Value]) -
 }
 
 fn java_lang_null_pointer_exception_get_extended_npe_message(
-    _vm: &mut VirtualMachine,
+    vm: &mut VirtualMachine,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.NullPointerException.getExtendedNPEMessage");
+    // For now, just return null, later:
+    // https://bugs.openjdk.org/browse/JDK-8218628
     Ok(Some(Value::Null))
 }

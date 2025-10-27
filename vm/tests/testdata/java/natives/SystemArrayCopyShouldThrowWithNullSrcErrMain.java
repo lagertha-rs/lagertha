@@ -1,4 +1,4 @@
-package natives.java.lang.system_arraycopy_should_throw_with_null_dest_err;
+package natives.java.lang.system_arraycopy_should_throw_with_null_src_err;
 
 public class SystemArrayCopyShouldThrowWithNullSrcErrMain {
     public static void main(String[] args) {
