@@ -1,5 +1,7 @@
 use crate::jtype::HeapAddr;
 use crate::utils::cursor::CursorError;
+use std::fmt;
+use std::fmt::Display;
 use thiserror::Error;
 
 // TODO: looks like a trash bin, needs refactoring
@@ -203,29 +205,8 @@ pub enum JvmError {
     WrongHeapAddress(HeapAddr),
     #[error("TODO map to correct error: `{0}`")]
     Todo(String),
-    #[error("JavaLangError: {0}")]
+    #[error("{0}")]
     JavaException(#[from] JavaExceptionFromJvm),
-}
-
-// TODO: everything below needs to be refactored
-#[derive(Debug, Error)]
-pub enum JavaExceptionFromJvm {
-    #[error("LinkageError: {0}")]
-    JavaLang(JavaLangError),
-}
-
-impl JavaExceptionFromJvm {
-    pub fn as_reference(&self) -> JavaExceptionReference {
-        match self {
-            JavaExceptionFromJvm::JavaLang(err) => err.as_reference(),
-        }
-    }
-
-    pub fn get_message(&self) -> Option<&String> {
-        match self {
-            JavaExceptionFromJvm::JavaLang(err) => err.get_message(),
-        }
-    }
 }
 
 pub struct JavaExceptionReference {
@@ -235,57 +216,118 @@ pub struct JavaExceptionReference {
 }
 
 #[derive(Debug, Error)]
-pub enum JavaLangError {
-    #[error("java.lang.ArithmeticException: {0}")]
-    ArithmeticException(String),
-    #[error("java.lang.UnsupportedOperationException: {0}")]
-    UnsupportedOperationException(String),
-    #[error("java.lang.ArrayIndexOutOfBoundsException: {0}")]
-    ArrayIndexOutOfBoundsException(String),
-    #[error("java.lang.NegativeArraySizeException: {0}")]
-    NegativeArraySizeException(String),
-    #[error("java.lang.NullPointerException")]
-    NullPointerException,
+pub enum JavaExceptionFromJvm {
+    ArithmeticException(Option<String>),
+    UnsupportedOperationException(Option<String>),
+    ArrayIndexOutOfBoundsException(Option<String>),
+    NegativeArraySizeException(Option<String>),
+    NullPointerException(Option<String>),
+    ArrayStoreException(Option<String>),
+    InternalError(Option<String>),
 }
 
-impl JavaLangError {
-    pub fn as_reference(&self) -> JavaExceptionReference {
+impl Display for JavaExceptionFromJvm {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let class_name = self.get_class_name_dot();
+        let msg_option = self.get_message();
+        write!(f, "{}", class_name)?;
+
+        if let Some(msg) = msg_option {
+            write!(f, ": {}", msg)?;
+        }
+
+        Ok(())
+    }
+}
+
+impl JavaExceptionFromJvm {
+    const CONSTRUCTOR_NAME: &'static str = "<init>";
+    const STRING_PARAM_CONSTRUCTOR: &'static str = "(Ljava/lang/String;)V";
+    const NO_PARAM_CONSTRUCTOR: &'static str = "()V";
+
+    fn set_message(&mut self, msg: String) {
         match self {
-            JavaLangError::ArithmeticException(_) => JavaExceptionReference {
-                class: "java/lang/ArithmeticException",
-                name: "<init>",
-                descriptor: "(Ljava/lang/String;)V",
-            },
-            JavaLangError::UnsupportedOperationException(_) => JavaExceptionReference {
-                class: "java/lang/UnsupportedOperationException",
-                name: "<init>",
-                descriptor: "(Ljava/lang/String;)V",
-            },
-            JavaLangError::ArrayIndexOutOfBoundsException(_) => JavaExceptionReference {
-                class: "java/lang/ArrayIndexOutOfBoundsException",
-                name: "<init>",
-                descriptor: "(Ljava/lang/String;)V",
-            },
-            JavaLangError::NegativeArraySizeException(_) => JavaExceptionReference {
-                class: "java/lang/NegativeArraySizeException",
-                name: "<init>",
-                descriptor: "(Ljava/lang/String;)V",
-            },
-            JavaLangError::NullPointerException => JavaExceptionReference {
-                class: "java/lang/NullPointerException",
-                name: "<init>",
-                descriptor: "()V",
-            },
+            JavaExceptionFromJvm::ArithmeticException(m) => *m = Some(msg),
+            JavaExceptionFromJvm::UnsupportedOperationException(m) => *m = Some(msg),
+            JavaExceptionFromJvm::ArrayIndexOutOfBoundsException(m) => *m = Some(msg),
+            JavaExceptionFromJvm::NegativeArraySizeException(m) => *m = Some(msg),
+            JavaExceptionFromJvm::NullPointerException(m) => *m = Some(msg),
+            JavaExceptionFromJvm::ArrayStoreException(m) => *m = Some(msg),
+            JavaExceptionFromJvm::InternalError(m) => *m = Some(msg),
         }
     }
 
-    pub fn get_message(&self) -> Option<&String> {
+    fn has_message(&self) -> bool {
         match self {
-            JavaLangError::ArithmeticException(msg) => Some(msg),
-            JavaLangError::UnsupportedOperationException(msg) => Some(msg),
-            JavaLangError::ArrayIndexOutOfBoundsException(msg) => Some(msg),
-            JavaLangError::NegativeArraySizeException(msg) => Some(msg),
-            JavaLangError::NullPointerException => None,
+            JavaExceptionFromJvm::ArithmeticException(msg) => msg.is_some(),
+            JavaExceptionFromJvm::UnsupportedOperationException(msg) => msg.is_some(),
+            JavaExceptionFromJvm::ArrayIndexOutOfBoundsException(msg) => msg.is_some(),
+            JavaExceptionFromJvm::NegativeArraySizeException(msg) => msg.is_some(),
+            JavaExceptionFromJvm::NullPointerException(msg) => msg.is_some(),
+            JavaExceptionFromJvm::ArrayStoreException(msg) => msg.is_some(),
+            JavaExceptionFromJvm::InternalError(msg) => msg.is_some(),
+        }
+    }
+
+    pub fn get_class_name(&self) -> &'static str {
+        match self {
+            JavaExceptionFromJvm::ArithmeticException(_) => "java/lang/ArithmeticException",
+            JavaExceptionFromJvm::UnsupportedOperationException(_) => {
+                "java/lang/UnsupportedOperationException"
+            }
+            JavaExceptionFromJvm::ArrayIndexOutOfBoundsException(_) => {
+                "java/lang/ArrayIndexOutOfBoundsException"
+            }
+            JavaExceptionFromJvm::NegativeArraySizeException(_) => {
+                "java/lang/NegativeArraySizeException"
+            }
+            JavaExceptionFromJvm::NullPointerException(_) => "java/lang/NullPointerException",
+            JavaExceptionFromJvm::ArrayStoreException(_) => "java/lang/ArrayStoreException",
+            JavaExceptionFromJvm::InternalError(_) => "java/lang/InternalError",
+        }
+    }
+
+    pub fn get_class_name_dot(&self) -> &'static str {
+        match self {
+            JavaExceptionFromJvm::ArithmeticException(_) => "java.lang.ArithmeticException",
+            JavaExceptionFromJvm::UnsupportedOperationException(_) => {
+                "java.lang.UnsupportedOperationException"
+            }
+            JavaExceptionFromJvm::ArrayIndexOutOfBoundsException(_) => {
+                "java.lang.ArrayIndexOutOfBoundsException"
+            }
+            JavaExceptionFromJvm::NegativeArraySizeException(_) => {
+                "java.lang.NegativeArraySizeException"
+            }
+            JavaExceptionFromJvm::NullPointerException(_) => "java.lang.NullPointerException",
+            JavaExceptionFromJvm::ArrayStoreException(_) => "java.lang.ArrayStoreException",
+            JavaExceptionFromJvm::InternalError(_) => "java.lang.InternalError",
+        }
+    }
+
+    pub fn as_reference(&self) -> JavaExceptionReference {
+        let descriptor = if self.has_message() {
+            Self::STRING_PARAM_CONSTRUCTOR
+        } else {
+            Self::NO_PARAM_CONSTRUCTOR
+        };
+        let class = self.get_class_name();
+        JavaExceptionReference {
+            class,
+            name: Self::CONSTRUCTOR_NAME,
+            descriptor,
+        }
+    }
+
+    pub fn get_message(&self) -> &Option<String> {
+        match self {
+            JavaExceptionFromJvm::ArithmeticException(msg) => msg,
+            JavaExceptionFromJvm::UnsupportedOperationException(msg) => msg,
+            JavaExceptionFromJvm::ArrayIndexOutOfBoundsException(msg) => msg,
+            JavaExceptionFromJvm::NegativeArraySizeException(msg) => msg,
+            JavaExceptionFromJvm::ArrayStoreException(msg) => msg,
+            JavaExceptionFromJvm::NullPointerException(msg) => msg,
+            JavaExceptionFromJvm::InternalError(msg) => msg,
         }
     }
 }

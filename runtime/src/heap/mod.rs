@@ -2,9 +2,8 @@
 
 use crate::heap::method_area::MethodArea;
 use crate::rt::class::Class;
-use crate::{ClassId, throw_index_out_of_bounds_exception};
+use crate::{ClassId, throw_exception};
 use common::error::JavaExceptionFromJvm;
-use common::error::JavaLangError;
 use common::error::JvmError;
 use common::jtype::{HeapAddr, Value};
 use std::collections::HashMap;
@@ -53,7 +52,8 @@ impl Instance {
         let index = if index >= 0 && (index as usize) < self.data.len() {
             index as usize
         } else {
-            throw_index_out_of_bounds_exception!(
+            throw_exception!(
+                ArrayIndexOutOfBoundsException,
                 "Index {} out of bounds for length {}",
                 index,
                 self.data.len()
@@ -67,7 +67,8 @@ impl Instance {
         let index = if index >= 0 && (index as usize) < self.data.len() {
             index as usize
         } else {
-            throw_index_out_of_bounds_exception!(
+            throw_exception!(
+                ArrayIndexOutOfBoundsException,
                 "Index {} out of bounds for length {}",
                 index,
                 self.data.len()
@@ -216,12 +217,14 @@ impl Heap {
     }
 
     // TODO: return Result and handle errors
-    pub fn get(&self, h: HeapAddr) -> Option<&HeapObject> {
-        self.objects.get(h)
+    pub fn get(&self, h: HeapAddr) -> Result<&HeapObject, JavaExceptionFromJvm> {
+        self.objects.get(h).ok_or_else(|| {
+            JavaExceptionFromJvm::InternalError(Some(format!("Invalid heap address: {}", h)))
+        })
     }
 
     pub fn get_instance(&self, h: &HeapAddr) -> Result<&Instance, JvmError> {
-        let heap_obj = self.get(*h).unwrap();
+        let heap_obj = self.get(*h)?;
         match heap_obj {
             HeapObject::Instance(inst) => Ok(inst),
             _ => Err(JvmError::Todo(
@@ -238,8 +241,16 @@ impl Heap {
         }
     }
 
-    pub fn get_array(&self, h: &HeapAddr) -> &Instance {
-        let heap_obj = self.get(*h).unwrap();
+    pub fn get_array(&self, h: &HeapAddr) -> Result<&Instance, JavaExceptionFromJvm> {
+        let heap_obj = self.get(*h)?;
+        match heap_obj {
+            HeapObject::Array(arr) => Ok(arr),
+            _ => Err(JavaExceptionFromJvm::ArrayStoreException(None)),
+        }
+    }
+
+    pub fn get_array_mut(&mut self, h: &HeapAddr) -> &mut Instance {
+        let heap_obj = self.get_mut(*h);
         match heap_obj {
             HeapObject::Array(arr) => arr,
             _ => panic!("get_array called with non-array HeapObject",),
@@ -264,8 +275,9 @@ impl Heap {
             .expect("heap: invalid handle (get_mut)")
     }
 
-    pub fn addr_is_instance(&self, h: &HeapAddr) -> bool {
-        matches!(self.get(*h), Some(HeapObject::Instance(_)))
+    pub fn addr_is_instance(&self, h: &HeapAddr) -> Result<bool, JvmError> {
+        let obj = self.get(*h)?;
+        Ok(matches!(obj, HeapObject::Instance(_)))
     }
 
     //TODO: design it lightweight
@@ -275,12 +287,12 @@ impl Heap {
         let array_addr = match value_field {
             Value::Ref(addr) => *addr,
             _ => {
-                return Err(JvmError::JavaException(JavaExceptionFromJvm::JavaLang(
-                    JavaLangError::NullPointerException,
-                )));
+                return Err(JvmError::JavaException(
+                    JavaExceptionFromJvm::NullPointerException(None),
+                ));
             }
         };
-        let char_array = self.get_array(&array_addr);
+        let char_array = self.get_array(&array_addr)?;
         let chars: String = char_array
             .elements()
             .iter()
@@ -303,7 +315,8 @@ impl Heap {
                 let index = if index >= 0 && (index as usize) < array.length() {
                     index as usize
                 } else {
-                    throw_index_out_of_bounds_exception!(
+                    throw_exception!(
+                        ArrayIndexOutOfBoundsException,
                         "Index {} out of bounds for length {}",
                         index,
                         array.length()
@@ -356,6 +369,49 @@ impl Heap {
                 self.push(HeapObject::Array(new_array))
             }
         }
+    }
+
+    //TODO: should be only primitive arrays?
+
+    pub fn copy_primitive_slice(
+        &mut self,
+        src: HeapAddr,
+        src_pos: i32,
+        dest: HeapAddr,
+        dest_pos: i32,
+        length: i32,
+    ) -> Result<(), JvmError> {
+        {
+            let src_array = self.get_array(&src)?;
+            let dest_array = self.get_array(&dest)?;
+
+            if src_pos < 0
+                || dest_pos < 0
+                || length < 0
+                || (src_pos as usize + length as usize) > src_array.length()
+                || (dest_pos as usize + length as usize) > dest_array.length()
+            {
+                throw_exception!(
+                    ArrayIndexOutOfBoundsException,
+                    "Start or destination index out of bounds"
+                )?;
+            }
+        }
+        let src_pos = src_pos as usize;
+        let dest_pos = dest_pos as usize;
+
+        let src_ptr = self.get_array(&src)?.data.as_ptr();
+        let dest_ptr = self.get_array_mut(&dest).data.as_mut_ptr();
+
+        unsafe {
+            std::ptr::copy(
+                src_ptr.add(src_pos),
+                dest_ptr.add(dest_pos),
+                length as usize,
+            );
+        }
+
+        Ok(())
     }
 
     pub fn get_class_by_mirror(&self, mirror: &HeapAddr) -> Option<&Arc<Class>> {

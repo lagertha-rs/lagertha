@@ -88,49 +88,22 @@ fn java_lang_system_set_err_0(vm: &mut VirtualMachine, args: &[Value]) -> Native
 }
 
 fn java_lang_system_arraycopy(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
-    debug!("TODO: Stub: java.lang.System.arraycopy");
-    let src = args[0].as_obj_ref()?;
-    let src_pos = match args[1] {
-        Value::Integer(i) if i >= 0 => i as usize,
-        _ => panic!("java.lang.System.arraycopy: expected non-negative source position"),
-    };
-    let dest = args[2].as_obj_ref()?;
-    let dest_pos = match args[3] {
-        Value::Integer(i) if i >= 0 => i as usize,
-        _ => panic!("java.lang.System.arraycopy: expected non-negative destination position"),
-    };
-    let length = match args[4] {
-        Value::Integer(i) if i >= 0 => i as usize,
-        _ => panic!("java.lang.System.arraycopy: expected non-negative length"),
-    };
-    let tmp: Vec<Value> = {
-        let arr = vm.heap.get_array(&src);
-        let src_array_len = arr.length();
-        let slice: &[Value] = arr.elements();
-        if src_pos
-            .checked_add(length)
-            .map_or(true, |end| end > src_array_len)
-        {
-            panic!("java.lang.System.arraycopy: source index out of bounds");
-        }
-        slice[src_pos..src_pos + length].to_vec()
-    };
+    let src_addr = args[0].as_obj_ref()?;
+    let src_pos = args[1].as_int()?;
+    let dest_addr = args[2].as_obj_ref()?;
+    let dest_pos = args[3].as_int()?;
+    let length = args[4].as_int()?;
 
-    {
-        let dest_array_len = vm.heap.get_array(&dest).length();
-        if dest_pos
-            .checked_add(length)
-            .map_or(true, |end| end > dest_array_len)
-        {
-            panic!("java.lang.System.arraycopy: destination index out of bounds");
-        }
+    let src_class_id = *vm.heap.get_array(&src_addr)?.class_id();
+    let src_class = vm.method_area.get_class_by_id(&src_class_id)?;
+    let anme = src_class.name();
 
-        for i in 0..length {
-            vm.heap
-                .write_array_element(dest, (dest_pos + i) as i32, tmp[i].clone())
-                .unwrap();
-        }
+    if length == 0 {
+        return Ok(None);
     }
+
+    vm.heap
+        .copy_primitive_slice(src_addr, src_pos, dest_addr, dest_pos, length)?;
     Ok(None)
 }
 

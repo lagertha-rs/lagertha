@@ -1,4 +1,4 @@
-use crate::error::{JavaExceptionFromJvm, JavaLangError, JvmError, TypeDescriptorErr};
+use crate::error::{JavaExceptionFromJvm, JvmError, TypeDescriptorErr};
 use core::fmt;
 use std::fmt::Formatter;
 use std::iter::Peekable;
@@ -61,19 +61,21 @@ impl Value {
     pub fn as_obj_ref(&self) -> Result<HeapAddr, JvmError> {
         match self {
             Value::Ref(addr) => Ok(*addr),
-            Value::Null => Err(JvmError::JavaException(JavaExceptionFromJvm::JavaLang(
-                JavaLangError::NullPointerException,
-            ))),
+            Value::Null => Err(JvmError::JavaException(
+                JavaExceptionFromJvm::NullPointerException(None),
+            )),
             _ => Err(JvmError::Todo(
                 "Value::as_obj_ref called on non-reference value".to_string(),
             )),
         }
     }
 
-    pub fn as_int(&self) -> Option<i32> {
+    pub fn as_int(&self) -> Result<i32, JvmError> {
         match self {
-            Value::Integer(v) => Some(*v),
-            _ => None,
+            Value::Integer(v) => Ok(*v),
+            _ => Err(JvmError::Todo(
+                "Value::as_int called on non-integer value".to_string(),
+            )),
         }
     }
 }

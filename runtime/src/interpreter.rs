@@ -3,12 +3,8 @@ use crate::rt::constant_pool::RuntimeConstant;
 use crate::rt::constant_pool::reference::MethodReference;
 use crate::rt::method::{Method, MethodType};
 use crate::stack::{FrameType, JavaFrame, NativeFrame};
-use crate::{
-    ClassId, VirtualMachine, throw_arithmetic_exception, throw_negative_array_size_exception,
-    throw_unsupported_operation,
-};
+use crate::{ClassId, VirtualMachine, throw_exception};
 use common::error::JavaExceptionFromJvm;
-use common::error::JavaLangError;
 use common::error::JvmError;
 use common::instruction::Instruction;
 use common::jtype::Value;
@@ -280,7 +276,7 @@ impl Interpreter {
             Instruction::Aaload => {
                 let index = self.vm.frame_stack.pop_int_val()?;
                 let array_addr = self.vm.frame_stack.pop_obj_val()?;
-                let value = *self.vm.heap.get_array(&array_addr).get_element(index)?;
+                let value = *self.vm.heap.get_array(&array_addr)?.get_element(index)?;
                 if matches!(value, Value::Ref(_) | Value::Null) {
                     self.vm.frame_stack.push_operand(value)?;
                 } else {
@@ -290,7 +286,7 @@ impl Interpreter {
             Instruction::Caload | Instruction::Baload | Instruction::Iaload => {
                 let index = self.vm.frame_stack.pop_int_val()?;
                 let array_addr = self.vm.frame_stack.pop_obj_val()?;
-                let value = *self.vm.heap.get_array(&array_addr).get_element(index)?;
+                let value = *self.vm.heap.get_array(&array_addr)?.get_element(index)?;
                 if let Value::Integer(i) = value {
                     self.vm.frame_stack.push_operand(Value::Integer(i & 0xFF))?;
                 } else {
@@ -671,7 +667,11 @@ impl Interpreter {
                     RuntimeConstant::Long(value) => {
                         self.vm.frame_stack.push_operand(Value::Long(*value))?;
                     }
-                    _ => throw_unsupported_operation!("Ldc for constant {:?}", raw)?,
+                    _ => throw_exception!(
+                        UnsupportedOperationException,
+                        "Ldc for constant {:?}",
+                        raw
+                    )?,
                 }
             }
             Instruction::Anewarray(idx) => {
@@ -686,21 +686,21 @@ impl Interpreter {
                     let addr = self.vm.heap.alloc_array(class, size as usize)?;
                     self.vm.frame_stack.push_operand(Value::Ref(addr))?;
                 } else {
-                    throw_negative_array_size_exception!(size.to_string())?
+                    throw_exception!(NegativeArraySizeException, size.to_string())?
                 }
             }
             Instruction::Newarray(array_type) => {
-                let count = self.vm.frame_stack.pop_int_val()?;
-                if count >= 0 {
+                let size = self.vm.frame_stack.pop_int_val()?;
+                if size >= 0 {
                     let primitive_type_name = array_type.descriptor();
                     let primitive_class = self
                         .vm
                         .method_area
                         .get_class_or_load_by_name(primitive_type_name)?;
-                    let addr = self.vm.heap.alloc_array(primitive_class, count as usize)?;
+                    let addr = self.vm.heap.alloc_array(primitive_class, size as usize)?;
                     self.vm.frame_stack.push_operand(Value::Ref(addr))?;
                 } else {
-                    throw_negative_array_size_exception!(count.to_string())?
+                    throw_exception!(NegativeArraySizeException, size.to_string())?
                 }
             }
             Instruction::New(idx) => {
@@ -778,7 +778,7 @@ impl Interpreter {
                 let params = self.prepare_method_params(method)?;
                 match params.first() {
                     // try to dynamically dispatch the method
-                    Some(Value::Ref(obj)) if self.vm.heap.addr_is_instance(obj) => {
+                    Some(Value::Ref(obj)) if self.vm.heap.addr_is_instance(obj)? => {
                         let instance = self.vm.heap.get_instance(obj)?;
                         let class_id = instance.class_id();
                         let this_class = self.vm.method_area.get_class_by_id(class_id)?.clone(); ////////////////////
@@ -788,8 +788,8 @@ impl Interpreter {
                     Some(Value::Ref(_)) => {
                         self.run_instance_method_type(method, &method_ref, params)
                     }
-                    Some(Value::Null) => Err(JavaExceptionFromJvm::JavaLang(
-                        JavaLangError::NullPointerException,
+                    Some(Value::Null) => Err(JvmError::JavaException(
+                        JavaExceptionFromJvm::NullPointerException(None),
                     ))?,
                     _ => panic!("First parameter of instance method must be object reference"),
                 }?;
@@ -837,7 +837,7 @@ impl Interpreter {
             Instruction::Saload => {
                 let index = self.vm.frame_stack.pop_int_val()?;
                 let array_addr = self.vm.frame_stack.pop_obj_val()?;
-                let value = *self.vm.heap.get_array(&array_addr).get_element(index)?;
+                let value = *self.vm.heap.get_array(&array_addr)?.get_element(index)?;
                 if let Value::Integer(i) = value {
                     self.vm
                         .frame_stack
@@ -908,7 +908,7 @@ impl Interpreter {
             }
             Instruction::ArrayLength => {
                 let array_addr = self.vm.frame_stack.pop_obj_val()?;
-                let length = self.vm.heap.get_array(&array_addr).length();
+                let length = self.vm.heap.get_array(&array_addr)?.length();
                 self.vm
                     .frame_stack
                     .push_operand(Value::Integer(length as i32))?;
@@ -1019,7 +1019,7 @@ impl Interpreter {
                 let v2 = self.vm.frame_stack.pop_int_val()?;
                 let v1 = self.vm.frame_stack.pop_int_val()?;
                 if v2 == 0 {
-                    throw_arithmetic_exception!("Division by zero")?
+                    throw_exception!(ArithmeticException, "Division by zero")?
                 }
                 self.vm.frame_stack.push_operand(Value::Integer(v1 % v2))?;
             }
@@ -1053,9 +1053,7 @@ impl Interpreter {
                 let v2 = self.vm.frame_stack.pop_int_val()?;
                 let v1 = self.vm.frame_stack.pop_int_val()?;
                 if v2 == 0 {
-                    Err(JavaExceptionFromJvm::JavaLang(
-                        JavaLangError::ArithmeticException("/ by zero".to_string()),
-                    ))?
+                    throw_exception!(ArithmeticException, "/ by zero")?
                 }
                 self.vm.frame_stack.push_operand(Value::Integer(v1 / v2))?;
             }
@@ -1144,7 +1142,11 @@ impl Interpreter {
             Instruction::Monitorexit => {
                 let _obj = self.vm.frame_stack.pop_obj_val()?;
             }
-            unimpl => throw_unsupported_operation!("Instruction {:?} is not implemented", unimpl)?,
+            unimpl => throw_exception!(
+                UnsupportedOperationException,
+                "Instruction {:?} is not implemented",
+                unimpl
+            )?,
         }
         if need_increase_pc {
             *self.vm.frame_stack.pc_mut()? += instruction_byte_size as usize;

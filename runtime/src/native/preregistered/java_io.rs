@@ -101,7 +101,7 @@ fn java_io_file_output_stream_write_bytes(vm: &mut VirtualMachine, args: &[Value
         .unwrap()
         .as_int()
         .unwrap();
-    let array = vm.heap.get_array(&bytes_array);
+    let array = vm.heap.get_array(&bytes_array)?;
     for i in offset..offset + length {
         let byte = match array.get_element(i as i32).unwrap() {
             Value::Integer(b) => b,

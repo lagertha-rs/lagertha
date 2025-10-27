@@ -115,7 +115,7 @@ pub(super) fn do_register_java_lang_preregistered_natives(native_registry: &mut 
 fn java_lang_object_get_class(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.getClass");
     if let Value::Ref(h) = &args[0] {
-        let target_class_id = if let Some(obj) = vm.heap.get(*h) {
+        let target_class_id = if let Ok(obj) = vm.heap.get(*h) {
             match obj {
                 HeapObject::Instance(instance) => instance.class_id(),
                 HeapObject::Array(array) => array.class_id(),
@@ -288,12 +288,12 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
             vm.heap
                 .get_array(
                     &vm.heap
-                        .get_array(&object)
+                        .get_array(&object)?
                         .get_element(0)
                         .unwrap()
                         .as_obj_ref()
                         .unwrap(),
-                )
+                )?
                 .get_element(i)
                 .unwrap()
                 .as_int()
@@ -304,12 +304,12 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
             .heap
             .get_array(
                 &vm.heap
-                    .get_array(&object)
+                    .get_array(&object)?
                     .get_element(1)
                     .unwrap()
                     .as_obj_ref()
                     .unwrap(),
-            )
+            )?
             .get_element(i)
             .unwrap()
             .as_int()
@@ -318,12 +318,12 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
             .heap
             .get_array(
                 &vm.heap
-                    .get_array(&object)
+                    .get_array(&object)?
                     .get_element(2)
                     .unwrap()
                     .as_obj_ref()
                     .unwrap(),
-            )
+            )?
             .get_element(i)
             .unwrap()
             .as_int()
@@ -337,7 +337,7 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
         let line_nbr = method.get_line_number_by_cp(cp).unwrap();
         let cur_stack_trace_entry = vm
             .heap
-            .get_array(&elements_array)
+            .get_array(&elements_array)?
             .get_element(i)
             .unwrap()
             .as_obj_ref()

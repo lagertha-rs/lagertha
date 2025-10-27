@@ -179,15 +179,15 @@ fn jdk_internal_misc_unsafe_get_reference_volatile(
         Value::Long(x) => x,
         _ => panic!("Unsafe.getReferenceVolatile expects a long offset"),
     };
-    match vm.heap.get(base) {
-        Some(HeapObject::Instance(instance)) => {
+    match vm.heap.get(base)? {
+        HeapObject::Instance(instance) => {
             let field = instance.get_element(off as i32).unwrap();
             match field {
                 Value::Ref(_) => Ok(Some(*field)),
                 _ => panic!("Unsafe.getReferenceVolatile field is not an object"),
             }
         }
-        Some(HeapObject::Array(array)) => {
+        HeapObject::Array(array) => {
             let idx = off as usize;
             if idx >= array.length() {
                 panic!("Unsafe.getReferenceVolatile array index out of bounds");
@@ -198,7 +198,6 @@ fn jdk_internal_misc_unsafe_get_reference_volatile(
                 _ => panic!("Unsafe.getReferenceVolatile array element is not an object"),
             }
         }
-        None => panic!("Unsafe.getReferenceVolatile base address is invalid"),
     }
 }
 

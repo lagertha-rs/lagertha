@@ -1,7 +1,7 @@
 use crate::VmConfig;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::method::Method;
-use common::error::{JavaExceptionFromJvm, JavaLangError, JvmError};
+use common::error::{JavaExceptionFromJvm, JvmError};
 use common::jtype::{HeapAddr, Value};
 use log::debug;
 use std::sync::Arc;
@@ -295,10 +295,9 @@ impl FrameStack {
     }
 
     pub fn pop_obj_val(&mut self) -> Result<HeapAddr, JvmError> {
-        self.pop_nullable_ref_val()?
-            .ok_or(JvmError::JavaException(JavaExceptionFromJvm::JavaLang(
-                JavaLangError::NullPointerException,
-            )))
+        self.pop_nullable_ref_val()?.ok_or(JvmError::JavaException(
+            JavaExceptionFromJvm::NullPointerException(None),
+        ))
     }
 
     pub fn pop_operand(&mut self) -> Result<Value, JvmError> {
