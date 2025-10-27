@@ -50,6 +50,19 @@ impl ArrayType {
             ArrayType::Double => "[D",
         }
     }
+
+    pub const fn as_str(&self) -> &'static str {
+        match self {
+            ArrayType::Boolean => "boolean",
+            ArrayType::Char => "char",
+            ArrayType::Float => "float",
+            ArrayType::Double => "double",
+            ArrayType::Byte => "byte",
+            ArrayType::Short => "short",
+            ArrayType::Int => "int",
+            ArrayType::Long => "long",
+        }
+    }
 }
 
 impl TryFrom<&str> for ArrayType {
@@ -1064,19 +1077,6 @@ impl Instruction {
 
 impl std::fmt::Display for ArrayType {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                ArrayType::Boolean => "boolean",
-                ArrayType::Char => "char",
-                ArrayType::Float => "float",
-                ArrayType::Double => "double",
-                ArrayType::Byte => "byte",
-                ArrayType::Short => "short",
-                ArrayType::Int => "int",
-                ArrayType::Long => "long",
-            }
-        )
+        f.write_str(self.as_str())
     }
 }

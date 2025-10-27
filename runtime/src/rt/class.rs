@@ -34,6 +34,7 @@ pub struct Class {
     id: ClassId,
     primitive: Option<ArrayType>,
     name: Arc<str>,
+    pretty_name: OnceCell<String>,
     access: ClassFlags,
     minor_version: u16,
     major_version: u16,
@@ -187,6 +188,7 @@ impl Class {
             cp,
             state: initialized,
             mirror: OnceCell::new(),
+            pretty_name: OnceCell::new(),
             id,
             methods,
             static_methods,
@@ -240,6 +242,18 @@ impl Class {
 
     pub fn name(&self) -> &str {
         &self.name
+    }
+
+    pub fn pretty_name(&self) -> &str {
+        self.pretty_name
+            .get_or_init(|| {
+                let mut name = self.name.replace('/', ".");
+                if let Some(primitive) = self.primitive {
+                    name = format!("{}{}", primitive.as_str(), name);
+                }
+                name
+            })
+            .as_str()
     }
 
     pub fn find_main_method(&self) -> Option<&Arc<Method>> {
@@ -547,6 +561,7 @@ impl Class {
             method_idx,
             static_method_idx: HashMap::new(),
             static_methods: HashMap::new(),
+            pretty_name: OnceCell::new(),
             initializer: None,
             attributes: vec![],
             cp: Arc::new(RuntimeConstantPool::new(vec![])),

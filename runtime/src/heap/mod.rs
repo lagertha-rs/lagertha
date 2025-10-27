@@ -280,6 +280,10 @@ impl Heap {
         Ok(matches!(obj, HeapObject::Instance(_)))
     }
 
+    pub fn addr_is_array(&self, h: &HeapAddr) -> Result<bool, JvmError> {
+        Ok(!self.addr_is_instance(h)?)
+    }
+
     //TODO: design it lightweight
     pub fn get_string(&self, h: HeapAddr) -> Result<String, JvmError> {
         let instance = self.get_instance(&h)?;

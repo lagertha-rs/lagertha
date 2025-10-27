@@ -42,6 +42,7 @@ classes = [
     "java.lang.UnsupportedOperationException",
     "java.lang.NegativeArraySizeException",
     "java.lang.ArrayIndexOutOfBoundsException",
+    "java.lang.ArrayStoreException",
     "java.lang.Terminator",
     "java.lang.Terminator$1",
     "java.lang.ClassLoader",

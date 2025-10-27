@@ -245,7 +245,7 @@ impl JavaExceptionFromJvm {
     const STRING_PARAM_CONSTRUCTOR: &'static str = "(Ljava/lang/String;)V";
     const NO_PARAM_CONSTRUCTOR: &'static str = "()V";
 
-    fn set_message(&mut self, msg: String) {
+    pub fn set_message(&mut self, msg: String) {
         match self {
             JavaExceptionFromJvm::ArithmeticException(m) => *m = Some(msg),
             JavaExceptionFromJvm::UnsupportedOperationException(m) => *m = Some(msg),

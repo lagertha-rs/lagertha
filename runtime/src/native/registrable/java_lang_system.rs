@@ -1,5 +1,7 @@
-use crate::VirtualMachine;
 use crate::native::{MethodKey, NativeRet};
+use crate::{VirtualMachine, throw_exception};
+use common::error::JavaExceptionFromJvm;
+use common::instruction::ArrayType;
 use common::jtype::Value;
 use log::debug;
 
@@ -94,9 +96,29 @@ fn java_lang_system_arraycopy(vm: &mut VirtualMachine, args: &[Value]) -> Native
     let dest_pos = args[3].as_int()?;
     let length = args[4].as_int()?;
 
-    let src_class_id = *vm.heap.get_array(&src_addr)?.class_id();
+    let src_class_id = vm.heap.get_class_id(&src_addr);
     let src_class = vm.method_area.get_class_by_id(&src_class_id)?;
-    let anme = src_class.name();
+    if !vm.heap.addr_is_array(&src_addr)? {
+        throw_exception!(
+            ArrayStoreException,
+            "arraycopy: source type {} is not an array",
+            src_class.pretty_name()
+        )?;
+    }
+    let name = src_class
+        .primitive()
+        .map(|p| p.as_str())
+        .unwrap_or(src_class.name());
+
+    let dest_class_id = vm.heap.get_class_id(&dest_addr);
+    let dest_class = vm.method_area.get_class_by_id(&dest_class_id)?;
+    if !vm.heap.addr_is_array(&dest_addr)? {
+        throw_exception!(
+            ArrayStoreException,
+            "arraycopy: destination type {} is not an array",
+            dest_class.pretty_name()
+        )?;
+    }
 
     if length == 0 {
         return Ok(None);
