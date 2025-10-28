@@ -1,7 +1,7 @@
 use crate::heap::HeapObject;
 use crate::native::{MethodKey, NativeRegistry, NativeRet};
 use crate::stack::{FrameStack, FrameType};
-use crate::{ClassId, VirtualMachine};
+use crate::{ClassIdDeprecated, VirtualMachine};
 use common::instruction::ArrayType;
 use common::jtype::Value;
 use lasso::Key;
@@ -312,7 +312,7 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
     // TODO: obviously need to clean this up
     for i in 0..depth {
         let i = i as i32;
-        let class_id = ClassId::try_from_usize(
+        let class_id = ClassIdDeprecated::try_from_usize(
             vm.heap
                 .get_array(
                     &vm.heap

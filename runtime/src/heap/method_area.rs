@@ -1,7 +1,7 @@
 use crate::class_loader::ClassLoader;
-use crate::rt::class::Class;
-use crate::rt::method::Method;
-use crate::{ClassId, MethodId, VmConfig};
+use crate::rt::class_deprecated::ClassDeprecated;
+use crate::rt::method::MethodDeprecated;
+use crate::{ClassIdDeprecated, MethodIdDeprecated, VmConfig};
 use common::error::{JvmError, LinkageError};
 use common::instruction::ArrayType;
 use jclass::ClassFile;
@@ -15,8 +15,8 @@ use tracing_log::log::debug;
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.5.4
 pub struct MethodArea {
     bootstrap_class_loader: ClassLoader,
-    classes: HashMap<ClassId, Arc<Class>>,
-    methods: Vec<Method>,
+    classes: HashMap<ClassIdDeprecated, Arc<ClassDeprecated>>,
+    methods: Vec<MethodDeprecated>,
     string_interner: Arc<ThreadedRodeo>,
 }
 
@@ -38,7 +38,10 @@ impl MethodArea {
         Ok(method_area)
     }
 
-    pub fn get_class_or_load_by_name(&mut self, name: &str) -> Result<&Arc<Class>, JvmError> {
+    pub fn get_class_or_load_by_name(
+        &mut self,
+        name: &str,
+    ) -> Result<&Arc<ClassDeprecated>, JvmError> {
         let id = self.string_interner.get_or_intern(name);
         if self.classes.contains_key(&id) {
             return Ok(self.classes.get(&id).unwrap());
@@ -52,7 +55,10 @@ impl MethodArea {
     }
 
     // assumes if there is a class_id, the class must be loaded
-    pub fn get_class_by_id(&self, class_id: &ClassId) -> Result<&Arc<Class>, JvmError> {
+    pub fn get_class_by_id(
+        &self,
+        class_id: &ClassIdDeprecated,
+    ) -> Result<&Arc<ClassDeprecated>, JvmError> {
         self.classes.get(class_id).ok_or(JvmError::ClassNotFound(
             self.string_interner.resolve(class_id).to_string(),
         ))
@@ -60,30 +66,37 @@ impl MethodArea {
 
     pub fn add_raw_bytecode(
         &mut self,
-        id: ClassId,
+        id: ClassIdDeprecated,
         data: Vec<u8>,
-    ) -> Result<&Arc<Class>, JvmError> {
+    ) -> Result<&Arc<ClassDeprecated>, JvmError> {
         let cf = ClassFile::try_from(data).map_err(LinkageError::from)?;
-        let class = Class::new(id, cf, self)?;
+        let class = ClassDeprecated::new(id, cf, self)?;
         self.add_class(class)
     }
 
-    fn add_class(&mut self, class: Arc<Class>) -> Result<&Arc<Class>, JvmError> {
+    fn add_class(
+        &mut self,
+        class: Arc<ClassDeprecated>,
+    ) -> Result<&Arc<ClassDeprecated>, JvmError> {
         let class_id = *class.id();
         self.classes.insert(class_id, class);
         self.get_class_by_id(&class_id)
     }
 
-    fn create_array_class(&mut self, id: ClassId, name: &str) -> Result<&Arc<Class>, JvmError> {
+    fn create_array_class(
+        &mut self,
+        id: ClassIdDeprecated,
+        name: &str,
+    ) -> Result<&Arc<ClassDeprecated>, JvmError> {
         let class = if let Ok(primitive) = ArrayType::try_from(name) {
-            Class::new_primitive_array(id, primitive)?
+            ClassDeprecated::new_primitive_array(id, primitive)?
         } else {
-            Class::new_array(id, name)?
+            ClassDeprecated::new_array(id, name)?
         };
         self.add_class(class)
     }
 
-    pub fn get_class_id(&mut self, name: &str) -> Result<ClassId, JvmError> {
+    pub fn get_class_id(&mut self, name: &str) -> Result<ClassIdDeprecated, JvmError> {
         let class = self.get_class_or_load_by_name(name)?;
         Ok(*class.id())
     }

@@ -1,10 +1,10 @@
-use crate::rt::class::{Class, InitState};
+use crate::rt::class_deprecated::{ClassDeprecated, InitState};
 use crate::rt::constant_pool::RuntimeConstant;
 use crate::rt::constant_pool::reference::MethodReference;
-use crate::rt::method::{Method, MethodType};
+use crate::rt::method::{MethodDeprecated, MethodType};
 use crate::stack::{FrameStack, FrameType, JavaFrame, NativeFrame};
 use crate::thread::ThreadState;
-use crate::{ClassId, VirtualMachine, throw_exception};
+use crate::{ClassIdDeprecated, VirtualMachine, throw_exception};
 use common::error::JavaExceptionFromJvm;
 use common::error::JvmError;
 use common::instruction::Instruction;
@@ -82,12 +82,15 @@ impl Interpreter {
         Ok(())
     }
 
-    pub fn ensure_initialized(&mut self, class_id: &ClassId) -> Result<(), JvmError> {
+    pub fn ensure_initialized(&mut self, class_id: &ClassIdDeprecated) -> Result<(), JvmError> {
         self.ensure_initialized_recursive(Some(class_id))
     }
 
     // FIXME: very bad
-    fn ensure_initialized_recursive(&mut self, class_id: Option<&ClassId>) -> Result<(), JvmError> {
+    fn ensure_initialized_recursive(
+        &mut self,
+        class_id: Option<&ClassIdDeprecated>,
+    ) -> Result<(), JvmError> {
         if let Some(class_id) = class_id {
             let class = self.vm.method_area.get_class_by_id(class_id)?.clone();
             if let Some(super_class) = class.super_class() {
@@ -1192,7 +1195,7 @@ impl Interpreter {
 
     fn run_instance_native_method(
         &mut self,
-        method: &Arc<Method>,
+        method: &Arc<MethodDeprecated>,
         params: Vec<Value>,
     ) -> Result<(), JvmError> {
         let class = method.class()?;
@@ -1229,7 +1232,10 @@ impl Interpreter {
         Ok(())
     }
 
-    fn prepare_method_params(&mut self, method_type: &Method) -> Result<Vec<Value>, JvmError> {
+    fn prepare_method_params(
+        &mut self,
+        method_type: &MethodDeprecated,
+    ) -> Result<Vec<Value>, JvmError> {
         let params_count = method_type.params_count();
         let mut params = Vec::with_capacity(params_count);
         for _ in 0..params_count {
@@ -1241,7 +1247,7 @@ impl Interpreter {
 
     fn params_to_frame_locals(
         &mut self,
-        method: &Arc<Method>,
+        method: &Arc<MethodDeprecated>,
         params: Vec<Value>,
     ) -> Result<Vec<Option<Value>>, JvmError> {
         let mut locals = vec![None; method.max_locals()?];
@@ -1264,7 +1270,7 @@ impl Interpreter {
 
     pub fn run_instance_method(
         &mut self,
-        method: &Arc<Method>,
+        method: &Arc<MethodDeprecated>,
         params: Vec<Value>,
     ) -> Result<(), JvmError> {
         let class = method.class()?;
@@ -1278,7 +1284,7 @@ impl Interpreter {
 
     fn run_abstract_method(
         &mut self,
-        abstract_method: &Arc<Method>,
+        abstract_method: &Arc<MethodDeprecated>,
         method_ref: &MethodReference,
         params: Vec<Value>,
     ) -> Result<(), JvmError> {
@@ -1296,7 +1302,7 @@ impl Interpreter {
 
     fn run_instance_method_type(
         &mut self,
-        method: &Arc<Method>,
+        method: &Arc<MethodDeprecated>,
         method_ref: &MethodReference,
         params: Vec<Value>,
     ) -> Result<(), JvmError> {
@@ -1310,8 +1316,8 @@ impl Interpreter {
 
     fn run_static_method(
         &mut self,
-        class: &Arc<Class>,
-        method: &Arc<Method>,
+        class: &Arc<ClassDeprecated>,
+        method: &Arc<MethodDeprecated>,
         params: Vec<Value>,
     ) -> Result<(), JvmError> {
         let locals = self.params_to_frame_locals(method, params)?;
@@ -1324,8 +1330,8 @@ impl Interpreter {
 
     fn run_static_native_method(
         &mut self,
-        class: &Arc<Class>,
-        method: &Arc<Method>,
+        class: &Arc<ClassDeprecated>,
+        method: &Arc<MethodDeprecated>,
         params: Vec<Value>,
     ) -> Result<(), JvmError> {
         debug!(
@@ -1370,8 +1376,8 @@ impl Interpreter {
 
     fn run_static_method_type(
         &mut self,
-        class: &Arc<Class>,
-        method: &Arc<Method>,
+        class: &Arc<ClassDeprecated>,
+        method: &Arc<MethodDeprecated>,
         params: Vec<Value>,
     ) -> Result<(), JvmError> {
         match method.type_of() {

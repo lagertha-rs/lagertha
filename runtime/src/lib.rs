@@ -19,10 +19,10 @@ pub mod stack;
 mod thread;
 mod throw;
 
-pub type ClassId = Spur;
+pub type ClassIdDeprecated = Spur;
 pub type ThreadId = usize;
 
-pub type MethodId = usize;
+pub type MethodIdDeprecated = usize;
 
 pub type Sym = Spur;
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]

@@ -1,11 +1,11 @@
-use crate::ClassId;
+use crate::ClassIdDeprecated;
 use crate::heap::method_area::MethodArea;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::constant_pool::reference::{
     MethodDescriptorReference, MethodReference, NameAndTypeReference,
 };
 use crate::rt::field::{Field, StaticField};
-use crate::rt::method::{Method, MethodType};
+use crate::rt::method::{MethodDeprecated, MethodType};
 use common::descriptor::MethodDescriptor;
 use common::error::{JavaExceptionFromJvm, JvmError};
 use common::instruction::ArrayType;
@@ -30,21 +30,21 @@ pub enum InitState {
     // TODO: Failed(Throwable) ??
 }
 
-pub struct Class {
-    id: ClassId,
+pub struct ClassDeprecated {
+    id: ClassIdDeprecated,
     primitive: Option<ArrayType>,
     name: Arc<str>,
     pretty_name: OnceCell<String>,
     access: ClassFlags,
-    super_class: Option<Arc<Class>>,
+    super_class: Option<Arc<ClassDeprecated>>,
     fields: Vec<Field>,
     field_idx: NatHashMap<usize>,
     static_fields: NatHashMap<StaticField>,
     method_idx: NatHashMap<usize>,
-    methods: HashMap<usize, Arc<Method>>,
+    methods: HashMap<usize, Arc<MethodDeprecated>>,
     static_method_idx: NatHashMap<usize>,
-    static_methods: HashMap<usize, Arc<Method>>,
-    initializer: Option<Arc<Method>>,
+    static_methods: HashMap<usize, Arc<MethodDeprecated>>,
+    initializer: Option<Arc<MethodDeprecated>>,
     attributes: Vec<ClassAttribute>,
     cp: Arc<RuntimeConstantPool>,
     state: RwLock<InitState>,
@@ -52,9 +52,9 @@ pub struct Class {
     source_file: Option<Arc<str>>,
 }
 
-impl Class {
+impl ClassDeprecated {
     pub fn new(
-        id: ClassId,
+        id: ClassIdDeprecated,
         cf: ClassFile,
         method_area: &mut MethodArea,
     ) -> Result<Arc<Self>, JvmError> {
@@ -76,7 +76,7 @@ impl Class {
 
             match (flags.is_native(), flags.is_static()) {
                 (true, true) => {
-                    let method = Method::new(method, MethodType::Native, &cp)?;
+                    let method = MethodDeprecated::new(method, MethodType::Native, &cp)?;
                     let name = method.name_arc();
                     let descriptor = method.descriptor().raw_arc();
                     static_method_idx
@@ -86,7 +86,7 @@ impl Class {
                     static_methods.insert(i, Arc::new(method));
                 }
                 (true, false) => {
-                    let method = Method::new(method, MethodType::Native, &cp)?;
+                    let method = MethodDeprecated::new(method, MethodType::Native, &cp)?;
                     let name = method.name_arc();
                     let descriptor = method.descriptor().raw_arc();
                     method_idx.entry(name).or_default().insert(descriptor, i);
@@ -94,9 +94,13 @@ impl Class {
                 }
                 (false, true) => {
                     if name == "<clinit>" {
-                        initializer = Some(Arc::new(Method::new(method, MethodType::Java, &cp)?));
+                        initializer = Some(Arc::new(MethodDeprecated::new(
+                            method,
+                            MethodType::Java,
+                            &cp,
+                        )?));
                     } else {
-                        let method = Method::new(method, MethodType::Java, &cp)?;
+                        let method = MethodDeprecated::new(method, MethodType::Java, &cp)?;
                         let name = method.name_arc();
                         let descriptor = method.descriptor().raw_arc();
                         static_method_idx
@@ -109,9 +113,9 @@ impl Class {
                 (false, false) => {
                     // TODO: probably need to put constructor methods in separate list
                     let method = if flags.is_abstract() {
-                        Method::new(method, MethodType::Abstract, &cp)?
+                        MethodDeprecated::new(method, MethodType::Abstract, &cp)?
                     } else {
-                        Method::new(method, MethodType::Java, &cp)?
+                        MethodDeprecated::new(method, MethodType::Java, &cp)?
                     };
                     let name = method.name_arc();
                     let descriptor = method.descriptor().raw_arc();
@@ -166,7 +170,7 @@ impl Class {
             }
         }
 
-        let class = Arc::new(Class {
+        let class = Arc::new(ClassDeprecated {
             source_file,
             name,
             access,
@@ -204,11 +208,14 @@ impl Class {
         Ok(class)
     }
 
-    pub fn new_array(id: ClassId, class_name: &str) -> Result<Arc<Self>, JvmError> {
+    pub fn new_array(id: ClassIdDeprecated, class_name: &str) -> Result<Arc<Self>, JvmError> {
         Ok(Self::default(id, Arc::from(class_name), None))
     }
 
-    pub fn new_primitive_array(id: ClassId, primitive: ArrayType) -> Result<Arc<Self>, JvmError> {
+    pub fn new_primitive_array(
+        id: ClassIdDeprecated,
+        primitive: ArrayType,
+    ) -> Result<Arc<Self>, JvmError> {
         Ok(Self::default(
             id,
             Arc::from(primitive.descriptor()),
@@ -216,7 +223,7 @@ impl Class {
         ))
     }
 
-    pub fn id(&self) -> &ClassId {
+    pub fn id(&self) -> &ClassIdDeprecated {
         &self.id
     }
 
@@ -224,7 +231,7 @@ impl Class {
         self.primitive
     }
 
-    pub fn instance_of(&self, id: &ClassId) -> bool {
+    pub fn instance_of(&self, id: &ClassIdDeprecated) -> bool {
         if self.id() == id {
             return true;
         }
@@ -250,7 +257,7 @@ impl Class {
             .as_str()
     }
 
-    pub fn find_main_method(&self) -> Option<&Arc<Method>> {
+    pub fn find_main_method(&self) -> Option<&Arc<MethodDeprecated>> {
         self.static_method_idx
             .get("main")
             .and_then(|m| m.get("([Ljava/lang/String;)V"))
@@ -287,11 +294,11 @@ impl Class {
         *self.state.write() = state;
     }
 
-    pub fn super_class(&self) -> Option<&Arc<Class>> {
+    pub fn super_class(&self) -> Option<&Arc<ClassDeprecated>> {
         self.super_class.as_ref()
     }
 
-    pub fn initializer(&self) -> Option<&Arc<Method>> {
+    pub fn initializer(&self) -> Option<&Arc<MethodDeprecated>> {
         self.initializer.as_ref()
     }
 
@@ -399,7 +406,7 @@ impl Class {
     pub fn get_static_method_by_nat(
         &self,
         method_ref: &MethodReference,
-    ) -> Result<&Arc<Method>, JvmError> {
+    ) -> Result<&Arc<MethodDeprecated>, JvmError> {
         let nat = method_ref.name_and_type_ref()?;
         let name = nat.name()?;
         let descriptor = nat.method_descriptor_ref()?.raw();
@@ -407,7 +414,11 @@ impl Class {
         self.get_static_method(name, descriptor)
     }
 
-    fn get_static_method_recursive(&self, name: &str, descriptor: &str) -> Option<&Arc<Method>> {
+    fn get_static_method_recursive(
+        &self,
+        name: &str,
+        descriptor: &str,
+    ) -> Option<&Arc<MethodDeprecated>> {
         if let Some(m) = self
             .static_method_idx
             .get(name)
@@ -427,7 +438,7 @@ impl Class {
         &self,
         name: &str,
         descriptor: &str,
-    ) -> Result<&Arc<Method>, JvmError> {
+    ) -> Result<&Arc<MethodDeprecated>, JvmError> {
         self.get_static_method_recursive(name, descriptor)
             //TODO: improve
             .ok_or(JvmError::JavaException(
@@ -443,7 +454,7 @@ impl Class {
     pub fn get_virtual_method_by_nat(
         &self,
         method_ref: &MethodReference,
-    ) -> Result<&Arc<Method>, JvmError> {
+    ) -> Result<&Arc<MethodDeprecated>, JvmError> {
         let nat = method_ref.name_and_type_ref()?;
         let name = nat.name()?;
         let descriptor = nat.method_descriptor_ref()?.raw();
@@ -455,7 +466,7 @@ impl Class {
     pub fn get_virtual_method_and_cp_by_nat(
         &self,
         method_ref: &MethodReference,
-    ) -> Result<(&Arc<Method>, &Arc<RuntimeConstantPool>), JvmError> {
+    ) -> Result<(&Arc<MethodDeprecated>, &Arc<RuntimeConstantPool>), JvmError> {
         let nat = method_ref.name_and_type_ref()?;
         let name = nat.name()?;
         let descriptor = nat.method_descriptor_ref()?.raw();
@@ -475,7 +486,7 @@ impl Class {
         &self,
         name: &str,
         descriptor: &str,
-    ) -> Option<(&Arc<Method>, &Arc<RuntimeConstantPool>)> {
+    ) -> Option<(&Arc<MethodDeprecated>, &Arc<RuntimeConstantPool>)> {
         if let Some(m) = self.method_idx.get(name).and_then(|m| m.get(descriptor)) {
             let method = self.methods.get(m).unwrap();
             return Some((method, &self.cp));
@@ -491,7 +502,7 @@ impl Class {
         &self,
         name: &str,
         descriptor: &str,
-    ) -> Result<&Arc<Method>, JvmError> {
+    ) -> Result<&Arc<MethodDeprecated>, JvmError> {
         self.get_virtual_method_recursive(name, descriptor)
             .map(|(m, _)| m)
             .ok_or(JvmError::JavaException(
@@ -514,7 +525,7 @@ impl Class {
         }
     }
 
-    pub fn get_method_by_id(&self, id: &usize) -> Option<&Arc<Method>> {
+    pub fn get_method_by_id(&self, id: &usize) -> Option<&Arc<MethodDeprecated>> {
         self.initializer
             .as_ref()
             .and_then(|m| (m.id().unwrap() == *id).then_some(m))
@@ -527,7 +538,11 @@ impl Class {
     }
 
     //TODO: stub, need to cleanup
-    pub fn default(id: ClassId, class_name: Arc<str>, primitive: Option<ArrayType>) -> Arc<Self> {
+    pub fn default(
+        id: ClassIdDeprecated,
+        class_name: Arc<str>,
+        primitive: Option<ArrayType>,
+    ) -> Arc<Self> {
         let clone_method_name: Arc<str> = Arc::from("clone");
         let raw_descriptor: &str = "()Ljava/lang/Object;";
 
@@ -535,7 +550,7 @@ impl Class {
         let clone_native_descriptor =
             MethodDescriptorReference::new(0, Arc::from(raw_descriptor), resolved_descriptor);
 
-        let clone_method = Arc::new(Method::new_native(
+        let clone_method = Arc::new(MethodDeprecated::new_native(
             clone_method_name.clone(),
             Arc::new(clone_native_descriptor),
             MethodFlags::new(0),

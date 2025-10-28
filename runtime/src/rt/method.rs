@@ -1,8 +1,8 @@
 use crate::native::MethodKey;
-use crate::rt::class::Class;
+use crate::rt::class_deprecated::ClassDeprecated;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::constant_pool::reference::MethodDescriptorReference;
-use crate::{ClassId, MethodId};
+use crate::{ClassIdDeprecated, MethodIdDeprecated};
 use common::error::{JvmError, LinkageError};
 use jclass::attribute::method::code::{
     CodeAttributeInfo, LineNumberEntry, LocalVariableEntry, LocalVariableTypeEntry, StackMapFrame,
@@ -38,11 +38,11 @@ pub struct CodeContext {
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.6
-pub struct Method {
+pub struct MethodDeprecated {
     name_idx: u16,
     name: Arc<str>,
     flags: MethodFlags,
-    class: SyncOnceCell<Arc<Class>>,
+    class: SyncOnceCell<Arc<ClassDeprecated>>,
     descriptor: Arc<MethodDescriptorReference>,
     code_context: Option<CodeContext>,
     signature: Option<Arc<str>>,
@@ -50,16 +50,16 @@ pub struct Method {
     rt_invisible_annotations: Option<Vec<Annotation>>,
     is_deprecated: bool,
     method_type: MethodType,
-    id: SyncOnceCell<MethodId>,
+    id: SyncOnceCell<MethodIdDeprecated>,
 }
 
-impl Method {
+impl MethodDeprecated {
     pub fn new_native(
         name: Arc<str>,
         descriptor: Arc<MethodDescriptorReference>,
         flags: MethodFlags,
     ) -> Self {
-        Method {
+        MethodDeprecated {
             name_idx: 0,
             name,
             flags,
@@ -121,7 +121,7 @@ impl Method {
 
         let code_context = code_ctx.take();
 
-        Ok(Method {
+        Ok(MethodDeprecated {
             method_type,
             name_idx,
             class: SyncOnceCell::new(),
@@ -137,12 +137,12 @@ impl Method {
         })
     }
 
-    pub fn set_id(&self, id: MethodId) -> Result<(), LinkageError> {
+    pub fn set_id(&self, id: MethodIdDeprecated) -> Result<(), LinkageError> {
         self.id.set(id).unwrap();
         Ok(())
     }
 
-    pub fn id(&self) -> Result<MethodId, LinkageError> {
+    pub fn id(&self) -> Result<MethodIdDeprecated, LinkageError> {
         Ok(*self.id.get().unwrap())
     }
 
@@ -154,21 +154,21 @@ impl Method {
         self.name_idx
     }
 
-    pub fn set_class(&self, class: Arc<Class>) -> Result<(), LinkageError> {
+    pub fn set_class(&self, class: Arc<ClassDeprecated>) -> Result<(), LinkageError> {
         self.class
             .set(class)
             .map_err(|_| LinkageError::DuplicatedClassInMethod)?;
         Ok(())
     }
 
-    pub fn class(&self) -> Result<Arc<Class>, LinkageError> {
+    pub fn class(&self) -> Result<Arc<ClassDeprecated>, LinkageError> {
         self.class
             .get()
             .cloned()
             .ok_or(LinkageError::MethodClassIsNotSet)
     }
 
-    pub fn class_id(&self) -> Result<ClassId, JvmError> {
+    pub fn class_id(&self) -> Result<ClassIdDeprecated, JvmError> {
         Ok(*self.class()?.id())
     }
 

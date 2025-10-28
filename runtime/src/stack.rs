@@ -1,6 +1,6 @@
 use crate::VmConfig;
 use crate::rt::constant_pool::RuntimeConstantPool;
-use crate::rt::method::Method;
+use crate::rt::method::MethodDeprecated;
 use common::error::{JavaExceptionFromJvm, JvmError};
 use common::jtype::{HeapAddr, Value};
 use log::debug;
@@ -319,7 +319,7 @@ pub enum FrameType {
 }
 
 impl FrameType {
-    pub fn method(&self) -> &Arc<Method> {
+    pub fn method(&self) -> &Arc<MethodDeprecated> {
         match self {
             FrameType::JavaFrame(f) => &f.method,
             FrameType::NativeFrame(f) => &f.method,
@@ -329,15 +329,15 @@ impl FrameType {
 
 #[derive(Clone)]
 pub struct NativeFrame {
-    method: Arc<Method>,
+    method: Arc<MethodDeprecated>,
 }
 
 impl NativeFrame {
-    pub fn new(method: Arc<Method>) -> Self {
+    pub fn new(method: Arc<MethodDeprecated>) -> Self {
         Self { method }
     }
 
-    pub fn method(&self) -> &Arc<Method> {
+    pub fn method(&self) -> &Arc<MethodDeprecated> {
         &self.method
     }
 }
@@ -349,13 +349,13 @@ pub struct JavaFrame {
     operands: Vec<Value>,
     cp: Arc<RuntimeConstantPool>,
     pc: usize,
-    method: Arc<Method>,
+    method: Arc<MethodDeprecated>,
 }
 
 impl JavaFrame {
     pub fn new(
         cp: Arc<RuntimeConstantPool>,
-        method: Arc<Method>,
+        method: Arc<MethodDeprecated>,
         locals: Vec<Option<Value>>,
     ) -> Result<Self, JvmError> {
         let max_stack = method.max_stack()?;
@@ -368,7 +368,7 @@ impl JavaFrame {
         })
     }
 
-    pub fn method(&self) -> &Arc<Method> {
+    pub fn method(&self) -> &Arc<MethodDeprecated> {
         &self.method
     }
 

@@ -1,8 +1,8 @@
 // TODO: very primitive implementation, ok for right now
 
 use crate::heap::method_area::MethodArea;
-use crate::rt::class::Class;
-use crate::{ClassId, throw_exception};
+use crate::rt::class_deprecated::ClassDeprecated;
+use crate::{ClassIdDeprecated, throw_exception};
 use common::error::JavaExceptionFromJvm;
 use common::error::JvmError;
 use common::jtype::{HeapAddr, Value};
@@ -19,19 +19,19 @@ pub enum HeapObject {
 
 #[derive(Clone)]
 pub struct Instance {
-    class_id: ClassId,
+    class_id: ClassIdDeprecated,
     data: Vec<Value>,
 }
 
 impl Instance {
-    pub fn new(class_id: ClassId, elements: Vec<Value>) -> Self {
+    pub fn new(class_id: ClassIdDeprecated, elements: Vec<Value>) -> Self {
         Self {
             class_id,
             data: elements,
         }
     }
 
-    pub fn class_id(&self) -> &ClassId {
+    pub fn class_id(&self) -> &ClassIdDeprecated {
         &self.class_id
     }
 
@@ -84,7 +84,7 @@ enum AllocClass<'a> {
     String,
     Char,
     Class,
-    Other(&'a Arc<Class>),
+    Other(&'a Arc<ClassDeprecated>),
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.5.3
@@ -92,10 +92,10 @@ pub struct Heap {
     objects: Vec<HeapObject>,
     string_pool: HashMap<String, HeapAddr>,
     // TODO: find a better way to expose MethodArea functionality
-    string_class: Arc<Class>,
-    char_class: Arc<Class>,
-    class_class: Arc<Class>,
-    mirrors: HashMap<HeapAddr, Arc<Class>>,
+    string_class: Arc<ClassDeprecated>,
+    char_class: Arc<ClassDeprecated>,
+    class_class: Arc<ClassDeprecated>,
+    mirrors: HashMap<HeapAddr, Arc<ClassDeprecated>>,
     primitives: HashMap<HeapAddr, HeapAddr>,
 }
 
@@ -120,7 +120,7 @@ impl Heap {
         })
     }
 
-    pub fn get_class_id(&self, h: &HeapAddr) -> ClassId {
+    pub fn get_class_id(&self, h: &HeapAddr) -> ClassIdDeprecated {
         match self.get(*h).unwrap() {
             HeapObject::Instance(inst) => inst.class_id,
             HeapObject::Array(arr) => arr.class_id,
@@ -133,7 +133,11 @@ impl Heap {
         idx
     }
 
-    pub fn alloc_array(&mut self, class: &Arc<Class>, length: usize) -> Result<HeapAddr, JvmError> {
+    pub fn alloc_array(
+        &mut self,
+        class: &Arc<ClassDeprecated>,
+        length: usize,
+    ) -> Result<HeapAddr, JvmError> {
         let default_value = if let Some(primitive_type) = class.primitive() {
             Value::from(&primitive_type)
         } else {
@@ -145,7 +149,7 @@ impl Heap {
 
     pub fn alloc_array_with_value(
         &mut self,
-        class: &Arc<Class>,
+        class: &Arc<ClassDeprecated>,
         length: usize,
         value: Value,
     ) -> Result<HeapAddr, JvmError> {
@@ -153,7 +157,7 @@ impl Heap {
         Ok(self.push(HeapObject::Array(Instance::new(*class.id(), elements))))
     }
 
-    fn create_default_fields(class: &Arc<Class>) -> Vec<Value> {
+    fn create_default_fields(class: &Arc<ClassDeprecated>) -> Vec<Value> {
         let mut fields = Vec::with_capacity(class.fields().len());
 
         let mut cur_class = Some(class);
@@ -182,7 +186,7 @@ impl Heap {
         })))
     }
 
-    pub fn alloc_instance(&mut self, class: &Arc<Class>) -> Result<HeapAddr, JvmError> {
+    pub fn alloc_instance(&mut self, class: &Arc<ClassDeprecated>) -> Result<HeapAddr, JvmError> {
         self.alloc_instance_internal(AllocClass::Other(class))
     }
 
@@ -418,13 +422,13 @@ impl Heap {
         Ok(())
     }
 
-    pub fn get_class_by_mirror(&self, mirror: &HeapAddr) -> Option<&Arc<Class>> {
+    pub fn get_class_by_mirror(&self, mirror: &HeapAddr) -> Option<&Arc<ClassDeprecated>> {
         self.mirrors.get(mirror)
     }
 
     pub(crate) fn get_mirror_addr(
         &mut self,
-        target_class: &Arc<Class>,
+        target_class: &Arc<ClassDeprecated>,
     ) -> Result<HeapAddr, JvmError> {
         if let Some(mirror) = target_class.mirror() {
             return Ok(mirror);
