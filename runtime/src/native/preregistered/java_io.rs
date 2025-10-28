@@ -1,5 +1,6 @@
 use crate::VirtualMachine;
 use crate::native::{MethodKey, NativeRegistry, NativeRet};
+use crate::stack::FrameStack;
 use common::jtype::Value;
 use log::debug;
 
@@ -60,7 +61,11 @@ pub(super) fn do_register_java_io_preregistered_natives(native_registry: &mut Na
     );
 }
 
-fn java_io_file_output_stream_write_bytes(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
+fn java_io_file_output_stream_write_bytes(
+    vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+    args: &[Value],
+) -> NativeRet {
     debug!("TODO: Partial implementation: java.io.FileOutputStream.writeBytes");
     let output_stream_addr = match &args[0] {
         Value::Ref(h) => *h,
@@ -120,27 +125,47 @@ fn java_io_file_output_stream_write_bytes(vm: &mut VirtualMachine, args: &[Value
     Ok(None)
 }
 
-fn java_io_file_input_stream_init_ids(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
+fn java_io_file_input_stream_init_ids(
+    _vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+    _args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: java.io.FileInputStream.initIDs");
     Ok(None)
 }
 
-fn java_io_file_descriptor_init_ids(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
+fn java_io_file_descriptor_init_ids(
+    _vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+    _args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: java.io.FileDescriptor.initIDs");
     Ok(None)
 }
 
-fn java_io_file_descriptor_get_handle(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
+fn java_io_file_descriptor_get_handle(
+    _vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+    _args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: java.io.FileDescriptor.getHandle");
     Ok(Some(Value::Long(0)))
 }
 
-fn java_io_file_descriptor_get_append(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
+fn java_io_file_descriptor_get_append(
+    _vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+    _args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: java.io.FileDescriptor.getAppend");
     Ok(Some(Value::Integer(0)))
 }
 
-fn java_io_file_output_stream_init_ids(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
+fn java_io_file_output_stream_init_ids(
+    _vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+    _args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: java.io.FileInputStream.initIDs");
     Ok(None)
 }

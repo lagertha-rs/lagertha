@@ -4,6 +4,7 @@ mod registrable;
 use crate::VirtualMachine;
 use crate::native::preregistered::preregister_natives;
 use crate::native::registrable::add_registrable_natives;
+use crate::stack::FrameStack;
 use common::error::JvmError;
 use common::jtype::Value;
 use lasso::{Spur, ThreadedRodeo};
@@ -53,7 +54,7 @@ impl MethodKey {
 }
 
 pub type NativeRet = Result<Option<Value>, JvmError>;
-pub type NativeFn = fn(&mut VirtualMachine, &[Value]) -> NativeRet;
+pub type NativeFn = fn(&mut VirtualMachine, frame_stack: &FrameStack, &[Value]) -> NativeRet;
 
 pub struct NativeRegistry {
     map: HashMap<MethodKey, NativeFn>,

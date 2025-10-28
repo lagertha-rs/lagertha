@@ -1,12 +1,12 @@
 use crate::native::{MethodKey, NativeRet};
+use crate::stack::FrameStack;
 use crate::{VirtualMachine, throw_exception};
-use common::error::JavaExceptionFromJvm;
-use common::instruction::ArrayType;
 use common::jtype::Value;
 use log::debug;
 
 pub(super) fn java_lang_system_register_natives(
     vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
     _args: &[Value],
 ) -> NativeRet {
     vm.native_registry.register(
@@ -57,7 +57,11 @@ pub(super) fn java_lang_system_register_natives(
     Ok(None)
 }
 
-fn java_lang_system_set_out_0(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
+fn java_lang_system_set_out_0(
+    vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+    args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: java.lang.System.setIn0");
     let val = match &args[0] {
         Value::Ref(h) => *h,
@@ -73,7 +77,11 @@ fn java_lang_system_set_out_0(vm: &mut VirtualMachine, args: &[Value]) -> Native
     Ok(None)
 }
 
-fn java_lang_system_set_err_0(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
+fn java_lang_system_set_err_0(
+    vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+    args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: java.lang.System.setIn0");
     let val = match &args[0] {
         Value::Ref(h) => *h,
@@ -89,7 +97,11 @@ fn java_lang_system_set_err_0(vm: &mut VirtualMachine, args: &[Value]) -> Native
     Ok(None)
 }
 
-fn java_lang_system_arraycopy(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
+fn java_lang_system_arraycopy(
+    vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+    args: &[Value],
+) -> NativeRet {
     let src_addr = args[0].as_obj_ref()?;
     let src_pos = args[1].as_int()?;
     let dest_addr = args[2].as_obj_ref()?;
@@ -129,7 +141,11 @@ fn java_lang_system_arraycopy(vm: &mut VirtualMachine, args: &[Value]) -> Native
     Ok(None)
 }
 
-fn java_lang_system_identity_hash_code(_vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
+fn java_lang_system_identity_hash_code(
+    _vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+    args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: java.lang.System.identityHashCode");
     if let Value::Ref(h) = &args[0] {
         Ok(Some(Value::Integer(*h as i32)))
@@ -138,7 +154,11 @@ fn java_lang_system_identity_hash_code(_vm: &mut VirtualMachine, args: &[Value])
     }
 }
 
-fn java_lang_system_set_in_0(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
+fn java_lang_system_set_in_0(
+    _vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+    _args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: java.lang.System.setIn0");
     Ok(None)
 }

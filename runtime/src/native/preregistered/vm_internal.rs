@@ -1,5 +1,6 @@
 use crate::VirtualMachine;
 use crate::native::{MethodKey, NativeRegistry, NativeRet};
+use crate::stack::FrameStack;
 use common::jtype::Value;
 use log::debug;
 
@@ -14,7 +15,11 @@ pub(super) fn do_register_vm_internal_preregistered_natives(native_registry: &mu
     );
 }
 
-fn vm_internal_clone(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
+fn vm_internal_clone(
+    vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+    args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: internal clone");
     let obj = match &args[0] {
         Value::Ref(h) => *h,

@@ -1,6 +1,6 @@
 use crate::heap::HeapObject;
 use crate::native::{MethodKey, NativeRegistry, NativeRet};
-use crate::stack::FrameType;
+use crate::stack::{FrameStack, FrameType};
 use crate::{ClassId, VirtualMachine};
 use common::instruction::ArrayType;
 use common::jtype::Value;
@@ -112,7 +112,11 @@ pub(super) fn do_register_java_lang_preregistered_natives(native_registry: &mut 
     )
 }
 
-fn java_lang_object_get_class(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
+fn java_lang_object_get_class(
+    vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+    args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.getClass");
     if let Value::Ref(h) = &args[0] {
         let target_class_id = if let Ok(obj) = vm.heap.get(*h) {
@@ -131,7 +135,11 @@ fn java_lang_object_get_class(vm: &mut VirtualMachine, args: &[Value]) -> Native
     }
 }
 
-fn java_lang_object_hash_code(_vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
+fn java_lang_object_hash_code(
+    _vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+    args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: java.lang.Object.hashCode");
     if let Value::Ref(h) = &args[0] {
         Ok(Some(Value::Integer(*h as i32)))
@@ -146,10 +154,13 @@ fn java_lang_object_hash_code(_vm: &mut VirtualMachine, args: &[Value]) -> Nativ
 /// - an int array with the class ids of the classes in the stack frames
 /// - an int array with the name indexes of the methods in the stack frames
 /// - an int array with the line pc of the methods in the stack frames
-fn java_lang_throwable_fill_in_stack_trace(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
+fn java_lang_throwable_fill_in_stack_trace(
+    vm: &mut VirtualMachine,
+    frame_stack: &FrameStack,
+    args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: java.lang.Throwable.fillInStackTrace");
-    let mut frames: Vec<_> = vm
-        .frame_stack
+    let mut frames: Vec<_> = frame_stack
         .frames()
         .iter()
         .filter(|frame| {
@@ -233,7 +244,11 @@ fn java_lang_throwable_fill_in_stack_trace(vm: &mut VirtualMachine, args: &[Valu
     Ok(Some(Value::Ref(throwable_addr)))
 }
 
-fn java_lang_float_float_to_raw_int_bits(_vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
+fn java_lang_float_float_to_raw_int_bits(
+    _vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+    args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: java.lang.Float.floatToRawIntBits");
     if let Value::Float(f) = args[0] {
         Ok(Some(Value::Integer(f.to_bits() as i32)))
@@ -242,7 +257,11 @@ fn java_lang_float_float_to_raw_int_bits(_vm: &mut VirtualMachine, args: &[Value
     }
 }
 
-fn java_lang_double_double_to_raw_long_bits(_vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
+fn java_lang_double_double_to_raw_long_bits(
+    _vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+    args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: java.lang.Double.doubleToRawLongBits");
     if let Value::Double(d) = args[0] {
         Ok(Some(Value::Long(d.to_bits() as i64)))
@@ -251,18 +270,27 @@ fn java_lang_double_double_to_raw_long_bits(_vm: &mut VirtualMachine, args: &[Va
     }
 }
 
-fn java_lang_runtime_max_memory(vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
+fn java_lang_runtime_max_memory(
+    vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+    _args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: java.lang.Runtime.maxMemory");
     Ok(Some(Value::Long(vm.config.max_heap_size as i64)))
 }
 
-fn java_lang_runtime_available_processors(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
+fn java_lang_runtime_available_processors(
+    _vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+    _args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: java.lang.Runtime.availableProcessors");
     Ok(Some(Value::Integer(1)))
 }
 
 fn java_lang_stack_trace_element_init_stack_trace_elements(
     vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.StackTraceElement.initStackTraceElements");
@@ -390,12 +418,20 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
     Ok(None)
 }
 
-fn java_lang_object_notify_all(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
+fn java_lang_object_notify_all(
+    _vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+    _args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: java.lang.Object.notifyAll");
     Ok(None)
 }
 
-fn java_lang_float_int_bits_to_float(_vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
+fn java_lang_float_int_bits_to_float(
+    _vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+    args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: java.lang.Float.intBitsToFloat");
     if let Value::Integer(i) = args[0] {
         Ok(Some(Value::Float(f32::from_bits(i as u32))))
@@ -405,7 +441,8 @@ fn java_lang_float_int_bits_to_float(_vm: &mut VirtualMachine, args: &[Value]) -
 }
 
 fn java_lang_null_pointer_exception_get_extended_npe_message(
-    vm: &mut VirtualMachine,
+    _vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.NullPointerException.getExtendedNPEMessage");

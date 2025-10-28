@@ -1,11 +1,14 @@
 use crate::VirtualMachine;
 use crate::heap::HeapObject;
-use crate::native::{MethodKey, NativeRegistry, NativeRet};
+use crate::native::{MethodKey, NativeRet};
+use crate::stack::FrameStack;
 use common::jtype::Value;
 use log::debug;
 
 pub(super) fn jdk_internal_misc_unsafe_register_natives(
     vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.registerNatives");
@@ -88,6 +91,7 @@ pub(super) fn jdk_internal_misc_unsafe_register_natives(
 
 fn jdk_internal_misc_unsafe_array_base_offset_0(
     _vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.arrayBaseOffset0");
@@ -96,6 +100,8 @@ fn jdk_internal_misc_unsafe_array_base_offset_0(
 
 fn jdk_internal_misc_unsafe_compare_and_set_int(
     vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.compareAndSetInt");
@@ -131,6 +137,8 @@ fn jdk_internal_misc_unsafe_compare_and_set_int(
 
 fn jdk_internal_misc_unsafe_compare_and_set_long(
     vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.compareAndSetLong");
@@ -166,6 +174,8 @@ fn jdk_internal_misc_unsafe_compare_and_set_long(
 
 fn jdk_internal_misc_unsafe_get_reference_volatile(
     vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.getReferenceVolatile");
@@ -203,6 +213,8 @@ fn jdk_internal_misc_unsafe_get_reference_volatile(
 
 fn jdk_internal_misc_unsafe_object_field_offset_1(
     vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.objectFieldOffset");
@@ -224,13 +236,19 @@ fn jdk_internal_misc_unsafe_object_field_offset_1(
 
 fn jdk_internal_misc_unsafe_array_index_scale_0(
     _vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.arrayIndexScale0");
     Ok(Some(Value::Integer(1)))
 }
 
-fn jdk_internal_misc_unsafe_full_fence(_vm: &mut VirtualMachine, _args: &[Value]) -> NativeRet {
+fn jdk_internal_misc_unsafe_full_fence(
+    _vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+    _args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.fullFence");
     Ok(None)
 }
@@ -238,6 +256,8 @@ fn jdk_internal_misc_unsafe_full_fence(_vm: &mut VirtualMachine, _args: &[Value]
 // TODO: pure mess
 fn jdk_internal_misc_unsafe_compare_and_set_reference(
     vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.compareAndSetReference");

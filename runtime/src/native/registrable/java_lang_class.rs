@@ -1,10 +1,13 @@
 use crate::VirtualMachine;
 use crate::native::{MethodKey, NativeRet};
+use crate::stack::FrameStack;
 use common::jtype::Value;
 use log::debug;
 
 pub(super) fn java_lang_class_register_natives(
     vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+
     _args: &[Value],
 ) -> NativeRet {
     vm.native_registry.register(
@@ -47,13 +50,18 @@ pub(super) fn java_lang_class_register_natives(
 
 fn java_lang_class_desired_assertion_status_0(
     _vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.desiredAssertionStatus0");
     Ok(Some(Value::Integer(1)))
 }
 
-fn java_lang_class_is_primitive(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
+fn java_lang_class_is_primitive(
+    vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+    args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.isPrimitive");
     if let Value::Ref(h) = &args[0] {
         let is_primitive = vm.heap.addr_is_primitive(h);
@@ -63,7 +71,11 @@ fn java_lang_class_is_primitive(vm: &mut VirtualMachine, args: &[Value]) -> Nati
     }
 }
 
-fn java_lang_class_get_primitive_class(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
+fn java_lang_class_get_primitive_class(
+    vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+    args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.getPrimitiveClass");
     if let Value::Ref(h) = &args[0] {
         let v = vm.heap.get_primitive_mirror_addr(h).unwrap();
@@ -73,7 +85,11 @@ fn java_lang_class_get_primitive_class(vm: &mut VirtualMachine, args: &[Value]) 
     }
 }
 
-fn java_lang_class_init_class_name(vm: &mut VirtualMachine, args: &[Value]) -> NativeRet {
+fn java_lang_class_init_class_name(
+    vm: &mut VirtualMachine,
+    _frame_stack: &FrameStack,
+    args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.initClassName");
     if let Value::Ref(h) = &args[0] {
         let class_name = vm

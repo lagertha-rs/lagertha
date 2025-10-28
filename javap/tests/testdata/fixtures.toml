@@ -43,6 +43,8 @@ classes = [
     "java.lang.NegativeArraySizeException",
     "java.lang.ArrayIndexOutOfBoundsException",
     "java.lang.ArrayStoreException",
+    "java.lang.ThreadGroup",
+    "java.lang.Thread",
     "java.lang.Terminator",
     "java.lang.Terminator$1",
     "java.lang.ClassLoader",

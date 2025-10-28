@@ -2,7 +2,8 @@ use crate::rt::class::{Class, InitState};
 use crate::rt::constant_pool::RuntimeConstant;
 use crate::rt::constant_pool::reference::MethodReference;
 use crate::rt::method::{Method, MethodType};
-use crate::stack::{FrameType, JavaFrame, NativeFrame};
+use crate::stack::{FrameStack, FrameType, JavaFrame, NativeFrame};
+use crate::thread::ThreadState;
 use crate::{ClassId, VirtualMachine, throw_exception};
 use common::error::JavaExceptionFromJvm;
 use common::error::JvmError;
@@ -14,12 +15,60 @@ use std::sync::Arc;
 use tracing_log::log::debug;
 
 pub struct Interpreter {
-    vm: VirtualMachine,
+    pub vm: VirtualMachine,
+    frame_stack: FrameStack,
+    cur_thread: Option<ThreadState>,
 }
 
+const THREAD_GROUP_CLASS_NAME: &str = "java/lang/ThreadGroup";
+const THREAD_CLASS_NAME: &str = "java/lang/Thread";
+
 impl Interpreter {
-    pub fn new(vm: VirtualMachine) -> Self {
-        Self { vm }
+    pub fn new(vm: VirtualMachine) -> Result<Self, JvmError> {
+        let mut interpreter = Self {
+            frame_stack: FrameStack::new(&vm.config),
+            vm,
+            cur_thread: None,
+        };
+        let main_string_ref = interpreter.vm.heap.get_or_new_string("main");
+
+        let thread_group_class = interpreter
+            .vm
+            .method_area
+            .get_class_or_load_by_name(THREAD_GROUP_CLASS_NAME)?
+            .clone();
+        let system_thread_group_ref = interpreter.vm.heap.alloc_instance(&thread_group_class)?;
+        let thread_group_no_arg_constructor =
+            thread_group_class.get_virtual_method("<init>", "()V")?;
+        let param = vec![Value::Ref(system_thread_group_ref)];
+        interpreter.run_instance_method(thread_group_no_arg_constructor, param)?;
+
+        let main_thread_group_ref = interpreter.vm.heap.alloc_instance(&thread_group_class)?;
+        let thread_group_parent_name_constructor = thread_group_class
+            .get_virtual_method("<init>", "(Ljava/lang/ThreadGroup;Ljava/lang/String;)V")?;
+        let param = vec![
+            Value::Ref(main_thread_group_ref),
+            Value::Ref(system_thread_group_ref),
+            Value::Ref(main_string_ref),
+        ];
+        interpreter.run_instance_method(thread_group_parent_name_constructor, param)?;
+
+        let thread_class = interpreter
+            .vm
+            .method_area
+            .get_class_or_load_by_name(THREAD_CLASS_NAME)?
+            .clone();
+        let thread_group_name_constructor = thread_class
+            .get_virtual_method("<init>", "(Ljava/lang/ThreadGroup;Ljava/lang/String;)V")?;
+        let main_thread_ref = interpreter.vm.heap.alloc_instance(&thread_class)?;
+        let param = vec![
+            Value::Ref(main_thread_ref),
+            Value::Ref(main_thread_group_ref),
+            Value::Ref(main_string_ref),
+        ];
+        interpreter.run_instance_method(thread_group_name_constructor, param)?;
+
+        Ok(interpreter)
     }
 
     pub fn vm(&mut self) -> &mut VirtualMachine {
@@ -27,7 +76,7 @@ impl Interpreter {
     }
 
     fn pop_frame(&mut self) -> Result<(), JvmError> {
-        let _frame = self.vm.frame_stack.pop_frame()?;
+        let _frame = self.frame_stack.pop_frame()?;
         Ok(())
     }
 
@@ -84,11 +133,9 @@ impl Interpreter {
     }
 
     fn interpret_method_code(&mut self, code: &Vec<u8>, frame: JavaFrame) -> Result<(), JvmError> {
-        self.vm
-            .frame_stack
-            .push_frame(FrameType::JavaFrame(frame))?;
+        self.frame_stack.push_frame(FrameType::JavaFrame(frame))?;
         loop {
-            let instruction = Instruction::new_at(code, *self.vm.frame_stack.pc()?)?;
+            let instruction = Instruction::new_at(code, *self.frame_stack.pc()?)?;
             // TODO: cleanup here and interpret_instruction return type
             let res = self.interpret_instruction(instruction);
             match res {
@@ -147,436 +194,436 @@ impl Interpreter {
 
         match instruction {
             Instruction::Athrow => {
-                let exception_ref = self.vm.frame_stack.pop_obj_val()?;
+                let exception_ref = self.frame_stack.pop_obj_val()?;
                 Err(JvmError::JavaExceptionThrown(exception_ref))?
             }
             Instruction::Checkcast(_idx) => {
                 //TODO: stub
-                let object_ref = self.vm.frame_stack.pop_operand()?;
-                self.vm.frame_stack.push_operand(object_ref)?;
+                let object_ref = self.frame_stack.pop_operand()?;
+                self.frame_stack.push_operand(object_ref)?;
             }
             Instruction::Dadd => {
-                let v2 = self.vm.frame_stack.pop_double_val()?;
-                let v1 = self.vm.frame_stack.pop_double_val()?;
-                self.vm.frame_stack.push_operand(Value::Double(v1 + v2))?;
+                let v2 = self.frame_stack.pop_double_val()?;
+                let v1 = self.frame_stack.pop_double_val()?;
+                self.frame_stack.push_operand(Value::Double(v1 + v2))?;
             }
             Instruction::Dconst0 => {
-                self.vm.frame_stack.push_operand(Value::Double(0.0))?;
+                self.frame_stack.push_operand(Value::Double(0.0))?;
             }
             Instruction::Dconst1 => {
-                self.vm.frame_stack.push_operand(Value::Double(1.0))?;
+                self.frame_stack.push_operand(Value::Double(1.0))?;
             }
             Instruction::Lconst0 => {
-                self.vm.frame_stack.push_operand(Value::Long(0))?;
+                self.frame_stack.push_operand(Value::Long(0))?;
             }
             Instruction::Lconst1 => {
-                self.vm.frame_stack.push_operand(Value::Long(1))?;
+                self.frame_stack.push_operand(Value::Long(1))?;
             }
             Instruction::IconstM1 => {
-                self.vm.frame_stack.push_operand(Value::Integer(-1))?;
+                self.frame_stack.push_operand(Value::Integer(-1))?;
             }
             Instruction::Iconst0 => {
-                self.vm.frame_stack.push_operand(Value::Integer(0))?;
+                self.frame_stack.push_operand(Value::Integer(0))?;
             }
             Instruction::Iconst1 => {
-                self.vm.frame_stack.push_operand(Value::Integer(1))?;
+                self.frame_stack.push_operand(Value::Integer(1))?;
             }
             Instruction::Iconst2 => {
-                self.vm.frame_stack.push_operand(Value::Integer(2))?;
+                self.frame_stack.push_operand(Value::Integer(2))?;
             }
             Instruction::Iconst3 => {
-                self.vm.frame_stack.push_operand(Value::Integer(3))?;
+                self.frame_stack.push_operand(Value::Integer(3))?;
             }
             Instruction::Iconst4 => {
-                self.vm.frame_stack.push_operand(Value::Integer(4))?;
+                self.frame_stack.push_operand(Value::Integer(4))?;
             }
             Instruction::Iconst5 => {
-                self.vm.frame_stack.push_operand(Value::Integer(5))?;
+                self.frame_stack.push_operand(Value::Integer(5))?;
             }
             Instruction::Lstore(n) => {
-                let value = self.vm.frame_stack.pop_long()?;
-                self.vm.frame_stack.set_local(n as usize, value)?;
+                let value = self.frame_stack.pop_long()?;
+                self.frame_stack.set_local(n as usize, value)?;
             }
             Instruction::Lstore0 => {
-                let value = self.vm.frame_stack.pop_long()?;
-                self.vm.frame_stack.set_local(0, value)?;
+                let value = self.frame_stack.pop_long()?;
+                self.frame_stack.set_local(0, value)?;
             }
             Instruction::Lstore1 => {
-                let value = self.vm.frame_stack.pop_long()?;
-                self.vm.frame_stack.set_local(1, value)?;
+                let value = self.frame_stack.pop_long()?;
+                self.frame_stack.set_local(1, value)?;
             }
             Instruction::Lstore2 => {
-                let value = self.vm.frame_stack.pop_long()?;
-                self.vm.frame_stack.set_local(2, value)?;
+                let value = self.frame_stack.pop_long()?;
+                self.frame_stack.set_local(2, value)?;
             }
             Instruction::Lstore3 => {
-                let value = self.vm.frame_stack.pop_long()?;
-                self.vm.frame_stack.set_local(3, value)?;
+                let value = self.frame_stack.pop_long()?;
+                self.frame_stack.set_local(3, value)?;
             }
             Instruction::Fstore(n) => {
-                let value = self.vm.frame_stack.pop_float()?;
-                self.vm.frame_stack.set_local(n as usize, value)?;
+                let value = self.frame_stack.pop_float()?;
+                self.frame_stack.set_local(n as usize, value)?;
             }
             Instruction::Fstore0 => {
-                let value = self.vm.frame_stack.pop_float()?;
-                self.vm.frame_stack.set_local(0, value)?;
+                let value = self.frame_stack.pop_float()?;
+                self.frame_stack.set_local(0, value)?;
             }
             Instruction::Fstore1 => {
-                let value = self.vm.frame_stack.pop_float()?;
-                self.vm.frame_stack.set_local(1, value)?;
+                let value = self.frame_stack.pop_float()?;
+                self.frame_stack.set_local(1, value)?;
             }
             Instruction::Fstore2 => {
-                let value = self.vm.frame_stack.pop_float()?;
-                self.vm.frame_stack.set_local(2, value)?;
+                let value = self.frame_stack.pop_float()?;
+                self.frame_stack.set_local(2, value)?;
             }
             Instruction::Fstore3 => {
-                let value = self.vm.frame_stack.pop_float()?;
-                self.vm.frame_stack.set_local(3, value)?;
+                let value = self.frame_stack.pop_float()?;
+                self.frame_stack.set_local(3, value)?;
             }
             Instruction::Istore0 => {
-                let value = self.vm.frame_stack.pop_int()?;
-                self.vm.frame_stack.set_local(0, value)?;
+                let value = self.frame_stack.pop_int()?;
+                self.frame_stack.set_local(0, value)?;
             }
             Instruction::Istore1 => {
-                let value = self.vm.frame_stack.pop_int()?;
-                self.vm.frame_stack.set_local(1, value)?;
+                let value = self.frame_stack.pop_int()?;
+                self.frame_stack.set_local(1, value)?;
             }
             Instruction::Istore2 => {
-                let value = self.vm.frame_stack.pop_int()?;
-                self.vm.frame_stack.set_local(2, value)?;
+                let value = self.frame_stack.pop_int()?;
+                self.frame_stack.set_local(2, value)?;
             }
             Instruction::Istore3 => {
-                let value = self.vm.frame_stack.pop_int()?;
-                self.vm.frame_stack.set_local(3, value)?;
+                let value = self.frame_stack.pop_int()?;
+                self.frame_stack.set_local(3, value)?;
             }
             Instruction::Istore(idx) => {
-                let value = self.vm.frame_stack.pop_int()?;
-                self.vm.frame_stack.set_local(idx as usize, value)?;
+                let value = self.frame_stack.pop_int()?;
+                self.frame_stack.set_local(idx as usize, value)?;
             }
             Instruction::Lload0 => {
-                let value = self.vm.frame_stack.get_local_long(0)?;
-                self.vm.frame_stack.push_operand(*value)?;
+                let value = self.frame_stack.get_local_long(0)?;
+                self.frame_stack.push_operand(*value)?;
             }
             Instruction::Lload1 => {
-                let value = self.vm.frame_stack.get_local_long(1)?;
-                self.vm.frame_stack.push_operand(*value)?;
+                let value = self.frame_stack.get_local_long(1)?;
+                self.frame_stack.push_operand(*value)?;
             }
             Instruction::Lload2 => {
-                let value = self.vm.frame_stack.get_local_long(2)?;
-                self.vm.frame_stack.push_operand(*value)?;
+                let value = self.frame_stack.get_local_long(2)?;
+                self.frame_stack.push_operand(*value)?;
             }
             Instruction::Lload3 => {
-                let value = self.vm.frame_stack.get_local_long(3)?;
-                self.vm.frame_stack.push_operand(*value)?;
+                let value = self.frame_stack.get_local_long(3)?;
+                self.frame_stack.push_operand(*value)?;
             }
             Instruction::Lload(n) => {
-                let value = self.vm.frame_stack.get_local_long(n)?;
-                self.vm.frame_stack.push_operand(*value)?;
+                let value = self.frame_stack.get_local_long(n)?;
+                self.frame_stack.push_operand(*value)?;
             }
             Instruction::Aaload => {
-                let index = self.vm.frame_stack.pop_int_val()?;
-                let array_addr = self.vm.frame_stack.pop_obj_val()?;
+                let index = self.frame_stack.pop_int_val()?;
+                let array_addr = self.frame_stack.pop_obj_val()?;
                 let value = *self.vm.heap.get_array(&array_addr)?.get_element(index)?;
                 if matches!(value, Value::Ref(_) | Value::Null) {
-                    self.vm.frame_stack.push_operand(value)?;
+                    self.frame_stack.push_operand(value)?;
                 } else {
                     panic!("Expected object reference in aaload");
                 }
             }
             Instruction::Caload | Instruction::Baload | Instruction::Iaload => {
-                let index = self.vm.frame_stack.pop_int_val()?;
-                let array_addr = self.vm.frame_stack.pop_obj_val()?;
+                let index = self.frame_stack.pop_int_val()?;
+                let array_addr = self.frame_stack.pop_obj_val()?;
                 let value = *self.vm.heap.get_array(&array_addr)?.get_element(index)?;
                 if let Value::Integer(i) = value {
-                    self.vm.frame_stack.push_operand(Value::Integer(i & 0xFF))?;
+                    self.frame_stack.push_operand(Value::Integer(i & 0xFF))?;
                 } else {
                     panic!("Expected integer value in caload");
                 }
             }
             Instruction::Fload0 => {
-                let value = self.vm.frame_stack.get_local_float(0)?;
-                self.vm.frame_stack.push_operand(*value)?;
+                let value = self.frame_stack.get_local_float(0)?;
+                self.frame_stack.push_operand(*value)?;
             }
             Instruction::Fload1 => {
-                let value = self.vm.frame_stack.get_local_float(1)?;
-                self.vm.frame_stack.push_operand(*value)?;
+                let value = self.frame_stack.get_local_float(1)?;
+                self.frame_stack.push_operand(*value)?;
             }
             Instruction::Fload2 => {
-                let value = self.vm.frame_stack.get_local_float(2)?;
-                self.vm.frame_stack.push_operand(*value)?;
+                let value = self.frame_stack.get_local_float(2)?;
+                self.frame_stack.push_operand(*value)?;
             }
             Instruction::Fload3 => {
-                let value = self.vm.frame_stack.get_local_float(3)?;
-                self.vm.frame_stack.push_operand(*value)?;
+                let value = self.frame_stack.get_local_float(3)?;
+                self.frame_stack.push_operand(*value)?;
             }
             Instruction::Fload(n) => {
-                let value = self.vm.frame_stack.get_local_float(n)?;
-                self.vm.frame_stack.push_operand(*value)?;
+                let value = self.frame_stack.get_local_float(n)?;
+                self.frame_stack.push_operand(*value)?;
             }
             Instruction::Iload0 => {
-                let value = self.vm.frame_stack.get_local_int(0)?;
-                self.vm.frame_stack.push_operand(*value)?;
+                let value = self.frame_stack.get_local_int(0)?;
+                self.frame_stack.push_operand(*value)?;
             }
             Instruction::Iload1 => {
-                let value = self.vm.frame_stack.get_local_int(1)?;
-                self.vm.frame_stack.push_operand(*value)?;
+                let value = self.frame_stack.get_local_int(1)?;
+                self.frame_stack.push_operand(*value)?;
             }
             Instruction::Iload2 => {
-                let value = self.vm.frame_stack.get_local_int(2)?;
-                self.vm.frame_stack.push_operand(*value)?;
+                let value = self.frame_stack.get_local_int(2)?;
+                self.frame_stack.push_operand(*value)?;
             }
             Instruction::Iload3 => {
-                let value = self.vm.frame_stack.get_local_int(3)?;
-                self.vm.frame_stack.push_operand(*value)?;
+                let value = self.frame_stack.get_local_int(3)?;
+                self.frame_stack.push_operand(*value)?;
             }
             Instruction::Iload(n) => {
-                let value = self.vm.frame_stack.get_local_int(n)?;
-                self.vm.frame_stack.push_operand(*value)?;
+                let value = self.frame_stack.get_local_int(n)?;
+                self.frame_stack.push_operand(*value)?;
             }
             Instruction::Fconst0 => {
-                self.vm.frame_stack.push_operand(Value::Float(0.0))?;
+                self.frame_stack.push_operand(Value::Float(0.0))?;
             }
             Instruction::Fconst1 => {
-                self.vm.frame_stack.push_operand(Value::Float(1.0))?;
+                self.frame_stack.push_operand(Value::Float(1.0))?;
             }
             Instruction::Lcmp => {
-                let v2 = self.vm.frame_stack.pop_long_val()?;
-                let v1 = self.vm.frame_stack.pop_long_val()?;
+                let v2 = self.frame_stack.pop_long_val()?;
+                let v1 = self.frame_stack.pop_long_val()?;
                 let res = match v1.cmp(&v2) {
                     Ordering::Less => -1,
                     Ordering::Equal => 0,
                     Ordering::Greater => 1,
                 };
-                self.vm.frame_stack.push_operand(Value::Integer(res))?;
+                self.frame_stack.push_operand(Value::Integer(res))?;
             }
             Instruction::Fcmpl => {
-                let v2 = self.vm.frame_stack.pop_float_val()?;
-                let v1 = self.vm.frame_stack.pop_float_val()?;
+                let v2 = self.frame_stack.pop_float_val()?;
+                let v1 = self.frame_stack.pop_float_val()?;
                 let res = match v1.total_cmp(&v2) {
                     Ordering::Less => -1,
                     Ordering::Equal => 0,
                     Ordering::Greater => 1,
                 };
-                self.vm.frame_stack.push_operand(Value::Integer(res))?;
+                self.frame_stack.push_operand(Value::Integer(res))?;
             }
             Instruction::Fcmpg => {
-                let v2 = self.vm.frame_stack.pop_float_val()?;
-                let v1 = self.vm.frame_stack.pop_float_val()?;
+                let v2 = self.frame_stack.pop_float_val()?;
+                let v1 = self.frame_stack.pop_float_val()?;
                 let res = match v1.total_cmp(&v2) {
                     Ordering::Less => -1,
                     Ordering::Equal => 0,
                     Ordering::Greater => 1,
                 };
-                self.vm.frame_stack.push_operand(Value::Integer(res))?;
+                self.frame_stack.push_operand(Value::Integer(res))?;
             }
             Instruction::Ifnull(offset) => {
-                let pc = *self.vm.frame_stack.pc()?;
-                let value = self.vm.frame_stack.pop_nullable_ref_val()?;
+                let pc = *self.frame_stack.pc()?;
+                let value = self.frame_stack.pop_nullable_ref_val()?;
                 let new_pc = if value.is_none() {
                     Self::branch16(pc, offset)
                 } else {
                     pc + instruction.byte_size() as usize
                 };
-                *self.vm.frame_stack.pc_mut()? = new_pc;
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::IfEq(offset) => {
-                let pc = *self.vm.frame_stack.pc()?;
-                let value = self.vm.frame_stack.pop_int_val()?;
+                let pc = *self.frame_stack.pc()?;
+                let value = self.frame_stack.pop_int_val()?;
                 let new_pc = if value == 0 {
                     Self::branch16(pc, offset)
                 } else {
                     pc + instruction.byte_size() as usize
                 };
-                *self.vm.frame_stack.pc_mut()? = new_pc;
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::IfIcmplt(offset) => {
-                let pc = *self.vm.frame_stack.pc()?;
-                let v2 = self.vm.frame_stack.pop_int_val()?;
-                let v1 = self.vm.frame_stack.pop_int_val()?;
+                let pc = *self.frame_stack.pc()?;
+                let v2 = self.frame_stack.pop_int_val()?;
+                let v1 = self.frame_stack.pop_int_val()?;
 
                 let new_pc = if v1 < v2 {
                     Self::branch16(pc, offset)
                 } else {
                     pc + instruction.byte_size() as usize
                 };
-                *self.vm.frame_stack.pc_mut()? = new_pc;
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::IfGt(offset) => {
-                let pc = *self.vm.frame_stack.pc()?;
-                let value = self.vm.frame_stack.pop_int_val()?;
+                let pc = *self.frame_stack.pc()?;
+                let value = self.frame_stack.pop_int_val()?;
                 let new_pc = if value > 0 {
                     Self::branch16(pc, offset)
                 } else {
                     pc + instruction.byte_size() as usize
                 };
-                *self.vm.frame_stack.pc_mut()? = new_pc;
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::IfLe(offset) => {
-                let pc = *self.vm.frame_stack.pc()?;
-                let value = self.vm.frame_stack.pop_int_val()?;
+                let pc = *self.frame_stack.pc()?;
+                let value = self.frame_stack.pop_int_val()?;
                 let new_pc = if value <= 0 {
                     Self::branch16(pc, offset)
                 } else {
                     pc + instruction.byte_size() as usize
                 };
-                *self.vm.frame_stack.pc_mut()? = new_pc;
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::IfLt(offset) => {
-                let pc = *self.vm.frame_stack.pc()?;
-                let value = self.vm.frame_stack.pop_int_val()?;
+                let pc = *self.frame_stack.pc()?;
+                let value = self.frame_stack.pop_int_val()?;
                 let new_pc = if value < 0 {
                     Self::branch16(pc, offset)
                 } else {
                     pc + instruction.byte_size() as usize
                 };
-                *self.vm.frame_stack.pc_mut()? = new_pc;
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::IfGe(offset) => {
-                let pc = *self.vm.frame_stack.pc()?;
-                let value = self.vm.frame_stack.pop_int_val()?;
+                let pc = *self.frame_stack.pc()?;
+                let value = self.frame_stack.pop_int_val()?;
                 let new_pc = if value >= 0 {
                     Self::branch16(pc, offset)
                 } else {
                     pc + instruction.byte_size() as usize
                 };
-                *self.vm.frame_stack.pc_mut()? = new_pc;
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::IfAcmpEq(offset) => {
-                let pc = *self.vm.frame_stack.pc()?;
-                let v2 = self.vm.frame_stack.pop_nullable_ref_val()?;
-                let v1 = self.vm.frame_stack.pop_nullable_ref_val()?;
+                let pc = *self.frame_stack.pc()?;
+                let v2 = self.frame_stack.pop_nullable_ref_val()?;
+                let v1 = self.frame_stack.pop_nullable_ref_val()?;
                 let new_pc = if v1 == v2 {
                     Self::branch16(pc, offset)
                 } else {
                     pc + instruction.byte_size() as usize
                 };
-                *self.vm.frame_stack.pc_mut()? = new_pc;
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::IfAcmpNe(offset) => {
-                let pc = *self.vm.frame_stack.pc()?;
-                let v2 = self.vm.frame_stack.pop_nullable_ref_val()?;
-                let v1 = self.vm.frame_stack.pop_nullable_ref_val()?;
+                let pc = *self.frame_stack.pc()?;
+                let v2 = self.frame_stack.pop_nullable_ref_val()?;
+                let v1 = self.frame_stack.pop_nullable_ref_val()?;
                 let new_pc = if v1 != v2 {
                     Self::branch16(pc, offset)
                 } else {
                     pc + instruction.byte_size() as usize
                 };
-                *self.vm.frame_stack.pc_mut()? = new_pc;
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::IfIcmpne(offset) => {
-                let pc = *self.vm.frame_stack.pc()?;
-                let v2 = self.vm.frame_stack.pop_int_val()?;
-                let v1 = self.vm.frame_stack.pop_int_val()?;
+                let pc = *self.frame_stack.pc()?;
+                let v2 = self.frame_stack.pop_int_val()?;
+                let v1 = self.frame_stack.pop_int_val()?;
                 let new_pc = if v1 != v2 {
                     Self::branch16(pc, offset)
                 } else {
                     pc + instruction.byte_size() as usize
                 };
-                *self.vm.frame_stack.pc_mut()? = new_pc;
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::IfIcmpge(offset) => {
-                let pc = *self.vm.frame_stack.pc()?;
-                let v2 = self.vm.frame_stack.pop_int_val()?;
-                let v1 = self.vm.frame_stack.pop_int_val()?;
+                let pc = *self.frame_stack.pc()?;
+                let v2 = self.frame_stack.pop_int_val()?;
+                let v1 = self.frame_stack.pop_int_val()?;
                 let new_pc = if v1 >= v2 {
                     Self::branch16(pc, offset)
                 } else {
                     pc + instruction.byte_size() as usize
                 };
-                *self.vm.frame_stack.pc_mut()? = new_pc;
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::IfIcmpgt(offset) => {
-                let pc = *self.vm.frame_stack.pc()?;
-                let v2 = self.vm.frame_stack.pop_int_val()?;
-                let v1 = self.vm.frame_stack.pop_int_val()?;
+                let pc = *self.frame_stack.pc()?;
+                let v2 = self.frame_stack.pop_int_val()?;
+                let v1 = self.frame_stack.pop_int_val()?;
                 let new_pc = if v1 > v2 {
                     Self::branch16(pc, offset)
                 } else {
                     pc + instruction.byte_size() as usize
                 };
-                *self.vm.frame_stack.pc_mut()? = new_pc;
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::IfIcmpeq(offset) => {
-                let pc = *self.vm.frame_stack.pc()?;
-                let v2 = self.vm.frame_stack.pop_int_val()?;
-                let v1 = self.vm.frame_stack.pop_int_val()?;
+                let pc = *self.frame_stack.pc()?;
+                let v2 = self.frame_stack.pop_int_val()?;
+                let v1 = self.frame_stack.pop_int_val()?;
                 let new_pc = if v1 == v2 {
                     Self::branch16(pc, offset)
                 } else {
                     pc + instruction.byte_size() as usize
                 };
-                *self.vm.frame_stack.pc_mut()? = new_pc;
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::IfIcmple(offset) => {
-                let pc = *self.vm.frame_stack.pc()?;
-                let v2 = self.vm.frame_stack.pop_int_val()?;
-                let v1 = self.vm.frame_stack.pop_int_val()?;
+                let pc = *self.frame_stack.pc()?;
+                let v2 = self.frame_stack.pop_int_val()?;
+                let v1 = self.frame_stack.pop_int_val()?;
                 let new_pc = if v1 <= v2 {
                     Self::branch16(pc, offset)
                 } else {
                     pc + instruction.byte_size() as usize
                 };
-                *self.vm.frame_stack.pc_mut()? = new_pc;
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::Ifnonnull(offset) => {
-                let pc = *self.vm.frame_stack.pc()?;
-                let obj = self.vm.frame_stack.pop_nullable_ref_val()?;
+                let pc = *self.frame_stack.pc()?;
+                let obj = self.frame_stack.pop_nullable_ref_val()?;
                 let new_pc = if obj.is_some() {
                     Self::branch16(pc, offset)
                 } else {
                     pc + instruction.byte_size() as usize
                 };
-                *self.vm.frame_stack.pc_mut()? = new_pc;
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::IfNe(offset) => {
-                let pc = *self.vm.frame_stack.pc()?;
-                let i = self.vm.frame_stack.pop_int_val()?;
+                let pc = *self.frame_stack.pc()?;
+                let i = self.frame_stack.pop_int_val()?;
                 let new_pc = if i != 0 {
                     Self::branch16(pc, offset)
                 } else {
                     pc + instruction.byte_size() as usize
                 };
-                *self.vm.frame_stack.pc_mut()? = new_pc;
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::Iushr => {
-                let v2 = self.vm.frame_stack.pop_int_val()?;
-                let v1 = self.vm.frame_stack.pop_int_val()?;
+                let v2 = self.frame_stack.pop_int_val()?;
+                let v1 = self.frame_stack.pop_int_val()?;
                 let shift = (v2 & 0x1F) as u32;
                 let result = ((v1 as u32) >> shift) as i32;
-                self.vm.frame_stack.push_operand(Value::Integer(result))?;
+                self.frame_stack.push_operand(Value::Integer(result))?;
             }
             Instruction::Lshl => {
-                let v2 = self.vm.frame_stack.pop_int_val()?;
-                let v1 = self.vm.frame_stack.pop_long_val()?;
+                let v2 = self.frame_stack.pop_int_val()?;
+                let v1 = self.frame_stack.pop_long_val()?;
                 let shift = (v2 & 0x3F) as u32;
                 let result = v1.wrapping_shl(shift);
-                self.vm.frame_stack.push_operand(Value::Long(result))?;
+                self.frame_stack.push_operand(Value::Long(result))?;
             }
             Instruction::Ishl => {
-                let v2 = self.vm.frame_stack.pop_int_val()?;
-                let v1 = self.vm.frame_stack.pop_int_val()?;
+                let v2 = self.frame_stack.pop_int_val()?;
+                let v1 = self.frame_stack.pop_int_val()?;
                 let shift = (v2 & 0x1F) as u32;
                 let result = v1.wrapping_shl(shift);
-                self.vm.frame_stack.push_operand(Value::Integer(result))?;
+                self.frame_stack.push_operand(Value::Integer(result))?;
             }
             Instruction::Ishr => {
-                let v2 = self.vm.frame_stack.pop_int_val()?;
-                let v1 = self.vm.frame_stack.pop_int_val()?;
+                let v2 = self.frame_stack.pop_int_val()?;
+                let v1 = self.frame_stack.pop_int_val()?;
                 let shift = (v2 & 0x1F) as u32;
                 let result = v1.wrapping_shr(shift);
-                self.vm.frame_stack.push_operand(Value::Integer(result))?;
+                self.frame_stack.push_operand(Value::Integer(result))?;
             }
             Instruction::Putstatic(idx) => {
-                let value = self.vm.frame_stack.pop_operand()?;
+                let value = self.frame_stack.pop_operand()?;
                 let class_id = {
-                    let cp = self.vm.frame_stack.cp()?;
+                    let cp = self.frame_stack.cp()?;
                     let field_ref = cp.get_fieldref(&idx)?;
                     self.vm
                         .method_area
                         .get_class_id(field_ref.class_ref()?.name()?)?
                 };
                 self.ensure_initialized(&class_id)?;
-                let cp = self.vm.frame_stack.cp()?;
+                let cp = self.frame_stack.cp()?;
                 let field_ref = cp.get_fieldref(&idx)?;
                 let field_nat = field_ref.name_and_type_ref()?;
                 let class = self.vm.method_area.get_class_by_id(&class_id)?;
@@ -584,23 +631,23 @@ impl Interpreter {
             }
             Instruction::Getstatic(idx) => {
                 let class_id = {
-                    let cp = self.vm.frame_stack.cp()?;
+                    let cp = self.frame_stack.cp()?;
                     let field_ref = cp.get_fieldref(&idx)?;
                     self.vm
                         .method_area
                         .get_class_id(field_ref.class_ref()?.name()?)?
                 };
                 self.ensure_initialized(&class_id)?;
-                let cp = self.vm.frame_stack.cp()?;
+                let cp = self.frame_stack.cp()?;
                 let field_ref = cp.get_fieldref(&idx)?;
                 let field_nat = field_ref.name_and_type_ref()?;
                 let class = self.vm.method_area.get_class_by_id(&class_id)?;
                 let value = class.get_static_field_value_by_nat(field_nat)?;
-                self.vm.frame_stack.push_operand(value)?;
+                self.frame_stack.push_operand(value)?;
             }
             Instruction::InvokeStatic(idx) => {
                 let class_id = {
-                    let cp = self.vm.frame_stack.cp()?;
+                    let cp = self.frame_stack.cp()?;
                     let method_ref = cp.get_methodref(&idx)?;
                     self.vm
                         .method_area
@@ -608,7 +655,7 @@ impl Interpreter {
                 };
                 self.ensure_initialized(&class_id)?;
 
-                let cp = self.vm.frame_stack.cp()?;
+                let cp = self.frame_stack.cp()?;
                 let method_ref = cp.get_methodref(&idx)?;
                 let class = self.vm.method_area.get_class_by_id(&class_id)?.clone();
                 /// FIXME
@@ -617,7 +664,7 @@ impl Interpreter {
                 self.run_static_method_type(&class, method, params)?;
             }
             Instruction::InvokeInterface(idx, _count) => {
-                let cp = self.vm.frame_stack.cp()?;
+                let cp = self.frame_stack.cp()?;
                 let method_ref = cp.get_interface_methodref(&idx)?.clone(); // FIXME
                 let class = self
                     .vm
@@ -637,15 +684,15 @@ impl Interpreter {
                 }
             }
             Instruction::AconstNull => {
-                self.vm.frame_stack.push_operand(Value::Null)?;
+                self.frame_stack.push_operand(Value::Null)?;
             }
             Instruction::Ldc(idx) | Instruction::LdcW(idx) | Instruction::Ldc2W(idx) => {
-                let cp = self.vm.frame_stack.cp()?;
+                let cp = self.frame_stack.cp()?;
                 let raw = cp.get(&idx)?;
                 match raw {
                     RuntimeConstant::String(data) => {
                         let string_addr = self.vm.heap.get_or_new_string(data.value()?);
-                        self.vm.frame_stack.push_operand(Value::Ref(string_addr))?;
+                        self.frame_stack.push_operand(Value::Ref(string_addr))?;
                     }
                     RuntimeConstant::Class(class) => {
                         let class = self
@@ -653,19 +700,19 @@ impl Interpreter {
                             .method_area
                             .get_class_or_load_by_name(class.name()?)?;
                         let class_mirror = self.vm.heap.get_mirror_addr(class)?;
-                        self.vm.frame_stack.push_operand(Value::Ref(class_mirror))?;
+                        self.frame_stack.push_operand(Value::Ref(class_mirror))?;
                     }
                     RuntimeConstant::Double(value) => {
-                        self.vm.frame_stack.push_operand(Value::Double(*value))?;
+                        self.frame_stack.push_operand(Value::Double(*value))?;
                     }
                     RuntimeConstant::Float(value) => {
-                        self.vm.frame_stack.push_operand(Value::Float(*value))?;
+                        self.frame_stack.push_operand(Value::Float(*value))?;
                     }
                     RuntimeConstant::Integer(value) => {
-                        self.vm.frame_stack.push_operand(Value::Integer(*value))?;
+                        self.frame_stack.push_operand(Value::Integer(*value))?;
                     }
                     RuntimeConstant::Long(value) => {
-                        self.vm.frame_stack.push_operand(Value::Long(*value))?;
+                        self.frame_stack.push_operand(Value::Long(*value))?;
                     }
                     _ => throw_exception!(
                         UnsupportedOperationException,
@@ -675,22 +722,22 @@ impl Interpreter {
                 }
             }
             Instruction::Anewarray(idx) => {
-                let cp = self.vm.frame_stack.cp()?;
+                let cp = self.frame_stack.cp()?;
                 let class_ref = cp.get_class(&idx)?;
                 let class = self
                     .vm
                     .method_area
                     .get_class_or_load_by_name(class_ref.name()?)?;
-                let size = self.vm.frame_stack.pop_int_val()?;
+                let size = self.frame_stack.pop_int_val()?;
                 if size >= 0 {
                     let addr = self.vm.heap.alloc_array(class, size as usize)?;
-                    self.vm.frame_stack.push_operand(Value::Ref(addr))?;
+                    self.frame_stack.push_operand(Value::Ref(addr))?;
                 } else {
                     throw_exception!(NegativeArraySizeException, size.to_string())?
                 }
             }
             Instruction::Newarray(array_type) => {
-                let size = self.vm.frame_stack.pop_int_val()?;
+                let size = self.frame_stack.pop_int_val()?;
                 if size >= 0 {
                     let primitive_type_name = array_type.descriptor();
                     let primitive_class = self
@@ -698,55 +745,55 @@ impl Interpreter {
                         .method_area
                         .get_class_or_load_by_name(primitive_type_name)?;
                     let addr = self.vm.heap.alloc_array(primitive_class, size as usize)?;
-                    self.vm.frame_stack.push_operand(Value::Ref(addr))?;
+                    self.frame_stack.push_operand(Value::Ref(addr))?;
                 } else {
                     throw_exception!(NegativeArraySizeException, size.to_string())?
                 }
             }
             Instruction::New(idx) => {
                 let class_id = {
-                    let cp = self.vm.frame_stack.cp()?;
+                    let cp = self.frame_stack.cp()?;
                     let class_ref = cp.get_class(&idx)?;
                     self.vm.method_area.get_class_id(class_ref.name()?)?
                 };
                 self.ensure_initialized(&class_id)?;
                 let class = self.vm.method_area.get_class_by_id(&class_id)?;
                 let addr = self.vm.heap.alloc_instance(class)?;
-                self.vm.frame_stack.push_operand(Value::Ref(addr))?;
+                self.frame_stack.push_operand(Value::Ref(addr))?;
             }
             Instruction::Dup => {
-                let value = self.vm.frame_stack.peek()?;
-                self.vm.frame_stack.push_operand(*value)?;
+                let value = self.frame_stack.peek()?;
+                self.frame_stack.push_operand(*value)?;
             }
-            Instruction::Dup2 => match self.vm.frame_stack.peek()? {
+            Instruction::Dup2 => match self.frame_stack.peek()? {
                 Value::Long(_) => {
-                    let value = self.vm.frame_stack.pop_long()?;
-                    self.vm.frame_stack.push_operand(value)?;
-                    self.vm.frame_stack.push_operand(value)?;
+                    let value = self.frame_stack.pop_long()?;
+                    self.frame_stack.push_operand(value)?;
+                    self.frame_stack.push_operand(value)?;
                 }
                 Value::Double(_) => {
-                    let value = self.vm.frame_stack.pop_double()?;
-                    self.vm.frame_stack.push_operand(value)?;
-                    self.vm.frame_stack.push_operand(value)?;
+                    let value = self.frame_stack.pop_double()?;
+                    self.frame_stack.push_operand(value)?;
+                    self.frame_stack.push_operand(value)?;
                 }
                 _ => {
-                    let value1 = self.vm.frame_stack.pop_operand()?;
-                    let value2 = self.vm.frame_stack.pop_operand()?;
-                    self.vm.frame_stack.push_operand(value2)?;
-                    self.vm.frame_stack.push_operand(value1)?;
-                    self.vm.frame_stack.push_operand(value2)?;
-                    self.vm.frame_stack.push_operand(value1)?;
+                    let value1 = self.frame_stack.pop_operand()?;
+                    let value2 = self.frame_stack.pop_operand()?;
+                    self.frame_stack.push_operand(value2)?;
+                    self.frame_stack.push_operand(value1)?;
+                    self.frame_stack.push_operand(value2)?;
+                    self.frame_stack.push_operand(value1)?;
                 }
             },
             Instruction::DupX1 => {
-                let value1 = self.vm.frame_stack.pop_operand()?;
-                let value2 = self.vm.frame_stack.pop_operand()?;
-                self.vm.frame_stack.push_operand(value1)?;
-                self.vm.frame_stack.push_operand(value2)?;
-                self.vm.frame_stack.push_operand(value1)?;
+                let value1 = self.frame_stack.pop_operand()?;
+                let value2 = self.frame_stack.pop_operand()?;
+                self.frame_stack.push_operand(value1)?;
+                self.frame_stack.push_operand(value2)?;
+                self.frame_stack.push_operand(value1)?;
             }
             Instruction::InvokeSpecial(idx) => {
-                let cp = self.vm.frame_stack.cp()?;
+                let cp = self.frame_stack.cp()?;
                 let method_ref = cp.get_methodref(&idx)?;
                 let class = self
                     .vm
@@ -766,7 +813,7 @@ impl Interpreter {
                 self.interpret_method_code(method.instructions()?, frame)?;
             }
             Instruction::InvokeVirtual(idx) => {
-                let cp = self.vm.frame_stack.cp()?;
+                let cp = self.frame_stack.cp()?;
                 let method_ref = cp.get_methodref(&idx)?.clone(); // FIXME
                 let class = self
                     .vm
@@ -795,29 +842,29 @@ impl Interpreter {
                 }?;
             }
             Instruction::Aload0 => {
-                let value = self.vm.frame_stack.get_local_ref(0)?;
-                self.vm.frame_stack.push_operand(*value)?
+                let value = self.frame_stack.get_local_ref(0)?;
+                self.frame_stack.push_operand(*value)?
             }
             Instruction::Aload1 => {
-                let value = self.vm.frame_stack.get_local_ref(1)?;
-                self.vm.frame_stack.push_operand(*value)?
+                let value = self.frame_stack.get_local_ref(1)?;
+                self.frame_stack.push_operand(*value)?
             }
             Instruction::Aload2 => {
-                let value = self.vm.frame_stack.get_local_ref(2)?;
-                self.vm.frame_stack.push_operand(*value)?
+                let value = self.frame_stack.get_local_ref(2)?;
+                self.frame_stack.push_operand(*value)?
             }
             Instruction::Aload3 => {
-                let value = self.vm.frame_stack.get_local_ref(3)?;
-                self.vm.frame_stack.push_operand(*value)?
+                let value = self.frame_stack.get_local_ref(3)?;
+                self.frame_stack.push_operand(*value)?
             }
             Instruction::Aload(idx) => {
-                let value = self.vm.frame_stack.get_local_ref(idx)?;
-                self.vm.frame_stack.push_operand(*value)?
+                let value = self.frame_stack.get_local_ref(idx)?;
+                self.frame_stack.push_operand(*value)?
             }
             Instruction::Bastore => {
-                let value = self.vm.frame_stack.pop_int_val()?;
-                let index = self.vm.frame_stack.pop_int_val()?;
-                let array_addr = self.vm.frame_stack.pop_obj_val()?;
+                let value = self.frame_stack.pop_int_val()?;
+                let index = self.frame_stack.pop_int_val()?;
+                let array_addr = self.frame_stack.pop_obj_val()?;
                 self.vm.heap.write_array_element(
                     array_addr,
                     index,
@@ -825,9 +872,9 @@ impl Interpreter {
                 )?;
             }
             Instruction::Sastore => {
-                let value = self.vm.frame_stack.pop_int_val()?;
-                let index = self.vm.frame_stack.pop_int_val()?;
-                let array_addr = self.vm.frame_stack.pop_obj_val()?;
+                let value = self.frame_stack.pop_int_val()?;
+                let index = self.frame_stack.pop_int_val()?;
+                let array_addr = self.frame_stack.pop_obj_val()?;
                 self.vm.heap.write_array_element(
                     array_addr,
                     index,
@@ -835,21 +882,19 @@ impl Interpreter {
                 )?;
             }
             Instruction::Saload => {
-                let index = self.vm.frame_stack.pop_int_val()?;
-                let array_addr = self.vm.frame_stack.pop_obj_val()?;
+                let index = self.frame_stack.pop_int_val()?;
+                let array_addr = self.frame_stack.pop_obj_val()?;
                 let value = *self.vm.heap.get_array(&array_addr)?.get_element(index)?;
                 if let Value::Integer(i) = value {
-                    self.vm
-                        .frame_stack
-                        .push_operand(Value::Integer(i & 0xFFFF))?;
+                    self.frame_stack.push_operand(Value::Integer(i & 0xFFFF))?;
                 } else {
                     panic!("Expected integer value in saload");
                 }
             }
             Instruction::Castore => {
-                let value = self.vm.frame_stack.pop_int_val()?;
-                let index = self.vm.frame_stack.pop_int_val()?;
-                let array_addr = self.vm.frame_stack.pop_obj_val()?;
+                let value = self.frame_stack.pop_int_val()?;
+                let index = self.frame_stack.pop_int_val()?;
+                let array_addr = self.frame_stack.pop_obj_val()?;
                 self.vm.heap.write_array_element(
                     array_addr,
                     index,
@@ -857,77 +902,73 @@ impl Interpreter {
                 )?;
             }
             Instruction::Instanceof(idx) => {
-                let cp = self.vm.frame_stack.cp()?;
+                let cp = self.frame_stack.cp()?;
                 let class_ref = cp.get_class(&idx)?;
                 let other_class = self.vm.method_area.get_class_id(class_ref.name()?)?;
-                let obj_addr = self.vm.frame_stack.pop_nullable_ref_val()?;
+                let obj_addr = self.frame_stack.pop_nullable_ref_val()?;
                 if let Some(addr) = &obj_addr {
                     let target_class_id = self.vm.heap.get_instance(addr)?.class_id();
                     let target_class = self.vm.method_area.get_class_by_id(target_class_id)?;
                     let result = target_class.instance_of(&other_class);
-                    self.vm
-                        .frame_stack
+                    self.frame_stack
                         .push_operand(Value::Integer(if result { 1 } else { 0 }))?;
                 } else {
-                    self.vm.frame_stack.push_operand(Value::Integer(0))?;
+                    self.frame_stack.push_operand(Value::Integer(0))?;
                 }
             }
             Instruction::Iastore => {
-                let value = self.vm.frame_stack.pop_int_val()?;
-                let index = self.vm.frame_stack.pop_int_val()?;
-                let array_addr = self.vm.frame_stack.pop_obj_val()?;
+                let value = self.frame_stack.pop_int_val()?;
+                let index = self.frame_stack.pop_int_val()?;
+                let array_addr = self.frame_stack.pop_obj_val()?;
                 self.vm
                     .heap
                     .write_array_element(array_addr, index, Value::Integer(value))?;
             }
             Instruction::Aastore => {
-                let value = self.vm.frame_stack.pop_nullable_ref()?;
-                let index = self.vm.frame_stack.pop_int_val()?;
-                let array_addr = self.vm.frame_stack.pop_obj_val()?;
+                let value = self.frame_stack.pop_nullable_ref()?;
+                let index = self.frame_stack.pop_int_val()?;
+                let array_addr = self.frame_stack.pop_obj_val()?;
                 self.vm.heap.write_array_element(array_addr, index, value)?;
             }
             Instruction::Astore0 => {
-                let value = self.vm.frame_stack.pop_nullable_ref()?;
-                self.vm.frame_stack.set_local(0, value)?;
+                let value = self.frame_stack.pop_nullable_ref()?;
+                self.frame_stack.set_local(0, value)?;
             }
             Instruction::Astore1 => {
-                let value = self.vm.frame_stack.pop_nullable_ref()?;
-                self.vm.frame_stack.set_local(1, value)?;
+                let value = self.frame_stack.pop_nullable_ref()?;
+                self.frame_stack.set_local(1, value)?;
             }
             Instruction::Astore2 => {
-                let value = self.vm.frame_stack.pop_nullable_ref()?;
-                self.vm.frame_stack.set_local(2, value)?;
+                let value = self.frame_stack.pop_nullable_ref()?;
+                self.frame_stack.set_local(2, value)?;
             }
             Instruction::Astore3 => {
-                let value = self.vm.frame_stack.pop_nullable_ref()?;
-                self.vm.frame_stack.set_local(3, value)?;
+                let value = self.frame_stack.pop_nullable_ref()?;
+                self.frame_stack.set_local(3, value)?;
             }
             Instruction::Astore(idx) => {
-                let value = self.vm.frame_stack.pop_nullable_ref()?;
-                self.vm.frame_stack.set_local(idx as usize, value)?;
+                let value = self.frame_stack.pop_nullable_ref()?;
+                self.frame_stack.set_local(idx as usize, value)?;
             }
             Instruction::ArrayLength => {
-                let array_addr = self.vm.frame_stack.pop_obj_val()?;
+                let array_addr = self.frame_stack.pop_obj_val()?;
                 let length = self.vm.heap.get_array(&array_addr)?.length();
-                self.vm
-                    .frame_stack
+                self.frame_stack
                     .push_operand(Value::Integer(length as i32))?;
             }
             Instruction::Bipush(value) => {
-                self.vm
-                    .frame_stack
+                self.frame_stack
                     .push_operand(Value::Integer(value as i32))?;
             }
             Instruction::Sipush(value) => {
-                self.vm
-                    .frame_stack
+                self.frame_stack
                     .push_operand(Value::Integer(value as i32))?;
             }
             Instruction::Getfield(idx) => {
-                let object_addr = self.vm.frame_stack.pop_obj_val()?;
+                let object_addr = self.frame_stack.pop_obj_val()?;
                 let class_id = self.vm.heap.get_class_id(&object_addr);
                 let field_offset = {
-                    let cp = self.vm.frame_stack.cp()?;
+                    let cp = self.frame_stack.cp()?;
                     let nat = cp.get_fieldref(&idx)?.name_and_type_ref()?;
                     self.vm
                         .method_area
@@ -938,141 +979,134 @@ impl Interpreter {
                     .vm
                     .heap
                     .get_instance_field(&object_addr, field_offset)?;
-                self.vm.frame_stack.push_operand(value)?;
+                self.frame_stack.push_operand(value)?;
             }
             Instruction::Iand => {
-                let v2 = self.vm.frame_stack.pop_int_val()?;
-                let v1 = self.vm.frame_stack.pop_int_val()?;
-                self.vm.frame_stack.push_operand(Value::Integer(v1 & v2))?;
+                let v2 = self.frame_stack.pop_int_val()?;
+                let v1 = self.frame_stack.pop_int_val()?;
+                self.frame_stack.push_operand(Value::Integer(v1 & v2))?;
             }
             Instruction::Ior => {
-                let v2 = self.vm.frame_stack.pop_int_val()?;
-                let v1 = self.vm.frame_stack.pop_int_val()?;
-                self.vm.frame_stack.push_operand(Value::Integer(v1 | v2))?;
+                let v2 = self.frame_stack.pop_int_val()?;
+                let v1 = self.frame_stack.pop_int_val()?;
+                self.frame_stack.push_operand(Value::Integer(v1 | v2))?;
             }
             Instruction::Ixor => {
-                let v2 = self.vm.frame_stack.pop_int_val()?;
-                let v1 = self.vm.frame_stack.pop_int_val()?;
-                self.vm.frame_stack.push_operand(Value::Integer(v1 ^ v2))?;
+                let v2 = self.frame_stack.pop_int_val()?;
+                let v1 = self.frame_stack.pop_int_val()?;
+                self.frame_stack.push_operand(Value::Integer(v1 ^ v2))?;
             }
             Instruction::L2i => {
-                let v = self.vm.frame_stack.pop_long_val()?;
-                self.vm.frame_stack.push_operand(Value::Integer(v as i32))?;
+                let v = self.frame_stack.pop_long_val()?;
+                self.frame_stack.push_operand(Value::Integer(v as i32))?;
             }
             Instruction::L2f => {
-                let v = self.vm.frame_stack.pop_long_val()?;
-                self.vm.frame_stack.push_operand(Value::Float(v as f32))?;
+                let v = self.frame_stack.pop_long_val()?;
+                self.frame_stack.push_operand(Value::Float(v as f32))?;
             }
             Instruction::D2l => {
-                let v = self.vm.frame_stack.pop_double_val()?;
-                self.vm.frame_stack.push_operand(Value::Long(v as i64))?;
+                let v = self.frame_stack.pop_double_val()?;
+                self.frame_stack.push_operand(Value::Long(v as i64))?;
             }
             Instruction::F2i => {
-                let v = self.vm.frame_stack.pop_float_val()?;
-                self.vm.frame_stack.push_operand(Value::Integer(v as i32))?;
+                let v = self.frame_stack.pop_float_val()?;
+                self.frame_stack.push_operand(Value::Integer(v as i32))?;
             }
             Instruction::F2d => {
-                let v = self.vm.frame_stack.pop_float_val()?;
-                self.vm.frame_stack.push_operand(Value::Double(v as f64))?;
+                let v = self.frame_stack.pop_float_val()?;
+                self.frame_stack.push_operand(Value::Double(v as f64))?;
             }
             Instruction::Ineg => {
-                let v = self.vm.frame_stack.pop_int_val()?;
-                self.vm.frame_stack.push_operand(Value::Integer(-v))?;
+                let v = self.frame_stack.pop_int_val()?;
+                self.frame_stack.push_operand(Value::Integer(-v))?;
             }
             Instruction::I2s => {
-                let v = self.vm.frame_stack.pop_int_val()?;
-                self.vm
-                    .frame_stack
+                let v = self.frame_stack.pop_int_val()?;
+                self.frame_stack
                     .push_operand(Value::Integer((v as i16) as i32))?;
             }
             Instruction::I2c => {
-                let v = self.vm.frame_stack.pop_int_val()?;
-                self.vm
-                    .frame_stack
+                let v = self.frame_stack.pop_int_val()?;
+                self.frame_stack
                     .push_operand(Value::Integer((v as u16) as i32))?;
             }
             Instruction::I2l => {
-                let v = self.vm.frame_stack.pop_int_val()?;
-                self.vm.frame_stack.push_operand(Value::Long(v as i64))?;
+                let v = self.frame_stack.pop_int_val()?;
+                self.frame_stack.push_operand(Value::Long(v as i64))?;
             }
             Instruction::I2f => {
-                let v = self.vm.frame_stack.pop_int_val()?;
-                self.vm.frame_stack.push_operand(Value::Float(v as f32))?;
+                let v = self.frame_stack.pop_int_val()?;
+                self.frame_stack.push_operand(Value::Float(v as f32))?;
             }
             Instruction::I2b => {
-                let v = self.vm.frame_stack.pop_int_val()?;
-                self.vm
-                    .frame_stack
+                let v = self.frame_stack.pop_int_val()?;
+                self.frame_stack
                     .push_operand(Value::Integer((v as i8) as i32))?;
             }
             Instruction::Fmul => {
-                let v2 = self.vm.frame_stack.pop_float_val()?;
-                let v1 = self.vm.frame_stack.pop_float_val()?;
-                self.vm.frame_stack.push_operand(Value::Float(v1 * v2))?;
+                let v2 = self.frame_stack.pop_float_val()?;
+                let v1 = self.frame_stack.pop_float_val()?;
+                self.frame_stack.push_operand(Value::Float(v1 * v2))?;
             }
             Instruction::Fdiv => {
-                let v2 = self.vm.frame_stack.pop_float_val()?;
-                let v1 = self.vm.frame_stack.pop_float_val()?;
-                self.vm.frame_stack.push_operand(Value::Float(v1 / v2))?;
+                let v2 = self.frame_stack.pop_float_val()?;
+                let v1 = self.frame_stack.pop_float_val()?;
+                self.frame_stack.push_operand(Value::Float(v1 / v2))?;
             }
             Instruction::Irem => {
-                let v2 = self.vm.frame_stack.pop_int_val()?;
-                let v1 = self.vm.frame_stack.pop_int_val()?;
+                let v2 = self.frame_stack.pop_int_val()?;
+                let v1 = self.frame_stack.pop_int_val()?;
                 if v2 == 0 {
                     throw_exception!(ArithmeticException, "Division by zero")?
                 }
-                self.vm.frame_stack.push_operand(Value::Integer(v1 % v2))?;
+                self.frame_stack.push_operand(Value::Integer(v1 % v2))?;
             }
             Instruction::Iadd => {
-                let v2 = self.vm.frame_stack.pop_int_val()?;
-                let v1 = self.vm.frame_stack.pop_int_val()?;
-                self.vm
-                    .frame_stack
+                let v2 = self.frame_stack.pop_int_val()?;
+                let v1 = self.frame_stack.pop_int_val()?;
+                self.frame_stack
                     .push_operand(Value::Integer(v1.wrapping_add(v2)))?;
             }
             Instruction::Ladd => {
-                let v2 = self.vm.frame_stack.pop_long_val()?;
-                let v1 = self.vm.frame_stack.pop_long_val()?;
-                self.vm
-                    .frame_stack
+                let v2 = self.frame_stack.pop_long_val()?;
+                let v1 = self.frame_stack.pop_long_val()?;
+                self.frame_stack
                     .push_operand(Value::Long(v1.wrapping_add(v2)))?;
             }
             Instruction::Isub => {
-                let v2 = self.vm.frame_stack.pop_int_val()?;
-                let v1 = self.vm.frame_stack.pop_int_val()?;
-                self.vm.frame_stack.push_operand(Value::Integer(v1 - v2))?;
+                let v2 = self.frame_stack.pop_int_val()?;
+                let v1 = self.frame_stack.pop_int_val()?;
+                self.frame_stack.push_operand(Value::Integer(v1 - v2))?;
             }
             Instruction::Imul => {
-                let v2 = self.vm.frame_stack.pop_int_val()?;
-                let v1 = self.vm.frame_stack.pop_int_val()?;
-                self.vm
-                    .frame_stack
+                let v2 = self.frame_stack.pop_int_val()?;
+                let v1 = self.frame_stack.pop_int_val()?;
+                self.frame_stack
                     .push_operand(Value::Integer(v1.wrapping_mul(v2)))?;
             }
             Instruction::Idiv => {
-                let v2 = self.vm.frame_stack.pop_int_val()?;
-                let v1 = self.vm.frame_stack.pop_int_val()?;
+                let v2 = self.frame_stack.pop_int_val()?;
+                let v1 = self.frame_stack.pop_int_val()?;
                 if v2 == 0 {
                     throw_exception!(ArithmeticException, "/ by zero")?
                 }
-                self.vm.frame_stack.push_operand(Value::Integer(v1 / v2))?;
+                self.frame_stack.push_operand(Value::Integer(v1 / v2))?;
             }
             Instruction::Iinc(index, const_val) => {
-                let value = self.vm.frame_stack.get_local_int_val(index)?;
-                self.vm
-                    .frame_stack
+                let value = self.frame_stack.get_local_int_val(index)?;
+                self.frame_stack
                     .set_local(index as usize, Value::Integer(value + (const_val as i32)))?;
             }
             Instruction::Goto(offset) => {
-                let pc = *self.vm.frame_stack.pc()?;
+                let pc = *self.frame_stack.pc()?;
                 let new_pc = Self::branch16(pc, offset);
-                *self.vm.frame_stack.pc_mut()? = new_pc;
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::Putfield(idx) => {
-                let value = self.vm.frame_stack.pop_operand()?;
-                let object_addr = self.vm.frame_stack.pop_obj_val()?;
+                let value = self.frame_stack.pop_operand()?;
+                let object_addr = self.frame_stack.pop_obj_val()?;
                 let offset = {
-                    let cp = self.vm.frame_stack.cp()?;
+                    let cp = self.frame_stack.cp()?;
                     let nat = cp.get_fieldref(&idx)?.name_and_type_ref()?;
                     self.vm
                         .method_area
@@ -1084,18 +1118,18 @@ impl Interpreter {
                     .write_instance_field(object_addr, offset, value)?;
             }
             Instruction::Lookupswitch(switch) => {
-                let key = self.vm.frame_stack.pop_int_val()?;
-                let pc = *self.vm.frame_stack.pc()?;
+                let key = self.frame_stack.pop_int_val()?;
+                let pc = *self.frame_stack.pc()?;
                 let target_offset = match switch.pairs.binary_search_by_key(&key, |p| p.0) {
                     Ok(i) => switch.pairs[i].1,
                     Err(_) => switch.default_offset,
                 };
                 let new_pc = Self::branch32(pc, target_offset);
-                *self.vm.frame_stack.pc_mut()? = new_pc;
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::TableSwitch(switch) => {
-                let index = self.vm.frame_stack.pop_int_val()?;
-                let pc = *self.vm.frame_stack.pc()?;
+                let index = self.frame_stack.pop_int_val()?;
+                let pc = *self.frame_stack.pc()?;
                 let target_offset = if index < switch.low || index > switch.high {
                     switch.default_offset
                 } else {
@@ -1103,30 +1137,30 @@ impl Interpreter {
                     switch.offsets[idx]
                 };
                 let new_pc = Self::branch32(pc, target_offset);
-                *self.vm.frame_stack.pc_mut()? = new_pc;
+                *self.frame_stack.pc_mut()? = new_pc;
             }
             Instruction::Areturn => {
-                let value = self.vm.frame_stack.pop_nullable_ref()?;
+                let value = self.frame_stack.pop_nullable_ref()?;
                 self.pop_frame()?;
-                self.vm.frame_stack.push_operand(value)?;
+                self.frame_stack.push_operand(value)?;
                 return Ok(true);
             }
             Instruction::Ireturn => {
-                let value = self.vm.frame_stack.pop_int()?;
+                let value = self.frame_stack.pop_int()?;
                 self.pop_frame()?;
-                self.vm.frame_stack.push_operand(value)?;
+                self.frame_stack.push_operand(value)?;
                 return Ok(true);
             }
             Instruction::Lreturn => {
-                let value = self.vm.frame_stack.pop_long()?;
+                let value = self.frame_stack.pop_long()?;
                 self.pop_frame()?;
-                self.vm.frame_stack.push_operand(value)?;
+                self.frame_stack.push_operand(value)?;
                 return Ok(true);
             }
             Instruction::Freturn => {
-                let value = self.vm.frame_stack.pop_float()?;
+                let value = self.frame_stack.pop_float()?;
                 self.pop_frame()?;
-                self.vm.frame_stack.push_operand(value)?;
+                self.frame_stack.push_operand(value)?;
                 return Ok(true);
             }
             Instruction::Return => {
@@ -1134,13 +1168,13 @@ impl Interpreter {
                 return Ok(true);
             }
             Instruction::Pop => {
-                self.vm.frame_stack.pop_operand()?;
+                self.frame_stack.pop_operand()?;
             }
             Instruction::Monitorenter => {
-                let _obj = self.vm.frame_stack.pop_obj_val()?;
+                let _obj = self.frame_stack.pop_obj_val()?;
             }
             Instruction::Monitorexit => {
-                let _obj = self.vm.frame_stack.pop_obj_val()?;
+                let _obj = self.frame_stack.pop_obj_val()?;
             }
             unimpl => throw_exception!(
                 UnsupportedOperationException,
@@ -1149,7 +1183,7 @@ impl Interpreter {
             )?,
         }
         if need_increase_pc {
-            *self.vm.frame_stack.pc_mut()? += instruction_byte_size as usize;
+            *self.frame_stack.pc_mut()? += instruction_byte_size as usize;
         }
         Ok(false)
     }
@@ -1183,8 +1217,8 @@ impl Interpreter {
                 method.descriptor().raw()
             )))?;
 
-        if let Some(ret_value) = method(&mut self.vm, params.as_slice())? {
-            self.vm.frame_stack.push_operand(ret_value)?;
+        if let Some(ret_value) = method(&mut self.vm, &self.frame_stack, params.as_slice())? {
+            self.frame_stack.push_operand(ret_value)?;
         }
 
         Ok(())
@@ -1194,7 +1228,7 @@ impl Interpreter {
         let params_count = method_type.params_count();
         let mut params = Vec::with_capacity(params_count);
         for _ in 0..params_count {
-            params.push(self.vm.frame_stack.pop_operand()?);
+            params.push(self.frame_stack.pop_operand()?);
         }
         params.reverse();
         Ok(params)
@@ -1308,12 +1342,12 @@ impl Interpreter {
                 method.name(),
                 method.descriptor().raw()
             )))?;
-        self.vm.frame_stack.push_frame(frame)?;
-        match method(&mut self.vm, params.as_slice()) {
+        self.frame_stack.push_frame(frame)?;
+        match method(&mut self.vm, &self.frame_stack, params.as_slice()) {
             Ok(ret_value) => {
-                self.vm.frame_stack.pop_native_frame()?;
+                self.frame_stack.pop_native_frame()?;
                 if let Some(ret_value) = ret_value {
-                    self.vm.frame_stack.push_operand(ret_value)?;
+                    self.frame_stack.push_operand(ret_value)?;
                 }
             }
             Err(e) => match e {
@@ -1340,7 +1374,7 @@ impl Interpreter {
     }
 
     //TODO: redisign start method (maybe return Value, maybe take args)
-    pub fn start(&mut self) -> Result<(), JvmError> {
+    pub fn start_main(&mut self) -> Result<(), JvmError> {
         let main_class = self
             .vm
             .method_area

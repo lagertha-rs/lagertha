@@ -3,6 +3,7 @@ use crate::heap::method_area::MethodArea;
 use crate::interpreter::Interpreter;
 use crate::native::NativeRegistry;
 use crate::stack::FrameStack;
+use crate::thread::ThreadState;
 use common::error::JvmError;
 use common::jtype::Value;
 use lasso::{Spur, ThreadedRodeo};
@@ -17,6 +18,7 @@ mod interpreter;
 mod native;
 pub mod rt;
 pub mod stack;
+mod thread;
 mod throw;
 
 pub type ClassId = Spur;
@@ -51,7 +53,6 @@ pub struct VirtualMachine {
     heap: Heap,
     method_area: MethodArea,
     native_registry: NativeRegistry,
-    frame_stack: FrameStack,
     string_interner: Arc<ThreadedRodeo>,
 }
 
@@ -63,14 +64,15 @@ impl VirtualMachine {
         let heap = Heap::new(&mut method_area)?;
 
         let native_registry = NativeRegistry::new(string_interner.clone());
-        Ok(Self {
-            frame_stack: FrameStack::new(&config),
+        let mut vm = Self {
             method_area,
             config,
             heap,
             native_registry,
             string_interner,
-        })
+        };
+
+        Ok(vm)
     }
 }
 
@@ -78,8 +80,9 @@ pub fn start(config: VmConfig) -> Result<(), JvmError> {
     debug!("Starting VM with config: {:?}", config);
     let vm = VirtualMachine::new(config)?;
 
-    let mut interpreter = Interpreter::new(vm);
-    match interpreter.start() {
+    let mut interpreter = Interpreter::new(vm)?;
+
+    match interpreter.start_main() {
         Ok(_) => {
             debug!("VM execution finished successfully");
             Ok(())
