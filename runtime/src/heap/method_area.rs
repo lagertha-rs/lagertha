@@ -1,6 +1,6 @@
 use crate::class_loader::ClassLoader;
 use crate::rt::class_deprecated::ClassDeprecated;
-use crate::rt::method::MethodDeprecated;
+use crate::rt::method_deprecated::MethodDeprecated;
 use crate::{ClassIdDeprecated, MethodIdDeprecated, VmConfig};
 use common::error::{JvmError, LinkageError};
 use common::instruction::ArrayType;

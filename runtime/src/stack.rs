@@ -1,6 +1,6 @@
 use crate::VmConfig;
 use crate::rt::constant_pool::RuntimeConstantPool;
-use crate::rt::method::MethodDeprecated;
+use crate::rt::method_deprecated::MethodDeprecated;
 use common::error::{JavaExceptionFromJvm, JvmError};
 use common::jtype::{HeapAddr, Value};
 use log::debug;

@@ -1,7 +1,7 @@
 use crate::rt::class_deprecated::{ClassDeprecated, InitState};
 use crate::rt::constant_pool::RuntimeConstant;
 use crate::rt::constant_pool::reference::MethodReference;
-use crate::rt::method::{MethodDeprecated, MethodType};
+use crate::rt::method_deprecated::{MethodDeprecated, MethodType};
 use crate::stack::{FrameStack, FrameType, JavaFrame, NativeFrame};
 use crate::thread::ThreadState;
 use crate::{ClassIdDeprecated, VirtualMachine, throw_exception};

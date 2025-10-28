@@ -5,7 +5,7 @@ use crate::rt::constant_pool::reference::{
     MethodDescriptorReference, MethodReference, NameAndTypeReference,
 };
 use crate::rt::field::{Field, StaticField};
-use crate::rt::method::{MethodDeprecated, MethodType};
+use crate::rt::method_deprecated::{MethodDeprecated, MethodType};
 use common::descriptor::MethodDescriptor;
 use common::error::{JavaExceptionFromJvm, JvmError};
 use common::instruction::ArrayType;
