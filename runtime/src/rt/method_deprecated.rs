@@ -1,7 +1,7 @@
 use crate::native::MethodKey;
 use crate::rt::class_deprecated::ClassDeprecated;
-use crate::rt::constant_pool::RuntimeConstantPool;
-use crate::rt::constant_pool::reference::MethodDescriptorReference;
+use crate::rt::constant_pool::reference_deprecated::MethodDescriptorReferenceDeprecated;
+use crate::rt::constant_pool::rt_cp_deprecated::RuntimeConstantPoolDeprecated;
 use crate::{ClassIdDeprecated, MethodIdDeprecated};
 use common::error::{JvmError, LinkageError};
 use jclass::attribute::method::code::{
@@ -43,7 +43,7 @@ pub struct MethodDeprecated {
     name: Arc<str>,
     flags: MethodFlags,
     class: SyncOnceCell<Arc<ClassDeprecated>>,
-    descriptor: Arc<MethodDescriptorReference>,
+    descriptor: Arc<MethodDescriptorReferenceDeprecated>,
     code_context: Option<CodeContext>,
     signature: Option<Arc<str>>,
     rt_visible_annotations: Option<Vec<Annotation>>,
@@ -56,7 +56,7 @@ pub struct MethodDeprecated {
 impl MethodDeprecated {
     pub fn new_native(
         name: Arc<str>,
-        descriptor: Arc<MethodDescriptorReference>,
+        descriptor: Arc<MethodDescriptorReferenceDeprecated>,
         flags: MethodFlags,
     ) -> Self {
         MethodDeprecated {
@@ -78,7 +78,7 @@ impl MethodDeprecated {
     pub fn new(
         method_info: MethodInfo,
         method_type: MethodType,
-        cp: &RuntimeConstantPool,
+        cp: &RuntimeConstantPoolDeprecated,
     ) -> Result<Self, LinkageError> {
         let name_idx = method_info.name_index;
         let name = cp.get_utf8_arc(&name_idx)?;
@@ -201,7 +201,7 @@ impl MethodDeprecated {
         self.name.clone()
     }
 
-    pub fn descriptor(&self) -> &Arc<MethodDescriptorReference> {
+    pub fn descriptor(&self) -> &Arc<MethodDescriptorReferenceDeprecated> {
         &self.descriptor
     }
 

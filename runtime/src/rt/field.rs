@@ -1,5 +1,5 @@
-use crate::rt::constant_pool::RuntimeConstantPool;
-use crate::rt::constant_pool::reference::FieldDescriptorReference;
+use crate::rt::constant_pool::reference_deprecated::FieldDescriptorReferenceDeprecated;
+use crate::rt::constant_pool::rt_cp_deprecated::RuntimeConstantPoolDeprecated;
 use common::error::JvmError;
 use common::jtype::Value;
 use jclass::field::FieldInfo;
@@ -12,19 +12,22 @@ use std::sync::Arc;
 pub struct Field {
     name: Arc<str>,
     flags: FieldFlags,
-    descriptor: Arc<FieldDescriptorReference>,
+    descriptor: Arc<FieldDescriptorReferenceDeprecated>,
 }
 
 #[derive(Debug)]
 pub struct StaticField {
     name: Arc<str>,
     flags: FieldFlags,
-    descriptor: Arc<FieldDescriptorReference>,
+    descriptor: Arc<FieldDescriptorReferenceDeprecated>,
     value: RefCell<Value>,
 }
 
 impl Field {
-    pub fn new(field_info: FieldInfo, cp: &RuntimeConstantPool) -> Result<Self, JvmError> {
+    pub fn new(
+        field_info: FieldInfo,
+        cp: &RuntimeConstantPoolDeprecated,
+    ) -> Result<Self, JvmError> {
         let name = cp.get_utf8_arc(&field_info.name_index)?;
         let flags = field_info.access_flags;
         let descriptor = cp.get_field_descriptor(&field_info.descriptor_index)?;
@@ -46,13 +49,16 @@ impl Field {
         &self.name
     }
 
-    pub fn descriptor(&self) -> &Arc<FieldDescriptorReference> {
+    pub fn descriptor(&self) -> &Arc<FieldDescriptorReferenceDeprecated> {
         &self.descriptor
     }
 }
 
 impl StaticField {
-    pub fn new(field_info: FieldInfo, cp: &RuntimeConstantPool) -> Result<Self, JvmError> {
+    pub fn new(
+        field_info: FieldInfo,
+        cp: &RuntimeConstantPoolDeprecated,
+    ) -> Result<Self, JvmError> {
         let name = cp.get_utf8_arc(&field_info.name_index)?;
         let flags = field_info.access_flags;
         let descriptor = cp.get_field_descriptor(&field_info.descriptor_index)?;
@@ -72,7 +78,7 @@ impl StaticField {
         self.name.clone()
     }
 
-    pub fn descriptor(&self) -> &Arc<FieldDescriptorReference> {
+    pub fn descriptor(&self) -> &Arc<FieldDescriptorReferenceDeprecated> {
         &self.descriptor
     }
 

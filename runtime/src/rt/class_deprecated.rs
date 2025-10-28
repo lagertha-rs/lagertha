@@ -1,9 +1,9 @@
 use crate::ClassIdDeprecated;
 use crate::heap::method_area::MethodArea;
-use crate::rt::constant_pool::RuntimeConstantPool;
-use crate::rt::constant_pool::reference::{
-    MethodDescriptorReference, MethodReference, NameAndTypeReference,
+use crate::rt::constant_pool::reference_deprecated::{
+    MethodDescriptorReferenceDeprecated, MethodReferenceDeprecated, NameAndTypeReferenceDeprecated,
 };
+use crate::rt::constant_pool::rt_cp_deprecated::RuntimeConstantPoolDeprecated;
 use crate::rt::field::{Field, StaticField};
 use crate::rt::method_deprecated::{MethodDeprecated, MethodType};
 use common::descriptor::MethodDescriptor;
@@ -46,7 +46,7 @@ pub struct ClassDeprecated {
     static_methods: HashMap<usize, Arc<MethodDeprecated>>,
     initializer: Option<Arc<MethodDeprecated>>,
     attributes: Vec<ClassAttribute>,
-    cp: Arc<RuntimeConstantPool>,
+    cp: Arc<RuntimeConstantPoolDeprecated>,
     state: RwLock<InitState>,
     mirror: OnceCell<HeapAddr>,
     source_file: Option<Arc<str>>,
@@ -58,7 +58,7 @@ impl ClassDeprecated {
         cf: ClassFile,
         method_area: &mut MethodArea,
     ) -> Result<Arc<Self>, JvmError> {
-        let cp = Arc::new(RuntimeConstantPool::new(cf.cp.inner));
+        let cp = Arc::new(RuntimeConstantPoolDeprecated::new(cf.cp.inner));
         let name = cp.get_class(&cf.this_class)?.name_arc()?;
         let access = cf.access_flags;
         let mut method_idx: NatHashMap<usize> = HashMap::new();
@@ -274,7 +274,7 @@ impl ClassDeprecated {
             .map_err(|_| JvmError::ClassMirrorIsAlreadyCreated)
     }
 
-    pub fn cp(&self) -> &Arc<RuntimeConstantPool> {
+    pub fn cp(&self) -> &Arc<RuntimeConstantPoolDeprecated> {
         &self.cp
     }
 
@@ -325,7 +325,7 @@ impl ClassDeprecated {
     /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-5.html#jvms-5.4.3.2
     pub fn set_static_field_by_nat(
         &self,
-        nat: &NameAndTypeReference,
+        nat: &NameAndTypeReferenceDeprecated,
         value: Value,
     ) -> Result<(), JvmError> {
         let name = nat.name()?;
@@ -366,7 +366,10 @@ impl ClassDeprecated {
         }
     }
 
-    pub fn get_field_index_by_nat(&self, nat: &NameAndTypeReference) -> Result<usize, JvmError> {
+    pub fn get_field_index_by_nat(
+        &self,
+        nat: &NameAndTypeReferenceDeprecated,
+    ) -> Result<usize, JvmError> {
         let name = nat.name()?;
 
         self.get_field_index(name)
@@ -374,7 +377,7 @@ impl ClassDeprecated {
 
     pub fn get_static_field_value_by_nat(
         &self,
-        nat: &NameAndTypeReference,
+        nat: &NameAndTypeReferenceDeprecated,
     ) -> Result<Value, JvmError> {
         let name = nat.name()?;
         let descriptor = nat.field_descriptor_ref()?.raw();
@@ -405,7 +408,7 @@ impl ClassDeprecated {
 
     pub fn get_static_method_by_nat(
         &self,
-        method_ref: &MethodReference,
+        method_ref: &MethodReferenceDeprecated,
     ) -> Result<&Arc<MethodDeprecated>, JvmError> {
         let nat = method_ref.name_and_type_ref()?;
         let name = nat.name()?;
@@ -453,7 +456,7 @@ impl ClassDeprecated {
 
     pub fn get_virtual_method_by_nat(
         &self,
-        method_ref: &MethodReference,
+        method_ref: &MethodReferenceDeprecated,
     ) -> Result<&Arc<MethodDeprecated>, JvmError> {
         let nat = method_ref.name_and_type_ref()?;
         let name = nat.name()?;
@@ -465,8 +468,8 @@ impl ClassDeprecated {
     // Returns method and the constant pool of the class where the method was found
     pub fn get_virtual_method_and_cp_by_nat(
         &self,
-        method_ref: &MethodReference,
-    ) -> Result<(&Arc<MethodDeprecated>, &Arc<RuntimeConstantPool>), JvmError> {
+        method_ref: &MethodReferenceDeprecated,
+    ) -> Result<(&Arc<MethodDeprecated>, &Arc<RuntimeConstantPoolDeprecated>), JvmError> {
         let nat = method_ref.name_and_type_ref()?;
         let name = nat.name()?;
         let descriptor = nat.method_descriptor_ref()?.raw();
@@ -486,7 +489,7 @@ impl ClassDeprecated {
         &self,
         name: &str,
         descriptor: &str,
-    ) -> Option<(&Arc<MethodDeprecated>, &Arc<RuntimeConstantPool>)> {
+    ) -> Option<(&Arc<MethodDeprecated>, &Arc<RuntimeConstantPoolDeprecated>)> {
         if let Some(m) = self.method_idx.get(name).and_then(|m| m.get(descriptor)) {
             let method = self.methods.get(m).unwrap();
             return Some((method, &self.cp));
@@ -547,8 +550,11 @@ impl ClassDeprecated {
         let raw_descriptor: &str = "()Ljava/lang/Object;";
 
         let resolved_descriptor = MethodDescriptor::try_from(raw_descriptor).unwrap();
-        let clone_native_descriptor =
-            MethodDescriptorReference::new(0, Arc::from(raw_descriptor), resolved_descriptor);
+        let clone_native_descriptor = MethodDescriptorReferenceDeprecated::new(
+            0,
+            Arc::from(raw_descriptor),
+            resolved_descriptor,
+        );
 
         let clone_method = Arc::new(MethodDeprecated::new_native(
             clone_method_name.clone(),
@@ -578,7 +584,7 @@ impl ClassDeprecated {
             pretty_name: OnceCell::new(),
             initializer: None,
             attributes: vec![],
-            cp: Arc::new(RuntimeConstantPool::new(vec![])),
+            cp: Arc::new(RuntimeConstantPoolDeprecated::new(vec![])),
             state: RwLock::new(InitState::Initialized),
             mirror: OnceCell::new(),
         });

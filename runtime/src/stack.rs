@@ -1,5 +1,5 @@
 use crate::VmConfig;
-use crate::rt::constant_pool::RuntimeConstantPool;
+use crate::rt::constant_pool::rt_cp_deprecated::RuntimeConstantPoolDeprecated;
 use crate::rt::method_deprecated::MethodDeprecated;
 use common::error::{JavaExceptionFromJvm, JvmError};
 use common::jtype::{HeapAddr, Value};
@@ -304,7 +304,7 @@ impl FrameStack {
         self.cur_java_frame_mut()?.pop_operand()
     }
 
-    pub fn cp(&self) -> Result<&RuntimeConstantPool, JvmError> {
+    pub fn cp(&self) -> Result<&RuntimeConstantPoolDeprecated, JvmError> {
         self.cur_java_frame().map(|v| v.cp.as_ref())
     }
 
@@ -347,14 +347,14 @@ impl NativeFrame {
 pub struct JavaFrame {
     locals: Vec<Option<Value>>,
     operands: Vec<Value>,
-    cp: Arc<RuntimeConstantPool>,
+    cp: Arc<RuntimeConstantPoolDeprecated>,
     pc: usize,
     method: Arc<MethodDeprecated>,
 }
 
 impl JavaFrame {
     pub fn new(
-        cp: Arc<RuntimeConstantPool>,
+        cp: Arc<RuntimeConstantPoolDeprecated>,
         method: Arc<MethodDeprecated>,
         locals: Vec<Option<Value>>,
     ) -> Result<Self, JvmError> {

@@ -23,6 +23,13 @@ pub type ClassIdDeprecated = Spur;
 pub type ThreadId = usize;
 
 pub type MethodIdDeprecated = usize;
+#[repr(transparent)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+pub struct MethodId(NonZeroU32);
+
+#[repr(transparent)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+pub struct ClassId(NonZeroU32);
 
 pub type Sym = Spur;
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]

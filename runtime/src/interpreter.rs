@@ -1,6 +1,6 @@
 use crate::rt::class_deprecated::{ClassDeprecated, InitState};
-use crate::rt::constant_pool::RuntimeConstant;
-use crate::rt::constant_pool::reference::MethodReference;
+use crate::rt::constant_pool::reference_deprecated::MethodReferenceDeprecated;
+use crate::rt::constant_pool::rt_cp_deprecated::RuntimeConstantDeprecated;
 use crate::rt::method_deprecated::{MethodDeprecated, MethodType};
 use crate::stack::{FrameStack, FrameType, JavaFrame, NativeFrame};
 use crate::thread::ThreadState;
@@ -695,11 +695,11 @@ impl Interpreter {
                 let cp = self.frame_stack.cp()?;
                 let raw = cp.get(&idx)?;
                 match raw {
-                    RuntimeConstant::String(data) => {
+                    RuntimeConstantDeprecated::String(data) => {
                         let string_addr = self.vm.heap.get_or_new_string(data.value()?);
                         self.frame_stack.push_operand(Value::Ref(string_addr))?;
                     }
-                    RuntimeConstant::Class(class) => {
+                    RuntimeConstantDeprecated::Class(class) => {
                         let class = self
                             .vm
                             .method_area
@@ -707,16 +707,16 @@ impl Interpreter {
                         let class_mirror = self.vm.heap.get_mirror_addr(class)?;
                         self.frame_stack.push_operand(Value::Ref(class_mirror))?;
                     }
-                    RuntimeConstant::Double(value) => {
+                    RuntimeConstantDeprecated::Double(value) => {
                         self.frame_stack.push_operand(Value::Double(*value))?;
                     }
-                    RuntimeConstant::Float(value) => {
+                    RuntimeConstantDeprecated::Float(value) => {
                         self.frame_stack.push_operand(Value::Float(*value))?;
                     }
-                    RuntimeConstant::Integer(value) => {
+                    RuntimeConstantDeprecated::Integer(value) => {
                         self.frame_stack.push_operand(Value::Integer(*value))?;
                     }
-                    RuntimeConstant::Long(value) => {
+                    RuntimeConstantDeprecated::Long(value) => {
                         self.frame_stack.push_operand(Value::Long(*value))?;
                     }
                     _ => throw_exception!(
@@ -1285,7 +1285,7 @@ impl Interpreter {
     fn run_abstract_method(
         &mut self,
         abstract_method: &Arc<MethodDeprecated>,
-        method_ref: &MethodReference,
+        method_ref: &MethodReferenceDeprecated,
         params: Vec<Value>,
     ) -> Result<(), JvmError> {
         let obj_ref = params[0].as_obj_ref()?;
@@ -1303,7 +1303,7 @@ impl Interpreter {
     fn run_instance_method_type(
         &mut self,
         method: &Arc<MethodDeprecated>,
-        method_ref: &MethodReference,
+        method_ref: &MethodReferenceDeprecated,
         params: Vec<Value>,
     ) -> Result<(), JvmError> {
         match method.type_of() {

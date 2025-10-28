@@ -1,12 +1,14 @@
 use crate::class_loader::ClassLoader;
 use crate::rt::class_deprecated::ClassDeprecated;
+use crate::rt::method::Method;
 use crate::rt::method_deprecated::MethodDeprecated;
-use crate::{ClassIdDeprecated, MethodIdDeprecated, VmConfig};
+use crate::{ClassIdDeprecated, MethodId, MethodIdDeprecated, VmConfig};
 use common::error::{JvmError, LinkageError};
 use common::instruction::ArrayType;
 use jclass::ClassFile;
 use lasso::ThreadedRodeo;
 use std::collections::HashMap;
+use std::num::NonZeroU32;
 use std::sync::Arc;
 use tracing_log::log::debug;
 
@@ -16,11 +18,20 @@ use tracing_log::log::debug;
 pub struct MethodArea {
     bootstrap_class_loader: ClassLoader,
     classes: HashMap<ClassIdDeprecated, Arc<ClassDeprecated>>,
-    methods: Vec<MethodDeprecated>,
-    string_interner: Arc<ThreadedRodeo>,
+    methods: Vec<Method>,
+    pub string_interner: Arc<ThreadedRodeo>,
 }
 
 impl MethodArea {
+    pub fn push_method(&mut self, method: Method) -> MethodId {
+        self.methods.push(method);
+        MethodId(NonZeroU32::new(self.methods.len() as u32).unwrap())
+    }
+
+    pub fn get_method(&self, method_id: MethodId) -> &Method {
+        &self.methods[(method_id.0.get() - 1) as usize]
+    }
+
     pub fn new(
         vm_config: &VmConfig,
         string_interner: Arc<ThreadedRodeo>,
