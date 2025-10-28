@@ -2,17 +2,15 @@ use crate::heap::Heap;
 use crate::heap::method_area::MethodArea;
 use crate::interpreter::Interpreter;
 use crate::native::NativeRegistry;
-use crate::stack::FrameStack;
-use crate::thread::ThreadState;
 use common::error::JvmError;
-use common::jtype::Value;
+use common::jtype::{HeapAddr, Value};
 use lasso::{Spur, ThreadedRodeo};
+use std::num::NonZeroU32;
 use std::path::PathBuf;
 use std::sync::Arc;
 use tracing_log::log::debug;
 
 mod class_loader;
-pub mod error;
 pub mod heap;
 mod interpreter;
 mod native;
@@ -22,7 +20,16 @@ mod thread;
 mod throw;
 
 pub type ClassId = Spur;
+pub type ThreadId = usize;
+
 pub type MethodId = usize;
+
+pub type Sym = Spur;
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
+pub struct MethodKey {
+    pub name: Sym,
+    pub desc: Sym,
+}
 
 #[derive(Debug)]
 pub struct VmConfig {
@@ -64,23 +71,60 @@ impl VirtualMachine {
         let heap = Heap::new(&mut method_area)?;
 
         let native_registry = NativeRegistry::new(string_interner.clone());
-        let mut vm = Self {
+        Ok(Self {
             method_area,
             config,
             heap,
             native_registry,
             string_interner,
-        };
-
-        Ok(vm)
+        })
     }
+}
+
+fn print_stack_trace_todo_refactor(exception_ref: HeapAddr, interpreter: &mut Interpreter) {
+    let exception_class_id = {
+        let exception = interpreter
+            .vm()
+            .heap
+            .get_instance(&exception_ref)
+            .expect("Exception object should exist");
+        *exception.class_id()
+    };
+    let exception_class = interpreter
+        .vm()
+        .method_area
+        .get_class_by_id(&exception_class_id)
+        .expect("Exception class should exist");
+    let print_stack_trace_method = exception_class
+        .get_virtual_method("printStackTrace", "()V")
+        .expect("Exception class should have printStackTrace method")
+        .clone();
+    let param = vec![Value::Ref(exception_ref)];
+    interpreter
+        .run_instance_method(&print_stack_trace_method, param)
+        .expect("printStackTrace should run without errors");
 }
 
 pub fn start(config: VmConfig) -> Result<(), JvmError> {
     debug!("Starting VM with config: {:?}", config);
     let vm = VirtualMachine::new(config)?;
 
-    let mut interpreter = Interpreter::new(vm)?;
+    let mut interpreter = Interpreter::new(vm);
+
+    /*
+    if let Err(e) = interpreter.initialize_main_thread() {
+        match e {
+            JvmError::JavaExceptionThrown(addr) => {
+                print_stack_trace_todo_refactor(addr, &mut interpreter);
+                Err(e)?
+            }
+            _ => {
+                eprintln!("VM execution failed with error: {:?}", e);
+                Err(e)?
+            }
+        }
+    }
+     */
 
     match interpreter.start_main() {
         Ok(_) => {
@@ -89,20 +133,7 @@ pub fn start(config: VmConfig) -> Result<(), JvmError> {
         }
         Err(e) => match e {
             JvmError::JavaExceptionThrown(addr) => {
-                let exception_class_id = {
-                    let exception = interpreter.vm().heap.get_instance(&addr)?;
-                    *exception.class_id()
-                };
-                let exception_class = interpreter
-                    .vm()
-                    .method_area
-                    .get_class_by_id(&exception_class_id)?;
-                let print_stack_trace_method = exception_class
-                    .get_virtual_method("printStackTrace", "()V")
-                    .expect("Exception class should have printStackTrace method")
-                    .clone();
-                let param = vec![Value::Ref(addr)];
-                interpreter.run_instance_method(&print_stack_trace_method, param)?;
+                print_stack_trace_todo_refactor(addr, &mut interpreter);
                 Err(e)
             }
             _ => {

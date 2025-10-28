@@ -24,26 +24,29 @@ const THREAD_GROUP_CLASS_NAME: &str = "java/lang/ThreadGroup";
 const THREAD_CLASS_NAME: &str = "java/lang/Thread";
 
 impl Interpreter {
-    pub fn new(vm: VirtualMachine) -> Result<Self, JvmError> {
-        let mut interpreter = Self {
+    pub fn new(vm: VirtualMachine) -> Self {
+        Self {
             frame_stack: FrameStack::new(&vm.config),
             vm,
             cur_thread: None,
-        };
-        let main_string_ref = interpreter.vm.heap.get_or_new_string("main");
+        }
+    }
 
-        let thread_group_class = interpreter
+    pub fn initialize_main_thread(&mut self) -> Result<(), JvmError> {
+        let main_string_ref = self.vm.heap.get_or_new_string("main");
+
+        let thread_group_class = self
             .vm
             .method_area
             .get_class_or_load_by_name(THREAD_GROUP_CLASS_NAME)?
             .clone();
-        let system_thread_group_ref = interpreter.vm.heap.alloc_instance(&thread_group_class)?;
+        let system_thread_group_ref = self.vm.heap.alloc_instance(&thread_group_class)?;
         let thread_group_no_arg_constructor =
             thread_group_class.get_virtual_method("<init>", "()V")?;
         let param = vec![Value::Ref(system_thread_group_ref)];
-        interpreter.run_instance_method(thread_group_no_arg_constructor, param)?;
+        self.run_instance_method(thread_group_no_arg_constructor, param)?;
 
-        let main_thread_group_ref = interpreter.vm.heap.alloc_instance(&thread_group_class)?;
+        let main_thread_group_ref = self.vm.heap.alloc_instance(&thread_group_class)?;
         let thread_group_parent_name_constructor = thread_group_class
             .get_virtual_method("<init>", "(Ljava/lang/ThreadGroup;Ljava/lang/String;)V")?;
         let param = vec![
@@ -51,24 +54,23 @@ impl Interpreter {
             Value::Ref(system_thread_group_ref),
             Value::Ref(main_string_ref),
         ];
-        interpreter.run_instance_method(thread_group_parent_name_constructor, param)?;
+        self.run_instance_method(thread_group_parent_name_constructor, param)?;
 
-        let thread_class = interpreter
+        let thread_class = self
             .vm
             .method_area
             .get_class_or_load_by_name(THREAD_CLASS_NAME)?
             .clone();
-        let thread_group_name_constructor = thread_class
+        let thread_constructor = thread_class
             .get_virtual_method("<init>", "(Ljava/lang/ThreadGroup;Ljava/lang/String;)V")?;
-        let main_thread_ref = interpreter.vm.heap.alloc_instance(&thread_class)?;
+        let main_thread_ref = self.vm.heap.alloc_instance(&thread_class)?;
         let param = vec![
             Value::Ref(main_thread_ref),
             Value::Ref(main_thread_group_ref),
             Value::Ref(main_string_ref),
         ];
-        interpreter.run_instance_method(thread_group_name_constructor, param)?;
-
-        Ok(interpreter)
+        self.run_instance_method(thread_constructor, param)?;
+        Ok(())
     }
 
     pub fn vm(&mut self) -> &mut VirtualMachine {
@@ -1210,12 +1212,15 @@ impl Interpreter {
             .vm
             .native_registry
             .get(&method_key)
-            .ok_or(JvmError::NoSuchMethod(format!(
-                "{} {} {}",
-                class.name(),
-                method.name(),
-                method.descriptor().raw()
-            )))?;
+            //TODO: improve
+            .ok_or(JvmError::JavaException(
+                JavaExceptionFromJvm::NoSuchMethodError(Some(format!(
+                    "{}.{}({})",
+                    class.name(),
+                    method.name(),
+                    method.descriptor().raw()
+                ))),
+            ))?;
 
         if let Some(ret_value) = method(&mut self.vm, &self.frame_stack, params.as_slice())? {
             self.frame_stack.push_operand(ret_value)?;
@@ -1336,12 +1341,15 @@ impl Interpreter {
             .vm
             .native_registry
             .get(&method_key)
-            .ok_or(JvmError::NoSuchMethod(format!(
-                "{} {} {}",
-                class.name(),
-                method.name(),
-                method.descriptor().raw()
-            )))?;
+            //TODO: improve
+            .ok_or(JvmError::JavaException(
+                JavaExceptionFromJvm::NoSuchMethodError(Some(format!(
+                    "{}.{}({})",
+                    class.name(),
+                    method.name(),
+                    method.descriptor().raw()
+                ))),
+            ))?;
         self.frame_stack.push_frame(frame)?;
         match method(&mut self.vm, &self.frame_stack, params.as_slice()) {
             Ok(ret_value) => {

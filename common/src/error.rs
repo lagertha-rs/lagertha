@@ -179,8 +179,6 @@ pub enum JvmError {
     OutOfMemory,
     #[error("Could not find or load main class {0}")]
     NoMainClassFound(String),
-    #[error("NoSuchMethod: {0}")]
-    NoSuchMethod(String),
     #[error("NoSuchField: {0}")]
     NoSuchFieldError(String),
     #[error("LocalVariableNotFound: {0}")]
@@ -224,6 +222,7 @@ pub enum JavaExceptionFromJvm {
     NullPointerException(Option<String>),
     ArrayStoreException(Option<String>),
     InternalError(Option<String>),
+    NoSuchMethodError(Option<String>),
 }
 
 impl Display for JavaExceptionFromJvm {
@@ -254,6 +253,7 @@ impl JavaExceptionFromJvm {
             JavaExceptionFromJvm::NullPointerException(m) => *m = Some(msg),
             JavaExceptionFromJvm::ArrayStoreException(m) => *m = Some(msg),
             JavaExceptionFromJvm::InternalError(m) => *m = Some(msg),
+            JavaExceptionFromJvm::NoSuchMethodError(m) => *m = Some(msg),
         }
     }
 
@@ -266,6 +266,7 @@ impl JavaExceptionFromJvm {
             JavaExceptionFromJvm::NullPointerException(msg) => msg.is_some(),
             JavaExceptionFromJvm::ArrayStoreException(msg) => msg.is_some(),
             JavaExceptionFromJvm::InternalError(msg) => msg.is_some(),
+            JavaExceptionFromJvm::NoSuchMethodError(msg) => msg.is_some(),
         }
     }
 
@@ -284,6 +285,7 @@ impl JavaExceptionFromJvm {
             JavaExceptionFromJvm::NullPointerException(_) => "java/lang/NullPointerException",
             JavaExceptionFromJvm::ArrayStoreException(_) => "java/lang/ArrayStoreException",
             JavaExceptionFromJvm::InternalError(_) => "java/lang/InternalError",
+            JavaExceptionFromJvm::NoSuchMethodError(_) => "java/lang/NoSuchMethodError",
         }
     }
 
@@ -302,6 +304,7 @@ impl JavaExceptionFromJvm {
             JavaExceptionFromJvm::NullPointerException(_) => "java.lang.NullPointerException",
             JavaExceptionFromJvm::ArrayStoreException(_) => "java.lang.ArrayStoreException",
             JavaExceptionFromJvm::InternalError(_) => "java.lang.InternalError",
+            JavaExceptionFromJvm::NoSuchMethodError(_) => "java.lang.NoSuchMethodException",
         }
     }
 
@@ -328,6 +331,7 @@ impl JavaExceptionFromJvm {
             JavaExceptionFromJvm::ArrayStoreException(msg) => msg,
             JavaExceptionFromJvm::NullPointerException(msg) => msg,
             JavaExceptionFromJvm::InternalError(msg) => msg,
+            JavaExceptionFromJvm::NoSuchMethodError(msg) => msg,
         }
     }
 }

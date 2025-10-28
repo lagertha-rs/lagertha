@@ -1,6 +1,7 @@
 use crate::class_loader::ClassLoader;
 use crate::rt::class::Class;
-use crate::{ClassId, VmConfig};
+use crate::rt::method::Method;
+use crate::{ClassId, MethodId, VmConfig};
 use common::error::{JvmError, LinkageError};
 use common::instruction::ArrayType;
 use jclass::ClassFile;
@@ -15,6 +16,7 @@ use tracing_log::log::debug;
 pub struct MethodArea {
     bootstrap_class_loader: ClassLoader,
     classes: HashMap<ClassId, Arc<Class>>,
+    methods: Vec<Method>,
     string_interner: Arc<ThreadedRodeo>,
 }
 
@@ -26,6 +28,7 @@ impl MethodArea {
         debug!("Initializing MethodArea...");
         let bootstrap_class_loader = ClassLoader::new(vm_config)?;
         let method_area = Self {
+            methods: Vec::new(),
             classes: HashMap::new(),
             bootstrap_class_loader,
             string_interner,

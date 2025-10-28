@@ -7,7 +7,7 @@ use crate::rt::constant_pool::reference::{
 use crate::rt::field::{Field, StaticField};
 use crate::rt::method::{Method, MethodType};
 use common::descriptor::MethodDescriptor;
-use common::error::JvmError;
+use common::error::{JavaExceptionFromJvm, JvmError};
 use common::instruction::ArrayType;
 use common::jtype::{HeapAddr, Value};
 use jclass::ClassFile;
@@ -36,8 +36,6 @@ pub struct Class {
     name: Arc<str>,
     pretty_name: OnceCell<String>,
     access: ClassFlags,
-    minor_version: u16,
-    major_version: u16,
     super_class: Option<Arc<Class>>,
     fields: Vec<Field>,
     field_idx: NatHashMap<usize>,
@@ -61,8 +59,6 @@ impl Class {
         method_area: &mut MethodArea,
     ) -> Result<Arc<Self>, JvmError> {
         let cp = Arc::new(RuntimeConstantPool::new(cf.cp.inner));
-        let minor_version = cf.minor_version;
-        let major_version = cf.major_version;
         let name = cp.get_class(&cf.this_class)?.name_arc()?;
         let access = cf.access_flags;
         let mut method_idx: NatHashMap<usize> = HashMap::new();
@@ -175,8 +171,6 @@ impl Class {
             name,
             access,
             super_class,
-            minor_version,
-            major_version,
             fields,
             field_idx,
             static_fields,
@@ -435,12 +429,15 @@ impl Class {
         descriptor: &str,
     ) -> Result<&Arc<Method>, JvmError> {
         self.get_static_method_recursive(name, descriptor)
-            .ok_or(JvmError::NoSuchMethod(format!(
-                "{}.{}.{}",
-                self.name(),
-                name,
-                descriptor
-            )))
+            //TODO: improve
+            .ok_or(JvmError::JavaException(
+                JavaExceptionFromJvm::NoSuchMethodError(Some(format!(
+                    "{}.{}({})",
+                    self.name(),
+                    name,
+                    descriptor
+                ))),
+            ))
     }
 
     pub fn get_virtual_method_by_nat(
@@ -464,12 +461,14 @@ impl Class {
         let descriptor = nat.method_descriptor_ref()?.raw();
 
         self.get_virtual_method_recursive(name, descriptor)
-            .ok_or(JvmError::NoSuchMethod(format!(
-                "{}.{}{}",
-                self.name(),
-                name,
-                descriptor
-            )))
+            .ok_or(JvmError::JavaException(
+                JavaExceptionFromJvm::NoSuchMethodError(Some(format!(
+                    "{}.{}({})",
+                    self.name(),
+                    name,
+                    descriptor
+                ))),
+            ))
     }
 
     fn get_virtual_method_recursive(
@@ -495,12 +494,14 @@ impl Class {
     ) -> Result<&Arc<Method>, JvmError> {
         self.get_virtual_method_recursive(name, descriptor)
             .map(|(m, _)| m)
-            .ok_or(JvmError::NoSuchMethod(format!(
-                "{}.{}{}",
-                self.name(),
-                name,
-                descriptor
-            )))
+            .ok_or(JvmError::JavaException(
+                JavaExceptionFromJvm::NoSuchMethodError(Some(format!(
+                    "{}.{}({})",
+                    self.name(),
+                    name,
+                    descriptor
+                ))),
+            ))
     }
 
     pub fn is_subclass_of(&self, name: &str) -> bool {
@@ -551,8 +552,6 @@ impl Class {
             source_file: None,
             name: class_name,
             access: ClassFlags::new(0),
-            minor_version: 0,
-            major_version: 0,
             super_class: None,
             fields: vec![],
             field_idx: HashMap::new(),
