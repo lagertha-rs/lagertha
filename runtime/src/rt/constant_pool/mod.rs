@@ -1,4 +1,4 @@
-use crate::Sym;
+use crate::Symbol;
 use crate::rt::constant_pool::entry::{
     ClassEntry, FieldEntry, FieldEntryView, MethodEntry, MethodEntryView, NameAndTypeEntry,
     NameAndTypeEntryView, StringEntry, Utf8Entry,
@@ -146,7 +146,11 @@ impl RuntimeConstantPool {
             .ok_or(RuntimePoolError::WrongIndex(*idx))
     }
 
-    pub fn get_utf8(&self, idx: &u16, interner: &ThreadedRodeo) -> Result<Sym, RuntimePoolError> {
+    pub fn get_utf8(
+        &self,
+        idx: &u16,
+        interner: &ThreadedRodeo,
+    ) -> Result<Symbol, RuntimePoolError> {
         match self.entry(idx)? {
             RuntimeConstant::Utf8(entry) => Ok(*entry
                 .utf8_sym
@@ -248,7 +252,11 @@ impl RuntimeConstantPool {
         }
     }
 
-    pub fn get_string(&self, idx: &u16, interner: &ThreadedRodeo) -> Result<Sym, RuntimePoolError> {
+    pub fn get_string(
+        &self,
+        idx: &u16,
+        interner: &ThreadedRodeo,
+    ) -> Result<Symbol, RuntimePoolError> {
         match self.entry(idx)? {
             RuntimeConstant::String(entry) => entry
                 .string_sym
@@ -264,7 +272,11 @@ impl RuntimeConstantPool {
         }
     }
 
-    pub fn get_class(&self, idx: &u16, interner: &ThreadedRodeo) -> Result<Sym, RuntimePoolError> {
+    pub fn get_class(
+        &self,
+        idx: &u16,
+        interner: &ThreadedRodeo,
+    ) -> Result<Symbol, RuntimePoolError> {
         match self.entry(idx)? {
             RuntimeConstant::Class(entry) => entry
                 .name_sym

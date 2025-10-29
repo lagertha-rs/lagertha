@@ -1,9 +1,9 @@
-use crate::Sym;
+use crate::Symbol;
 use once_cell::sync::OnceCell;
 
 pub(super) struct Utf8Entry {
     pub value: String,
-    pub utf8_sym: OnceCell<Sym>,
+    pub utf8_sym: OnceCell<Symbol>,
 }
 
 impl Utf8Entry {
@@ -17,7 +17,7 @@ impl Utf8Entry {
 
 pub(super) struct ClassEntry {
     pub name_idx: u16,
-    pub name_sym: OnceCell<Sym>,
+    pub name_sym: OnceCell<Symbol>,
 }
 
 impl ClassEntry {
@@ -31,7 +31,7 @@ impl ClassEntry {
 
 pub(super) struct StringEntry {
     pub string_idx: u16,
-    pub string_sym: OnceCell<Sym>,
+    pub string_sym: OnceCell<Symbol>,
 }
 
 impl StringEntry {
@@ -46,7 +46,7 @@ impl StringEntry {
 pub(super) struct MethodEntry {
     pub class_idx: u16,
     pub nat_idx: u16,
-    pub class_sym: OnceCell<Sym>,
+    pub class_sym: OnceCell<Symbol>,
 }
 
 impl MethodEntry {
@@ -61,12 +61,12 @@ impl MethodEntry {
 
 #[derive(Copy, Clone)]
 pub struct MethodEntryView {
-    pub class_sym: Sym,
+    pub class_sym: Symbol,
     pub name_and_type: NameAndTypeEntryView,
 }
 
 impl MethodEntryView {
-    pub fn new(class_sym: Sym, name_and_type: NameAndTypeEntryView) -> Self {
+    pub fn new(class_sym: Symbol, name_and_type: NameAndTypeEntryView) -> Self {
         Self {
             class_sym,
             name_and_type,
@@ -77,7 +77,7 @@ impl MethodEntryView {
 pub(super) struct FieldEntry {
     pub class_idx: u16,
     pub nat_idx: u16,
-    pub class_sym: OnceCell<Sym>,
+    pub class_sym: OnceCell<Symbol>,
 }
 
 impl FieldEntry {
@@ -91,12 +91,12 @@ impl FieldEntry {
 }
 
 pub struct FieldEntryView {
-    pub class_sym: Sym,
+    pub class_sym: Symbol,
     pub name_and_type: NameAndTypeEntryView,
 }
 
 impl FieldEntryView {
-    pub fn new(class_sym: Sym, name_and_type: NameAndTypeEntryView) -> Self {
+    pub fn new(class_sym: Symbol, name_and_type: NameAndTypeEntryView) -> Self {
         Self {
             class_sym,
             name_and_type,
@@ -107,8 +107,8 @@ impl FieldEntryView {
 pub(super) struct NameAndTypeEntry {
     pub name_idx: u16,
     pub descriptor_idx: u16,
-    pub name_sym: OnceCell<Sym>,
-    pub descriptor_sym: OnceCell<Sym>,
+    pub name_sym: OnceCell<Symbol>,
+    pub descriptor_sym: OnceCell<Symbol>,
 }
 
 impl NameAndTypeEntry {
@@ -124,12 +124,12 @@ impl NameAndTypeEntry {
 
 #[derive(Copy, Clone)]
 pub struct NameAndTypeEntryView {
-    pub name_sym: Sym,
-    pub descriptor_sym: Sym,
+    pub name_sym: Symbol,
+    pub descriptor_sym: Symbol,
 }
 
 impl NameAndTypeEntryView {
-    pub fn new(name_sym: Sym, descriptor_sym: Sym) -> Self {
+    pub fn new(name_sym: Symbol, descriptor_sym: Symbol) -> Self {
         Self {
             name_sym,
             descriptor_sym,

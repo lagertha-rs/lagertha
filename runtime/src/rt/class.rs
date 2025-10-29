@@ -1,5 +1,6 @@
 use crate::heap::method_area::MethodArea;
-use crate::rt::constant_pool::rt_cp_deprecated::RuntimeConstantPoolDeprecated;
+use crate::heap::method_area_deprecated::MethodAreaDeprecated;
+use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::method::Method;
 use crate::{ClassId, MethodId, MethodKey};
 use common::error::JvmError;
@@ -16,14 +17,18 @@ pub struct Class {
 }
 
 impl Class {
-    pub fn new(cf: ClassFile, method_area: &mut MethodArea) -> Result<Self, JvmError> {
-        let cp = Arc::new(RuntimeConstantPoolDeprecated::new(cf.cp.inner));
-        let mut declared_index = HashMap::new();
+    pub fn new(
+        cf: ClassFile,
+        method_area: &mut MethodArea,
+        super_id: Option<ClassId>,
+    ) -> Result<Self, JvmError> {
+        let cp = Arc::new(RuntimeConstantPool::new(cf.cp.inner));
+        //let mut declared_index = HashMap::new();
         for method in cf.methods {
-            let name = cp.get_utf8(&method.name_index)?;
-            let desc = cp.get_utf8(&method.descriptor_index)?;
-            let name_id = method_area.string_interner.get_or_intern(name);
-            let desc_id = method_area.string_interner.get_or_intern(desc);
+            let name = cp.get_utf8(&method.name_index, &method_area.string_interner)?;
+            let desc = cp.get_utf8(&method.descriptor_index, &method_area.string_interner)?;
+            /*
+            let method = Method::new(method, )
 
             if method.access_flags.is_static()
                 || method.access_flags.is_private()
@@ -41,8 +46,13 @@ impl Class {
                 );
                 continue;
             }
+
+             */
             // register methods
         }
-        todo!()
+        Ok(Self {
+            super_id,
+            declared_index: HashMap::new(),
+        })
     }
 }

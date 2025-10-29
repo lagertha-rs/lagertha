@@ -44,6 +44,14 @@ impl ClassFile {
             .then_some(())
             .ok_or(ClassFormatErr::WrongMagic(val))
     }
+
+    pub fn get_super_class_name(&self) -> Option<Result<&str, ClassFormatErr>> {
+        if self.super_class == 0 {
+            None
+        } else {
+            Some(self.cp.get_class_name(&self.super_class))
+        }
+    }
 }
 
 impl TryFrom<Vec<u8>> for ClassFile {

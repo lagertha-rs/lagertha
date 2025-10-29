@@ -21,6 +21,25 @@ impl ConstantPool {
                 )),
             })
     }
+
+    pub fn get_class_name(&self, idx: &u16) -> Result<&str, ClassFormatErr> {
+        let name_index = self.get_class(idx)?;
+        self.get_utf8(&name_index)
+    }
+
+    pub fn get_class(&self, idx: &u16) -> Result<u16, ClassFormatErr> {
+        self.inner
+            .get(*idx as usize)
+            .ok_or(ClassFormatErr::ConstantNotFound(*idx))
+            .and_then(|entry| match entry {
+                ConstantInfo::Class(name_index) => Ok(*name_index),
+                e => Err(ClassFormatErr::TypeError(
+                    *idx,
+                    ConstantTag::Class.to_string(),
+                    e.get_tag().to_string(),
+                )),
+            })
+    }
 }
 
 #[cfg(feature = "pretty_print")]
@@ -48,25 +67,6 @@ impl ConstantPool {
                     e.get_tag().to_string(),
                 )),
             })
-    }
-
-    pub fn get_class(&self, idx: &u16) -> Result<u16, ClassFormatErr> {
-        self.inner
-            .get(*idx as usize)
-            .ok_or(ClassFormatErr::ConstantNotFound(*idx))
-            .and_then(|entry| match entry {
-                ConstantInfo::Class(name_index) => Ok(*name_index),
-                e => Err(ClassFormatErr::TypeError(
-                    *idx,
-                    ConstantTag::Class.to_string(),
-                    e.get_tag().to_string(),
-                )),
-            })
-    }
-
-    pub fn get_class_name(&self, idx: &u16) -> Result<&str, ClassFormatErr> {
-        let name_index = self.get_class(idx)?;
-        self.get_utf8(&name_index)
     }
 
     //TODO: There is a macro to do that? replace?

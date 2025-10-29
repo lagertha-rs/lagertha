@@ -1,6 +1,6 @@
 // TODO: very primitive implementation, ok for right now
 
-use crate::heap::method_area::MethodArea;
+use crate::heap::method_area_deprecated::MethodAreaDeprecated;
 use crate::rt::class_deprecated::ClassDeprecated;
 use crate::{ClassIdDeprecated, throw_exception};
 use common::error::JavaExceptionFromJvm;
@@ -11,6 +11,7 @@ use std::sync::Arc;
 use tracing_log::log::debug;
 
 pub mod method_area;
+pub mod method_area_deprecated;
 
 pub enum HeapObject {
     Instance(Instance),
@@ -100,7 +101,7 @@ pub struct Heap {
 }
 
 impl Heap {
-    pub fn new(method_area: &mut MethodArea) -> Result<Self, JvmError> {
+    pub fn new(method_area: &mut MethodAreaDeprecated) -> Result<Self, JvmError> {
         debug!("Creating Heap...");
         let char_class = method_area.get_class_or_load_by_name("[C")?.clone();
         let string_class = method_area

@@ -1,5 +1,5 @@
 use crate::ClassIdDeprecated;
-use crate::heap::method_area::MethodArea;
+use crate::heap::method_area_deprecated::MethodAreaDeprecated;
 use crate::rt::constant_pool::reference_deprecated::{
     MethodDescriptorReferenceDeprecated, MethodReferenceDeprecated, NameAndTypeReferenceDeprecated,
 };
@@ -56,7 +56,7 @@ impl ClassDeprecated {
     pub fn new(
         id: ClassIdDeprecated,
         cf: ClassFile,
-        method_area: &mut MethodArea,
+        method_area: &mut MethodAreaDeprecated,
     ) -> Result<Arc<Self>, JvmError> {
         let cp = Arc::new(RuntimeConstantPoolDeprecated::new(cf.cp.inner));
         let name = cp.get_class(&cf.this_class)?.name_arc()?;

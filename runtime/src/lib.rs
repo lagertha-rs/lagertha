@@ -1,5 +1,5 @@
 use crate::heap::Heap;
-use crate::heap::method_area::MethodArea;
+use crate::heap::method_area_deprecated::MethodAreaDeprecated;
 use crate::interpreter::Interpreter;
 use crate::native::NativeRegistry;
 use common::error::JvmError;
@@ -40,11 +40,20 @@ impl MethodId {
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub struct ClassId(NonZeroU32);
 
-pub type Sym = Spur;
+impl ClassId {
+    pub fn from_usize(index: usize) -> Self {
+        ClassId(NonZeroU32::new(index as u32).unwrap())
+    }
+    pub fn to_index(&self) -> usize {
+        (self.0.get() - 1) as usize
+    }
+}
+
+pub type Symbol = Spur;
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub struct MethodKey {
-    pub name: Sym,
-    pub desc: Sym,
+    pub name: Symbol,
+    pub desc: Symbol,
 }
 
 #[derive(Debug)]
@@ -74,7 +83,7 @@ impl VmConfig {
 pub struct VirtualMachine {
     config: VmConfig,
     heap: Heap,
-    method_area: MethodArea,
+    method_area: MethodAreaDeprecated,
     native_registry: NativeRegistry,
     string_interner: Arc<ThreadedRodeo>,
 }
@@ -83,7 +92,7 @@ impl VirtualMachine {
     pub fn new(config: VmConfig) -> Result<Self, JvmError> {
         config.validate();
         let string_interner = Arc::new(ThreadedRodeo::default());
-        let mut method_area = MethodArea::new(&config, string_interner.clone())?;
+        let mut method_area = MethodAreaDeprecated::new(&config, string_interner.clone())?;
         let heap = Heap::new(&mut method_area)?;
 
         let native_registry = NativeRegistry::new(string_interner.clone());
