@@ -27,6 +27,15 @@ pub type MethodIdDeprecated = usize;
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub struct MethodId(NonZeroU32);
 
+impl MethodId {
+    pub fn from_usize(index: usize) -> Self {
+        MethodId(NonZeroU32::new(index as u32).unwrap())
+    }
+    pub fn to_index(&self) -> usize {
+        (self.0.get() - 1) as usize
+    }
+}
+
 #[repr(transparent)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub struct ClassId(NonZeroU32);

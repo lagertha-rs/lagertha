@@ -8,7 +8,6 @@ use common::instruction::ArrayType;
 use jclass::ClassFile;
 use lasso::ThreadedRodeo;
 use std::collections::HashMap;
-use std::num::NonZeroU32;
 use std::sync::Arc;
 use tracing_log::log::debug;
 
@@ -25,11 +24,11 @@ pub struct MethodArea {
 impl MethodArea {
     pub fn push_method(&mut self, method: Method) -> MethodId {
         self.methods.push(method);
-        MethodId(NonZeroU32::new(self.methods.len() as u32).unwrap())
+        MethodId::from_usize(self.methods.len())
     }
 
     pub fn get_method(&self, method_id: MethodId) -> &Method {
-        &self.methods[(method_id.0.get() - 1) as usize]
+        &self.methods[method_id.to_index()]
     }
 
     pub fn new(
