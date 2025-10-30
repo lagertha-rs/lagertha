@@ -1,4 +1,4 @@
-use crate::{ClassIdDeprecated, MethodId, Symbol};
+use crate::{ClassId, ClassIdDeprecated, MethodId, Symbol};
 use jclass::attribute::method::MethodAttribute;
 use jclass::flags::MethodFlags;
 use jclass::method::MethodInfo;
@@ -14,7 +14,7 @@ pub enum MethodBody {
 }
 
 pub struct Method {
-    class_id: ClassIdDeprecated,
+    class_id: ClassId,
     //name: Sym,
     //descriptor: Sym,
     flags: MethodFlags,
@@ -22,7 +22,7 @@ pub struct Method {
 }
 
 impl Method {
-    pub fn new(method_info: MethodInfo, class_id: ClassIdDeprecated) -> Self {
+    pub fn new(method_info: MethodInfo, class_id: ClassId) -> Self {
         let flags = method_info.access_flags;
         let body = if flags.is_abstract() {
             MethodBody::Abstract
@@ -43,10 +43,14 @@ impl Method {
         };
         Method {
             class_id,
-            //name: Sym::default(), // placeholder
-            //descriptor: Sym::default(), // placeholder
+            //name:
+            //descriptor:
             flags,
             body,
         }
+    }
+
+    pub fn is_static(&self) -> bool {
+        self.flags.is_static()
     }
 }

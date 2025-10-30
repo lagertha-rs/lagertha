@@ -38,6 +38,19 @@ impl MethodId {
 
 #[repr(transparent)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+pub struct FieldDescriptorId(NonZeroU32);
+
+impl FieldDescriptorId {
+    pub fn from_usize(index: usize) -> Self {
+        FieldDescriptorId(NonZeroU32::new(index as u32).unwrap())
+    }
+    pub fn to_index(&self) -> usize {
+        (self.0.get() - 1) as usize
+    }
+}
+
+#[repr(transparent)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub struct ClassId(NonZeroU32);
 
 impl ClassId {
@@ -49,9 +62,28 @@ impl ClassId {
     }
 }
 
+#[repr(transparent)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+pub struct FieldId(NonZeroU32);
+
+impl FieldId {
+    pub fn from_usize(index: usize) -> Self {
+        FieldId(NonZeroU32::new(index as u32).unwrap())
+    }
+    pub fn to_index(&self) -> usize {
+        (self.0.get() - 1) as usize
+    }
+}
+
 pub type Symbol = Spur;
-#[derive(Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
 pub struct MethodKey {
+    pub name: Symbol,
+    pub desc: Symbol,
+}
+
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
+pub struct FieldKey {
     pub name: Symbol,
     pub desc: Symbol,
 }

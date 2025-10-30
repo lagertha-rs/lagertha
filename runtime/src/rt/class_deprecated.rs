@@ -4,7 +4,7 @@ use crate::rt::constant_pool::reference_deprecated::{
     MethodDescriptorReferenceDeprecated, MethodReferenceDeprecated, NameAndTypeReferenceDeprecated,
 };
 use crate::rt::constant_pool::rt_cp_deprecated::RuntimeConstantPoolDeprecated;
-use crate::rt::field::{Field, StaticField};
+use crate::rt::field_deprecated::{FieldDeprecated, StaticFieldDeprecated};
 use crate::rt::method_deprecated::{MethodDeprecated, MethodType};
 use common::descriptor::MethodDescriptor;
 use common::error::{JavaExceptionFromJvm, JvmError};
@@ -37,9 +37,9 @@ pub struct ClassDeprecated {
     pretty_name: OnceCell<String>,
     access: ClassFlags,
     super_class: Option<Arc<ClassDeprecated>>,
-    fields: Vec<Field>,
+    fields: Vec<FieldDeprecated>,
     field_idx: NatHashMap<usize>,
-    static_fields: NatHashMap<StaticField>,
+    static_fields: NatHashMap<StaticFieldDeprecated>,
     method_idx: NatHashMap<usize>,
     methods: HashMap<usize, Arc<MethodDeprecated>>,
     static_method_idx: NatHashMap<usize>,
@@ -124,13 +124,13 @@ impl ClassDeprecated {
                 }
             }
         }
-        let mut static_fields: NatHashMap<StaticField> = HashMap::new();
+        let mut static_fields: NatHashMap<StaticFieldDeprecated> = HashMap::new();
         let mut fields = vec![];
         let mut field_idx: NatHashMap<usize> = HashMap::new();
 
         for field in cf.fields.into_iter() {
             if field.access_flags.is_static() {
-                let resolved_field = StaticField::new(field, &cp)?;
+                let resolved_field = StaticFieldDeprecated::new(field, &cp)?;
                 let name = resolved_field.name_arc();
                 let descriptor = resolved_field.descriptor().raw_arc();
                 static_fields
@@ -138,7 +138,7 @@ impl ClassDeprecated {
                     .or_default()
                     .insert(descriptor, resolved_field);
             } else {
-                let field = Field::new(field, &cp)?;
+                let field = FieldDeprecated::new(field, &cp)?;
                 field_idx
                     .entry(field.name_arc())
                     .or_default()
@@ -278,7 +278,7 @@ impl ClassDeprecated {
         &self.cp
     }
 
-    pub fn fields(&self) -> &Vec<Field> {
+    pub fn fields(&self) -> &Vec<FieldDeprecated> {
         &self.fields
     }
 
@@ -389,7 +389,7 @@ impl ClassDeprecated {
         &self,
         name: &str,
         descriptor: &str,
-    ) -> Option<&StaticField> {
+    ) -> Option<&StaticFieldDeprecated> {
         if let Some(f) = self.static_fields.get(name).and_then(|m| m.get(descriptor)) {
             return Some(f);
         }

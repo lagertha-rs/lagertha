@@ -1,28 +1,22 @@
-use crate::rt::constant_pool::reference_deprecated::FieldDescriptorReferenceDeprecated;
-use crate::rt::constant_pool::rt_cp_deprecated::RuntimeConstantPoolDeprecated;
-use common::error::JvmError;
+use crate::FieldDescriptorId;
 use common::jtype::Value;
-use jclass::field::FieldInfo;
 use jclass::flags::FieldFlags;
-use std::cell::{Ref, RefCell};
-use std::ops::Deref;
-use std::sync::Arc;
+use std::cell::RefCell;
 
 #[derive(Debug)]
 pub struct Field {
-    name: Arc<str>,
     flags: FieldFlags,
-    descriptor: Arc<FieldDescriptorReferenceDeprecated>,
+    descriptor: FieldDescriptorId,
 }
 
 #[derive(Debug)]
 pub struct StaticField {
-    name: Arc<str>,
     flags: FieldFlags,
-    descriptor: Arc<FieldDescriptorReferenceDeprecated>,
+    descriptor: FieldDescriptorId,
     value: RefCell<Value>,
 }
 
+/*
 impl Field {
     pub fn new(
         field_info: FieldInfo,
@@ -94,3 +88,5 @@ impl StaticField {
         Ok(())
     }
 }
+
+ */
