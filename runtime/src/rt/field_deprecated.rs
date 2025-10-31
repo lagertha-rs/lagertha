@@ -1,25 +1,29 @@
-use crate::{ClassId, FieldDescriptorId};
+use crate::rt::constant_pool::reference_deprecated::FieldDescriptorReferenceDeprecated;
+use crate::rt::constant_pool::rt_cp_deprecated::RuntimeConstantPoolDeprecated;
+use common::error::JvmError;
 use common::jtype::Value;
+use jclass::field::FieldInfo;
 use jclass::flags::FieldFlags;
-use std::cell::RefCell;
+use std::cell::{Ref, RefCell};
+use std::ops::Deref;
+use std::sync::Arc;
 
-#[derive(Debug, Copy, Clone)]
-pub struct InstanceField {
-    pub flags: FieldFlags,
-    pub descriptor_id: FieldDescriptorId,
-    pub offset: u16,
-    pub declaring_class: ClassId,
+#[derive(Debug)]
+pub struct FieldDeprecated {
+    name: Arc<str>,
+    flags: FieldFlags,
+    descriptor: Arc<FieldDescriptorReferenceDeprecated>,
 }
 
 #[derive(Debug)]
-pub struct StaticField {
-    pub flags: FieldFlags,
-    pub descriptor: FieldDescriptorId,
-    pub value: RefCell<Value>,
+pub struct StaticFieldDeprecated {
+    name: Arc<str>,
+    flags: FieldFlags,
+    descriptor: Arc<FieldDescriptorReferenceDeprecated>,
+    value: RefCell<Value>,
 }
 
-/*
-impl Field {
+impl FieldDeprecated {
     pub fn new(
         field_info: FieldInfo,
         cp: &RuntimeConstantPoolDeprecated,
@@ -50,7 +54,7 @@ impl Field {
     }
 }
 
-impl StaticField {
+impl StaticFieldDeprecated {
     pub fn new(
         field_info: FieldInfo,
         cp: &RuntimeConstantPoolDeprecated,
@@ -90,5 +94,3 @@ impl StaticField {
         Ok(())
     }
 }
-
- */

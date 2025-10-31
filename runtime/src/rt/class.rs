@@ -1,5 +1,6 @@
 use crate::heap::method_area::MethodArea;
 use crate::rt::constant_pool::RuntimeConstantPool;
+use crate::rt::field::{InstanceField, StaticField};
 use crate::rt::method::Method;
 use crate::{ClassId, FieldId, FieldKey, MethodId, MethodKey};
 use common::error::JvmError;
@@ -17,13 +18,16 @@ pub enum ClassState {
 }
 
 pub struct Class {
-    pub name: String,
+    pub name: String, //TODO: debug, delete
     pub super_id: Option<ClassId>,
     pub declared_method_index: OnceCell<HashMap<MethodKey, MethodId>>,
     pub vtable: OnceCell<Vec<MethodId>>,
     pub vtable_index: OnceCell<HashMap<MethodKey, u16>>,
-    pub fields: OnceCell<Vec<FieldId>>,
-    pub fields_index: OnceCell<HashMap<FieldKey, u16>>,
+
+    pub instance_fields: OnceCell<Vec<InstanceField>>,
+    pub instance_fields_offset_map: OnceCell<HashMap<FieldKey, u16>>,
+
+    pub static_fields: OnceCell<HashMap<FieldKey, StaticField>>,
 }
 
 impl Class {
@@ -38,13 +42,14 @@ impl Class {
         let name = method_area.string_interner.resolve(&name).to_string();
 
         let class = Self {
-            name,
+            name: name.clone(),
             super_id,
             declared_method_index: OnceCell::new(),
             vtable: OnceCell::new(),
             vtable_index: OnceCell::new(),
-            fields: OnceCell::new(),
-            fields_index: OnceCell::new(),
+            instance_fields: OnceCell::new(),
+            instance_fields_offset_map: OnceCell::new(),
+            static_fields: OnceCell::new(),
         };
         let class_id = method_area.push_class(class);
         let mut declared_index = HashMap::new();
@@ -84,31 +89,84 @@ impl Class {
             }
         }
 
-        let this = method_area.get_class(&class_id);
-        this.set_declared_methods(declared_index);
-        this.set_vtable(vtable);
-        this.set_vtable_index(vtable_index);
+        {
+            let this = method_area.get_class(&class_id);
+            this.set_declared_methods(declared_index);
+            this.set_vtable(vtable);
+            this.set_vtable_index(vtable_index);
+        }
 
-        let mut fields_index = HashMap::new();
-        let mut fields = Vec::new();
+        let mut instance_fields = super_id
+            .map(|id| method_area.get_class(&id).get_instance_fields().clone())
+            .unwrap_or_default();
+        let mut instance_fields_offset_map = super_id
+            .map(|id| {
+                method_area
+                    .get_class(&id)
+                    .get_instance_fields_offset_map()
+                    .clone()
+            })
+            .unwrap_or_default();
+        let mut static_fields = HashMap::new();
 
         for field in cf.fields {
-            let name = cp.get_utf8(&field.name_index, &method_area.string_interner)?;
+            let desc_sym = cp.get_utf8(&field.descriptor_index, &method_area.string_interner)?;
             let field_key = FieldKey {
-                name,
-                desc: cp.get_utf8(&field.descriptor_index, &method_area.string_interner)?,
+                name: cp.get_utf8(&field.name_index, &method_area.string_interner)?,
+                desc: desc_sym,
             };
+            let descriptor_id = method_area.get_or_new_field_descriptor_id(&desc_sym)?;
+            if field.access_flags.is_static() {
+                let static_field = StaticField {
+                    flags: field.access_flags,
+                    value: std::cell::RefCell::new(
+                        method_area
+                            .get_field_descriptor(&descriptor_id)
+                            .get_default_value(),
+                    ),
+                    descriptor: descriptor_id,
+                };
+                static_fields.insert(field_key, static_field);
+            } else {
+                let cur_offset = instance_fields.len() as u16;
+                instance_fields.push(InstanceField {
+                    flags: field.access_flags,
+                    descriptor_id,
+                    offset: cur_offset,
+                    declaring_class: class_id,
+                });
+                instance_fields_offset_map.insert(field_key, cur_offset);
+            }
+        }
+
+        {
+            let this = method_area.get_class(&class_id);
+            this.set_instance_fields(instance_fields);
+            this.set_instance_fields_offset_map(instance_fields_offset_map);
+            this.set_static_fields(static_fields);
         }
 
         Ok(class_id)
     }
 
-    fn set_fields(&self, fields: Vec<FieldId>) {
-        self.fields.set(fields).unwrap()
+    fn set_static_fields(&self, static_fields: HashMap<FieldKey, StaticField>) {
+        self.static_fields.set(static_fields).unwrap()
     }
 
-    fn set_fields_index(&self, fields_index: HashMap<FieldKey, u16>) {
-        self.fields_index.set(fields_index).unwrap()
+    fn set_instance_fields(&self, instance_fields: Vec<InstanceField>) {
+        self.instance_fields.set(instance_fields).unwrap()
+    }
+    fn set_instance_fields_offset_map(&self, instance_fields_offset_map: HashMap<FieldKey, u16>) {
+        self.instance_fields_offset_map
+            .set(instance_fields_offset_map)
+            .unwrap()
+    }
+    fn get_instance_fields_offset_map(&self) -> &HashMap<FieldKey, u16> {
+        self.instance_fields_offset_map.get().unwrap()
+    }
+
+    fn get_instance_fields(&self) -> &Vec<InstanceField> {
+        self.instance_fields.get().unwrap()
     }
 
     fn set_declared_methods(&self, declared: HashMap<MethodKey, MethodId>) {

@@ -53,7 +53,11 @@ impl MethodArea {
         FieldDescriptorId::from_usize(self.field_descriptors.len())
     }
 
-    pub fn get_or_new_field_descriptor(
+    pub fn get_field_descriptor(&self, id: &FieldDescriptorId) -> &Type {
+        &self.field_descriptors[id.to_index()]
+    }
+
+    pub fn get_or_new_field_descriptor_id(
         &mut self,
         descriptor: &Symbol,
     ) -> Result<FieldDescriptorId, JvmError> {
@@ -70,7 +74,7 @@ impl MethodArea {
         MethodId::from_usize(self.methods.len())
     }
 
-    pub fn get_method(&self, method_id: MethodId) -> &Method {
+    pub fn get_method(&self, method_id: &MethodId) -> &Method {
         &self.methods[method_id.to_index()]
     }
 
