@@ -1,6 +1,6 @@
 use crate::heap::Heap;
 use crate::heap::method_area_deprecated::MethodAreaDeprecated;
-use crate::interpreter::Interpreter;
+use crate::interpreter_deprecated::InterpreterDeprecated;
 use crate::native::NativeRegistry;
 use common::error::JvmError;
 use common::jtype::{HeapAddr, Value};
@@ -12,7 +12,7 @@ use tracing_log::log::debug;
 
 mod class_loader;
 pub mod heap;
-mod interpreter;
+mod interpreter_deprecated;
 mod native;
 pub mod rt;
 pub mod stack;
@@ -138,7 +138,10 @@ impl VirtualMachine {
     }
 }
 
-fn print_stack_trace_todo_refactor(exception_ref: HeapAddr, interpreter: &mut Interpreter) {
+fn print_stack_trace_todo_refactor(
+    exception_ref: HeapAddr,
+    interpreter: &mut InterpreterDeprecated,
+) {
     let exception_class_id = {
         let exception = interpreter
             .vm()
@@ -166,7 +169,7 @@ pub fn start(config: VmConfig) -> Result<(), JvmError> {
     debug!("Starting VM with config: {:?}", config);
     let vm = VirtualMachine::new(config)?;
 
-    let mut interpreter = Interpreter::new(vm);
+    let mut interpreter = InterpreterDeprecated::new(vm);
 
     /*
     if let Err(e) = interpreter.initialize_main_thread() {

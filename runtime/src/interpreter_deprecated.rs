@@ -14,7 +14,7 @@ use std::cmp::Ordering;
 use std::sync::Arc;
 use tracing_log::log::debug;
 
-pub struct Interpreter {
+pub struct InterpreterDeprecated {
     pub vm: VirtualMachine,
     frame_stack: FrameStack,
     cur_thread: Option<ThreadState>,
@@ -23,7 +23,7 @@ pub struct Interpreter {
 const THREAD_GROUP_CLASS_NAME: &str = "java/lang/ThreadGroup";
 const THREAD_CLASS_NAME: &str = "java/lang/Thread";
 
-impl Interpreter {
+impl InterpreterDeprecated {
     pub fn new(vm: VirtualMachine) -> Self {
         Self {
             frame_stack: FrameStack::new(&vm.config),
