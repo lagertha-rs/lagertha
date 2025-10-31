@@ -3,7 +3,7 @@ use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::field::{InstanceField, StaticField};
 use crate::rt::method::Method;
 use crate::{ClassId, FieldId, FieldKey, MethodId, MethodKey};
-use common::error::JvmError;
+use common::error::{JavaExceptionFromJvm, JvmError};
 use jclass::ClassFile;
 use once_cell::sync::OnceCell;
 use std::collections::HashMap;
@@ -187,5 +187,16 @@ impl Class {
 
     fn get_vtable_index(&self) -> &HashMap<MethodKey, u16> {
         self.vtable_index.get().unwrap()
+    }
+
+    pub fn get_special_method_id(&self, key: &MethodKey) -> Result<MethodId, JvmError> {
+        self.declared_method_index
+            .get()
+            .unwrap()
+            .get(key)
+            .copied()
+            .ok_or(JvmError::JavaException(
+                JavaExceptionFromJvm::NoSuchMethodError(None),
+            ))
     }
 }

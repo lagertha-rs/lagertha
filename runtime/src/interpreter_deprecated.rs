@@ -2,9 +2,11 @@ use crate::rt::class_deprecated::{ClassDeprecated, InitState};
 use crate::rt::constant_pool::reference_deprecated::MethodReferenceDeprecated;
 use crate::rt::constant_pool::rt_cp_deprecated::RuntimeConstantDeprecated;
 use crate::rt::method_deprecated::{MethodDeprecated, MethodType};
-use crate::stack::{FrameStack, FrameType, JavaFrame, NativeFrame};
-use crate::thread::ThreadState;
-use crate::{ClassIdDeprecated, VirtualMachine, throw_exception};
+use crate::stack_deprecated::{
+    FrameStackDeprecated, FrameTypeDeprecated, JavaFrameDeprecated, NativeFrameDeprecated,
+};
+use crate::thread::JavaThreadState;
+use crate::{ClassIdDeprecated, VirtualMachineDeprecated, throw_exception};
 use common::error::JavaExceptionFromJvm;
 use common::error::JvmError;
 use common::instruction::Instruction;
@@ -15,18 +17,18 @@ use std::sync::Arc;
 use tracing_log::log::debug;
 
 pub struct InterpreterDeprecated {
-    pub vm: VirtualMachine,
-    frame_stack: FrameStack,
-    cur_thread: Option<ThreadState>,
+    pub vm: VirtualMachineDeprecated,
+    frame_stack: FrameStackDeprecated,
+    cur_thread: Option<JavaThreadState>,
 }
 
 const THREAD_GROUP_CLASS_NAME: &str = "java/lang/ThreadGroup";
 const THREAD_CLASS_NAME: &str = "java/lang/Thread";
 
 impl InterpreterDeprecated {
-    pub fn new(vm: VirtualMachine) -> Self {
+    pub fn new(vm: VirtualMachineDeprecated) -> Self {
         Self {
-            frame_stack: FrameStack::new(&vm.config),
+            frame_stack: FrameStackDeprecated::new(&vm.config),
             vm,
             cur_thread: None,
         }
@@ -37,7 +39,7 @@ impl InterpreterDeprecated {
 
         let thread_group_class = self
             .vm
-            .method_area
+            .method_area_deprecated
             .get_class_or_load_by_name(THREAD_GROUP_CLASS_NAME)?
             .clone();
         let system_thread_group_ref = self.vm.heap.alloc_instance(&thread_group_class)?;
@@ -58,7 +60,7 @@ impl InterpreterDeprecated {
 
         let thread_class = self
             .vm
-            .method_area
+            .method_area_deprecated
             .get_class_or_load_by_name(THREAD_CLASS_NAME)?
             .clone();
         let thread_constructor = thread_class
@@ -73,7 +75,7 @@ impl InterpreterDeprecated {
         Ok(())
     }
 
-    pub fn vm(&mut self) -> &mut VirtualMachine {
+    pub fn vm(&mut self) -> &mut VirtualMachineDeprecated {
         &mut self.vm
     }
 
@@ -92,7 +94,11 @@ impl InterpreterDeprecated {
         class_id: Option<&ClassIdDeprecated>,
     ) -> Result<(), JvmError> {
         if let Some(class_id) = class_id {
-            let class = self.vm.method_area.get_class_by_id(class_id)?.clone();
+            let class = self
+                .vm
+                .method_area_deprecated
+                .get_class_by_id(class_id)?
+                .clone();
             if let Some(super_class) = class.super_class() {
                 self.ensure_initialized_recursive(Some(super_class.id()))?;
             }
@@ -121,8 +127,15 @@ impl InterpreterDeprecated {
     //TODO: probably need to move it, refactor and it will still probably will not work for catch
     fn allocate_and_throw(&mut self, exception: JavaExceptionFromJvm) -> Result<(), JvmError> {
         let exception_ref = exception.as_reference();
-        let class_id = self.vm.method_area.get_class_id(exception_ref.class)?;
-        let class = self.vm.method_area.get_class_by_id(&class_id)?.clone();
+        let class_id = self
+            .vm
+            .method_area_deprecated
+            .get_class_id(exception_ref.class)?;
+        let class = self
+            .vm
+            .method_area_deprecated
+            .get_class_by_id(&class_id)?
+            .clone();
         let instance = self.vm.heap.alloc_instance(&class)?;
         let method = class.get_virtual_method(exception_ref.name, exception_ref.descriptor)?;
         let params = if let Some(msg) = exception.get_message() {
@@ -137,8 +150,13 @@ impl InterpreterDeprecated {
         Err(JvmError::JavaExceptionThrown(instance))
     }
 
-    fn interpret_method_code(&mut self, code: &Vec<u8>, frame: JavaFrame) -> Result<(), JvmError> {
-        self.frame_stack.push_frame(FrameType::JavaFrame(frame))?;
+    fn interpret_method_code(
+        &mut self,
+        code: &Vec<u8>,
+        frame: JavaFrameDeprecated,
+    ) -> Result<(), JvmError> {
+        self.frame_stack
+            .push_frame(FrameTypeDeprecated::JavaFrame(frame))?;
         loop {
             let instruction = Instruction::new_at(code, *self.frame_stack.pc()?)?;
             // TODO: cleanup here and interpret_instruction return type
@@ -624,14 +642,14 @@ impl InterpreterDeprecated {
                     let cp = self.frame_stack.cp()?;
                     let field_ref = cp.get_fieldref(&idx)?;
                     self.vm
-                        .method_area
+                        .method_area_deprecated
                         .get_class_id(field_ref.class_ref()?.name()?)?
                 };
                 self.ensure_initialized(&class_id)?;
                 let cp = self.frame_stack.cp()?;
                 let field_ref = cp.get_fieldref(&idx)?;
                 let field_nat = field_ref.name_and_type_ref()?;
-                let class = self.vm.method_area.get_class_by_id(&class_id)?;
+                let class = self.vm.method_area_deprecated.get_class_by_id(&class_id)?;
                 class.set_static_field_by_nat(field_nat, value)?;
             }
             Instruction::Getstatic(idx) => {
@@ -639,14 +657,14 @@ impl InterpreterDeprecated {
                     let cp = self.frame_stack.cp()?;
                     let field_ref = cp.get_fieldref(&idx)?;
                     self.vm
-                        .method_area
+                        .method_area_deprecated
                         .get_class_id(field_ref.class_ref()?.name()?)?
                 };
                 self.ensure_initialized(&class_id)?;
                 let cp = self.frame_stack.cp()?;
                 let field_ref = cp.get_fieldref(&idx)?;
                 let field_nat = field_ref.name_and_type_ref()?;
-                let class = self.vm.method_area.get_class_by_id(&class_id)?;
+                let class = self.vm.method_area_deprecated.get_class_by_id(&class_id)?;
                 let value = class.get_static_field_value_by_nat(field_nat)?;
                 self.frame_stack.push_operand(value)?;
             }
@@ -655,14 +673,18 @@ impl InterpreterDeprecated {
                     let cp = self.frame_stack.cp()?;
                     let method_ref = cp.get_methodref(&idx)?;
                     self.vm
-                        .method_area
+                        .method_area_deprecated
                         .get_class_id(method_ref.class_ref()?.name()?)?
                 };
                 self.ensure_initialized(&class_id)?;
 
                 let cp = self.frame_stack.cp()?;
                 let method_ref = cp.get_methodref(&idx)?;
-                let class = self.vm.method_area.get_class_by_id(&class_id)?.clone();
+                let class = self
+                    .vm
+                    .method_area_deprecated
+                    .get_class_by_id(&class_id)?
+                    .clone();
                 /// FIXME
                 let method = class.get_static_method_by_nat(method_ref)?;
                 let params = self.prepare_method_params(method)?;
@@ -673,7 +695,7 @@ impl InterpreterDeprecated {
                 let method_ref = cp.get_interface_methodref(&idx)?.clone(); // FIXME
                 let class = self
                     .vm
-                    .method_area
+                    .method_area_deprecated
                     .get_class_or_load_by_name(method_ref.class_ref()?.name()?)?
                     .clone(); // FIXME
                 let method = class.get_virtual_method_by_nat(&method_ref)?;
@@ -702,7 +724,7 @@ impl InterpreterDeprecated {
                     RuntimeConstantDeprecated::Class(class) => {
                         let class = self
                             .vm
-                            .method_area
+                            .method_area_deprecated
                             .get_class_or_load_by_name(class.name()?)?;
                         let class_mirror = self.vm.heap.get_mirror_addr(class)?;
                         self.frame_stack.push_operand(Value::Ref(class_mirror))?;
@@ -731,7 +753,7 @@ impl InterpreterDeprecated {
                 let class_ref = cp.get_class(&idx)?;
                 let class = self
                     .vm
-                    .method_area
+                    .method_area_deprecated
                     .get_class_or_load_by_name(class_ref.name()?)?;
                 let size = self.frame_stack.pop_int_val()?;
                 if size >= 0 {
@@ -747,7 +769,7 @@ impl InterpreterDeprecated {
                     let primitive_type_name = array_type.descriptor();
                     let primitive_class = self
                         .vm
-                        .method_area
+                        .method_area_deprecated
                         .get_class_or_load_by_name(primitive_type_name)?;
                     let addr = self.vm.heap.alloc_array(primitive_class, size as usize)?;
                     self.frame_stack.push_operand(Value::Ref(addr))?;
@@ -759,10 +781,12 @@ impl InterpreterDeprecated {
                 let class_id = {
                     let cp = self.frame_stack.cp()?;
                     let class_ref = cp.get_class(&idx)?;
-                    self.vm.method_area.get_class_id(class_ref.name()?)?
+                    self.vm
+                        .method_area_deprecated
+                        .get_class_id(class_ref.name()?)?
                 };
                 self.ensure_initialized(&class_id)?;
-                let class = self.vm.method_area.get_class_by_id(&class_id)?;
+                let class = self.vm.method_area_deprecated.get_class_by_id(&class_id)?;
                 let addr = self.vm.heap.alloc_instance(class)?;
                 self.frame_stack.push_operand(Value::Ref(addr))?;
             }
@@ -802,7 +826,7 @@ impl InterpreterDeprecated {
                 let method_ref = cp.get_methodref(&idx)?;
                 let class = self
                     .vm
-                    .method_area
+                    .method_area_deprecated
                     .get_class_or_load_by_name(method_ref.class_ref()?.name()?)?
                     .clone(); // FIXME
                 let method = class.get_virtual_method_by_nat(method_ref)?;
@@ -813,7 +837,7 @@ impl InterpreterDeprecated {
                 let params = self.prepare_method_params(method)?;
                 let locals = self.params_to_frame_locals(method, params)?;
 
-                let frame = JavaFrame::new(class.cp().clone(), method.clone(), locals)?;
+                let frame = JavaFrameDeprecated::new(class.cp().clone(), method.clone(), locals)?;
 
                 self.interpret_method_code(method.instructions()?, frame)?;
             }
@@ -822,7 +846,7 @@ impl InterpreterDeprecated {
                 let method_ref = cp.get_methodref(&idx)?.clone(); // FIXME
                 let class = self
                     .vm
-                    .method_area
+                    .method_area_deprecated
                     .get_class_or_load_by_name(method_ref.class_ref()?.name()?)?
                     .clone(); // FIXME
                 let method = class.get_virtual_method_by_nat(&method_ref)?;
@@ -833,7 +857,11 @@ impl InterpreterDeprecated {
                     Some(Value::Ref(obj)) if self.vm.heap.addr_is_instance(obj)? => {
                         let instance = self.vm.heap.get_instance(obj)?;
                         let class_id = instance.class_id();
-                        let this_class = self.vm.method_area.get_class_by_id(class_id)?.clone(); ////////////////////
+                        let this_class = self
+                            .vm
+                            .method_area_deprecated
+                            .get_class_by_id(class_id)?
+                            .clone(); ////////////////////
                         let method = this_class.get_virtual_method_by_nat(&method_ref)?;
                         self.run_instance_method_type(method, &method_ref, params)
                     }
@@ -909,11 +937,17 @@ impl InterpreterDeprecated {
             Instruction::Instanceof(idx) => {
                 let cp = self.frame_stack.cp()?;
                 let class_ref = cp.get_class(&idx)?;
-                let other_class = self.vm.method_area.get_class_id(class_ref.name()?)?;
+                let other_class = self
+                    .vm
+                    .method_area_deprecated
+                    .get_class_id(class_ref.name()?)?;
                 let obj_addr = self.frame_stack.pop_nullable_ref_val()?;
                 if let Some(addr) = &obj_addr {
                     let target_class_id = self.vm.heap.get_instance(addr)?.class_id();
-                    let target_class = self.vm.method_area.get_class_by_id(target_class_id)?;
+                    let target_class = self
+                        .vm
+                        .method_area_deprecated
+                        .get_class_by_id(target_class_id)?;
                     let result = target_class.instance_of(&other_class);
                     self.frame_stack
                         .push_operand(Value::Integer(if result { 1 } else { 0 }))?;
@@ -976,7 +1010,7 @@ impl InterpreterDeprecated {
                     let cp = self.frame_stack.cp()?;
                     let nat = cp.get_fieldref(&idx)?.name_and_type_ref()?;
                     self.vm
-                        .method_area
+                        .method_area_deprecated
                         .get_class_by_id(&class_id)?
                         .get_field_index_by_nat(nat)?
                 };
@@ -1114,7 +1148,7 @@ impl InterpreterDeprecated {
                     let cp = self.frame_stack.cp()?;
                     let nat = cp.get_fieldref(&idx)?.name_and_type_ref()?;
                     self.vm
-                        .method_area
+                        .method_area_deprecated
                         .get_class_by_id(&self.vm.heap.get_class_id(&object_addr))?
                         .get_field_index_by_nat(nat)?
                 };
@@ -1276,7 +1310,7 @@ impl InterpreterDeprecated {
         let class = method.class()?;
         let locals = self.params_to_frame_locals(method, params)?;
 
-        let frame = JavaFrame::new(class.cp().clone(), method.clone(), locals)?;
+        let frame = JavaFrameDeprecated::new(class.cp().clone(), method.clone(), locals)?;
 
         self.interpret_method_code(method.instructions()?, frame)?;
         Ok(())
@@ -1290,11 +1324,15 @@ impl InterpreterDeprecated {
     ) -> Result<(), JvmError> {
         let obj_ref = params[0].as_obj_ref()?;
         let class_id = self.vm.heap.get_instance(&obj_ref)?.class_id();
-        let class = self.vm.method_area.get_class_by_id(class_id)?.clone(); // FIXME
+        let class = self
+            .vm
+            .method_area_deprecated
+            .get_class_by_id(class_id)?
+            .clone(); // FIXME
         let (method, cp) = class.get_virtual_method_and_cp_by_nat(method_ref)?;
 
         let locals = self.params_to_frame_locals(&method, params)?;
-        let frame = JavaFrame::new(cp.clone(), method.clone(), locals)?;
+        let frame = JavaFrameDeprecated::new(cp.clone(), method.clone(), locals)?;
 
         self.interpret_method_code(method.instructions()?, frame)?;
         Ok(())
@@ -1321,7 +1359,7 @@ impl InterpreterDeprecated {
         params: Vec<Value>,
     ) -> Result<(), JvmError> {
         let locals = self.params_to_frame_locals(method, params)?;
-        let frame = JavaFrame::new(class.cp().clone(), method.clone(), locals)?;
+        let frame = JavaFrameDeprecated::new(class.cp().clone(), method.clone(), locals)?;
 
         self.interpret_method_code(method.instructions()?, frame)?;
 
@@ -1342,7 +1380,7 @@ impl InterpreterDeprecated {
         );
 
         let method_key = method.build_method_key(&self.vm.string_interner)?;
-        let frame = FrameType::NativeFrame(NativeFrame::new(method.clone()));
+        let frame = FrameTypeDeprecated::NativeFrame(NativeFrameDeprecated::new(method.clone()));
         let method = self
             .vm
             .native_registry
@@ -1391,7 +1429,7 @@ impl InterpreterDeprecated {
     pub fn start_main(&mut self) -> Result<(), JvmError> {
         let main_class = self
             .vm
-            .method_area
+            .method_area_deprecated
             .get_class_or_load_by_name(&self.vm.config.main_class)?
             .clone();
         self.ensure_initialized(main_class.id())?;
@@ -1401,7 +1439,7 @@ impl InterpreterDeprecated {
         debug!("Found main method of class {}", main_class.name());
         let instructions = main_method.instructions()?;
         //TODO: handle args
-        let frame = JavaFrame::new(
+        let frame = JavaFrameDeprecated::new(
             main_class.cp().clone(),
             main_method.clone(),
             vec![None; main_method.max_locals()?],

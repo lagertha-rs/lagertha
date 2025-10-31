@@ -1,12 +1,12 @@
-use crate::VirtualMachine;
+use crate::VirtualMachineDeprecated;
 use crate::native::{MethodKey, NativeRet};
-use crate::stack::FrameStack;
+use crate::stack_deprecated::FrameStackDeprecated;
 use common::jtype::Value;
 use log::debug;
 
 pub(super) fn java_lang_class_register_natives(
-    vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
 
     _args: &[Value],
 ) -> NativeRet {
@@ -49,8 +49,8 @@ pub(super) fn java_lang_class_register_natives(
 }
 
 fn java_lang_class_desired_assertion_status_0(
-    _vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.desiredAssertionStatus0");
@@ -58,8 +58,8 @@ fn java_lang_class_desired_assertion_status_0(
 }
 
 fn java_lang_class_is_primitive(
-    vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.isPrimitive");
@@ -72,8 +72,8 @@ fn java_lang_class_is_primitive(
 }
 
 fn java_lang_class_get_primitive_class(
-    vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.getPrimitiveClass");
@@ -86,8 +86,8 @@ fn java_lang_class_get_primitive_class(
 }
 
 fn java_lang_class_init_class_name(
-    vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.initClassName");
@@ -100,7 +100,10 @@ fn java_lang_class_init_class_name(
             .replace('/', ".");
         let val = Value::Ref(vm.heap.get_or_new_string(&class_name));
         let class_id = vm.heap.get_class_id(h);
-        let class = vm.method_area.get_class_by_id(&class_id).unwrap();
+        let class = vm
+            .method_area_deprecated
+            .get_class_by_id(&class_id)
+            .unwrap();
         vm.heap
             .write_instance_field(*h, class.get_field_index("name").unwrap(), val)
             .unwrap();

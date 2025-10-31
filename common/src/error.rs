@@ -153,6 +153,10 @@ pub enum ClassLoaderErr {
 
 #[derive(Debug, Error)]
 pub enum JvmError {
+    #[error(
+        "Error: Main method not found in class {0}, please define the main method as:\n\tpublic static void main(String[] args)"
+    )]
+    MainClassNotFound(String),
     #[error("LinkageError: {0}")]
     Linkage(#[from] LinkageError),
     #[error(transparent)]

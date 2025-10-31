@@ -43,7 +43,6 @@ fn create_vm_configuration(mut args: Args, main_class: String) -> Result<VmConfi
                 initial_heap_size: 0,
                 max_heap_size: 0,
                 frame_stack_size: 256,
-                operand_stack_size: 256,
             });
         }
     }
@@ -64,8 +63,9 @@ fn main() {
             return;
         }
     };
-    if let Err(err) = runtime::start(vm_config) {
+    if let Err(err) = runtime::start_deprecated(vm_config) {
         error!("VM execution failed: {err}");
+        eprintln!("{}", err);
         std::process::exit(1);
     }
 }

@@ -1,12 +1,12 @@
 use crate::native::{MethodKey, NativeRet};
-use crate::stack::FrameStack;
-use crate::{VirtualMachine, throw_exception};
+use crate::stack_deprecated::FrameStackDeprecated;
+use crate::{VirtualMachineDeprecated, throw_exception};
 use common::jtype::Value;
 use log::debug;
 
 pub(super) fn java_lang_system_register_natives(
-    vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
 ) -> NativeRet {
     vm.native_registry.register(
@@ -58,8 +58,8 @@ pub(super) fn java_lang_system_register_natives(
 }
 
 fn java_lang_system_set_out_0(
-    vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.System.setIn0");
@@ -68,7 +68,7 @@ fn java_lang_system_set_out_0(
         _ => panic!("java.lang.System.setOut0: expected PrintStream object"),
     };
     let system_class = vm
-        .method_area
+        .method_area_deprecated
         .get_class_or_load_by_name("java/lang/System")
         .unwrap();
     system_class
@@ -78,8 +78,8 @@ fn java_lang_system_set_out_0(
 }
 
 fn java_lang_system_set_err_0(
-    vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.System.setIn0");
@@ -88,7 +88,7 @@ fn java_lang_system_set_err_0(
         _ => panic!("java.lang.System.setOut0: expected PrintStream object"),
     };
     let system_class = vm
-        .method_area
+        .method_area_deprecated
         .get_class_or_load_by_name("java/lang/System")
         .unwrap();
     system_class
@@ -98,8 +98,8 @@ fn java_lang_system_set_err_0(
 }
 
 fn java_lang_system_arraycopy(
-    vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
 ) -> NativeRet {
     let src_addr = args[0].as_obj_ref()?;
@@ -109,7 +109,7 @@ fn java_lang_system_arraycopy(
     let length = args[4].as_int()?;
 
     let src_class_id = vm.heap.get_class_id(&src_addr);
-    let src_class = vm.method_area.get_class_by_id(&src_class_id)?;
+    let src_class = vm.method_area_deprecated.get_class_by_id(&src_class_id)?;
     if !vm.heap.addr_is_array(&src_addr)? {
         throw_exception!(
             ArrayStoreException,
@@ -123,7 +123,7 @@ fn java_lang_system_arraycopy(
         .unwrap_or(src_class.name());
 
     let dest_class_id = vm.heap.get_class_id(&dest_addr);
-    let dest_class = vm.method_area.get_class_by_id(&dest_class_id)?;
+    let dest_class = vm.method_area_deprecated.get_class_by_id(&dest_class_id)?;
     if !vm.heap.addr_is_array(&dest_addr)? {
         throw_exception!(
             ArrayStoreException,
@@ -142,8 +142,8 @@ fn java_lang_system_arraycopy(
 }
 
 fn java_lang_system_identity_hash_code(
-    _vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.System.identityHashCode");
@@ -155,8 +155,8 @@ fn java_lang_system_identity_hash_code(
 }
 
 fn java_lang_system_set_in_0(
-    _vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.System.setIn0");

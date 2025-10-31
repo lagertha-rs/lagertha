@@ -1,6 +1,6 @@
-use crate::VirtualMachine;
+use crate::VirtualMachineDeprecated;
 use crate::native::{MethodKey, NativeRegistry, NativeRet};
-use crate::stack::FrameStack;
+use crate::stack_deprecated::FrameStackDeprecated;
 use common::jtype::Value;
 use log::debug;
 
@@ -62,8 +62,8 @@ pub(super) fn do_register_java_io_preregistered_natives(native_registry: &mut Na
 }
 
 fn java_io_file_output_stream_write_bytes(
-    vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Partial implementation: java.io.FileOutputStream.writeBytes");
@@ -86,7 +86,10 @@ fn java_io_file_output_stream_write_bytes(
 
     let output_stream_fd_field_offset = {
         let class_id = vm.heap.get_class_id(&output_stream_addr);
-        let class = vm.method_area.get_class_by_id(&class_id).unwrap();
+        let class = vm
+            .method_area_deprecated
+            .get_class_by_id(&class_id)
+            .unwrap();
         class.get_field_index("fd").unwrap()
     };
     let fd_obj = vm
@@ -97,7 +100,10 @@ fn java_io_file_output_stream_write_bytes(
         .unwrap();
     let fd_fd_field_offset = {
         let class_id = vm.heap.get_class_id(&fd_obj);
-        let class = vm.method_area.get_class_by_id(&class_id).unwrap();
+        let class = vm
+            .method_area_deprecated
+            .get_class_by_id(&class_id)
+            .unwrap();
         class.get_field_index("fd").unwrap()
     };
     let fd = vm
@@ -126,8 +132,8 @@ fn java_io_file_output_stream_write_bytes(
 }
 
 fn java_io_file_input_stream_init_ids(
-    _vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.io.FileInputStream.initIDs");
@@ -135,8 +141,8 @@ fn java_io_file_input_stream_init_ids(
 }
 
 fn java_io_file_descriptor_init_ids(
-    _vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.io.FileDescriptor.initIDs");
@@ -144,8 +150,8 @@ fn java_io_file_descriptor_init_ids(
 }
 
 fn java_io_file_descriptor_get_handle(
-    _vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.io.FileDescriptor.getHandle");
@@ -153,8 +159,8 @@ fn java_io_file_descriptor_get_handle(
 }
 
 fn java_io_file_descriptor_get_append(
-    _vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.io.FileDescriptor.getAppend");
@@ -162,8 +168,8 @@ fn java_io_file_descriptor_get_append(
 }
 
 fn java_io_file_output_stream_init_ids(
-    _vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.io.FileInputStream.initIDs");

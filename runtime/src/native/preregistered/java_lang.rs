@@ -1,7 +1,7 @@
 use crate::heap::HeapObject;
 use crate::native::{MethodKey, NativeRegistry, NativeRet};
-use crate::stack::{FrameStack, FrameType};
-use crate::{ClassIdDeprecated, VirtualMachine};
+use crate::stack_deprecated::{FrameStackDeprecated, FrameTypeDeprecated};
+use crate::{ClassIdDeprecated, VirtualMachineDeprecated};
 use common::instruction::ArrayType;
 use common::jtype::Value;
 use lasso::Key;
@@ -113,8 +113,8 @@ pub(super) fn do_register_java_lang_preregistered_natives(native_registry: &mut 
 }
 
 fn java_lang_object_get_class(
-    vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.getClass");
@@ -127,7 +127,10 @@ fn java_lang_object_get_class(
         } else {
             panic!("java.lang.Class.getClass: invalid heap address");
         };
-        let class = vm.method_area.get_class_by_id(target_class_id).unwrap();
+        let class = vm
+            .method_area_deprecated
+            .get_class_by_id(target_class_id)
+            .unwrap();
         let res = vm.heap.get_mirror_addr(class).unwrap();
         Ok(Some(Value::Ref(res)))
     } else {
@@ -136,8 +139,8 @@ fn java_lang_object_get_class(
 }
 
 fn java_lang_object_hash_code(
-    _vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Object.hashCode");
@@ -155,8 +158,8 @@ fn java_lang_object_hash_code(
 /// - an int array with the name indexes of the methods in the stack frames
 /// - an int array with the line pc of the methods in the stack frames
 fn java_lang_throwable_fill_in_stack_trace(
-    vm: &mut VirtualMachine,
-    frame_stack: &FrameStack,
+    vm: &mut VirtualMachineDeprecated,
+    frame_stack: &FrameStackDeprecated,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Throwable.fillInStackTrace");
@@ -174,7 +177,7 @@ fn java_lang_throwable_fill_in_stack_trace(
         .collect();
     frames.reverse();
     let int_class = vm
-        .method_area
+        .method_area_deprecated
         .get_class_or_load_by_name(ArrayType::Int.descriptor())
         .unwrap();
     let class_id_array = vm.heap.alloc_array(int_class, frames.len()).unwrap();
@@ -200,14 +203,14 @@ fn java_lang_throwable_fill_in_stack_trace(
                 line_nbr_array,
                 pos as i32,
                 Value::Integer(match frame {
-                    FrameType::JavaFrame(f) => f.pc() as i32,
-                    FrameType::NativeFrame(_) => -2,
+                    FrameTypeDeprecated::JavaFrame(f) => f.pc() as i32,
+                    FrameTypeDeprecated::NativeFrame(_) => -2,
                 }),
             )
             .unwrap();
     }
     let obj_class = vm
-        .method_area
+        .method_area_deprecated
         .get_class_or_load_by_name("java/lang/Object")
         .unwrap();
     let backtrace_addr = vm.heap.alloc_array(obj_class, 3).unwrap();
@@ -225,7 +228,10 @@ fn java_lang_throwable_fill_in_stack_trace(
         _ => panic!("java.lang.Throwable.fillInStackTrace: expected object"),
     };
     let throwable_class_id = vm.heap.get_class_id(&throwable_addr);
-    let throwable_class = vm.method_area.get_class_by_id(&throwable_class_id).unwrap();
+    let throwable_class = vm
+        .method_area_deprecated
+        .get_class_by_id(&throwable_class_id)
+        .unwrap();
     vm.heap
         .write_instance_field(
             throwable_addr,
@@ -245,8 +251,8 @@ fn java_lang_throwable_fill_in_stack_trace(
 }
 
 fn java_lang_float_float_to_raw_int_bits(
-    _vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Float.floatToRawIntBits");
@@ -258,8 +264,8 @@ fn java_lang_float_float_to_raw_int_bits(
 }
 
 fn java_lang_double_double_to_raw_long_bits(
-    _vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Double.doubleToRawLongBits");
@@ -271,8 +277,8 @@ fn java_lang_double_double_to_raw_long_bits(
 }
 
 fn java_lang_runtime_max_memory(
-    vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Runtime.maxMemory");
@@ -280,8 +286,8 @@ fn java_lang_runtime_max_memory(
 }
 
 fn java_lang_runtime_available_processors(
-    _vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Runtime.availableProcessors");
@@ -289,8 +295,8 @@ fn java_lang_runtime_available_processors(
 }
 
 fn java_lang_stack_trace_element_init_stack_trace_elements(
-    vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.StackTraceElement.initStackTraceElements");
@@ -356,7 +362,10 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
             .unwrap()
             .as_int()
             .unwrap();
-        let class = vm.method_area.get_class_by_id(&class_id).unwrap();
+        let class = vm
+            .method_area_deprecated
+            .get_class_by_id(&class_id)
+            .unwrap();
         let declaring_class_object = vm.heap.get_mirror_addr(class).unwrap();
         let method = class.get_method_by_id(&method_id).unwrap();
         let class_name = vm.heap.get_or_new_string(&class.name().replace('/', "."));
@@ -373,7 +382,7 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
 
         let stack_trace_class_id = vm.heap.get_class_id(&cur_stack_trace_entry);
         let stack_trace_class = vm
-            .method_area
+            .method_area_deprecated
             .get_class_by_id(&stack_trace_class_id)
             .unwrap();
 
@@ -419,8 +428,8 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
 }
 
 fn java_lang_object_notify_all(
-    _vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Object.notifyAll");
@@ -428,8 +437,8 @@ fn java_lang_object_notify_all(
 }
 
 fn java_lang_float_int_bits_to_float(
-    _vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Float.intBitsToFloat");
@@ -441,8 +450,8 @@ fn java_lang_float_int_bits_to_float(
 }
 
 fn java_lang_null_pointer_exception_get_extended_npe_message(
-    _vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.NullPointerException.getExtendedNPEMessage");

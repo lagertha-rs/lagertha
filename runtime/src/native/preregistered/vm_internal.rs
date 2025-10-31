@@ -1,6 +1,6 @@
-use crate::VirtualMachine;
+use crate::VirtualMachineDeprecated;
 use crate::native::{MethodKey, NativeRegistry, NativeRet};
-use crate::stack::FrameStack;
+use crate::stack_deprecated::FrameStackDeprecated;
 use common::jtype::Value;
 use log::debug;
 
@@ -16,8 +16,8 @@ pub(super) fn do_register_vm_internal_preregistered_natives(native_registry: &mu
 }
 
 fn vm_internal_clone(
-    vm: &mut VirtualMachine,
-    _frame_stack: &FrameStack,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: internal clone");
