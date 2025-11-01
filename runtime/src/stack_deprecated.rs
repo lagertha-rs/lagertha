@@ -1,13 +1,17 @@
-use crate::{MethodId, VmConfig};
+use crate::VmConfig;
+use crate::rt::constant_pool::rt_cp_deprecated::RuntimeConstantPoolDeprecated;
+use crate::rt::method_deprecated::MethodDeprecated;
 use common::error::{JavaExceptionFromJvm, JvmError};
 use common::jtype::{HeapAddr, Value};
+use log::debug;
+use std::sync::Arc;
 
-pub struct FrameStack {
+pub struct FrameStackDeprecated {
     max_size: usize,
-    frames: Vec<JavaFrame>,
+    frames: Vec<FrameTypeDeprecated>,
 }
 
-impl FrameStack {
+impl FrameStackDeprecated {
     pub fn new(vm_config: &VmConfig) -> Self {
         let max_size = vm_config.frame_stack_size;
         Self {
@@ -16,11 +20,11 @@ impl FrameStack {
         }
     }
 
-    pub fn frames(&self) -> &Vec<JavaFrame> {
+    pub fn frames(&self) -> &Vec<FrameTypeDeprecated> {
         &self.frames
     }
 
-    fn debug_fn_parameters(frame: &JavaFrame) -> String {
+    fn debug_fn_parameters(frame: &JavaFrameDeprecated) -> String {
         frame
             .locals
             .iter()
@@ -30,15 +34,22 @@ impl FrameStack {
             .join(", ")
     }
 
-    pub fn push_frame(&mut self, frame: JavaFrame) -> Result<(), JvmError> {
-        /*
-           debug!(
-               "🚀 Executing {}.{}({})",
-               f.method.class()?.name(),
-               f.method.name(),
-               Self::debug_fn_parameters(&f)
-           );
-        */
+    pub fn push_frame(&mut self, frame: FrameTypeDeprecated) -> Result<(), JvmError> {
+        match &frame {
+            FrameTypeDeprecated::JavaFrame(f) => debug!(
+                "🚀 Executing {}.{}({})",
+                f.method.class()?.name(),
+                f.method.name(),
+                Self::debug_fn_parameters(&f)
+            ),
+            FrameTypeDeprecated::NativeFrame(f) => {
+                debug!(
+                    "🚀 Executing native {}.{}",
+                    f.method.class()?.name(),
+                    f.method.name()
+                )
+            }
+        }
         if self.frames.len() >= self.max_size {
             return Err(JvmError::StackOverflow);
         }
@@ -46,42 +57,83 @@ impl FrameStack {
         Ok(())
     }
 
-    pub fn pop_frame(&mut self) -> Result<JavaFrame, JvmError> {
-        self.frames.pop().ok_or(JvmError::FrameStackIsEmpty)
-        /*
-            debug!(
+    pub fn pop_frame(&mut self) -> Result<FrameTypeDeprecated, JvmError> {
+        let res = self.frames.pop().ok_or(JvmError::FrameStackIsEmpty)?;
+        match &res {
+            FrameTypeDeprecated::JavaFrame(f) => debug!(
                 "🏁 Execution finished of {}.{}",
                 f.method.class()?.name(),
                 f.method.name()
             ),
+            FrameTypeDeprecated::NativeFrame(f) => debug!(
+                "🏁 Execution finished of native {}.{}",
+                f.method.class()?.name(),
+                f.method.name()
+            ),
+        }
         if let Some(frame) = self.frames.last() {
-                FrameType::JavaFrame(f) => debug!(
+            match frame {
+                FrameTypeDeprecated::JavaFrame(f) => debug!(
                     "🔄 Resuming execution of {}.{}",
                     f.method.class()?.name(),
                     f.method.name()
                 ),
+                FrameTypeDeprecated::NativeFrame(f) => debug!(
+                    "🔄 Resuming execution of native {}.{}",
+                    f.method.class()?.name(),
+                    f.method.name()
+                ),
+            }
         }
-         */
+        Ok(res)
     }
 
-    pub fn cur_frame_mut(&mut self) -> Result<&mut JavaFrame, JvmError> {
-        self.frames.last_mut().ok_or(JvmError::FrameStackIsEmpty)
+    pub fn pop_java_frame(&mut self) -> Result<JavaFrameDeprecated, JvmError> {
+        match self.pop_frame()? {
+            FrameTypeDeprecated::JavaFrame(f) => Ok(f),
+            FrameTypeDeprecated::NativeFrame(_) => Err(JvmError::UnexpectedType(
+                "Expected Java frame on top of the stack".to_string(),
+            )),
+        }
     }
 
-    pub fn cur_frame(&self) -> Result<&JavaFrame, JvmError> {
-        self.frames.last().ok_or(JvmError::FrameStackIsEmpty)
+    pub fn pop_native_frame(&mut self) -> Result<NativeFrameDeprecated, JvmError> {
+        match self.pop_frame()? {
+            FrameTypeDeprecated::NativeFrame(f) => Ok(f),
+            FrameTypeDeprecated::JavaFrame(_) => Err(JvmError::UnexpectedType(
+                "Expected Native frame on top of the stack".to_string(),
+            )),
+        }
     }
 
-    pub fn pc(&self) -> Result<usize, JvmError> {
-        self.cur_frame().map(|v| v.pc)
+    fn cur_java_frame_mut(&mut self) -> Result<&mut JavaFrameDeprecated, JvmError> {
+        match self.frames.last_mut().ok_or(JvmError::FrameStackIsEmpty)? {
+            FrameTypeDeprecated::JavaFrame(f) => Ok(f),
+            FrameTypeDeprecated::NativeFrame(_) => Err(JvmError::UnexpectedType(
+                "Expected Java frame on top of the stack".to_string(),
+            )),
+        }
+    }
+
+    fn cur_java_frame(&self) -> Result<&JavaFrameDeprecated, JvmError> {
+        match self.frames.last().ok_or(JvmError::FrameStackIsEmpty)? {
+            FrameTypeDeprecated::JavaFrame(f) => Ok(f),
+            FrameTypeDeprecated::NativeFrame(_) => Err(JvmError::UnexpectedType(
+                "Expected Java frame on top of the stack".to_string(),
+            )),
+        }
+    }
+
+    pub fn pc(&self) -> Result<&usize, JvmError> {
+        self.cur_java_frame().map(|v| &v.pc)
     }
 
     pub fn pc_mut(&mut self) -> Result<&mut usize, JvmError> {
-        self.cur_frame_mut().map(|v| &mut v.pc)
+        self.cur_java_frame_mut().map(|v| &mut v.pc)
     }
 
     fn get_local(&self, index: u8) -> Result<&Value, JvmError> {
-        self.cur_frame()?.get_local(index)
+        self.cur_java_frame()?.get_local(index)
     }
 
     pub fn get_local_long(&self, index: u8) -> Result<&Value, JvmError> {
@@ -136,12 +188,12 @@ impl FrameStack {
 
     // TODO: check index bounds
     pub fn set_local(&mut self, idx: usize, value: Value) -> Result<(), JvmError> {
-        self.cur_frame_mut()?.locals[idx] = Some(value);
+        self.cur_java_frame_mut()?.locals[idx] = Some(value);
         Ok(())
     }
 
     pub fn push_operand(&mut self, value: Value) -> Result<(), JvmError> {
-        self.cur_frame_mut()?.operands.push(value);
+        self.cur_java_frame_mut()?.operands.push(value);
         Ok(())
     }
 
@@ -244,35 +296,38 @@ impl FrameStack {
     }
 
     pub fn pop_operand(&mut self) -> Result<Value, JvmError> {
-        self.cur_frame_mut()?.pop_operand()
+        self.cur_java_frame_mut()?.pop_operand()
+    }
+
+    pub fn cp(&self) -> Result<&RuntimeConstantPoolDeprecated, JvmError> {
+        self.cur_java_frame().map(|v| v.cp.as_ref())
     }
 
     pub fn peek(&self) -> Result<&Value, JvmError> {
-        self.cur_frame()?.peek()
+        self.cur_java_frame()?.peek()
     }
 }
 
-/*
-pub enum FrameType {
-    JavaFrame(JavaFrame),
-    NativeFrame(NativeFrame),
+pub enum FrameTypeDeprecated {
+    JavaFrame(JavaFrameDeprecated),
+    NativeFrame(NativeFrameDeprecated),
 }
 
-impl FrameType {
+impl FrameTypeDeprecated {
     pub fn method(&self) -> &Arc<MethodDeprecated> {
         match self {
-            FrameType::JavaFrame(f) => &f.method,
-            FrameType::NativeFrame(f) => &f.method,
+            FrameTypeDeprecated::JavaFrame(f) => &f.method,
+            FrameTypeDeprecated::NativeFrame(f) => &f.method,
         }
     }
 }
 
 #[derive(Clone)]
-pub struct NativeFrame {
+pub struct NativeFrameDeprecated {
     method: Arc<MethodDeprecated>,
 }
 
-impl NativeFrame {
+impl NativeFrameDeprecated {
     pub fn new(method: Arc<MethodDeprecated>) -> Self {
         Self { method }
     }
@@ -282,49 +337,34 @@ impl NativeFrame {
     }
 }
 
- */
-
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.6
 #[derive(Clone)]
-pub struct JavaFrame {
+pub struct JavaFrameDeprecated {
     locals: Vec<Option<Value>>,
     operands: Vec<Value>,
+    cp: Arc<RuntimeConstantPoolDeprecated>,
     pc: usize,
-    method_id: MethodId,
+    method: Arc<MethodDeprecated>,
 }
 
-impl JavaFrame {
-    // TODO: rethink params and this mapping
-    fn args_to_frame_locals(params: Vec<Value>, max_locals: u16) -> Vec<Option<Value>> {
-        let mut locals = vec![None; max_locals as usize];
-
-        let mut pos = 0;
-        for v in params {
-            match v {
-                Value::Long(_) | Value::Double(_) => {
-                    locals[pos] = Some(v);
-                    pos += 2;
-                }
-                _ => {
-                    locals[pos] = Some(v);
-                    pos += 1;
-                }
-            }
-        }
-        locals
-    }
-
-    pub fn new(method_id: MethodId, max_stack: u16, max_locals: u16, args: Vec<Value>) -> Self {
-        Self {
-            locals: Self::args_to_frame_locals(args, max_locals),
-            operands: Vec::with_capacity(max_stack as usize),
+impl JavaFrameDeprecated {
+    pub fn new(
+        cp: Arc<RuntimeConstantPoolDeprecated>,
+        method: Arc<MethodDeprecated>,
+        locals: Vec<Option<Value>>,
+    ) -> Result<Self, JvmError> {
+        let max_stack = method.max_stack()?;
+        Ok(Self {
+            locals,
+            operands: Vec::with_capacity(max_stack),
+            cp,
             pc: 0,
-            method_id,
-        }
+            method,
+        })
     }
 
-    pub fn method_id(&self) -> MethodId {
-        self.method_id
+    pub fn method(&self) -> &Arc<MethodDeprecated> {
+        &self.method
     }
 
     pub fn get_local(&self, index: u8) -> Result<&Value, JvmError> {
@@ -340,10 +380,6 @@ impl JavaFrame {
 
     pub fn pop_operand(&mut self) -> Result<Value, JvmError> {
         self.operands.pop().ok_or(JvmError::OperandStackIsEmpty)
-    }
-
-    pub fn increment_pc(&mut self, offset: u16) {
-        self.pc += offset as usize;
     }
 
     pub fn pc(&self) -> usize {

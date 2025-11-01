@@ -1,5 +1,6 @@
 use crate::class_loader::ClassLoader;
 use crate::rt::class::Class;
+use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::method::Method;
 use crate::{ClassId, FieldDescriptorId, MethodId, Symbol, VmConfig};
 use common::error::{JvmError, LinkageError};
@@ -85,6 +86,10 @@ impl MethodArea {
 
     pub fn get_class(&self, class_id: &ClassId) -> &Class {
         &self.classes[class_id.to_index()]
+    }
+
+    pub fn get_cp(&self, class_id: &ClassId) -> &RuntimeConstantPool {
+        &self.get_class(class_id).cp
     }
 
     fn load_class(&mut self, name_sym: Symbol) -> Result<ClassId, JvmError> {

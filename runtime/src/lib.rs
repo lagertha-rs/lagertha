@@ -26,8 +26,24 @@ mod thread;
 mod throw;
 
 pub type ClassIdDeprecated = Spur;
-pub type ThreadId = u16;
+#[repr(transparent)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+pub struct ThreadId(NonZeroU32);
 
+impl ThreadId {
+    pub fn new(val: NonZeroU32) -> Self {
+        ThreadId(val)
+    }
+    pub fn from_usize(index: usize) -> Self {
+        ThreadId(NonZeroU32::new(index as u32).unwrap())
+    }
+    pub fn as_usize(&self) -> usize {
+        self.0.get() as usize
+    }
+    pub fn to_index(&self) -> usize {
+        (self.0.get() - 1) as usize
+    }
+}
 pub type MethodIdDeprecated = usize;
 #[repr(transparent)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
@@ -148,6 +164,7 @@ pub struct VirtualMachine {
     method_area: MethodArea,
     native_registry: NativeRegistry,
     string_interner: Arc<ThreadedRodeo>,
+    thread_registry: Vec<JavaThreadState>,
     rust_thread: JavaThreadState, // TODO: replace with something else
     rust_thread_id: ThreadId,
 }
@@ -165,12 +182,13 @@ impl VirtualMachine {
             name: "".to_string(),
             stack: FrameStack::new(&config),
         };
-        let rust_thread_id = u16::MAX;
+        let rust_thread_id = ThreadId::new(NonZeroU32::MAX);
         Ok(Self {
             config,
             native_registry,
             string_interner,
             method_area,
+            thread_registry: Vec::new(),
             rust_thread,
             rust_thread_id,
         })
@@ -180,6 +198,17 @@ impl VirtualMachine {
     pub fn get_thread_mut(&mut self, thread_id: ThreadId) -> &mut JavaThreadState {
         assert_eq!(thread_id, self.rust_thread_id);
         &mut self.rust_thread
+    }
+
+    pub fn get_stack(&mut self, thread_id: &ThreadId) -> Result<&mut FrameStack, JvmError> {
+        if *thread_id == self.rust_thread_id {
+            Ok(&mut self.rust_thread.stack)
+        } else {
+            self.thread_registry
+                .get_mut(thread_id.to_index())
+                .ok_or(JvmError::Todo("No such thread".to_string()))
+                .map(|t| &mut t.stack)
+        }
     }
 }
 
@@ -199,7 +228,7 @@ fn start(config: VmConfig) -> Result<(), JvmError> {
         .map_err(|_| JvmError::MainClassNotFound(vm.config.main_class.replace('/', ".")))?;
     let rust_thread_id = vm.rust_thread_id;
 
-    Interpreter::invoke_static_method(&mut vm, rust_thread_id, main_method_id, vec![])?;
+    Interpreter::invoke_static_method(rust_thread_id, main_method_id, &mut vm, vec![])?;
 
     Ok(())
 }

@@ -515,6 +515,34 @@ pub enum Instruction {
 }
 
 impl Instruction {
+    pub fn is_branch(&self) -> bool {
+        matches!(
+            self,
+            Self::Goto(_)
+                | Self::GotoW(_)
+                | Self::Jsr(_)
+                | Self::JsrW(_)
+                | Self::IfAcmpEq(_)
+                | Self::IfAcmpNe(_)
+                | Self::IfEq(_)
+                | Self::IfGe(_)
+                | Self::IfGt(_)
+                | Self::IfLe(_)
+                | Self::IfLt(_)
+                | Self::IfNe(_)
+                | Self::Ifnonnull(_)
+                | Self::Ifnull(_)
+                | Self::IfIcmpeq(_)
+                | Self::IfIcmpge(_)
+                | Self::IfIcmpgt(_)
+                | Self::IfIcmple(_)
+                | Self::IfIcmplt(_)
+                | Self::IfIcmpne(_)
+                | Self::Lookupswitch(_)
+                | Self::TableSwitch(_)
+        )
+    }
+
     pub fn byte_size(&self) -> u16 {
         match self {
             // Variable-size instructions

@@ -1,4 +1,4 @@
-use crate::Symbol;
+use crate::{FieldKey, Symbol};
 use once_cell::sync::OnceCell;
 
 pub(super) struct Utf8Entry {
@@ -133,6 +133,15 @@ impl NameAndTypeEntryView {
         Self {
             name_sym,
             descriptor_sym,
+        }
+    }
+}
+
+impl From<NameAndTypeEntryView> for FieldKey {
+    fn from(value: NameAndTypeEntryView) -> Self {
+        FieldKey {
+            name: value.name_sym,
+            desc: value.descriptor_sym,
         }
     }
 }

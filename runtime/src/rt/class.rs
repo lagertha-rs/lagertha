@@ -2,24 +2,29 @@ use crate::heap::method_area::MethodArea;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::field::{InstanceField, StaticField};
 use crate::rt::method::Method;
-use crate::{ClassId, FieldId, FieldKey, MethodId, MethodKey};
+use crate::{ClassId, FieldKey, MethodId, MethodKey};
 use common::error::{JavaExceptionFromJvm, JvmError};
+use common::jtype::Value;
 use jclass::ClassFile;
 use once_cell::sync::OnceCell;
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::sync::Arc;
 
 // TODO: something like that...
 pub enum ClassState {
-    Loading,     // Currently being loaded
-    Loaded,      // Parsed, superclass loaded
-    Linked,      // Verified, prepared
-    Initialized, // <clinit> executed
+    Loaded,       // Parsed, superclass loaded
+    Linked,       // Verified, prepared
+    Initializing, // <clinit> in progress
+    Initialized,  // <clinit> executed
 }
 
 pub struct Class {
     pub name: String, //TODO: debug, delete
+
+    pub cp: RuntimeConstantPool,
     pub super_id: Option<ClassId>,
+    state: RefCell<ClassState>,
     pub declared_method_index: OnceCell<HashMap<MethodKey, MethodId>>,
     pub vtable: OnceCell<Vec<MethodId>>,
     pub vtable_index: OnceCell<HashMap<MethodKey, u16>>,
@@ -36,14 +41,16 @@ impl Class {
         method_area: &mut MethodArea,
         super_id: Option<ClassId>,
     ) -> Result<ClassId, JvmError> {
-        let cp = Arc::new(RuntimeConstantPool::new(cf.cp.inner));
+        let cp = RuntimeConstantPool::new(cf.cp.inner);
         // class state = Loading
         let name = cp.get_class(&cf.this_class, &method_area.string_interner)?;
         let name = method_area.string_interner.resolve(&name).to_string();
 
         let class = Self {
+            cp,
             name: name.clone(),
             super_id,
+            state: RefCell::new(ClassState::Loaded),
             declared_method_index: OnceCell::new(),
             vtable: OnceCell::new(),
             vtable_index: OnceCell::new(),
@@ -65,14 +72,16 @@ impl Class {
             .unwrap_or_default();
 
         for method in cf.methods {
-            let name = cp.get_utf8(&method.name_index, &method_area.string_interner)?;
-            let method_key = MethodKey {
-                name,
-                desc: cp.get_utf8(&method.descriptor_index, &method_area.string_interner)?,
+            let method_key = {
+                let cp = &method_area.get_class(&class_id).cp;
+                MethodKey {
+                    name: cp.get_utf8(&method.name_index, &method_area.string_interner)?,
+                    desc: cp.get_utf8(&method.descriptor_index, &method_area.string_interner)?,
+                }
             };
             let method = Method::new(method, class_id);
             let is_static = method.is_static();
-            let is_constructor = method_area.is_constructor_symbol(name);
+            let is_constructor = method_area.is_constructor_symbol(method_key.name);
             let method_id = method_area.push_method(method);
 
             // TODO: need to think about private as well. Private methods should not be in vtable
@@ -110,12 +119,15 @@ impl Class {
         let mut static_fields = HashMap::new();
 
         for field in cf.fields {
-            let desc_sym = cp.get_utf8(&field.descriptor_index, &method_area.string_interner)?;
-            let field_key = FieldKey {
-                name: cp.get_utf8(&field.name_index, &method_area.string_interner)?,
-                desc: desc_sym,
+            let field_key = {
+                let cp = &method_area.get_class(&class_id).cp;
+                FieldKey {
+                    name: cp.get_utf8(&field.name_index, &method_area.string_interner)?,
+                    desc: cp.get_utf8(&field.descriptor_index, &method_area.string_interner)?,
+                }
             };
-            let descriptor_id = method_area.get_or_new_field_descriptor_id(&desc_sym)?;
+
+            let descriptor_id = method_area.get_or_new_field_descriptor_id(&field_key.desc)?;
             if field.access_flags.is_static() {
                 let static_field = StaticField {
                     flags: field.access_flags,
@@ -144,9 +156,50 @@ impl Class {
             this.set_instance_fields(instance_fields);
             this.set_instance_fields_offset_map(instance_fields_offset_map);
             this.set_static_fields(static_fields);
+            this.set_linked();
         }
 
         Ok(class_id)
+    }
+
+    pub fn set_static_field_value(
+        &self,
+        field_key: &FieldKey,
+        value: Value,
+    ) -> Result<(), JvmError> {
+        let static_fields = self.static_fields.get().unwrap();
+        let static_field = static_fields
+            .get(field_key)
+            .ok_or(JvmError::Todo("No such field".to_string()))?;
+        *static_field.value.borrow_mut() = value;
+        Ok(())
+    }
+
+    pub fn get_super_id(&self) -> Option<ClassId> {
+        self.super_id
+    }
+
+    fn set_linked(&self) {
+        *self.state.borrow_mut() = ClassState::Linked;
+    }
+
+    pub fn is_initializing(&self) -> bool {
+        matches!(*self.state.borrow(), ClassState::Initializing)
+    }
+
+    pub fn set_initializing(&self) {
+        *self.state.borrow_mut() = ClassState::Initializing;
+    }
+
+    pub fn set_initialized(&self) {
+        *self.state.borrow_mut() = ClassState::Initialized;
+    }
+
+    pub fn is_initialized_or_initializing(&self) -> bool {
+        matches!(
+            *self.state.borrow(),
+            ClassState::Initialized | ClassState::Initializing
+        )
     }
 
     fn set_static_fields(&self, static_fields: HashMap<FieldKey, StaticField>) {
