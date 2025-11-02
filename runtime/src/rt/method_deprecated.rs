@@ -1,8 +1,7 @@
-use crate::native::MethodKey;
 use crate::rt::class_deprecated::ClassDeprecated;
 use crate::rt::constant_pool::reference_deprecated::MethodDescriptorReferenceDeprecated;
 use crate::rt::constant_pool::rt_cp_deprecated::RuntimeConstantPoolDeprecated;
-use crate::{ClassIdDeprecated, MethodIdDeprecated};
+use crate::{ClassIdDeprecated, FullyQualifiedMethodKey, MethodIdDeprecated};
 use common::error::{JvmError, LinkageError};
 use jclass::attribute::method::code::{
     CodeAttributeInfo, LineNumberEntry, LocalVariableEntry, LocalVariableTypeEntry, StackMapFrame,
@@ -241,17 +240,17 @@ impl MethodDeprecated {
     pub fn build_method_key(
         &self,
         string_interner: &ThreadedRodeo,
-    ) -> Result<MethodKey, LinkageError> {
+    ) -> Result<FullyQualifiedMethodKey, LinkageError> {
         let class = self.class.get().ok_or(LinkageError::MethodClassIsNotSet)?;
         let class_name = class.name();
         if class_name.starts_with('[') {
-            Ok(MethodKey::new_internal_with_str(
+            Ok(FullyQualifiedMethodKey::new_internal_with_str(
                 self.name(),
                 self.descriptor.raw(),
                 string_interner,
             ))
         } else {
-            Ok(MethodKey::new_with_str(
+            Ok(FullyQualifiedMethodKey::new_with_str(
                 class_name,
                 &self.name,
                 self.descriptor().raw(),

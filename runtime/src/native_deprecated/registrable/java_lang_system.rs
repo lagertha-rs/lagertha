@@ -1,14 +1,14 @@
-use crate::native::NativeRet;
+use crate::native_deprecated::NativeRetDeprecated;
 use crate::stack_deprecated::FrameStackDeprecated;
-use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine, throw_exception};
+use crate::{FullyQualifiedMethodKey, VirtualMachineDeprecated, throw_exception};
 use common::jtype::Value;
 use log::debug;
 
 pub(super) fn java_lang_system_register_natives(
-    vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     vm.native_registry.register(
         FullyQualifiedMethodKey::new_with_str(
             "java/lang/System",
@@ -58,11 +58,10 @@ pub(super) fn java_lang_system_register_natives(
 }
 
 fn java_lang_system_set_out_0(
-    vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
-) -> NativeRet {
-    /*
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: java.lang.System.setIn0");
     let val = match &args[0] {
         Value::Ref(h) => *h,
@@ -76,16 +75,13 @@ fn java_lang_system_set_out_0(
         .set_static_field("out", "Ljava/io/PrintStream;", Value::Ref(val))
         .unwrap();
     Ok(None)
-     */
-    todo!()
 }
 
 fn java_lang_system_set_err_0(
-    vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
-) -> NativeRet {
-    /*
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: java.lang.System.setIn0");
     let val = match &args[0] {
         Value::Ref(h) => *h,
@@ -99,16 +95,13 @@ fn java_lang_system_set_err_0(
         .set_static_field("err", "Ljava/io/PrintStream;", Value::Ref(val))
         .unwrap();
     Ok(None)
-     */
-    todo!()
 }
 
 fn java_lang_system_arraycopy(
-    vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
-) -> NativeRet {
-    /*
+) -> NativeRetDeprecated {
     let src_addr = args[0].as_obj_ref()?;
     let src_pos = args[1].as_int()?;
     let dest_addr = args[2].as_obj_ref()?;
@@ -146,15 +139,13 @@ fn java_lang_system_arraycopy(
     vm.heap
         .copy_primitive_slice(src_addr, src_pos, dest_addr, dest_pos, length)?;
     Ok(None)
-     */
-    todo!()
 }
 
 fn java_lang_system_identity_hash_code(
-    _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: java.lang.System.identityHashCode");
     if let Value::Ref(h) = &args[0] {
         Ok(Some(Value::Integer(*h as i32)))
@@ -164,10 +155,10 @@ fn java_lang_system_identity_hash_code(
 }
 
 fn java_lang_system_set_in_0(
-    _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: java.lang.System.setIn0");
     Ok(None)
 }

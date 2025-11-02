@@ -1,64 +1,22 @@
 mod preregistered;
 mod registrable;
 
-use crate::VirtualMachineDeprecated;
 use crate::native::preregistered::preregister_natives;
 use crate::native::registrable::add_registrable_natives;
 use crate::stack_deprecated::FrameStackDeprecated;
+use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
 use common::error::JvmError;
 use common::jtype::Value;
-use lasso::{Spur, ThreadedRodeo};
+use lasso::ThreadedRodeo;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tracing_log::log::debug;
 
-#[derive(Hash, Eq, PartialEq, Clone)]
-pub struct MethodKey {
-    pub class: Option<Spur>,
-    pub name: Spur,
-    pub desc: Spur,
-}
-
-impl MethodKey {
-    pub fn new(class: Spur, name: Spur, desc: Spur) -> Self {
-        Self {
-            class: Some(class),
-            name,
-            desc,
-        }
-    }
-
-    pub fn new_internal(name: Spur, desc: Spur) -> Self {
-        Self {
-            class: None,
-            name,
-            desc,
-        }
-    }
-
-    pub fn new_internal_with_str(name: &str, desc: &str, interner: &ThreadedRodeo) -> Self {
-        Self {
-            class: None,
-            name: interner.get_or_intern(name),
-            desc: interner.get_or_intern(desc),
-        }
-    }
-
-    pub fn new_with_str(class: &str, name: &str, desc: &str, interner: &ThreadedRodeo) -> Self {
-        Self {
-            class: Some(interner.get_or_intern(class)),
-            name: interner.get_or_intern(name),
-            desc: interner.get_or_intern(desc),
-        }
-    }
-}
-
 pub type NativeRet = Result<Option<Value>, JvmError>;
-pub type NativeFn =
-    fn(&mut VirtualMachineDeprecated, frame_stack: &FrameStackDeprecated, &[Value]) -> NativeRet;
+pub type NativeFn = fn(&mut VirtualMachine, thread_id: ThreadId, &[Value]) -> NativeRet;
 
 pub struct NativeRegistry {
-    map: HashMap<MethodKey, NativeFn>,
+    map: HashMap<FullyQualifiedMethodKey, NativeFn>,
     string_interner: Arc<ThreadedRodeo>,
 }
 
@@ -76,11 +34,11 @@ impl NativeRegistry {
         instance
     }
 
-    fn register(&mut self, key: MethodKey, f: NativeFn) {
+    fn register(&mut self, key: FullyQualifiedMethodKey, f: NativeFn) {
         self.map.insert(key, f);
     }
 
-    pub fn get(&self, key: &MethodKey) -> Option<&NativeFn> {
+    pub fn get(&self, key: &FullyQualifiedMethodKey) -> Option<&NativeFn> {
         self.map.get(key)
     }
 }

@@ -1,15 +1,16 @@
 use crate::heap::HeapObject;
-use crate::native::NativeRet;
+use crate::native_deprecated::NativeRetDeprecated;
 use crate::stack_deprecated::FrameStackDeprecated;
-use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
+use crate::{FullyQualifiedMethodKey, VirtualMachineDeprecated};
 use common::jtype::Value;
 use log::debug;
 
 pub(super) fn jdk_internal_misc_unsafe_register_natives(
-    vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
+
     _args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.registerNatives");
 
     vm.native_registry.register(
@@ -89,21 +90,20 @@ pub(super) fn jdk_internal_misc_unsafe_register_natives(
 }
 
 fn jdk_internal_misc_unsafe_array_base_offset_0(
-    _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.arrayBaseOffset0");
     Ok(Some(Value::Integer(0)))
 }
 
 fn jdk_internal_misc_unsafe_compare_and_set_int(
-    vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
 
     args: &[Value],
-) -> NativeRet {
-    /*
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.compareAndSetInt");
     let object = match &args[1] {
         Value::Ref(h) => h,
@@ -133,16 +133,14 @@ fn jdk_internal_misc_unsafe_compare_and_set_int(
     } else {
         panic!("jdk.internal.misc.Unsafe.compareAndSetLong: field at offset is not long");
     }
-     */
-    todo!()
 }
 
 fn jdk_internal_misc_unsafe_compare_and_set_long(
-    vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
+
     args: &[Value],
-) -> NativeRet {
-    /*
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.compareAndSetLong");
     let object = match &args[1] {
         Value::Ref(h) => h,
@@ -172,16 +170,14 @@ fn jdk_internal_misc_unsafe_compare_and_set_long(
     } else {
         panic!("jdk.internal.misc.Unsafe.compareAndSetLong: field at offset is not long");
     }
-     */
-    todo!()
 }
 
 fn jdk_internal_misc_unsafe_get_reference_volatile(
-    vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
+
     args: &[Value],
-) -> NativeRet {
-    /*
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.getReferenceVolatile");
     let base = match &args[1] {
         Value::Ref(h) => *h,
@@ -213,16 +209,14 @@ fn jdk_internal_misc_unsafe_get_reference_volatile(
             }
         }
     }
-     */
-    todo!()
 }
 
 fn jdk_internal_misc_unsafe_object_field_offset_1(
-    vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
+
     args: &[Value],
-) -> NativeRet {
-    /*
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.objectFieldOffset");
     let class_addr = match &args[1] {
         Value::Ref(h) => h,
@@ -238,35 +232,34 @@ fn jdk_internal_misc_unsafe_object_field_offset_1(
     let class = vm.heap.get_class_by_mirror(class_addr).unwrap();
     let offset = class.get_field_index(&field_name).unwrap();
     Ok(Some(Value::Long(offset as i64)))
-     */
-    todo!()
 }
 
 fn jdk_internal_misc_unsafe_array_index_scale_0(
-    _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
+
     _args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.arrayIndexScale0");
     Ok(Some(Value::Integer(1)))
 }
 
 fn jdk_internal_misc_unsafe_full_fence(
-    _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.fullFence");
     Ok(None)
 }
 
 // TODO: pure mess
 fn jdk_internal_misc_unsafe_compare_and_set_reference(
-    vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
+
     args: &[Value],
-) -> NativeRet {
-    /*
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.compareAndSetReference");
     let object = match &args[1] {
         Value::Ref(h) => h,
@@ -313,6 +306,4 @@ fn jdk_internal_misc_unsafe_compare_and_set_reference(
             }
         }
     }
-     */
-    todo!()
 }

@@ -1,14 +1,14 @@
-use crate::native::NativeRet;
+use crate::VirtualMachineDeprecated;
+use crate::native_deprecated::NativeRetDeprecated;
 use crate::stack_deprecated::FrameStackDeprecated;
-use crate::{ThreadId, VirtualMachine};
 use common::jtype::Value;
 use log::debug;
 
 pub(super) fn java_lang_thread_register_natives(
-    _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     debug!("Stub: java.lang.Thread.registerNatives()");
     Ok(None)
 }

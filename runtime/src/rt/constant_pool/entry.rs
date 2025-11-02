@@ -1,4 +1,4 @@
-use crate::{FieldKey, Symbol};
+use crate::{FieldKey, MethodKey, Symbol};
 use once_cell::sync::OnceCell;
 
 pub(super) struct Utf8Entry {
@@ -70,6 +70,15 @@ impl MethodEntryView {
         Self {
             class_sym,
             name_and_type,
+        }
+    }
+}
+
+impl From<NameAndTypeEntryView> for MethodKey {
+    fn from(value: NameAndTypeEntryView) -> Self {
+        MethodKey {
+            name: value.name_sym,
+            desc: value.descriptor_sym,
         }
     }
 }

@@ -2,14 +2,13 @@ use crate::heap::method_area::MethodArea;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::field::{InstanceField, StaticField};
 use crate::rt::method::Method;
-use crate::{ClassId, FieldKey, MethodId, MethodKey};
+use crate::{ClassId, FieldKey, MethodId, MethodKey, Symbol};
 use common::error::{JavaExceptionFromJvm, JvmError};
 use common::jtype::Value;
 use jclass::ClassFile;
 use once_cell::sync::OnceCell;
 use std::cell::RefCell;
 use std::collections::HashMap;
-use std::sync::Arc;
 
 // TODO: something like that...
 pub enum ClassState {
@@ -20,7 +19,7 @@ pub enum ClassState {
 }
 
 pub struct Class {
-    pub name: String, //TODO: debug, delete
+    pub name: Symbol,
 
     pub cp: RuntimeConstantPool,
     pub super_id: Option<ClassId>,
@@ -44,11 +43,10 @@ impl Class {
         let cp = RuntimeConstantPool::new(cf.cp.inner);
         // class state = Loading
         let name = cp.get_class(&cf.this_class, &method_area.string_interner)?;
-        let name = method_area.string_interner.resolve(&name).to_string();
 
         let class = Self {
             cp,
-            name: name.clone(),
+            name,
             super_id,
             state: RefCell::new(ClassState::Loaded),
             declared_method_index: OnceCell::new(),
@@ -79,7 +77,16 @@ impl Class {
                     desc: cp.get_utf8(&method.descriptor_index, &method_area.string_interner)?,
                 }
             };
-            let method = Method::new(method, class_id);
+            let descriptor_id = method_area
+                .get_or_new_method_descriptor_id(&method_key.desc)
+                .unwrap();
+            let method = Method::new(
+                method,
+                class_id,
+                descriptor_id,
+                method_key.name,
+                method_key.desc,
+            );
             let is_static = method.is_static();
             let is_constructor = method_area.is_constructor_symbol(method_key.name);
             let method_id = method_area.push_method(method);
@@ -131,7 +138,7 @@ impl Class {
             if field.access_flags.is_static() {
                 let static_field = StaticField {
                     flags: field.access_flags,
-                    value: std::cell::RefCell::new(
+                    value: RefCell::new(
                         method_area
                             .get_field_descriptor(&descriptor_id)
                             .get_default_value(),
@@ -173,6 +180,14 @@ impl Class {
             .ok_or(JvmError::Todo("No such field".to_string()))?;
         *static_field.value.borrow_mut() = value;
         Ok(())
+    }
+
+    pub fn get_static_field_value(&self, field_key: &FieldKey) -> Result<Value, JvmError> {
+        let static_fields = self.static_fields.get().unwrap();
+        let static_field = static_fields
+            .get(field_key)
+            .ok_or(JvmError::Todo("No such field".to_string()))?;
+        Ok(*static_field.value.borrow())
     }
 
     pub fn get_super_id(&self) -> Option<ClassId> {

@@ -2,8 +2,12 @@ use crate::class_loader::ClassLoader;
 use crate::rt::class::Class;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::method::Method;
-use crate::{ClassId, FieldDescriptorId, MethodId, Symbol, VmConfig};
-use common::error::{JvmError, LinkageError};
+use crate::{
+    ClassId, FieldDescriptorId, FullyQualifiedMethodKey, MethodDescriptorId, MethodId, Symbol,
+    VmConfig,
+};
+use common::descriptor::MethodDescriptor;
+use common::error::{JvmError, LinkageError, MethodDescriptorErr};
 use common::jtype::Type;
 use jclass::ClassFile;
 use lasso::{Spur, ThreadedRodeo};
@@ -15,8 +19,13 @@ pub struct MethodArea {
     class_name_to_index: HashMap<Spur, ClassId>,
     classes: Vec<Class>,
     methods: Vec<Method>,
+
     field_descriptors: Vec<Type>,
     field_descriptors_index: HashMap<Symbol, FieldDescriptorId>,
+
+    method_descriptors: Vec<MethodDescriptor>,
+    method_descriptors_index: HashMap<Symbol, MethodDescriptorId>,
+
     pub string_interner: Arc<ThreadedRodeo>,
     constructor_symbols: (Symbol, Symbol),
 }
@@ -39,9 +48,20 @@ impl MethodArea {
             methods: Vec::new(),
             field_descriptors: Vec::new(),
             field_descriptors_index: HashMap::new(),
+            method_descriptors: Vec::new(),
+            method_descriptors_index: HashMap::new(),
             string_interner,
             constructor_symbols,
         })
+    }
+
+    pub fn build_fully_qualified_method_key(
+        &self,
+        method_id: &MethodId,
+    ) -> FullyQualifiedMethodKey {
+        let method = self.get_method(method_id);
+        let class = self.get_class(&method.class_id());
+        FullyQualifiedMethodKey::new(class.name, method.name, method.desc)
     }
 
     // todo: probably there is better place to put this
@@ -56,6 +76,32 @@ impl MethodArea {
 
     pub fn get_field_descriptor(&self, id: &FieldDescriptorId) -> &Type {
         &self.field_descriptors[id.to_index()]
+    }
+
+    fn push_method_descriptor(&mut self, descriptor: MethodDescriptor) -> MethodDescriptorId {
+        self.method_descriptors.push(descriptor);
+        MethodDescriptorId::from_usize(self.method_descriptors.len())
+    }
+
+    pub fn get_method_descriptor(&self, id: &MethodDescriptorId) -> &MethodDescriptor {
+        &self.method_descriptors[id.to_index()]
+    }
+
+    pub fn get_method_descriptor_by_method_id(&self, method_id: &MethodId) -> &MethodDescriptor {
+        let method = self.get_method(method_id);
+        self.get_method_descriptor(&method.descriptor_id())
+    }
+
+    pub fn get_or_new_method_descriptor_id(
+        &mut self,
+        descriptor: &Symbol,
+    ) -> Result<MethodDescriptorId, MethodDescriptorErr> {
+        if let Some(method_desc) = self.method_descriptors_index.get(descriptor) {
+            return Ok(*method_desc);
+        }
+        let descriptor_str = self.string_interner.resolve(descriptor);
+        let method_descriptor = MethodDescriptor::try_from(descriptor_str)?;
+        Ok(self.push_method_descriptor(method_descriptor))
     }
 
     pub fn get_or_new_field_descriptor_id(
@@ -88,8 +134,17 @@ impl MethodArea {
         &self.classes[class_id.to_index()]
     }
 
+    pub fn get_class_id_by_name(&self, name_sym: &Symbol) -> ClassId {
+        *self.class_name_to_index.get(name_sym).unwrap()
+    }
+
     pub fn get_cp(&self, class_id: &ClassId) -> &RuntimeConstantPool {
         &self.get_class(class_id).cp
+    }
+
+    pub fn get_cp_by_method_id(&self, method_id: &MethodId) -> &RuntimeConstantPool {
+        let class_id = self.get_method(method_id).class_id();
+        self.get_cp(&class_id)
     }
 
     fn load_class(&mut self, name_sym: Symbol) -> Result<ClassId, JvmError> {

@@ -1,14 +1,15 @@
-use crate::native::NativeRet;
-use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
+use crate::native_deprecated::NativeRetDeprecated;
+use crate::stack_deprecated::FrameStackDeprecated;
+use crate::{FullyQualifiedMethodKey, VirtualMachineDeprecated};
 use common::jtype::Value;
 use log::debug;
 
 pub(super) fn java_lang_class_register_natives(
-    vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
 
     _args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     vm.native_registry.register(
         FullyQualifiedMethodKey::new_with_str(
             "java/lang/Class",
@@ -53,20 +54,19 @@ pub(super) fn java_lang_class_register_natives(
 }
 
 fn java_lang_class_desired_assertion_status_0(
-    _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: java.lang.Class.desiredAssertionStatus0");
     Ok(Some(Value::Integer(1)))
 }
 
 fn java_lang_class_is_primitive(
-    vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
-) -> NativeRet {
-    /*
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: java.lang.Class.isPrimitive");
     if let Value::Ref(h) = &args[0] {
         let is_primitive = vm.heap.addr_is_primitive(h);
@@ -74,16 +74,13 @@ fn java_lang_class_is_primitive(
     } else {
         panic!("java.lang.Class.isPrimitive: expected object");
     }
-     */
-    todo!()
 }
 
 fn java_lang_class_get_primitive_class(
-    vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
-) -> NativeRet {
-    /*
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: java.lang.Class.getPrimitiveClass");
     if let Value::Ref(h) = &args[0] {
         let v = vm.heap.get_primitive_mirror_addr(h).unwrap();
@@ -91,16 +88,13 @@ fn java_lang_class_get_primitive_class(
     } else {
         panic!("java.lang.Class.getPrimitiveClass: expected object");
     }
-     */
-    todo!()
 }
 
 fn java_lang_class_init_class_name(
-    vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
-) -> NativeRet {
-    /*
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: java.lang.Class.initClassName");
     if let Value::Ref(h) = &args[0] {
         let class_name = vm
@@ -122,6 +116,4 @@ fn java_lang_class_init_class_name(
     } else {
         panic!("java.lang.Class.initClassName: expected object as argument");
     }
-     */
-    todo!()
 }

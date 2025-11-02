@@ -1,4 +1,4 @@
-use crate::{ClassId, ClassIdDeprecated, MethodId, Symbol, throw_exception};
+use crate::{ClassId, MethodDescriptorId, Symbol, throw_exception};
 use common::error::JvmError;
 use jclass::attribute::method::MethodAttribute;
 use jclass::flags::MethodFlags;
@@ -18,14 +18,21 @@ pub enum MethodBody {
 
 pub struct Method {
     class_id: ClassId,
-    //name: Sym,
-    //descriptor: Sym,
+    pub name: Symbol,
+    pub desc: Symbol,
+    descriptor_id: MethodDescriptorId,
     flags: MethodFlags,
     body: MethodBody,
 }
 
 impl Method {
-    pub fn new(method_info: MethodInfo, class_id: ClassId) -> Self {
+    pub fn new(
+        method_info: MethodInfo,
+        class_id: ClassId,
+        descriptor_id: MethodDescriptorId,
+        name: Symbol,
+        desc: Symbol,
+    ) -> Self {
         let flags = method_info.access_flags;
         let body = if flags.is_abstract() {
             MethodBody::Abstract
@@ -47,9 +54,10 @@ impl Method {
             })
         };
         Method {
+            name,
+            desc,
             class_id,
-            //name:
-            //descriptor:
+            descriptor_id,
             flags,
             body,
         }
@@ -61,6 +69,14 @@ impl Method {
 
     pub fn is_static(&self) -> bool {
         self.flags.is_static()
+    }
+
+    pub fn is_native(&self) -> bool {
+        self.flags.is_native()
+    }
+
+    pub fn descriptor_id(&self) -> MethodDescriptorId {
+        self.descriptor_id
     }
 
     pub fn get_frame_attributes(&self) -> Result<(u16, u16), JvmError> {

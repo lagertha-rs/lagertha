@@ -1,10 +1,12 @@
-use crate::native::{NativeRegistry, NativeRet};
+use crate::native_deprecated::{NativeRegistryDeprecated, NativeRetDeprecated};
 use crate::stack_deprecated::FrameStackDeprecated;
-use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
+use crate::{FullyQualifiedMethodKey, VirtualMachineDeprecated};
 use common::jtype::Value;
 use log::debug;
 
-pub(super) fn do_register_jdk_internal_preregistered_natives(native_registry: &mut NativeRegistry) {
+pub(super) fn do_register_jdk_internal_preregistered_natives(
+    native_registry: &mut NativeRegistryDeprecated,
+) {
     native_registry.register(
         FullyQualifiedMethodKey::new_with_str(
             "jdk/internal/misc/Signal",
@@ -71,11 +73,11 @@ pub(super) fn do_register_jdk_internal_preregistered_natives(native_registry: &m
 }
 
 fn jdk_internal_util_system_props_raw_platform_properties(
-    vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
+
     _args: &[Value],
-) -> NativeRet {
-    /*
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.platformProperties");
     let string_class = vm
         .method_area_deprecated
@@ -96,16 +98,13 @@ fn jdk_internal_util_system_props_raw_platform_properties(
     vm.heap.write_array_element(h, 34, Value::Ref(enc)).unwrap();
 
     Ok(Some(Value::Ref(h)))
-     */
-    todo!()
 }
 
 fn jdk_internal_util_system_props_raw_vm_properties(
-    vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
-) -> NativeRet {
-    /*
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.vmProperties");
     let string_class = vm
         .method_area_deprecated
@@ -129,25 +128,22 @@ fn jdk_internal_util_system_props_raw_vm_properties(
         .write_array_element(h, 3, Value::Ref(false_str))
         .unwrap();
     Ok(Some(Value::Ref(h)))
-     */
-    todo!()
 }
 
 fn jdk_internal_misc_vm_initialize(
-    _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: jdk.internal.misc.VM.initialize");
     Ok(None)
 }
 
 fn jdk_internal_misc_signal_find_signal_0(
-    vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
-) -> NativeRet {
-    /*
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: jdk.internal.misc.Signal.findSignal0");
     let signal_name = match &args[0] {
         Value::Ref(h) => {
@@ -179,35 +175,33 @@ fn jdk_internal_misc_signal_find_signal_0(
         _ => -1,
     };
     Ok(Some(Value::Integer(signal_number)))
-     */
-    todo!()
 }
 
 fn jdk_internal_misc_signal_handle_0(
-    _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: jdk.internal.misc.Signal.handle0");
     Ok(Some(Value::Long(1)))
 }
 
 fn jdk_internal_misc_cds_get_cds_config_status(
-    _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
 
     _args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: jdk.internal.misc.CDS.getCDSConfigStatus");
     Ok(Some(Value::Integer(0)))
 }
 
 fn jdk_internal_misc_cds_initialize_from_archive(
-    _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
 
     _args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: jdk.internal.misc.CDS.initializeFromArchive");
     Ok(None)
 }

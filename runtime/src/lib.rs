@@ -4,6 +4,7 @@ use crate::heap::method_area_deprecated::MethodAreaDeprecated;
 use crate::interpreter::Interpreter;
 use crate::interpreter_deprecated::InterpreterDeprecated;
 use crate::native::NativeRegistry;
+use crate::native_deprecated::NativeRegistryDeprecated;
 use crate::stack::FrameStack;
 use crate::thread::JavaThreadState;
 use common::error::JvmError;
@@ -19,6 +20,7 @@ pub mod heap;
 mod interpreter;
 mod interpreter_deprecated;
 mod native;
+mod native_deprecated;
 pub mod rt;
 mod stack;
 pub mod stack_deprecated;
@@ -73,6 +75,19 @@ impl FieldDescriptorId {
 
 #[repr(transparent)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+pub struct MethodDescriptorId(NonZeroU32);
+
+impl MethodDescriptorId {
+    pub fn from_usize(index: usize) -> Self {
+        MethodDescriptorId(NonZeroU32::new(index as u32).unwrap())
+    }
+    pub fn to_index(&self) -> usize {
+        (self.0.get() - 1) as usize
+    }
+}
+
+#[repr(transparent)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub struct ClassId(NonZeroU32);
 
 impl ClassId {
@@ -98,6 +113,48 @@ impl FieldId {
 }
 
 pub type Symbol = Spur;
+
+#[derive(Hash, Eq, PartialEq, Clone)]
+pub struct FullyQualifiedMethodKey {
+    pub class: Option<Symbol>,
+    pub name: Symbol,
+    pub desc: Symbol,
+}
+
+impl FullyQualifiedMethodKey {
+    pub fn new(class: Symbol, name: Symbol, desc: Symbol) -> Self {
+        Self {
+            class: Some(class),
+            name,
+            desc,
+        }
+    }
+
+    pub fn new_internal(name: Symbol, desc: Symbol) -> Self {
+        Self {
+            class: None,
+            name,
+            desc,
+        }
+    }
+
+    pub fn new_internal_with_str(name: &str, desc: &str, interner: &ThreadedRodeo) -> Self {
+        Self {
+            class: None,
+            name: interner.get_or_intern(name),
+            desc: interner.get_or_intern(desc),
+        }
+    }
+
+    pub fn new_with_str(class: &str, name: &str, desc: &str, interner: &ThreadedRodeo) -> Self {
+        Self {
+            class: Some(interner.get_or_intern(class)),
+            name: interner.get_or_intern(name),
+            desc: interner.get_or_intern(desc),
+        }
+    }
+}
+
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
 pub struct MethodKey {
     pub name: Symbol,
@@ -137,7 +194,7 @@ pub struct VirtualMachineDeprecated {
     config: VmConfig,
     heap: Heap,
     method_area_deprecated: MethodAreaDeprecated,
-    native_registry: NativeRegistry,
+    native_registry: NativeRegistryDeprecated,
     string_interner: Arc<ThreadedRodeo>,
 }
 
@@ -148,7 +205,7 @@ impl VirtualMachineDeprecated {
         let mut method_area = MethodAreaDeprecated::new(&config, string_interner.clone())?;
         let heap = Heap::new(&mut method_area)?;
 
-        let native_registry = NativeRegistry::new(string_interner.clone());
+        let native_registry = NativeRegistryDeprecated::new(string_interner.clone());
         Ok(Self {
             method_area_deprecated: method_area,
             config,
@@ -209,6 +266,10 @@ impl VirtualMachine {
                 .ok_or(JvmError::Todo("No such thread".to_string()))
                 .map(|t| &mut t.stack)
         }
+    }
+
+    pub fn interner(&self) -> &ThreadedRodeo {
+        &self.string_interner
     }
 }
 

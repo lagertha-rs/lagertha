@@ -1,10 +1,12 @@
-use crate::native::{NativeRegistry, NativeRet};
+use crate::native_deprecated::{NativeRegistryDeprecated, NativeRetDeprecated};
 use crate::stack_deprecated::FrameStackDeprecated;
-use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
+use crate::{FullyQualifiedMethodKey, VirtualMachineDeprecated};
 use common::jtype::Value;
 use log::debug;
 
-pub(super) fn do_register_java_io_preregistered_natives(native_registry: &mut NativeRegistry) {
+pub(super) fn do_register_java_io_preregistered_natives(
+    native_registry: &mut NativeRegistryDeprecated,
+) {
     native_registry.register(
         FullyQualifiedMethodKey::new_with_str(
             "java/io/FileOutputStream",
@@ -62,11 +64,10 @@ pub(super) fn do_register_java_io_preregistered_natives(native_registry: &mut Na
 }
 
 fn java_io_file_output_stream_write_bytes(
-    vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
-) -> NativeRet {
-    /*
+) -> NativeRetDeprecated {
     debug!("TODO: Partial implementation: java.io.FileOutputStream.writeBytes");
     let output_stream_addr = match &args[0] {
         Value::Ref(h) => *h,
@@ -129,53 +130,50 @@ fn java_io_file_output_stream_write_bytes(
             );
         }
     }
-
     Ok(None)
-     */
-    todo!()
 }
 
 fn java_io_file_input_stream_init_ids(
-    _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: java.io.FileInputStream.initIDs");
     Ok(None)
 }
 
 fn java_io_file_descriptor_init_ids(
-    _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: java.io.FileDescriptor.initIDs");
     Ok(None)
 }
 
 fn java_io_file_descriptor_get_handle(
-    _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: java.io.FileDescriptor.getHandle");
     Ok(Some(Value::Long(0)))
 }
 
 fn java_io_file_descriptor_get_append(
-    _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: java.io.FileDescriptor.getAppend");
     Ok(Some(Value::Integer(0)))
 }
 
 fn java_io_file_output_stream_init_ids(
-    _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: java.io.FileInputStream.initIDs");
     Ok(None)
 }

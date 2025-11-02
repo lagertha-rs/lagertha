@@ -1,13 +1,15 @@
 use crate::heap::HeapObject;
-use crate::native::{NativeRegistry, NativeRet};
+use crate::native_deprecated::{NativeRegistryDeprecated, NativeRetDeprecated};
 use crate::stack_deprecated::{FrameStackDeprecated, FrameTypeDeprecated};
-use crate::{ClassIdDeprecated, FullyQualifiedMethodKey, ThreadId, VirtualMachine};
+use crate::{ClassIdDeprecated, FullyQualifiedMethodKey, VirtualMachineDeprecated};
 use common::instruction::ArrayType;
 use common::jtype::Value;
 use lasso::Key;
 use log::debug;
 
-pub(super) fn do_register_java_lang_preregistered_natives(native_registry: &mut NativeRegistry) {
+pub(super) fn do_register_java_lang_preregistered_natives(
+    native_registry: &mut NativeRegistryDeprecated,
+) {
     native_registry.register(
         FullyQualifiedMethodKey::new_with_str(
             "java/lang/Object",
@@ -113,11 +115,10 @@ pub(super) fn do_register_java_lang_preregistered_natives(native_registry: &mut 
 }
 
 fn java_lang_object_get_class(
-    vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
-) -> NativeRet {
-    /*
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: java.lang.Class.getClass");
     if let Value::Ref(h) = &args[0] {
         let target_class_id = if let Ok(obj) = vm.heap.get(*h) {
@@ -137,15 +138,13 @@ fn java_lang_object_get_class(
     } else {
         panic!("java.lang.Class.getClass: expected object as argument");
     }
-     */
-    todo!()
 }
 
 fn java_lang_object_hash_code(
-    _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: java.lang.Object.hashCode");
     if let Value::Ref(h) = &args[0] {
         Ok(Some(Value::Integer(*h as i32)))
@@ -161,11 +160,10 @@ fn java_lang_object_hash_code(
 /// - an int array with the name indexes of the methods in the stack frames
 /// - an int array with the line pc of the methods in the stack frames
 fn java_lang_throwable_fill_in_stack_trace(
-    vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    vm: &mut VirtualMachineDeprecated,
+    frame_stack: &FrameStackDeprecated,
     args: &[Value],
-) -> NativeRet {
-    /*
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: java.lang.Throwable.fillInStackTrace");
     let mut frames: Vec<_> = frame_stack
         .frames()
@@ -252,15 +250,13 @@ fn java_lang_throwable_fill_in_stack_trace(
         .unwrap();
 
     Ok(Some(Value::Ref(throwable_addr)))
-     */
-    todo!()
 }
 
 fn java_lang_float_float_to_raw_int_bits(
-    _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: java.lang.Float.floatToRawIntBits");
     if let Value::Float(f) = args[0] {
         Ok(Some(Value::Integer(f.to_bits() as i32)))
@@ -270,10 +266,10 @@ fn java_lang_float_float_to_raw_int_bits(
 }
 
 fn java_lang_double_double_to_raw_long_bits(
-    _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: java.lang.Double.doubleToRawLongBits");
     if let Value::Double(d) = args[0] {
         Ok(Some(Value::Long(d.to_bits() as i64)))
@@ -283,29 +279,28 @@ fn java_lang_double_double_to_raw_long_bits(
 }
 
 fn java_lang_runtime_max_memory(
-    vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: java.lang.Runtime.maxMemory");
     Ok(Some(Value::Long(vm.config.max_heap_size as i64)))
 }
 
 fn java_lang_runtime_available_processors(
-    _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: java.lang.Runtime.availableProcessors");
     Ok(Some(Value::Integer(1)))
 }
 
 fn java_lang_stack_trace_element_init_stack_trace_elements(
-    vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
-) -> NativeRet {
-    /*
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: java.lang.StackTraceElement.initStackTraceElements");
     let elements_array = match &_args[0] {
         Value::Ref(h) => *h,
@@ -432,24 +427,22 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
             .unwrap();
     }
     Ok(None)
-     */
-    todo!()
 }
 
 fn java_lang_object_notify_all(
-    _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: java.lang.Object.notifyAll");
     Ok(None)
 }
 
 fn java_lang_float_int_bits_to_float(
-    _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: java.lang.Float.intBitsToFloat");
     if let Value::Integer(i) = args[0] {
         Ok(Some(Value::Float(f32::from_bits(i as u32))))
@@ -459,10 +452,10 @@ fn java_lang_float_int_bits_to_float(
 }
 
 fn java_lang_null_pointer_exception_get_extended_npe_message(
-    _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _vm: &mut VirtualMachineDeprecated,
+    _frame_stack: &FrameStackDeprecated,
     _args: &[Value],
-) -> NativeRet {
+) -> NativeRetDeprecated {
     debug!("TODO: Stub: java.lang.NullPointerException.getExtendedNPEMessage");
     // For now, just return null, later:
     // https://bugs.openjdk.org/browse/JDK-8218628
