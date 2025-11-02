@@ -224,6 +224,7 @@ impl Class {
     fn set_instance_fields(&self, instance_fields: Vec<InstanceField>) {
         self.instance_fields.set(instance_fields).unwrap()
     }
+
     fn set_instance_fields_offset_map(&self, instance_fields_offset_map: HashMap<FieldKey, u16>) {
         self.instance_fields_offset_map
             .set(instance_fields_offset_map)
@@ -233,8 +234,15 @@ impl Class {
         self.instance_fields_offset_map.get().unwrap()
     }
 
-    fn get_instance_fields(&self) -> &Vec<InstanceField> {
+    pub fn get_instance_fields(&self) -> &Vec<InstanceField> {
         self.instance_fields.get().unwrap()
+    }
+
+    pub fn get_instance_field_offset(&self, field_key: &FieldKey) -> Result<u16, JvmError> {
+        self.get_instance_fields_offset_map()
+            .get(field_key)
+            .copied()
+            .ok_or(JvmError::Todo("No such field".to_string()))
     }
 
     fn set_declared_methods(&self, declared: HashMap<MethodKey, MethodId>) {

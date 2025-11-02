@@ -3,7 +3,6 @@ use crate::{ClassId, MethodId, MethodKey, ThreadId, VirtualMachine};
 use common::error::JvmError;
 use common::instruction::Instruction;
 use common::jtype::Value;
-use lasso::Interner;
 use std::ops::ControlFlow;
 
 pub struct Interpreter;
@@ -21,9 +20,32 @@ impl Interpreter {
             Instruction::AconstNull => {
                 vm.get_stack(&thread_id)?.push_operand(Value::Null)?;
             }
+            Instruction::Aload0 => {
+                let value = *vm.get_stack(&thread_id)?.cur_frame()?.get_local(0)?;
+                vm.get_stack(&thread_id)?.push_operand(value)?;
+            }
+            Instruction::Aload1 => {
+                let value = *vm.get_stack(&thread_id)?.cur_frame()?.get_local(1)?;
+                vm.get_stack(&thread_id)?.push_operand(value)?;
+            }
+            Instruction::Aload2 => {
+                let value = *vm.get_stack(&thread_id)?.cur_frame()?.get_local(2)?;
+                vm.get_stack(&thread_id)?.push_operand(value)?;
+            }
+            Instruction::Aload3 => {
+                let value = *vm.get_stack(&thread_id)?.cur_frame()?.get_local(3)?;
+                vm.get_stack(&thread_id)?.push_operand(value)?;
+            }
+            Instruction::Aload(pos) => {
+                let value = *vm.get_stack(&thread_id)?.cur_frame()?.get_local(pos)?;
+                vm.get_stack(&thread_id)?.push_operand(value)?;
+            }
             Instruction::Bipush(value) => {
                 vm.get_stack(&thread_id)?
                     .push_operand(Value::Integer(value as i32))?;
+            }
+            Instruction::Dup => {
+                vm.get_stack(&thread_id)?.dup_top()?;
             }
             Instruction::Getstatic(idx) => {
                 let cur_frame_method_id = vm.get_stack(&thread_id)?.cur_frame()?.method_id();
@@ -41,6 +63,81 @@ impl Interpreter {
                     .get_static_field_value(&target_field_view.name_and_type.into())?;
                 vm.get_stack(&thread_id)?.push_operand(value)?;
             }
+            Instruction::Iconst0 => {
+                vm.get_stack(&thread_id)?.push_operand(Value::Integer(0))?;
+            }
+            Instruction::Iconst1 => {
+                vm.get_stack(&thread_id)?.push_operand(Value::Integer(1))?;
+            }
+            Instruction::Iconst2 => {
+                vm.get_stack(&thread_id)?.push_operand(Value::Integer(2))?;
+            }
+            Instruction::Iconst3 => {
+                vm.get_stack(&thread_id)?.push_operand(Value::Integer(3))?;
+            }
+            Instruction::Iconst4 => {
+                vm.get_stack(&thread_id)?.push_operand(Value::Integer(4))?;
+            }
+            Instruction::Iconst5 => {
+                vm.get_stack(&thread_id)?.push_operand(Value::Integer(5))?;
+            }
+            Instruction::IconstM1 => {
+                vm.get_stack(&thread_id)?.push_operand(Value::Integer(-1))?;
+            }
+            Instruction::Iload0 => {
+                let value = *vm.get_stack(&thread_id)?.cur_frame()?.get_local(0)?;
+                vm.get_stack(&thread_id)?.push_operand(value)?;
+            }
+            Instruction::Iload1 => {
+                let value = *vm.get_stack(&thread_id)?.cur_frame()?.get_local(1)?;
+                vm.get_stack(&thread_id)?.push_operand(value)?;
+            }
+            Instruction::Iload2 => {
+                let value = *vm.get_stack(&thread_id)?.cur_frame()?.get_local(2)?;
+                vm.get_stack(&thread_id)?.push_operand(value)?;
+            }
+            Instruction::Iload3 => {
+                let value = *vm.get_stack(&thread_id)?.cur_frame()?.get_local(3)?;
+                vm.get_stack(&thread_id)?.push_operand(value)?;
+            }
+            Instruction::Iload(pos) => {
+                let value = *vm.get_stack(&thread_id)?.cur_frame()?.get_local(pos)?;
+                vm.get_stack(&thread_id)?.push_operand(value)?;
+            }
+            Instruction::New(idx) => {
+                let cur_frame_method_id = vm.get_stack(&thread_id)?.cur_frame()?.method_id();
+                let target_class_name = vm
+                    .method_area
+                    .get_cp_by_method_id(&cur_frame_method_id)
+                    .get_class(&idx, vm.interner())?;
+                let target_class_id = vm.method_area.get_class_id_or_load(target_class_name)?;
+                Self::ensure_initialized(thread_id, Some(target_class_id), vm)?;
+                let instance_ref = vm
+                    .heap
+                    .alloc_instance(&mut vm.method_area, target_class_id)?;
+                vm.get_stack(&thread_id)?
+                    .push_operand(Value::Ref(instance_ref))?;
+            }
+            Instruction::Pop => {
+                vm.get_stack(&thread_id)?.pop_operand()?;
+            }
+            Instruction::Putfield(idx) => {
+                let value = vm.get_stack(&thread_id)?.pop_operand()?;
+                let target_obj_ref = vm.get_stack(&thread_id)?.pop_obj_val()?;
+                let cur_frame_method_id = vm.get_stack(&thread_id)?.cur_frame()?.method_id();
+                let field_view = vm
+                    .method_area
+                    .get_cp_by_method_id(&cur_frame_method_id)
+                    .get_field(&idx, vm.interner())?;
+                let target_class_id = vm.method_area.get_class_id_or_load(field_view.class_sym)?;
+                let target_offset = vm
+                    .method_area
+                    .get_class(&target_class_id)
+                    .get_instance_field_offset(&field_view.name_and_type.into())?
+                    as usize;
+                vm.heap
+                    .write_instance_field(target_obj_ref, target_offset, value)?;
+            }
             Instruction::Putstatic(idx) => {
                 let value = vm.get_stack(&thread_id)?.pop_operand()?;
                 let cur_frame_method_id = vm.get_stack(&thread_id)?.cur_frame()?.method_id();
@@ -55,6 +152,22 @@ impl Interpreter {
                 vm.method_area
                     .get_class(&target_class_id)
                     .set_static_field_value(&target_field_view.name_and_type.into(), value)?;
+            }
+            Instruction::InvokeSpecial(idx) => {
+                let cur_frame_method_id = vm.get_stack(&thread_id)?.cur_frame()?.method_id();
+                let target_method_view = vm
+                    .method_area
+                    .get_cp_by_method_id(&cur_frame_method_id)
+                    .get_method(&idx, vm.interner())?;
+                let target_class_id = vm
+                    .method_area
+                    .get_class_id_or_load(target_method_view.class_sym)?;
+                let target_method_id = vm
+                    .method_area
+                    .get_class(&target_class_id)
+                    .get_special_method_id(&target_method_view.name_and_type.into())?;
+                let args = Self::prepare_method_args(thread_id, target_method_id, vm)?;
+                Self::run_method(thread_id, target_method_id, vm, args)?;
             }
             Instruction::InvokeStatic(idx) => {
                 let cur_frame_method_id = vm.get_stack(&thread_id)?.cur_frame()?.method_id();
@@ -93,11 +206,14 @@ impl Interpreter {
         method_id: MethodId,
         vm: &mut VirtualMachine,
     ) -> Result<Vec<Value>, JvmError> {
-        let args_count = vm
+        let mut args_count = vm
             .method_area
             .get_method_descriptor_by_method_id(&method_id)
             .params
             .len();
+        if !vm.method_area.get_method(&method_id).is_static() {
+            args_count += 1;
+        }
         // TODO: I saw somewhere a data structure with fixed capacity, that can avoid heap allocation
         let mut args = Vec::with_capacity(args_count);
         for _ in 0..args_count {

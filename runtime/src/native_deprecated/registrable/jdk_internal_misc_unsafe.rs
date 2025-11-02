@@ -1,4 +1,4 @@
-use crate::heap::HeapObject;
+use crate::heap_deprecated::HeapObjectDeprecated;
 use crate::native_deprecated::NativeRetDeprecated;
 use crate::stack_deprecated::FrameStackDeprecated;
 use crate::{FullyQualifiedMethodKey, VirtualMachineDeprecated};
@@ -101,7 +101,6 @@ fn jdk_internal_misc_unsafe_array_base_offset_0(
 fn jdk_internal_misc_unsafe_compare_and_set_int(
     vm: &mut VirtualMachineDeprecated,
     _frame_stack: &FrameStackDeprecated,
-
     args: &[Value],
 ) -> NativeRetDeprecated {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.compareAndSetInt");
@@ -190,14 +189,14 @@ fn jdk_internal_misc_unsafe_get_reference_volatile(
         _ => panic!("Unsafe.getReferenceVolatile expects a long offset"),
     };
     match vm.heap.get(base)? {
-        HeapObject::Instance(instance) => {
+        HeapObjectDeprecated::Instance(instance) => {
             let field = instance.get_element(off as i32).unwrap();
             match field {
                 Value::Ref(_) => Ok(Some(*field)),
                 _ => panic!("Unsafe.getReferenceVolatile field is not an object"),
             }
         }
-        HeapObject::Array(array) => {
+        HeapObjectDeprecated::Array(array) => {
             let idx = off as usize;
             if idx >= array.length() {
                 panic!("Unsafe.getReferenceVolatile array index out of bounds");
@@ -282,7 +281,7 @@ fn jdk_internal_misc_unsafe_compare_and_set_reference(
         _ => panic!("jdk.internal.misc.Unsafe.compareAndSetReference: expected long new value"),
     };
     match vm.heap.get_mut(*object) {
-        HeapObject::Array(array) => {
+        HeapObjectDeprecated::Array(array) => {
             if offset >= array.length() {
                 panic!(
                     "jdk.internal.misc.Unsafe.compareAndSetReference: array index out of bounds"
@@ -296,7 +295,7 @@ fn jdk_internal_misc_unsafe_compare_and_set_reference(
                 Ok(Some(Value::Integer(0)))
             }
         }
-        HeapObject::Instance(instance) => {
+        HeapObjectDeprecated::Instance(instance) => {
             let field = instance.get_element_mut(offset as i32).unwrap();
             if *field == expected {
                 *field = Value::Ref(new_value);

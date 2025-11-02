@@ -1,5 +1,5 @@
 use crate::ClassIdDeprecated;
-use crate::heap::method_area_deprecated::MethodAreaDeprecated;
+use crate::heap_deprecated::method_area_deprecated::MethodAreaDeprecated;
 use crate::rt::constant_pool::reference_deprecated::{
     MethodDescriptorReferenceDeprecated, MethodReferenceDeprecated, NameAndTypeReferenceDeprecated,
 };

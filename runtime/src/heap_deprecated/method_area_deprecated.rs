@@ -1,9 +1,6 @@
 use crate::class_loader::ClassLoader;
-use crate::heap::method_area::MethodArea;
 use crate::rt::class_deprecated::ClassDeprecated;
-use crate::rt::method::Method;
-use crate::rt::method_deprecated::MethodDeprecated;
-use crate::{ClassIdDeprecated, MethodId, MethodIdDeprecated, VmConfig};
+use crate::{ClassIdDeprecated, VmConfig};
 use common::error::{JvmError, LinkageError};
 use common::instruction::ArrayType;
 use jclass::ClassFile;
@@ -19,7 +16,6 @@ pub struct MethodAreaDeprecated {
     bootstrap_class_loader: ClassLoader,
     classes: HashMap<ClassIdDeprecated, Arc<ClassDeprecated>>,
     pub string_interner: Arc<ThreadedRodeo>,
-    method_area: MethodArea,
 }
 
 impl MethodAreaDeprecated {
@@ -28,10 +24,8 @@ impl MethodAreaDeprecated {
         string_interner: Arc<ThreadedRodeo>,
     ) -> Result<Self, JvmError> {
         debug!("Initializing MethodArea...");
-        let method_area = MethodArea::new(vm_config, string_interner.clone())?;
         let bootstrap_class_loader = ClassLoader::new(vm_config)?;
         let method_area = Self {
-            method_area,
             classes: HashMap::new(),
             bootstrap_class_loader,
             string_interner,
@@ -72,7 +66,6 @@ impl MethodAreaDeprecated {
         id: ClassIdDeprecated,
         data: Vec<u8>,
     ) -> Result<&Arc<ClassDeprecated>, JvmError> {
-        self.method_area.get_class_id_or_load(id)?;
         let cf = ClassFile::try_from(data).map_err(LinkageError::from)?;
         let class = ClassDeprecated::new(id, cf, self)?;
         self.add_class(class)

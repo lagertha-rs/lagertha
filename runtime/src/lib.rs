@@ -1,6 +1,7 @@
 use crate::heap::Heap;
 use crate::heap::method_area::MethodArea;
-use crate::heap::method_area_deprecated::MethodAreaDeprecated;
+use crate::heap_deprecated::HeapDeprecated;
+use crate::heap_deprecated::method_area_deprecated::MethodAreaDeprecated;
 use crate::interpreter::Interpreter;
 use crate::interpreter_deprecated::InterpreterDeprecated;
 use crate::native::NativeRegistry;
@@ -17,6 +18,7 @@ use tracing_log::log::debug;
 
 mod class_loader;
 pub mod heap;
+pub mod heap_deprecated;
 mod interpreter;
 mod interpreter_deprecated;
 mod native;
@@ -167,7 +169,7 @@ pub struct FieldKey {
     pub desc: Symbol,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct VmConfig {
     pub home: PathBuf,
     pub version: String,
@@ -192,7 +194,7 @@ impl VmConfig {
 
 pub struct VirtualMachineDeprecated {
     config: VmConfig,
-    heap: Heap,
+    heap: HeapDeprecated,
     method_area_deprecated: MethodAreaDeprecated,
     native_registry: NativeRegistryDeprecated,
     string_interner: Arc<ThreadedRodeo>,
@@ -203,7 +205,7 @@ impl VirtualMachineDeprecated {
         config.validate();
         let string_interner = Arc::new(ThreadedRodeo::default());
         let mut method_area = MethodAreaDeprecated::new(&config, string_interner.clone())?;
-        let heap = Heap::new(&mut method_area)?;
+        let heap = HeapDeprecated::new(&mut method_area)?;
 
         let native_registry = NativeRegistryDeprecated::new(string_interner.clone());
         Ok(Self {
@@ -219,6 +221,7 @@ impl VirtualMachineDeprecated {
 pub struct VirtualMachine {
     config: VmConfig,
     method_area: MethodArea,
+    heap: Heap,
     native_registry: NativeRegistry,
     string_interner: Arc<ThreadedRodeo>,
     thread_registry: Vec<JavaThreadState>,
@@ -245,6 +248,7 @@ impl VirtualMachine {
             native_registry,
             string_interner,
             method_area,
+            heap: Heap::new()?,
             thread_registry: Vec::new(),
             rust_thread,
             rust_thread_id,
@@ -320,25 +324,12 @@ fn print_stack_trace_deprecated(exception_ref: HeapAddr, interpreter: &mut Inter
 
 pub fn start_deprecated(config: VmConfig) -> Result<(), JvmError> {
     debug!("Starting VM with config: {:?}", config);
-    start(config)
+    start(config.clone())?;
+    panic!("Finished");
 
-    /*
-    let vm = VirtualMachine::new(config)?;
+    let vm = VirtualMachineDeprecated::new(config)?;
 
     let mut interpreter = InterpreterDeprecated::new(vm);
-
-    if let Err(e) = interpreter.initialize_main_thread() {
-        match e {
-            JvmError::JavaExceptionThrown(addr) => {
-                print_stack_trace_todo_refactor(addr, &mut interpreter);
-                Err(e)?
-            }
-            _ => {
-                eprintln!("VM execution failed with error: {:?}", e);
-                Err(e)?
-            }
-        }
-    }
 
     match interpreter.start_main() {
         Ok(_) => {
@@ -356,5 +347,4 @@ pub fn start_deprecated(config: VmConfig) -> Result<(), JvmError> {
             }
         },
     }
-     */
 }

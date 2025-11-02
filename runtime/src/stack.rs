@@ -250,6 +250,10 @@ impl FrameStack {
     pub fn peek(&self) -> Result<&Value, JvmError> {
         self.cur_frame()?.peek()
     }
+
+    pub fn dup_top(&mut self) -> Result<(), JvmError> {
+        self.push_operand(*self.peek()?)
+    }
 }
 
 /*

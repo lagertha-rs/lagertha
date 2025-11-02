@@ -1,4 +1,4 @@
-use crate::heap::HeapObject;
+use crate::heap_deprecated::HeapObjectDeprecated;
 use crate::native_deprecated::{NativeRegistryDeprecated, NativeRetDeprecated};
 use crate::stack_deprecated::{FrameStackDeprecated, FrameTypeDeprecated};
 use crate::{ClassIdDeprecated, FullyQualifiedMethodKey, VirtualMachineDeprecated};
@@ -123,8 +123,8 @@ fn java_lang_object_get_class(
     if let Value::Ref(h) = &args[0] {
         let target_class_id = if let Ok(obj) = vm.heap.get(*h) {
             match obj {
-                HeapObject::Instance(instance) => instance.class_id(),
-                HeapObject::Array(array) => array.class_id(),
+                HeapObjectDeprecated::Instance(instance) => instance.class_id(),
+                HeapObjectDeprecated::Array(array) => array.class_id(),
             }
         } else {
             panic!("java.lang.Class.getClass: invalid heap address");
