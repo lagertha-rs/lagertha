@@ -1,7 +1,7 @@
 use crate::{FieldKey, MethodKey, Symbol};
 use once_cell::sync::OnceCell;
 
-pub(super) struct Utf8Entry {
+pub(crate) struct Utf8Entry {
     pub value: String,
     pub utf8_sym: OnceCell<Symbol>,
 }
@@ -15,7 +15,7 @@ impl Utf8Entry {
     }
 }
 
-pub(super) struct ClassEntry {
+pub(crate) struct ClassEntry {
     pub name_idx: u16,
     pub name_sym: OnceCell<Symbol>,
 }
@@ -29,7 +29,7 @@ impl ClassEntry {
     }
 }
 
-pub(super) struct StringEntry {
+pub(crate) struct StringEntry {
     pub string_idx: u16,
     pub string_sym: OnceCell<Symbol>,
 }
@@ -43,7 +43,7 @@ impl StringEntry {
     }
 }
 
-pub(super) struct MethodEntry {
+pub(crate) struct MethodEntry {
     pub class_idx: u16,
     pub nat_idx: u16,
     pub class_sym: OnceCell<Symbol>,
@@ -83,7 +83,7 @@ impl From<NameAndTypeEntryView> for MethodKey {
     }
 }
 
-pub(super) struct FieldEntry {
+pub(crate) struct FieldEntry {
     pub class_idx: u16,
     pub nat_idx: u16,
     pub class_sym: OnceCell<Symbol>,
@@ -113,7 +113,7 @@ impl FieldEntryView {
     }
 }
 
-pub(super) struct NameAndTypeEntry {
+pub(crate) struct NameAndTypeEntry {
     pub name_idx: u16,
     pub descriptor_idx: u16,
     pub name_sym: OnceCell<Symbol>,

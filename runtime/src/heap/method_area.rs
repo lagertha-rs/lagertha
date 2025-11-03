@@ -31,6 +31,11 @@ pub struct MethodArea {
 }
 
 impl MethodArea {
+    fn bootstrap(&mut self) -> Result<(), JvmError> {
+        let java_lang_object_sym = self.string_interner.get_or_intern("java/lang/Object");
+        let class_id = self.get_class_id_or_load(java_lang_object_sym)?;
+        Ok(())
+    }
     pub fn new(
         vm_config: &VmConfig,
         string_interner: Arc<ThreadedRodeo>,
@@ -41,7 +46,7 @@ impl MethodArea {
             string_interner.get_or_intern("<clinit>"),
         );
 
-        Ok(Self {
+        let method_area = Self {
             bootstrap_class_loader,
             class_name_to_index: HashMap::new(),
             classes: Vec::new(),
@@ -52,7 +57,9 @@ impl MethodArea {
             method_descriptors_index: HashMap::new(),
             string_interner,
             constructor_symbols,
-        })
+        };
+
+        Ok(method_area)
     }
 
     pub fn build_fully_qualified_method_key(

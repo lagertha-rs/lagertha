@@ -4,6 +4,7 @@ use common::error::JvmError;
 use common::instruction::Instruction;
 use common::jtype::Value;
 use std::ops::ControlFlow;
+use crate::rt::constant_pool::RuntimeConstant;
 
 pub struct Interpreter;
 
@@ -103,6 +104,29 @@ impl Interpreter {
             Instruction::Iload(pos) => {
                 let value = *vm.get_stack(&thread_id)?.cur_frame()?.get_local(pos)?;
                 vm.get_stack(&thread_id)?.push_operand(value)?;
+            }
+            Instruction::Ldc(idx) | Instruction::LdcW(idx) | Instruction::Ldc2W(idx) => {
+                let cur_method_id = vm.get_stack(&thread_id)?.cur_frame()?.method_id();
+                let cp = vm.method_area.get_cp_by_method_id(&cur_method_id);
+                let raw = match cp.get(&idx, vm.interner())? {
+                    RuntimeConstant::Integer( val) => {
+                        vm.get_stack(&thread_id)?.push_operand(Value::Integer(*val))
+                    }
+                    RuntimeConstant::Float(val) => {
+                        vm.get_stack(&thread_id)?.push_operand(Value::Float(*val))
+                    }
+                    RuntimeConstant::Long(val) => {
+                        vm.get_stack(&thread_id)?.push_operand(Value::Long(*val))
+                    }
+                    RuntimeConstant::Double(val) => {
+                        vm.get_stack(&thread_id)?.push_operand(Value::Double(*val))
+                    }
+                    RuntimeConstant::Class(class_entry) => {
+                        unimplemented!("Mirrors aren't supported yet")
+                    }
+                    RuntimeConstant::String(str) => {}
+                    _ => unimplemented!()
+                };
             }
             Instruction::New(idx) => {
                 let cur_frame_method_id = vm.get_stack(&thread_id)?.cur_frame()?.method_id();

@@ -3,7 +3,7 @@ use crate::rt::constant_pool::entry::{
     ClassEntry, FieldEntry, FieldEntryView, MethodEntry, MethodEntryView, NameAndTypeEntry,
     NameAndTypeEntryView, StringEntry, Utf8Entry,
 };
-use common::error::RuntimePoolError;
+use common::error::{JvmError, RuntimePoolError};
 use jclass::constant::ConstantInfo;
 use lasso::ThreadedRodeo;
 use std::fmt::Display;
@@ -138,6 +138,26 @@ impl RuntimeConstantPool {
         Self {
             entries: rt_entries,
         }
+    }
+
+    pub fn get(&self, idx: &u16, interner: &ThreadedRodeo) -> Result<&RuntimeConstant, JvmError> {
+        let entry = self.entry(idx)?;
+        match entry {
+            RuntimeConstant::Class(_) => {
+                self.get_class(idx, interner)?;
+            }
+            RuntimeConstant::String(_) => {
+                self.get_string(idx, interner)?;
+            }
+            RuntimeConstant::Method(_) => {
+                self.get_method(idx, interner)?;
+            }
+            RuntimeConstant::Field(_) => {
+                self.get_field(idx, interner)?;
+            }
+            _ => unimplemented!(),
+        };
+        Ok(entry)
     }
 
     fn entry(&self, idx: &u16) -> Result<&RuntimeConstant, RuntimePoolError> {
