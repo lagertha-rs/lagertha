@@ -24,20 +24,44 @@ pub struct ClassSignature {
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.3.2
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Type {
-    Void,
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PrimitiveType {
     Byte,
     Char,
     Double,
     Float,
     Int,
     Long,
-    Instance(String), // obj or interface
-    GenericInstance(ClassSignature),
-    TypeVar(String),
     Short,
     Boolean,
+}
+
+impl TryFrom<char> for PrimitiveType {
+    type Error = (); // todo
+
+    fn try_from(value: char) -> Result<Self, Self::Error> {
+        match value {
+            'B' => Ok(PrimitiveType::Byte),
+            'C' => Ok(PrimitiveType::Char),
+            'D' => Ok(PrimitiveType::Double),
+            'F' => Ok(PrimitiveType::Float),
+            'I' => Ok(PrimitiveType::Int),
+            'J' => Ok(PrimitiveType::Long),
+            'S' => Ok(PrimitiveType::Short),
+            'Z' => Ok(PrimitiveType::Boolean),
+            _ => Err(()),
+        }
+    }
+}
+
+/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.3.2
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Type {
+    Void,
+    Primitive(PrimitiveType),
+    Instance(String), // TODO: should be interned?
+    GenericInstance(ClassSignature),
+    TypeVar(String),
     Array(Box<Type>),
 }
 
@@ -80,54 +104,99 @@ impl Value {
     }
 }
 
-impl Type {
+impl PrimitiveType {
     pub fn get_default_value(&self) -> Value {
         match self {
-            Type::Byte | Type::Char | Type::Short | Type::Int | Type::Boolean => Value::Integer(0),
-            Type::Double => Value::Double(0.0),
-            Type::Float => Value::Float(0.0),
-            Type::Long => Value::Long(0),
-            Type::Instance(_) | Type::Array(_) => Value::Null,
-            _ => panic!("No default value for type: {:?}", self), //TODO
+            PrimitiveType::Byte
+            | PrimitiveType::Char
+            | PrimitiveType::Short
+            | PrimitiveType::Int
+            | PrimitiveType::Boolean => Value::Integer(0),
+            PrimitiveType::Double => Value::Double(0.0),
+            PrimitiveType::Float => Value::Float(0.0),
+            PrimitiveType::Long => Value::Long(0),
         }
     }
 
     pub fn is_compatible_with(&self, value: &Value) -> bool {
         match (self, value) {
-            (Type::Byte, Value::Integer(_)) => true,
-            (Type::Char, Value::Integer(_)) => true,
-            (Type::Short, Value::Integer(_)) => true,
-            (Type::Int, Value::Integer(_)) => true,
-            (Type::Boolean, Value::Integer(_)) => true, // 0 or
-            (Type::Long, Value::Long(_)) => true,
-            (Type::Float, Value::Float(_)) => true,
-            (Type::Double, Value::Double(_)) => true,
-            (Type::Instance(_), Value::Ref(_) | Value::Null) => true, //TODO: check class compatibility
-            (Type::Array(_), Value::Ref(_) | Value::Null) => true, //TODO: check class compatibility
+            (PrimitiveType::Byte, Value::Integer(_)) => true,
+            (PrimitiveType::Char, Value::Integer(_)) => true,
+            (PrimitiveType::Short, Value::Integer(_)) => true,
+            (PrimitiveType::Int, Value::Integer(_)) => true,
+            (PrimitiveType::Boolean, Value::Integer(_)) => true,
+            (PrimitiveType::Long, Value::Long(_)) => true,
+            (PrimitiveType::Float, Value::Float(_)) => true,
+            (PrimitiveType::Double, Value::Double(_)) => true,
+            _ => false,
+        }
+    }
+}
+
+impl Type {
+    pub fn is_primitive_array(&self) -> bool {
+        match self {
+            Type::Array(elem) => matches!(**elem, Type::Primitive(_)),
             _ => false,
         }
     }
 
+    pub fn get_default_value(&self) -> Value {
+        match self {
+            Type::Primitive(prim) => prim.get_default_value(), // Delegate
+            Type::Instance(_) | Type::GenericInstance(_) | Type::TypeVar(_) | Type::Array(_) => {
+                Value::Null
+            }
+            Type::Void => panic!("No default value for type: {:?}", self), // Correct
+        }
+    }
+
+    // Cleaner and easier to delegate
+    pub fn is_compatible_with(&self, value: &Value) -> bool {
+        match (self, value) {
+            (Type::Primitive(prim), val) => prim.is_compatible_with(val), // Delegate
+            (Type::Instance(_), Value::Ref(_) | Value::Null) => true, // TODO: check class
+            (Type::Array(_), Value::Ref(_) | Value::Null) => true,    // TODO: check class
+            (Type::GenericInstance(_), Value::Ref(_) | Value::Null) => true, // TODO: check class
+            (Type::TypeVar(_), Value::Ref(_) | Value::Null) => true, // TODO: check class
+            _ => false,
+        }
+    }
+
+    // Update parsing logic
     pub fn try_recursive<I>(it: &mut Peekable<I>) -> Result<Type, TypeDescriptorErr>
     where
         I: Iterator<Item = char>,
     {
         let c = it.next().ok_or(TypeDescriptorErr::UnexpectedEnd)?;
 
-        if let Ok(base) = Type::try_from(c) {
-            return Ok(base);
+        // Handle Void separately
+        if c == 'V' {
+            return Ok(Type::Void);
         }
 
+        // Handle Primitives
+        if let Ok(prim) = PrimitiveType::try_from(c) {
+            return Ok(Type::Primitive(prim));
+        }
+
+        // Handle Reference Types
         match c {
             'L' => Self::parse_class_type(it),
             'T' => Self::parse_type_var(it),
             '[' => {
                 let elem = Type::try_recursive(it)?;
+                // Add a check: arrays of void are invalid
+                if matches!(elem, Type::Void) {
+                    // This is an invalid descriptor
+                    return Err(TypeDescriptorErr::InvalidType('V'));
+                }
                 Ok(Type::Array(Box::new(elem)))
             }
             unknown => Err(TypeDescriptorErr::InvalidType(unknown)),
         }
     }
+
 
     fn parse_type_var<I>(it: &mut Peekable<I>) -> Result<Type, TypeDescriptorErr>
     where
@@ -304,21 +373,17 @@ impl TryFrom<&str> for Type {
     }
 }
 
-impl TryFrom<char> for Type {
-    type Error = (); // todo
-
-    fn try_from(value: char) -> Result<Self, Self::Error> {
-        match value {
-            'V' => Ok(Type::Void),
-            'B' => Ok(Type::Byte),
-            'C' => Ok(Type::Char),
-            'D' => Ok(Type::Double),
-            'F' => Ok(Type::Float),
-            'I' => Ok(Type::Int),
-            'J' => Ok(Type::Long),
-            'S' => Ok(Type::Short),
-            'Z' => Ok(Type::Boolean),
-            _ => Err(()),
+impl fmt::Display for PrimitiveType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            PrimitiveType::Byte => write!(f, "byte"),
+            PrimitiveType::Char => write!(f, "char"),
+            PrimitiveType::Double => write!(f, "double"),
+            PrimitiveType::Float => write!(f, "float"),
+            PrimitiveType::Int => write!(f, "int"),
+            PrimitiveType::Long => write!(f, "long"),
+            PrimitiveType::Short => write!(f, "short"),
+            PrimitiveType::Boolean => write!(f, "boolean"),
         }
     }
 }
@@ -327,14 +392,7 @@ impl fmt::Display for Type {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             Type::Void => write!(f, "void"),
-            Type::Byte => write!(f, "byte"),
-            Type::Char => write!(f, "char"),
-            Type::Double => write!(f, "double"),
-            Type::Float => write!(f, "float"),
-            Type::Int => write!(f, "int"),
-            Type::Long => write!(f, "long"),
-            Type::Short => write!(f, "short"),
-            Type::Boolean => write!(f, "boolean"),
+            Type::Primitive(p) => write!(f, "{}", p),
 
             Type::Instance(name) => write!(f, "{}", name.replace('/', ".")),
 
@@ -404,27 +462,30 @@ mod tests {
 
     #[test]
     fn primitives_try_from_char() {
+        // This test now correctly targets the new `PrimitiveType` enum
+        // <-- CHANGED (entire test logic)
         let cases = vec![
-            ('V', Type::Void),
-            ('B', Type::Byte),
-            ('C', Type::Char),
-            ('D', Type::Double),
-            ('F', Type::Float),
-            ('I', Type::Int),
-            ('J', Type::Long),
-            ('S', Type::Short),
-            ('Z', Type::Boolean),
+            ('B', PrimitiveType::Byte),
+            ('C', PrimitiveType::Char),
+            ('D', PrimitiveType::Double),
+            ('F', PrimitiveType::Float),
+            ('I', PrimitiveType::Int),
+            ('J', PrimitiveType::Long),
+            ('S', PrimitiveType::Short),
+            ('Z', PrimitiveType::Boolean),
         ];
         for (ch, ty) in cases {
-            assert_eq!(Type::try_from(ch), Ok(ty));
+            assert_eq!(PrimitiveType::try_from(ch), Ok(ty));
         }
         // invalid primitive
-        assert!(Type::try_from('Q').is_err());
+        assert!(PrimitiveType::try_from('Q').is_err());
+        // 'V' (Void) is handled by the `Type` enum directly, it's not a `PrimitiveType`
+        assert!(PrimitiveType::try_from('V').is_err());
     }
 
     #[test]
     fn parse_void() {
-        assert_eq!(parse_one("V").unwrap(), Type::Void);
+        assert_eq!(parse_one("V").unwrap(), Type::Void); // <-- UNCHANGED (still correct)
     }
 
     #[test]
@@ -432,12 +493,15 @@ mod tests {
         assert_eq!(
             parse_one("Ljava/lang/String;").unwrap(),
             Type::Instance("java/lang/String".to_string())
-        );
+        ); // <-- UNCHANGED (still correct)
     }
 
     #[test]
     fn parse_array_of_primitive() {
-        assert_eq!(parse_one("[I").unwrap(), Type::Array(Box::new(Type::Int)));
+        assert_eq!(
+            parse_one("[I").unwrap(),
+            Type::Array(Box::new(Type::Primitive(PrimitiveType::Int))) // <-- CHANGED
+        );
     }
 
     #[test]
@@ -445,21 +509,23 @@ mod tests {
         assert_eq!(
             parse_one("[Ljava/util/List;").unwrap(),
             Type::Array(Box::new(Type::Instance("java/util/List".to_string())))
-        );
+        ); // <-- UNCHANGED (still correct)
     }
 
     #[test]
     fn parse_multi_dimensional_array() {
         assert_eq!(
             parse_one("[[I").unwrap(),
-            Type::Array(Box::new(Type::Array(Box::new(Type::Int))))
+            Type::Array(Box::new(Type::Array(Box::new(Type::Primitive(
+                PrimitiveType::Int
+            ))))) // <-- CHANGED
         );
         assert_eq!(
             parse_one("[[Ljava/lang/String;").unwrap(),
             Type::Array(Box::new(Type::Array(Box::new(Type::Instance(
                 "java/lang/String".to_string()
             )))))
-        );
+        ); // <-- UNCHANGED (still correct)
     }
 
     #[test]
@@ -484,9 +550,11 @@ mod tests {
     #[test]
     fn consumes_exactly_one_type() {
         let (res, rest) = parse_and_rest("I[Ljava/lang/String;");
-        assert_eq!(res.unwrap(), Type::Int);
+        assert_eq!(res.unwrap(), Type::Primitive(PrimitiveType::Int)); // <-- CHANGED
         assert_eq!(rest, "[Ljava/lang/String;".to_string()); // untouched remainder
     }
+
+    // --- All Generic Signature tests below are unchanged ---
 
     #[test]
     fn generic_first_segment_only() {

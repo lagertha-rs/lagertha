@@ -64,11 +64,11 @@ impl MethodId {
 
 #[repr(transparent)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-pub struct FieldDescriptorId(NonZeroU32);
+pub struct TypeDescriptorId(NonZeroU32);
 
-impl FieldDescriptorId {
+impl TypeDescriptorId {
     pub fn from_usize(index: usize) -> Self {
-        FieldDescriptorId(NonZeroU32::new(index as u32).unwrap())
+        TypeDescriptorId(NonZeroU32::new(index as u32).unwrap())
     }
     pub fn to_index(&self) -> usize {
         (self.0.get() - 1) as usize
@@ -288,7 +288,7 @@ fn start(config: VmConfig) -> Result<(), JvmError> {
     };
     let main_method_id = vm
         .method_area
-        .get_class(&main_class_id)
+        .get_instance_class(&main_class_id)?
         .get_special_method_id(&main_method_key)
         .map_err(|_| JvmError::MainClassNotFound(vm.config.main_class.replace('/', ".")))?;
     let rust_thread_id = vm.rust_thread_id;

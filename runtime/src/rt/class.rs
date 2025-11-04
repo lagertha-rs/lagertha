@@ -1,4 +1,5 @@
 use crate::heap::method_area::MethodArea;
+use crate::rt::JvmClass;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::field::{InstanceField, StaticField};
 use crate::rt::method::Method;
@@ -18,7 +19,7 @@ pub enum ClassState {
     Initialized,  // <clinit> executed
 }
 
-pub struct Class {
+pub struct InstanceClass {
     pub name: Symbol,
 
     pub cp: RuntimeConstantPool,
@@ -34,7 +35,7 @@ pub struct Class {
     pub static_fields: OnceCell<HashMap<FieldKey, StaticField>>,
 }
 
-impl Class {
+impl InstanceClass {
     pub fn load_and_link(
         cf: ClassFile,
         method_area: &mut MethodArea,
@@ -42,9 +43,9 @@ impl Class {
     ) -> Result<ClassId, JvmError> {
         let cp = RuntimeConstantPool::new(cf.cp.inner);
         // class state = Loading
-        let name = cp.get_class(&cf.this_class, &method_area.string_interner)?;
+        let name = cp.get_class_sym(&cf.this_class, &method_area.interner)?;
 
-        let class = Self {
+        let class = JvmClass::Instance(Self {
             cp,
             name,
             super_id,
@@ -55,26 +56,28 @@ impl Class {
             instance_fields: OnceCell::new(),
             instance_fields_offset_map: OnceCell::new(),
             static_fields: OnceCell::new(),
-        };
+        });
         let class_id = method_area.push_class(class);
         let mut declared_index = HashMap::new();
 
-        let (mut vtable, mut vtable_index) = super_id
-            .map(|id| {
-                let super_class = method_area.get_class(&id);
+        let (mut vtable, mut vtable_index) = {
+            if let Some(super_id) = super_id {
+                let super_class = method_area.get_instance_class(&super_id)?;
                 (
                     super_class.get_vtable().clone(),
                     super_class.get_vtable_index().clone(),
                 )
-            })
-            .unwrap_or_default();
+            } else {
+                (Vec::new(), HashMap::new())
+            }
+        };
 
         for method in cf.methods {
             let method_key = {
-                let cp = &method_area.get_class(&class_id).cp;
+                let cp = &method_area.get_instance_class(&class_id)?.cp;
                 MethodKey {
-                    name: cp.get_utf8(&method.name_index, &method_area.string_interner)?,
-                    desc: cp.get_utf8(&method.descriptor_index, &method_area.string_interner)?,
+                    name: cp.get_utf8_sym(&method.name_index, &method_area.interner)?,
+                    desc: cp.get_utf8_sym(&method.descriptor_index, &method_area.interner)?,
                 }
             };
             let descriptor_id = method_area
@@ -106,41 +109,46 @@ impl Class {
         }
 
         {
-            let this = method_area.get_class(&class_id);
+            let this = method_area.get_instance_class(&class_id)?;
             this.set_declared_methods(declared_index);
             this.set_vtable(vtable);
             this.set_vtable_index(vtable_index);
         }
 
-        let mut instance_fields = super_id
-            .map(|id| method_area.get_class(&id).get_instance_fields().clone())
-            .unwrap_or_default();
-        let mut instance_fields_offset_map = super_id
-            .map(|id| {
-                method_area
-                    .get_class(&id)
-                    .get_instance_fields_offset_map()
-                    .clone()
-            })
-            .unwrap_or_default();
+        let mut instance_fields = if let Some(super_id) = super_id {
+            method_area
+                .get_instance_class(&super_id)?
+                .get_instance_fields()
+                .clone()
+        } else {
+            Vec::new()
+        };
+        let mut instance_fields_offset_map = if let Some(super_id) = super_id {
+            method_area
+                .get_instance_class(&super_id)?
+                .get_instance_fields_offset_map()
+                .clone()
+        } else {
+            HashMap::new()
+        };
         let mut static_fields = HashMap::new();
 
         for field in cf.fields {
             let field_key = {
-                let cp = &method_area.get_class(&class_id).cp;
+                let cp = &method_area.get_instance_class(&class_id)?.cp;
                 FieldKey {
-                    name: cp.get_utf8(&field.name_index, &method_area.string_interner)?,
-                    desc: cp.get_utf8(&field.descriptor_index, &method_area.string_interner)?,
+                    name: cp.get_utf8_sym(&field.name_index, &method_area.interner)?,
+                    desc: cp.get_utf8_sym(&field.descriptor_index, &method_area.interner)?,
                 }
             };
 
-            let descriptor_id = method_area.get_or_new_field_descriptor_id(&field_key.desc)?;
+            let descriptor_id = method_area.get_or_new_type_descriptor_id(field_key.desc)?;
             if field.access_flags.is_static() {
                 let static_field = StaticField {
                     flags: field.access_flags,
                     value: RefCell::new(
                         method_area
-                            .get_field_descriptor(&descriptor_id)
+                            .get_type_descriptor(&descriptor_id)
                             .get_default_value(),
                     ),
                     descriptor: descriptor_id,
@@ -159,7 +167,7 @@ impl Class {
         }
 
         {
-            let this = method_area.get_class(&class_id);
+            let this = method_area.get_instance_class(&class_id)?;
             this.set_instance_fields(instance_fields);
             this.set_instance_fields_offset_map(instance_fields_offset_map);
             this.set_static_fields(static_fields);

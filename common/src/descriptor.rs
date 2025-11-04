@@ -52,6 +52,7 @@ impl TryFrom<&str> for MethodDescriptor {
 
 #[cfg(test)]
 mod tests {
+    use crate::jtype::PrimitiveType;
     use super::*;
 
     // Java: void add(int, int)
@@ -59,7 +60,7 @@ mod tests {
     fn parse_two_ints_void() {
         // given
         let signature = "(II)V";
-        let expected_param = vec![Type::Int, Type::Int];
+        let expected_param = vec![Type::Primitive(PrimitiveType::Int), Type::Primitive(PrimitiveType::Int)];
         let expected_ret = Type::Void;
 
         // when
@@ -76,7 +77,7 @@ mod tests {
         // given
         let signature = "()I";
         let expected_param: Vec<Type> = Vec::new();
-        let expected_ret = Type::Int;
+        let expected_ret = Type::Primitive(PrimitiveType::Int);
 
         // when
         let md = MethodDescriptor::try_from(signature).unwrap();
@@ -108,10 +109,10 @@ mod tests {
         // given
         let signature = "(I[Ljava/lang/String;)[I";
         let expected_param = vec![
-            Type::Int,
+            Type::Primitive(PrimitiveType::Int),
             Type::Array(Box::new(Type::Instance("java/lang/String".into()))),
         ];
-        let expected_ret = Type::Array(Box::new(Type::Int));
+        let expected_ret = Type::Array(Box::new(Type::Primitive(PrimitiveType::Int)));
 
         // when
         let md = MethodDescriptor::try_from(signature).unwrap();

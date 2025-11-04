@@ -37,18 +37,16 @@ pub struct Heap {
     objects: Vec<HeapObject>,
     // TODO: need to think about the string pool since I have the interner
     string_pool: HashMap<Symbol, HeapAddr>,
-    interner: Arc<ThreadedRodeo>,
     string_class_id: OnceCell<ClassId>,
 }
 
 impl Heap {
-    pub fn new(interner: Arc<ThreadedRodeo>) -> Result<Self, JvmError> {
+    pub fn new() -> Result<Self, JvmError> {
         debug!("Creating Heap...");
         Ok(Self {
             string_class_id: OnceCell::new(),
             string_pool: HashMap::new(),
             objects: Vec::new(),
-            interner,
         })
     }
 
@@ -81,7 +79,7 @@ impl Heap {
         } else {
             let string_class_id = *self.string_class_id.get_or_try_init(|| {
                 method_area
-                    .get_class_id_or_load(self.interner.get_or_intern("java/lang/String"))})?;
+                    .get_class_id_or_load(method_area.interner.get_or_intern("java/lang/String"))})?;
             let instance = self.alloc_instance(
                 method_area,
                 string_class_id
@@ -103,7 +101,7 @@ impl Heap {
             .get_class(&class_id)
             .get_instance_fields()
             .iter()
-            .map(|f| method_area.get_field_descriptor(&f.descriptor_id))
+            .map(|f| method_area.get_type_descriptor(&f.descriptor_id))
             .map(|d| d.get_default_value())
             .collect::<Vec<Value>>();
         Ok(self.push(HeapObject::Instance(Instance {
@@ -118,7 +116,7 @@ impl Heap {
         offset: usize,
         val: Value,
     ) -> Result<(), JvmError> {
-        match self.get_mut(h)? {
+        match self.get_mut(&h)? {
             HeapObject::Instance(instance) => {
                 if offset >= instance.data.len() {
                     return Err(JvmError::Todo("invalid field index".to_string()));

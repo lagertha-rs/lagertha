@@ -1,9 +1,9 @@
 use crate::class_loader::ClassLoader;
-use crate::rt::class::Class;
+use crate::rt::class::InstanceClass;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::method::Method;
 use crate::{
-    ClassId, FieldDescriptorId, FullyQualifiedMethodKey, MethodDescriptorId, MethodId, Symbol,
+    ClassId, TypeDescriptorId, FullyQualifiedMethodKey, MethodDescriptorId, MethodId, Symbol,
     VmConfig,
 };
 use common::descriptor::MethodDescriptor;
@@ -13,26 +13,28 @@ use jclass::ClassFile;
 use lasso::{Spur, ThreadedRodeo};
 use std::collections::HashMap;
 use std::sync::Arc;
+use common::instruction::ArrayType;
+use crate::rt::JvmClass;
 
 pub struct MethodArea {
     bootstrap_class_loader: ClassLoader,
     class_name_to_index: HashMap<Spur, ClassId>,
-    classes: Vec<Class>,
+    classes: Vec<JvmClass>,
     methods: Vec<Method>,
 
-    field_descriptors: Vec<Type>,
-    field_descriptors_index: HashMap<Symbol, FieldDescriptorId>,
+    type_descriptors: Vec<Type>,
+    type_descriptors_index: HashMap<Symbol, TypeDescriptorId>,
 
     method_descriptors: Vec<MethodDescriptor>,
     method_descriptors_index: HashMap<Symbol, MethodDescriptorId>,
 
-    pub string_interner: Arc<ThreadedRodeo>,
+    pub interner: Arc<ThreadedRodeo>,
     constructor_symbols: (Symbol, Symbol),
 }
 
 impl MethodArea {
     fn bootstrap(&mut self) -> Result<(), JvmError> {
-        let java_lang_object_sym = self.string_interner.get_or_intern("java/lang/Object");
+        let java_lang_object_sym = self.interner.get_or_intern("java/lang/Object");
         let class_id = self.get_class_id_or_load(java_lang_object_sym)?;
         Ok(())
     }
@@ -51,11 +53,11 @@ impl MethodArea {
             class_name_to_index: HashMap::new(),
             classes: Vec::new(),
             methods: Vec::new(),
-            field_descriptors: Vec::new(),
-            field_descriptors_index: HashMap::new(),
+            type_descriptors: Vec::new(),
+            type_descriptors_index: HashMap::new(),
             method_descriptors: Vec::new(),
             method_descriptors_index: HashMap::new(),
-            string_interner,
+            interner: string_interner,
             constructor_symbols,
         };
 
@@ -67,8 +69,11 @@ impl MethodArea {
         method_id: &MethodId,
     ) -> FullyQualifiedMethodKey {
         let method = self.get_method(method_id);
-        let class = self.get_class(&method.class_id());
-        FullyQualifiedMethodKey::new(class.name, method.name, method.desc)
+        let name= match self.get_class(&method.class_id()) {
+            JvmClass::Instance(instance) => instance.name,
+            _ => panic!("Not an instance class"),
+        };
+        FullyQualifiedMethodKey::new(name, method.name, method.desc)
     }
 
     // todo: probably there is better place to put this
@@ -76,13 +81,13 @@ impl MethodArea {
         self.constructor_symbols.0 == name || self.constructor_symbols.1 == name
     }
 
-    fn push_field_descriptor(&mut self, ty: Type) -> FieldDescriptorId {
-        self.field_descriptors.push(ty);
-        FieldDescriptorId::from_usize(self.field_descriptors.len())
+    fn push_type_descriptor(&mut self, ty: Type) -> TypeDescriptorId {
+        self.type_descriptors.push(ty);
+        TypeDescriptorId::from_usize(self.type_descriptors.len())
     }
 
-    pub fn get_field_descriptor(&self, id: &FieldDescriptorId) -> &Type {
-        &self.field_descriptors[id.to_index()]
+    pub fn get_type_descriptor(&self, id: &TypeDescriptorId) -> &Type {
+        &self.type_descriptors[id.to_index()]
     }
 
     fn push_method_descriptor(&mut self, descriptor: MethodDescriptor) -> MethodDescriptorId {
@@ -106,21 +111,21 @@ impl MethodArea {
         if let Some(method_desc) = self.method_descriptors_index.get(descriptor) {
             return Ok(*method_desc);
         }
-        let descriptor_str = self.string_interner.resolve(descriptor);
+        let descriptor_str = self.interner.resolve(descriptor);
         let method_descriptor = MethodDescriptor::try_from(descriptor_str)?;
         Ok(self.push_method_descriptor(method_descriptor))
     }
 
-    pub fn get_or_new_field_descriptor_id(
+    pub fn get_or_new_type_descriptor_id(
         &mut self,
-        descriptor: &Symbol,
-    ) -> Result<FieldDescriptorId, JvmError> {
-        if let Some(field_desc) = self.field_descriptors_index.get(descriptor) {
-            return Ok(*field_desc);
+        descriptor: Symbol,
+    ) -> Result<TypeDescriptorId, JvmError> {
+        if let Some(type_desc) = self.type_descriptors_index.get(&descriptor) {
+            return Ok(*type_desc);
         }
-        let descriptor_str = self.string_interner.resolve(descriptor);
+        let descriptor_str = self.interner.resolve(&descriptor);
         let ty = Type::try_from(descriptor_str)?;
-        Ok(self.push_field_descriptor(ty))
+        Ok(self.push_type_descriptor(ty))
     }
 
     pub fn push_method(&mut self, method: Method) -> MethodId {
@@ -132,43 +137,63 @@ impl MethodArea {
         &self.methods[method_id.to_index()]
     }
 
-    pub fn push_class(&mut self, class: Class) -> ClassId {
+    pub fn push_class(&mut self, class: JvmClass) -> ClassId {
         self.classes.push(class);
         ClassId::from_usize(self.classes.len())
     }
 
-    pub fn get_class(&self, class_id: &ClassId) -> &Class {
+    pub fn get_class(&self, class_id: &ClassId) -> &JvmClass {
         &self.classes[class_id.to_index()]
+    }
+    
+    pub fn is_instance_class(&self, class_id: &ClassId) -> bool {
+        matches!(self.get_class(class_id), JvmClass::Instance(_))
+    }
+
+    pub fn get_instance_class(&self, class_id: &ClassId) -> Result<&InstanceClass, JvmError> {
+        match self.get_class(class_id) {
+            JvmClass::Instance(ic) => Ok(ic),
+            _ => Err(JvmError::NotAJavaInstanceTodo("Not an instance class".to_string())),
+        }
     }
 
     pub fn get_class_id_by_name(&self, name_sym: &Symbol) -> ClassId {
         *self.class_name_to_index.get(name_sym).unwrap()
     }
 
-    pub fn get_cp(&self, class_id: &ClassId) -> &RuntimeConstantPool {
-        &self.get_class(class_id).cp
+    pub fn get_cp(&self, class_id: &ClassId) -> Result<&RuntimeConstantPool, JvmError> {
+        self.get_instance_class(class_id).map(|c| &c.cp)
     }
 
-    pub fn get_cp_by_method_id(&self, method_id: &MethodId) -> &RuntimeConstantPool {
+    pub fn get_cp_by_method_id(&self, method_id: &MethodId) -> Result<&RuntimeConstantPool, JvmError> {
         let class_id = self.get_method(method_id).class_id();
         self.get_cp(&class_id)
     }
 
+    fn load_array_class(&mut self, name_sym: Symbol) -> Result<ClassId, JvmError> {
+        let type_descriptor_id = self.get_or_new_type_descriptor_id(name_sym)?;
+        let type_descriptor = self.get_type_descriptor(&type_descriptor_id);
+        todo!()
+    }
+
     fn load_class(&mut self, name_sym: Symbol) -> Result<ClassId, JvmError> {
         let data = {
-            let name_str = self.string_interner.resolve(&name_sym);
+            let name_str = self.interner.resolve(&name_sym);
+            if name_str.starts_with("[") {
+                return self.load_array_class(name_sym);
+            }
             self.bootstrap_class_loader.load(name_str)?
         };
         let cf = ClassFile::try_from(data).map_err(LinkageError::from)?;
         let super_id = match cf.get_super_class_name() {
             Some(super_name) => {
                 let super_name = super_name.unwrap();
-                let super_name_sym = self.string_interner.get_or_intern(super_name);
+                let super_name_sym = self.interner.get_or_intern(super_name);
                 Some(self.get_class_id_or_load(super_name_sym)?)
             }
             None => None,
         };
-        let class_id = Class::load_and_link(cf, self, super_id)?;
+        let class_id = InstanceClass::load_and_link(cf, self, super_id)?;
         self.class_name_to_index.insert(name_sym, class_id);
         Ok(class_id)
     }

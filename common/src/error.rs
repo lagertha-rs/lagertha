@@ -207,6 +207,8 @@ pub enum JvmError {
     WrongHeapAddress(HeapAddr),
     #[error("TODO map to correct error: `{0}`")]
     Todo(String),
+    #[error("TODO: Not a Java instance: `{0}`")]
+    NotAJavaInstanceTodo(String),
     #[error("{0}")]
     JavaException(#[from] JavaExceptionFromJvm),
 }

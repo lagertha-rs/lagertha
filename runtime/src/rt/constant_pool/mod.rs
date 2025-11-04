@@ -140,20 +140,20 @@ impl RuntimeConstantPool {
         }
     }
 
-    pub fn get(&self, idx: &u16, interner: &ThreadedRodeo) -> Result<&RuntimeConstant, JvmError> {
+    pub fn get_constant(&self, idx: &u16, interner: &ThreadedRodeo) -> Result<&RuntimeConstant, JvmError> {
         let entry = self.entry(idx)?;
         match entry {
             RuntimeConstant::Class(_) => {
-                self.get_class(idx, interner)?;
+                self.get_class_sym(idx, interner)?;
             }
             RuntimeConstant::String(_) => {
-                self.get_string(idx, interner)?;
+                self.get_string_sym(idx, interner)?;
             }
             RuntimeConstant::Method(_) => {
-                self.get_method(idx, interner)?;
+                self.get_method_view(idx, interner)?;
             }
             RuntimeConstant::Field(_) => {
-                self.get_field(idx, interner)?;
+                self.get_field_view(idx, interner)?;
             }
             _ => unimplemented!(),
         };
@@ -166,7 +166,7 @@ impl RuntimeConstantPool {
             .ok_or(RuntimePoolError::WrongIndex(*idx))
     }
 
-    pub fn get_utf8(
+    pub fn get_utf8_sym(
         &self,
         idx: &u16,
         interner: &ThreadedRodeo,
@@ -183,7 +183,7 @@ impl RuntimeConstantPool {
         }
     }
 
-    pub fn get_nat(
+    pub fn get_nat_view(
         &self,
         idx: &u16,
         interner: &ThreadedRodeo,
@@ -191,13 +191,13 @@ impl RuntimeConstantPool {
         match self.entry(idx)? {
             RuntimeConstant::NameAndType(entry) => {
                 let name_sym = *entry.name_sym.get_or_try_init::<_, RuntimePoolError>(|| {
-                    self.get_utf8(&entry.name_idx, interner)
+                    self.get_utf8_sym(&entry.name_idx, interner)
                 })?;
                 let descriptor_sym = *entry
                     .descriptor_sym
                     //TODO: delete explicit type?
                     .get_or_try_init::<_, RuntimePoolError>(|| {
-                        self.get_utf8(&entry.descriptor_idx, interner)
+                        self.get_utf8_sym(&entry.descriptor_idx, interner)
                     })?;
                 Ok(NameAndTypeEntryView::new(name_sym, descriptor_sym))
             }
@@ -209,7 +209,7 @@ impl RuntimeConstantPool {
         }
     }
 
-    pub fn get_method(
+    pub fn get_method_view(
         &self,
         idx: &u16,
         interner: &ThreadedRodeo,
@@ -218,8 +218,8 @@ impl RuntimeConstantPool {
             RuntimeConstant::Method(entry) => {
                 let class_sym = *entry
                     .class_sym
-                    .get_or_try_init(|| self.get_class(&entry.class_idx, interner))?;
-                let nat_view = self.get_nat(&entry.nat_idx, interner)?;
+                    .get_or_try_init(|| self.get_class_sym(&entry.class_idx, interner))?;
+                let nat_view = self.get_nat_view(&entry.nat_idx, interner)?;
                 Ok(MethodEntryView::new(class_sym, nat_view))
             }
             other => Err(RuntimePoolError::TypeError(
@@ -230,7 +230,7 @@ impl RuntimeConstantPool {
         }
     }
 
-    pub fn get_interface_method(
+    pub fn get_interface_method_view(
         &self,
         idx: &u16,
         interner: &ThreadedRodeo,
@@ -239,8 +239,8 @@ impl RuntimeConstantPool {
             RuntimeConstant::InterfaceMethod(entry) => {
                 let class_sym = *entry
                     .class_sym
-                    .get_or_try_init(|| self.get_class(&entry.class_idx, interner))?;
-                let nat_view = self.get_nat(&entry.nat_idx, interner)?;
+                    .get_or_try_init(|| self.get_class_sym(&entry.class_idx, interner))?;
+                let nat_view = self.get_nat_view(&entry.nat_idx, interner)?;
                 Ok(MethodEntryView::new(class_sym, nat_view))
             }
             other => Err(RuntimePoolError::TypeError(
@@ -251,7 +251,7 @@ impl RuntimeConstantPool {
         }
     }
 
-    pub fn get_field(
+    pub fn get_field_view(
         &self,
         idx: &u16,
         interner: &ThreadedRodeo,
@@ -260,8 +260,8 @@ impl RuntimeConstantPool {
             RuntimeConstant::Field(entry) => {
                 let class_sym = *entry
                     .class_sym
-                    .get_or_try_init(|| self.get_class(&entry.class_idx, interner))?;
-                let nat_view = self.get_nat(&entry.nat_idx, interner)?;
+                    .get_or_try_init(|| self.get_class_sym(&entry.class_idx, interner))?;
+                let nat_view = self.get_nat_view(&entry.nat_idx, interner)?;
                 Ok(FieldEntryView::new(class_sym, nat_view))
             }
             other => Err(RuntimePoolError::TypeError(
@@ -272,7 +272,7 @@ impl RuntimeConstantPool {
         }
     }
 
-    pub fn get_string(
+    pub fn get_string_sym(
         &self,
         idx: &u16,
         interner: &ThreadedRodeo,
@@ -281,7 +281,7 @@ impl RuntimeConstantPool {
             RuntimeConstant::String(entry) => entry
                 .string_sym
                 .get_or_try_init::<_, RuntimePoolError>(|| {
-                    self.get_utf8(&entry.string_idx, interner)
+                    self.get_utf8_sym(&entry.string_idx, interner)
                 })
                 .copied(),
             other => Err(RuntimePoolError::TypeError(
@@ -292,7 +292,7 @@ impl RuntimeConstantPool {
         }
     }
 
-    pub fn get_class(
+    pub fn get_class_sym(
         &self,
         idx: &u16,
         interner: &ThreadedRodeo,
@@ -300,7 +300,7 @@ impl RuntimeConstantPool {
         match self.entry(idx)? {
             RuntimeConstant::Class(entry) => entry
                 .name_sym
-                .get_or_try_init::<_, RuntimePoolError>(|| self.get_utf8(&entry.name_idx, interner))
+                .get_or_try_init::<_, RuntimePoolError>(|| self.get_utf8_sym(&entry.name_idx, interner))
                 .copied(),
             other => Err(RuntimePoolError::TypeError(
                 *idx,

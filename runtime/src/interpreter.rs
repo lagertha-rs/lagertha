@@ -1,10 +1,10 @@
+use crate::rt::constant_pool::RuntimeConstant;
 use crate::stack::JavaFrame;
 use crate::{ClassId, MethodId, MethodKey, ThreadId, VirtualMachine};
 use common::error::JvmError;
 use common::instruction::Instruction;
 use common::jtype::Value;
 use std::ops::ControlFlow;
-use crate::rt::constant_pool::RuntimeConstant;
 
 pub struct Interpreter;
 
@@ -52,15 +52,15 @@ impl Interpreter {
                 let cur_frame_method_id = vm.get_stack(&thread_id)?.cur_frame()?.method_id();
                 let target_field_view = vm
                     .method_area
-                    .get_cp_by_method_id(&cur_frame_method_id)
-                    .get_field(&idx, vm.interner())?;
+                    .get_cp_by_method_id(&cur_frame_method_id)?
+                    .get_field_view(&idx, vm.interner())?;
                 let target_class_id = vm
                     .method_area
                     .get_class_id_or_load(target_field_view.class_sym)?;
                 Self::ensure_initialized(thread_id, Some(target_class_id), vm)?;
                 let value = vm
                     .method_area
-                    .get_class(&target_class_id)
+                    .get_instance_class(&target_class_id)?
                     .get_static_field_value(&target_field_view.name_and_type.into())?;
                 vm.get_stack(&thread_id)?.push_operand(value)?;
             }
@@ -107,33 +107,29 @@ impl Interpreter {
             }
             Instruction::Ldc(idx) | Instruction::LdcW(idx) | Instruction::Ldc2W(idx) => {
                 let cur_method_id = vm.get_stack(&thread_id)?.cur_frame()?.method_id();
-                let cp = vm.method_area.get_cp_by_method_id(&cur_method_id);
-                let raw = match cp.get(&idx, vm.interner())? {
-                    RuntimeConstant::Integer( val) => {
-                        vm.get_stack(&thread_id)?.push_operand(Value::Integer(*val))
+                let ldc_operand = {
+                    let cp = vm.method_area.get_cp_by_method_id(&cur_method_id)?;
+                    match cp.get_constant(&idx, vm.interner())? {
+                        RuntimeConstant::Integer(val) => Value::Integer(*val),
+                        RuntimeConstant::Float(val) => Value::Float(*val),
+                        RuntimeConstant::Long(val) => Value::Long(*val),
+                        RuntimeConstant::Double(val) => Value::Double(*val),
+                        RuntimeConstant::Class(class_entry) => {
+                            unimplemented!("Mirrors aren't supported yet")
+                        }
+                        RuntimeConstant::String(str_entry) => {
+                            todo!()
+                        }
+                        _ => unimplemented!(),
                     }
-                    RuntimeConstant::Float(val) => {
-                        vm.get_stack(&thread_id)?.push_operand(Value::Float(*val))
-                    }
-                    RuntimeConstant::Long(val) => {
-                        vm.get_stack(&thread_id)?.push_operand(Value::Long(*val))
-                    }
-                    RuntimeConstant::Double(val) => {
-                        vm.get_stack(&thread_id)?.push_operand(Value::Double(*val))
-                    }
-                    RuntimeConstant::Class(class_entry) => {
-                        unimplemented!("Mirrors aren't supported yet")
-                    }
-                    RuntimeConstant::String(str) => {}
-                    _ => unimplemented!()
                 };
             }
             Instruction::New(idx) => {
                 let cur_frame_method_id = vm.get_stack(&thread_id)?.cur_frame()?.method_id();
                 let target_class_name = vm
                     .method_area
-                    .get_cp_by_method_id(&cur_frame_method_id)
-                    .get_class(&idx, vm.interner())?;
+                    .get_cp_by_method_id(&cur_frame_method_id)?
+                    .get_class_sym(&idx, vm.interner())?;
                 let target_class_id = vm.method_area.get_class_id_or_load(target_class_name)?;
                 Self::ensure_initialized(thread_id, Some(target_class_id), vm)?;
                 let instance_ref = vm
@@ -151,12 +147,12 @@ impl Interpreter {
                 let cur_frame_method_id = vm.get_stack(&thread_id)?.cur_frame()?.method_id();
                 let field_view = vm
                     .method_area
-                    .get_cp_by_method_id(&cur_frame_method_id)
-                    .get_field(&idx, vm.interner())?;
+                    .get_cp_by_method_id(&cur_frame_method_id)?
+                    .get_field_view(&idx, vm.interner())?;
                 let target_class_id = vm.method_area.get_class_id_or_load(field_view.class_sym)?;
                 let target_offset = vm
                     .method_area
-                    .get_class(&target_class_id)
+                    .get_instance_class(&target_class_id)?
                     .get_instance_field_offset(&field_view.name_and_type.into())?
                     as usize;
                 vm.heap
@@ -167,28 +163,28 @@ impl Interpreter {
                 let cur_frame_method_id = vm.get_stack(&thread_id)?.cur_frame()?.method_id();
                 let target_field_view = vm
                     .method_area
-                    .get_cp_by_method_id(&cur_frame_method_id)
-                    .get_field(&idx, vm.interner())?;
+                    .get_cp_by_method_id(&cur_frame_method_id)?
+                    .get_field_view(&idx, vm.interner())?;
                 let target_class_id = vm
                     .method_area
                     .get_class_id_or_load(target_field_view.class_sym)?;
                 Self::ensure_initialized(thread_id, Some(target_class_id), vm)?;
                 vm.method_area
-                    .get_class(&target_class_id)
+                    .get_instance_class(&target_class_id)?
                     .set_static_field_value(&target_field_view.name_and_type.into(), value)?;
             }
             Instruction::InvokeSpecial(idx) => {
                 let cur_frame_method_id = vm.get_stack(&thread_id)?.cur_frame()?.method_id();
                 let target_method_view = vm
                     .method_area
-                    .get_cp_by_method_id(&cur_frame_method_id)
-                    .get_method(&idx, vm.interner())?;
+                    .get_cp_by_method_id(&cur_frame_method_id)?
+                    .get_method_view(&idx, vm.interner())?;
                 let target_class_id = vm
                     .method_area
                     .get_class_id_or_load(target_method_view.class_sym)?;
                 let target_method_id = vm
                     .method_area
-                    .get_class(&target_class_id)
+                    .get_instance_class(&target_class_id)?
                     .get_special_method_id(&target_method_view.name_and_type.into())?;
                 let args = Self::prepare_method_args(thread_id, target_method_id, vm)?;
                 Self::run_method(thread_id, target_method_id, vm, args)?;
@@ -197,15 +193,15 @@ impl Interpreter {
                 let cur_frame_method_id = vm.get_stack(&thread_id)?.cur_frame()?.method_id();
                 let target_method_view = vm
                     .method_area
-                    .get_cp_by_method_id(&cur_frame_method_id)
-                    .get_method(&idx, vm.interner())?;
+                    .get_cp_by_method_id(&cur_frame_method_id)?
+                    .get_method_view(&idx, vm.interner())?;
                 let target_class_id = vm
                     .method_area
                     .get_class_id_or_load(target_method_view.class_sym)?;
                 Self::ensure_initialized(thread_id, Some(target_class_id), vm)?;
                 let target_method_id = vm
                     .method_area
-                    .get_class(&target_class_id)
+                    .get_instance_class(&target_class_id)?
                     .get_special_method_id(&target_method_view.name_and_type.into())?;
                 let args = Self::prepare_method_args(thread_id, target_method_id, vm)?;
                 Self::invoke_static_method(thread_id, target_method_id, vm, args)?;
@@ -301,18 +297,18 @@ impl Interpreter {
         vm: &mut VirtualMachine,
     ) -> Result<(), JvmError> {
         if let Some(class_id) = class_id
-            && !vm
+            && vm.method_area.is_instance_class(&class_id) && !vm
                 .method_area
-                .get_class(&class_id)
+                .get_instance_class(&class_id)?
                 .is_initialized_or_initializing()
         {
-            vm.method_area.get_class(&class_id).set_initializing();
+            vm.method_area.get_instance_class(&class_id)?.set_initializing();
             Self::ensure_initialized(
                 thread_id,
-                vm.method_area.get_class(&class_id).get_super_id(),
+                vm.method_area.get_instance_class(&class_id)?.get_super_id(),
                 vm,
             )?;
-            if let Ok(clinit_method_id) = vm.method_area.get_class(&class_id).get_special_method_id(
+            if let Ok(clinit_method_id) = vm.method_area.get_instance_class(&class_id)?.get_special_method_id(
                 // TODO: make method key registry?
                 &MethodKey {
                     name: vm.interner().get_or_intern("<clinit>"),
@@ -328,7 +324,7 @@ impl Interpreter {
                 {
                     // TODO: make method key registry?
                     vm.method_area
-                        .get_class(&class_id)
+                        .get_instance_class(&class_id)?
                         .get_special_method_id(&MethodKey {
                             name: vm.interner().get_or_intern("initPhase1"),
                             desc: vm.interner().get_or_intern("()V"),
@@ -338,7 +334,7 @@ impl Interpreter {
                         })?;
                 }
             }
-            vm.method_area.get_class(&class_id).set_initialized();
+            vm.method_area.get_instance_class(&class_id)?.set_initialized();
         }
         Ok(())
     }
