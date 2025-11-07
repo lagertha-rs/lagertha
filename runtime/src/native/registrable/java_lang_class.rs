@@ -68,12 +68,14 @@ fn java_lang_class_is_primitive(
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.isPrimitive");
     if let Value::Ref(h) = &args[0] {
+        /*
         let class_id = vm.heap.get_class_id(h)?;
         vm.method_area.get_class(&class_id)
             .get_instance_field_offset(&FieldKey {
                 name: self.interner.get_or_intern("name"),
                 desc: self.interner.get_or_intern("Ljava/lang/String;"),
             })?;
+         */
         todo!();
         //let is_primitive = vm.heap.addr_is_primitive(h);
         //Ok(Some(Value::Integer(if is_primitive { 1 } else { 0 })))
@@ -90,7 +92,9 @@ fn java_lang_class_get_primitive_class(
     debug!("TODO: Stub: java.lang.Class.getPrimitiveClass");
     if let Value::Ref(h) = &args[0] {
         let class_id = vm.heap.get_class_id(h)?;
-        let v = vm.method_area.get_mirror_ref_or_create(class_id, &mut vm.heap)?;
+        let v = vm
+            .method_area
+            .get_mirror_ref_or_create(class_id, &mut vm.heap)?;
         Ok(Some(Value::Ref(v)))
     } else {
         panic!("java.lang.Class.getPrimitiveClass: expected object");

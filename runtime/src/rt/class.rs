@@ -26,7 +26,7 @@ pub struct InstanceClass {
     pub super_id: Option<ClassId>,
     state: RefCell<ClassState>,
     mirror_ref: OnceCell<HeapRef>,
-    
+
     pub declared_method_index: OnceCell<HashMap<MethodKey, MethodId>>,
     pub vtable: OnceCell<Vec<MethodId>>,
     pub vtable_index: OnceCell<HashMap<MethodKey, u16>>,
@@ -45,7 +45,7 @@ impl InstanceClass {
     ) -> Result<ClassId, JvmError> {
         let cp = RuntimeConstantPool::new(cf.cp.inner);
         // class state = Loading
-        let name = cp.get_class_sym(&cf.this_class, &method_area.interner)?;
+        let name = cp.get_class_sym(&cf.this_class, &method_area.interner())?;
 
         let class = JvmClass::Instance(Self {
             cp,
@@ -79,8 +79,8 @@ impl InstanceClass {
             let method_key = {
                 let cp = &method_area.get_instance_class(&class_id)?.cp;
                 MethodKey {
-                    name: cp.get_utf8_sym(&method.name_index, &method_area.interner)?,
-                    desc: cp.get_utf8_sym(&method.descriptor_index, &method_area.interner)?,
+                    name: cp.get_utf8_sym(&method.name_index, &method_area.interner())?,
+                    desc: cp.get_utf8_sym(&method.descriptor_index, &method_area.interner())?,
                 }
             };
             let descriptor_id = method_area
@@ -94,7 +94,8 @@ impl InstanceClass {
                 method_key.desc,
             );
             let is_static = method.is_static();
-            let is_constructor = method_area.is_constructor_symbol(method_key.name);
+            let is_constructor = method_key.name == method_area.br().init_sym
+                || method_key.name == method_area.br().clinit_sym;
             let method_id = method_area.push_method(method);
 
             // TODO: need to think about private as well. Private methods should not be in vtable
@@ -140,8 +141,8 @@ impl InstanceClass {
             let field_key = {
                 let cp = &method_area.get_instance_class(&class_id)?.cp;
                 FieldKey {
-                    name: cp.get_utf8_sym(&field.name_index, &method_area.interner)?,
-                    desc: cp.get_utf8_sym(&field.descriptor_index, &method_area.interner)?,
+                    name: cp.get_utf8_sym(&field.name_index, &method_area.interner())?,
+                    desc: cp.get_utf8_sym(&field.descriptor_index, &method_area.interner())?,
                 }
             };
 
@@ -275,7 +276,7 @@ impl InstanceClass {
     fn get_vtable_index(&self) -> &HashMap<MethodKey, u16> {
         self.vtable_index.get().unwrap()
     }
-    
+
     pub fn get_vtable_method_id(&self, key: &MethodKey) -> Result<MethodId, JvmError> {
         let vtable_index = self.get_vtable_index();
         let pos = vtable_index
@@ -297,7 +298,7 @@ impl InstanceClass {
                 JavaExceptionFromJvm::NoSuchMethodError(None),
             ))
     }
-    
+
     pub fn is_child_of(&self, other: &ClassId) -> bool {
         if let Some(sup) = &self.super_id {
             sup == other
@@ -305,12 +306,14 @@ impl InstanceClass {
             false
         }
     }
-    
+
     pub fn get_mirror_ref(&self) -> Option<HeapRef> {
         self.mirror_ref.get().copied()
     }
-    
+
     pub fn set_mirror_ref(&self, heap_ref: HeapRef) -> Result<(), JvmError> {
-        self.mirror_ref.set(heap_ref).map_err(|_| JvmError::Todo("Mirror ref already set".to_string()))
+        self.mirror_ref
+            .set(heap_ref)
+            .map_err(|_| JvmError::Todo("Mirror ref already set".to_string()))
     }
 }

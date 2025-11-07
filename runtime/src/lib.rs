@@ -17,6 +17,7 @@ use std::sync::Arc;
 use tracing_log::log::debug;
 
 mod class_loader;
+pub mod debug_log;
 pub mod heap;
 pub mod heap_deprecated;
 mod interpreter;
@@ -235,11 +236,14 @@ impl VirtualMachine {
         let string_interner = Arc::new(ThreadedRodeo::default());
         let method_area = MethodArea::new(&config, string_interner.clone())?;
 
+        #[cfg(feature = "debug-log")]
+        debug_log::debug::init(&method_area);
+
         let native_registry = NativeRegistry::new(string_interner.clone());
         let rust_thread = JavaThreadState {
             thread_obj: 0,
             group_obj: 0,
-            name: "".to_string(),
+            name: "init thread".to_string(),
             stack: FrameStack::new(&config),
         };
         let rust_thread_id = ThreadId::new(NonZeroU32::MAX);

@@ -8,6 +8,7 @@ use jclass::constant::ConstantInfo;
 use lasso::ThreadedRodeo;
 use std::fmt::Display;
 
+pub mod bootstrap_registry;
 pub mod entry;
 pub mod reference_deprecated;
 pub mod rt_cp_deprecated;
@@ -140,7 +141,11 @@ impl RuntimeConstantPool {
         }
     }
 
-    pub fn get_constant(&self, idx: &u16, interner: &ThreadedRodeo) -> Result<&RuntimeConstant, JvmError> {
+    pub fn get_constant(
+        &self,
+        idx: &u16,
+        interner: &ThreadedRodeo,
+    ) -> Result<&RuntimeConstant, JvmError> {
         let entry = self.entry(idx)?;
         match entry {
             RuntimeConstant::Class(_) => {
@@ -300,7 +305,9 @@ impl RuntimeConstantPool {
         match self.entry(idx)? {
             RuntimeConstant::Class(entry) => entry
                 .name_sym
-                .get_or_try_init::<_, RuntimePoolError>(|| self.get_utf8_sym(&entry.name_idx, interner))
+                .get_or_try_init::<_, RuntimePoolError>(|| {
+                    self.get_utf8_sym(&entry.name_idx, interner)
+                })
                 .copied(),
             other => Err(RuntimePoolError::TypeError(
                 *idx,

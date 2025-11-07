@@ -1,6 +1,4 @@
-use crate::heap::HeapObject;
 use crate::native::NativeRet;
-use crate::stack_deprecated::FrameStackDeprecated;
 use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
 use common::jtype::Value;
 use log::debug;

@@ -1,13 +1,12 @@
 // TODO: very primitive implementation, ok for right now
 
 use crate::heap::method_area::MethodArea;
-use crate::{throw_exception, ClassId, Symbol};
-use common::error::{JavaExceptionFromJvm, JvmError};
+use crate::{ClassId, Symbol, throw_exception};
+use common::error::JvmError;
 use common::jtype::{HeapRef, Value};
 use once_cell::sync::OnceCell;
 use std::collections::HashMap;
 use tracing_log::log::debug;
-use crate::heap_deprecated::{HeapObjectDeprecated, InstanceDeprecated};
 
 pub mod method_area;
 
@@ -133,23 +132,22 @@ impl Heap {
             Ok(*h)
         } else {
             let string_class_id = *self.string_class_id.get_or_try_init(|| {
-                method_area
-                    .get_class_id_or_load(method_area.interner.get_or_intern("java/lang/String"))})?;
+                method_area.get_class_id_or_load(method_area.br().java_lang_string_sym)
+            })?;
             let char_array_class_id = *self.char_array_class_id.get_or_try_init(|| {
-                method_area
-                    .get_class_id_or_load(method_area.interner.get_or_intern("[C"))})?;
+                method_area.get_class_id_or_load(method_area.br().desc_char_array_sym)
+            })?;
             let chars_val = {
-                let s = method_area.interner.resolve(&val_sym);
-                s.chars().map(|c| Value::Integer(f(c) as i32)).collect::<Vec<_>>()
+                let s = method_area.interner().resolve(&val_sym);
+                s.chars()
+                    .map(|c| Value::Integer(f(c) as i32))
+                    .collect::<Vec<_>>()
             };
             let char_arr_ref = self.push(HeapObject::Array(Instance {
                 class_id: char_array_class_id,
                 data: chars_val,
             }));
-            let instance = self.alloc_instance(
-                method_area,
-                string_class_id
-                )?;
+            let instance = self.alloc_instance(method_area, string_class_id)?;
             self.string_pool.insert(val_sym, instance);
             self.write_instance_field(instance, 0, Value::Ref(char_arr_ref))?;
             Ok(instance)

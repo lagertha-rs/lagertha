@@ -1,20 +1,23 @@
 use crate::class_loader::ClassLoader;
+use crate::heap::Heap;
 use crate::rt::class::InstanceClass;
 use crate::rt::constant_pool::RuntimeConstantPool;
+use crate::rt::constant_pool::bootstrap_registry::BootstrapRegistry;
 use crate::rt::method::Method;
-use crate::{ClassId, TypeDescriptorId, FullyQualifiedMethodKey, MethodDescriptorId, MethodId, Symbol, VmConfig, FieldKey};
+use crate::rt::{JvmClass, ObjectArrayClass, PrimitiveArrayClass};
+use crate::{
+    ClassId, FieldKey, FullyQualifiedMethodKey, MethodDescriptorId, MethodId, Symbol,
+    TypeDescriptorId, VmConfig,
+};
 use common::descriptor::MethodDescriptor;
 use common::error::{JvmError, LinkageError, MethodDescriptorErr};
 use common::jtype::{HeapRef, Type, Value};
 use jclass::ClassFile;
 use lasso::{Spur, ThreadedRodeo};
+use once_cell::sync::OnceCell;
 use std::collections::HashMap;
 use std::ops::ControlFlow;
 use std::sync::Arc;
-use once_cell::sync::OnceCell;
-use common::instruction::ArrayType;
-use crate::heap::Heap;
-use crate::rt::{JvmClass, ObjectArrayClass, PrimitiveArrayClass};
 
 pub struct MethodArea {
     bootstrap_class_loader: ClassLoader,
@@ -28,12 +31,8 @@ pub struct MethodArea {
     method_descriptors: Vec<MethodDescriptor>,
     method_descriptors_index: HashMap<Symbol, MethodDescriptorId>,
 
-    pub interner: Arc<ThreadedRodeo>,
-
-    //TODO: two different concepts need to do cleaner
-    constructor_symbols: (Symbol, Symbol),
-    java_lang_class_id: OnceCell<ClassId>,
-    java_lang_object_id: OnceCell<ClassId>,
+    interner: Arc<ThreadedRodeo>,
+    bootstrap_registry: BootstrapRegistry,
 }
 
 impl MethodArea {
@@ -42,10 +41,6 @@ impl MethodArea {
         string_interner: Arc<ThreadedRodeo>,
     ) -> Result<Self, JvmError> {
         let bootstrap_class_loader = ClassLoader::new(vm_config)?;
-        let constructor_symbols = (
-            string_interner.get_or_intern("<init>"),
-            string_interner.get_or_intern("<clinit>"),
-        );
 
         let mut method_area = Self {
             bootstrap_class_loader,
@@ -56,23 +51,31 @@ impl MethodArea {
             type_descriptors_index: HashMap::new(),
             method_descriptors: Vec::new(),
             method_descriptors_index: HashMap::new(),
+            bootstrap_registry: BootstrapRegistry::new(&string_interner),
             interner: string_interner,
-            constructor_symbols,
-            java_lang_class_id: OnceCell::new(),
-            java_lang_object_id: OnceCell::new(),
         };
 
-        let java_lang_class_id = method_area.get_class_id_or_load(
-            method_area.interner.get_or_intern("java/lang/Class")
-        )?;
-        let java_lang_object_id = method_area.get_class_id_or_load(
-            method_area.interner.get_or_intern("java/lang/Object")
-        )?;
+        let java_lang_class_id =
+            method_area.get_class_id_or_load(method_area.br().java_lang_class_sym)?;
+        let java_lang_object_id =
+            method_area.get_class_id_or_load(method_area.br().java_lang_object_sym)?;
 
-        method_area.java_lang_class_id.set(java_lang_class_id).unwrap();
-        method_area.java_lang_object_id.set(java_lang_object_id).unwrap();
+        method_area
+            .bootstrap_registry
+            .set_java_lang_class_id(java_lang_class_id)?;
+        method_area
+            .bootstrap_registry
+            .set_java_lang_object_id(java_lang_object_id)?;
 
         Ok(method_area)
+    }
+
+    pub fn br(&self) -> &BootstrapRegistry {
+        &self.bootstrap_registry
+    }
+
+    pub fn interner(&self) -> &ThreadedRodeo {
+        &self.interner
     }
 
     pub fn build_fully_qualified_method_key(
@@ -80,16 +83,11 @@ impl MethodArea {
         method_id: &MethodId,
     ) -> FullyQualifiedMethodKey {
         let method = self.get_method(method_id);
-        let name= match self.get_class(&method.class_id()) {
+        let name = match self.get_class(&method.class_id()) {
             JvmClass::Instance(instance) => instance.name,
             _ => panic!("Not an instance class"),
         };
         FullyQualifiedMethodKey::new(name, method.name, method.desc)
-    }
-
-    // todo: probably there is better place to put this
-    pub fn is_constructor_symbol(&self, name: Symbol) -> bool {
-        self.constructor_symbols.0 == name || self.constructor_symbols.1 == name
     }
 
     fn push_type_descriptor(&mut self, ty: Type) -> TypeDescriptorId {
@@ -164,7 +162,9 @@ impl MethodArea {
     pub fn get_instance_class(&self, class_id: &ClassId) -> Result<&InstanceClass, JvmError> {
         match self.get_class(class_id) {
             JvmClass::Instance(ic) => Ok(ic),
-            _ => Err(JvmError::NotAJavaInstanceTodo("Not an instance class".to_string())),
+            _ => Err(JvmError::NotAJavaInstanceTodo(
+                "Not an instance class".to_string(),
+            )),
         }
     }
 
@@ -176,7 +176,10 @@ impl MethodArea {
         self.get_instance_class(class_id).map(|c| &c.cp)
     }
 
-    pub fn get_cp_by_method_id(&self, method_id: &MethodId) -> Result<&RuntimeConstantPool, JvmError> {
+    pub fn get_cp_by_method_id(
+        &self,
+        method_id: &MethodId,
+    ) -> Result<&RuntimeConstantPool, JvmError> {
         let class_id = self.get_method(method_id).class_id();
         self.get_cp(&class_id)
     }
@@ -185,28 +188,24 @@ impl MethodArea {
         let type_descriptor_id = self.get_or_new_type_descriptor_id(name_sym)?;
         let type_descriptor = self.get_type_descriptor(&type_descriptor_id);
 
-        let class = if let Some(primitive_type) = type_descriptor.get_primitive_array_element_type() {
-            JvmClass::PrimitiveArray(
-                PrimitiveArrayClass {
-                    name: name_sym,
-                    super_id: self.java_lang_object_id.get().copied().unwrap(),
-                    element_descriptor: type_descriptor_id,
-                    element_type: primitive_type,
-                    mirror_ref: OnceCell::new(),
-                }
-            )
+        let class = if let Some(primitive_type) = type_descriptor.get_primitive_array_element_type()
+        {
+            JvmClass::PrimitiveArray(PrimitiveArrayClass {
+                name: name_sym,
+                super_id: self.br().get_java_lang_object_id()?,
+                element_descriptor: type_descriptor_id,
+                element_type: primitive_type,
+                mirror_ref: OnceCell::new(),
+            })
         } else if let Some(instance_type) = type_descriptor.get_instance_array_element_type() {
-            JvmClass::InstanceArray(
-                ObjectArrayClass {
-                    name: name_sym,
-                    super_id: self.java_lang_object_id.get().copied().unwrap(),
-                    element_descriptor: type_descriptor_id,
-                    element_class_id: self.get_class_id_or_load(
-                        self.interner.get_or_intern(&instance_type)
-                    )?,
-                    mirror_ref: OnceCell::new(),
-                }
-            )
+            JvmClass::InstanceArray(ObjectArrayClass {
+                name: name_sym,
+                super_id: self.br().get_java_lang_object_id()?,
+                element_descriptor: type_descriptor_id,
+                element_class_id: self
+                    .get_class_id_or_load(self.interner.get_or_intern(&instance_type))?,
+                mirror_ref: OnceCell::new(),
+            })
         } else {
             Err(JvmError::Todo(
                 "Array class with non-array or non-primitive type descriptor".to_string(),
@@ -217,7 +216,11 @@ impl MethodArea {
         Ok(class_id)
     }
 
-    fn instance_internal_rec(&self, this_class: ClassId, parent_to_check: ClassId) -> ControlFlow<()> {
+    fn instance_internal_rec(
+        &self,
+        this_class: ClassId,
+        parent_to_check: ClassId,
+    ) -> ControlFlow<()> {
         if let Some(this_parent_id) = self.get_class(&this_class).get_super_id() {
             self.instance_internal_rec(this_parent_id, parent_to_check)?
         };
@@ -231,7 +234,8 @@ impl MethodArea {
     //TODO: probably need try to load?
     pub fn instance_of(&self, this_class_id: ClassId, other_sym: Symbol) -> bool {
         if let Some(&other_class_id) = self.class_name_to_index.get(&other_sym) {
-            self.instance_internal_rec(this_class_id, other_class_id).is_break()
+            self.instance_internal_rec(this_class_id, other_class_id)
+                .is_break()
         } else {
             false
         }
@@ -267,21 +271,24 @@ impl MethodArea {
         Ok(class_id)
     }
 
-    pub fn get_mirror_ref_or_create(&mut self, class_id: ClassId, heap: &mut Heap) -> Result<HeapRef, JvmError> {
+    pub fn get_mirror_ref_or_create(
+        &mut self,
+        class_id: ClassId,
+        heap: &mut Heap,
+    ) -> Result<HeapRef, JvmError> {
         if let Some(mirror_ref) = self.get_class(&class_id).get_mirror_ref() {
             return Ok(mirror_ref);
         }
-        let mirror_ref = heap.alloc_instance(self, *self.java_lang_class_id.get().unwrap())?;
+        let mirror_ref = heap.alloc_instance(self, self.br().get_java_lang_class_id()?)?;
         let target_class = self.get_class(&class_id);
         target_class.set_mirror_ref(mirror_ref)?;
         let name_sym = *target_class.get_name();
-        let name_ref = heap.get_or_new_string_with_char_mapping(name_sym,  self, &|c| if c == '/' { '.' } else { c })?;
-        // TODO: cache?
-        let name_field_index = self.get_instance_class(&self.java_lang_class_id.get().copied().unwrap())?
-            .get_instance_field_offset(&FieldKey {
-                name: self.interner.get_or_intern("name"),
-                desc: self.interner.get_or_intern("Ljava/lang/String;"),
-            })?;
+        let name_ref = heap.get_or_new_string_with_char_mapping(name_sym, self, &|c| {
+            if c == '/' { '.' } else { c }
+        })?;
+        let name_field_index = self
+            .get_instance_class(&self.br().get_java_lang_class_id()?)?
+            .get_instance_field_offset(&self.br().class_name_fk)?;
         heap.write_instance_field(mirror_ref, name_field_index as usize, Value::Ref(name_ref))?;
         Ok(mirror_ref)
     }

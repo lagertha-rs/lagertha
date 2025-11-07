@@ -7,7 +7,7 @@ edition = "2024"
 clap = { version = "4.5.47", features = ["derive"] }
 tracing-log = { workspace = true }
 common = { path = "../common" }
-runtime = { path = "../runtime" }
+runtime = { path = "../runtime", features = ["debug-log"] }
 
 [dev-dependencies]
 assert_cmd = "2"
