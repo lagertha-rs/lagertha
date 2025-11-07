@@ -155,7 +155,7 @@ impl RuntimeConstantPool {
             RuntimeConstant::Field(_) => {
                 self.get_field_view(idx, interner)?;
             }
-            _ => unimplemented!(),
+            _ => {}
         };
         Ok(entry)
     }

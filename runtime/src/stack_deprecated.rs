@@ -2,7 +2,7 @@ use crate::VmConfig;
 use crate::rt::constant_pool::rt_cp_deprecated::RuntimeConstantPoolDeprecated;
 use crate::rt::method_deprecated::MethodDeprecated;
 use common::error::{JavaExceptionFromJvm, JvmError};
-use common::jtype::{HeapAddr, Value};
+use common::jtype::{HeapRef, Value};
 use log::debug;
 use std::sync::Arc;
 
@@ -279,7 +279,7 @@ impl FrameStackDeprecated {
         }
     }
 
-    pub fn pop_nullable_ref_val(&mut self) -> Result<Option<HeapAddr>, JvmError> {
+    pub fn pop_nullable_ref_val(&mut self) -> Result<Option<HeapRef>, JvmError> {
         match self.pop_operand()? {
             Value::Ref(v) => Ok(Some(v)),
             Value::Null => Ok(None),
@@ -289,7 +289,7 @@ impl FrameStackDeprecated {
         }
     }
 
-    pub fn pop_obj_val(&mut self) -> Result<HeapAddr, JvmError> {
+    pub fn pop_obj_val(&mut self) -> Result<HeapRef, JvmError> {
         self.pop_nullable_ref_val()?.ok_or(JvmError::JavaException(
             JavaExceptionFromJvm::NullPointerException(None),
         ))

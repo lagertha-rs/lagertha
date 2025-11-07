@@ -2,19 +2,19 @@ use crate::class_loader::ClassLoader;
 use crate::rt::class::InstanceClass;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::method::Method;
-use crate::{
-    ClassId, TypeDescriptorId, FullyQualifiedMethodKey, MethodDescriptorId, MethodId, Symbol,
-    VmConfig,
-};
+use crate::{ClassId, TypeDescriptorId, FullyQualifiedMethodKey, MethodDescriptorId, MethodId, Symbol, VmConfig, FieldKey};
 use common::descriptor::MethodDescriptor;
 use common::error::{JvmError, LinkageError, MethodDescriptorErr};
-use common::jtype::Type;
+use common::jtype::{HeapRef, Type, Value};
 use jclass::ClassFile;
 use lasso::{Spur, ThreadedRodeo};
 use std::collections::HashMap;
+use std::ops::ControlFlow;
 use std::sync::Arc;
+use once_cell::sync::OnceCell;
 use common::instruction::ArrayType;
-use crate::rt::JvmClass;
+use crate::heap::Heap;
+use crate::rt::{JvmClass, ObjectArrayClass, PrimitiveArrayClass};
 
 pub struct MethodArea {
     bootstrap_class_loader: ClassLoader,
@@ -29,15 +29,14 @@ pub struct MethodArea {
     method_descriptors_index: HashMap<Symbol, MethodDescriptorId>,
 
     pub interner: Arc<ThreadedRodeo>,
+
+    //TODO: two different concepts need to do cleaner
     constructor_symbols: (Symbol, Symbol),
+    java_lang_class_id: OnceCell<ClassId>,
+    java_lang_object_id: OnceCell<ClassId>,
 }
 
 impl MethodArea {
-    fn bootstrap(&mut self) -> Result<(), JvmError> {
-        let java_lang_object_sym = self.interner.get_or_intern("java/lang/Object");
-        let class_id = self.get_class_id_or_load(java_lang_object_sym)?;
-        Ok(())
-    }
     pub fn new(
         vm_config: &VmConfig,
         string_interner: Arc<ThreadedRodeo>,
@@ -48,7 +47,7 @@ impl MethodArea {
             string_interner.get_or_intern("<clinit>"),
         );
 
-        let method_area = Self {
+        let mut method_area = Self {
             bootstrap_class_loader,
             class_name_to_index: HashMap::new(),
             classes: Vec::new(),
@@ -59,7 +58,19 @@ impl MethodArea {
             method_descriptors_index: HashMap::new(),
             interner: string_interner,
             constructor_symbols,
+            java_lang_class_id: OnceCell::new(),
+            java_lang_object_id: OnceCell::new(),
         };
+
+        let java_lang_class_id = method_area.get_class_id_or_load(
+            method_area.interner.get_or_intern("java/lang/Class")
+        )?;
+        let java_lang_object_id = method_area.get_class_id_or_load(
+            method_area.interner.get_or_intern("java/lang/Object")
+        )?;
+
+        method_area.java_lang_class_id.set(java_lang_class_id).unwrap();
+        method_area.java_lang_object_id.set(java_lang_object_id).unwrap();
 
         Ok(method_area)
     }
@@ -145,7 +156,7 @@ impl MethodArea {
     pub fn get_class(&self, class_id: &ClassId) -> &JvmClass {
         &self.classes[class_id.to_index()]
     }
-    
+
     pub fn is_instance_class(&self, class_id: &ClassId) -> bool {
         matches!(self.get_class(class_id), JvmClass::Instance(_))
     }
@@ -170,10 +181,60 @@ impl MethodArea {
         self.get_cp(&class_id)
     }
 
-    fn load_array_class(&mut self, name_sym: Symbol) -> Result<ClassId, JvmError> {
+    pub fn load_array_class(&mut self, name_sym: Symbol) -> Result<ClassId, JvmError> {
         let type_descriptor_id = self.get_or_new_type_descriptor_id(name_sym)?;
         let type_descriptor = self.get_type_descriptor(&type_descriptor_id);
-        todo!()
+
+        let class = if let Some(primitive_type) = type_descriptor.get_primitive_array_element_type() {
+            JvmClass::PrimitiveArray(
+                PrimitiveArrayClass {
+                    name: name_sym,
+                    super_id: self.java_lang_object_id.get().copied().unwrap(),
+                    element_descriptor: type_descriptor_id,
+                    element_type: primitive_type,
+                    mirror_ref: OnceCell::new(),
+                }
+            )
+        } else if let Some(instance_type) = type_descriptor.get_instance_array_element_type() {
+            JvmClass::InstanceArray(
+                ObjectArrayClass {
+                    name: name_sym,
+                    super_id: self.java_lang_object_id.get().copied().unwrap(),
+                    element_descriptor: type_descriptor_id,
+                    element_class_id: self.get_class_id_or_load(
+                        self.interner.get_or_intern(&instance_type)
+                    )?,
+                    mirror_ref: OnceCell::new(),
+                }
+            )
+        } else {
+            Err(JvmError::Todo(
+                "Array class with non-array or non-primitive type descriptor".to_string(),
+            ))?
+        };
+        let class_id = self.push_class(class);
+        self.class_name_to_index.insert(name_sym, class_id);
+        Ok(class_id)
+    }
+
+    fn instance_internal_rec(&self, this_class: ClassId, parent_to_check: ClassId) -> ControlFlow<()> {
+        if let Some(this_parent_id) = self.get_class(&this_class).get_super_id() {
+            self.instance_internal_rec(this_parent_id, parent_to_check)?
+        };
+        if self.get_class(&this_class).is_child_of(&parent_to_check) {
+            ControlFlow::Break(())
+        } else {
+            ControlFlow::Continue(())
+        }
+    }
+
+    //TODO: probably need try to load?
+    pub fn instance_of(&self, this_class_id: ClassId, other_sym: Symbol) -> bool {
+        if let Some(&other_class_id) = self.class_name_to_index.get(&other_sym) {
+            self.instance_internal_rec(this_class_id, other_class_id).is_break()
+        } else {
+            false
+        }
     }
 
     fn load_class(&mut self, name_sym: Symbol) -> Result<ClassId, JvmError> {
@@ -204,5 +265,24 @@ impl MethodArea {
         }
         let class_id = self.load_class(name_sym)?;
         Ok(class_id)
+    }
+
+    pub fn get_mirror_ref_or_create(&mut self, class_id: ClassId, heap: &mut Heap) -> Result<HeapRef, JvmError> {
+        if let Some(mirror_ref) = self.get_class(&class_id).get_mirror_ref() {
+            return Ok(mirror_ref);
+        }
+        let mirror_ref = heap.alloc_instance(self, *self.java_lang_class_id.get().unwrap())?;
+        let target_class = self.get_class(&class_id);
+        target_class.set_mirror_ref(mirror_ref)?;
+        let name_sym = *target_class.get_name();
+        let name_ref = heap.get_or_new_string_with_char_mapping(name_sym,  self, &|c| if c == '/' { '.' } else { c })?;
+        // TODO: cache?
+        let name_field_index = self.get_instance_class(&self.java_lang_class_id.get().copied().unwrap())?
+            .get_instance_field_offset(&FieldKey {
+                name: self.interner.get_or_intern("name"),
+                desc: self.interner.get_or_intern("Ljava/lang/String;"),
+            })?;
+        heap.write_instance_field(mirror_ref, name_field_index as usize, Value::Ref(name_ref))?;
+        Ok(mirror_ref)
     }
 }

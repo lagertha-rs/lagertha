@@ -5,7 +5,7 @@ use crate::rt::class_deprecated::ClassDeprecated;
 use crate::{ClassIdDeprecated, throw_exception};
 use common::error::JavaExceptionFromJvm;
 use common::error::JvmError;
-use common::jtype::{HeapAddr, Value};
+use common::jtype::{HeapRef, Value};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tracing_log::log::debug;
@@ -90,13 +90,13 @@ enum AllocClass<'a> {
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.5.3
 pub struct HeapDeprecated {
     objects: Vec<HeapObjectDeprecated>,
-    string_pool: HashMap<String, HeapAddr>,
+    string_pool: HashMap<String, HeapRef>,
     // TODO: find a better way to expose MethodArea functionality
     string_class: Arc<ClassDeprecated>,
     char_class: Arc<ClassDeprecated>,
     class_class: Arc<ClassDeprecated>,
-    mirrors: HashMap<HeapAddr, Arc<ClassDeprecated>>,
-    primitives: HashMap<HeapAddr, HeapAddr>,
+    mirrors: HashMap<HeapRef, Arc<ClassDeprecated>>,
+    primitives: HashMap<HeapRef, HeapRef>,
 }
 
 impl HeapDeprecated {
@@ -120,14 +120,14 @@ impl HeapDeprecated {
         })
     }
 
-    pub fn get_class_id(&self, h: &HeapAddr) -> ClassIdDeprecated {
+    pub fn get_class_id(&self, h: &HeapRef) -> ClassIdDeprecated {
         match self.get(*h).unwrap() {
             HeapObjectDeprecated::Instance(inst) => inst.class_id,
             HeapObjectDeprecated::Array(arr) => arr.class_id,
         }
     }
 
-    fn push(&mut self, obj: HeapObjectDeprecated) -> HeapAddr {
+    fn push(&mut self, obj: HeapObjectDeprecated) -> HeapRef {
         let idx = self.objects.len();
         self.objects.push(obj);
         idx
@@ -137,7 +137,7 @@ impl HeapDeprecated {
         &mut self,
         class: &Arc<ClassDeprecated>,
         length: usize,
-    ) -> Result<HeapAddr, JvmError> {
+    ) -> Result<HeapRef, JvmError> {
         let default_value = if let Some(primitive_type) = class.primitive() {
             Value::from(&primitive_type)
         } else {
@@ -157,7 +157,7 @@ impl HeapDeprecated {
         class: &Arc<ClassDeprecated>,
         length: usize,
         value: Value,
-    ) -> Result<HeapAddr, JvmError> {
+    ) -> Result<HeapRef, JvmError> {
         let elements = vec![value; length];
         Ok(
             self.push(HeapObjectDeprecated::Array(InstanceDeprecated::new(
@@ -182,7 +182,7 @@ impl HeapDeprecated {
         fields
     }
 
-    fn alloc_instance_internal(&mut self, class: AllocClass) -> Result<HeapAddr, JvmError> {
+    fn alloc_instance_internal(&mut self, class: AllocClass) -> Result<HeapRef, JvmError> {
         let class = match class {
             AllocClass::String => &self.string_class,
             AllocClass::Char => &self.char_class,
@@ -198,11 +198,11 @@ impl HeapDeprecated {
         )
     }
 
-    pub fn alloc_instance(&mut self, class: &Arc<ClassDeprecated>) -> Result<HeapAddr, JvmError> {
+    pub fn alloc_instance(&mut self, class: &Arc<ClassDeprecated>) -> Result<HeapRef, JvmError> {
         self.alloc_instance_internal(AllocClass::Other(class))
     }
 
-    pub fn get_or_new_string(&mut self, value: &str) -> HeapAddr {
+    pub fn get_or_new_string(&mut self, value: &str) -> HeapRef {
         debug!("Getting or creating string in pool: {}", value);
         if let Some(&h) = self.string_pool.get(value) {
             debug!("String found in pool: {}", value);
@@ -214,7 +214,7 @@ impl HeapDeprecated {
         h
     }
 
-    fn alloc_string(&mut self, s: &str) -> HeapAddr {
+    fn alloc_string(&mut self, s: &str) -> HeapRef {
         let mut fields = Self::create_default_fields(&self.string_class);
 
         let chars = s.chars().map(|c| Value::Integer(c as i32)).collect();
@@ -233,13 +233,13 @@ impl HeapDeprecated {
     }
 
     // TODO: return Result and handle errors
-    pub fn get(&self, h: HeapAddr) -> Result<&HeapObjectDeprecated, JavaExceptionFromJvm> {
+    pub fn get(&self, h: HeapRef) -> Result<&HeapObjectDeprecated, JavaExceptionFromJvm> {
         self.objects.get(h).ok_or_else(|| {
             JavaExceptionFromJvm::InternalError(Some(format!("Invalid heap address: {}", h)))
         })
     }
 
-    pub fn get_instance(&self, h: &HeapAddr) -> Result<&InstanceDeprecated, JvmError> {
+    pub fn get_instance(&self, h: &HeapRef) -> Result<&InstanceDeprecated, JvmError> {
         let heap_obj = self.get(*h)?;
         match heap_obj {
             HeapObjectDeprecated::Instance(inst) => Ok(inst),
@@ -249,7 +249,7 @@ impl HeapDeprecated {
         }
     }
 
-    pub fn get_instance_mut(&mut self, h: &HeapAddr) -> &mut InstanceDeprecated {
+    pub fn get_instance_mut(&mut self, h: &HeapRef) -> &mut InstanceDeprecated {
         let heap_obj = self.get_mut(*h);
         match heap_obj {
             HeapObjectDeprecated::Instance(inst) => inst,
@@ -257,7 +257,7 @@ impl HeapDeprecated {
         }
     }
 
-    pub fn get_array(&self, h: &HeapAddr) -> Result<&InstanceDeprecated, JavaExceptionFromJvm> {
+    pub fn get_array(&self, h: &HeapRef) -> Result<&InstanceDeprecated, JavaExceptionFromJvm> {
         let heap_obj = self.get(*h)?;
         match heap_obj {
             HeapObjectDeprecated::Array(arr) => Ok(arr),
@@ -265,7 +265,7 @@ impl HeapDeprecated {
         }
     }
 
-    pub fn get_array_mut(&mut self, h: &HeapAddr) -> &mut InstanceDeprecated {
+    pub fn get_array_mut(&mut self, h: &HeapRef) -> &mut InstanceDeprecated {
         let heap_obj = self.get_mut(*h);
         match heap_obj {
             HeapObjectDeprecated::Array(arr) => arr,
@@ -275,7 +275,7 @@ impl HeapDeprecated {
 
     pub fn get_instance_field(
         &mut self,
-        addr: &HeapAddr,
+        addr: &HeapRef,
         offset: usize,
     ) -> Result<&Value, JvmError> {
         let instance = self.get_instance(addr)?;
@@ -285,23 +285,23 @@ impl HeapDeprecated {
             .ok_or(JvmError::Todo("invalid field index".to_string()))
     }
 
-    pub fn get_mut(&mut self, h: HeapAddr) -> &mut HeapObjectDeprecated {
+    pub fn get_mut(&mut self, h: HeapRef) -> &mut HeapObjectDeprecated {
         self.objects
             .get_mut(h)
             .expect("heap: invalid handle (get_mut)")
     }
 
-    pub fn addr_is_instance(&self, h: &HeapAddr) -> Result<bool, JvmError> {
+    pub fn addr_is_instance(&self, h: &HeapRef) -> Result<bool, JvmError> {
         let obj = self.get(*h)?;
         Ok(matches!(obj, HeapObjectDeprecated::Instance(_)))
     }
 
-    pub fn addr_is_array(&self, h: &HeapAddr) -> Result<bool, JvmError> {
+    pub fn addr_is_array(&self, h: &HeapRef) -> Result<bool, JvmError> {
         Ok(!self.addr_is_instance(h)?)
     }
 
     //TODO: design it lightweight
-    pub fn get_string(&self, h: HeapAddr) -> Result<String, JvmError> {
+    pub fn get_string(&self, h: HeapRef) -> Result<String, JvmError> {
         let instance = self.get_instance(&h)?;
         let value_field = instance.get_element(0)?; // "value" field is always the first field in java.lang.String
         let array_addr = match value_field {
@@ -326,7 +326,7 @@ impl HeapDeprecated {
 
     pub fn write_array_element(
         &mut self,
-        h: HeapAddr,
+        h: HeapRef,
         index: i32,
         val: Value,
     ) -> Result<(), JvmError> {
@@ -351,7 +351,7 @@ impl HeapDeprecated {
 
     pub fn write_instance_field(
         &mut self,
-        h: HeapAddr,
+        h: HeapRef,
         offset: usize,
         val: Value,
     ) -> Result<(), JvmError> {
@@ -369,7 +369,7 @@ impl HeapDeprecated {
         Ok(())
     }
 
-    pub fn clone_object(&mut self, h: HeapAddr) -> HeapAddr {
+    pub fn clone_object(&mut self, h: HeapRef) -> HeapRef {
         let obj = self.get(h).expect("heap: invalid handle (clone_object)");
         match obj {
             HeapObjectDeprecated::Instance(inst) => {
@@ -395,9 +395,9 @@ impl HeapDeprecated {
 
     pub fn copy_primitive_slice(
         &mut self,
-        src: HeapAddr,
+        src: HeapRef,
         src_pos: i32,
-        dest: HeapAddr,
+        dest: HeapRef,
         dest_pos: i32,
         length: i32,
     ) -> Result<(), JvmError> {
@@ -434,14 +434,14 @@ impl HeapDeprecated {
         Ok(())
     }
 
-    pub fn get_class_by_mirror(&self, mirror: &HeapAddr) -> Option<&Arc<ClassDeprecated>> {
+    pub fn get_class_by_mirror(&self, mirror: &HeapRef) -> Option<&Arc<ClassDeprecated>> {
         self.mirrors.get(mirror)
     }
 
     pub(crate) fn get_mirror_addr(
         &mut self,
         target_class: &Arc<ClassDeprecated>,
-    ) -> Result<HeapAddr, JvmError> {
+    ) -> Result<HeapRef, JvmError> {
         if let Some(mirror) = target_class.mirror() {
             return Ok(mirror);
         }
@@ -453,8 +453,8 @@ impl HeapDeprecated {
 
     pub(crate) fn get_primitive_mirror_addr(
         &mut self,
-        name: &HeapAddr,
-    ) -> Result<HeapAddr, JvmError> {
+        name: &HeapRef,
+    ) -> Result<HeapRef, JvmError> {
         if let Some(addr) = self.primitives.get(name) {
             Ok(*addr)
         } else {
@@ -464,7 +464,7 @@ impl HeapDeprecated {
         }
     }
 
-    pub fn addr_is_primitive(&self, addr: &HeapAddr) -> bool {
+    pub fn addr_is_primitive(&self, addr: &HeapRef) -> bool {
         self.primitives.values().any(|v| v == addr)
     }
 }

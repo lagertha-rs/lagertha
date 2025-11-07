@@ -1,14 +1,13 @@
 // TODO: very primitive implementation, ok for right now
 
 use crate::heap::method_area::MethodArea;
-use crate::{ClassId, Symbol};
-use common::error::JvmError;
-use common::jtype::{HeapAddr, Value};
-use lasso::ThreadedRodeo;
+use crate::{throw_exception, ClassId, Symbol};
+use common::error::{JavaExceptionFromJvm, JvmError};
+use common::jtype::{HeapRef, Value};
 use once_cell::sync::OnceCell;
 use std::collections::HashMap;
-use std::sync::Arc;
 use tracing_log::log::debug;
+use crate::heap_deprecated::{HeapObjectDeprecated, InstanceDeprecated};
 
 pub mod method_area;
 
@@ -30,14 +29,34 @@ impl Instance {
             data: elements,
         }
     }
+
+    pub fn get_element(&self, index: i32) -> Result<&Value, JvmError> {
+        let index = if index >= 0 && (index as usize) < self.data.len() {
+            index as usize
+        } else {
+            throw_exception!(
+                ArrayIndexOutOfBoundsException,
+                "Index {} out of bounds for length {}",
+                index,
+                self.data.len()
+            )?
+        };
+        Ok(&self.data[index])
+    }
+
+    pub fn data_len(&self) -> usize {
+        self.data.len()
+    }
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.5.3
 pub struct Heap {
     objects: Vec<HeapObject>,
     // TODO: need to think about the string pool since I have the interner
-    string_pool: HashMap<Symbol, HeapAddr>,
+    string_pool: HashMap<Symbol, HeapRef>,
+    // Cache class ids for commonly used classes
     string_class_id: OnceCell<ClassId>,
+    char_array_class_id: OnceCell<ClassId>,
 }
 
 impl Heap {
@@ -45,58 +64,112 @@ impl Heap {
         debug!("Creating Heap...");
         Ok(Self {
             string_class_id: OnceCell::new(),
+            char_array_class_id: OnceCell::new(),
             string_pool: HashMap::new(),
             objects: Vec::new(),
         })
     }
 
-    fn push(&mut self, obj: HeapObject) -> HeapAddr {
+    fn push(&mut self, obj: HeapObject) -> HeapRef {
         let idx = self.objects.len();
         self.objects.push(obj);
         idx
     }
 
-    fn get_mut(&mut self, h: &HeapAddr) -> Result<&mut HeapObject, JvmError> {
+    fn get_mut(&mut self, h: &HeapRef) -> Result<&mut HeapObject, JvmError> {
         self.objects
             .get_mut(*h)
             .ok_or(JvmError::Todo("invalid heap address".to_string()))
     }
 
-    fn get_instance_mut(&mut self, h: &HeapAddr) -> Result<&mut Instance, JvmError> {
+    pub fn get_instance(&mut self, h: &HeapRef) -> Result<&mut Instance, JvmError> {
         match self.get_mut(h)? {
             HeapObject::Instance(ins) => Ok(ins),
             _ => Err(JvmError::Todo("Non instance".to_string())),
         }
     }
 
-    pub fn get_or_new_string(
+    pub fn get_array(&mut self, h: &HeapRef) -> Result<&Instance, JvmError> {
+        let heap_obj = self.get_mut(h)?;
+        match heap_obj {
+            HeapObject::Array(arr) => Ok(arr),
+            _ => Err(JvmError::Todo("Non instance".to_string())),
+        }
+    }
+
+    pub fn get_array_len(&mut self, h: &HeapRef) -> Result<usize, JvmError> {
+        let arr = self.get_array(h)?;
+        Ok(arr.data_len())
+    }
+
+    pub fn get_class_id(&self, h: &HeapRef) -> Result<ClassId, JvmError> {
+        match self.objects.get(*h) {
+            Some(HeapObject::Instance(ins)) => Ok(ins.class_id),
+            Some(HeapObject::Array(arr)) => Ok(arr.class_id),
+            None => Err(JvmError::Todo("invalid heap address".to_string())),
+        }
+    }
+
+    pub fn alloc_array_with_default_value(
+        &mut self,
+        class_id: ClassId,
+        default_value: Value,
+        length: usize,
+    ) -> Result<HeapRef, JvmError> {
+        let elements = vec![default_value; length];
+        Ok(self.push(HeapObject::Array(Instance {
+            class_id,
+            data: elements,
+        })))
+    }
+
+    pub fn get_or_new_string_with_char_mapping(
         &mut self,
         val_sym: Symbol,
         method_area: &mut MethodArea,
-    ) -> Result<HeapAddr, JvmError> {
+        f: &dyn Fn(char) -> char,
+    ) -> Result<HeapRef, JvmError> {
         if let Some(h) = self.string_pool.get(&val_sym) {
             Ok(*h)
         } else {
             let string_class_id = *self.string_class_id.get_or_try_init(|| {
                 method_area
                     .get_class_id_or_load(method_area.interner.get_or_intern("java/lang/String"))})?;
+            let char_array_class_id = *self.char_array_class_id.get_or_try_init(|| {
+                method_area
+                    .get_class_id_or_load(method_area.interner.get_or_intern("[C"))})?;
+            let chars_val = {
+                let s = method_area.interner.resolve(&val_sym);
+                s.chars().map(|c| Value::Integer(f(c) as i32)).collect::<Vec<_>>()
+            };
+            let char_arr_ref = self.push(HeapObject::Array(Instance {
+                class_id: char_array_class_id,
+                data: chars_val,
+            }));
             let instance = self.alloc_instance(
                 method_area,
                 string_class_id
                 )?;
             self.string_pool.insert(val_sym, instance);
-            let instance = self.get_instance_mut(&instance)?;
-            //instance.data[0] = need to alloc char array (needs a mirror class for char[])
-
-            todo!()
+            self.write_instance_field(instance, 0, Value::Ref(char_arr_ref))?;
+            Ok(instance)
         }
+    }
+
+    //TODO: review
+    pub fn get_or_new_string(
+        &mut self,
+        val_sym: Symbol,
+        method_area: &mut MethodArea,
+    ) -> Result<HeapRef, JvmError> {
+        self.get_or_new_string_with_char_mapping(val_sym, method_area, &|c| c)
     }
 
     pub fn alloc_instance(
         &mut self,
         method_area: &mut MethodArea,
         class_id: ClassId,
-    ) -> Result<HeapAddr, JvmError> {
+    ) -> Result<HeapRef, JvmError> {
         let fields = method_area
             .get_class(&class_id)
             .get_instance_fields()
@@ -110,9 +183,23 @@ impl Heap {
         })))
     }
 
+    pub fn read_instance_field(&self, h: &HeapRef, offset: usize) -> Result<Value, JvmError> {
+        match self.objects.get(*h) {
+            Some(HeapObject::Instance(instance)) => {
+                if offset >= instance.data.len() {
+                    return Err(JvmError::Todo("invalid field index".to_string()));
+                }
+                Ok(instance.data[offset].clone())
+            }
+            _ => Err(JvmError::Todo(
+                "heap: read_instance_field on non-instance".to_string(),
+            )),
+        }
+    }
+
     pub fn write_instance_field(
         &mut self,
-        h: HeapAddr,
+        h: HeapRef,
         offset: usize,
         val: Value,
     ) -> Result<(), JvmError> {
@@ -125,6 +212,27 @@ impl Heap {
             }
             _ => Err(JvmError::Todo(
                 "heap: write_instance_field on non-instance".to_string(),
+            ))?,
+        }
+        Ok(())
+    }
+
+    //TODO: check type
+    pub fn write_array_element(
+        &mut self,
+        h: HeapRef,
+        index: usize,
+        val: Value,
+    ) -> Result<(), JvmError> {
+        match self.get_mut(&h)? {
+            HeapObject::Array(array) => {
+                if index >= array.data.len() {
+                    return Err(JvmError::Todo("invalid array index".to_string()));
+                }
+                array.data[index] = val;
+            }
+            _ => Err(JvmError::Todo(
+                "heap: write_array_element on non-array".to_string(),
             ))?,
         }
         Ok(())

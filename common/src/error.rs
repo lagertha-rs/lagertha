@@ -1,4 +1,4 @@
-use crate::jtype::HeapAddr;
+use crate::jtype::HeapRef;
 use crate::utils::cursor::CursorError;
 use std::fmt;
 use std::fmt::Display;
@@ -200,11 +200,11 @@ pub enum JvmError {
     #[error("UnexpectedType: `{0}`")]
     UnexpectedType(String),
     #[error("JavaExceptionThrown: `{0}`")]
-    JavaExceptionThrown(HeapAddr),
+    JavaExceptionThrown(HeapRef),
     #[error("Uninitialized")]
     Uninitialized,
     #[error("WrongHeapAddress: `{0}`")]
-    WrongHeapAddress(HeapAddr),
+    WrongHeapAddress(HeapRef),
     #[error("TODO map to correct error: `{0}`")]
     Todo(String),
     #[error("TODO: Not a Java instance: `{0}`")]

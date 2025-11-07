@@ -5,7 +5,7 @@ use crate::rt::field::{InstanceField, StaticField};
 use crate::rt::method::Method;
 use crate::{ClassId, FieldKey, MethodId, MethodKey, Symbol};
 use common::error::{JavaExceptionFromJvm, JvmError};
-use common::jtype::Value;
+use common::jtype::{HeapRef, Value};
 use jclass::ClassFile;
 use once_cell::sync::OnceCell;
 use std::cell::RefCell;
@@ -25,6 +25,8 @@ pub struct InstanceClass {
     pub cp: RuntimeConstantPool,
     pub super_id: Option<ClassId>,
     state: RefCell<ClassState>,
+    mirror_ref: OnceCell<HeapRef>,
+    
     pub declared_method_index: OnceCell<HashMap<MethodKey, MethodId>>,
     pub vtable: OnceCell<Vec<MethodId>>,
     pub vtable_index: OnceCell<HashMap<MethodKey, u16>>,
@@ -56,6 +58,7 @@ impl InstanceClass {
             instance_fields: OnceCell::new(),
             instance_fields_offset_map: OnceCell::new(),
             static_fields: OnceCell::new(),
+            mirror_ref: OnceCell::new(),
         });
         let class_id = method_area.push_class(class);
         let mut declared_index = HashMap::new();
@@ -272,6 +275,17 @@ impl InstanceClass {
     fn get_vtable_index(&self) -> &HashMap<MethodKey, u16> {
         self.vtable_index.get().unwrap()
     }
+    
+    pub fn get_vtable_method_id(&self, key: &MethodKey) -> Result<MethodId, JvmError> {
+        let vtable_index = self.get_vtable_index();
+        let pos = vtable_index
+            .get(key)
+            .copied()
+            .ok_or(JvmError::JavaException(
+                JavaExceptionFromJvm::NoSuchMethodError(None),
+            ))?;
+        Ok(self.get_vtable()[pos as usize])
+    }
 
     pub fn get_special_method_id(&self, key: &MethodKey) -> Result<MethodId, JvmError> {
         self.declared_method_index
@@ -282,5 +296,21 @@ impl InstanceClass {
             .ok_or(JvmError::JavaException(
                 JavaExceptionFromJvm::NoSuchMethodError(None),
             ))
+    }
+    
+    pub fn is_child_of(&self, other: &ClassId) -> bool {
+        if let Some(sup) = &self.super_id {
+            sup == other
+        } else {
+            false
+        }
+    }
+    
+    pub fn get_mirror_ref(&self) -> Option<HeapRef> {
+        self.mirror_ref.get().copied()
+    }
+    
+    pub fn set_mirror_ref(&self, heap_ref: HeapRef) -> Result<(), JvmError> {
+        self.mirror_ref.set(heap_ref).map_err(|_| JvmError::Todo("Mirror ref already set".to_string()))
     }
 }

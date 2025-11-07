@@ -9,7 +9,7 @@ use crate::native_deprecated::NativeRegistryDeprecated;
 use crate::stack::FrameStack;
 use crate::thread::JavaThreadState;
 use common::error::JvmError;
-use common::jtype::{HeapAddr, Value};
+use common::jtype::{HeapRef, Value};
 use lasso::{Spur, ThreadedRodeo};
 use std::num::NonZeroU32;
 use std::path::PathBuf;
@@ -298,7 +298,7 @@ fn start(config: VmConfig) -> Result<(), JvmError> {
     Ok(())
 }
 
-fn print_stack_trace_deprecated(exception_ref: HeapAddr, interpreter: &mut InterpreterDeprecated) {
+fn print_stack_trace_deprecated(exception_ref: HeapRef, interpreter: &mut InterpreterDeprecated) {
     let exception_class_id = {
         let exception = interpreter
             .vm()

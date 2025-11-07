@@ -1,5 +1,6 @@
-use crate::{FieldKey, MethodKey, Symbol};
+use crate::{throw_exception, FieldKey, MethodKey, Symbol};
 use once_cell::sync::OnceCell;
+use common::error::JvmError;
 
 pub(crate) struct Utf8Entry {
     pub value: String,
@@ -27,6 +28,14 @@ impl ClassEntry {
             name_sym: OnceCell::new(),
         }
     }
+
+    pub fn get_name_sym(&self) -> Result<Symbol, JvmError> {
+        if let Some(name_sym) = self.name_sym.get() {
+            Ok(*name_sym)
+        } else {
+            throw_exception!(InternalError, "ClassEntry name_sym not initialized")
+        }
+    }
 }
 
 pub(crate) struct StringEntry {
@@ -39,6 +48,14 @@ impl StringEntry {
         Self {
             string_idx,
             string_sym: OnceCell::new(),
+        }
+    }
+
+    pub fn get_string_sym(&self) -> Result<Symbol, JvmError> {
+        if let Some(str_sym) = self.string_sym.get() {
+            Ok(*str_sym)
+        } else {
+            throw_exception!(InternalError, "StringEntry string_sym not initialized")
         }
     }
 }

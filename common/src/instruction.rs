@@ -38,6 +38,19 @@ pub enum ArrayType {
 }
 
 impl ArrayType {
+    pub fn default_value(&self) -> Value {
+        match self {
+            ArrayType::Boolean => Value::Integer(0),
+            ArrayType::Byte => Value::Integer(0),
+            ArrayType::Char => Value::Integer(0),
+            ArrayType::Short => Value::Integer(0),
+            ArrayType::Int => Value::Integer(0),
+            ArrayType::Long => Value::Long(0),
+            ArrayType::Float => Value::Float(0.0),
+            ArrayType::Double => Value::Double(0.0),
+        }
+    }
+    
     pub fn descriptor(&self) -> &str {
         match self {
             ArrayType::Boolean => "[Z",

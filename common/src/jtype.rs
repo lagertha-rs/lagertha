@@ -66,7 +66,7 @@ pub enum Type {
 }
 
 //TODO: should be in this module?
-pub type HeapAddr = usize;
+pub type HeapRef = usize;
 
 //TODO: draft. refactor
 //TODO: serializes right now only for runtime crate tests, but can't move it to dev deps
@@ -77,12 +77,12 @@ pub enum Value {
     Long(i64),
     Float(f32),
     Double(f64),
-    Ref(HeapAddr),
+    Ref(HeapRef),
     Null,
 }
 
 impl Value {
-    pub fn as_obj_ref(&self) -> Result<HeapAddr, JvmError> {
+    pub fn as_obj_ref(&self) -> Result<HeapRef, JvmError> {
         match self {
             Value::Ref(addr) => Ok(*addr),
             Value::Null => Err(JvmError::JavaException(
@@ -134,6 +134,29 @@ impl PrimitiveType {
 }
 
 impl Type {
+    // TODO: work only for one-dimensional arrays for now
+    pub fn get_primitive_array_element_type(&self) -> Option<PrimitiveType> {
+        match self {
+            Type::Array(elem) => match **elem {
+                Type::Primitive(prim) => Some(prim),
+                _ => None,
+            },
+            _ => None,
+        }
+    }
+
+    // TODO: work only for one-dimensional arrays for now
+    pub fn get_instance_array_element_type(&self) -> Option<&str> {
+        match self {
+            Type::Array(elem) => match **elem {
+                Type::Instance(ref name) => Some(name.as_str()),
+                _ => None,
+            },
+            _ => None,
+        }
+    }
+
+
     pub fn is_primitive_array(&self) -> bool {
         match self {
             Type::Array(elem) => matches!(**elem, Type::Primitive(_)),
@@ -143,15 +166,14 @@ impl Type {
 
     pub fn get_default_value(&self) -> Value {
         match self {
-            Type::Primitive(prim) => prim.get_default_value(), // Delegate
+            Type::Primitive(prim) => prim.get_default_value(),
             Type::Instance(_) | Type::GenericInstance(_) | Type::TypeVar(_) | Type::Array(_) => {
                 Value::Null
             }
-            Type::Void => panic!("No default value for type: {:?}", self), // Correct
+            Type::Void => panic!("No default value for type: {:?}", self),
         }
     }
 
-    // Cleaner and easier to delegate
     pub fn is_compatible_with(&self, value: &Value) -> bool {
         match (self, value) {
             (Type::Primitive(prim), val) => prim.is_compatible_with(val), // Delegate
@@ -163,32 +185,26 @@ impl Type {
         }
     }
 
-    // Update parsing logic
     pub fn try_recursive<I>(it: &mut Peekable<I>) -> Result<Type, TypeDescriptorErr>
     where
         I: Iterator<Item = char>,
     {
         let c = it.next().ok_or(TypeDescriptorErr::UnexpectedEnd)?;
 
-        // Handle Void separately
         if c == 'V' {
             return Ok(Type::Void);
         }
 
-        // Handle Primitives
         if let Ok(prim) = PrimitiveType::try_from(c) {
             return Ok(Type::Primitive(prim));
         }
 
-        // Handle Reference Types
         match c {
             'L' => Self::parse_class_type(it),
             'T' => Self::parse_type_var(it),
             '[' => {
                 let elem = Type::try_recursive(it)?;
-                // Add a check: arrays of void are invalid
                 if matches!(elem, Type::Void) {
-                    // This is an invalid descriptor
                     return Err(TypeDescriptorErr::InvalidType('V'));
                 }
                 Ok(Type::Array(Box::new(elem)))
@@ -462,8 +478,6 @@ mod tests {
 
     #[test]
     fn primitives_try_from_char() {
-        // This test now correctly targets the new `PrimitiveType` enum
-        // <-- CHANGED (entire test logic)
         let cases = vec![
             ('B', PrimitiveType::Byte),
             ('C', PrimitiveType::Char),
@@ -485,7 +499,7 @@ mod tests {
 
     #[test]
     fn parse_void() {
-        assert_eq!(parse_one("V").unwrap(), Type::Void); // <-- UNCHANGED (still correct)
+        assert_eq!(parse_one("V").unwrap(), Type::Void);
     }
 
     #[test]
@@ -493,7 +507,7 @@ mod tests {
         assert_eq!(
             parse_one("Ljava/lang/String;").unwrap(),
             Type::Instance("java/lang/String".to_string())
-        ); // <-- UNCHANGED (still correct)
+        );
     }
 
     #[test]
@@ -509,7 +523,7 @@ mod tests {
         assert_eq!(
             parse_one("[Ljava/util/List;").unwrap(),
             Type::Array(Box::new(Type::Instance("java/util/List".to_string())))
-        ); // <-- UNCHANGED (still correct)
+        );
     }
 
     #[test]
@@ -518,14 +532,14 @@ mod tests {
             parse_one("[[I").unwrap(),
             Type::Array(Box::new(Type::Array(Box::new(Type::Primitive(
                 PrimitiveType::Int
-            ))))) // <-- CHANGED
+            )))))
         );
         assert_eq!(
             parse_one("[[Ljava/lang/String;").unwrap(),
             Type::Array(Box::new(Type::Array(Box::new(Type::Instance(
                 "java/lang/String".to_string()
             )))))
-        ); // <-- UNCHANGED (still correct)
+        );
     }
 
     #[test]

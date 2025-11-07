@@ -9,7 +9,7 @@ use crate::rt::method_deprecated::{MethodDeprecated, MethodType};
 use common::descriptor::MethodDescriptor;
 use common::error::{JavaExceptionFromJvm, JvmError};
 use common::instruction::ArrayType;
-use common::jtype::{HeapAddr, Value};
+use common::jtype::{HeapRef, Value};
 use jclass::ClassFile;
 use jclass::attribute::class::ClassAttribute;
 use jclass::flags::{ClassFlags, MethodFlags};
@@ -48,7 +48,7 @@ pub struct ClassDeprecated {
     attributes: Vec<ClassAttribute>,
     cp: Arc<RuntimeConstantPoolDeprecated>,
     state: RwLock<InitState>,
-    mirror: OnceCell<HeapAddr>,
+    mirror: OnceCell<HeapRef>,
     source_file: Option<Arc<str>>,
 }
 
@@ -264,11 +264,11 @@ impl ClassDeprecated {
             .and_then(|i| self.static_methods.get(i))
     }
 
-    pub fn mirror(&self) -> Option<HeapAddr> {
+    pub fn mirror(&self) -> Option<HeapRef> {
         self.mirror.get().copied()
     }
 
-    pub fn set_mirror(&self, mirror: HeapAddr) -> Result<(), JvmError> {
+    pub fn set_mirror(&self, mirror: HeapRef) -> Result<(), JvmError> {
         self.mirror
             .set(mirror)
             .map_err(|_| JvmError::ClassMirrorIsAlreadyCreated)
