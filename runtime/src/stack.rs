@@ -235,6 +235,14 @@ impl FrameStack {
         self.cur_frame()?.peek()
     }
 
+    pub fn peek_at(&self, index: usize) -> Result<&Value, JvmError> {
+        let frame = self.cur_frame()?;
+        if index >= frame.operands.len() {
+            return Err(JvmError::OperandStackIsEmpty);
+        }
+        Ok(&frame.operands[frame.operands.len() - 1 - index])
+    }
+
     pub fn dup_top(&mut self) -> Result<(), JvmError> {
         self.push_operand(*self.peek()?)
     }

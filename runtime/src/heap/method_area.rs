@@ -3,6 +3,7 @@ use crate::heap::Heap;
 use crate::rt::class::InstanceClass;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::constant_pool::bootstrap_registry::BootstrapRegistry;
+use crate::rt::interface::InterfaceClass;
 use crate::rt::method::Method;
 use crate::rt::{JvmClass, ObjectArrayClass, PrimitiveArrayClass, PrimitiveClass};
 use crate::{
@@ -179,6 +180,13 @@ impl MethodArea {
         }
     }
 
+    pub fn get_interface_class(&self, class_id: &ClassId) -> Result<&InterfaceClass, JvmError> {
+        match self.get_class(class_id) {
+            JvmClass::Interface(ic) => Ok(ic),
+            _ => Err(JvmError::Todo("Not an interface class".to_string())),
+        }
+    }
+
     pub fn get_cp(&self, class_id: &ClassId) -> Result<&RuntimeConstantPool, JvmError> {
         self.get_instance_class(class_id).map(|c| &c.cp)
     }
@@ -263,7 +271,11 @@ impl MethodArea {
             }
             None => None,
         };
-        let class_id = InstanceClass::load_and_link(cf, self, super_id)?;
+        let class_id = if cf.access_flags.is_interface() {
+            InterfaceClass::load_and_link(cf, self, super_id)?
+        } else {
+            InstanceClass::load_and_link(cf, self, super_id)?
+        };
         self.class_name_to_index.insert(name_sym, class_id);
         Ok(class_id)
     }

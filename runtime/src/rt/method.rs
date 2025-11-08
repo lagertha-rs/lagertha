@@ -71,6 +71,10 @@ impl Method {
         self.flags.is_static()
     }
 
+    pub fn is_abstract(&self) -> bool {
+        self.flags.is_abstract()
+    }
+
     pub fn is_native(&self) -> bool {
         self.flags.is_native()
     }

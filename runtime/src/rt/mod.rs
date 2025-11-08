@@ -1,5 +1,6 @@
 use crate::rt::class::InstanceClass;
 use crate::rt::field::InstanceField;
+use crate::rt::interface::InterfaceClass;
 use crate::{ClassId, Symbol};
 use common::error::JvmError;
 use common::jtype::{DescriptorPrimitiveType, HeapRef, PrimitiveType};
@@ -10,11 +11,21 @@ pub mod class_deprecated;
 pub mod constant_pool;
 mod field;
 pub mod field_deprecated;
+pub mod interface;
 pub mod method;
 pub mod method_deprecated;
 
+// TODO: something like that...
+pub enum ClassState {
+    Loaded,       // Parsed, superclass loaded
+    Linked,       // Verified, prepared
+    Initializing, // <clinit> in progress
+    Initialized,  // <clinit> executed
+}
+
 pub enum JvmClass {
     Instance(Box<InstanceClass>),
+    Interface(Box<InterfaceClass>),
     Primitive(PrimitiveClass),
     PrimitiveArray(PrimitiveArrayClass),
     InstanceArray(ObjectArrayClass),
@@ -27,6 +38,7 @@ impl JvmClass {
             JvmClass::PrimitiveArray(pac) => &pac.name,
             JvmClass::InstanceArray(oac) => &oac.name,
             JvmClass::Primitive(pc) => &pc.name,
+            JvmClass::Interface(i) => &i.name,
         }
     }
 
@@ -46,6 +58,7 @@ impl JvmClass {
             JvmClass::PrimitiveArray(pac) => pac.get_mirror_ref(),
             JvmClass::InstanceArray(oac) => oac.get_mirror_ref(),
             JvmClass::Primitive(pc) => pc.get_mirror_ref(),
+            JvmClass::Interface(i) => i.get_mirror_ref(),
         }
     }
 
@@ -55,6 +68,7 @@ impl JvmClass {
             JvmClass::PrimitiveArray(pac) => pac.set_mirror_ref(mirror),
             JvmClass::InstanceArray(oac) => oac.set_mirror_ref(mirror),
             JvmClass::Primitive(pc) => pc.set_mirror_ref(mirror),
+            JvmClass::Interface(i) => i.set_mirror_ref(mirror),
         }
     }
 
@@ -64,6 +78,7 @@ impl JvmClass {
             JvmClass::PrimitiveArray(arr) => &arr.super_id == other,
             JvmClass::InstanceArray(arr) => &arr.super_id == other,
             JvmClass::Primitive(_) => false,
+            JvmClass::Interface(i) => i.is_child_of(other),
         }
     }
 
@@ -73,6 +88,7 @@ impl JvmClass {
             JvmClass::PrimitiveArray(arr) => Some(arr.super_id),
             JvmClass::InstanceArray(arr) => Some(arr.super_id),
             JvmClass::Primitive(_) => None,
+            JvmClass::Interface(i) => i.get_super_id(),
         }
     }
 }

@@ -517,11 +517,6 @@ impl Interpreter {
                 let target_class_id = vm
                     .method_area
                     .get_class_id_or_load(target_method_view.class_sym)?;
-                /*
-                println!("Invoking virtual method: {} of class {}",
-                    vm.interner().resolve(&target_method_view.name_and_type.name_sym),
-                         vm.interner().resolve(&target_method_view.class_sym));
-                 */
                 let target_method_id = vm
                     .method_area
                     .get_instance_class(&target_class_id)?
@@ -777,6 +772,24 @@ impl Interpreter {
                 vm.method_area
                     .get_instance_class(&target_class_id)?
                     .set_static_field_value(&target_field_view.name_and_type.into(), value)?;
+            }
+            Instruction::InvokeInterface(idx, count) => {
+                let cur_frame_method_id = vm.get_stack_mut(&thread_id)?.cur_frame()?.method_id();
+                let object_ref = vm
+                    .get_stack(&thread_id)?
+                    .peek_at(count as usize - 1)?
+                    .as_obj_ref()?;
+                let target_method_view = vm
+                    .method_area
+                    .get_cp_by_method_id(&cur_frame_method_id)?
+                    .get_interface_method_view(&idx, vm.interner())?;
+                let target_class_id = vm.heap.get_class_id(&object_ref)?;
+                let target_method_id = vm
+                    .method_area
+                    .get_instance_class(&target_class_id)?
+                    .get_interface_method_id(&target_method_view.name_and_type.into())?;
+                let args = Self::prepare_method_args(thread_id, target_method_id, vm)?;
+                Self::run_method(thread_id, target_method_id, vm, args)?;
             }
             Instruction::InvokeSpecial(idx) => {
                 let cur_frame_method_id = vm.get_stack_mut(&thread_id)?.cur_frame()?.method_id();
