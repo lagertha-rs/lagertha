@@ -87,18 +87,11 @@ fn java_lang_class_get_primitive_class(
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.getPrimitiveClass");
     if let Value::Ref(h) = &args[0] {
-        let k = vm.heap.get_array(&0)?;
-
-        // TODO: change later after heap refactor
-        let type_str = k
-            .data()
-            .iter()
-            .map(|c| c.as_int().unwrap() as u8 as char)
-            .collect::<String>();
+        let primitive_name = vm.heap.get_rust_string_from_java_string(h)?;
 
         let class_id = vm
             .method_area
-            .get_class_id_or_load(vm.interner().get_or_intern(&type_str))?;
+            .get_class_id_or_load(vm.interner().get_or_intern(&primitive_name))?;
         let v = vm
             .method_area
             .get_mirror_ref_or_create(class_id, &mut vm.heap)?;

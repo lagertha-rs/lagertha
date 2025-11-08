@@ -79,6 +79,12 @@ impl Heap {
         idx
     }
 
+    fn get(&self, h: &HeapRef) -> Result<&HeapObject, JvmError> {
+        self.objects
+            .get(*h)
+            .ok_or(JvmError::Todo("invalid heap address".to_string()))
+    }
+
     fn get_mut(&mut self, h: &HeapRef) -> Result<&mut HeapObject, JvmError> {
         self.objects
             .get_mut(*h)
@@ -92,7 +98,15 @@ impl Heap {
         }
     }
 
-    pub fn get_array(&mut self, h: &HeapRef) -> Result<&Instance, JvmError> {
+    pub fn get_array(&self, h: &HeapRef) -> Result<&Instance, JvmError> {
+        let heap_obj = self.get(h)?;
+        match heap_obj {
+            HeapObject::Array(arr) => Ok(arr),
+            _ => Err(JvmError::Todo("Non instance".to_string())),
+        }
+    }
+
+    pub fn get_array_mut(&mut self, h: &HeapRef) -> Result<&mut Instance, JvmError> {
         let heap_obj = self.get_mut(h)?;
         match heap_obj {
             HeapObject::Array(arr) => Ok(arr),
@@ -237,6 +251,77 @@ impl Heap {
                 "heap: write_array_element on non-array".to_string(),
             ))?,
         }
+        Ok(())
+    }
+
+    // TODO: just a stub right now
+    pub fn get_rust_string_from_java_string(&mut self, h: &HeapRef) -> Result<String, JvmError> {
+        let char_array_ref = match self.read_instance_field(h, 0)? {
+            Value::Ref(r) => r,
+            _ => {
+                return Err(JvmError::Todo(
+                    "Expected reference to char array in String.value field".to_string(),
+                ));
+            }
+        };
+        let char_array_instance = self.get_array(&char_array_ref)?;
+        let mut result = String::new();
+        for val in &char_array_instance.data {
+            match val {
+                Value::Integer(i) => {
+                    let c = (*i as u8) as char;
+                    result.push(c);
+                }
+                _ => {
+                    return Err(JvmError::Todo(
+                        "Expected integer value in char array".to_string(),
+                    ));
+                }
+            }
+        }
+        Ok(result)
+    }
+
+    //TODO: should be only primitive arrays?
+
+    pub fn copy_primitive_slice(
+        &mut self,
+        src: HeapRef,
+        src_pos: i32,
+        dest: HeapRef,
+        dest_pos: i32,
+        length: i32,
+    ) -> Result<(), JvmError> {
+        {
+            let src_array = self.get_array(&src)?;
+            let dest_array = self.get_array(&dest)?;
+
+            if src_pos < 0
+                || dest_pos < 0
+                || length < 0
+                || (src_pos as usize + length as usize) > src_array.data_len()
+                || (dest_pos as usize + length as usize) > dest_array.data_len()
+            {
+                throw_exception!(
+                    ArrayIndexOutOfBoundsException,
+                    "Start or destination index out of bounds"
+                )?;
+            }
+        }
+        let src_pos = src_pos as usize;
+        let dest_pos = dest_pos as usize;
+
+        let src_ptr = self.get_array(&src)?.data.as_ptr();
+        let dest_ptr = self.get_array_mut(&dest)?.data.as_mut_ptr();
+
+        unsafe {
+            std::ptr::copy(
+                src_ptr.add(src_pos),
+                dest_ptr.add(dest_pos),
+                length as usize,
+            );
+        }
+
         Ok(())
     }
 }
