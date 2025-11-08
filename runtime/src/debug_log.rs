@@ -26,13 +26,31 @@ pub(crate) mod debug {
 }
 
 #[macro_export]
-macro_rules! debug_print_method {
-    ($method_id:expr) => {
+macro_rules! debug_log {
+    ($($arg:tt)*) => {
         #[cfg(feature = "debug-log")]
         {
-            debug_log::debug::with_method_area(|ma| {
+            log::debug!($($arg)*);
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! debug_log_method {
+    ($method_id:expr, $msg:expr) => {
+        #[cfg(feature = "debug-log")]
+        {
+            crate::debug_log::debug::with_method_area(|ma| {
                 let method = ma.get_method(&$method_id);
-                log::debug!("Method: {}", method.name_display(ma));
+                let class_name = ma
+                    .interner()
+                    .resolve(ma.get_class(&method.class_id()).get_name());
+                let method_name = ma.interner().resolve(&method.name);
+                let signature = ma
+                    .get_method_descriptor(&method.descriptor_id())
+                    .to_java_signature(method_name);
+
+                log::debug!("{}: {} of {}", $msg, signature, class_name);
             });
         }
     };

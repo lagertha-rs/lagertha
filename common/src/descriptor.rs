@@ -8,6 +8,21 @@ pub struct MethodDescriptor {
     pub ret: Type,
 }
 
+impl MethodDescriptor {
+    pub fn to_java_signature(&self, name: &str) -> String {
+        format!(
+            "{} {}({})",
+            self.ret,
+            name,
+            self.params
+                .iter()
+                .map(|p| p.to_string())
+                .collect::<Vec<_>>()
+                .join(", ")
+        )
+    }
+}
+
 impl TryFrom<&str> for MethodDescriptor {
     type Error = MethodDescriptorErr;
 
@@ -52,15 +67,18 @@ impl TryFrom<&str> for MethodDescriptor {
 
 #[cfg(test)]
 mod tests {
-    use crate::jtype::PrimitiveType;
     use super::*;
+    use crate::jtype::PrimitiveType;
 
     // Java: void add(int, int)
     #[test]
     fn parse_two_ints_void() {
         // given
         let signature = "(II)V";
-        let expected_param = vec![Type::Primitive(PrimitiveType::Int), Type::Primitive(PrimitiveType::Int)];
+        let expected_param = vec![
+            Type::Primitive(PrimitiveType::Int),
+            Type::Primitive(PrimitiveType::Int),
+        ];
         let expected_ret = Type::Void;
 
         // when

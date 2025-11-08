@@ -17,8 +17,11 @@ pub struct BootstrapRegistry {
     pub java_lang_class_sym: Symbol,
     pub java_lang_string_sym: Symbol,
     pub java_lang_system_sym: Symbol,
+
+    // Common method names (interned)
     pub init_sym: Symbol,
     pub clinit_sym: Symbol,
+    pub main_sym: Symbol,
 
     // Common descriptors (interned)
     pub desc_void_sym: Symbol,         // ()V
@@ -38,7 +41,7 @@ impl BootstrapRegistry {
         // Method names
         let clinit_sym = interner.get_or_intern("<clinit>");
         let init_sym = interner.get_or_intern("<init>");
-        let main_name = interner.get_or_intern("main");
+        let main_sym = interner.get_or_intern("main");
 
         // Common descriptors
         let desc_void_sym = interner.get_or_intern("()V");
@@ -62,7 +65,7 @@ impl BootstrapRegistry {
                 desc: desc_void_sym,
             },
             main_mk: MethodKey {
-                name: main_name,
+                name: main_sym,
                 desc: interner.get_or_intern("([Ljava/lang/String;)V"),
             },
 
@@ -79,6 +82,7 @@ impl BootstrapRegistry {
             java_lang_system_sym: interner.get_or_intern("java/lang/System"),
             init_sym,
             clinit_sym,
+            main_sym,
 
             // Descriptors
             desc_void_sym,

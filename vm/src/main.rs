@@ -24,10 +24,12 @@ pub struct Args {
 
 fn create_vm_configuration(mut args: Args, main_class: String) -> Result<VmConfig, String> {
     let java_home = std::env::var("JAVA_HOME").expect("JAVA_HOME not set");
-    let current_dir = std::env::current_dir()
-        .map(|v| v.to_string_lossy().to_string())
-        .expect("cannot get current dir");
-    args.class_path.push(current_dir);
+    if args.class_path.is_empty() {
+        let current_dir = std::env::current_dir()
+            .map(|v| v.to_string_lossy().to_string())
+            .expect("cannot get current dir");
+        args.class_path.push(current_dir);
+    }
     let home = std::path::PathBuf::from(&java_home);
     let release_file = format!("{}/release", java_home);
 

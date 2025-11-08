@@ -1,4 +1,4 @@
-use crate::{MethodId, VmConfig};
+use crate::{MethodId, VmConfig, debug_log_method};
 use common::error::{JavaExceptionFromJvm, JvmError};
 use common::jtype::{HeapRef, Value};
 
@@ -31,14 +31,7 @@ impl FrameStack {
     }
 
     pub fn push_frame(&mut self, frame: JavaFrame) -> Result<(), JvmError> {
-        /*
-           debug!(
-               "🚀 Executing {}.{}({})",
-               f.method.class()?.name(),
-               f.method.name(),
-               Self::debug_fn_parameters(&f)
-           );
-        */
+        debug_log_method!(frame.method_id, "🚀 Executing");
         if self.frames.len() >= self.max_size {
             return Err(JvmError::StackOverflow);
         }
@@ -47,21 +40,12 @@ impl FrameStack {
     }
 
     pub fn pop_frame(&mut self) -> Result<JavaFrame, JvmError> {
-        self.frames.pop().ok_or(JvmError::FrameStackIsEmpty)
-        /*
-            debug!(
-                "🏁 Execution finished of {}.{}",
-                f.method.class()?.name(),
-                f.method.name()
-            ),
-        if let Some(frame) = self.frames.last() {
-                FrameType::JavaFrame(f) => debug!(
-                    "🔄 Resuming execution of {}.{}",
-                    f.method.class()?.name(),
-                    f.method.name()
-                ),
-        }
-         */
+        let old_frame = self.frames.pop().ok_or(JvmError::FrameStackIsEmpty)?;
+        debug_log_method!(old_frame.method_id, "🏁 Execution finished");
+        if let Some(cur_frame) = self.frames.last() {
+            debug_log_method!(cur_frame.method_id, "🔄 Resuming execution");
+        };
+        Ok(old_frame)
     }
 
     pub fn cur_frame_mut(&mut self) -> Result<&mut JavaFrame, JvmError> {

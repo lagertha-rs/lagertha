@@ -1,11 +1,10 @@
-use crate::VmConfig;
 use crate::class_loader::system::SystemClassLoader;
+use crate::{VmConfig, debug_log};
 use common::error::{ClassLoaderErr, JvmError};
 use jimage::JImage;
 use std::collections::HashSet;
 use std::path::PathBuf;
 use toml::Value;
-use tracing_log::log::debug;
 
 mod system;
 
@@ -48,10 +47,14 @@ impl ClassLoader {
     }
 
     pub fn new(vm_config: &VmConfig) -> Result<Self, ClassLoaderErr> {
-        debug!("Creating BootstrapClassLoader...");
-        let java_home = &vm_config.home;
-        let jimage = JImage::new(java_home.join("lib").join("modules"));
-        debug!("Creating SystemClassLoader...");
+        debug_log!("Creating ClassLoader...");
+        let modules_path = &vm_config.home.join("lib").join("modules");
+        debug_log!("Loading JImage from path: {:?}", modules_path);
+        let jimage = JImage::new(modules_path);
+        debug_log!(
+            "Loading SystemClassLoader from classpath: {:?}",
+            vm_config.class_path
+        );
         let system_loader = SystemClassLoader::new(&vm_config.class_path)?;
         Ok(Self {
             jimage,
@@ -62,13 +65,8 @@ impl ClassLoader {
 
     // TODO: Can return &[u8] to avoid copying, but need to support proper SystemClassLoader first
     pub fn load(&self, name: &str) -> Result<Vec<u8>, JvmError> {
-        debug!(r#"Searching for bytecode of "{name}"..."#);
-
         if let Some(bytes) = self.jimage.open_java_base_class(name) {
-            debug!(
-                r#"Bytecode of "{name}" found in JImage. Read {} bytes."#,
-                bytes.len()
-            );
+            debug_log!("Bytecode of \"{name}\" found using JImage.");
             // TODO: remove afterwards
             assert!(
                 self.tested_parsing.contains(name),
@@ -78,10 +76,7 @@ impl ClassLoader {
             Ok(bytes.to_vec())
         } else {
             let bytes = self.system.find_class(name)?;
-            debug!(
-                r#"Bytecode of "{name}" found in SystemClassLoader. Read {} bytes."#,
-                bytes.len()
-            );
+            debug_log!("Bytecode of \"{name}\" found using SystemClassLoader.",);
             Ok(bytes)
         }
     }

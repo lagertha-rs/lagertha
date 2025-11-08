@@ -236,9 +236,6 @@ impl VirtualMachine {
         let string_interner = Arc::new(ThreadedRodeo::default());
         let method_area = MethodArea::new(&config, string_interner.clone())?;
 
-        #[cfg(feature = "debug-log")]
-        debug_log::debug::init(&method_area);
-
         let native_registry = NativeRegistry::new(string_interner.clone());
         let rust_thread = JavaThreadState {
             thread_obj: 0,
@@ -284,17 +281,17 @@ impl VirtualMachine {
 fn start(config: VmConfig) -> Result<(), JvmError> {
     let mut vm = VirtualMachine::new(config)?;
 
+    #[cfg(feature = "debug-log")]
+    debug_log::debug::init(&vm.method_area);
+
     let main_class_sym = vm.string_interner.get_or_intern(&vm.config.main_class);
     let main_class_id = vm.method_area.get_class_id_or_load(main_class_sym)?;
-    let main_method_key = MethodKey {
-        name: vm.string_interner.get_or_intern("main"),
-        desc: vm.string_interner.get_or_intern("([Ljava/lang/String;)V"),
-    };
     let main_method_id = vm
         .method_area
         .get_instance_class(&main_class_id)?
-        .get_special_method_id(&main_method_key)
+        .get_special_method_id(&vm.method_area.br().main_mk)
         .map_err(|_| JvmError::MainClassNotFound(vm.config.main_class.replace('/', ".")))?;
+    debug_log_method!(main_method_id, "Main method found");
     let rust_thread_id = vm.rust_thread_id;
 
     Interpreter::invoke_static_method(rust_thread_id, main_method_id, &mut vm, vec![])?;

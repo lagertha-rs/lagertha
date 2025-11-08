@@ -7,7 +7,7 @@ use crate::rt::method::Method;
 use crate::rt::{JvmClass, ObjectArrayClass, PrimitiveArrayClass};
 use crate::{
     ClassId, FieldKey, FullyQualifiedMethodKey, MethodDescriptorId, MethodId, Symbol,
-    TypeDescriptorId, VmConfig,
+    TypeDescriptorId, VmConfig, debug_log,
 };
 use common::descriptor::MethodDescriptor;
 use common::error::{JvmError, LinkageError, MethodDescriptorErr};
@@ -40,6 +40,7 @@ impl MethodArea {
         vm_config: &VmConfig,
         string_interner: Arc<ThreadedRodeo>,
     ) -> Result<Self, JvmError> {
+        debug_log!("Creating Method Area...");
         let bootstrap_class_loader = ClassLoader::new(vm_config)?;
 
         let mut method_area = Self {

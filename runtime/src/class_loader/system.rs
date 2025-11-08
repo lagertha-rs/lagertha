@@ -1,10 +1,9 @@
 use crate::class_loader::{ClassLoaderErr, ClassSource};
+use crate::debug_log;
 use std::collections::HashMap;
-use std::fs;
 use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};
-use tracing_log::log::debug;
 use walkdir::WalkDir;
 
 #[derive(Debug)]
@@ -14,7 +13,7 @@ pub(super) struct SystemClassLoader {
 
 impl SystemClassLoader {
     pub fn new(path: &Vec<String>) -> Result<Self, ClassLoaderErr> {
-        debug!("Creating SystemClassLoader from classpath entries: {path:?}");
+        debug_log!("Creating SystemClassLoader from classpath entries: {path:?}");
         let mut index = HashMap::new();
 
         for entry in path {
@@ -40,7 +39,7 @@ impl SystemClassLoader {
             }
         }
 
-        debug!(
+        debug_log!(
             "System classpath index prepared. Found {} classes.",
             index.len()
         );

@@ -1,6 +1,8 @@
 use crate::rt::constant_pool::RuntimeConstant;
 use crate::stack::JavaFrame;
-use crate::{ClassId, MethodId, MethodKey, ThreadId, VirtualMachine, throw_exception};
+use crate::{
+    ClassId, MethodId, MethodKey, ThreadId, VirtualMachine, debug_log_method, throw_exception,
+};
 use common::error::JvmError;
 use common::instruction::Instruction;
 use common::jtype::Value;
@@ -918,10 +920,6 @@ impl Interpreter {
         args: Vec<Value>,
     ) -> Result<(), JvmError> {
         let method = vm.method_area.get_method(&method_id);
-        /*
-        println!("Executing method: {} of {}", vm.method_area.interner.resolve(&method.name),
-        vm.method_area.interner.resolve(vm.method_area.get_class(&method.class_id()).get_name()));
-         */
         if method.is_native() {
             let method_key = vm.method_area.build_fully_qualified_method_key(&method_id);
             let native = vm.native_registry.get(&method_key).unwrap();
