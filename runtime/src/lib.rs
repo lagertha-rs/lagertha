@@ -262,7 +262,7 @@ impl VirtualMachine {
         &mut self.rust_thread
     }
 
-    pub fn get_stack(&mut self, thread_id: &ThreadId) -> Result<&mut FrameStack, JvmError> {
+    pub fn get_stack_mut(&mut self, thread_id: &ThreadId) -> Result<&mut FrameStack, JvmError> {
         if *thread_id == self.rust_thread_id {
             Ok(&mut self.rust_thread.stack)
         } else {
@@ -270,6 +270,16 @@ impl VirtualMachine {
                 .get_mut(thread_id.to_index())
                 .ok_or(JvmError::Todo("No such thread".to_string()))
                 .map(|t| &mut t.stack)
+        }
+    }
+    pub fn get_stack(&self, thread_id: &ThreadId) -> Result<&FrameStack, JvmError> {
+        if *thread_id == self.rust_thread_id {
+            Ok(&self.rust_thread.stack)
+        } else {
+            self.thread_registry
+                .get(thread_id.to_index())
+                .ok_or(JvmError::Todo("No such thread".to_string()))
+                .map(|t| &t.stack)
         }
     }
 
@@ -282,7 +292,7 @@ fn start(config: VmConfig) -> Result<(), JvmError> {
     let mut vm = VirtualMachine::new(config)?;
 
     #[cfg(feature = "debug-log")]
-    debug_log::debug::init(&vm.method_area);
+    debug_log::debug::init(&vm);
 
     let main_class_sym = vm.string_interner.get_or_intern(&vm.config.main_class);
     let main_class_id = vm.method_area.get_class_id_or_load(main_class_sym)?;
@@ -291,7 +301,7 @@ fn start(config: VmConfig) -> Result<(), JvmError> {
         .get_instance_class(&main_class_id)?
         .get_special_method_id(&vm.method_area.br().main_mk)
         .map_err(|_| JvmError::MainClassNotFound(vm.config.main_class.replace('/', ".")))?;
-    debug_log_method!(main_method_id, "Main method found");
+    debug_log_method!(&main_method_id, "Main method found");
     let rust_thread_id = vm.rust_thread_id;
 
     Interpreter::invoke_static_method(rust_thread_id, main_method_id, &mut vm, vec![])?;

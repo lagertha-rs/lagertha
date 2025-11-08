@@ -31,7 +31,7 @@ impl FrameStack {
     }
 
     pub fn push_frame(&mut self, frame: JavaFrame) -> Result<(), JvmError> {
-        debug_log_method!(frame.method_id, "🚀 Executing");
+        debug_log_method!(&frame.method_id, "🚀 Executing");
         if self.frames.len() >= self.max_size {
             return Err(JvmError::StackOverflow);
         }
@@ -41,9 +41,9 @@ impl FrameStack {
 
     pub fn pop_frame(&mut self) -> Result<JavaFrame, JvmError> {
         let old_frame = self.frames.pop().ok_or(JvmError::FrameStackIsEmpty)?;
-        debug_log_method!(old_frame.method_id, "🏁 Execution finished");
+        debug_log_method!(&old_frame.method_id, "🏁 Execution finished");
         if let Some(cur_frame) = self.frames.last() {
-            debug_log_method!(cur_frame.method_id, "🔄 Resuming execution");
+            debug_log_method!(&cur_frame.method_id, "🔄 Resuming execution");
         };
         Ok(old_frame)
     }

@@ -1,20 +1,20 @@
 #[cfg(feature = "debug-log")]
 pub(crate) mod debug {
-    use crate::MethodArea;
+    use crate::VirtualMachine;
     use std::sync::atomic::{AtomicPtr, Ordering};
 
-    static METHOD_AREA: AtomicPtr<MethodArea> = AtomicPtr::new(std::ptr::null_mut());
+    static METHOD_AREA: AtomicPtr<VirtualMachine> = AtomicPtr::new(std::ptr::null_mut());
 
-    pub fn init(ma: &MethodArea) {
+    pub fn init(ma: &VirtualMachine) {
         METHOD_AREA.store(
-            ma as *const MethodArea as *mut MethodArea,
+            ma as *const VirtualMachine as *mut VirtualMachine,
             Ordering::Release,
         );
     }
 
-    pub fn with_method_area<F, R>(f: F) -> Option<R>
+    pub fn with_vm<F, R>(f: F) -> Option<R>
     where
-        F: FnOnce(&MethodArea) -> R,
+        F: FnOnce(&VirtualMachine) -> R,
     {
         let ptr = METHOD_AREA.load(Ordering::Acquire);
         if ptr.is_null() {
@@ -40,13 +40,14 @@ macro_rules! debug_log_method {
     ($method_id:expr, $msg:expr) => {
         #[cfg(feature = "debug-log")]
         {
-            crate::debug_log::debug::with_method_area(|ma| {
-                let method = ma.get_method(&$method_id);
-                let class_name = ma
+            crate::debug_log::debug::with_vm(|vm| {
+                let method = vm.method_area.get_method($method_id);
+                let class_name = vm
                     .interner()
-                    .resolve(ma.get_class(&method.class_id()).get_name());
-                let method_name = ma.interner().resolve(&method.name);
-                let signature = ma
+                    .resolve(vm.method_area.get_class(&method.class_id()).get_name());
+                let method_name = vm.interner().resolve(&method.name);
+                let signature = vm
+                    .method_area
                     .get_method_descriptor(&method.descriptor_id())
                     .to_java_signature(method_name);
 
@@ -57,12 +58,39 @@ macro_rules! debug_log_method {
 }
 
 #[macro_export]
-macro_rules! debug_print_string {
-    ($interned:expr) => {
+macro_rules! debug_log_instruction {
+    ($instruction:expr, $thread_id:expr) => {
         #[cfg(feature = "debug-log")]
         {
-            debug_log::debug::with_method_area(|ma| {
-                log::debug!("{}", ma.interner().resolve(&$interned));
+            crate::debug_log::debug::with_vm(|vm| {
+                let mut msg_chunks = vec![format!("{:?}", $instruction)];
+                match $instruction {
+                    common::instruction::Instruction::Getstatic(idx) => {
+                        let cur_frame_method_id = vm
+                            .get_stack($thread_id)
+                            .unwrap()
+                            .cur_frame()
+                            .unwrap()
+                            .method_id();
+                        let target_field_view = vm
+                            .method_area
+                            .get_cp_by_method_id(&cur_frame_method_id)
+                            .unwrap()
+                            .get_field_view(&idx, vm.interner())
+                            .unwrap();
+                        msg_chunks.push(format!(
+                            "Field {} {} of {}",
+                            vm.interner()
+                                .resolve(&target_field_view.name_and_type.descriptor_sym),
+                            vm.interner()
+                                .resolve(&target_field_view.name_and_type.name_sym),
+                            vm.interner().resolve(&target_field_view.class_sym),
+                        ));
+                    }
+                    _ => {}
+                }
+
+                log::debug!("Executing: {}", msg_chunks.join(" "));
             });
         }
     };
