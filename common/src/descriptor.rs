@@ -1,11 +1,11 @@
 use crate::error::MethodDescriptorErr;
-use crate::jtype::Type;
+use crate::jtype::DescriptorType;
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.3
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MethodDescriptor {
-    pub params: Vec<Type>,
-    pub ret: Type,
+    pub params: Vec<DescriptorType>,
+    pub ret: DescriptorType,
 }
 
 impl MethodDescriptor {
@@ -43,7 +43,7 @@ impl TryFrom<&str> for MethodDescriptor {
                     break;
                 }
                 Some(_) => params.push(
-                    Type::try_recursive(&mut chars)
+                    DescriptorType::try_recursive(&mut chars)
                         .map_err(|e| MethodDescriptorErr::Type(desc.to_string(), e))?,
                 ),
                 None => {
@@ -54,7 +54,7 @@ impl TryFrom<&str> for MethodDescriptor {
             }
         }
 
-        let ret = Type::try_recursive(&mut chars)
+        let ret = DescriptorType::try_recursive(&mut chars)
             .map_err(|e| MethodDescriptorErr::Type(desc.to_string(), e))?;
 
         if chars.next().is_some() {
@@ -68,7 +68,7 @@ impl TryFrom<&str> for MethodDescriptor {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::jtype::PrimitiveType;
+    use crate::jtype::DescriptorPrimitiveType;
 
     // Java: void add(int, int)
     #[test]
@@ -76,10 +76,10 @@ mod tests {
         // given
         let signature = "(II)V";
         let expected_param = vec![
-            Type::Primitive(PrimitiveType::Int),
-            Type::Primitive(PrimitiveType::Int),
+            DescriptorType::Primitive(DescriptorPrimitiveType::Int),
+            DescriptorType::Primitive(DescriptorPrimitiveType::Int),
         ];
-        let expected_ret = Type::Void;
+        let expected_ret = DescriptorType::Void;
 
         // when
         let md = MethodDescriptor::try_from(signature).unwrap();
@@ -94,8 +94,8 @@ mod tests {
     fn parse_no_params_int_return() {
         // given
         let signature = "()I";
-        let expected_param: Vec<Type> = Vec::new();
-        let expected_ret = Type::Primitive(PrimitiveType::Int);
+        let expected_param: Vec<DescriptorType> = Vec::new();
+        let expected_ret = DescriptorType::Primitive(DescriptorPrimitiveType::Int);
 
         // when
         let md = MethodDescriptor::try_from(signature).unwrap();
@@ -110,8 +110,8 @@ mod tests {
     fn parse_string_param_string_return() {
         // given
         let signature = "(Ljava/lang/String;)Ljava/lang/String;";
-        let expected_param = vec![Type::Instance("java/lang/String".into())];
-        let expected_ret = Type::Instance("java/lang/String".into());
+        let expected_param = vec![DescriptorType::Instance("java/lang/String".into())];
+        let expected_ret = DescriptorType::Instance("java/lang/String".into());
 
         // when
         let md = MethodDescriptor::try_from(signature).unwrap();
@@ -127,10 +127,14 @@ mod tests {
         // given
         let signature = "(I[Ljava/lang/String;)[I";
         let expected_param = vec![
-            Type::Primitive(PrimitiveType::Int),
-            Type::Array(Box::new(Type::Instance("java/lang/String".into()))),
+            DescriptorType::Primitive(DescriptorPrimitiveType::Int),
+            DescriptorType::Array(Box::new(DescriptorType::Instance(
+                "java/lang/String".into(),
+            ))),
         ];
-        let expected_ret = Type::Array(Box::new(Type::Primitive(PrimitiveType::Int)));
+        let expected_ret = DescriptorType::Array(Box::new(DescriptorType::Primitive(
+            DescriptorPrimitiveType::Int,
+        )));
 
         // when
         let md = MethodDescriptor::try_from(signature).unwrap();
@@ -145,8 +149,9 @@ mod tests {
     fn parse_multi_dimensional_arrays() {
         // given
         let signature = "([[Ljava/lang/Object;)[[Ljava/lang/Object;";
-        let obj = Type::Instance("java/lang/Object".into());
-        let two_d_obj = Type::Array(Box::new(Type::Array(Box::new(obj.clone()))));
+        let obj = DescriptorType::Instance("java/lang/Object".into());
+        let two_d_obj =
+            DescriptorType::Array(Box::new(DescriptorType::Array(Box::new(obj.clone()))));
         let expected_param = vec![two_d_obj.clone()];
         let expected_ret = two_d_obj;
 

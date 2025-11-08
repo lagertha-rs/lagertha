@@ -1,5 +1,5 @@
 use crate::error::SignatureErr;
-use crate::jtype::Type;
+use crate::jtype::DescriptorType;
 use std::fmt;
 use std::fmt::Formatter;
 use std::iter::Peekable;
@@ -7,24 +7,24 @@ use std::iter::Peekable;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MethodSignature {
     pub type_params: Vec<FormalTypeParam>,
-    pub params: Vec<Type>,
-    pub ret: Type,
-    pub throws: Vec<Type>,
+    pub params: Vec<DescriptorType>,
+    pub ret: DescriptorType,
+    pub throws: Vec<DescriptorType>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ClassSignature {
     pub type_params: Vec<FormalTypeParam>,
-    pub super_class: Type,
-    pub interfaces: Vec<Type>,
+    pub super_class: DescriptorType,
+    pub interfaces: Vec<DescriptorType>,
     pub is_interface: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FormalTypeParam {
     pub name: String,
-    pub class_bound: Option<Type>,
-    pub interface_bounds: Vec<Type>,
+    pub class_bound: Option<DescriptorType>,
+    pub interface_bounds: Vec<DescriptorType>,
 }
 
 impl TryFrom<&str> for MethodSignature {
@@ -50,17 +50,17 @@ impl TryFrom<&str> for MethodSignature {
                     it.next();
                     break;
                 }
-                Some(_) => params.push(Type::try_recursive(&mut it)?),
+                Some(_) => params.push(DescriptorType::try_recursive(&mut it)?),
                 None => return Err(SignatureErr::MissingParamsCloseParen),
             }
         }
 
-        let ret = Type::try_recursive(&mut it)?;
+        let ret = DescriptorType::try_recursive(&mut it)?;
 
         let mut throws = Vec::new();
         while it.peek() == Some(&'^') {
             it.next();
-            let t = Type::try_recursive(&mut it)?;
+            let t = DescriptorType::try_recursive(&mut it)?;
             throws.push(t);
         }
 
@@ -100,7 +100,7 @@ where
 
         let class_bound = match it.peek().copied() {
             Some(':') => None,
-            Some(_) => Some(Type::try_recursive(it)?),
+            Some(_) => Some(DescriptorType::try_recursive(it)?),
             None => return Err(SignatureErr::UnexpectedEnd),
         };
 
@@ -110,7 +110,7 @@ where
             if matches!(it.peek(), Some('>')) {
                 return Err(SignatureErr::InvalidBound);
             }
-            interface_bounds.push(Type::try_recursive(it)?);
+            interface_bounds.push(DescriptorType::try_recursive(it)?);
         }
 
         res.push(FormalTypeParam {
@@ -161,16 +161,16 @@ impl ClassSignature {
     }
 }
 
-fn parse_class_type<I>(it: &mut Peekable<I>) -> Result<Option<Type>, SignatureErr>
+fn parse_class_type<I>(it: &mut Peekable<I>) -> Result<Option<DescriptorType>, SignatureErr>
 where
     I: Iterator<Item = char>,
 {
     if it.peek().is_none() {
         return Ok(None);
     }
-    let t = Type::try_recursive(it)?;
+    let t = DescriptorType::try_recursive(it)?;
     match t {
-        Type::Instance(_) | Type::GenericInstance(_) => Ok(Some(t)),
+        DescriptorType::Instance(_) | DescriptorType::GenericInstance(_) => Ok(Some(t)),
         _ => Err(SignatureErr::InvalidSuperClassType),
     }
 }
@@ -189,7 +189,8 @@ impl fmt::Display for ClassSignature {
         }
 
         // extends Super
-        let is_object = self.super_class == Type::Instance("java/lang/Object".to_string());
+        let is_object =
+            self.super_class == DescriptorType::Instance("java/lang/Object".to_string());
         if !(self.is_interface && is_object) {
             write!(f, "extends {}", self.super_class)?;
         }

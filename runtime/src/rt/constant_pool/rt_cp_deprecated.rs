@@ -6,7 +6,7 @@ use crate::rt::constant_pool::reference_deprecated::{
 };
 use common::descriptor::MethodDescriptor;
 use common::error::RuntimePoolError;
-use common::jtype::Type;
+use common::jtype::DescriptorType;
 use dashmap::DashMap;
 use jclass::constant::ConstantInfo;
 use std::fmt::Display;
@@ -314,7 +314,7 @@ impl RuntimeConstantPoolDeprecated {
             return Ok(descriptor.clone());
         }
         let raw = self.get_utf8_arc(idx)?;
-        let resolved = Type::try_from(raw.as_ref())?;
+        let resolved = DescriptorType::try_from(raw.as_ref())?;
         let reference = Arc::new(FieldDescriptorReferenceDeprecated::new(*idx, raw, resolved));
         self.field_descriptors.insert(*idx, reference.clone());
         Ok(reference)

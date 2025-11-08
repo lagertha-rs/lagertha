@@ -45,9 +45,9 @@ impl InstanceClass {
     ) -> Result<ClassId, JvmError> {
         let cp = RuntimeConstantPool::new(cf.cp.inner);
         // class state = Loading
-        let name = cp.get_class_sym(&cf.this_class, &method_area.interner())?;
+        let name = cp.get_class_sym(&cf.this_class, method_area.interner())?;
 
-        let class = JvmClass::Instance(Self {
+        let class = JvmClass::Instance(Box::new(Self {
             cp,
             name,
             super_id,
@@ -59,7 +59,7 @@ impl InstanceClass {
             instance_fields_offset_map: OnceCell::new(),
             static_fields: OnceCell::new(),
             mirror_ref: OnceCell::new(),
-        });
+        }));
         let class_id = method_area.push_class(class);
         let mut declared_index = HashMap::new();
 

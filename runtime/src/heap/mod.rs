@@ -43,6 +43,10 @@ impl Instance {
         Ok(&self.data[index])
     }
 
+    pub fn data(&self) -> &Vec<Value> {
+        &self.data
+    }
+
     pub fn data_len(&self) -> usize {
         self.data.len()
     }

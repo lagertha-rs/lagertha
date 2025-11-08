@@ -1,8 +1,8 @@
 use crate::rt::class::InstanceClass;
 use crate::rt::field::InstanceField;
-use crate::{ClassId, Symbol, TypeDescriptorId};
+use crate::{ClassId, Symbol};
 use common::error::JvmError;
-use common::jtype::{HeapRef, PrimitiveType};
+use common::jtype::{DescriptorPrimitiveType, HeapRef, PrimitiveType};
 use once_cell::sync::OnceCell;
 
 pub mod class;
@@ -13,9 +13,9 @@ pub mod field_deprecated;
 pub mod method;
 pub mod method_deprecated;
 
-//TODO: fix size inefficiency of enum variants and add vtable for array classes
 pub enum JvmClass {
-    Instance(InstanceClass),
+    Instance(Box<InstanceClass>),
+    Primitive(PrimitiveClass),
     PrimitiveArray(PrimitiveArrayClass),
     InstanceArray(ObjectArrayClass),
 }
@@ -26,6 +26,7 @@ impl JvmClass {
             JvmClass::Instance(ic) => &ic.name,
             JvmClass::PrimitiveArray(pac) => &pac.name,
             JvmClass::InstanceArray(oac) => &oac.name,
+            JvmClass::Primitive(pc) => &pc.name,
         }
     }
 
@@ -44,6 +45,7 @@ impl JvmClass {
             JvmClass::Instance(ic) => ic.get_mirror_ref(),
             JvmClass::PrimitiveArray(pac) => pac.get_mirror_ref(),
             JvmClass::InstanceArray(oac) => oac.get_mirror_ref(),
+            JvmClass::Primitive(pc) => pc.get_mirror_ref(),
         }
     }
 
@@ -52,6 +54,7 @@ impl JvmClass {
             JvmClass::Instance(ic) => ic.set_mirror_ref(mirror),
             JvmClass::PrimitiveArray(pac) => pac.set_mirror_ref(mirror),
             JvmClass::InstanceArray(oac) => oac.set_mirror_ref(mirror),
+            JvmClass::Primitive(pc) => pc.set_mirror_ref(mirror),
         }
     }
 
@@ -60,6 +63,7 @@ impl JvmClass {
             JvmClass::Instance(i) => i.is_child_of(other),
             JvmClass::PrimitiveArray(arr) => &arr.super_id == other,
             JvmClass::InstanceArray(arr) => &arr.super_id == other,
+            JvmClass::Primitive(_) => false,
         }
     }
 
@@ -68,15 +72,40 @@ impl JvmClass {
             JvmClass::Instance(i) => i.super_id,
             JvmClass::PrimitiveArray(arr) => Some(arr.super_id),
             JvmClass::InstanceArray(arr) => Some(arr.super_id),
+            JvmClass::Primitive(_) => None,
         }
+    }
+}
+
+pub struct PrimitiveClass {
+    pub name: Symbol,
+    pub primitive_type: PrimitiveType,
+    pub(crate) mirror_ref: OnceCell<HeapRef>,
+}
+
+impl PrimitiveClass {
+    pub fn new(name: Symbol, primitive_type: PrimitiveType) -> Self {
+        Self {
+            name,
+            primitive_type,
+            mirror_ref: OnceCell::new(),
+        }
+    }
+    pub fn get_mirror_ref(&self) -> Option<HeapRef> {
+        self.mirror_ref.get().copied()
+    }
+
+    pub fn set_mirror_ref(&self, mirror: HeapRef) -> Result<(), JvmError> {
+        self.mirror_ref
+            .set(mirror)
+            .map_err(|_| JvmError::Todo("PrimitiveClass mirror_ref already set".to_string()))
     }
 }
 
 pub struct PrimitiveArrayClass {
     pub name: Symbol,
     pub super_id: ClassId,
-    pub element_descriptor: TypeDescriptorId,
-    pub element_type: PrimitiveType,
+    pub element_type: DescriptorPrimitiveType,
     pub(crate) mirror_ref: OnceCell<HeapRef>,
 }
 
@@ -95,7 +124,6 @@ impl PrimitiveArrayClass {
 pub struct ObjectArrayClass {
     pub name: Symbol,
     pub super_id: ClassId,
-    pub element_descriptor: TypeDescriptorId,
     pub element_class_id: ClassId,
     pub(crate) mirror_ref: OnceCell<HeapRef>,
 }

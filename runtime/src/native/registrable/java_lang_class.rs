@@ -1,4 +1,5 @@
 use crate::native::NativeRet;
+use crate::rt::JvmClass;
 use crate::{FieldKey, FullyQualifiedMethodKey, ThreadId, VirtualMachine};
 use common::jtype::Value;
 use log::debug;
@@ -68,17 +69,12 @@ fn java_lang_class_is_primitive(
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.isPrimitive");
     if let Value::Ref(h) = &args[0] {
-        /*
-        let class_id = vm.heap.get_class_id(h)?;
-        vm.method_area.get_class(&class_id)
-            .get_instance_field_offset(&FieldKey {
-                name: self.interner.get_or_intern("name"),
-                desc: self.interner.get_or_intern("Ljava/lang/String;"),
-            })?;
-         */
-        todo!();
-        //let is_primitive = vm.heap.addr_is_primitive(h);
-        //Ok(Some(Value::Integer(if is_primitive { 1 } else { 0 })))
+        let target_class_id = vm.method_area.get_class_id_by_mirror(h)?;
+        let is_primitive = matches!(
+            vm.method_area.get_class(&target_class_id),
+            JvmClass::Primitive(_)
+        );
+        Ok(Some(Value::Integer(if is_primitive { 1 } else { 0 })))
     } else {
         panic!("java.lang.Class.isPrimitive: expected object");
     }
@@ -91,7 +87,18 @@ fn java_lang_class_get_primitive_class(
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.getPrimitiveClass");
     if let Value::Ref(h) = &args[0] {
-        let class_id = vm.heap.get_class_id(h)?;
+        let k = vm.heap.get_array(&0)?;
+
+        // TODO: change later after heap refactor
+        let type_str = k
+            .data()
+            .iter()
+            .map(|c| c.as_int().unwrap() as u8 as char)
+            .collect::<String>();
+
+        let class_id = vm
+            .method_area
+            .get_class_id_or_load(vm.interner().get_or_intern(&type_str))?;
         let v = vm
             .method_area
             .get_mirror_ref_or_create(class_id, &mut vm.heap)?;

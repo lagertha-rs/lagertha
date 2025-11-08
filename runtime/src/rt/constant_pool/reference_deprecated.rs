@@ -1,7 +1,7 @@
 use crate::rt::constant_pool::rt_cp_deprecated::RuntimeConstantTypeDeprecated;
 use common::descriptor::MethodDescriptor;
 use common::error::RuntimePoolError;
-use common::jtype::Type;
+use common::jtype::DescriptorType;
 use std::sync::Arc;
 
 type OnceCell<I> = once_cell::sync::OnceCell<I>;
@@ -271,11 +271,11 @@ impl MethodDescriptorReferenceDeprecated {
 pub struct FieldDescriptorReferenceDeprecated {
     idx: u16,
     raw: Arc<str>,
-    resolved: Type,
+    resolved: DescriptorType,
 }
 
 impl FieldDescriptorReferenceDeprecated {
-    pub fn new(idx: u16, raw: Arc<str>, resolved: Type) -> Self {
+    pub fn new(idx: u16, raw: Arc<str>, resolved: DescriptorType) -> Self {
         Self { idx, raw, resolved }
     }
 
@@ -291,7 +291,7 @@ impl FieldDescriptorReferenceDeprecated {
         self.raw.clone()
     }
 
-    pub fn resolved(&self) -> &Type {
+    pub fn resolved(&self) -> &DescriptorType {
         &self.resolved
     }
 }

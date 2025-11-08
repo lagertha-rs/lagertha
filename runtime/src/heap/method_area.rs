@@ -4,14 +4,14 @@ use crate::rt::class::InstanceClass;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::constant_pool::bootstrap_registry::BootstrapRegistry;
 use crate::rt::method::Method;
-use crate::rt::{JvmClass, ObjectArrayClass, PrimitiveArrayClass};
+use crate::rt::{JvmClass, ObjectArrayClass, PrimitiveArrayClass, PrimitiveClass};
 use crate::{
-    ClassId, FieldKey, FullyQualifiedMethodKey, MethodDescriptorId, MethodId, Symbol,
-    TypeDescriptorId, VmConfig, debug_log,
+    ClassId, FullyQualifiedMethodKey, MethodDescriptorId, MethodId, Symbol, TypeDescriptorId,
+    VmConfig, debug_log,
 };
 use common::descriptor::MethodDescriptor;
 use common::error::{JvmError, LinkageError, MethodDescriptorErr};
-use common::jtype::{HeapRef, Type, Value};
+use common::jtype::{DescriptorType, HeapRef, PrimitiveType, Value};
 use jclass::ClassFile;
 use lasso::{Spur, ThreadedRodeo};
 use once_cell::sync::OnceCell;
@@ -22,10 +22,11 @@ use std::sync::Arc;
 pub struct MethodArea {
     bootstrap_class_loader: ClassLoader,
     class_name_to_index: HashMap<Spur, ClassId>,
+    mirror_to_class_index: HashMap<HeapRef, ClassId>,
     classes: Vec<JvmClass>,
     methods: Vec<Method>,
 
-    type_descriptors: Vec<Type>,
+    type_descriptors: Vec<DescriptorType>,
     type_descriptors_index: HashMap<Symbol, TypeDescriptorId>,
 
     method_descriptors: Vec<MethodDescriptor>,
@@ -46,6 +47,7 @@ impl MethodArea {
         let mut method_area = Self {
             bootstrap_class_loader,
             class_name_to_index: HashMap::new(),
+            mirror_to_class_index: HashMap::new(),
             classes: Vec::new(),
             methods: Vec::new(),
             type_descriptors: Vec::new(),
@@ -60,6 +62,14 @@ impl MethodArea {
             method_area.get_class_id_or_load(method_area.br().java_lang_class_sym)?;
         let java_lang_object_id =
             method_area.get_class_id_or_load(method_area.br().java_lang_object_sym)?;
+
+        for primitive_type in PrimitiveType::values() {
+            let name_sym = method_area.br().get_primitive_sym(primitive_type);
+            let primitive_class =
+                JvmClass::Primitive(PrimitiveClass::new(name_sym, *primitive_type));
+            let class_id = method_area.push_class(primitive_class);
+            method_area.class_name_to_index.insert(name_sym, class_id);
+        }
 
         method_area
             .bootstrap_registry
@@ -91,12 +101,12 @@ impl MethodArea {
         FullyQualifiedMethodKey::new(name, method.name, method.desc)
     }
 
-    fn push_type_descriptor(&mut self, ty: Type) -> TypeDescriptorId {
+    fn push_type_descriptor(&mut self, ty: DescriptorType) -> TypeDescriptorId {
         self.type_descriptors.push(ty);
         TypeDescriptorId::from_usize(self.type_descriptors.len())
     }
 
-    pub fn get_type_descriptor(&self, id: &TypeDescriptorId) -> &Type {
+    pub fn get_type_descriptor(&self, id: &TypeDescriptorId) -> &DescriptorType {
         &self.type_descriptors[id.to_index()]
     }
 
@@ -134,7 +144,7 @@ impl MethodArea {
             return Ok(*type_desc);
         }
         let descriptor_str = self.interner.resolve(&descriptor);
-        let ty = Type::try_from(descriptor_str)?;
+        let ty = DescriptorType::try_from(descriptor_str)?;
         Ok(self.push_type_descriptor(ty))
     }
 
@@ -169,10 +179,6 @@ impl MethodArea {
         }
     }
 
-    pub fn get_class_id_by_name(&self, name_sym: &Symbol) -> ClassId {
-        *self.class_name_to_index.get(name_sym).unwrap()
-    }
-
     pub fn get_cp(&self, class_id: &ClassId) -> Result<&RuntimeConstantPool, JvmError> {
         self.get_instance_class(class_id).map(|c| &c.cp)
     }
@@ -185,7 +191,7 @@ impl MethodArea {
         self.get_cp(&class_id)
     }
 
-    pub fn load_array_class(&mut self, name_sym: Symbol) -> Result<ClassId, JvmError> {
+    pub(crate) fn load_array_class(&mut self, name_sym: Symbol) -> Result<ClassId, JvmError> {
         let type_descriptor_id = self.get_or_new_type_descriptor_id(name_sym)?;
         let type_descriptor = self.get_type_descriptor(&type_descriptor_id);
 
@@ -194,7 +200,6 @@ impl MethodArea {
             JvmClass::PrimitiveArray(PrimitiveArrayClass {
                 name: name_sym,
                 super_id: self.br().get_java_lang_object_id()?,
-                element_descriptor: type_descriptor_id,
                 element_type: primitive_type,
                 mirror_ref: OnceCell::new(),
             })
@@ -202,9 +207,8 @@ impl MethodArea {
             JvmClass::InstanceArray(ObjectArrayClass {
                 name: name_sym,
                 super_id: self.br().get_java_lang_object_id()?,
-                element_descriptor: type_descriptor_id,
                 element_class_id: self
-                    .get_class_id_or_load(self.interner.get_or_intern(&instance_type))?,
+                    .get_class_id_or_load(self.interner.get_or_intern(instance_type))?,
                 mirror_ref: OnceCell::new(),
             })
         } else {
@@ -272,6 +276,15 @@ impl MethodArea {
         Ok(class_id)
     }
 
+    pub fn get_class_id_by_mirror(&self, mirror: &HeapRef) -> Result<ClassId, JvmError> {
+        self.mirror_to_class_index
+            .get(mirror)
+            .copied()
+            .ok_or(JvmError::Todo(
+                "Class ID not found for given mirror reference".to_string(),
+            ))
+    }
+
     pub fn get_mirror_ref_or_create(
         &mut self,
         class_id: ClassId,
@@ -281,6 +294,7 @@ impl MethodArea {
             return Ok(mirror_ref);
         }
         let mirror_ref = heap.alloc_instance(self, self.br().get_java_lang_class_id()?)?;
+        self.mirror_to_class_index.insert(mirror_ref, class_id);
         let target_class = self.get_class(&class_id);
         target_class.set_mirror_ref(mirror_ref)?;
         let name_sym = *target_class.get_name();

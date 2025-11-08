@@ -1,5 +1,6 @@
 use crate::{ClassId, FieldKey, MethodKey, Symbol};
 use common::error::JvmError;
+use common::jtype::PrimitiveType;
 use lasso::ThreadedRodeo;
 use std::cell::OnceCell;
 
@@ -17,6 +18,17 @@ pub struct BootstrapRegistry {
     pub java_lang_class_sym: Symbol,
     pub java_lang_string_sym: Symbol,
     pub java_lang_system_sym: Symbol,
+
+    // Primitive name symbols
+    pub int_sym: Symbol,
+    pub byte_sym: Symbol,
+    pub short_sym: Symbol,
+    pub long_sym: Symbol,
+    pub float_sym: Symbol,
+    pub double_sym: Symbol,
+    pub char_sym: Symbol,
+    pub boolean_sym: Symbol,
+    pub void_sym: Symbol,
 
     // Common method names (interned)
     pub init_sym: Symbol,
@@ -50,6 +62,17 @@ impl BootstrapRegistry {
         let desc_class_sym = interner.get_or_intern("Ljava/lang/Class;");
         let desc_string_array_sym = interner.get_or_intern("[Ljava/lang/String;");
         let desc_char_array_sym = interner.get_or_intern("[C");
+
+        // Primitive type names
+        let int_sym = interner.get_or_intern("int");
+        let byte_sym = interner.get_or_intern("byte");
+        let short_sym = interner.get_or_intern("short");
+        let long_sym = interner.get_or_intern("long");
+        let float_sym = interner.get_or_intern("float");
+        let double_sym = interner.get_or_intern("double");
+        let char_sym = interner.get_or_intern("char");
+        let boolean_sym = interner.get_or_intern("boolean");
+        let void_sym = interner.get_or_intern("void");
 
         // Field names
         let name_field = interner.get_or_intern("name");
@@ -92,6 +115,17 @@ impl BootstrapRegistry {
             desc_string_array_sym,
             desc_char_array_sym,
 
+            // Primitive names
+            int_sym,
+            byte_sym,
+            short_sym,
+            long_sym,
+            float_sym,
+            double_sym,
+            char_sym,
+            boolean_sym,
+            void_sym,
+
             // Class IDs
             java_lang_class_id: OnceCell::new(),
             java_lang_object_id: OnceCell::new(),
@@ -122,5 +156,19 @@ impl BootstrapRegistry {
             .get()
             .copied()
             .ok_or_else(|| JvmError::Todo("java/lang/Object".to_string()))
+    }
+
+    pub fn get_primitive_sym(&self, primitive: &PrimitiveType) -> Symbol {
+        match primitive {
+            PrimitiveType::Int => self.int_sym,
+            PrimitiveType::Byte => self.byte_sym,
+            PrimitiveType::Short => self.short_sym,
+            PrimitiveType::Long => self.long_sym,
+            PrimitiveType::Float => self.float_sym,
+            PrimitiveType::Double => self.double_sym,
+            PrimitiveType::Char => self.char_sym,
+            PrimitiveType::Boolean => self.boolean_sym,
+            PrimitiveType::Void => self.void_sym,
+        }
     }
 }
