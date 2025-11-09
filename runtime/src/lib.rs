@@ -61,6 +61,11 @@ impl MethodId {
     pub fn to_index(&self) -> usize {
         (self.0.get() - 1) as usize
     }
+
+    //TODO: bad
+    pub fn to_i32(&self) -> i32 {
+        self.0.get() as i32
+    }
 }
 
 #[repr(transparent)]
@@ -99,6 +104,11 @@ impl ClassId {
     }
     pub fn to_index(&self) -> usize {
         (self.0.get() - 1) as usize
+    }
+
+    //TODO: bad
+    pub fn to_i32(&self) -> i32 {
+        self.0.get() as i32
     }
 }
 

@@ -63,6 +63,8 @@ impl MethodArea {
             method_area.get_class_id_or_load(method_area.br().java_lang_class_sym)?;
         let java_lang_object_id =
             method_area.get_class_id_or_load(method_area.br().java_lang_object_sym)?;
+        let java_lang_throwable_id =
+            method_area.get_class_id_or_load(method_area.br().java_lang_throwable_sym)?;
 
         for primitive_type in PrimitiveType::values() {
             let name_sym = method_area.br().get_primitive_sym(primitive_type);
@@ -78,6 +80,9 @@ impl MethodArea {
         method_area
             .bootstrap_registry
             .set_java_lang_object_id(java_lang_object_id)?;
+        method_area
+            .bootstrap_registry
+            .set_java_lang_throwable_id(java_lang_throwable_id)?;
 
         Ok(method_area)
     }

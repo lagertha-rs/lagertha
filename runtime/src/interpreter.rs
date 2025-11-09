@@ -7,6 +7,7 @@ use crate::{
 use common::error::JvmError;
 use common::instruction::Instruction;
 use common::jtype::Value;
+use lasso::Interner;
 use std::cmp::Ordering;
 use std::ops::ControlFlow;
 
@@ -31,6 +32,10 @@ impl Interpreter {
         debug_log_instruction!(&instruction, &thread_id);
 
         match instruction {
+            Instruction::Athrow => {
+                let exception_ref = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
+                Err(JvmError::JavaExceptionThrown(exception_ref))?
+            }
             Instruction::Aaload => {
                 let index = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
                 let array_addr = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
@@ -143,6 +148,20 @@ impl Interpreter {
                 let array_ref = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
                 vm.heap
                     .write_array_element(array_ref, index as usize, Value::Integer(value))?;
+            }
+            Instruction::Dadd => {
+                let v2 = vm.get_stack_mut(&thread_id)?.pop_double_val()?;
+                let v1 = vm.get_stack_mut(&thread_id)?.pop_double_val()?;
+                vm.get_stack_mut(&thread_id)?
+                    .push_operand(Value::Double(v1 + v2))?;
+            }
+            Instruction::Dconst0 => {
+                vm.get_stack_mut(&thread_id)?
+                    .push_operand(Value::Double(0.0))?;
+            }
+            Instruction::Dconst1 => {
+                vm.get_stack_mut(&thread_id)?
+                    .push_operand(Value::Double(1.0))?;
             }
             Instruction::Dup => {
                 vm.get_stack_mut(&thread_id)?.dup_top()?;
@@ -784,6 +803,18 @@ impl Interpreter {
                     .get_cp_by_method_id(&cur_frame_method_id)?
                     .get_interface_method_view(&idx, vm.interner())?;
                 let target_class_id = vm.heap.get_class_id(&object_ref)?;
+                vm.method_area
+                    .get_instance_class(&target_class_id)?
+                    .print_vtable(&vm.method_area);
+                let abstract_set_id = vm
+                    .method_area
+                    .get_class_id_or_load(vm.interner().get_or_intern("java/util/AbstractSet"))?;
+                vm.method_area
+                    .get_instance_class(&abstract_set_id)?
+                    .print_itable(&vm.method_area);
+                vm.method_area
+                    .get_instance_class(&target_class_id)?
+                    .print_itable(&vm.method_area);
                 let target_method_id = vm
                     .method_area
                     .get_instance_class(&target_class_id)?
@@ -832,6 +863,26 @@ impl Interpreter {
                 vm.get_stack_mut(&thread_id)?
                     .push_operand(Value::Integer(result))?;
             }
+            Instruction::Lload0 => {
+                let value = *vm.get_stack_mut(&thread_id)?.cur_frame()?.get_local(0)?;
+                vm.get_stack_mut(&thread_id)?.push_operand(value)?;
+            }
+            Instruction::Lload1 => {
+                let value = *vm.get_stack_mut(&thread_id)?.cur_frame()?.get_local(1)?;
+                vm.get_stack_mut(&thread_id)?.push_operand(value)?;
+            }
+            Instruction::Lload2 => {
+                let value = *vm.get_stack_mut(&thread_id)?.cur_frame()?.get_local(2)?;
+                vm.get_stack_mut(&thread_id)?.push_operand(value)?;
+            }
+            Instruction::Lload3 => {
+                let value = *vm.get_stack_mut(&thread_id)?.cur_frame()?.get_local(3)?;
+                vm.get_stack_mut(&thread_id)?.push_operand(value)?;
+            }
+            Instruction::Lload(pos) => {
+                let value = *vm.get_stack_mut(&thread_id)?.cur_frame()?.get_local(pos)?;
+                vm.get_stack_mut(&thread_id)?.push_operand(value)?;
+            }
             Instruction::Lshl => {
                 let v2 = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
                 let v1 = vm.get_stack_mut(&thread_id)?.pop_long_val()?;
@@ -839,6 +890,27 @@ impl Interpreter {
                 let result = v1.wrapping_shl(shift);
                 vm.get_stack_mut(&thread_id)?
                     .push_operand(Value::Long(result))?;
+            }
+            Instruction::Lstore0 => {
+                let value = vm.get_stack_mut(&thread_id)?.pop_long()?;
+                vm.get_stack_mut(&thread_id)?.set_local(0, value)?;
+            }
+            Instruction::Lstore1 => {
+                let value = vm.get_stack_mut(&thread_id)?.pop_long()?;
+                vm.get_stack_mut(&thread_id)?.set_local(1, value)?;
+            }
+            Instruction::Lstore2 => {
+                let value = vm.get_stack_mut(&thread_id)?.pop_long()?;
+                vm.get_stack_mut(&thread_id)?.set_local(2, value)?;
+            }
+            Instruction::Lstore3 => {
+                let value = vm.get_stack_mut(&thread_id)?.pop_long()?;
+                vm.get_stack_mut(&thread_id)?.set_local(3, value)?;
+            }
+            Instruction::Lstore(idx) => {
+                let value = vm.get_stack_mut(&thread_id)?.pop_long()?;
+                vm.get_stack_mut(&thread_id)?
+                    .set_local(idx as usize, value)?;
             }
             Instruction::Ishl => {
                 let v2 = vm.get_stack_mut(&thread_id)?.pop_int_val()?;

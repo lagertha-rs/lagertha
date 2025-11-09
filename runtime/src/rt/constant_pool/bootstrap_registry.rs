@@ -12,10 +12,13 @@ pub struct BootstrapRegistry {
 
     // Common field keys
     pub class_name_fk: FieldKey,
+    pub throwable_backtrace_fk: FieldKey,
+    pub throwable_depth_fk: FieldKey,
 
     // Common class names (interned)
     pub java_lang_object_sym: Symbol,
     pub java_lang_class_sym: Symbol,
+    pub java_lang_throwable_sym: Symbol,
     pub java_lang_string_sym: Symbol,
     pub java_lang_system_sym: Symbol,
 
@@ -42,10 +45,12 @@ pub struct BootstrapRegistry {
     pub desc_class_sym: Symbol,        // Ljava/lang/Class;
     pub desc_string_array_sym: Symbol, // [Ljava/lang/String;
     pub desc_char_array_sym: Symbol,   // [C
+    pub desc_int_array_sym: Symbol,    // [I
 
     // core classes IDs
     java_lang_class_id: OnceCell<ClassId>,
     java_lang_object_id: OnceCell<ClassId>,
+    java_lang_throwable_id: OnceCell<ClassId>,
 }
 
 impl BootstrapRegistry {
@@ -97,10 +102,19 @@ impl BootstrapRegistry {
                 name: name_field,
                 desc: desc_string_sym,
             },
+            throwable_backtrace_fk: FieldKey {
+                name: interner.get_or_intern("backtrace"),
+                desc: desc_object_sym,
+            },
+            throwable_depth_fk: FieldKey {
+                name: interner.get_or_intern("depth"),
+                desc: interner.get_or_intern("I"),
+            },
 
             // Class names
             java_lang_object_sym: interner.get_or_intern("java/lang/Object"),
             java_lang_class_sym: interner.get_or_intern("java/lang/Class"),
+            java_lang_throwable_sym: interner.get_or_intern("java/lang/Throwable"),
             java_lang_string_sym: interner.get_or_intern("java/lang/String"),
             java_lang_system_sym: interner.get_or_intern("java/lang/System"),
             init_sym,
@@ -114,6 +128,7 @@ impl BootstrapRegistry {
             desc_class_sym,
             desc_string_array_sym,
             desc_char_array_sym,
+            desc_int_array_sym: interner.get_or_intern("[I"),
 
             // Primitive names
             int_sym,
@@ -129,6 +144,7 @@ impl BootstrapRegistry {
             // Class IDs
             java_lang_class_id: OnceCell::new(),
             java_lang_object_id: OnceCell::new(),
+            java_lang_throwable_id: OnceCell::new(),
         }
     }
 
@@ -142,6 +158,19 @@ impl BootstrapRegistry {
         self.java_lang_object_id
             .set(class_id)
             .map_err(|_| JvmError::Todo("java/lang/Object ID already set".to_string()))
+    }
+
+    pub fn set_java_lang_throwable_id(&self, class_id: ClassId) -> Result<(), JvmError> {
+        self.java_lang_throwable_id
+            .set(class_id)
+            .map_err(|_| JvmError::Todo("java/lang/Throwable ID already set".to_string()))
+    }
+
+    pub fn get_java_lang_throwable_id(&self) -> Result<ClassId, JvmError> {
+        self.java_lang_throwable_id
+            .get()
+            .copied()
+            .ok_or_else(|| JvmError::Todo("java/lang/Throwable".to_string()))
     }
 
     pub fn get_java_lang_class_id(&self) -> Result<ClassId, JvmError> {

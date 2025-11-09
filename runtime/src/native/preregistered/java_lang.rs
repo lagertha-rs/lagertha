@@ -2,8 +2,8 @@ use crate::heap::HeapObject;
 use crate::native::{NativeRegistry, NativeRet};
 use crate::stack_deprecated::{FrameStackDeprecated, FrameTypeDeprecated};
 use crate::{ClassIdDeprecated, FullyQualifiedMethodKey, ThreadId, VirtualMachine};
-use common::instruction::ArrayType;
 use common::jtype::Value;
+use jclass::attribute::ElementTag::ArrayType;
 use lasso::Key;
 use log::debug;
 
@@ -162,98 +162,90 @@ fn java_lang_object_hash_code(
 /// - an int array with the line pc of the methods in the stack frames
 fn java_lang_throwable_fill_in_stack_trace(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    thread_id: ThreadId,
     args: &[Value],
 ) -> NativeRet {
-    /*
     debug!("TODO: Stub: java.lang.Throwable.fillInStackTrace");
-    let mut frames: Vec<_> = frame_stack
+    let mut frames: Vec<_> = vm
+        .get_stack(&thread_id)?
         .frames()
         .iter()
         .filter(|frame| {
-            frame.method().name() != "<init>"
-                && !frame
-                    .method()
-                    .class()
-                    .unwrap()
-                    .is_subclass_of("java/lang/Throwable")
+            let cur_method = vm.method_area.get_method(&frame.method_id());
+            cur_method.name != vm.method_area.br().init_sym
+                && !vm.method_area.instance_of(
+                    cur_method.class_id(),
+                    vm.method_area.br().java_lang_throwable_sym,
+                )
         })
+        .cloned() // TODO: very bad clone
         .collect();
     frames.reverse();
-    let int_class = vm
-        .method_area_deprecated
-        .get_class_or_load_by_name(ArrayType::Int.descriptor())
-        .unwrap();
-    let class_id_array = vm.heap.alloc_array(int_class, frames.len()).unwrap();
-    let method_id_array = vm.heap.alloc_array(int_class, frames.len()).unwrap();
-    let line_nbr_array = vm.heap.alloc_array(int_class, frames.len()).unwrap();
+    let int_arr_class = vm
+        .method_area
+        .load_array_class(vm.method_area.br().desc_int_array_sym)?;
+    let class_id_array =
+        vm.heap
+            .alloc_array_with_default_value(int_arr_class, Value::Integer(0), frames.len())?;
+    let method_id_array =
+        vm.heap
+            .alloc_array_with_default_value(int_arr_class, Value::Integer(0), frames.len())?;
+    let line_nbr_array =
+        vm.heap
+            .alloc_array_with_default_value(int_arr_class, Value::Integer(0), frames.len())?;
     for (pos, frame) in frames.iter().enumerate() {
+        let method = vm.method_area.get_method(&frame.method_id());
+        vm.heap.write_array_element(
+            class_id_array,
+            pos,
+            Value::Integer(method.class_id().to_i32()),
+        )?;
+        vm.heap.write_array_element(
+            method_id_array,
+            pos,
+            Value::Integer(frame.method_id().to_i32()),
+        )?;
         vm.heap
-            .write_array_element(
-                class_id_array,
-                pos as i32,
-                Value::Integer(frame.method().class_id().unwrap().into_usize() as i32),
-            )
-            .unwrap();
-        vm.heap
-            .write_array_element(
-                method_id_array,
-                pos as i32,
-                Value::Integer(frame.method().id().unwrap() as i32),
-            )
-            .unwrap();
-        vm.heap
-            .write_array_element(
-                line_nbr_array,
-                pos as i32,
-                Value::Integer(match frame {
-                    FrameTypeDeprecated::JavaFrame(f) => f.pc() as i32,
-                    FrameTypeDeprecated::NativeFrame(_) => -2,
-                }),
-            )
-            .unwrap();
+            .write_array_element(line_nbr_array, pos, Value::Integer(frame.pc() as i32))?;
     }
-    let obj_class = vm
-        .method_area_deprecated
-        .get_class_or_load_by_name("java/lang/Object")
-        .unwrap();
-    let backtrace_addr = vm.heap.alloc_array(obj_class, 3).unwrap();
+    let backtrace_addr = vm.heap.alloc_array_with_default_value(
+        vm.method_area.br().get_java_lang_object_id()?,
+        Value::Null,
+        3,
+    )?;
     vm.heap
-        .write_array_element(backtrace_addr, 0, Value::Ref(class_id_array))
-        .unwrap();
+        .write_array_element(backtrace_addr, 0, Value::Ref(class_id_array))?;
     vm.heap
-        .write_array_element(backtrace_addr, 1, Value::Ref(method_id_array))
-        .unwrap();
+        .write_array_element(backtrace_addr, 1, Value::Ref(method_id_array))?;
     vm.heap
-        .write_array_element(backtrace_addr, 2, Value::Ref(line_nbr_array))
-        .unwrap();
+        .write_array_element(backtrace_addr, 2, Value::Ref(line_nbr_array))?;
     let throwable_addr = match args[0] {
         Value::Ref(h) => h,
         _ => panic!("java.lang.Throwable.fillInStackTrace: expected object"),
     };
-    let throwable_class_id = vm.heap.get_class_id(&throwable_addr);
-    let throwable_class = vm
-        .method_area_deprecated
-        .get_class_by_id(&throwable_class_id)
-        .unwrap();
+    let throwable_class_id = vm.heap.get_class_id(&throwable_addr)?;
+    let backtrace_field_offset = vm
+        .method_area
+        .get_instance_class(&throwable_class_id)?
+        .get_instance_field_offset(&vm.method_area.br().throwable_backtrace_fk)?;
+    let depth_field_offset = vm
+        .method_area
+        .get_instance_class(&throwable_class_id)?
+        .get_instance_field_offset(&vm.method_area.br().throwable_depth_fk)?;
+    vm.heap.write_instance_field(
+        throwable_addr,
+        backtrace_field_offset as usize,
+        Value::Ref(backtrace_addr),
+    )?;
     vm.heap
         .write_instance_field(
             throwable_addr,
-            throwable_class.get_field_index("backtrace").unwrap(),
-            Value::Ref(backtrace_addr),
-        )
-        .unwrap();
-    vm.heap
-        .write_instance_field(
-            throwable_addr,
-            throwable_class.get_field_index("depth").unwrap(),
+            depth_field_offset as usize,
             Value::Integer(frames.len() as i32),
         )
         .unwrap();
 
     Ok(Some(Value::Ref(throwable_addr)))
-     */
-    todo!()
 }
 
 fn java_lang_float_float_to_raw_int_bits(

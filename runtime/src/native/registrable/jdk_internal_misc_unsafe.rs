@@ -220,24 +220,22 @@ fn jdk_internal_misc_unsafe_object_field_offset_1(
     _thread_id: ThreadId,
     args: &[Value],
 ) -> NativeRet {
-    /*
-    debug!("TODO: Stub: jdk.internal.misc.Unsafe.objectFieldOffset");
+    debug!("TODO: Stub: jdk.internal.misc.Unsafe.objectFieldOffset1");
     let class_addr = match &args[1] {
         Value::Ref(h) => h,
         _ => panic!("jdk.internal.misc.Unsafe.objectFieldOffset: expected class object"),
     };
     let field_name = match &args[2] {
-        Value::Ref(h) => {
-            let s = vm.heap.get_string(*h).unwrap();
-            s.to_string()
-        }
+        Value::Ref(h) => vm.heap.get_rust_string_from_java_string(h)?,
         _ => panic!("jdk.internal.misc.Unsafe.objectFieldOffset: expected field name string"),
     };
-    let class = vm.heap.get_class_by_mirror(class_addr).unwrap();
-    let offset = class.get_field_index(&field_name).unwrap();
+    let interned_field_name = vm.interner().get_or_intern(&field_name);
+    let class_id = vm.method_area.get_class_id_by_mirror(class_addr)?;
+    let offset = vm
+        .method_area
+        .get_instance_class(&class_id)?
+        .get_instance_field_offset_by_name(&interned_field_name)?;
     Ok(Some(Value::Long(offset as i64)))
-     */
-    todo!()
 }
 
 fn jdk_internal_misc_unsafe_array_index_scale_0(
