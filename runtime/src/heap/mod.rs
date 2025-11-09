@@ -43,8 +43,26 @@ impl Instance {
         Ok(&self.data[index])
     }
 
+    pub fn get_element_mut(&mut self, index: i32) -> Result<&mut Value, JvmError> {
+        let index = if index >= 0 && (index as usize) < self.data.len() {
+            index as usize
+        } else {
+            throw_exception!(
+                ArrayIndexOutOfBoundsException,
+                "Index {} out of bounds for length {}",
+                index,
+                self.data.len()
+            )?
+        };
+        Ok(&mut self.data[index])
+    }
+
     pub fn data(&self) -> &Vec<Value> {
         &self.data
+    }
+
+    pub fn data_mut(&mut self) -> &mut Vec<Value> {
+        &mut self.data
     }
 
     pub fn data_len(&self) -> usize {
@@ -79,13 +97,13 @@ impl Heap {
         idx
     }
 
-    fn get(&self, h: &HeapRef) -> Result<&HeapObject, JvmError> {
+    pub(crate) fn get(&self, h: &HeapRef) -> Result<&HeapObject, JvmError> {
         self.objects
             .get(*h)
             .ok_or(JvmError::Todo("invalid heap address".to_string()))
     }
 
-    fn get_mut(&mut self, h: &HeapRef) -> Result<&mut HeapObject, JvmError> {
+    pub(crate) fn get_mut(&mut self, h: &HeapRef) -> Result<&mut HeapObject, JvmError> {
         self.objects
             .get_mut(*h)
             .ok_or(JvmError::Todo("invalid heap address".to_string()))
@@ -256,14 +274,10 @@ impl Heap {
 
     // TODO: just a stub right now
     pub fn get_rust_string_from_java_string(&mut self, h: &HeapRef) -> Result<String, JvmError> {
-        let char_array_ref = match self.read_instance_field(h, 0)? {
-            Value::Ref(r) => r,
-            _ => {
-                return Err(JvmError::Todo(
-                    "Expected reference to char array in String.value field".to_string(),
-                ));
-            }
-        };
+        let char_array_ref = self
+            .read_instance_field(h, 0)
+            .map(|reference| reference.as_obj_ref().unwrap())
+            .unwrap_or(*h);
         let char_array_instance = self.get_array(&char_array_ref)?;
         let mut result = String::new();
         for val in &char_array_instance.data {
@@ -293,6 +307,8 @@ impl Heap {
         length: i32,
     ) -> Result<(), JvmError> {
         {
+            let src_rust_before = self.get_rust_string_from_java_string(&src)?;
+            let dest_rust_before = self.get_rust_string_from_java_string(&dest)?;
             let src_array = self.get_array(&src)?;
             let dest_array = self.get_array(&dest)?;
 
@@ -321,6 +337,9 @@ impl Heap {
                 length as usize,
             );
         }
+
+        let src_rust_after = self.get_rust_string_from_java_string(&src)?;
+        let dest_rust_after = self.get_rust_string_from_java_string(&dest)?;
 
         Ok(())
     }

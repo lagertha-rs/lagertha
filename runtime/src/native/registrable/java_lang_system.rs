@@ -12,15 +12,6 @@ pub(super) fn java_lang_system_register_natives(
     vm.native_registry.register(
         FullyQualifiedMethodKey::new_with_str(
             "java/lang/System",
-            "arraycopy",
-            "(Ljava/lang/Object;ILjava/lang/Object;II)V",
-            &vm.string_interner,
-        ),
-        java_lang_system_arraycopy,
-    );
-    vm.native_registry.register(
-        FullyQualifiedMethodKey::new_with_str(
-            "java/lang/System",
             "setIn0",
             "(Ljava/io/InputStream;)V",
             &vm.string_interner,
@@ -101,50 +92,6 @@ fn java_lang_system_set_err_0(
     Ok(None)
      */
     todo!()
-}
-
-fn java_lang_system_arraycopy(
-    vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
-    args: &[Value],
-) -> NativeRet {
-    let src_addr = args[0].as_obj_ref()?;
-    let src_pos = args[1].as_int()?;
-    let dest_addr = args[2].as_obj_ref()?;
-    let dest_pos = args[3].as_int()?;
-    let length = args[4].as_int()?;
-
-    let src_class_id = vm.heap.get_class_id(&src_addr)?;
-    let src_class = vm.method_area.get_class(&src_class_id);
-    /* TODO
-    if !vm.heap.addr_is_array(&src_addr)? {
-        throw_exception!(
-            ArrayStoreException,
-            "arraycopy: source type {} is not an array",
-            src_class.pretty_name()
-        )?;
-    }
-     */
-
-    let dest_class_id = vm.heap.get_class_id(&dest_addr)?;
-    let dest_class = vm.method_area.get_class(&dest_class_id);
-    /* TODO
-    if !vm.heap.addr_is_array(&dest_addr)? {
-        throw_exception!(
-            ArrayStoreException,
-            "arraycopy: destination type {} is not an array",
-            dest_class.pretty_name()
-        )?;
-    }
-     */
-
-    if length == 0 {
-        return Ok(None);
-    }
-
-    vm.heap
-        .copy_primitive_slice(src_addr, src_pos, dest_addr, dest_pos, length)?;
-    Ok(None)
 }
 
 fn java_lang_system_identity_hash_code(

@@ -72,16 +72,6 @@ impl JvmClass {
         }
     }
 
-    pub fn is_child_of(&self, other: &ClassId) -> bool {
-        match self {
-            JvmClass::Instance(i) => i.is_child_of(other),
-            JvmClass::PrimitiveArray(arr) => &arr.super_id == other,
-            JvmClass::InstanceArray(arr) => &arr.super_id == other,
-            JvmClass::Primitive(_) => false,
-            JvmClass::Interface(i) => i.is_child_of(other),
-        }
-    }
-
     pub fn get_super_id(&self) -> Option<ClassId> {
         match self {
             JvmClass::Instance(i) => i.super_id,

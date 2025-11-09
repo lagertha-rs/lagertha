@@ -87,6 +87,50 @@ macro_rules! debug_log_instruction {
                             vm.interner().resolve(&target_field_view.class_sym),
                         ));
                     }
+                    common::instruction::Instruction::InvokeSpecial(idx) => {
+                        let cur_frame_method_id = vm
+                            .get_stack($thread_id)
+                            .unwrap()
+                            .cur_frame()
+                            .unwrap()
+                            .method_id();
+                        let target_method_view = vm
+                            .method_area
+                            .get_cp_by_method_id(&cur_frame_method_id)
+                            .unwrap()
+                            .get_method_view(&idx, vm.interner())
+                            .unwrap();
+                        msg_chunks.push(format!(
+                            "Method {} {} of {}",
+                            vm.interner()
+                                .resolve(&target_method_view.name_and_type.name_sym),
+                            vm.interner()
+                                .resolve(&target_method_view.name_and_type.descriptor_sym),
+                            vm.interner().resolve(&target_method_view.class_sym),
+                        ));
+                    }
+                    common::instruction::Instruction::InvokeStatic(idx) => {
+                        let cur_frame_method_id = vm
+                            .get_stack($thread_id)
+                            .unwrap()
+                            .cur_frame()
+                            .unwrap()
+                            .method_id();
+                        let target_method_view = vm
+                            .method_area
+                            .get_cp_by_method_id(&cur_frame_method_id)
+                            .unwrap()
+                            .get_method_view(&idx, vm.interner())
+                            .unwrap();
+                        msg_chunks.push(format!(
+                            "Method {} {} of {}",
+                            vm.interner()
+                                .resolve(&target_method_view.name_and_type.name_sym),
+                            vm.interner()
+                                .resolve(&target_method_view.name_and_type.descriptor_sym),
+                            vm.interner().resolve(&target_method_view.class_sym),
+                        ));
+                    }
                     common::instruction::Instruction::InvokeInterface(idx, count) => {
                         let cur_frame_method_id = vm
                             .get_stack($thread_id)
@@ -121,7 +165,6 @@ macro_rules! debug_log_instruction {
 
                     _ => {}
                 }
-
                 log::debug!("Executing: {}", msg_chunks.join(" "));
             });
         }

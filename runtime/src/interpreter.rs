@@ -52,6 +52,13 @@ impl Interpreter {
                 let array_addr = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
                 vm.heap.write_array_element(array_addr, index, value)?;
             }
+            Instruction::Bastore => {
+                let value = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
+                let index = vm.get_stack_mut(&thread_id)?.pop_int_val()? as usize;
+                let array_addr = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
+                vm.heap
+                    .write_array_element(array_addr, index, Value::Integer(value & 0xFF))?;
+            }
             Instruction::Caload | Instruction::Baload | Instruction::Iaload => {
                 let index = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
                 let array_addr = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
@@ -166,6 +173,18 @@ impl Interpreter {
             Instruction::Dup => {
                 vm.get_stack_mut(&thread_id)?.dup_top()?;
             }
+            Instruction::Dup2 => match vm.get_stack(&thread_id)?.peek()? {
+                Value::Long(_) | Value::Double(_) => {
+                    let value = *vm.get_stack(&thread_id)?.peek()?;
+                    vm.get_stack_mut(&thread_id)?.push_operand(value)?;
+                }
+                _ => {
+                    let value1 = *vm.get_stack(&thread_id)?.peek()?;
+                    let value2 = *vm.get_stack(&thread_id)?.peek_at(1)?;
+                    vm.get_stack_mut(&thread_id)?.push_operand(value2)?;
+                    vm.get_stack_mut(&thread_id)?.push_operand(value1)?;
+                }
+            },
             Instruction::DupX1 => {
                 let value1 = vm.get_stack_mut(&thread_id)?.pop_operand()?;
                 let value2 = vm.get_stack_mut(&thread_id)?.pop_operand()?;
@@ -367,6 +386,22 @@ impl Interpreter {
                 };
                 vm.get_stack_mut(&thread_id)?
                     .push_operand(Value::Integer(res))?;
+            }
+            Instruction::Lconst0 => {
+                vm.get_stack_mut(&thread_id)?.push_operand(Value::Long(0))?;
+            }
+            Instruction::Lconst1 => {
+                vm.get_stack_mut(&thread_id)?.push_operand(Value::Long(1))?;
+            }
+            Instruction::Lookupswitch(switch) => {
+                let key = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
+                let pc = vm.get_stack(&thread_id)?.pc()?;
+                let target_offset = match switch.pairs.binary_search_by_key(&key, |p| p.0) {
+                    Ok(i) => switch.pairs[i].1,
+                    Err(_) => switch.default_offset,
+                };
+                let new_pc = Self::branch32(pc, target_offset);
+                *vm.get_stack_mut(&thread_id)?.pc_mut()? = new_pc;
             }
             Instruction::Ifnull(offset) => {
                 let pc = vm.get_stack_mut(&thread_id)?.pc()?;
@@ -803,18 +838,6 @@ impl Interpreter {
                     .get_cp_by_method_id(&cur_frame_method_id)?
                     .get_interface_method_view(&idx, vm.interner())?;
                 let target_class_id = vm.heap.get_class_id(&object_ref)?;
-                vm.method_area
-                    .get_instance_class(&target_class_id)?
-                    .print_vtable(&vm.method_area);
-                let abstract_set_id = vm
-                    .method_area
-                    .get_class_id_or_load(vm.interner().get_or_intern("java/util/AbstractSet"))?;
-                vm.method_area
-                    .get_instance_class(&abstract_set_id)?
-                    .print_itable(&vm.method_area);
-                vm.method_area
-                    .get_instance_class(&target_class_id)?
-                    .print_itable(&vm.method_area);
                 let target_method_id = vm
                     .method_area
                     .get_instance_class(&target_class_id)?
@@ -928,9 +951,28 @@ impl Interpreter {
                 vm.get_stack_mut(&thread_id)?
                     .push_operand(Value::Integer(result))?;
             }
+            Instruction::Sastore => {
+                let value = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
+                let index = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
+                let array_ref = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
+                vm.heap
+                    .write_array_element(array_ref, index as usize, Value::Integer(value))?;
+            }
             Instruction::Sipush(value) => {
                 vm.get_stack_mut(&thread_id)?
                     .push_operand(Value::Integer(value as i32))?;
+            }
+            Instruction::TableSwitch(switch) => {
+                let index = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
+                let pc = vm.get_stack(&thread_id)?.pc()?;
+                let target_offset = if index < switch.low || index > switch.high {
+                    switch.default_offset
+                } else {
+                    let idx = (index - switch.low) as usize;
+                    switch.offsets[idx]
+                };
+                let new_pc = Self::branch32(pc, target_offset);
+                *vm.get_stack_mut(&thread_id)?.pc_mut()? = new_pc;
             }
             Instruction::Return => {
                 vm.get_stack_mut(&thread_id)?.pop_frame()?;
@@ -959,6 +1001,12 @@ impl Interpreter {
                 vm.get_stack_mut(&thread_id)?.pop_frame()?;
                 vm.get_stack_mut(&thread_id)?.push_operand(value)?;
                 return Ok(ControlFlow::Break(()));
+            }
+            Instruction::Monitorenter => {
+                let _obj = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
+            }
+            Instruction::Monitorexit => {
+                let _obj = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
             }
             instruction => unimplemented!("instruction {:?}", instruction),
         }

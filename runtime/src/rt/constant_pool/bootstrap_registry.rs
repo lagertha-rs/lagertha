@@ -37,6 +37,7 @@ pub struct BootstrapRegistry {
     pub init_sym: Symbol,
     pub clinit_sym: Symbol,
     pub main_sym: Symbol,
+    pub arraycopy_sym: Symbol,
 
     // Common descriptors (interned)
     pub desc_void_sym: Symbol,         // ()V
@@ -117,9 +118,12 @@ impl BootstrapRegistry {
             java_lang_throwable_sym: interner.get_or_intern("java/lang/Throwable"),
             java_lang_string_sym: interner.get_or_intern("java/lang/String"),
             java_lang_system_sym: interner.get_or_intern("java/lang/System"),
+
+            // Method names
             init_sym,
             clinit_sym,
             main_sym,
+            arraycopy_sym: interner.get_or_intern("arraycopy"),
 
             // Descriptors
             desc_void_sym,

@@ -465,6 +465,10 @@ impl InstanceClass {
         self.declared_method_index.set(declared).unwrap()
     }
 
+    fn get_declared_methods(&self) -> &HashMap<MethodKey, MethodId> {
+        self.declared_method_index.get().unwrap()
+    }
+
     fn set_vtable(&self, vtable: Vec<MethodId>) {
         self.vtable.set(vtable).unwrap()
     }
@@ -501,19 +505,15 @@ impl InstanceClass {
     }
 
     pub fn get_special_method_id(&self, key: &MethodKey) -> Result<MethodId, JvmError> {
-        self.declared_method_index
-            .get()
-            .unwrap()
-            .get(key)
-            .copied()
-            .ok_or(JvmError::JavaException(
-                JavaExceptionFromJvm::NoSuchMethodError(None),
-            ))
-    }
-
-    pub fn is_child_of(&self, other: &ClassId) -> bool {
-        self.super_id.as_ref().map_or(false, |sup| sup == other)
-            || self.get_interfaces().contains(other)
+        if let Some(method_id) = self.get_declared_methods().get(key) {
+            return Ok(*method_id);
+        }
+        if let Some(method_id) = self.get_vtable_index().get(key) {
+            return Ok(self.get_vtable()[*method_id as usize]);
+        }
+        Err(JvmError::JavaException(
+            JavaExceptionFromJvm::NoSuchMethodError(None),
+        ))
     }
 
     pub fn get_mirror_ref(&self) -> Option<HeapRef> {

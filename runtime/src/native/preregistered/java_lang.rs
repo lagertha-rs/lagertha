@@ -109,7 +109,36 @@ pub(super) fn do_register_java_lang_preregistered_natives(native_registry: &mut 
             &native_registry.string_interner,
         ),
         java_lang_null_pointer_exception_get_extended_npe_message,
-    )
+    );
+    native_registry.register(
+        FullyQualifiedMethodKey::new_with_str(
+            "java/lang/System",
+            "arraycopy",
+            "(Ljava/lang/Object;ILjava/lang/Object;II)V",
+            &native_registry.string_interner,
+        ),
+        java_lang_system_arraycopy,
+    );
+}
+
+fn java_lang_system_arraycopy(
+    vm: &mut VirtualMachine,
+    _thread_id: ThreadId,
+    args: &[Value],
+) -> NativeRet {
+    let src_addr = args[0].as_obj_ref()?;
+    let src_pos = args[1].as_int()?;
+    let dest_addr = args[2].as_obj_ref()?;
+    let dest_pos = args[3].as_int()?;
+    let length = args[4].as_int()?;
+
+    if length == 0 {
+        return Ok(None);
+    }
+
+    vm.heap
+        .copy_primitive_slice(src_addr, src_pos, dest_addr, dest_pos, length)?;
+    Ok(None)
 }
 
 fn java_lang_object_get_class(
@@ -117,28 +146,16 @@ fn java_lang_object_get_class(
     _thread_id: ThreadId,
     args: &[Value],
 ) -> NativeRet {
-    /*
     debug!("TODO: Stub: java.lang.Class.getClass");
     if let Value::Ref(h) = &args[0] {
-        let target_class_id = if let Ok(obj) = vm.heap.get(*h) {
-            match obj {
-                HeapObject::Instance(instance) => instance.class_id(),
-                HeapObject::Array(array) => array.class_id(),
-            }
-        } else {
-            panic!("java.lang.Class.getClass: invalid heap address");
-        };
-        let class = vm
-            .method_area_deprecated
-            .get_class_by_id(target_class_id)
-            .unwrap();
-        let res = vm.heap.get_mirror_addr(class).unwrap();
+        let target_class_id = vm.heap.get_class_id(h)?;
+        let res = vm
+            .method_area
+            .get_mirror_ref_or_create(target_class_id, &mut vm.heap)?;
         Ok(Some(Value::Ref(res)))
     } else {
         panic!("java.lang.Class.getClass: expected object as argument");
     }
-     */
-    todo!()
 }
 
 fn java_lang_object_hash_code(

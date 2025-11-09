@@ -234,26 +234,35 @@ impl MethodArea {
         Ok(class_id)
     }
 
-    fn instance_internal_rec(
-        &self,
-        this_class: ClassId,
-        parent_to_check: ClassId,
-    ) -> ControlFlow<()> {
-        if let Some(this_parent_id) = self.get_class(&this_class).get_super_id() {
-            self.instance_internal_rec(this_parent_id, parent_to_check)?
-        };
-        if self.get_class(&this_class).is_child_of(&parent_to_check) {
-            ControlFlow::Break(())
-        } else {
-            ControlFlow::Continue(())
+    fn is_subclass_of(&self, this_class: ClassId, target_class: ClassId) -> bool {
+        if this_class == target_class {
+            return true;
         }
+
+        let this = self.get_class(&this_class);
+
+        if let Some(super_id) = this.get_super_id() {
+            if self.is_subclass_of(super_id, target_class) {
+                return true;
+            }
+        }
+
+        // TODO: check interfaces?
+        /*
+        for interface_id in this.get_interfaces() {
+            if self.is_subclass_of(*interface_id, target_class) {
+                return true;
+            }
+        }
+         */
+
+        false
     }
 
     //TODO: probably need try to load?
     pub fn instance_of(&self, this_class_id: ClassId, other_sym: Symbol) -> bool {
         if let Some(&other_class_id) = self.class_name_to_index.get(&other_sym) {
-            self.instance_internal_rec(this_class_id, other_class_id)
-                .is_break()
+            self.is_subclass_of(this_class_id, other_class_id)
         } else {
             false
         }

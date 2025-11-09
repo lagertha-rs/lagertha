@@ -2,6 +2,7 @@
 [modules."java.base"]
 classes = [
     # java.lang
+    "java.lang.Appendable",
     "java.lang.Object",
     "java.lang.Boolean",
     "java.lang.String",
