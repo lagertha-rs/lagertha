@@ -3,7 +3,6 @@ mod registrable;
 
 use crate::native::preregistered::preregister_natives;
 use crate::native::registrable::add_registrable_natives;
-use crate::stack_deprecated::FrameStackDeprecated;
 use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
 use common::error::JvmError;
 use common::jtype::Value;

@@ -2,10 +2,9 @@ use crate::heap::method_area::MethodArea;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::field::{InstanceField, StaticField};
 use crate::rt::method::Method;
-use crate::rt::{ClassState, JvmClass};
+use crate::rt::{BaseClass, ClassLike, JvmClass};
 use crate::{ClassId, FieldKey, MethodId, MethodKey, Symbol};
 use common::error::{JavaExceptionFromJvm, JvmError};
-use common::jtype::{HeapRef, Value};
 use jclass::ClassFile;
 use jclass::constant::pool::ConstantPool;
 use jclass::field::FieldInfo;
@@ -19,14 +18,9 @@ use std::collections::{HashMap, HashSet};
 //TODO: I guess hotspot doesn't split class and interface classes. Right now we do the same
 // but probably it would be better to have separate InterfaceClass struct
 pub struct InstanceClass {
-    pub name: Symbol,
-    pub flags: ClassFlags,
+    base: BaseClass,
 
     pub cp: RuntimeConstantPool,
-    pub super_id: Option<ClassId>,
-    state: RefCell<ClassState>,
-    mirror_ref: OnceCell<HeapRef>,
-    interfaces: OnceCell<HashSet<ClassId>>,
 
     pub declared_method_index: OnceCell<HashMap<MethodKey, MethodId>>,
     pub vtable: OnceCell<Vec<MethodId>>,
@@ -37,8 +31,6 @@ pub struct InstanceClass {
     pub instance_fields: OnceCell<Vec<InstanceField>>,
     pub instance_fields_offset_map: OnceCell<HashMap<FieldKey, u16>>,
     pub instance_fields_name_offset_map: OnceCell<HashMap<Symbol, u16>>,
-
-    pub static_fields: OnceCell<HashMap<FieldKey, StaticField>>,
 }
 
 impl InstanceClass {
@@ -53,12 +45,8 @@ impl InstanceClass {
         let name = cp.get_class_sym(&this_class, method_area.interner())?;
 
         let class = JvmClass::Instance(Box::new(Self {
+            base: BaseClass::new(name, flags, super_id),
             cp,
-            name,
-            flags,
-            super_id,
-            state: RefCell::new(ClassState::Loaded),
-            interfaces: OnceCell::new(),
             declared_method_index: OnceCell::new(),
             vtable: OnceCell::new(),
             vtable_index: OnceCell::new(),
@@ -66,13 +54,12 @@ impl InstanceClass {
             instance_fields: OnceCell::new(),
             instance_fields_offset_map: OnceCell::new(),
             instance_fields_name_offset_map: OnceCell::new(),
-            static_fields: OnceCell::new(),
-            mirror_ref: OnceCell::new(),
         }));
 
         Ok(method_area.push_class(class))
     }
 
+    // TODO: needs clean up
     fn link_methods(
         methods: Vec<MethodInfo>,
         this_id: ClassId,
@@ -80,17 +67,18 @@ impl InstanceClass {
         method_area: &mut MethodArea,
     ) -> Result<(), JvmError> {
         let mut declared_index = HashMap::new();
-        let (mut vtable, mut vtable_index) = {
-            if let Some(super_id) = super_id {
-                let super_class = method_area.get_instance_class(&super_id)?;
-                (
-                    super_class.get_vtable().clone(),
-                    super_class.get_vtable_index().clone(),
-                )
-            } else {
-                (Vec::new(), HashMap::new())
-            }
-        };
+        let (mut vtable, mut vtable_index) = super_id
+            .map(|id| method_area.get_instance_class(&id))
+            .transpose()?
+            .map(|class| -> Result<_, JvmError> {
+                Ok((
+                    class.get_vtable()?.clone(),
+                    class.get_vtable_index()?.clone(),
+                ))
+            })
+            .transpose()?
+            .unwrap_or_default();
+
         for method in methods {
             let method_key = {
                 let cp = &method_area.get_instance_class(&this_id)?.cp;
@@ -124,14 +112,21 @@ impl InstanceClass {
                     vtable.push(method_id);
                 }
             } else {
-                declared_index.insert(method_key, method_id);
+                if method_key.name == method_area.br().clinit_sym {
+                    method_area
+                        .get_instance_class(&this_id)?
+                        .base
+                        .set_clinit(method_id)?;
+                } else {
+                    declared_index.insert(method_key, method_id);
+                }
             }
         }
 
         let this = method_area.get_instance_class(&this_id)?;
-        this.set_declared_methods(declared_index);
-        this.set_vtable(vtable);
-        this.set_vtable_index(vtable_index);
+        this.set_declared_methods(declared_index)?;
+        this.set_vtable(vtable)?;
+        this.set_vtable_index(vtable_index)?;
         Ok(())
     }
 
@@ -141,30 +136,24 @@ impl InstanceClass {
         super_id: Option<ClassId>,
         method_area: &mut MethodArea,
     ) -> Result<(), JvmError> {
-        let mut instance_fields = if let Some(super_id) = super_id {
-            method_area
-                .get_instance_class(&super_id)?
-                .get_instance_fields()
-                .clone()
-        } else {
-            Vec::new()
-        };
-        let mut instance_fields_offset_map = if let Some(super_id) = super_id {
-            method_area
-                .get_instance_class(&super_id)?
-                .get_instance_fields_offset_map()
-                .clone()
-        } else {
-            HashMap::new()
-        };
-        let mut instance_fields_name_offset_map = if let Some(super_id) = super_id {
-            method_area
-                .get_instance_class(&super_id)?
-                .get_instance_fields_name_offset_map()
-                .clone()
-        } else {
-            HashMap::new()
-        };
+        let mut instance_fields = super_id
+            .map(|id| method_area.get_instance_class(&id))
+            .transpose()?
+            .map(|class| class.get_instance_fields().cloned())
+            .transpose()?
+            .unwrap_or_default();
+        let mut instance_fields_offset_map = super_id
+            .map(|id| method_area.get_instance_class(&id))
+            .transpose()?
+            .map(|class| class.get_instance_fields_offset_map().cloned())
+            .transpose()?
+            .unwrap_or_default();
+        let mut instance_fields_name_offset_map = super_id
+            .map(|id| method_area.get_instance_class(&id))
+            .transpose()?
+            .map(|class| class.get_instance_fields_name_offset_map().cloned())
+            .transpose()?
+            .unwrap_or_default();
         let mut static_fields = HashMap::new();
 
         for field in fields {
@@ -202,10 +191,10 @@ impl InstanceClass {
         }
 
         let this = method_area.get_instance_class(&this_id)?;
-        this.set_instance_fields(instance_fields);
-        this.set_instance_fields_offset_map(instance_fields_offset_map);
-        this.set_instance_fields_name_offset_map(instance_fields_name_offset_map);
-        this.set_static_fields(static_fields);
+        this.set_instance_fields(instance_fields)?;
+        this.set_instance_fields_offset_map(instance_fields_offset_map)?;
+        this.set_instance_fields_name_offset_map(instance_fields_name_offset_map)?;
+        this.base.set_static_fields(static_fields)?;
         Ok(())
     }
 
@@ -215,14 +204,12 @@ impl InstanceClass {
         super_id: Option<ClassId>,
         method_area: &mut MethodArea,
     ) -> Result<(), JvmError> {
-        let mut interface_ids = if let Some(super_id) = super_id {
-            method_area
-                .get_instance_class(&super_id)?
-                .get_interfaces()
-                .clone()
-        } else {
-            HashSet::new()
-        };
+        let mut interface_ids = super_id
+            .map(|id| method_area.get_instance_class(&id))
+            .transpose()?
+            .map(|class| class.base.get_interfaces().cloned())
+            .transpose()?
+            .unwrap_or_default();
 
         for interface in interfaces {
             let cp = &method_area.get_instance_class(&this_id)?.cp;
@@ -240,7 +227,7 @@ impl InstanceClass {
                  */
         }
         let this = method_area.get_instance_class(&this_id)?;
-        this.interfaces.set(interface_ids).unwrap();
+        this.base.set_interfaces(interface_ids)?;
         Ok(())
     }
 
@@ -249,16 +236,18 @@ impl InstanceClass {
         super_id: Option<ClassId>,
         method_area: &mut MethodArea,
     ) -> Result<(), JvmError> {
-        let mut itable = if let Some(super_id) = super_id {
-            method_area
-                .get_instance_class(&super_id)?
-                .get_itable()
-                .clone()
-        } else {
-            HashMap::new()
-        };
+        let mut itable = super_id
+            .map(|id| method_area.get_instance_class(&id))
+            .transpose()?
+            .map(|class| class.get_itable().cloned())
+            .transpose()?
+            .unwrap_or_default();
 
-        for interface in method_area.get_instance_class(&this_id)?.get_interfaces() {
+        for interface in method_area
+            .get_instance_class(&this_id)?
+            .base
+            .get_interfaces()?
+        {
             let interface_class = method_area.get_interface_class(interface)?;
             let interface_methods = interface_class.get_methods();
             for (method_key, method_id) in interface_methods {
@@ -268,12 +257,35 @@ impl InstanceClass {
                     );
                     continue;
                 }
-                let impl_method_id = method_area
+                let impl_method_id = match method_area
                     .get_instance_class(&this_id)?
-                    .get_vtable_method_id(method_key)?;
+                    .get_vtable_method_id(method_key)
+                {
+                    Ok(id) => id,
+                    Err(_) => {
+                        // abstract class isn't required to implement interface methods
+                        if !method_area
+                            .get_instance_class(&this_id)?
+                            .base
+                            .flags
+                            .is_abstract()
+                        {
+                            return Err(JvmError::Todo(format!(
+                                "Concrete class {} does not implement interface method {} {}",
+                                method_area
+                                    .interner()
+                                    .resolve(&method_area.get_instance_class(&this_id)?.base.name),
+                                method_area.interner().resolve(&method_key.name),
+                                method_area.interner().resolve(&method_key.desc)
+                            )));
+                        }
+                        continue;
+                    }
+                };
                 if method_area.get_method(&impl_method_id).is_abstract() {
                     if !method_area
                         .get_instance_class(&this_id)?
+                        .base
                         .flags
                         .is_abstract()
                     {
@@ -281,7 +293,7 @@ impl InstanceClass {
                             "Class {} does not implement interface method {} {}",
                             method_area
                                 .interner()
-                                .resolve(&method_area.get_instance_class(&this_id)?.name),
+                                .resolve(&method_area.get_instance_class(&this_id)?.base.name),
                             method_area.interner().resolve(&method_key.name),
                             method_area.interner().resolve(&method_key.desc)
                         )))?;
@@ -293,7 +305,7 @@ impl InstanceClass {
         }
 
         let this = method_area.get_instance_class(&this_id)?;
-        this.set_itable(itable);
+        this.set_itable(itable)?;
         Ok(())
     }
 
@@ -305,7 +317,7 @@ impl InstanceClass {
         let this_id = Self::load(cf.access_flags, cf.cp, method_area, super_id, cf.this_class)?;
         let debug_name = method_area
             .interner()
-            .resolve(&method_area.get_instance_class(&this_id)?.name);
+            .resolve(&method_area.get_instance_class(&this_id)?.base.name);
 
         Self::link_fields(cf.fields, this_id, super_id, method_area)?;
         Self::link_methods(cf.methods, this_id, super_id, method_area)?;
@@ -317,29 +329,8 @@ impl InstanceClass {
         Ok(this_id)
     }
 
-    pub fn set_static_field_value(
-        &self,
-        field_key: &FieldKey,
-        value: Value,
-    ) -> Result<(), JvmError> {
-        let static_fields = self.static_fields.get().unwrap();
-        let static_field = static_fields
-            .get(field_key)
-            .ok_or(JvmError::Todo("No such field".to_string()))?;
-        *static_field.value.borrow_mut() = value;
-        Ok(())
-    }
-
-    pub fn get_static_field_value(&self, field_key: &FieldKey) -> Result<Value, JvmError> {
-        let static_fields = self.static_fields.get().unwrap();
-        let static_field = static_fields
-            .get(field_key)
-            .ok_or(JvmError::Todo("No such field".to_string()))?;
-        Ok(*static_field.value.borrow())
-    }
-
     pub fn get_interface_method_id(&self, key: &MethodKey) -> Result<MethodId, JvmError> {
-        self.get_itable()
+        self.get_itable()?
             .get(key)
             .copied()
             .ok_or(JvmError::JavaException(
@@ -347,182 +338,150 @@ impl InstanceClass {
             ))
     }
 
-    pub fn print_vtable(&self, method_area: &MethodArea) {
-        println!(
-            "VTable for class {}",
-            method_area.interner().resolve(&self.name)
-        );
-        for (method_key, pos) in self.get_vtable_index() {
-            let method_id = self.get_vtable()[*pos as usize];
-            println!(
-                "  {} {} -> Method ID: {:?}",
-                method_area.interner().resolve(&method_key.name),
-                method_area.interner().resolve(&method_key.desc),
-                method_id
-            );
-        }
-    }
-
-    pub fn print_itable(&self, method_area: &MethodArea) {
-        println!(
-            "ITable for class {}",
-            method_area.interner().resolve(&self.name)
-        );
-        for (method_key, method_id) in self.get_itable() {
-            println!(
-                "  {} {} -> Method ID: {:?}",
-                method_area.interner().resolve(&method_key.name),
-                method_area.interner().resolve(&method_key.desc),
-                method_id
-            );
-        }
-    }
-
-    pub fn get_super_id(&self) -> Option<ClassId> {
-        self.super_id
-    }
-
-    fn set_linked(&self) {
-        *self.state.borrow_mut() = ClassState::Linked;
-    }
-
-    pub fn is_initializing(&self) -> bool {
-        matches!(*self.state.borrow(), ClassState::Initializing)
-    }
-
-    pub fn set_initializing(&self) {
-        *self.state.borrow_mut() = ClassState::Initializing;
-    }
-
-    pub fn set_initialized(&self) {
-        *self.state.borrow_mut() = ClassState::Initialized;
-    }
-
-    pub fn is_initialized_or_initializing(&self) -> bool {
-        matches!(
-            *self.state.borrow(),
-            ClassState::Initialized | ClassState::Initializing
-        )
-    }
-
-    fn set_interfaces(&self, interfaces: HashSet<ClassId>) {
-        self.interfaces.set(interfaces).unwrap()
-    }
-
-    fn get_interfaces(&self) -> &HashSet<ClassId> {
-        self.interfaces.get().unwrap()
-    }
-
-    fn set_static_fields(&self, static_fields: HashMap<FieldKey, StaticField>) {
-        self.static_fields.set(static_fields).unwrap()
-    }
-
-    fn set_instance_fields(&self, instance_fields: Vec<InstanceField>) {
-        self.instance_fields.set(instance_fields).unwrap()
-    }
-
-    fn set_instance_fields_offset_map(&self, instance_fields_offset_map: HashMap<FieldKey, u16>) {
-        self.instance_fields_offset_map
-            .set(instance_fields_offset_map)
-            .unwrap()
-    }
-    fn get_instance_fields_offset_map(&self) -> &HashMap<FieldKey, u16> {
-        self.instance_fields_offset_map.get().unwrap()
-    }
-
-    fn get_instance_fields_name_offset_map(&self) -> &HashMap<Symbol, u16> {
-        self.instance_fields_name_offset_map.get().unwrap()
-    }
-
-    fn set_instance_fields_name_offset_map(
-        &self,
-        instance_fields_name_offset_map: HashMap<Symbol, u16>,
-    ) {
-        self.instance_fields_name_offset_map
-            .set(instance_fields_name_offset_map)
-            .unwrap()
-    }
-
-    pub fn get_instance_fields(&self) -> &Vec<InstanceField> {
-        self.instance_fields.get().unwrap()
-    }
-
     pub fn get_instance_field_offset(&self, field_key: &FieldKey) -> Result<u16, JvmError> {
-        self.get_instance_fields_offset_map()
+        self.get_instance_fields_offset_map()?
             .get(field_key)
             .copied()
             .ok_or(JvmError::Todo("No such field".to_string()))
     }
 
     pub fn get_instance_field_offset_by_name(&self, field_name: &Symbol) -> Result<u16, JvmError> {
-        self.get_instance_fields_name_offset_map()
+        self.get_instance_fields_name_offset_map()?
             .get(field_name)
             .copied()
             .ok_or(JvmError::Todo("No such field".to_string()))
     }
 
-    fn set_declared_methods(&self, declared: HashMap<MethodKey, MethodId>) {
-        self.declared_method_index.set(declared).unwrap()
-    }
-
-    fn get_declared_methods(&self) -> &HashMap<MethodKey, MethodId> {
-        self.declared_method_index.get().unwrap()
-    }
-
-    fn set_vtable(&self, vtable: Vec<MethodId>) {
-        self.vtable.set(vtable).unwrap()
-    }
-
-    fn set_vtable_index(&self, vtable_index: HashMap<MethodKey, u16>) {
-        self.vtable_index.set(vtable_index).unwrap()
-    }
-
-    fn get_vtable(&self) -> &Vec<MethodId> {
-        self.vtable.get().unwrap()
-    }
-
-    fn get_itable(&self) -> &HashMap<MethodKey, MethodId> {
-        self.itable.get().unwrap()
-    }
-
-    fn set_itable(&self, itable: HashMap<MethodKey, MethodId>) {
-        self.itable.set(itable).unwrap()
-    }
-
-    fn get_vtable_index(&self) -> &HashMap<MethodKey, u16> {
-        self.vtable_index.get().unwrap()
-    }
-
     pub fn get_vtable_method_id(&self, key: &MethodKey) -> Result<MethodId, JvmError> {
-        let vtable_index = self.get_vtable_index();
+        let vtable_index = self.get_vtable_index()?;
         let pos = vtable_index
             .get(key)
             .copied()
             .ok_or(JvmError::JavaException(
                 JavaExceptionFromJvm::NoSuchMethodError(None),
             ))?;
-        Ok(self.get_vtable()[pos as usize])
+        Ok(self.get_vtable()?[pos as usize])
     }
 
     pub fn get_special_method_id(&self, key: &MethodKey) -> Result<MethodId, JvmError> {
-        if let Some(method_id) = self.get_declared_methods().get(key) {
+        if let Some(method_id) = self.get_declared_methods()?.get(key) {
             return Ok(*method_id);
         }
-        if let Some(method_id) = self.get_vtable_index().get(key) {
-            return Ok(self.get_vtable()[*method_id as usize]);
+        if let Some(method_id) = self.get_vtable_index()?.get(key) {
+            return Ok(self.get_vtable()?[*method_id as usize]);
         }
         Err(JvmError::JavaException(
             JavaExceptionFromJvm::NoSuchMethodError(None),
         ))
     }
 
-    pub fn get_mirror_ref(&self) -> Option<HeapRef> {
-        self.mirror_ref.get().copied()
+    // Internal getters and setters for "lazy" initialized fields
+    // mostly because I need to know this class id during linking
+
+    // pub(crate) because array classes need to access Object class vtable
+    pub(crate) fn get_vtable(&self) -> Result<&Vec<MethodId>, JvmError> {
+        self.vtable
+            .get()
+            .ok_or(JvmError::Todo("Vtable not initialized yet".to_string()))
     }
 
-    pub fn set_mirror_ref(&self, heap_ref: HeapRef) -> Result<(), JvmError> {
-        self.mirror_ref
-            .set(heap_ref)
-            .map_err(|_| JvmError::Todo("Mirror ref already set".to_string()))
+    // pub(crate) because array classes need to access Object class vtable_index
+    pub(crate) fn get_vtable_index(&self) -> Result<&HashMap<MethodKey, u16>, JvmError> {
+        self.vtable_index.get().ok_or(JvmError::Todo(
+            "Vtable index not initialized yet".to_string(),
+        ))
+    }
+
+    fn set_declared_methods(
+        &self,
+        declared_index: HashMap<MethodKey, MethodId>,
+    ) -> Result<(), JvmError> {
+        self.declared_method_index
+            .set(declared_index)
+            .map_err(|_| JvmError::Todo("Declared methods already initialized".to_string()))
+    }
+
+    fn get_declared_methods(&self) -> Result<&HashMap<MethodKey, MethodId>, JvmError> {
+        self.declared_method_index.get().ok_or(JvmError::Todo(
+            "Declared methods not initialized yet".to_string(),
+        ))
+    }
+
+    fn set_vtable(&self, vtable: Vec<MethodId>) -> Result<(), JvmError> {
+        self.vtable
+            .set(vtable)
+            .map_err(|_| JvmError::Todo("Vtable already initialized".to_string()))
+    }
+
+    fn set_vtable_index(&self, vtable_index: HashMap<MethodKey, u16>) -> Result<(), JvmError> {
+        self.vtable_index
+            .set(vtable_index)
+            .map_err(|_| JvmError::Todo("Vtable index already initialized".to_string()))
+    }
+
+    fn get_instance_fields(&self) -> Result<&Vec<InstanceField>, JvmError> {
+        self.instance_fields.get().ok_or(JvmError::Todo(
+            "Instance fields not initialized yet".to_string(),
+        ))
+    }
+
+    fn set_instance_fields(&self, instance_fields: Vec<InstanceField>) -> Result<(), JvmError> {
+        self.instance_fields
+            .set(instance_fields)
+            .map_err(|_| JvmError::Todo("Instance fields already initialized".to_string()))
+    }
+
+    fn get_instance_fields_offset_map(&self) -> Result<&HashMap<FieldKey, u16>, JvmError> {
+        self.instance_fields_offset_map.get().ok_or(JvmError::Todo(
+            "Instance fields offset map not initialized yet".to_string(),
+        ))
+    }
+
+    fn set_instance_fields_offset_map(
+        &self,
+        instance_fields_offset_map: HashMap<FieldKey, u16>,
+    ) -> Result<(), JvmError> {
+        self.instance_fields_offset_map
+            .set(instance_fields_offset_map)
+            .map_err(|_| {
+                JvmError::Todo("Instance fields offset map already initialized".to_string())
+            })
+    }
+
+    fn get_instance_fields_name_offset_map(&self) -> Result<&HashMap<Symbol, u16>, JvmError> {
+        self.instance_fields_name_offset_map
+            .get()
+            .ok_or(JvmError::Todo(
+                "Instance fields name offset map not initialized yet".to_string(),
+            ))
+    }
+
+    fn set_instance_fields_name_offset_map(
+        &self,
+        instance_fields_name_offset_map: HashMap<Symbol, u16>,
+    ) -> Result<(), JvmError> {
+        self.instance_fields_name_offset_map
+            .set(instance_fields_name_offset_map)
+            .map_err(|_| {
+                JvmError::Todo("Instance fields name offset map already initialized".to_string())
+            })
+    }
+
+    fn get_itable(&self) -> Result<&HashMap<MethodKey, MethodId>, JvmError> {
+        self.itable
+            .get()
+            .ok_or(JvmError::Todo("Itable not initialized yet".to_string()))
+    }
+
+    fn set_itable(&self, itable: HashMap<MethodKey, MethodId>) -> Result<(), JvmError> {
+        self.itable
+            .set(itable)
+            .map_err(|_| JvmError::Todo("Itable already initialized".to_string()))
+    }
+}
+
+impl ClassLike for InstanceClass {
+    fn base(&self) -> &BaseClass {
+        &self.base
     }
 }

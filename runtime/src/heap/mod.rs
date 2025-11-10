@@ -124,6 +124,14 @@ impl Heap {
         }
     }
 
+    pub fn is_array(&self, h: &HeapRef) -> Result<bool, JvmError> {
+        let heap_obj = self.get(h)?;
+        match heap_obj {
+            HeapObject::Array(_) => Ok(true),
+            _ => Ok(false),
+        }
+    }
+
     pub fn get_array_mut(&mut self, h: &HeapRef) -> Result<&mut Instance, JvmError> {
         let heap_obj = self.get_mut(h)?;
         match heap_obj {
@@ -197,6 +205,25 @@ impl Heap {
         method_area: &mut MethodArea,
     ) -> Result<HeapRef, JvmError> {
         self.get_or_new_string_with_char_mapping(val_sym, method_area, &|c| c)
+    }
+
+    pub fn clone_object(&mut self, h: &HeapRef) -> Result<HeapRef, JvmError> {
+        match self.get(h)? {
+            HeapObject::Instance(instance) => {
+                let new_instance = Instance {
+                    class_id: instance.class_id,
+                    data: instance.data.clone(),
+                };
+                Ok(self.push(HeapObject::Instance(new_instance)))
+            }
+            HeapObject::Array(array) => {
+                let new_array = Instance {
+                    class_id: array.class_id,
+                    data: array.data.clone(),
+                };
+                Ok(self.push(HeapObject::Array(new_array)))
+            }
+        }
     }
 
     pub fn alloc_instance(

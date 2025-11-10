@@ -53,22 +53,18 @@ fn java_lang_system_set_out_0(
     _thread_id: ThreadId,
     args: &[Value],
 ) -> NativeRet {
-    /*
     debug!("TODO: Stub: java.lang.System.setIn0");
     let val = match &args[0] {
         Value::Ref(h) => *h,
         _ => panic!("java.lang.System.setOut0: expected PrintStream object"),
     };
-    let system_class = vm
-        .method_area_deprecated
-        .get_class_or_load_by_name("java/lang/System")
-        .unwrap();
-    system_class
-        .set_static_field("out", "Ljava/io/PrintStream;", Value::Ref(val))
-        .unwrap();
+    let system_class_id = vm
+        .method_area
+        .get_class_id_or_load(vm.method_area.br().java_lang_system_sym)?;
+    vm.method_area
+        .get_class_like(&system_class_id)?
+        .set_static_field_value(&vm.method_area.br().out_system_fk, Value::Ref(val))?;
     Ok(None)
-     */
-    todo!()
 }
 
 fn java_lang_system_set_err_0(
@@ -76,22 +72,18 @@ fn java_lang_system_set_err_0(
     _thread_id: ThreadId,
     args: &[Value],
 ) -> NativeRet {
-    /*
     debug!("TODO: Stub: java.lang.System.setIn0");
     let val = match &args[0] {
         Value::Ref(h) => *h,
         _ => panic!("java.lang.System.setOut0: expected PrintStream object"),
     };
-    let system_class = vm
-        .method_area_deprecated
-        .get_class_or_load_by_name("java/lang/System")
-        .unwrap();
-    system_class
-        .set_static_field("err", "Ljava/io/PrintStream;", Value::Ref(val))
-        .unwrap();
+    let system_class_id = vm
+        .method_area
+        .get_class_id_or_load(vm.method_area.br().java_lang_system_sym)?;
+    vm.method_area
+        .get_class_like(&system_class_id)?
+        .set_static_field_value(&vm.method_area.br().err_system_fk, Value::Ref(val))?;
     Ok(None)
-     */
-    todo!()
 }
 
 fn java_lang_system_identity_hash_code(

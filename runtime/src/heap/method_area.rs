@@ -1,14 +1,15 @@
 use crate::class_loader::ClassLoader;
 use crate::heap::Heap;
+use crate::rt::array::{ObjectArrayClass, PrimitiveArrayClass};
 use crate::rt::class::InstanceClass;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::constant_pool::bootstrap_registry::BootstrapRegistry;
 use crate::rt::interface::InterfaceClass;
 use crate::rt::method::Method;
-use crate::rt::{JvmClass, ObjectArrayClass, PrimitiveArrayClass, PrimitiveClass};
+use crate::rt::{ClassLike, JvmClass, PrimitiveClass};
 use crate::{
-    ClassId, FullyQualifiedMethodKey, MethodDescriptorId, MethodId, Symbol, TypeDescriptorId,
-    VmConfig, debug_log,
+    ClassId, FieldKey, FullyQualifiedMethodKey, MethodDescriptorId, MethodId, Symbol,
+    TypeDescriptorId, VmConfig, debug_log,
 };
 use common::descriptor::MethodDescriptor;
 use common::error::{JvmError, LinkageError, MethodDescriptorErr};
@@ -95,13 +96,13 @@ impl MethodArea {
         &self.interner
     }
 
-    pub fn build_fully_qualified_method_key(
+    pub fn build_fully_qualified_native_method_key(
         &self,
         method_id: &MethodId,
     ) -> FullyQualifiedMethodKey {
         let method = self.get_method(method_id);
         let name = match self.get_class(&method.class_id()) {
-            JvmClass::Instance(instance) => instance.name,
+            JvmClass::Instance(instance) => instance.name(),
             _ => panic!("Not an instance class"),
         };
         FullyQualifiedMethodKey::new(name, method.name, method.desc)
@@ -192,8 +193,67 @@ impl MethodArea {
         }
     }
 
+    pub fn get_class_like(&self, class_id: &ClassId) -> Result<&dyn ClassLike, JvmError> {
+        self.get_class(class_id).as_class_like()
+    }
+
     pub fn get_cp(&self, class_id: &ClassId) -> Result<&RuntimeConstantPool, JvmError> {
         self.get_instance_class(class_id).map(|c| &c.cp)
+    }
+
+    fn search_interfaces_for_field(
+        &self,
+        class_id: ClassId,
+        field_key: &FieldKey,
+    ) -> Result<ClassId, JvmError> {
+        let class = self.get_instance_class(&class_id)?;
+
+        for interface_id in class.get_interfaces()? {
+            if let Ok(result) = self.resolve_static_field_actual_class_id(*interface_id, field_key)
+            {
+                return Ok(result);
+            }
+        }
+
+        Err(JvmError::Todo(format!(
+            "Static field {:?} not found in interfaces of {:?}",
+            field_key, class_id
+        )))
+    }
+
+    pub fn resolve_static_field_actual_class_id(
+        &self,
+        class_id: ClassId,
+        field_key: &FieldKey,
+    ) -> Result<ClassId, JvmError> {
+        match self.get_class(&class_id) {
+            JvmClass::Instance(inst) => {
+                let mut cur_id = Some(class_id);
+
+                while let Some(id) = cur_id {
+                    let class = self.get_instance_class(&id)?;
+                    if class.has_static_field(field_key)? {
+                        return Ok(id);
+                    }
+                    cur_id = class.get_super()
+                }
+
+                self.search_interfaces_for_field(class_id, field_key)
+            }
+            JvmClass::Interface(interface) => {
+                if interface.has_static_field(field_key)? {
+                    return Ok(class_id);
+                }
+                // TODO: super interfaces?
+                Err(JvmError::Todo(format!(
+                    "Static field {:?} not found in interface {:?}",
+                    field_key, class_id
+                )))
+            }
+            _ => Err(JvmError::Todo(
+                "Not an instance or interface class".to_string(),
+            )),
+        }
     }
 
     pub fn get_cp_by_method_id(
@@ -207,6 +267,15 @@ impl MethodArea {
     pub(crate) fn load_array_class(&mut self, name_sym: Symbol) -> Result<ClassId, JvmError> {
         let type_descriptor_id = self.get_or_new_type_descriptor_id(name_sym)?;
         let type_descriptor = self.get_type_descriptor(&type_descriptor_id);
+        let obj_class_id = self.br().get_java_lang_object_id()?;
+        let vtable = self
+            .get_instance_class(&obj_class_id)?
+            .get_vtable()?
+            .clone();
+        let vtable_index = self
+            .get_instance_class(&obj_class_id)?
+            .get_vtable_index()?
+            .clone();
 
         let class = if let Some(primitive_type) = type_descriptor.get_primitive_array_element_type()
         {
@@ -214,6 +283,8 @@ impl MethodArea {
                 name: name_sym,
                 super_id: self.br().get_java_lang_object_id()?,
                 element_type: primitive_type,
+                vtable,
+                vtable_index,
                 mirror_ref: OnceCell::new(),
             })
         } else if let Some(instance_type) = type_descriptor.get_instance_array_element_type() {
@@ -222,6 +293,8 @@ impl MethodArea {
                 super_id: self.br().get_java_lang_object_id()?,
                 element_class_id: self
                     .get_class_id_or_load(self.interner.get_or_intern(instance_type))?,
+                vtable,
+                vtable_index,
                 mirror_ref: OnceCell::new(),
             })
         } else {
@@ -323,7 +396,7 @@ impl MethodArea {
         self.mirror_to_class_index.insert(mirror_ref, class_id);
         let target_class = self.get_class(&class_id);
         target_class.set_mirror_ref(mirror_ref)?;
-        let name_sym = *target_class.get_name();
+        let name_sym = target_class.get_name();
         let name_ref = heap.get_or_new_string_with_char_mapping(name_sym, self, &|c| {
             if c == '/' { '.' } else { c }
         })?;

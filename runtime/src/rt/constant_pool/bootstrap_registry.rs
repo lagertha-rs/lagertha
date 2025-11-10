@@ -9,9 +9,12 @@ pub struct BootstrapRegistry {
     pub clinit_mk: MethodKey,
     pub init_mk: MethodKey,
     pub main_mk: MethodKey,
+    pub system_init_phase1_mk: MethodKey,
 
     // Common field keys
     pub class_name_fk: FieldKey,
+    pub out_system_fk: FieldKey,
+    pub err_system_fk: FieldKey,
     pub throwable_backtrace_fk: FieldKey,
     pub throwable_depth_fk: FieldKey,
 
@@ -68,6 +71,7 @@ impl BootstrapRegistry {
         let desc_class_sym = interner.get_or_intern("Ljava/lang/Class;");
         let desc_string_array_sym = interner.get_or_intern("[Ljava/lang/String;");
         let desc_char_array_sym = interner.get_or_intern("[C");
+        let desc_print_stream_sym = interner.get_or_intern("Ljava/io/PrintStream;");
 
         // Primitive type names
         let int_sym = interner.get_or_intern("int");
@@ -97,6 +101,10 @@ impl BootstrapRegistry {
                 name: main_sym,
                 desc: interner.get_or_intern("([Ljava/lang/String;)V"),
             },
+            system_init_phase1_mk: MethodKey {
+                name: interner.get_or_intern("initPhase1"),
+                desc: desc_void_sym,
+            },
 
             // Field keys
             class_name_fk: FieldKey {
@@ -110,6 +118,14 @@ impl BootstrapRegistry {
             throwable_depth_fk: FieldKey {
                 name: interner.get_or_intern("depth"),
                 desc: interner.get_or_intern("I"),
+            },
+            out_system_fk: FieldKey {
+                name: interner.get_or_intern("out"),
+                desc: desc_print_stream_sym,
+            },
+            err_system_fk: FieldKey {
+                name: interner.get_or_intern("err"),
+                desc: desc_print_stream_sym,
             },
 
             // Class names

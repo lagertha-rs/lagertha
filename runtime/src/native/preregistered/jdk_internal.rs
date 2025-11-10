@@ -155,13 +155,9 @@ fn jdk_internal_misc_signal_find_signal_0(
     _thread_id: ThreadId,
     args: &[Value],
 ) -> NativeRet {
-    /*
     debug!("TODO: Stub: jdk.internal.misc.Signal.findSignal0");
     let signal_name = match &args[0] {
-        Value::Ref(h) => {
-            let s = vm.heap.get_string(*h).unwrap();
-            s.to_string()
-        }
+        Value::Ref(h) => vm.heap.get_rust_string_from_java_string(h)?,
         _ => panic!("jdk.internal.misc.Signal.findSignal0: expected signal name string"),
     };
     let signal_number = match signal_name.as_str() {
@@ -187,8 +183,6 @@ fn jdk_internal_misc_signal_find_signal_0(
         _ => -1,
     };
     Ok(Some(Value::Integer(signal_number)))
-     */
-    todo!()
 }
 
 fn jdk_internal_misc_signal_handle_0(

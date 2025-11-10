@@ -3,11 +3,15 @@ mod registrable;
 
 use crate::native_deprecated::preregistered::preregister_natives;
 use crate::native_deprecated::registrable::add_registrable_natives;
+use crate::rt::BaseClass;
+use crate::rt::class::InstanceClass;
 use crate::stack_deprecated::FrameStackDeprecated;
 use crate::{FullyQualifiedMethodKey, VirtualMachineDeprecated};
 use common::error::JvmError;
 use common::jtype::Value;
+use jclass::flags::ClassFlags;
 use lasso::ThreadedRodeo;
+use once_cell::sync::OnceCell;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tracing_log::log::debug;

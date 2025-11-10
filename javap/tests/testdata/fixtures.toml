@@ -63,6 +63,8 @@ classes = [
     "java.lang.constant.ConstantDesc",
     "java.lang.Cloneable",
     # java.io
+    "java.io.Closeable",
+    "java.io.Flushable",
     "java.io.Serializable",
     "java.io.FileInputStream",
     "java.io.BufferedInputStream",
@@ -95,6 +97,7 @@ classes = [
     "sun.nio.cs.StandardCharsets$Aliases",
     "sun.nio.cs.StandardCharsets$Cache",
     "sun.nio.cs.StandardCharsets$Classes",
+    "sun.nio.cs.HistoricallyNamedCharset",
     "sun.util.PreHashedMap",
     "sun.nio.cs.UTF_8",
     "sun.nio.cs.UTF_8$Encoder",
@@ -117,6 +120,8 @@ classes = [
     "java.io.ObjectStreamField",
     "java.io.BufferedOutputStream",
     # java.util
+    "java.util.function.Function",
+    "java.util.function.BiFunction",
     "java.util.Arrays",
     "java.util.Map",
     "java.util.Map$Entry",
@@ -188,4 +193,5 @@ classes = [
     "jdk.internal.access.JavaLangAccess",
     "jdk.internal.access.SharedSecrets",
     "jdk.internal.access.JavaIOFileDescriptorAccess",
+    "jdk.internal.access.JavaNioAccess"
 ]

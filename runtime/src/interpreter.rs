@@ -1,14 +1,17 @@
 use crate::rt::constant_pool::RuntimeConstant;
+use crate::rt::interface::InterfaceClass;
+use crate::rt::{ClassLike, JvmClass};
 use crate::stack::JavaFrame;
 use crate::{
-    ClassId, MethodId, MethodKey, ThreadId, VirtualMachine, debug_log_instruction,
+    ClassId, FieldKey, MethodId, MethodKey, ThreadId, VirtualMachine, debug_log_instruction,
     debug_log_method, throw_exception,
 };
 use common::error::JvmError;
 use common::instruction::Instruction;
 use common::jtype::Value;
-use lasso::Interner;
+use lasso::{Interner, Resolver};
 use std::cmp::Ordering;
+use std::num::NonZeroU32;
 use std::ops::ControlFlow;
 
 pub struct Interpreter;
@@ -290,10 +293,14 @@ impl Interpreter {
                     .method_area
                     .get_class_id_or_load(target_field_view.class_sym)?;
                 Self::ensure_initialized(thread_id, Some(target_class_id), vm)?;
+                let field_key: FieldKey = target_field_view.name_and_type.into();
+                let actual_static_field_class_id = vm
+                    .method_area
+                    .resolve_static_field_actual_class_id(target_class_id, &field_key)?;
                 let value = vm
                     .method_area
-                    .get_instance_class(&target_class_id)?
-                    .get_static_field_value(&target_field_view.name_and_type.into())?;
+                    .get_class(&actual_static_field_class_id)
+                    .get_static_field_value(&field_key)?;
                 vm.get_stack_mut(&thread_id)?.push_operand(value)?;
             }
             Instruction::Goto(offset) => {
@@ -568,13 +575,29 @@ impl Interpreter {
                     .method_area
                     .get_cp_by_method_id(&cur_frame_method_id)?
                     .get_method_view(&idx, vm.interner())?;
-                let target_class_id = vm
+                let method_key: MethodKey = target_method_view.name_and_type.into();
+
+                let target_method_desc_id = vm
                     .method_area
-                    .get_class_id_or_load(target_method_view.class_sym)?;
+                    .get_or_new_method_descriptor_id(&method_key.desc)
+                    .unwrap();
+                let arg_count = vm
+                    .method_area
+                    .get_method_descriptor(&target_method_desc_id)
+                    .params
+                    .len()
+                    + 1;
+
+                let object_ref = vm
+                    .get_stack(&thread_id)?
+                    .peek_at(arg_count - 1)?
+                    .as_obj_ref()?;
+                let actual_class_id = vm.heap.get_class_id(&object_ref)?;
+
                 let target_method_id = vm
                     .method_area
-                    .get_instance_class(&target_class_id)?
-                    .get_vtable_method_id(&target_method_view.name_and_type.into())?;
+                    .get_class(&actual_class_id)
+                    .get_vtable_method_id(&method_key)?;
                 let args = Self::prepare_method_args(thread_id, target_method_id, vm)?;
                 Self::run_method(thread_id, target_method_id, vm, args)?;
             }
@@ -823,9 +846,13 @@ impl Interpreter {
                     .method_area
                     .get_class_id_or_load(target_field_view.class_sym)?;
                 Self::ensure_initialized(thread_id, Some(target_class_id), vm)?;
+                let field_key: FieldKey = target_field_view.name_and_type.into();
+                let actual_static_field_class_id = vm
+                    .method_area
+                    .resolve_static_field_actual_class_id(target_class_id, &field_key)?;
                 vm.method_area
-                    .get_instance_class(&target_class_id)?
-                    .set_static_field_value(&target_field_view.name_and_type.into(), value)?;
+                    .get_class_like(&actual_static_field_class_id)?
+                    .set_static_field_value(&field_key, value)?;
             }
             Instruction::InvokeInterface(idx, count) => {
                 let cur_frame_method_id = vm.get_stack_mut(&thread_id)?.cur_frame()?.method_id();
@@ -1070,7 +1097,13 @@ impl Interpreter {
     ) -> Result<(), JvmError> {
         let method = vm.method_area.get_method(&method_id);
         if method.is_native() {
-            let method_key = vm.method_area.build_fully_qualified_method_key(&method_id);
+            let mut method_key = vm
+                .method_area
+                .build_fully_qualified_native_method_key(&method_id);
+            // native instance method of array special handling (for now, only Object.clone)
+            if !method.is_static() && vm.heap.is_array(&args[0].as_obj_ref()?)? {
+                method_key.class = None;
+            }
             let native = vm.native_registry.get(&method_key).unwrap();
             if let Some(ret) = native(vm, thread_id, args.as_slice())? {
                 vm.get_stack_mut(&thread_id)?.push_operand(ret)?;
@@ -1086,60 +1119,107 @@ impl Interpreter {
         }
         Ok(())
     }
+
+    fn interface_needs_initialization(
+        interface_id: ClassId,
+        vm: &VirtualMachine,
+    ) -> Result<bool, JvmError> {
+        let interface = vm.method_area.get_interface_class(&interface_id)?;
+
+        Ok(interface.has_clinit()) //TODO: || interface.has_non_constant_static_fields()?
+    }
+
+    fn run_clinit_if_exists(
+        thread_id: ThreadId,
+        class_id: ClassId,
+        vm: &mut VirtualMachine,
+    ) -> Result<(), JvmError> {
+        if let Some(&clinit_method_id) = vm
+            .method_area
+            .get_class_like(&class_id)?
+            .get_clinit_method_id()
+        {
+            Self::run_method(thread_id, clinit_method_id, vm, vec![])?;
+        }
+
+        Ok(())
+    }
+
+    fn run_init_phase1(
+        thread_id: ThreadId,
+        class_id: ClassId,
+        vm: &mut VirtualMachine,
+    ) -> Result<(), JvmError> {
+        let init_phase1_method_id = vm
+            .method_area
+            .get_instance_class(&class_id)?
+            .get_special_method_id(&vm.method_area.br().system_init_phase1_mk)?;
+        Self::run_method(thread_id, init_phase1_method_id, vm, vec![])
+    }
+
     fn ensure_initialized(
         thread_id: ThreadId,
         class_id: Option<ClassId>,
         vm: &mut VirtualMachine,
     ) -> Result<(), JvmError> {
-        if let Some(class_id) = class_id
-            && vm.method_area.is_instance_class(&class_id)
-            && !vm
-                .method_area
-                .get_instance_class(&class_id)?
-                .is_initialized_or_initializing()
+        let Some(class_id) = class_id else {
+            return Ok(());
+        };
+
+        let dbg = vm
+            .interner()
+            .resolve(&vm.method_area.get_class(&class_id).get_name());
+
         {
-            vm.method_area
-                .get_instance_class(&class_id)?
-                .set_initializing();
-            Self::ensure_initialized(
-                thread_id,
-                vm.method_area.get_instance_class(&class_id)?.get_super_id(),
-                vm,
-            )?;
-            if let Ok(clinit_method_id) = vm
-                .method_area
-                .get_instance_class(&class_id)?
-                .get_special_method_id(
-                    // TODO: make method key registry?
-                    &MethodKey {
-                        name: vm.interner().get_or_intern("<clinit>"),
-                        desc: vm.interner().get_or_intern("()V"),
-                    },
-                )
-            {
-                Self::run_method(thread_id, clinit_method_id, vm, vec![])?;
-                //TODO: bad
-                if vm
-                    .interner()
-                    .resolve(vm.method_area.get_class(&class_id).get_name())
-                    == "java/lang/System"
+            let class = vm.method_area.get_class_like(&class_id)?;
+
+            if class.is_initialized_or_initializing() {
+                return Ok(());
+            }
+
+            class.set_initializing();
+        }
+
+        match vm.method_area.get_class(&class_id) {
+            JvmClass::Instance(_) => {
+                if let Some(super_id) = vm.method_area.get_instance_class(&class_id)?.get_super() {
+                    Self::ensure_initialized(thread_id, Some(super_id), vm)?;
+                }
+                for interface_id in vm
+                    .method_area
+                    .get_instance_class(&class_id)?
+                    .get_interfaces()?
+                    .clone()
                 {
-                    // TODO: make method key registry?
-                    vm.method_area
-                        .get_instance_class(&class_id)?
-                        .get_special_method_id(&MethodKey {
-                            name: vm.interner().get_or_intern("initPhase1"),
-                            desc: vm.interner().get_or_intern("()V"),
-                        })
-                        .and_then(|init_sys_method_id| {
-                            Self::run_method(thread_id, init_sys_method_id, vm, vec![])
-                        })?;
+                    if Self::interface_needs_initialization(interface_id, vm)? {
+                        Self::ensure_initialized(thread_id, Some(interface_id), vm)?;
+                    }
+                }
+
+                Self::run_clinit_if_exists(thread_id, class_id, vm)?;
+
+                // Special handling for java.lang.System.initPhase1
+                // probably in the future we can skip it for something like arraycopy native method
+                // I guess it doesn't need the whole class initialization
+                if vm.method_area.get_instance_class(&class_id)?.name()
+                    == vm.method_area.br().java_lang_system_sym
+                {
+                    Self::run_init_phase1(thread_id, class_id, vm)?;
                 }
             }
-            vm.method_area
-                .get_instance_class(&class_id)?
-                .set_initialized();
+            JvmClass::Interface(interface) => {
+                for super_interface_id in interface.get_interfaces()?.clone() {
+                    if Self::interface_needs_initialization(super_interface_id, vm)? {
+                        Self::ensure_initialized(thread_id, Some(super_interface_id), vm)?;
+                    }
+                }
+
+                Self::run_clinit_if_exists(thread_id, class_id, vm)?;
+            }
+            _ => {}
         }
+
+        vm.method_area.get_class_like(&class_id)?.set_initialized();
         Ok(())
     }
 
