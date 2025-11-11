@@ -1,17 +1,15 @@
 use crate::rt::constant_pool::RuntimeConstant;
-use crate::rt::interface::InterfaceClass;
 use crate::rt::{ClassLike, JvmClass};
 use crate::stack::JavaFrame;
 use crate::{
     ClassId, FieldKey, MethodId, MethodKey, ThreadId, VirtualMachine, debug_log_instruction,
-    debug_log_method, throw_exception,
+    throw_exception,
 };
 use common::error::JvmError;
 use common::instruction::Instruction;
 use common::jtype::Value;
-use lasso::{Interner, Resolver};
+use log::warn;
 use std::cmp::Ordering;
-use std::num::NonZeroU32;
 use std::ops::ControlFlow;
 
 pub struct Interpreter;
@@ -856,21 +854,36 @@ impl Interpreter {
             }
             Instruction::InvokeInterface(idx, count) => {
                 let cur_frame_method_id = vm.get_stack_mut(&thread_id)?.cur_frame()?.method_id();
-                let object_ref = vm
-                    .get_stack(&thread_id)?
-                    .peek_at(count as usize - 1)?
-                    .as_obj_ref()?;
                 let target_method_view = vm
                     .method_area
                     .get_cp_by_method_id(&cur_frame_method_id)?
                     .get_interface_method_view(&idx, vm.interner())?;
-                let target_class_id = vm.heap.get_class_id(&object_ref)?;
-                let target_method_id = vm
-                    .method_area
-                    .get_instance_class(&target_class_id)?
-                    .get_interface_method_id(&target_method_view.name_and_type.into())?;
-                let args = Self::prepare_method_args(thread_id, target_method_id, vm)?;
-                Self::run_method(thread_id, target_method_id, vm, args)?;
+                let object_ref = vm
+                    .get_stack(&thread_id)?
+                    .peek_at(count as usize - 1)?
+                    .as_obj_ref()?;
+                if target_method_view.class_sym
+                    == vm
+                        .interner()
+                        .get_or_intern("jdk/internal/access/JavaLangRefAccess")
+                    && target_method_view.name_and_type.name_sym
+                        == vm.interner().get_or_intern("startThreads")
+                {
+                    warn!(
+                        "TODO: Stub: Ignoring call to jdk/internal/access/JavaLangRefAccess.startThreads"
+                    );
+                    for _ in 0..count {
+                        let _ = vm.get_stack_mut(&thread_id)?.pop_operand()?;
+                    }
+                } else {
+                    let target_class_id = vm.heap.get_class_id(&object_ref)?;
+                    let target_method_id = vm
+                        .method_area
+                        .get_instance_class(&target_class_id)?
+                        .get_interface_method_id(&target_method_view.name_and_type.into())?;
+                    let args = Self::prepare_method_args(thread_id, target_method_id, vm)?;
+                    Self::run_method(thread_id, target_method_id, vm, args)?;
+                }
             }
             Instruction::InvokeSpecial(idx) => {
                 let cur_frame_method_id = vm.get_stack_mut(&thread_id)?.cur_frame()?.method_id();
@@ -1181,8 +1194,8 @@ impl Interpreter {
         }
 
         match vm.method_area.get_class(&class_id) {
-            JvmClass::Instance(_) => {
-                if let Some(super_id) = vm.method_area.get_instance_class(&class_id)?.get_super() {
+            JvmClass::Instance(inst) => {
+                if let Some(super_id) = inst.get_super() {
                     Self::ensure_initialized(thread_id, Some(super_id), vm)?;
                 }
                 for interface_id in vm
@@ -1198,13 +1211,27 @@ impl Interpreter {
 
                 Self::run_clinit_if_exists(thread_id, class_id, vm)?;
 
-                // Special handling for java.lang.System.initPhase1
+                let cur_class_name = vm.method_area.get_instance_class(&class_id)?.name();
+
                 // probably in the future we can skip it for something like arraycopy native method
                 // I guess it doesn't need the whole class initialization
-                if vm.method_area.get_instance_class(&class_id)?.name()
-                    == vm.method_area.br().java_lang_system_sym
-                {
+                if cur_class_name == vm.method_area.br().java_lang_system_sym {
                     Self::run_init_phase1(thread_id, class_id, vm)?;
+                }
+                //TODO: stub
+                if vm.interner().resolve(&cur_class_name) == "jdk/internal/access/SharedSecrets" {
+                    warn!(
+                        "TODO: Stub: Setting jdk/internal/access/SharedSecrets javaLangRefAccess to non-null value, to avoid NPEs"
+                    );
+                    let ref_access_fk = FieldKey {
+                        name: vm.interner().get_or_intern("javaLangRefAccess"),
+                        desc: vm
+                            .interner()
+                            .get_or_intern("Ljdk/internal/access/JavaLangRefAccess;"),
+                    };
+                    vm.method_area
+                        .get_instance_class(&class_id)?
+                        .set_static_field_value(&ref_access_fk, Value::Ref(0))?;
                 }
             }
             JvmClass::Interface(interface) => {

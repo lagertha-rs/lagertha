@@ -179,7 +179,7 @@ impl Heap {
                 method_area.get_class_id_or_load(method_area.br().java_lang_string_sym)
             })?;
             let char_array_class_id = *self.char_array_class_id.get_or_try_init(|| {
-                method_area.get_class_id_or_load(method_area.br().desc_char_array_sym)
+                method_area.get_class_id_or_load(method_area.br().char_array_desc)
             })?;
             let chars_val = {
                 let s = method_area.interner().resolve(&val_sym);

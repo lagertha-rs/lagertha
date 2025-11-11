@@ -180,6 +180,12 @@ pub struct FieldKey {
     pub desc: Symbol,
 }
 
+impl FieldKey {
+    pub fn new(name: Symbol, desc: Symbol) -> Self {
+        Self { name, desc }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct VmConfig {
     pub home: PathBuf,

@@ -200,7 +200,7 @@ fn java_lang_throwable_fill_in_stack_trace(
     frames.reverse();
     let int_arr_class = vm
         .method_area
-        .load_array_class(vm.method_area.br().desc_int_array_sym)?;
+        .load_array_class(vm.method_area.br().int_array_desc)?;
     let class_id_array =
         vm.heap
             .alloc_array_with_default_value(int_arr_class, Value::Integer(0), frames.len())?;

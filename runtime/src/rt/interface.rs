@@ -127,9 +127,9 @@ impl InterfaceClass {
         method_area: &mut MethodArea,
     ) -> Result<(), JvmError> {
         let mut interface_ids = super_id
-            .map(|id| method_area.get_interface_class(&id))
+            .map(|id| method_area.get_class_like(&id))
             .transpose()?
-            .map(|class| class.base.get_interfaces().cloned())
+            .map(|class| class.get_interfaces().cloned())
             .transpose()?
             .unwrap_or_default();
 
@@ -159,35 +159,13 @@ impl InterfaceClass {
         super_id: Option<ClassId>,
     ) -> Result<ClassId, JvmError> {
         let this_id = Self::load(cf.access_flags, cf.cp, method_area, super_id, cf.this_class)?;
+        let dbg = method_area
+            .interner()
+            .resolve(&method_area.get_class(&this_id).get_name());
 
-        if let Err(e) = Self::link_methods(cf.methods, this_id, method_area) {
-            let dbg = method_area
-                .interner()
-                .resolve(&method_area.get_class(&this_id).get_name());
-            return Err(JvmError::Todo(format!(
-                "Error linking methods for interface {}: {:?}",
-                dbg, e
-            )));
-        }
-
-        if let Err(e) = Self::link_fields(cf.fields, this_id, method_area) {
-            let dbg = method_area
-                .interner()
-                .resolve(&method_area.get_class(&this_id).get_name());
-            return Err(JvmError::Todo(format!(
-                "Error linking fields for interface {}: {:?}",
-                dbg, e
-            )));
-        }
-        if let Err(e) = Self::link_interfaces(cf.interfaces, this_id, super_id, method_area) {
-            let dbg = method_area
-                .interner()
-                .resolve(&method_area.get_class(&this_id).get_name());
-            return Err(JvmError::Todo(format!(
-                "Error linking interfaces for interface {}: {:?}",
-                dbg, e
-            )));
-        }
+        Self::link_methods(cf.methods, this_id, method_area)?;
+        Self::link_fields(cf.fields, this_id, method_area)?;
+        Self::link_interfaces(cf.interfaces, this_id, super_id, method_area)?;
 
         Ok(this_id)
     }

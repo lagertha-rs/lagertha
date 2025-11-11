@@ -18,7 +18,6 @@ use jclass::ClassFile;
 use lasso::{Spur, ThreadedRodeo};
 use once_cell::sync::OnceCell;
 use std::collections::HashMap;
-use std::ops::ControlFlow;
 use std::sync::Arc;
 
 pub struct MethodArea {
@@ -198,7 +197,7 @@ impl MethodArea {
     }
 
     pub fn get_cp(&self, class_id: &ClassId) -> Result<&RuntimeConstantPool, JvmError> {
-        self.get_instance_class(class_id).map(|c| &c.cp)
+        self.get_class(class_id).get_cp()
     }
 
     fn search_interfaces_for_field(

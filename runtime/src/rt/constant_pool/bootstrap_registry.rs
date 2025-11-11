@@ -1,7 +1,7 @@
 use crate::{ClassId, FieldKey, MethodKey, Symbol};
 use common::error::JvmError;
 use common::jtype::PrimitiveType;
-use lasso::ThreadedRodeo;
+use lasso::{Interner, ThreadedRodeo};
 use std::cell::OnceCell;
 
 pub struct BootstrapRegistry {
@@ -13,8 +13,10 @@ pub struct BootstrapRegistry {
 
     // Common field keys
     pub class_name_fk: FieldKey,
-    pub out_system_fk: FieldKey,
-    pub err_system_fk: FieldKey,
+    pub system_out_fk: FieldKey,
+    pub system_err_fk: FieldKey,
+    pub file_output_stream_fd_fk: FieldKey,
+    pub fd_fd_fk: FieldKey,
     pub throwable_backtrace_fk: FieldKey,
     pub throwable_depth_fk: FieldKey,
 
@@ -43,13 +45,14 @@ pub struct BootstrapRegistry {
     pub arraycopy_sym: Symbol,
 
     // Common descriptors (interned)
-    pub desc_void_sym: Symbol,         // ()V
-    pub desc_string_sym: Symbol,       // Ljava/lang/String;
-    pub desc_object_sym: Symbol,       // Ljava/lang/Object;
-    pub desc_class_sym: Symbol,        // Ljava/lang/Class;
-    pub desc_string_array_sym: Symbol, // [Ljava/lang/String;
-    pub desc_char_array_sym: Symbol,   // [C
-    pub desc_int_array_sym: Symbol,    // [I
+    pub void_desc: Symbol,         // ()V
+    pub string_desc: Symbol,       // Ljava/lang/String;
+    pub object_desc: Symbol,       // Ljava/lang/Object;
+    pub class_desc: Symbol,        // Ljava/lang/Class;
+    pub string_array_desc: Symbol, // [Ljava/lang/String;
+    pub char_array_desc: Symbol,   // [C
+    pub int_array_desc: Symbol,    // [I
+    pub int_desc: Symbol,          // I
 
     // core classes IDs
     java_lang_class_id: OnceCell<ClassId>,
@@ -65,12 +68,13 @@ impl BootstrapRegistry {
         let main_sym = interner.get_or_intern("main");
 
         // Common descriptors
-        let desc_void_sym = interner.get_or_intern("()V");
-        let desc_string_sym = interner.get_or_intern("Ljava/lang/String;");
-        let desc_object_sym = interner.get_or_intern("Ljava/lang/Object;");
-        let desc_class_sym = interner.get_or_intern("Ljava/lang/Class;");
-        let desc_string_array_sym = interner.get_or_intern("[Ljava/lang/String;");
-        let desc_char_array_sym = interner.get_or_intern("[C");
+        let void_desc = interner.get_or_intern("()V");
+        let string_desc = interner.get_or_intern("Ljava/lang/String;");
+        let object_desc = interner.get_or_intern("Ljava/lang/Object;");
+        let class_desc = interner.get_or_intern("Ljava/lang/Class;");
+        let string_array_desc = interner.get_or_intern("[Ljava/lang/String;");
+        let char_array_desc = interner.get_or_intern("[C");
+        let int_desc = interner.get_or_intern("I");
         let desc_print_stream_sym = interner.get_or_intern("Ljava/io/PrintStream;");
 
         // Primitive type names
@@ -91,11 +95,11 @@ impl BootstrapRegistry {
             // Method keys
             clinit_mk: MethodKey {
                 name: clinit_sym,
-                desc: desc_void_sym,
+                desc: void_desc,
             },
             init_mk: MethodKey {
                 name: init_sym,
-                desc: desc_void_sym,
+                desc: void_desc,
             },
             main_mk: MethodKey {
                 name: main_sym,
@@ -103,29 +107,37 @@ impl BootstrapRegistry {
             },
             system_init_phase1_mk: MethodKey {
                 name: interner.get_or_intern("initPhase1"),
-                desc: desc_void_sym,
+                desc: void_desc,
             },
 
             // Field keys
             class_name_fk: FieldKey {
                 name: name_field,
-                desc: desc_string_sym,
+                desc: string_desc,
             },
             throwable_backtrace_fk: FieldKey {
                 name: interner.get_or_intern("backtrace"),
-                desc: desc_object_sym,
+                desc: object_desc,
             },
             throwable_depth_fk: FieldKey {
                 name: interner.get_or_intern("depth"),
-                desc: interner.get_or_intern("I"),
+                desc: int_desc,
             },
-            out_system_fk: FieldKey {
+            system_out_fk: FieldKey {
                 name: interner.get_or_intern("out"),
                 desc: desc_print_stream_sym,
             },
-            err_system_fk: FieldKey {
+            system_err_fk: FieldKey {
                 name: interner.get_or_intern("err"),
                 desc: desc_print_stream_sym,
+            },
+            file_output_stream_fd_fk: FieldKey {
+                name: interner.get_or_intern("fd"),
+                desc: interner.get_or_intern("Ljava/io/FileDescriptor;"),
+            },
+            fd_fd_fk: FieldKey {
+                name: interner.get_or_intern("fd"),
+                desc: int_desc,
             },
 
             // Class names
@@ -142,13 +154,14 @@ impl BootstrapRegistry {
             arraycopy_sym: interner.get_or_intern("arraycopy"),
 
             // Descriptors
-            desc_void_sym,
-            desc_string_sym,
-            desc_object_sym,
-            desc_class_sym,
-            desc_string_array_sym,
-            desc_char_array_sym,
-            desc_int_array_sym: interner.get_or_intern("[I"),
+            void_desc,
+            string_desc,
+            object_desc,
+            class_desc,
+            string_array_desc,
+            char_array_desc,
+            int_desc,
+            int_array_desc: interner.get_or_intern("[I"),
 
             // Primitive names
             int_sym,

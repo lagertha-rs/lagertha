@@ -1,5 +1,6 @@
 use crate::rt::array::{ObjectArrayClass, PrimitiveArrayClass};
 use crate::rt::class::InstanceClass;
+use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::field::{InstanceField, StaticField};
 use crate::rt::interface::InterfaceClass;
 use crate::{ClassId, FieldKey, MethodId, MethodKey, Symbol};
@@ -195,6 +196,17 @@ impl JvmClass {
             )),
         }
     }
+
+    pub fn get_cp(&self) -> Result<&RuntimeConstantPool, JvmError> {
+        match self {
+            JvmClass::Instance(inst) => Ok(&inst.cp),
+            JvmClass::Interface(i) => Ok(&i.cp),
+            _ => Err(JvmError::Todo(
+                "get_cp not implemented for this JvmClass variant".to_string(),
+            )),
+        }
+    }
+
     pub fn get_static_field_value(&self, field_key: &FieldKey) -> Result<Value, JvmError> {
         match self {
             JvmClass::Instance(inst) => inst.get_static_field_value(field_key),

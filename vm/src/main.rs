@@ -52,7 +52,7 @@ fn create_vm_configuration(mut args: Args, main_class: String) -> Result<VmConfi
 }
 
 fn main() {
-    init_tracing();
+    //init_tracing();
     let args = Args::parse();
     debug!("Provided command line arguments: {:?}", args);
 

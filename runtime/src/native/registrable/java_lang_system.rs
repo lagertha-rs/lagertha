@@ -63,7 +63,7 @@ fn java_lang_system_set_out_0(
         .get_class_id_or_load(vm.method_area.br().java_lang_system_sym)?;
     vm.method_area
         .get_class_like(&system_class_id)?
-        .set_static_field_value(&vm.method_area.br().out_system_fk, Value::Ref(val))?;
+        .set_static_field_value(&vm.method_area.br().system_out_fk, Value::Ref(val))?;
     Ok(None)
 }
 
@@ -82,7 +82,7 @@ fn java_lang_system_set_err_0(
         .get_class_id_or_load(vm.method_area.br().java_lang_system_sym)?;
     vm.method_area
         .get_class_like(&system_class_id)?
-        .set_static_field_value(&vm.method_area.br().err_system_fk, Value::Ref(val))?;
+        .set_static_field_value(&vm.method_area.br().system_err_fk, Value::Ref(val))?;
     Ok(None)
 }
 
