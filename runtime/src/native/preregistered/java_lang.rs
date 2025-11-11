@@ -1,7 +1,6 @@
 use crate::native::{NativeRegistry, NativeRet};
 use crate::rt::ClassLike;
 use crate::stack::FrameType;
-use crate::stack_deprecated::FrameTypeDeprecated;
 use crate::{
     ClassId, FullyQualifiedMethodKey, MethodId, ThreadId, VirtualMachine, throw_exception,
 };

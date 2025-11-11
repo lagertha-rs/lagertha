@@ -1,10 +1,7 @@
 use crate::heap::Heap;
 use crate::heap::method_area::MethodArea;
-use crate::heap_deprecated::HeapDeprecated;
-use crate::heap_deprecated::method_area_deprecated::MethodAreaDeprecated;
 use crate::interpreter::Interpreter;
 use crate::native::NativeRegistry;
-use crate::native_deprecated::NativeRegistryDeprecated;
 use crate::stack::FrameStack;
 use crate::thread::JavaThreadState;
 use common::error::JvmError;
@@ -18,18 +15,13 @@ use std::sync::Arc;
 mod class_loader;
 pub mod debug_log;
 pub mod heap;
-pub mod heap_deprecated;
 mod interpreter;
-mod interpreter_deprecated;
 mod native;
-mod native_deprecated;
 pub mod rt;
 mod stack;
-pub mod stack_deprecated;
 mod thread;
 mod throw;
 
-pub type ClassIdDeprecated = Spur;
 #[repr(transparent)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub struct ThreadId(NonZeroU32);
@@ -48,7 +40,6 @@ impl ThreadId {
         (self.0.get() - 1) as usize
     }
 }
-pub type MethodIdDeprecated = usize;
 #[repr(transparent)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub struct MethodId(NonZeroU32);
@@ -215,32 +206,6 @@ impl VmConfig {
                 self.version
             );
         }
-    }
-}
-
-pub struct VirtualMachineDeprecated {
-    config: VmConfig,
-    heap: HeapDeprecated,
-    method_area_deprecated: MethodAreaDeprecated,
-    native_registry: NativeRegistryDeprecated,
-    string_interner: Arc<ThreadedRodeo>,
-}
-
-impl VirtualMachineDeprecated {
-    pub fn new(config: VmConfig) -> Result<Self, JvmError> {
-        config.validate();
-        let string_interner = Arc::new(ThreadedRodeo::default());
-        let mut method_area = MethodAreaDeprecated::new(&config, string_interner.clone())?;
-        let heap = HeapDeprecated::new(&mut method_area)?;
-
-        let native_registry = NativeRegistryDeprecated::new(string_interner.clone());
-        Ok(Self {
-            method_area_deprecated: method_area,
-            config,
-            heap,
-            native_registry,
-            string_interner,
-        })
     }
 }
 

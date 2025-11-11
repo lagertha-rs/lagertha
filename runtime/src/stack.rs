@@ -319,38 +319,6 @@ impl FrameStack {
     }
 }
 
-/*
-pub enum FrameType {
-    JavaFrame(JavaFrame),
-    NativeFrame(NativeFrame),
-}
-
-impl FrameType {
-    pub fn method(&self) -> &Arc<MethodDeprecated> {
-        match self {
-            FrameType::JavaFrame(f) => &f.method,
-            FrameType::NativeFrame(f) => &f.method,
-        }
-    }
-}
-
-#[derive(Clone)]
-pub struct NativeFrame {
-    method: Arc<MethodDeprecated>,
-}
-
-impl NativeFrame {
-    pub fn new(method: Arc<MethodDeprecated>) -> Self {
-        Self { method }
-    }
-
-    pub fn method(&self) -> &Arc<MethodDeprecated> {
-        &self.method
-    }
-}
-
- */
-
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.6
 #[derive(Clone)]
 pub struct JavaFrame {

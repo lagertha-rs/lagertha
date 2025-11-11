@@ -50,7 +50,7 @@ impl ArrayType {
             ArrayType::Double => Value::Double(0.0),
         }
     }
-    
+
     pub fn descriptor(&self) -> &str {
         match self {
             ArrayType::Boolean => "[Z",

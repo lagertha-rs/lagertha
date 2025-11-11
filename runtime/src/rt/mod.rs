@@ -13,13 +13,10 @@ use std::collections::{HashMap, HashSet};
 
 pub mod array;
 pub mod class;
-pub mod class_deprecated;
 pub mod constant_pool;
 mod field;
-pub mod field_deprecated;
 pub mod interface;
 pub mod method;
-pub mod method_deprecated;
 
 pub trait ClassLike {
     fn base(&self) -> &BaseClass;

@@ -10,8 +10,6 @@ use std::fmt::Display;
 
 pub mod bootstrap_registry;
 pub mod entry;
-pub mod reference_deprecated;
-pub mod rt_cp_deprecated;
 
 pub enum RuntimeConstantType {
     Unused,
