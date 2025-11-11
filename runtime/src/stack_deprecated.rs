@@ -3,8 +3,8 @@ use crate::rt::constant_pool::rt_cp_deprecated::RuntimeConstantPoolDeprecated;
 use crate::rt::method_deprecated::MethodDeprecated;
 use common::error::{JavaExceptionFromJvm, JvmError};
 use common::jtype::{HeapRef, Value};
-use log::debug;
 use std::sync::Arc;
+use tracing_log::log::debug;
 
 pub struct FrameStackDeprecated {
     max_size: usize,

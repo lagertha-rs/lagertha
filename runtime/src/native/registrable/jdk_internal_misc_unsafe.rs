@@ -2,7 +2,7 @@ use crate::heap::HeapObject;
 use crate::native::NativeRet;
 use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
 use common::jtype::Value;
-use log::debug;
+use tracing_log::log::debug;
 
 pub(super) fn jdk_internal_misc_unsafe_register_natives(
     vm: &mut VirtualMachine,

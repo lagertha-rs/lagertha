@@ -1,8 +1,7 @@
 use crate::native::NativeRet;
-use crate::stack_deprecated::FrameStackDeprecated;
 use crate::{ThreadId, VirtualMachine};
 use common::jtype::Value;
-use log::debug;
+use tracing_log::log::debug;
 
 pub(super) fn java_lang_thread_register_natives(
     _vm: &mut VirtualMachine,

@@ -1,8 +1,8 @@
 use crate::native::NativeRet;
 use crate::rt::JvmClass;
-use crate::{FieldKey, FullyQualifiedMethodKey, ThreadId, VirtualMachine};
+use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
 use common::jtype::Value;
-use log::debug;
+use tracing_log::log::debug;
 
 pub(super) fn java_lang_class_register_natives(
     vm: &mut VirtualMachine,

@@ -14,6 +14,7 @@ use lasso::{Spur, ThreadedRodeo};
 use std::num::NonZeroU32;
 use std::path::PathBuf;
 use std::sync::Arc;
+use std::time::Instant;
 use tracing_log::log::debug;
 
 mod class_loader;
@@ -351,27 +352,6 @@ fn print_stack_trace_deprecated(exception_ref: HeapRef, interpreter: &mut Interp
 
 pub fn start_deprecated(config: VmConfig) -> Result<(), JvmError> {
     debug!("Starting VM with config: {:?}", config);
-    start(config.clone())?;
-    panic!("Finished");
-
-    let vm = VirtualMachineDeprecated::new(config)?;
-
-    let mut interpreter = InterpreterDeprecated::new(vm);
-
-    match interpreter.start_main() {
-        Ok(_) => {
-            debug!("VM execution finished successfully");
-            Ok(())
-        }
-        Err(e) => match e {
-            JvmError::JavaExceptionThrown(addr) => {
-                print_stack_trace_deprecated(addr, &mut interpreter);
-                Err(e)
-            }
-            _ => {
-                eprintln!("VM execution failed with error: {:?}", e);
-                Err(e)
-            }
-        },
-    }
+    start(config)?;
+    Ok(())
 }

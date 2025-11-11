@@ -30,7 +30,7 @@ macro_rules! debug_log {
     ($($arg:tt)*) => {
         #[cfg(feature = "debug-log")]
         {
-            log::debug!($($arg)*);
+            tracing_log::log::debug!($($arg)*);
         }
     };
 }
@@ -51,7 +51,7 @@ macro_rules! debug_log_method {
                     .get_method_descriptor(&method.descriptor_id())
                     .to_java_signature(method_name);
 
-                log::debug!("{}: {} of {}", $msg, signature, class_name);
+                tracing_log::log::debug!("{}: {} of {}", $msg, signature, class_name);
             });
         }
     };
@@ -187,7 +187,7 @@ macro_rules! debug_log_instruction {
 
                     _ => {}
                 }
-                log::debug!("Executing: {}", msg_chunks.join(" "));
+                tracing_log::log::debug!("Executing: {}", msg_chunks.join(" "));
             });
         }
     };

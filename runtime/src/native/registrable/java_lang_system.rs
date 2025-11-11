@@ -1,8 +1,7 @@
 use crate::native::NativeRet;
-use crate::stack_deprecated::FrameStackDeprecated;
-use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine, throw_exception};
+use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
 use common::jtype::Value;
-use log::debug;
+use tracing_log::log::debug;
 
 pub(super) fn java_lang_system_register_natives(
     vm: &mut VirtualMachine,

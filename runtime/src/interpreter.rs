@@ -8,12 +8,13 @@ use crate::{
 use common::error::JvmError;
 use common::instruction::Instruction;
 use common::jtype::Value;
-use log::warn;
 use std::cmp::Ordering;
 use std::ops::ControlFlow;
+use tracing_log::log::warn;
 
 pub struct Interpreter;
 
+#[cfg_attr(feature = "hotpath", hotpath::measure_all)]
 impl Interpreter {
     fn branch16(bci: usize, off: i16) -> usize {
         ((bci as isize) + (off as isize)) as usize

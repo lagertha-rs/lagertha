@@ -1,6 +1,8 @@
 use clap::Parser;
 use common::utils::telemetry::init_tracing;
 use runtime::VmConfig;
+use std::thread::Thread;
+use std::time::Duration;
 use tracing_log::log::{debug, error};
 
 #[derive(Parser, Debug)]
@@ -51,8 +53,10 @@ fn create_vm_configuration(mut args: Args, main_class: String) -> Result<VmConfi
     Err("JAVA_VERSION not found in release file".to_string())
 }
 
+#[cfg_attr(feature = "hotpath", hotpath::main)]
 fn main() {
-    //init_tracing();
+    #[cfg(feature = "debug-log")]
+    init_tracing();
     let args = Args::parse();
     debug!("Provided command line arguments: {:?}", args);
 

@@ -11,10 +11,9 @@ use common::error::JavaExceptionFromJvm;
 use common::error::JvmError;
 use common::instruction::Instruction;
 use common::jtype::Value;
-use log::warn;
 use std::cmp::Ordering;
 use std::sync::Arc;
-use tracing_log::log::debug;
+use tracing_log::log::{debug, warn};
 
 pub struct InterpreterDeprecated {
     pub vm: VirtualMachineDeprecated,

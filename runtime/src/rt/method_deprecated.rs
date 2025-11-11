@@ -11,10 +11,10 @@ use jclass::attribute::{Annotation, SharedAttribute};
 use jclass::flags::MethodFlags;
 use jclass::method::MethodInfo;
 use lasso::ThreadedRodeo;
-use log::warn;
 use once_cell::sync::OnceCell as SyncOnceCell;
 use std::cell::OnceCell;
 use std::sync::Arc;
+use tracing_log::log::warn;
 
 pub enum MethodType {
     Abstract,

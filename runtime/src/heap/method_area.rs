@@ -37,6 +37,7 @@ pub struct MethodArea {
     bootstrap_registry: BootstrapRegistry,
 }
 
+#[cfg_attr(feature = "hotpath", hotpath::measure_all)]
 impl MethodArea {
     pub fn new(
         vm_config: &VmConfig,
@@ -130,6 +131,7 @@ impl MethodArea {
         self.get_method_descriptor(&method.descriptor_id())
     }
 
+    #[cfg_attr(feature = "hotpath", hotpath::measure)]
     pub fn get_or_new_method_descriptor_id(
         &mut self,
         descriptor: &Symbol,

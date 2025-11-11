@@ -2,7 +2,7 @@ use crate::native_deprecated::NativeRetDeprecated;
 use crate::stack_deprecated::FrameStackDeprecated;
 use crate::{FullyQualifiedMethodKey, VirtualMachineDeprecated};
 use common::jtype::Value;
-use log::debug;
+use tracing_log::log::debug;
 
 pub(super) fn java_lang_class_register_natives(
     vm: &mut VirtualMachineDeprecated,

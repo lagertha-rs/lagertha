@@ -10,10 +10,10 @@ use jclass::constant::pool::ConstantPool;
 use jclass::field::FieldInfo;
 use jclass::flags::ClassFlags;
 use jclass::method::MethodInfo;
-use log::warn;
 use once_cell::sync::OnceCell;
 use std::cell::RefCell;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
+use tracing_log::log::warn;
 
 //TODO: I guess hotspot doesn't split class and interface classes. Right now we do the same
 // but probably it would be better to have separate InterfaceClass struct

@@ -1,11 +1,7 @@
-use crate::heap::HeapObject;
 use crate::native::{NativeRegistry, NativeRet};
-use crate::stack_deprecated::{FrameStackDeprecated, FrameTypeDeprecated};
-use crate::{ClassIdDeprecated, FullyQualifiedMethodKey, ThreadId, VirtualMachine};
+use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
 use common::jtype::Value;
-use jclass::attribute::ElementTag::ArrayType;
-use lasso::Key;
-use log::debug;
+use tracing_log::log::debug;
 
 pub(super) fn do_register_java_lang_preregistered_natives(native_registry: &mut NativeRegistry) {
     native_registry.register(

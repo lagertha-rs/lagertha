@@ -3,11 +3,18 @@ name = "vm"
 version = "0.1.0"
 edition = "2024"
 
+[features]
+debug-log = ["runtime/debug-log"]
+hotpath = ["dep:hotpath", "hotpath/hotpath", "runtime/hotpath"]
+
 [dependencies]
 clap = { version = "4.5.47", features = ["derive"] }
-tracing-log = { workspace = true }
+
 common = { path = "../common" }
-runtime = { path = "../runtime", features = ["debug-log"] }
+runtime = { path = "../runtime" }
+
+tracing-log = { workspace = true }
+hotpath = { workspace = true, optional = true }
 
 [dev-dependencies]
 assert_cmd = "2"

@@ -6,9 +6,7 @@ pub fn init_tracing() {
             EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("trace")),
         )
         .without_time()
-        //.with_target(true)
-        //.with_file(true)
-        //.with_line_number(true)
+        .with_target(true)
         .compact()
         .try_init();
 }

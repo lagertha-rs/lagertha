@@ -32,9 +32,24 @@ Assuming the tree structure is as follows:
 └── vm
 ```
 
+### Normal Execution
+
 To run the `HelloWorldMain` class, use the following command:
 
 ```bash
 cargo run --bin vm -- -cp . com/example/HelloWorldMain.class
 ```
 
+### Execution with logging enabled
+
+```bash
+cargo run --bin vm --features=debug-log -- -cp . com/example/HelloWorldMain.class
+```
+
+### Execution with `hotpath` profiling enabled
+
+TODO: Usable but isn't configured properly yet.
+
+```bash
+cargo run --bin vm --features=hotpath -- -cp . com/example/HelloWorldMain.class
+```

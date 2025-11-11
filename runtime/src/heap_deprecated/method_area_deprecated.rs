@@ -71,6 +71,7 @@ impl MethodAreaDeprecated {
         self.add_class(class)
     }
 
+    #[cfg_attr(feature = "hotpath", hotpath::measure)]
     fn add_class(
         &mut self,
         class: Arc<ClassDeprecated>,

@@ -1,8 +1,7 @@
 use crate::native::{NativeRegistry, NativeRet};
-use crate::stack_deprecated::FrameStackDeprecated;
-use crate::{FieldKey, FullyQualifiedMethodKey, ThreadId, VirtualMachine};
+use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
 use common::jtype::Value;
-use log::debug;
+use tracing_log::log::debug;
 
 pub(super) fn do_register_java_io_preregistered_natives(native_registry: &mut NativeRegistry) {
     native_registry.register(

@@ -5,7 +5,7 @@ use crate::{ClassIdDeprecated, FullyQualifiedMethodKey, VirtualMachineDeprecated
 use common::instruction::ArrayType;
 use common::jtype::Value;
 use lasso::Key;
-use log::debug;
+use tracing_log::log::debug;
 
 pub(super) fn do_register_java_lang_preregistered_natives(
     native_registry: &mut NativeRegistryDeprecated,

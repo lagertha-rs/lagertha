@@ -2,7 +2,7 @@ use crate::native_deprecated::{NativeRegistryDeprecated, NativeRetDeprecated};
 use crate::stack_deprecated::FrameStackDeprecated;
 use crate::{FullyQualifiedMethodKey, VirtualMachineDeprecated};
 use common::jtype::Value;
-use log::debug;
+use tracing_log::log::debug;
 
 pub(super) fn do_register_vm_internal_preregistered_natives(
     native_registry: &mut NativeRegistryDeprecated,

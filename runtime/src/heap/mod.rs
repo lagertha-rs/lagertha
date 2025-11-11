@@ -80,6 +80,7 @@ pub struct Heap {
     char_array_class_id: OnceCell<ClassId>,
 }
 
+#[cfg_attr(feature = "hotpath", hotpath::measure_all)]
 impl Heap {
     pub fn new() -> Result<Self, JvmError> {
         debug!("Creating Heap...");
