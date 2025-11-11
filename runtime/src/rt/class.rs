@@ -6,6 +6,7 @@ use crate::rt::{BaseClass, ClassLike, JvmClass};
 use crate::{ClassId, FieldKey, MethodId, MethodKey, Symbol};
 use common::error::{JavaExceptionFromJvm, JvmError};
 use jclass::ClassFile;
+use jclass::attribute::class::ClassAttribute;
 use jclass::constant::pool::ConstantPool;
 use jclass::field::FieldInfo;
 use jclass::flags::ClassFlags;
@@ -35,17 +36,27 @@ pub struct InstanceClass {
 
 impl InstanceClass {
     fn load(
+        super_id: Option<ClassId>,
+        method_area: &mut MethodArea,
         flags: ClassFlags,
         cp: ConstantPool,
-        method_area: &mut MethodArea,
-        super_id: Option<ClassId>,
         this_class: u16,
+        attributes: Vec<ClassAttribute>,
     ) -> Result<ClassId, JvmError> {
         let cp = RuntimeConstantPool::new(cp.inner);
         let name = cp.get_class_sym(&this_class, method_area.interner())?;
 
+        //TODO: clean up
+        let mut source_file = None;
+        for attr in &attributes {
+            if let ClassAttribute::SourceFile(sourcefile_index) = attr {
+                source_file = Some(cp.get_utf8_sym(sourcefile_index, method_area.interner())?);
+                break;
+            }
+        }
+
         let class = JvmClass::Instance(Box::new(Self {
-            base: BaseClass::new(name, flags, super_id),
+            base: BaseClass::new(name, flags, super_id, source_file),
             cp,
             declared_method_index: OnceCell::new(),
             vtable: OnceCell::new(),
@@ -314,10 +325,14 @@ impl InstanceClass {
         method_area: &mut MethodArea,
         super_id: Option<ClassId>,
     ) -> Result<ClassId, JvmError> {
-        let this_id = Self::load(cf.access_flags, cf.cp, method_area, super_id, cf.this_class)?;
-        let debug_name = method_area
-            .interner()
-            .resolve(&method_area.get_instance_class(&this_id)?.base.name);
+        let this_id = Self::load(
+            super_id,
+            method_area,
+            cf.access_flags,
+            cf.cp,
+            cf.this_class,
+            cf.attributes,
+        )?;
 
         Self::link_fields(cf.fields, this_id, super_id, method_area)?;
         Self::link_methods(cf.methods, this_id, super_id, method_area)?;

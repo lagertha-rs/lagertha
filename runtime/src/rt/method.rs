@@ -1,13 +1,19 @@
 use crate::{ClassId, MethodDescriptorId, Symbol, throw_exception};
-use common::error::JvmError;
-use jclass::attribute::method::MethodAttribute;
+use common::error::{JvmError, LinkageError};
+use jclass::attribute::method::code::{
+    CodeAttributeInfo, LineNumberEntry, LocalVariableEntry, LocalVariableTypeEntry, StackMapFrame,
+};
+use jclass::attribute::method::{CodeAttribute, MethodAttribute};
 use jclass::flags::MethodFlags;
 use jclass::method::MethodInfo;
+use std::cell::OnceCell;
 
 pub struct CodeBody {
     pub code: Box<[u8]>,
     max_stack: u16,
     max_locals: u16,
+    // TODO: Create a dedicated struct? (now struct from jclass)
+    line_numbers: Option<Vec<LineNumberEntry>>,
 }
 
 pub enum MethodBody {
@@ -47,11 +53,7 @@ impl Method {
                     _ => None,
                 })
                 .unwrap();
-            MethodBody::Interpreted(CodeBody {
-                code: code_attr.code.into_boxed_slice(),
-                max_stack: code_attr.max_stack,
-                max_locals: code_attr.max_locals,
-            })
+            MethodBody::Interpreted(CodeBody::try_from(code_attr).unwrap())
         };
         Method {
             name,
@@ -99,5 +101,80 @@ impl Method {
             MethodBody::Interpreted(code_body) => Ok(&code_body.code),
             _ => throw_exception!(InternalError, "Method is not interpretable"), //TODO
         }
+    }
+
+    pub fn get_line_number_by_cp(&self, cp: i32) -> Option<i32> {
+        if cp == -2 {
+            return Some(-2);
+        }
+
+        let cp = cp as usize;
+        let MethodBody::Interpreted(ctx) = &self.body else {
+            return None;
+        };
+        let ln_table = ctx.line_numbers.as_ref()?;
+
+        if ln_table.is_empty() {
+            return None;
+        }
+
+        for (i, entry) in ln_table.iter().enumerate() {
+            if i + 1 == ln_table.len() || cp < ln_table[i + 1].start_pc as usize {
+                if cp >= entry.start_pc as usize {
+                    return Some(entry.line_number as i32);
+                }
+            }
+        }
+
+        Some(ln_table[0].line_number as i32)
+    }
+}
+
+impl TryFrom<CodeAttribute> for CodeBody {
+    type Error = LinkageError;
+
+    fn try_from(code_attr: CodeAttribute) -> Result<Self, Self::Error> {
+        let mut all_line_numbers: Option<Vec<LineNumberEntry>> = None;
+        let mut all_local_vars: Option<Vec<LocalVariableEntry>> = None;
+        let mut all_local_types: Option<Vec<LocalVariableTypeEntry>> = None;
+        let mut stack_map_table = OnceCell::<Vec<StackMapFrame>>::new();
+
+        for code_attr in code_attr.attributes {
+            match code_attr {
+                CodeAttributeInfo::LineNumberTable(v) => {
+                    if let Some(cur) = &mut all_line_numbers {
+                        cur.extend(v);
+                    } else {
+                        all_line_numbers = Some(v);
+                    }
+                }
+                CodeAttributeInfo::LocalVariableTypeTable(v) => {
+                    if let Some(cur) = &mut all_local_types {
+                        cur.extend(v);
+                    } else {
+                        all_local_types = Some(v);
+                    }
+                }
+                CodeAttributeInfo::LocalVariableTable(v) => {
+                    if let Some(cur) = &mut all_local_vars {
+                        cur.extend(v);
+                    } else {
+                        all_local_vars = Some(v);
+                    }
+                    // TODO: JVMS §4.7.13: ensure no more than one entry per *local variable* across tables.
+                }
+                CodeAttributeInfo::StackMapTable(table) => stack_map_table
+                    .set(table)
+                    .map_err(|_| LinkageError::DuplicatedStackMapTable)?,
+                other => unimplemented!("Unknown code attr {:?}", other),
+            }
+        }
+
+        Ok(CodeBody {
+            code: code_attr.code.into_boxed_slice(),
+            max_stack: code_attr.max_stack,
+            max_locals: code_attr.max_locals,
+            line_numbers: all_line_numbers,
+        })
     }
 }

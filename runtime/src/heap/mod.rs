@@ -167,45 +167,53 @@ impl Heap {
         })))
     }
 
-    pub fn get_or_new_string_with_char_mapping(
+    pub fn alloc_string(
+        &mut self,
+        val_sym: Symbol,
+        method_area: &mut MethodArea,
+    ) -> Result<HeapRef, JvmError> {
+        self.alloc_string_with_char_mapping(val_sym, method_area, &|c| c)
+    }
+
+    pub fn alloc_string_with_char_mapping(
         &mut self,
         val_sym: Symbol,
         method_area: &mut MethodArea,
         f: &dyn Fn(char) -> char,
     ) -> Result<HeapRef, JvmError> {
-        if let Some(h) = self.string_pool.get(&val_sym) {
-            Ok(*h)
-        } else {
-            let string_class_id = *self.string_class_id.get_or_try_init(|| {
-                method_area.get_class_id_or_load(method_area.br().java_lang_string_sym)
-            })?;
-            let char_array_class_id = *self.char_array_class_id.get_or_try_init(|| {
-                method_area.get_class_id_or_load(method_area.br().char_array_desc)
-            })?;
-            let chars_val = {
-                let s = method_area.interner().resolve(&val_sym);
-                s.chars()
-                    .map(|c| Value::Integer(f(c) as i32))
-                    .collect::<Vec<_>>()
-            };
-            let char_arr_ref = self.push(HeapObject::Array(Instance {
-                class_id: char_array_class_id,
-                data: chars_val,
-            }));
-            let instance = self.alloc_instance(method_area, string_class_id)?;
-            self.string_pool.insert(val_sym, instance);
-            self.write_instance_field(instance, 0, Value::Ref(char_arr_ref))?;
-            Ok(instance)
-        }
+        let string_class_id = *self.string_class_id.get_or_try_init(|| {
+            method_area.get_class_id_or_load(method_area.br().java_lang_string_sym)
+        })?;
+        let char_array_class_id = *self.char_array_class_id.get_or_try_init(|| {
+            method_area.get_class_id_or_load(method_area.br().char_array_desc)
+        })?;
+        let chars_val = {
+            let s = method_area.interner().resolve(&val_sym);
+            s.chars()
+                .map(|c| Value::Integer(f(c) as i32))
+                .collect::<Vec<_>>()
+        };
+        let char_arr_ref = self.push(HeapObject::Array(Instance {
+            class_id: char_array_class_id,
+            data: chars_val,
+        }));
+        let instance = self.alloc_instance(method_area, string_class_id)?;
+        self.write_instance_field(instance, 0, Value::Ref(char_arr_ref))?;
+        Ok(instance)
     }
 
-    //TODO: review
-    pub fn get_or_new_string(
+    pub fn get_or_new_string_pool(
         &mut self,
         val_sym: Symbol,
         method_area: &mut MethodArea,
     ) -> Result<HeapRef, JvmError> {
-        self.get_or_new_string_with_char_mapping(val_sym, method_area, &|c| c)
+        if let Some(h) = self.string_pool.get(&val_sym) {
+            Ok(*h)
+        } else {
+            let res = self.alloc_string_with_char_mapping(val_sym, method_area, &|c| c)?;
+            self.string_pool.insert(val_sym, res);
+            Ok(res)
+        }
     }
 
     pub fn clone_object(&mut self, h: &HeapRef) -> Result<HeapRef, JvmError> {
@@ -283,15 +291,22 @@ impl Heap {
     pub fn write_array_element(
         &mut self,
         h: HeapRef,
-        index: usize,
+        index: i32,
         val: Value,
     ) -> Result<(), JvmError> {
         match self.get_mut(&h)? {
             HeapObject::Array(array) => {
-                if index >= array.data.len() {
-                    return Err(JvmError::Todo("invalid array index".to_string()));
-                }
-                array.data[index] = val;
+                let index_usize = match usize::try_from(index) {
+                    Ok(i) if i < array.data.len() => i,
+                    _ => throw_exception!(
+                        ArrayIndexOutOfBoundsException,
+                        "Index {} out of bounds for length {}",
+                        index,
+                        array.data.len()
+                    )?,
+                };
+
+                array.data[index_usize] = val;
             }
             _ => Err(JvmError::Todo(
                 "heap: write_array_element on non-array".to_string(),
@@ -314,7 +329,7 @@ impl Heap {
                     let c = (*i as u8) as char;
                     result.push(c);
                 }
-                _ => {
+                other => {
                     return Err(JvmError::Todo(
                         "Expected integer value in char array".to_string(),
                     ));
@@ -335,8 +350,6 @@ impl Heap {
         length: i32,
     ) -> Result<(), JvmError> {
         {
-            let src_rust_before = self.get_rust_string_from_java_string(&src)?;
-            let dest_rust_before = self.get_rust_string_from_java_string(&dest)?;
             let src_array = self.get_array(&src)?;
             let dest_array = self.get_array(&dest)?;
 
@@ -365,9 +378,6 @@ impl Heap {
                 length as usize,
             );
         }
-
-        let src_rust_after = self.get_rust_string_from_java_string(&src)?;
-        let dest_rust_after = self.get_rust_string_from_java_string(&dest)?;
 
         Ok(())
     }

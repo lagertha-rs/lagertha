@@ -3,19 +3,17 @@ use crate::heap::method_area::MethodArea;
 use crate::heap_deprecated::HeapDeprecated;
 use crate::heap_deprecated::method_area_deprecated::MethodAreaDeprecated;
 use crate::interpreter::Interpreter;
-use crate::interpreter_deprecated::InterpreterDeprecated;
 use crate::native::NativeRegistry;
 use crate::native_deprecated::NativeRegistryDeprecated;
 use crate::stack::FrameStack;
 use crate::thread::JavaThreadState;
 use common::error::JvmError;
+use common::error::JvmError::JavaExceptionThrown;
 use common::jtype::{HeapRef, Value};
 use lasso::{Spur, ThreadedRodeo};
 use std::num::NonZeroU32;
 use std::path::PathBuf;
 use std::sync::Arc;
-use std::time::Instant;
-use tracing_log::log::debug;
 
 mod class_loader;
 pub mod debug_log;
@@ -67,6 +65,11 @@ impl MethodId {
     pub fn to_i32(&self) -> i32 {
         self.0.get() as i32
     }
+
+    //TODO: also need but needs for previous bad :D
+    pub fn from_i32(index: i32) -> Self {
+        MethodId(NonZeroU32::new(index as u32).unwrap())
+    }
 }
 
 #[repr(transparent)]
@@ -110,6 +113,11 @@ impl ClassId {
     //TODO: bad
     pub fn to_i32(&self) -> i32 {
         self.0.get() as i32
+    }
+
+    //TODO: also need but needs for previous bad :D
+    pub fn from_i32(index: i32) -> Self {
+        ClassId(NonZeroU32::new(index as u32).unwrap())
     }
 }
 
@@ -303,9 +311,30 @@ impl VirtualMachine {
     pub fn interner(&self) -> &ThreadedRodeo {
         &self.string_interner
     }
+
+    pub fn symbol_to_pretty_string(&self, sym: Symbol) -> String {
+        self.string_interner.resolve(&sym).replace('/', ".")
+    }
 }
 
-fn start(config: VmConfig) -> Result<(), JvmError> {
+fn print_stack_trace(exception_ref: HeapRef, vm: &mut VirtualMachine) {
+    let exception_class_id = vm
+        .heap
+        .get_class_id(&exception_ref)
+        .expect("TODO msg: Exception object should exist");
+    let exception_class = vm
+        .method_area
+        .get_instance_class(&exception_class_id)
+        .expect("TODO msg: Exception class should exist");
+    let print_stack_trace_method_id = exception_class
+        .get_vtable_method_id(&vm.method_area.br().print_stack_trace_mk)
+        .expect("Exception class should have printStackTrace method");
+    let args = vec![Value::Ref(exception_ref)];
+    Interpreter::run_method(vm.rust_thread_id, print_stack_trace_method_id, vm, args)
+        .expect("printStackTrace should run without errors");
+}
+
+pub fn start(config: VmConfig) -> Result<(), JvmError> {
     let mut vm = VirtualMachine::new(config)?;
 
     #[cfg(feature = "debug-log")]
@@ -321,37 +350,11 @@ fn start(config: VmConfig) -> Result<(), JvmError> {
     debug_log_method!(&main_method_id, "Main method found");
     let rust_thread_id = vm.rust_thread_id;
 
-    Interpreter::invoke_static_method(rust_thread_id, main_method_id, &mut vm, vec![])?;
-
-    Ok(())
-}
-
-fn print_stack_trace_deprecated(exception_ref: HeapRef, interpreter: &mut InterpreterDeprecated) {
-    let exception_class_id = {
-        let exception = interpreter
-            .vm()
-            .heap
-            .get_instance(&exception_ref)
-            .expect("Exception object should exist");
-        *exception.class_id()
-    };
-    let exception_class = interpreter
-        .vm()
-        .method_area_deprecated
-        .get_class_by_id(&exception_class_id)
-        .expect("Exception class should exist");
-    let print_stack_trace_method = exception_class
-        .get_virtual_method("printStackTrace", "()V")
-        .expect("Exception class should have printStackTrace method")
-        .clone();
-    let param = vec![Value::Ref(exception_ref)];
-    interpreter
-        .run_instance_method(&print_stack_trace_method, param)
-        .expect("printStackTrace should run without errors");
-}
-
-pub fn start_deprecated(config: VmConfig) -> Result<(), JvmError> {
-    debug!("Starting VM with config: {:?}", config);
-    start(config)?;
-    Ok(())
+    Interpreter::invoke_static_method(rust_thread_id, main_method_id, &mut vm, vec![]).inspect_err(
+        |e| {
+            if let JavaExceptionThrown(exception_ref) = e {
+                print_stack_trace(*exception_ref, &mut vm);
+            }
+        },
+    )
 }

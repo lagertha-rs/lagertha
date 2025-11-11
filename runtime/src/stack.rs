@@ -2,9 +2,35 @@ use crate::{MethodId, VmConfig, debug_log_method};
 use common::error::{JavaExceptionFromJvm, JvmError};
 use common::jtype::{HeapRef, Value};
 
+#[derive(Clone)]
+pub enum FrameType {
+    JavaFrame(JavaFrame),
+    NativeFrame(NativeFrame),
+}
+
+impl FrameType {
+    pub fn method_id(&self) -> MethodId {
+        match self {
+            FrameType::JavaFrame(f) => f.method_id,
+            FrameType::NativeFrame(f) => f.method_id,
+        }
+    }
+}
+
+#[derive(Clone)]
+pub struct NativeFrame {
+    method_id: MethodId,
+}
+
+impl NativeFrame {
+    pub fn new(method_id: MethodId) -> Self {
+        Self { method_id }
+    }
+}
+
 pub struct FrameStack {
     max_size: usize,
-    frames: Vec<JavaFrame>,
+    frames: Vec<FrameType>,
 }
 
 impl FrameStack {
@@ -16,22 +42,19 @@ impl FrameStack {
         }
     }
 
-    pub fn frames(&self) -> &Vec<JavaFrame> {
+    pub fn frames(&self) -> &Vec<FrameType> {
         &self.frames
     }
 
-    fn debug_fn_parameters(frame: &JavaFrame) -> String {
-        frame
-            .locals
-            .iter()
-            .flatten()
-            .map(|v| format!("{:?}", v))
-            .collect::<Vec<_>>()
-            .join(", ")
-    }
-
-    pub fn push_frame(&mut self, frame: JavaFrame) -> Result<(), JvmError> {
-        debug_log_method!(&frame.method_id, "🚀 Executing");
+    pub fn push_frame(&mut self, frame: FrameType) -> Result<(), JvmError> {
+        match &frame {
+            FrameType::JavaFrame(f) => {
+                debug_log_method!(&f.method_id, "🚀 Executing");
+            }
+            FrameType::NativeFrame(f) => {
+                debug_log_method!(&f.method_id, "🚀 Executing native method");
+            }
+        }
         if self.frames.len() >= self.max_size {
             return Err(JvmError::StackOverflow);
         }
@@ -39,33 +62,81 @@ impl FrameStack {
         Ok(())
     }
 
-    pub fn pop_frame(&mut self) -> Result<JavaFrame, JvmError> {
+    fn pop_frame(&mut self) -> Result<FrameType, JvmError> {
         let old_frame = self.frames.pop().ok_or(JvmError::FrameStackIsEmpty)?;
-        debug_log_method!(&old_frame.method_id, "🏁 Execution finished");
+        match &old_frame {
+            FrameType::JavaFrame(f) => {
+                debug_log_method!(&f.method_id, "🏁 Execution finished");
+            }
+            FrameType::NativeFrame(f) => {
+                debug_log_method!(&f.method_id, "🏁 Execution finished of native method");
+            }
+        };
         if let Some(cur_frame) = self.frames.last() {
-            debug_log_method!(&cur_frame.method_id, "🔄 Resuming execution");
+            match cur_frame {
+                FrameType::JavaFrame(f) => {
+                    debug_log_method!(&f.method_id, "🔄 Resuming execution")
+                }
+                FrameType::NativeFrame(f) => {
+                    debug_log_method!(&f.method_id, "🔄 Resuming execution of native method")
+                }
+            }
         };
         Ok(old_frame)
     }
 
-    pub fn cur_frame_mut(&mut self) -> Result<&mut JavaFrame, JvmError> {
-        self.frames.last_mut().ok_or(JvmError::FrameStackIsEmpty)
+    pub fn pop_java_frame(&mut self) -> Result<JavaFrame, JvmError> {
+        match self.pop_frame()? {
+            FrameType::JavaFrame(f) => Ok(f),
+            FrameType::NativeFrame(_) => Err(JvmError::UnexpectedType(
+                "Expected Java frame on top of the stack".to_string(),
+            )),
+        }
     }
 
-    pub fn cur_frame(&self) -> Result<&JavaFrame, JvmError> {
-        self.frames.last().ok_or(JvmError::FrameStackIsEmpty)
+    pub fn pop_native_frame(&mut self) -> Result<NativeFrame, JvmError> {
+        match self.pop_frame()? {
+            FrameType::NativeFrame(f) => Ok(f),
+            FrameType::JavaFrame(_) => Err(JvmError::UnexpectedType(
+                "Expected Native frame on top of the stack".to_string(),
+            )),
+        }
+    }
+
+    pub fn cur_java_frame_mut(&mut self) -> Result<&mut JavaFrame, JvmError> {
+        self.frames
+            .last_mut()
+            .and_then(|frame| match frame {
+                FrameType::JavaFrame(f) => Some(f),
+                FrameType::NativeFrame(_) => None,
+            })
+            .ok_or(JvmError::UnexpectedType(
+                "Expected Java frame on top of the stack".to_string(),
+            ))
+    }
+
+    pub fn cur_java_frame(&self) -> Result<&JavaFrame, JvmError> {
+        self.frames
+            .last()
+            .and_then(|frame| match frame {
+                FrameType::JavaFrame(f) => Some(f),
+                FrameType::NativeFrame(_) => None,
+            })
+            .ok_or(JvmError::UnexpectedType(
+                "Expected Java frame on top of the stack".to_string(),
+            ))
     }
 
     pub fn pc(&self) -> Result<usize, JvmError> {
-        self.cur_frame().map(|v| v.pc)
+        self.cur_java_frame().map(|v| v.pc)
     }
 
     pub fn pc_mut(&mut self) -> Result<&mut usize, JvmError> {
-        self.cur_frame_mut().map(|v| &mut v.pc)
+        self.cur_java_frame_mut().map(|v| &mut v.pc)
     }
 
     fn get_local(&self, index: u8) -> Result<&Value, JvmError> {
-        self.cur_frame()?.get_local(index)
+        self.cur_java_frame()?.get_local(index)
     }
 
     pub fn get_local_long(&self, index: u8) -> Result<&Value, JvmError> {
@@ -120,12 +191,12 @@ impl FrameStack {
 
     // TODO: check index bounds
     pub fn set_local(&mut self, idx: usize, value: Value) -> Result<(), JvmError> {
-        self.cur_frame_mut()?.locals[idx] = Some(value);
+        self.cur_java_frame_mut()?.locals[idx] = Some(value);
         Ok(())
     }
 
     pub fn push_operand(&mut self, value: Value) -> Result<(), JvmError> {
-        self.cur_frame_mut()?.operands.push(value);
+        self.cur_java_frame_mut()?.operands.push(value);
         Ok(())
     }
 
@@ -228,15 +299,15 @@ impl FrameStack {
     }
 
     pub fn pop_operand(&mut self) -> Result<Value, JvmError> {
-        self.cur_frame_mut()?.pop_operand()
+        self.cur_java_frame_mut()?.pop_operand()
     }
 
     pub fn peek(&self) -> Result<&Value, JvmError> {
-        self.cur_frame()?.peek()
+        self.cur_java_frame()?.peek()
     }
 
     pub fn peek_at(&self, index: usize) -> Result<&Value, JvmError> {
-        let frame = self.cur_frame()?;
+        let frame = self.cur_java_frame()?;
         if index >= frame.operands.len() {
             return Err(JvmError::OperandStackIsEmpty);
         }

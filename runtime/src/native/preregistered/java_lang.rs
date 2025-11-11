@@ -1,5 +1,10 @@
 use crate::native::{NativeRegistry, NativeRet};
-use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
+use crate::rt::ClassLike;
+use crate::stack::FrameType;
+use crate::stack_deprecated::FrameTypeDeprecated;
+use crate::{
+    ClassId, FullyQualifiedMethodKey, MethodId, ThreadId, VirtualMachine, throw_exception,
+};
 use common::jtype::Value;
 use tracing_log::log::debug;
 
@@ -128,6 +133,24 @@ fn java_lang_system_arraycopy(
     let dest_pos = args[3].as_int()?;
     let length = args[4].as_int()?;
 
+    let src_class_id = vm.heap.get_class_id(&src_addr)?;
+    if !vm.heap.is_array(&src_addr)? {
+        throw_exception!(
+            ArrayStoreException,
+            "arraycopy: source type {} is not an array",
+            vm.symbol_to_pretty_string(vm.method_area.get_class(&src_class_id).get_name())
+        )?;
+    }
+
+    let dest_class_id = vm.heap.get_class_id(&dest_addr)?;
+    if !vm.heap.is_array(&dest_addr)? {
+        throw_exception!(
+            ArrayStoreException,
+            "arraycopy: destination type {} is not an array",
+            vm.symbol_to_pretty_string(vm.method_area.get_class(&dest_class_id).get_name())
+        )?;
+    }
+
     if length == 0 {
         return Ok(None);
     }
@@ -210,16 +233,22 @@ fn java_lang_throwable_fill_in_stack_trace(
         let method = vm.method_area.get_method(&frame.method_id());
         vm.heap.write_array_element(
             class_id_array,
-            pos,
+            pos as i32,
             Value::Integer(method.class_id().to_i32()),
         )?;
         vm.heap.write_array_element(
             method_id_array,
-            pos,
+            pos as i32,
             Value::Integer(frame.method_id().to_i32()),
         )?;
-        vm.heap
-            .write_array_element(line_nbr_array, pos, Value::Integer(frame.pc() as i32))?;
+        vm.heap.write_array_element(
+            line_nbr_array,
+            pos as i32,
+            Value::Integer(match frame {
+                FrameType::JavaFrame(f) => f.pc() as i32,
+                FrameType::NativeFrame(_) => -2,
+            }),
+        )?;
     }
     let backtrace_addr = vm.heap.alloc_array_with_default_value(
         vm.method_area.br().get_java_lang_object_id()?,
@@ -310,7 +339,6 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
     _thread_id: ThreadId,
     _args: &[Value],
 ) -> NativeRet {
-    /*
     debug!("TODO: Stub: java.lang.StackTraceElement.initStackTraceElements");
     let elements_array = match &_args[0] {
         Value::Ref(h) => *h,
@@ -330,7 +358,7 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
     // TODO: obviously need to clean this up
     for i in 0..depth {
         let i = i as i32;
-        let class_id = ClassIdDeprecated::try_from_usize(
+        let class_id = ClassId::from_i32(
             vm.heap
                 .get_array(
                     &vm.heap
@@ -340,105 +368,97 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
                         .as_obj_ref()
                         .unwrap(),
                 )?
-                .get_element(i)
-                .unwrap()
-                .as_int()
-                .unwrap() as usize,
-        )
-        .unwrap();
-        let method_id = vm
-            .heap
-            .get_array(
-                &vm.heap
-                    .get_array(&object)?
-                    .get_element(1)
-                    .unwrap()
-                    .as_obj_ref()
-                    .unwrap(),
-            )?
-            .get_element(i)
-            .unwrap()
-            .as_int()
-            .unwrap() as usize;
+                .get_element(i)?
+                .as_int()?,
+        );
+        let method_id = MethodId::from_i32(
+            vm.heap
+                .get_array(
+                    &vm.heap
+                        .get_array(&object)?
+                        .get_element(1)
+                        .unwrap()
+                        .as_obj_ref()
+                        .unwrap(),
+                )?
+                .get_element(i)?
+                .as_int()?,
+        );
         let cp = vm
             .heap
-            .get_array(
-                &vm.heap
-                    .get_array(&object)?
-                    .get_element(2)
-                    .unwrap()
-                    .as_obj_ref()
-                    .unwrap(),
-            )?
-            .get_element(i)
-            .unwrap()
-            .as_int()
+            .get_array(&vm.heap.get_array(&object)?.get_element(2)?.as_obj_ref()?)?
+            .get_element(i)?
+            .as_int()?;
+        let declaring_class_object = vm
+            .method_area
+            .get_mirror_ref_or_create(class_id, &mut vm.heap)?;
+        let method_sym = vm.method_area.get_method(&method_id).name;
+        let class_sym = vm.method_area.get_class(&class_id).get_name();
+        let class_source_sym = vm
+            .method_area
+            .get_instance_class(&class_id)?
+            .get_source_file()
             .unwrap();
-        let class = vm
-            .method_area_deprecated
-            .get_class_by_id(&class_id)
+        let class_name =
+            vm.heap
+                .alloc_string_with_char_mapping(class_sym, &mut vm.method_area, &|c| {
+                    if c == '/' { '.' } else { c }
+                })?;
+        let method_name = vm.heap.alloc_string(method_sym, &mut vm.method_area)?;
+        let source = vm
+            .heap
+            .alloc_string(class_source_sym, &mut vm.method_area)?;
+        let line_nbr = vm
+            .method_area
+            .get_method(&method_id)
+            .get_line_number_by_cp(cp)
             .unwrap();
-        let declaring_class_object = vm.heap.get_mirror_addr(class).unwrap();
-        let method = class.get_method_by_id(&method_id).unwrap();
-        let class_name = vm.heap.get_or_new_string(&class.name().replace('/', "."));
-        let method_name = vm.heap.get_or_new_string(method.name());
-        let source = vm.heap.get_or_new_string(class.source_file().unwrap());
-        let line_nbr = method.get_line_number_by_cp(cp).unwrap();
         let cur_stack_trace_entry = vm
             .heap
             .get_array(&elements_array)?
-            .get_element(i)
-            .unwrap()
-            .as_obj_ref()
-            .unwrap();
+            .get_element(i)?
+            .as_obj_ref()?;
 
-        let stack_trace_class_id = vm.heap.get_class_id(&cur_stack_trace_entry);
-        let stack_trace_class = vm
-            .method_area_deprecated
-            .get_class_by_id(&stack_trace_class_id)
-            .unwrap();
+        let stack_trace_class_id = vm.heap.get_class_id(&cur_stack_trace_entry)?;
+        let stack_trace_class = vm.method_area.get_instance_class(&stack_trace_class_id)?;
 
-        vm.heap
-            .write_instance_field(
-                cur_stack_trace_entry,
-                stack_trace_class.get_field_index("declaringClass").unwrap(),
-                Value::Ref(class_name),
-            )
-            .unwrap();
-        vm.heap
-            .write_instance_field(
-                cur_stack_trace_entry,
-                stack_trace_class.get_field_index("methodName").unwrap(),
-                Value::Ref(method_name),
-            )
-            .unwrap();
-        vm.heap
-            .write_instance_field(
-                cur_stack_trace_entry,
-                stack_trace_class.get_field_index("fileName").unwrap(),
-                Value::Ref(source),
-            )
-            .unwrap();
-        vm.heap
-            .write_instance_field(
-                cur_stack_trace_entry,
-                stack_trace_class.get_field_index("lineNumber").unwrap(),
-                Value::Integer(line_nbr as i32),
-            )
-            .unwrap();
-        vm.heap
-            .write_instance_field(
-                cur_stack_trace_entry,
-                stack_trace_class
-                    .get_field_index("declaringClassObject")
-                    .unwrap(),
-                Value::Ref(declaring_class_object),
-            )
-            .unwrap();
+        vm.heap.write_instance_field(
+            cur_stack_trace_entry,
+            stack_trace_class.get_instance_field_offset(
+                &vm.method_area.br().stack_trace_declaring_class_name_fk,
+            )? as usize,
+            Value::Ref(class_name),
+        )?;
+        vm.heap.write_instance_field(
+            cur_stack_trace_entry,
+            stack_trace_class
+                .get_instance_field_offset(&vm.method_area.br().stack_trace_method_name_fk)?
+                as usize,
+            Value::Ref(method_name),
+        )?;
+        vm.heap.write_instance_field(
+            cur_stack_trace_entry,
+            stack_trace_class
+                .get_instance_field_offset(&vm.method_area.br().stack_trace_file_name_fk)?
+                as usize,
+            Value::Ref(source),
+        )?;
+        vm.heap.write_instance_field(
+            cur_stack_trace_entry,
+            stack_trace_class
+                .get_instance_field_offset(&vm.method_area.br().stack_trace_line_number_fk)?
+                as usize,
+            Value::Integer(line_nbr as i32),
+        )?;
+        vm.heap.write_instance_field(
+            cur_stack_trace_entry,
+            stack_trace_class
+                .get_instance_field_offset(&vm.method_area.br().stack_trace_declaring_class_fk)?
+                as usize,
+            Value::Ref(declaring_class_object),
+        )?;
     }
     Ok(None)
-     */
-    todo!()
 }
 
 fn java_lang_object_notify_all(

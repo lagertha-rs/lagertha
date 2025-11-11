@@ -1,11 +1,11 @@
 use crate::rt::constant_pool::RuntimeConstant;
 use crate::rt::{ClassLike, JvmClass};
-use crate::stack::JavaFrame;
+use crate::stack::{FrameType, JavaFrame, NativeFrame};
 use crate::{
     ClassId, FieldKey, MethodId, MethodKey, ThreadId, VirtualMachine, debug_log_instruction,
     throw_exception,
 };
-use common::error::JvmError;
+use common::error::{JavaExceptionFromJvm, JvmError};
 use common::instruction::Instruction;
 use common::jtype::Value;
 use std::cmp::Ordering;
@@ -50,13 +50,13 @@ impl Interpreter {
             }
             Instruction::Aastore => {
                 let value = vm.get_stack_mut(&thread_id)?.pop_nullable_ref()?;
-                let index = vm.get_stack_mut(&thread_id)?.pop_int_val()? as usize;
+                let index = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
                 let array_addr = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
                 vm.heap.write_array_element(array_addr, index, value)?;
             }
             Instruction::Bastore => {
                 let value = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
-                let index = vm.get_stack_mut(&thread_id)?.pop_int_val()? as usize;
+                let index = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
                 let array_addr = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
                 vm.heap
                     .write_array_element(array_addr, index, Value::Integer(value & 0xFF))?;
@@ -81,23 +81,38 @@ impl Interpreter {
                 vm.get_stack_mut(&thread_id)?.push_operand(Value::Null)?;
             }
             Instruction::Aload0 => {
-                let value = *vm.get_stack_mut(&thread_id)?.cur_frame()?.get_local(0)?;
+                let value = *vm
+                    .get_stack_mut(&thread_id)?
+                    .cur_java_frame()?
+                    .get_local(0)?;
                 vm.get_stack_mut(&thread_id)?.push_operand(value)?;
             }
             Instruction::Aload1 => {
-                let value = *vm.get_stack_mut(&thread_id)?.cur_frame()?.get_local(1)?;
+                let value = *vm
+                    .get_stack_mut(&thread_id)?
+                    .cur_java_frame()?
+                    .get_local(1)?;
                 vm.get_stack_mut(&thread_id)?.push_operand(value)?;
             }
             Instruction::Aload2 => {
-                let value = *vm.get_stack_mut(&thread_id)?.cur_frame()?.get_local(2)?;
+                let value = *vm
+                    .get_stack_mut(&thread_id)?
+                    .cur_java_frame()?
+                    .get_local(2)?;
                 vm.get_stack_mut(&thread_id)?.push_operand(value)?;
             }
             Instruction::Aload3 => {
-                let value = *vm.get_stack_mut(&thread_id)?.cur_frame()?.get_local(3)?;
+                let value = *vm
+                    .get_stack_mut(&thread_id)?
+                    .cur_java_frame()?
+                    .get_local(3)?;
                 vm.get_stack_mut(&thread_id)?.push_operand(value)?;
             }
             Instruction::Aload(pos) => {
-                let value = *vm.get_stack_mut(&thread_id)?.cur_frame()?.get_local(pos)?;
+                let value = *vm
+                    .get_stack_mut(&thread_id)?
+                    .cur_java_frame()?
+                    .get_local(pos)?;
                 vm.get_stack_mut(&thread_id)?.push_operand(value)?;
             }
             Instruction::Anewarray(idx) => {
@@ -105,7 +120,8 @@ impl Interpreter {
                 if size < 0 {
                     throw_exception!(NegativeArraySizeException, size.to_string())?
                 }
-                let cur_frame_method_id = vm.get_stack_mut(&thread_id)?.cur_frame()?.method_id();
+                let cur_frame_method_id =
+                    vm.get_stack_mut(&thread_id)?.cur_java_frame()?.method_id();
                 let target_array_sym = vm
                     .method_area
                     .get_cp_by_method_id(&cur_frame_method_id)?
@@ -156,7 +172,7 @@ impl Interpreter {
                 let index = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
                 let array_ref = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
                 vm.heap
-                    .write_array_element(array_ref, index as usize, Value::Integer(value))?;
+                    .write_array_element(array_ref, index, Value::Integer(value))?;
             }
             Instruction::Dadd => {
                 let v2 = vm.get_stack_mut(&thread_id)?.pop_double_val()?;
@@ -266,7 +282,8 @@ impl Interpreter {
             }
             Instruction::Getfield(idx) => {
                 let target_obj_ref = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
-                let cur_frame_method_id = vm.get_stack_mut(&thread_id)?.cur_frame()?.method_id();
+                let cur_frame_method_id =
+                    vm.get_stack_mut(&thread_id)?.cur_java_frame()?.method_id();
                 let field_view = vm
                     .method_area
                     .get_cp_by_method_id(&cur_frame_method_id)?
@@ -283,7 +300,8 @@ impl Interpreter {
                 vm.get_stack_mut(&thread_id)?.push_operand(value)?;
             }
             Instruction::Getstatic(idx) => {
-                let cur_frame_method_id = vm.get_stack_mut(&thread_id)?.cur_frame()?.method_id();
+                let cur_frame_method_id =
+                    vm.get_stack_mut(&thread_id)?.cur_java_frame()?.method_id();
                 let target_field_view = vm
                     .method_area
                     .get_cp_by_method_id(&cur_frame_method_id)?
@@ -346,7 +364,7 @@ impl Interpreter {
                 let value2 = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
                 let value1 = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
                 if value2 == 0 {
-                    throw_exception!(ArithmeticException, "division by zero")?
+                    throw_exception!(ArithmeticException, "/ by zero")?
                 }
                 let result = value1.wrapping_div(value2);
                 vm.get_stack_mut(&thread_id)?
@@ -549,27 +567,43 @@ impl Interpreter {
                 *vm.get_stack_mut(&thread_id)?.pc_mut()? = new_pc;
             }
             Instruction::Iload0 => {
-                let value = *vm.get_stack_mut(&thread_id)?.cur_frame()?.get_local(0)?;
+                let value = *vm
+                    .get_stack_mut(&thread_id)?
+                    .cur_java_frame()?
+                    .get_local(0)?;
                 vm.get_stack_mut(&thread_id)?.push_operand(value)?;
             }
             Instruction::Iload1 => {
-                let value = *vm.get_stack_mut(&thread_id)?.cur_frame()?.get_local(1)?;
+                let value = *vm
+                    .get_stack_mut(&thread_id)?
+                    .cur_java_frame()?
+                    .get_local(1)?;
                 vm.get_stack_mut(&thread_id)?.push_operand(value)?;
             }
             Instruction::Iload2 => {
-                let value = *vm.get_stack_mut(&thread_id)?.cur_frame()?.get_local(2)?;
+                let value = *vm
+                    .get_stack_mut(&thread_id)?
+                    .cur_java_frame()?
+                    .get_local(2)?;
                 vm.get_stack_mut(&thread_id)?.push_operand(value)?;
             }
             Instruction::Iload3 => {
-                let value = *vm.get_stack_mut(&thread_id)?.cur_frame()?.get_local(3)?;
+                let value = *vm
+                    .get_stack_mut(&thread_id)?
+                    .cur_java_frame()?
+                    .get_local(3)?;
                 vm.get_stack_mut(&thread_id)?.push_operand(value)?;
             }
             Instruction::Iload(pos) => {
-                let value = *vm.get_stack_mut(&thread_id)?.cur_frame()?.get_local(pos)?;
+                let value = *vm
+                    .get_stack_mut(&thread_id)?
+                    .cur_java_frame()?
+                    .get_local(pos)?;
                 vm.get_stack_mut(&thread_id)?.push_operand(value)?;
             }
             Instruction::InvokeVirtual(idx) => {
-                let cur_frame_method_id = vm.get_stack_mut(&thread_id)?.cur_frame()?.method_id();
+                let cur_frame_method_id =
+                    vm.get_stack_mut(&thread_id)?.cur_java_frame()?.method_id();
                 let target_method_view = vm
                     .method_area
                     .get_cp_by_method_id(&cur_frame_method_id)?
@@ -601,7 +635,8 @@ impl Interpreter {
                 Self::run_method(thread_id, target_method_id, vm, args)?;
             }
             Instruction::Instanceof(idx) => {
-                let cur_frame_method_id = vm.get_stack_mut(&thread_id)?.cur_frame()?.method_id();
+                let cur_frame_method_id =
+                    vm.get_stack_mut(&thread_id)?.cur_java_frame()?.method_id();
                 let class_name_sym = vm
                     .method_area
                     .get_cp_by_method_id(&cur_frame_method_id)?
@@ -634,7 +669,7 @@ impl Interpreter {
                 let v2 = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
                 let v1 = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
                 if v2 == 0 {
-                    throw_exception!(ArithmeticException, "Division by zero")?
+                    throw_exception!(ArithmeticException, "/ by zero")?
                 }
                 vm.get_stack_mut(&thread_id)?
                     .push_operand(Value::Integer(v1 % v2))?;
@@ -757,7 +792,7 @@ impl Interpreter {
                     .set_local(index as usize, Value::Integer(value + (const_val as i32)))?;
             }
             Instruction::Ldc(idx) | Instruction::LdcW(idx) | Instruction::Ldc2W(idx) => {
-                let cur_method_id = vm.get_stack_mut(&thread_id)?.cur_frame()?.method_id();
+                let cur_method_id = vm.get_stack_mut(&thread_id)?.cur_java_frame()?.method_id();
                 let ldc_operand = {
                     let cp = vm.method_area.get_cp_by_method_id(&cur_method_id)?;
                     match cp.get_constant(&idx, vm.interner())? {
@@ -775,8 +810,9 @@ impl Interpreter {
                         }
                         RuntimeConstant::String(str_entry) => {
                             let string_sym = str_entry.get_string_sym()?;
-                            let string_ref =
-                                vm.heap.get_or_new_string(string_sym, &mut vm.method_area)?;
+                            let string_ref = vm
+                                .heap
+                                .get_or_new_string_pool(string_sym, &mut vm.method_area)?;
                             Value::Ref(string_ref)
                         }
                         _ => unimplemented!(),
@@ -785,7 +821,8 @@ impl Interpreter {
                 vm.get_stack_mut(&thread_id)?.push_operand(ldc_operand)?;
             }
             Instruction::New(idx) => {
-                let cur_frame_method_id = vm.get_stack_mut(&thread_id)?.cur_frame()?.method_id();
+                let cur_frame_method_id =
+                    vm.get_stack_mut(&thread_id)?.cur_java_frame()?.method_id();
                 let target_class_name = vm
                     .method_area
                     .get_cp_by_method_id(&cur_frame_method_id)?
@@ -820,7 +857,8 @@ impl Interpreter {
             Instruction::Putfield(idx) => {
                 let value = vm.get_stack_mut(&thread_id)?.pop_operand()?;
                 let target_obj_ref = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
-                let cur_frame_method_id = vm.get_stack_mut(&thread_id)?.cur_frame()?.method_id();
+                let cur_frame_method_id =
+                    vm.get_stack_mut(&thread_id)?.cur_java_frame()?.method_id();
                 let field_view = vm
                     .method_area
                     .get_cp_by_method_id(&cur_frame_method_id)?
@@ -836,7 +874,8 @@ impl Interpreter {
             }
             Instruction::Putstatic(idx) => {
                 let value = vm.get_stack_mut(&thread_id)?.pop_operand()?;
-                let cur_frame_method_id = vm.get_stack_mut(&thread_id)?.cur_frame()?.method_id();
+                let cur_frame_method_id =
+                    vm.get_stack_mut(&thread_id)?.cur_java_frame()?.method_id();
                 let target_field_view = vm
                     .method_area
                     .get_cp_by_method_id(&cur_frame_method_id)?
@@ -854,7 +893,8 @@ impl Interpreter {
                     .set_static_field_value(&field_key, value)?;
             }
             Instruction::InvokeInterface(idx, count) => {
-                let cur_frame_method_id = vm.get_stack_mut(&thread_id)?.cur_frame()?.method_id();
+                let cur_frame_method_id =
+                    vm.get_stack_mut(&thread_id)?.cur_java_frame()?.method_id();
                 let target_method_view = vm
                     .method_area
                     .get_cp_by_method_id(&cur_frame_method_id)?
@@ -887,7 +927,8 @@ impl Interpreter {
                 }
             }
             Instruction::InvokeSpecial(idx) => {
-                let cur_frame_method_id = vm.get_stack_mut(&thread_id)?.cur_frame()?.method_id();
+                let cur_frame_method_id =
+                    vm.get_stack_mut(&thread_id)?.cur_java_frame()?.method_id();
                 let target_method_view = vm
                     .method_area
                     .get_cp_by_method_id(&cur_frame_method_id)?
@@ -903,7 +944,8 @@ impl Interpreter {
                 Self::run_method(thread_id, target_method_id, vm, args)?;
             }
             Instruction::InvokeStatic(idx) => {
-                let cur_frame_method_id = vm.get_stack_mut(&thread_id)?.cur_frame()?.method_id();
+                let cur_frame_method_id =
+                    vm.get_stack_mut(&thread_id)?.cur_java_frame()?.method_id();
                 let target_method_view = vm
                     .method_area
                     .get_cp_by_method_id(&cur_frame_method_id)?
@@ -928,23 +970,38 @@ impl Interpreter {
                     .push_operand(Value::Integer(result))?;
             }
             Instruction::Lload0 => {
-                let value = *vm.get_stack_mut(&thread_id)?.cur_frame()?.get_local(0)?;
+                let value = *vm
+                    .get_stack_mut(&thread_id)?
+                    .cur_java_frame()?
+                    .get_local(0)?;
                 vm.get_stack_mut(&thread_id)?.push_operand(value)?;
             }
             Instruction::Lload1 => {
-                let value = *vm.get_stack_mut(&thread_id)?.cur_frame()?.get_local(1)?;
+                let value = *vm
+                    .get_stack_mut(&thread_id)?
+                    .cur_java_frame()?
+                    .get_local(1)?;
                 vm.get_stack_mut(&thread_id)?.push_operand(value)?;
             }
             Instruction::Lload2 => {
-                let value = *vm.get_stack_mut(&thread_id)?.cur_frame()?.get_local(2)?;
+                let value = *vm
+                    .get_stack_mut(&thread_id)?
+                    .cur_java_frame()?
+                    .get_local(2)?;
                 vm.get_stack_mut(&thread_id)?.push_operand(value)?;
             }
             Instruction::Lload3 => {
-                let value = *vm.get_stack_mut(&thread_id)?.cur_frame()?.get_local(3)?;
+                let value = *vm
+                    .get_stack_mut(&thread_id)?
+                    .cur_java_frame()?
+                    .get_local(3)?;
                 vm.get_stack_mut(&thread_id)?.push_operand(value)?;
             }
             Instruction::Lload(pos) => {
-                let value = *vm.get_stack_mut(&thread_id)?.cur_frame()?.get_local(pos)?;
+                let value = *vm
+                    .get_stack_mut(&thread_id)?
+                    .cur_java_frame()?
+                    .get_local(pos)?;
                 vm.get_stack_mut(&thread_id)?.push_operand(value)?;
             }
             Instruction::Lshl => {
@@ -976,6 +1033,13 @@ impl Interpreter {
                 vm.get_stack_mut(&thread_id)?
                     .set_local(idx as usize, value)?;
             }
+            Instruction::Iastore => {
+                let value = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
+                let index = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
+                let array_ref = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
+                vm.heap
+                    .write_array_element(array_ref, index, Value::Integer(value))?;
+            }
             Instruction::Ishl => {
                 let v2 = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
                 let v1 = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
@@ -992,12 +1056,23 @@ impl Interpreter {
                 vm.get_stack_mut(&thread_id)?
                     .push_operand(Value::Integer(result))?;
             }
+            Instruction::Saload => {
+                let index = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
+                let array_ref = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
+                let value = vm
+                    .heap
+                    .get_array(&array_ref)?
+                    .get_element(index)?
+                    .as_int()?;
+                vm.get_stack_mut(&thread_id)?
+                    .push_operand(Value::Integer(value))?;
+            }
             Instruction::Sastore => {
                 let value = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
                 let index = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
                 let array_ref = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
                 vm.heap
-                    .write_array_element(array_ref, index as usize, Value::Integer(value))?;
+                    .write_array_element(array_ref, index, Value::Integer(value))?;
             }
             Instruction::Sipush(value) => {
                 vm.get_stack_mut(&thread_id)?
@@ -1016,30 +1091,30 @@ impl Interpreter {
                 *vm.get_stack_mut(&thread_id)?.pc_mut()? = new_pc;
             }
             Instruction::Return => {
-                vm.get_stack_mut(&thread_id)?.pop_frame()?;
+                vm.get_stack_mut(&thread_id)?.pop_java_frame()?;
                 return Ok(ControlFlow::Break(()));
             }
             Instruction::Ireturn => {
                 let ret_value = vm.get_stack_mut(&thread_id)?.pop_int()?;
-                vm.get_stack_mut(&thread_id)?.pop_frame()?;
+                vm.get_stack_mut(&thread_id)?.pop_java_frame()?;
                 vm.get_stack_mut(&thread_id)?.push_operand(ret_value)?;
                 return Ok(ControlFlow::Break(()));
             }
             Instruction::Areturn => {
                 let value = vm.get_stack_mut(&thread_id)?.pop_nullable_ref()?;
-                vm.get_stack_mut(&thread_id)?.pop_frame()?;
+                vm.get_stack_mut(&thread_id)?.pop_java_frame()?;
                 vm.get_stack_mut(&thread_id)?.push_operand(value)?;
                 return Ok(ControlFlow::Break(()));
             }
             Instruction::Lreturn => {
                 let value = vm.get_stack_mut(&thread_id)?.pop_long()?;
-                vm.get_stack_mut(&thread_id)?.pop_frame()?;
+                vm.get_stack_mut(&thread_id)?.pop_java_frame()?;
                 vm.get_stack_mut(&thread_id)?.push_operand(value)?;
                 return Ok(ControlFlow::Break(()));
             }
             Instruction::Freturn => {
                 let value = vm.get_stack_mut(&thread_id)?.pop_float()?;
-                vm.get_stack_mut(&thread_id)?.pop_frame()?;
+                vm.get_stack_mut(&thread_id)?.pop_java_frame()?;
                 vm.get_stack_mut(&thread_id)?.push_operand(value)?;
                 return Ok(ControlFlow::Break(()));
             }
@@ -1054,10 +1129,48 @@ impl Interpreter {
 
         if !is_branch {
             vm.get_stack_mut(&thread_id)?
-                .cur_frame_mut()?
+                .cur_java_frame_mut()?
                 .increment_pc(instruction_byte_size);
         }
         Ok(ControlFlow::Continue(()))
+    }
+
+    //TODO: need to move it, refactor and it will still probably will not work for catch
+    fn allocate_and_throw(
+        thread_id: ThreadId,
+        exception: JavaExceptionFromJvm,
+        vm: &mut VirtualMachine,
+    ) -> Result<(), JvmError> {
+        let exception_ref = exception.as_reference();
+        let class_id = vm
+            .method_area
+            // TODO: fix interner usage, replace with direct symbol
+            .get_class_id_or_load(vm.interner().get_or_intern(exception_ref.class))?;
+        let instance = vm.heap.alloc_instance(&mut vm.method_area, class_id)?;
+        let method_id = vm
+            .method_area
+            .get_instance_class(&class_id)?
+            .get_special_method_id(
+                // TODO: fix interner usage, replace with direct symbol
+                &MethodKey {
+                    name: vm.interner().get_or_intern(exception_ref.name),
+                    desc: vm.interner().get_or_intern(exception_ref.descriptor),
+                },
+            )?;
+        let params = if let Some(msg) = exception.get_message() {
+            vec![
+                Value::Ref(instance),
+                Value::Ref(
+                    vm.heap
+                        // TODO: fix interner usage, replace with direct symbol
+                        .alloc_string(vm.interner().get_or_intern(msg), &mut vm.method_area)?,
+                ),
+            ]
+        } else {
+            vec![Value::Ref(instance)]
+        };
+        Self::run_method(thread_id, method_id, vm, params)?;
+        Err(JvmError::JavaExceptionThrown(instance))
     }
 
     fn prepare_method_args(
@@ -1095,15 +1208,24 @@ impl Interpreter {
             let pc = vm.get_stack_mut(&thread_id)?.pc()?;
             let instruction = Instruction::new_at(code, pc)?;
 
-            if let ControlFlow::Break(_) = Self::interpret_instruction(thread_id, instruction, vm)?
-            {
-                break;
+            match Self::interpret_instruction(thread_id, instruction, vm) {
+                Ok(flow) => {
+                    if let ControlFlow::Break(_) = flow {
+                        break;
+                    }
+                }
+                Err(e) => match e {
+                    JvmError::JavaException(exception) => {
+                        Self::allocate_and_throw(thread_id, exception, vm)?;
+                    }
+                    e => return Err(e),
+                },
             }
         }
         Ok(())
     }
 
-    fn run_method(
+    pub fn run_method(
         thread_id: ThreadId,
         method_id: MethodId,
         vm: &mut VirtualMachine,
@@ -1118,8 +1240,13 @@ impl Interpreter {
             if !method.is_static() && vm.heap.is_array(&args[0].as_obj_ref()?)? {
                 method_key.class = None;
             }
+            let frame = NativeFrame::new(method_id);
+            vm.get_stack_mut(&thread_id)?
+                .push_frame(FrameType::NativeFrame(frame))?;
             let native = vm.native_registry.get(&method_key).unwrap();
-            if let Some(ret) = native(vm, thread_id, args.as_slice())? {
+            let native_res = native(vm, thread_id, args.as_slice())?;
+            vm.get_stack_mut(&thread_id)?.pop_native_frame()?;
+            if let Some(ret) = native_res {
                 vm.get_stack_mut(&thread_id)?.push_operand(ret)?;
             }
         } else {
@@ -1128,7 +1255,8 @@ impl Interpreter {
                 .get_method(&method_id)
                 .get_frame_attributes()?;
             let frame = JavaFrame::new(method_id, max_stack, max_locals, args);
-            vm.get_stack_mut(&thread_id)?.push_frame(frame)?;
+            vm.get_stack_mut(&thread_id)?
+                .push_frame(FrameType::JavaFrame(frame))?;
             Self::interpret_method(thread_id, method_id, vm)?;
         }
         Ok(())
@@ -1179,10 +1307,6 @@ impl Interpreter {
         let Some(class_id) = class_id else {
             return Ok(());
         };
-
-        let dbg = vm
-            .interner()
-            .resolve(&vm.method_area.get_class(&class_id).get_name());
 
         {
             let class = vm.method_area.get_class_like(&class_id)?;

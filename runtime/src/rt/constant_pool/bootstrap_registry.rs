@@ -1,7 +1,7 @@
 use crate::{ClassId, FieldKey, MethodKey, Symbol};
 use common::error::JvmError;
 use common::jtype::PrimitiveType;
-use lasso::{Interner, ThreadedRodeo};
+use lasso::ThreadedRodeo;
 use std::cell::OnceCell;
 
 pub struct BootstrapRegistry {
@@ -10,6 +10,7 @@ pub struct BootstrapRegistry {
     pub init_mk: MethodKey,
     pub main_mk: MethodKey,
     pub system_init_phase1_mk: MethodKey,
+    pub print_stack_trace_mk: MethodKey,
 
     // Common field keys
     pub class_name_fk: FieldKey,
@@ -19,6 +20,11 @@ pub struct BootstrapRegistry {
     pub fd_fd_fk: FieldKey,
     pub throwable_backtrace_fk: FieldKey,
     pub throwable_depth_fk: FieldKey,
+    pub stack_trace_declaring_class_fk: FieldKey,
+    pub stack_trace_method_name_fk: FieldKey,
+    pub stack_trace_file_name_fk: FieldKey,
+    pub stack_trace_line_number_fk: FieldKey,
+    pub stack_trace_declaring_class_name_fk: FieldKey,
 
     // Common class names (interned)
     pub java_lang_object_sym: Symbol,
@@ -109,6 +115,10 @@ impl BootstrapRegistry {
                 name: interner.get_or_intern("initPhase1"),
                 desc: void_desc,
             },
+            print_stack_trace_mk: MethodKey {
+                name: interner.get_or_intern("printStackTrace"),
+                desc: void_desc,
+            },
 
             // Field keys
             class_name_fk: FieldKey {
@@ -138,6 +148,26 @@ impl BootstrapRegistry {
             fd_fd_fk: FieldKey {
                 name: interner.get_or_intern("fd"),
                 desc: int_desc,
+            },
+            stack_trace_declaring_class_fk: FieldKey {
+                name: interner.get_or_intern("declaringClassObject"),
+                desc: class_desc,
+            },
+            stack_trace_method_name_fk: FieldKey {
+                name: interner.get_or_intern("methodName"),
+                desc: string_desc,
+            },
+            stack_trace_file_name_fk: FieldKey {
+                name: interner.get_or_intern("fileName"),
+                desc: string_desc,
+            },
+            stack_trace_line_number_fk: FieldKey {
+                name: interner.get_or_intern("lineNumber"),
+                desc: int_desc,
+            },
+            stack_trace_declaring_class_name_fk: FieldKey {
+                name: interner.get_or_intern("declaringClass"),
+                desc: string_desc,
             },
 
             // Class names

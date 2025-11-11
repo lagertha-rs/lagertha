@@ -123,6 +123,7 @@ classes = [
     "java.io.ObjectStreamField",
     "java.io.BufferedOutputStream",
     # java.util
+    "java.util.SequencedCollection",
     "java.util.function.Function",
     "java.util.function.BiFunction",
     "java.util.Arrays",

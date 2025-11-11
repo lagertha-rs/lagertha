@@ -69,7 +69,7 @@ macro_rules! debug_log_instruction {
                         let cur_frame_method_id = vm
                             .get_stack($thread_id)
                             .unwrap()
-                            .cur_frame()
+                            .cur_java_frame()
                             .unwrap()
                             .method_id();
                         let target_field_view = vm
@@ -91,7 +91,7 @@ macro_rules! debug_log_instruction {
                         let cur_frame_method_id = vm
                             .get_stack($thread_id)
                             .unwrap()
-                            .cur_frame()
+                            .cur_java_frame()
                             .unwrap()
                             .method_id();
                         let target_method_view = vm
@@ -113,7 +113,7 @@ macro_rules! debug_log_instruction {
                         let cur_frame_method_id = vm
                             .get_stack($thread_id)
                             .unwrap()
-                            .cur_frame()
+                            .cur_java_frame()
                             .unwrap()
                             .method_id();
                         let target_method_view = vm
@@ -135,7 +135,7 @@ macro_rules! debug_log_instruction {
                         let cur_frame_method_id = vm
                             .get_stack($thread_id)
                             .unwrap()
-                            .cur_frame()
+                            .cur_java_frame()
                             .unwrap()
                             .method_id();
                         let target_method_view = vm
@@ -157,7 +157,7 @@ macro_rules! debug_log_instruction {
                         let cur_frame_method_id = vm
                             .get_stack($thread_id)
                             .unwrap()
-                            .cur_frame()
+                            .cur_java_frame()
                             .unwrap()
                             .method_id();
                         let target_method_view = vm

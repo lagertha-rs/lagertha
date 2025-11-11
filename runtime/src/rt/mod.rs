@@ -54,6 +54,10 @@ pub trait ClassLike {
         self.base().super_id
     }
 
+    fn get_source_file(&self) -> Option<Symbol> {
+        self.base().source_file
+    }
+
     fn has_static_field(&self, field_key: &FieldKey) -> Result<bool, JvmError> {
         self.base()
             .get_static_fields()
@@ -116,14 +120,21 @@ pub struct BaseClass {
     interfaces: OnceCell<HashSet<ClassId>>,
     static_fields: OnceCell<HashMap<FieldKey, StaticField>>,
     clinit: OnceCell<MethodId>,
+    source_file: Option<Symbol>,
 }
 
 impl BaseClass {
-    pub fn new(name: Symbol, flags: ClassFlags, super_id: Option<ClassId>) -> Self {
+    pub fn new(
+        name: Symbol,
+        flags: ClassFlags,
+        super_id: Option<ClassId>,
+        source_file: Option<Symbol>,
+    ) -> Self {
         Self {
             name,
             flags,
             super_id,
+            source_file,
             state: RefCell::new(ClassState::Loaded),
             mirror_ref: OnceCell::new(),
             interfaces: OnceCell::new(),

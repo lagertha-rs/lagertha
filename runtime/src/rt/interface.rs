@@ -33,8 +33,9 @@ impl InterfaceClass {
         let cp = RuntimeConstantPool::new(cp.inner);
         let name = cp.get_class_sym(&this_class, method_area.interner())?;
 
+        //TODO: source file name? etc
         let class = JvmClass::Interface(Box::new(Self {
-            base: BaseClass::new(name, flags, super_id),
+            base: BaseClass::new(name, flags, super_id, None),
             cp,
             methods: OnceCell::new(),
         }));

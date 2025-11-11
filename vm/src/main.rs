@@ -69,9 +69,8 @@ fn main() {
             return;
         }
     };
-    if let Err(err) = runtime::start_deprecated(vm_config) {
+    if let Err(err) = runtime::start(vm_config) {
         error!("VM execution failed: {err}");
-        eprintln!("{}", err);
         std::process::exit(1);
     }
 }
