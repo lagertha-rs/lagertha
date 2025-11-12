@@ -235,7 +235,8 @@ impl VirtualMachine {
             stack: FrameStack::new(&config),
         };
         let rust_thread_id = ThreadId::new(NonZeroU32::MAX);
-        Ok(Self {
+
+        let mut vm = Self {
             config,
             native_registry,
             string_interner,
@@ -244,7 +245,95 @@ impl VirtualMachine {
             thread_registry: Vec::new(),
             rust_thread,
             rust_thread_id,
-        })
+        };
+
+        let system_thread_group_ref = vm.create_system_thread_group()?;
+        let main_thread_group_ref = vm.create_main_thread_group(system_thread_group_ref)?;
+        let main_thread_ref = vm.create_main_thread(main_thread_group_ref)?;
+
+        Ok(vm)
+    }
+
+    fn create_system_thread_group(&mut self) -> Result<HeapRef, JvmError> {
+        let system_thread_group_class_id = self.method_area.br().get_java_lang_thread_group_id()?;
+        let thread_group_no_arg_constructor_id = self
+            .method_area
+            .get_instance_class(&system_thread_group_class_id)?
+            .get_special_method_id(&self.method_area.br().no_arg_constructor_mk)?;
+        let system_thread_group_ref = self
+            .heap
+            .alloc_instance(&mut self.method_area, system_thread_group_class_id)?;
+        Interpreter::run_method(
+            self.rust_thread_id,
+            thread_group_no_arg_constructor_id,
+            self,
+            vec![Value::Ref(system_thread_group_ref)],
+        )?;
+
+        Ok(system_thread_group_ref)
+    }
+
+    fn create_main_thread_group(
+        &mut self,
+        system_thread_group_ref: HeapRef,
+    ) -> Result<HeapRef, JvmError> {
+        let system_thread_group_class_id = self.method_area.br().get_java_lang_thread_group_id()?;
+        let main_thread_group_ref = self
+            .heap
+            .alloc_instance(&mut self.method_area, system_thread_group_class_id)?;
+        let thread_group_constructor_id = self
+            .method_area
+            .get_instance_class(&system_thread_group_class_id)?
+            .get_special_method_id(
+                &self
+                    .method_area
+                    .br()
+                    .thread_group_parent_and_name_constructor_mk,
+            )?;
+        let main_string_ref = self
+            .heap
+            .get_str_from_pool_or_new(self.method_area.br().main_sym, &mut self.method_area)?;
+        Interpreter::run_method(
+            self.rust_thread_id,
+            thread_group_constructor_id,
+            self,
+            vec![
+                Value::Ref(main_thread_group_ref),
+                Value::Ref(system_thread_group_ref),
+                Value::Ref(main_string_ref),
+            ],
+        )?;
+        Ok(main_thread_group_ref)
+    }
+
+    fn create_main_thread(&mut self, thread_group_ref: HeapRef) -> Result<HeapRef, JvmError> {
+        let thread_class_id = self.method_area.br().get_java_lang_thread_id()?;
+        let thread_constructor_id = self
+            .method_area
+            .get_instance_class(&thread_class_id)?
+            .get_special_method_id(
+                &self
+                    .method_area
+                    .br()
+                    .thread_thread_group_and_name_constructor_mk,
+            )?;
+        let main_thread_ref = self
+            .heap
+            .alloc_instance(&mut self.method_area, thread_class_id)?;
+        let main_string_ref = self
+            .heap
+            .alloc_string(self.method_area.br().main_sym, &mut self.method_area)?;
+        Interpreter::run_method(
+            self.rust_thread_id,
+            thread_constructor_id,
+            self,
+            vec![
+                Value::Ref(main_thread_ref),
+                Value::Ref(thread_group_ref),
+                Value::Ref(main_string_ref),
+            ],
+        )?;
+        Ok(main_thread_ref)
     }
 
     // TODO: implement and no mut

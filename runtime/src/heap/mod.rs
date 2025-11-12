@@ -202,7 +202,7 @@ impl Heap {
         Ok(instance)
     }
 
-    pub fn get_or_new_string_pool(
+    pub fn get_str_from_pool_or_new(
         &mut self,
         val_sym: Symbol,
         method_area: &mut MethodArea,

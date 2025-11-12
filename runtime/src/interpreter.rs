@@ -812,7 +812,7 @@ impl Interpreter {
                             let string_sym = str_entry.get_string_sym()?;
                             let string_ref = vm
                                 .heap
-                                .get_or_new_string_pool(string_sym, &mut vm.method_area)?;
+                                .get_str_from_pool_or_new(string_sym, &mut vm.method_area)?;
                             Value::Ref(string_ref)
                         }
                         _ => unimplemented!(),

@@ -7,10 +7,12 @@ use std::cell::OnceCell;
 pub struct BootstrapRegistry {
     // Common method keys
     pub clinit_mk: MethodKey,
-    pub init_mk: MethodKey,
+    pub no_arg_constructor_mk: MethodKey,
     pub main_mk: MethodKey,
     pub system_init_phase1_mk: MethodKey,
     pub print_stack_trace_mk: MethodKey,
+    pub thread_group_parent_and_name_constructor_mk: MethodKey,
+    pub thread_thread_group_and_name_constructor_mk: MethodKey,
 
     // Common field keys
     pub class_name_fk: FieldKey,
@@ -32,6 +34,8 @@ pub struct BootstrapRegistry {
     pub java_lang_throwable_sym: Symbol,
     pub java_lang_string_sym: Symbol,
     pub java_lang_system_sym: Symbol,
+    pub java_lang_thread_sym: Symbol,
+    pub java_lang_thread_group_sym: Symbol,
 
     // Primitive name symbols
     pub int_sym: Symbol,
@@ -64,6 +68,8 @@ pub struct BootstrapRegistry {
     java_lang_class_id: OnceCell<ClassId>,
     java_lang_object_id: OnceCell<ClassId>,
     java_lang_throwable_id: OnceCell<ClassId>,
+    java_lang_thread_group_id: OnceCell<ClassId>,
+    java_lang_thread_id: OnceCell<ClassId>,
 }
 
 impl BootstrapRegistry {
@@ -103,7 +109,7 @@ impl BootstrapRegistry {
                 name: clinit_sym,
                 desc: void_desc,
             },
-            init_mk: MethodKey {
+            no_arg_constructor_mk: MethodKey {
                 name: init_sym,
                 desc: void_desc,
             },
@@ -118,6 +124,14 @@ impl BootstrapRegistry {
             print_stack_trace_mk: MethodKey {
                 name: interner.get_or_intern("printStackTrace"),
                 desc: void_desc,
+            },
+            thread_group_parent_and_name_constructor_mk: MethodKey {
+                name: init_sym,
+                desc: interner.get_or_intern("(Ljava/lang/ThreadGroup;Ljava/lang/String;)V"),
+            },
+            thread_thread_group_and_name_constructor_mk: MethodKey {
+                name: init_sym,
+                desc: interner.get_or_intern("(Ljava/lang/ThreadGroup;Ljava/lang/String;)V"),
             },
 
             // Field keys
@@ -176,6 +190,8 @@ impl BootstrapRegistry {
             java_lang_throwable_sym: interner.get_or_intern("java/lang/Throwable"),
             java_lang_string_sym: interner.get_or_intern("java/lang/String"),
             java_lang_system_sym: interner.get_or_intern("java/lang/System"),
+            java_lang_thread_sym: interner.get_or_intern("java/lang/Thread"),
+            java_lang_thread_group_sym: interner.get_or_intern("java/lang/ThreadGroup"),
 
             // Method names
             init_sym,
@@ -208,6 +224,8 @@ impl BootstrapRegistry {
             java_lang_class_id: OnceCell::new(),
             java_lang_object_id: OnceCell::new(),
             java_lang_throwable_id: OnceCell::new(),
+            java_lang_thread_group_id: OnceCell::new(),
+            java_lang_thread_id: OnceCell::new(),
         }
     }
 
@@ -227,6 +245,32 @@ impl BootstrapRegistry {
         self.java_lang_throwable_id
             .set(class_id)
             .map_err(|_| JvmError::Todo("java/lang/Throwable ID already set".to_string()))
+    }
+
+    pub fn set_java_lang_thread_group_id(&self, class_id: ClassId) -> Result<(), JvmError> {
+        self.java_lang_thread_group_id
+            .set(class_id)
+            .map_err(|_| JvmError::Todo("java/lang/ThreadGroup ID already set".to_string()))
+    }
+
+    pub fn set_java_lang_thread_id(&self, class_id: ClassId) -> Result<(), JvmError> {
+        self.java_lang_thread_id
+            .set(class_id)
+            .map_err(|_| JvmError::Todo("java/lang/Thread ID already set".to_string()))
+    }
+
+    pub fn get_java_lang_thread_group_id(&self) -> Result<ClassId, JvmError> {
+        self.java_lang_thread_group_id
+            .get()
+            .copied()
+            .ok_or_else(|| JvmError::Todo("java/lang/ThreadGroup".to_string()))
+    }
+
+    pub fn get_java_lang_thread_id(&self) -> Result<ClassId, JvmError> {
+        self.java_lang_thread_id
+            .get()
+            .copied()
+            .ok_or_else(|| JvmError::Todo("java/lang/Thread".to_string()))
     }
 
     pub fn get_java_lang_throwable_id(&self) -> Result<ClassId, JvmError> {

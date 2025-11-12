@@ -81,7 +81,7 @@ fn jdk_internal_util_system_props_raw_platform_properties(
     let string_class_id = vm.method_area.get_class_id_or_load(string_class_sym)?;
     let empty_string_stub = vm
         .heap
-        .get_or_new_string_pool(empty_string_sym, &mut vm.method_area)?;
+        .get_str_from_pool_or_new(empty_string_sym, &mut vm.method_area)?;
     let h = vm.heap.alloc_array_with_default_value(
         string_class_id,
         Value::Ref(empty_string_stub),
@@ -90,11 +90,11 @@ fn jdk_internal_util_system_props_raw_platform_properties(
     let utf8_sym = vm.method_area.interner().get_or_intern("UTF-8");
     let enc = vm
         .heap
-        .get_or_new_string_pool(utf8_sym, &mut vm.method_area)?;
+        .get_str_from_pool_or_new(utf8_sym, &mut vm.method_area)?;
     let line_sep_sym = vm.method_area.interner().get_or_intern("\n");
     let line_separator_value = vm
         .heap
-        .get_or_new_string_pool(line_sep_sym, &mut vm.method_area)?;
+        .get_str_from_pool_or_new(line_sep_sym, &mut vm.method_area)?;
     vm.heap
         .write_array_element(h, 19, Value::Ref(line_separator_value))?;
     vm.heap.write_array_element(h, 27, Value::Ref(enc))?;
@@ -116,22 +116,22 @@ fn jdk_internal_util_system_props_raw_vm_properties(
     let h = vm
         .heap
         .alloc_array_with_default_value(string_class, Value::Null, 4)?;
-    let java_home_key = vm.heap.get_or_new_string_pool(
+    let java_home_key = vm.heap.get_str_from_pool_or_new(
         vm.interner().get_or_intern("java.home"),
         &mut vm.method_area,
     )?;
-    let java_home_value = vm.heap.get_or_new_string_pool(
+    let java_home_value = vm.heap.get_str_from_pool_or_new(
         vm.interner()
             .get_or_intern(vm.config.home.to_str().unwrap()),
         &mut vm.method_area,
     )?;
-    let sun_page_align_stub = vm.heap.get_or_new_string_pool(
+    let sun_page_align_stub = vm.heap.get_str_from_pool_or_new(
         vm.interner().get_or_intern("sun.nio.PageAlignDirectMemory"),
         &mut vm.method_area,
     )?;
     let false_str = vm
         .heap
-        .get_or_new_string_pool(vm.interner().get_or_intern("false"), &mut vm.method_area)?;
+        .get_str_from_pool_or_new(vm.interner().get_or_intern("false"), &mut vm.method_area)?;
     vm.heap
         .write_array_element(h, 0, Value::Ref(java_home_key))?;
     vm.heap
