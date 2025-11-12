@@ -162,15 +162,31 @@ impl<'a> ClassAttribute {
                     for entry in inner {
                         let inner_class =
                             pretty_try!(ind, cp.get_raw(&entry.inner_class_info_index));
-                        // Anonymous class
+
+                        // Truly anonymous class
                         if entry.outer_class_info_index == 0 && entry.inner_name_index == 0 {
                             writeln!(
                                 ind,
-                                "#{:<42} // {}",
-                                format!("{};", entry.inner_class_info_index),
+                                "{:<43} // {}",
+                                format!("#{};", entry.inner_class_info_index),
                                 pretty_try!(ind, inner_class.get_pretty_type_and_value(cp, &0)),
                             )?;
-                        } else {
+                        }
+                        // Local/member class
+                        else if entry.outer_class_info_index == 0 {
+                            writeln!(
+                                ind,
+                                "{:<43} // {}={}",
+                                format!(
+                                    "#{}= #{};",
+                                    entry.inner_name_index, entry.inner_class_info_index
+                                ),
+                                pretty_try!(ind, cp.get_utf8(&entry.inner_name_index)),
+                                pretty_try!(ind, inner_class.get_pretty_type_and_value(cp, &0)),
+                            )?;
+                        }
+                        // Regular inner class
+                        else {
                             let inner_access_flags =
                                 InnerClassFlags::new(entry.inner_class_access_flags);
                             let outer_class =

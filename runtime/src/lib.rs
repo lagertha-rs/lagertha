@@ -12,6 +12,7 @@ use std::num::NonZeroU32;
 use std::path::PathBuf;
 use std::sync::Arc;
 
+pub mod bootstrap_registry;
 mod class_loader;
 pub mod debug_log;
 pub mod heap;

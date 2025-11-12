@@ -1,9 +1,9 @@
+use crate::bootstrap_registry::BootstrapRegistry;
 use crate::class_loader::ClassLoader;
 use crate::heap::Heap;
 use crate::rt::array::{ObjectArrayClass, PrimitiveArrayClass};
 use crate::rt::class::InstanceClass;
 use crate::rt::constant_pool::RuntimeConstantPool;
-use crate::rt::constant_pool::bootstrap_registry::BootstrapRegistry;
 use crate::rt::interface::InterfaceClass;
 use crate::rt::method::Method;
 use crate::rt::{ClassLike, JvmClass, PrimitiveClass};

@@ -165,17 +165,17 @@ impl DescriptorPrimitiveType {
     }
 
     pub fn is_compatible_with(&self, value: &Value) -> bool {
-        match (self, value) {
-            (DescriptorPrimitiveType::Byte, Value::Integer(_)) => true,
-            (DescriptorPrimitiveType::Char, Value::Integer(_)) => true,
-            (DescriptorPrimitiveType::Short, Value::Integer(_)) => true,
-            (DescriptorPrimitiveType::Int, Value::Integer(_)) => true,
-            (DescriptorPrimitiveType::Boolean, Value::Integer(_)) => true,
-            (DescriptorPrimitiveType::Long, Value::Long(_)) => true,
-            (DescriptorPrimitiveType::Float, Value::Float(_)) => true,
-            (DescriptorPrimitiveType::Double, Value::Double(_)) => true,
-            _ => false,
-        }
+        matches!(
+            (self, value),
+            (DescriptorPrimitiveType::Byte, Value::Integer(_))
+                | (DescriptorPrimitiveType::Char, Value::Integer(_))
+                | (DescriptorPrimitiveType::Short, Value::Integer(_))
+                | (DescriptorPrimitiveType::Int, Value::Integer(_))
+                | (DescriptorPrimitiveType::Boolean, Value::Integer(_))
+                | (DescriptorPrimitiveType::Long, Value::Long(_))
+                | (DescriptorPrimitiveType::Float, Value::Float(_))
+                | (DescriptorPrimitiveType::Double, Value::Double(_))
+        )
     }
 }
 

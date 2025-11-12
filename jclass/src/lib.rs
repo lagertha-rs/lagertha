@@ -181,7 +181,12 @@ impl ClassFile {
                 }
             }
             if !interfaces_names.is_empty() {
-                write!(ind, "implements {}", interfaces_names.join(", "))?;
+                if self.access_flags.is_interface() {
+                    write!(ind, "extends ")?;
+                } else {
+                    write!(ind, "implements ")?;
+                }
+                write!(ind, "{}", interfaces_names.join(", "))?;
             }
             Ok(())
         } else {
@@ -276,29 +281,27 @@ impl std::fmt::Display for ClassFile {
             }
             Ok(())
         })?;
-        if !self.fields.is_empty() || !self.methods.is_empty() {
-            writeln!(ind, "{{")?;
-            ind.with_indent(|ind| {
-                for (i, field) in self.fields.iter().enumerate() {
-                    field.fmt_pretty(ind, &self.cp)?;
-                    if i + 1 < self.fields.len() {
-                        writeln!(ind)?;
-                    }
-                }
-                if !self.fields.is_empty() {
+        writeln!(ind, "{{")?;
+        ind.with_indent(|ind| {
+            for (i, field) in self.fields.iter().enumerate() {
+                field.fmt_pretty(ind, &self.cp)?;
+                if i + 1 < self.fields.len() {
                     writeln!(ind)?;
                 }
+            }
+            if !self.fields.is_empty() {
+                writeln!(ind)?;
+            }
 
-                for (i, method) in self.methods.iter().enumerate() {
-                    method.fmt_pretty(ind, &self.cp, &self.this_class, &self.access_flags)?;
-                    if i + 1 < self.methods.len() {
-                        writeln!(ind)?;
-                    }
+            for (i, method) in self.methods.iter().enumerate() {
+                method.fmt_pretty(ind, &self.cp, &self.this_class, &self.access_flags)?;
+                if i + 1 < self.methods.len() {
+                    writeln!(ind)?;
                 }
-                Ok(())
-            })?;
-            writeln!(ind, "}}")?;
-        }
+            }
+            Ok(())
+        })?;
+        writeln!(ind, "}}")?;
         for attribute in &self.attributes {
             attribute.fmt_pretty(&mut ind, &self.cp)?;
         }

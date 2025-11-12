@@ -542,11 +542,15 @@ impl<'a> ConstantInfo {
             ConstantInfo::MethodHandle(handle_info) => {
                 let handle_kind = handle_info.get_kind()?;
                 let method_ref = cp.get_methodref(&handle_info.reference_index)?;
+                let method_name = match cp.get_method_or_field_name(method_ref)? {
+                    "<init>" => "\"<init>\"".to_owned(),
+                    other => other.to_owned(),
+                };
                 format!(
                     "{} {}.{}:{}",
                     handle_kind.get_pretty_value()?,
                     cp.get_method_or_field_class_name(method_ref)?,
-                    cp.get_method_or_field_name(method_ref)?,
+                    method_name,
                     cp.get_method_or_field_descriptor(method_ref)?,
                 )
             }

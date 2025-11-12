@@ -8,7 +8,6 @@ use jclass::constant::ConstantInfo;
 use lasso::ThreadedRodeo;
 use std::fmt::Display;
 
-pub mod bootstrap_registry;
 pub mod entry;
 
 pub enum RuntimeConstantType {
