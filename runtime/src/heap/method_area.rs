@@ -408,7 +408,7 @@ impl MethodArea {
         let target_class = self.get_class(&class_id);
         target_class.set_mirror_ref(mirror_ref)?;
         let name_sym = target_class.get_name();
-        let name_ref = heap.alloc_string_with_char_mapping(name_sym, self, &|c| {
+        let name_ref = heap.alloc_string_from_interned_with_char_mapping(name_sym, self, &|c| {
             if c == '/' { '.' } else { c }
         })?;
         let name_field_index = self

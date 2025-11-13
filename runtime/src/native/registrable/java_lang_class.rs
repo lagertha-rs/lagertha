@@ -7,7 +7,6 @@ use tracing_log::log::debug;
 pub(super) fn java_lang_class_register_natives(
     vm: &mut VirtualMachine,
     _thread_id: ThreadId,
-
     _args: &[Value],
 ) -> NativeRet {
     vm.native_registry.register(

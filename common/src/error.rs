@@ -250,19 +250,6 @@ impl JavaExceptionFromJvm {
     const STRING_PARAM_CONSTRUCTOR: &'static str = "(Ljava/lang/String;)V";
     const NO_PARAM_CONSTRUCTOR: &'static str = "()V";
 
-    pub fn set_message(&mut self, msg: String) {
-        match self {
-            JavaExceptionFromJvm::ArithmeticException(m) => *m = Some(msg),
-            JavaExceptionFromJvm::UnsupportedOperationException(m) => *m = Some(msg),
-            JavaExceptionFromJvm::ArrayIndexOutOfBoundsException(m) => *m = Some(msg),
-            JavaExceptionFromJvm::NegativeArraySizeException(m) => *m = Some(msg),
-            JavaExceptionFromJvm::NullPointerException(m) => *m = Some(msg),
-            JavaExceptionFromJvm::ArrayStoreException(m) => *m = Some(msg),
-            JavaExceptionFromJvm::InternalError(m) => *m = Some(msg),
-            JavaExceptionFromJvm::NoSuchMethodError(m) => *m = Some(msg),
-        }
-    }
-
     fn has_message(&self) -> bool {
         match self {
             JavaExceptionFromJvm::ArithmeticException(msg) => msg.is_some(),

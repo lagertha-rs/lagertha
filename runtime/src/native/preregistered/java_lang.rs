@@ -398,15 +398,19 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
             .get_instance_class(&class_id)?
             .get_source_file()
             .unwrap();
-        let class_name =
-            vm.heap
-                .alloc_string_with_char_mapping(class_sym, &mut vm.method_area, &|c| {
-                    if c == '/' { '.' } else { c }
-                })?;
-        let method_name = vm.heap.alloc_string(method_sym, &mut vm.method_area)?;
+        let class_name = vm.heap.alloc_string_from_interned_with_char_mapping(
+            class_sym,
+            &mut vm.method_area,
+            &|c| {
+                if c == '/' { '.' } else { c }
+            },
+        )?;
+        let method_name = vm
+            .heap
+            .alloc_string_from_interned(method_sym, &mut vm.method_area)?;
         let source = vm
             .heap
-            .alloc_string(class_source_sym, &mut vm.method_area)?;
+            .alloc_string_from_interned(class_source_sym, &mut vm.method_area)?;
         let line_nbr = vm
             .method_area
             .get_method(&method_id)

@@ -2,8 +2,8 @@ use crate::rt::constant_pool::RuntimeConstant;
 use crate::rt::{ClassLike, JvmClass};
 use crate::stack::{FrameType, JavaFrame, NativeFrame};
 use crate::{
-    ClassId, FieldKey, MethodId, MethodKey, ThreadId, VirtualMachine, debug_log_instruction,
-    throw_exception,
+    ClassId, FieldKey, MethodId, MethodKey, ThreadId, VirtualMachine, build_exception,
+    debug_log_instruction, throw_exception,
 };
 use common::error::{JavaExceptionFromJvm, JvmError};
 use common::instruction::Instruction;
@@ -1160,11 +1160,7 @@ impl Interpreter {
         let params = if let Some(msg) = exception.get_message() {
             vec![
                 Value::Ref(instance),
-                Value::Ref(
-                    vm.heap
-                        // TODO: fix interner usage, replace with direct symbol
-                        .alloc_string(vm.interner().get_or_intern(msg), &mut vm.method_area)?,
-                ),
+                Value::Ref(vm.heap.alloc_string(msg, &mut vm.method_area)?),
             ]
         } else {
             vec![Value::Ref(instance)]
@@ -1243,7 +1239,10 @@ impl Interpreter {
             let frame = NativeFrame::new(method_id);
             vm.get_stack_mut(&thread_id)?
                 .push_frame(FrameType::NativeFrame(frame))?;
-            let native = vm.native_registry.get(&method_key).unwrap();
+            let native = vm.native_registry.get(&method_key).ok_or(build_exception!(
+                NoSuchMethodError,
+                vm.pretty_method_not_found_message(&method_id)
+            ))?;
             let native_res = native(vm, thread_id, args.as_slice())?;
             vm.get_stack_mut(&thread_id)?.pop_native_frame()?;
             if let Some(ret) = native_res {

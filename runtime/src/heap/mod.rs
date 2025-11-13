@@ -167,55 +167,6 @@ impl Heap {
         })))
     }
 
-    pub fn alloc_string(
-        &mut self,
-        val_sym: Symbol,
-        method_area: &mut MethodArea,
-    ) -> Result<HeapRef, JvmError> {
-        self.alloc_string_with_char_mapping(val_sym, method_area, &|c| c)
-    }
-
-    pub fn alloc_string_with_char_mapping(
-        &mut self,
-        val_sym: Symbol,
-        method_area: &mut MethodArea,
-        f: &dyn Fn(char) -> char,
-    ) -> Result<HeapRef, JvmError> {
-        let string_class_id = *self.string_class_id.get_or_try_init(|| {
-            method_area.get_class_id_or_load(method_area.br().java_lang_string_sym)
-        })?;
-        let char_array_class_id = *self.char_array_class_id.get_or_try_init(|| {
-            method_area.get_class_id_or_load(method_area.br().char_array_desc)
-        })?;
-        let chars_val = {
-            let s = method_area.interner().resolve(&val_sym);
-            s.chars()
-                .map(|c| Value::Integer(f(c) as i32))
-                .collect::<Vec<_>>()
-        };
-        let char_arr_ref = self.push(HeapObject::Array(Instance {
-            class_id: char_array_class_id,
-            data: chars_val,
-        }));
-        let instance = self.alloc_instance(method_area, string_class_id)?;
-        self.write_instance_field(instance, 0, Value::Ref(char_arr_ref))?;
-        Ok(instance)
-    }
-
-    pub fn get_str_from_pool_or_new(
-        &mut self,
-        val_sym: Symbol,
-        method_area: &mut MethodArea,
-    ) -> Result<HeapRef, JvmError> {
-        if let Some(h) = self.string_pool.get(&val_sym) {
-            Ok(*h)
-        } else {
-            let res = self.alloc_string_with_char_mapping(val_sym, method_area, &|c| c)?;
-            self.string_pool.insert(val_sym, res);
-            Ok(res)
-        }
-    }
-
     pub fn clone_object(&mut self, h: &HeapRef) -> Result<HeapRef, JvmError> {
         match self.get(h)? {
             HeapObject::Instance(instance) => {
@@ -380,5 +331,90 @@ impl Heap {
         }
 
         Ok(())
+    }
+
+    // TODO: optimize string allocation with interner
+
+    pub fn alloc_string(
+        &mut self,
+        s: &str,
+        method_area: &mut MethodArea,
+    ) -> Result<HeapRef, JvmError> {
+        self.alloc_string_with_char_mapping(s, method_area, &|c| c)
+    }
+
+    pub fn alloc_string_from_interned(
+        &mut self,
+        val_sym: Symbol,
+        method_area: &mut MethodArea,
+    ) -> Result<HeapRef, JvmError> {
+        self.alloc_string_from_interned_with_char_mapping(val_sym, method_area, &|c| c)
+    }
+
+    pub fn alloc_string_from_interned_with_char_mapping(
+        &mut self,
+        val_sym: Symbol,
+        method_area: &mut MethodArea,
+        f: &dyn Fn(char) -> char,
+    ) -> Result<HeapRef, JvmError> {
+        let string_class_id = *self.string_class_id.get_or_try_init(|| {
+            method_area.get_class_id_or_load(method_area.br().java_lang_string_sym)
+        })?;
+        let char_array_class_id = *self.char_array_class_id.get_or_try_init(|| {
+            method_area.get_class_id_or_load(method_area.br().char_array_desc)
+        })?;
+        let chars_val = {
+            let s = method_area.interner().resolve(&val_sym);
+            s.chars()
+                .map(|c| Value::Integer(f(c) as i32))
+                .collect::<Vec<_>>()
+        };
+        let char_arr_ref = self.push(HeapObject::Array(Instance {
+            class_id: char_array_class_id,
+            data: chars_val,
+        }));
+        let instance = self.alloc_instance(method_area, string_class_id)?;
+        self.write_instance_field(instance, 0, Value::Ref(char_arr_ref))?;
+        Ok(instance)
+    }
+
+    pub fn alloc_string_with_char_mapping(
+        &mut self,
+        s: &str,
+        method_area: &mut MethodArea,
+        f: &dyn Fn(char) -> char,
+    ) -> Result<HeapRef, JvmError> {
+        let string_class_id = *self.string_class_id.get_or_try_init(|| {
+            method_area.get_class_id_or_load(method_area.br().java_lang_string_sym)
+        })?;
+        let char_array_class_id = *self.char_array_class_id.get_or_try_init(|| {
+            method_area.get_class_id_or_load(method_area.br().char_array_desc)
+        })?;
+        let chars_val = {
+            s.chars()
+                .map(|c| Value::Integer(f(c) as i32))
+                .collect::<Vec<_>>()
+        };
+        let char_arr_ref = self.push(HeapObject::Array(Instance {
+            class_id: char_array_class_id,
+            data: chars_val,
+        }));
+        let instance = self.alloc_instance(method_area, string_class_id)?;
+        self.write_instance_field(instance, 0, Value::Ref(char_arr_ref))?;
+        Ok(instance)
+    }
+
+    pub fn get_str_from_pool_or_new(
+        &mut self,
+        val_sym: Symbol,
+        method_area: &mut MethodArea,
+    ) -> Result<HeapRef, JvmError> {
+        if let Some(h) = self.string_pool.get(&val_sym) {
+            Ok(*h)
+        } else {
+            let res = self.alloc_string_from_interned(val_sym, method_area)?;
+            self.string_pool.insert(val_sym, res);
+            Ok(res)
+        }
     }
 }

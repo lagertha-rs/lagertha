@@ -247,11 +247,21 @@ impl VirtualMachine {
             rust_thread_id,
         };
 
-        let system_thread_group_ref = vm.create_system_thread_group()?;
-        let main_thread_group_ref = vm.create_main_thread_group(system_thread_group_ref)?;
-        let main_thread_ref = vm.create_main_thread(main_thread_group_ref)?;
+        vm.initialize_main_thread().inspect_err(|e| {
+            if let JavaExceptionThrown(exception_ref) = e {
+                eprint!("Exception in thread \"rust init thread\" ");
+                print_stack_trace(*exception_ref, &mut vm);
+            }
+        })?;
 
         Ok(vm)
+    }
+
+    fn initialize_main_thread(&mut self) -> Result<(), JvmError> {
+        let system_thread_group_ref = self.create_system_thread_group()?;
+        let main_thread_group_ref = self.create_main_thread_group(system_thread_group_ref)?;
+        let main_thread_ref = self.create_main_thread(main_thread_group_ref)?;
+        Ok(())
     }
 
     fn create_system_thread_group(&mut self) -> Result<HeapRef, JvmError> {
@@ -322,7 +332,7 @@ impl VirtualMachine {
             .alloc_instance(&mut self.method_area, thread_class_id)?;
         let main_string_ref = self
             .heap
-            .alloc_string(self.method_area.br().main_sym, &mut self.method_area)?;
+            .alloc_string_from_interned(self.method_area.br().main_sym, &mut self.method_area)?;
         Interpreter::run_method(
             self.rust_thread_id,
             thread_constructor_id,
@@ -370,6 +380,19 @@ impl VirtualMachine {
     pub fn symbol_to_pretty_string(&self, sym: Symbol) -> String {
         self.string_interner.resolve(&sym).replace('/', ".")
     }
+
+    pub fn pretty_method_not_found_message(&self, method_id: &MethodId) -> String {
+        let method = self.method_area.get_method(method_id);
+        let method_desc = self
+            .method_area
+            .get_method_descriptor(&method.descriptor_id());
+        let class_sym = self.method_area.get_class(&method.class_id()).get_name();
+        method_desc.to_java_signature(&format!(
+            "{}.{}",
+            self.symbol_to_pretty_string(class_sym),
+            self.symbol_to_pretty_string(method.name)
+        ))
+    }
 }
 
 fn print_stack_trace(exception_ref: HeapRef, vm: &mut VirtualMachine) {
@@ -390,6 +413,7 @@ fn print_stack_trace(exception_ref: HeapRef, vm: &mut VirtualMachine) {
 }
 
 pub fn start(config: VmConfig) -> Result<(), JvmError> {
+    // TODO: it doesn't actually print errors if any occur during VM initialization. fix
     let mut vm = VirtualMachine::new(config)?;
 
     #[cfg(feature = "debug-log")]
