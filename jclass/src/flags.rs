@@ -308,8 +308,6 @@ impl ClassFlags {
             write!(ind, "@interface ")
         } else if self.is_interface() {
             write!(ind, "interface ")
-        } else if self.is_enum() {
-            write!(ind, "enum ")
         } else {
             write!(ind, "class ")
         }
@@ -473,9 +471,6 @@ impl FieldFlags {
         }
         if self.is_transient() {
             write!(ind, "transient ")?;
-        }
-        if self.is_enum() {
-            write!(ind, "enum ")?;
         }
 
         Ok(())

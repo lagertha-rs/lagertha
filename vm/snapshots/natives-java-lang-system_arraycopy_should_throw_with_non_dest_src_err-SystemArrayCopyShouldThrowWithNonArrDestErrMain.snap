@@ -5,6 +5,6 @@ expression: "&combined"
 ----- STDOUT -----
 
 ----- STDERR -----
-java.lang.ArrayStoreException: arraycopy: destination type java.lang.Object is not an array
+Exception in thread "main" java.lang.ArrayStoreException: arraycopy: destination type java.lang.Object is not an array
 	at java.lang.System.arraycopy(Native Method)
 	at natives.java.lang.system_arraycopy_should_throw_with_non_dest_src_err.SystemArrayCopyShouldThrowWithNonArrDestErrMain.main(SystemArrayCopyShouldThrowWithNonArrDestErrMain.java:8)

@@ -13,6 +13,8 @@ pub struct BootstrapRegistry {
     pub print_stack_trace_mk: MethodKey,
     pub thread_group_parent_and_name_constructor_mk: MethodKey,
     pub thread_thread_group_and_name_constructor_mk: MethodKey,
+    pub thread_group_uncaught_exception_mk: MethodKey,
+    pub thread_get_thread_group_mk: MethodKey,
 
     // Common field keys
     pub class_name_fk: FieldKey,
@@ -132,6 +134,14 @@ impl BootstrapRegistry {
             thread_thread_group_and_name_constructor_mk: MethodKey {
                 name: init_sym,
                 desc: interner.get_or_intern("(Ljava/lang/ThreadGroup;Ljava/lang/String;)V"),
+            },
+            thread_group_uncaught_exception_mk: MethodKey {
+                name: interner.get_or_intern("uncaughtException"),
+                desc: interner.get_or_intern("(Ljava/lang/Thread;Ljava/lang/Throwable;)V"),
+            },
+            thread_get_thread_group_mk: MethodKey {
+                name: interner.get_or_intern("getThreadGroup"),
+                desc: interner.get_or_intern("()Ljava/lang/ThreadGroup;"),
             },
 
             // Field keys

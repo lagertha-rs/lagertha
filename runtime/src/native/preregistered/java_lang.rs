@@ -1,6 +1,6 @@
 use crate::native::{NativeRegistry, NativeRet};
 use crate::rt::ClassLike;
-use crate::stack::FrameType;
+use crate::vm::stack::FrameType;
 use crate::{
     ClassId, FullyQualifiedMethodKey, MethodId, ThreadId, VirtualMachine, throw_exception,
 };
@@ -119,6 +119,15 @@ pub(super) fn do_register_java_lang_preregistered_natives(native_registry: &mut 
         ),
         java_lang_system_arraycopy,
     );
+    native_registry.register(
+        FullyQualifiedMethodKey::new_with_str(
+            "java/lang/String",
+            "intern",
+            "()Ljava/lang/String;",
+            &native_registry.string_interner,
+        ),
+        java_lang_string_intern,
+    )
 }
 
 fn java_lang_system_arraycopy(
@@ -495,4 +504,22 @@ fn java_lang_null_pointer_exception_get_extended_npe_message(
     // For now, just return null, later:
     // https://bugs.openjdk.org/browse/JDK-8218628
     Ok(Some(Value::Null))
+}
+
+fn java_lang_string_intern(
+    vm: &mut VirtualMachine,
+    _thread_id: ThreadId,
+    args: &[Value],
+) -> NativeRet {
+    debug!("TODO: Stub: java.lang.String.intern");
+    let string_addr = match &args[0] {
+        Value::Ref(h) => *h,
+        _ => panic!("java.lang.String.intern: expected object"),
+    };
+    let string_value = vm.heap.get_rust_string_from_java_string(&string_addr)?;
+    let interned = vm.interner().get_or_intern(&string_value);
+    let interned_addr = vm
+        .heap
+        .get_str_from_pool_or_new(interned, &mut vm.method_area)?;
+    Ok(Some(Value::Ref(interned_addr)))
 }

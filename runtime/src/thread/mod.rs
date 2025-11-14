@@ -1,4 +1,4 @@
-use crate::stack::FrameStack;
+use crate::vm::stack::FrameStack;
 use common::jtype::HeapRef;
 
 pub struct JavaThreadState {

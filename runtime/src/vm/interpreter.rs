@@ -1,6 +1,6 @@
 use crate::rt::constant_pool::RuntimeConstant;
 use crate::rt::{ClassLike, JvmClass};
-use crate::stack::{FrameType, JavaFrame, NativeFrame};
+use crate::vm::stack::{FrameType, JavaFrame, NativeFrame};
 use crate::{
     ClassId, FieldKey, MethodId, MethodKey, ThreadId, VirtualMachine, build_exception,
     debug_log_instruction, throw_exception,
@@ -27,7 +27,7 @@ impl Interpreter {
         thread_id: ThreadId,
         instruction: Instruction,
         vm: &mut VirtualMachine,
-    ) -> Result<ControlFlow<()>, JvmError> {
+    ) -> Result<ControlFlow<Option<Value>>, JvmError> {
         let is_branch = instruction.is_branch();
         let instruction_byte_size = instruction.byte_size();
 
@@ -632,7 +632,7 @@ impl Interpreter {
                     .get_class(&actual_class_id)
                     .get_vtable_method_id(&method_key)?;
                 let args = Self::prepare_method_args(thread_id, target_method_id, vm)?;
-                Self::run_method(thread_id, target_method_id, vm, args)?;
+                Self::invoke_method_internal(thread_id, target_method_id, args, vm)?;
             }
             Instruction::Instanceof(idx) => {
                 let cur_frame_method_id =
@@ -923,7 +923,7 @@ impl Interpreter {
                         .get_instance_class(&target_class_id)?
                         .get_interface_method_id(&target_method_view.name_and_type.into())?;
                     let args = Self::prepare_method_args(thread_id, target_method_id, vm)?;
-                    Self::run_method(thread_id, target_method_id, vm, args)?;
+                    Self::invoke_method_internal(thread_id, target_method_id, args, vm)?;
                 }
             }
             Instruction::InvokeSpecial(idx) => {
@@ -941,7 +941,7 @@ impl Interpreter {
                     .get_instance_class(&target_class_id)?
                     .get_special_method_id(&target_method_view.name_and_type.into())?;
                 let args = Self::prepare_method_args(thread_id, target_method_id, vm)?;
-                Self::run_method(thread_id, target_method_id, vm, args)?;
+                Self::invoke_method_internal(thread_id, target_method_id, args, vm)?;
             }
             Instruction::InvokeStatic(idx) => {
                 let cur_frame_method_id =
@@ -1091,32 +1091,23 @@ impl Interpreter {
                 *vm.get_stack_mut(&thread_id)?.pc_mut()? = new_pc;
             }
             Instruction::Return => {
-                vm.get_stack_mut(&thread_id)?.pop_java_frame()?;
-                return Ok(ControlFlow::Break(()));
+                return Ok(ControlFlow::Break(None));
             }
             Instruction::Ireturn => {
                 let ret_value = vm.get_stack_mut(&thread_id)?.pop_int()?;
-                vm.get_stack_mut(&thread_id)?.pop_java_frame()?;
-                vm.get_stack_mut(&thread_id)?.push_operand(ret_value)?;
-                return Ok(ControlFlow::Break(()));
+                return Ok(ControlFlow::Break(Some(ret_value)));
             }
             Instruction::Areturn => {
                 let value = vm.get_stack_mut(&thread_id)?.pop_nullable_ref()?;
-                vm.get_stack_mut(&thread_id)?.pop_java_frame()?;
-                vm.get_stack_mut(&thread_id)?.push_operand(value)?;
-                return Ok(ControlFlow::Break(()));
+                return Ok(ControlFlow::Break(Some(value)));
             }
             Instruction::Lreturn => {
                 let value = vm.get_stack_mut(&thread_id)?.pop_long()?;
-                vm.get_stack_mut(&thread_id)?.pop_java_frame()?;
-                vm.get_stack_mut(&thread_id)?.push_operand(value)?;
-                return Ok(ControlFlow::Break(()));
+                return Ok(ControlFlow::Break(Some(value)));
             }
             Instruction::Freturn => {
                 let value = vm.get_stack_mut(&thread_id)?.pop_float()?;
-                vm.get_stack_mut(&thread_id)?.pop_java_frame()?;
-                vm.get_stack_mut(&thread_id)?.push_operand(value)?;
-                return Ok(ControlFlow::Break(()));
+                return Ok(ControlFlow::Break(Some(value)));
             }
             Instruction::Monitorenter => {
                 let _obj = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
@@ -1165,7 +1156,7 @@ impl Interpreter {
         } else {
             vec![Value::Ref(instance)]
         };
-        Self::run_method(thread_id, method_id, vm, params)?;
+        Self::invoke_method_internal(thread_id, method_id, params, vm)?;
         Err(JvmError::JavaExceptionThrown(instance))
     }
 
@@ -1195,7 +1186,7 @@ impl Interpreter {
         thread_id: ThreadId,
         method_id: MethodId,
         vm: &mut VirtualMachine,
-    ) -> Result<(), JvmError> {
+    ) -> Result<Option<Value>, JvmError> {
         let code_ptr = vm.method_area.get_method(&method_id).get_code()? as *const [u8];
         loop {
             // SAFETY: code_ptr is valid as long as method exists in method area (always)
@@ -1206,8 +1197,8 @@ impl Interpreter {
 
             match Self::interpret_instruction(thread_id, instruction, vm) {
                 Ok(flow) => {
-                    if let ControlFlow::Break(_) = flow {
-                        break;
+                    if let ControlFlow::Break(res) = flow {
+                        return Ok(res);
                     }
                 }
                 Err(e) => match e {
@@ -1218,15 +1209,14 @@ impl Interpreter {
                 },
             }
         }
-        Ok(())
     }
 
-    pub fn run_method(
+    fn invoke_method_core(
         thread_id: ThreadId,
         method_id: MethodId,
-        vm: &mut VirtualMachine,
         args: Vec<Value>,
-    ) -> Result<(), JvmError> {
+        vm: &mut VirtualMachine,
+    ) -> Result<Option<Value>, JvmError> {
         let method = vm.method_area.get_method(&method_id);
         if method.is_native() {
             let mut method_key = vm
@@ -1245,9 +1235,7 @@ impl Interpreter {
             ))?;
             let native_res = native(vm, thread_id, args.as_slice())?;
             vm.get_stack_mut(&thread_id)?.pop_native_frame()?;
-            if let Some(ret) = native_res {
-                vm.get_stack_mut(&thread_id)?.push_operand(ret)?;
-            }
+            Ok(native_res)
         } else {
             let (max_stack, max_locals) = vm
                 .method_area
@@ -1256,9 +1244,32 @@ impl Interpreter {
             let frame = JavaFrame::new(method_id, max_stack, max_locals, args);
             vm.get_stack_mut(&thread_id)?
                 .push_frame(FrameType::JavaFrame(frame))?;
-            Self::interpret_method(thread_id, method_id, vm)?;
+            let method_ret = Self::interpret_method(thread_id, method_id, vm)?;
+            vm.get_stack_mut(&thread_id)?.pop_java_frame()?;
+            Ok(method_ret)
+        }
+    }
+
+    fn invoke_method_internal(
+        thread_id: ThreadId,
+        method_id: MethodId,
+        args: Vec<Value>,
+        vm: &mut VirtualMachine,
+    ) -> Result<(), JvmError> {
+        let method_ret = Self::invoke_method_core(thread_id, method_id, args, vm)?;
+        if let Some(ret) = method_ret {
+            vm.get_stack_mut(&thread_id)?.push_operand(ret)?;
         }
         Ok(())
+    }
+
+    pub fn run_method(
+        thread_id: ThreadId,
+        method_id: MethodId,
+        args: Vec<Value>,
+        vm: &mut VirtualMachine,
+    ) -> Result<Option<Value>, JvmError> {
+        Self::invoke_method_core(thread_id, method_id, args, vm)
     }
 
     fn interface_needs_initialization(
@@ -1280,7 +1291,7 @@ impl Interpreter {
             .get_class_like(&class_id)?
             .get_clinit_method_id()
         {
-            Self::run_method(thread_id, clinit_method_id, vm, vec![])?;
+            Self::invoke_method_internal(thread_id, clinit_method_id, vec![], vm)?;
         }
 
         Ok(())
@@ -1295,7 +1306,8 @@ impl Interpreter {
             .method_area
             .get_instance_class(&class_id)?
             .get_special_method_id(&vm.method_area.br().system_init_phase1_mk)?;
-        Self::run_method(thread_id, init_phase1_method_id, vm, vec![])
+        Self::invoke_method_internal(thread_id, init_phase1_method_id, vec![], vm)?;
+        Ok(())
     }
 
     fn ensure_initialized(
@@ -1382,7 +1394,7 @@ impl Interpreter {
     ) -> Result<(), JvmError> {
         let class_id = vm.method_area.get_method(&method_id).class_id();
         Self::ensure_initialized(thread_id, Some(class_id), vm)?;
-        Self::run_method(thread_id, method_id, vm, args)?;
+        Self::invoke_method_internal(thread_id, method_id, args, vm)?;
         Ok(())
     }
 }

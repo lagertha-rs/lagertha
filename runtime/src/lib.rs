@@ -1,28 +1,23 @@
 use crate::heap::Heap;
 use crate::heap::method_area::MethodArea;
-use crate::interpreter::Interpreter;
 use crate::native::NativeRegistry;
-use crate::stack::FrameStack;
 use crate::thread::JavaThreadState;
+use crate::vm::interpreter::Interpreter;
+use crate::vm::stack::{FrameStack, FrameType, JavaFrame};
 use common::error::JvmError;
-use common::error::JvmError::JavaExceptionThrown;
 use common::jtype::{HeapRef, Value};
 use lasso::{Spur, ThreadedRodeo};
-use once_cell::sync::OnceCell;
 use std::num::NonZeroU32;
 use std::path::PathBuf;
 use std::sync::Arc;
 
-pub mod bootstrap_registry;
 mod class_loader;
 pub mod debug_log;
 pub mod heap;
-mod interpreter;
 mod native;
 pub mod rt;
-mod stack;
 mod thread;
-mod throw;
+mod vm;
 
 #[repr(transparent)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
@@ -244,7 +239,7 @@ impl VirtualMachine {
 
         let main_thread_id = vm.create_main_thread()?;
         vm.initialize_main_thread(main_thread_id).inspect_err(|e| {
-            if let JavaExceptionThrown(exception_ref) = e {
+            if let JvmError::JavaExceptionThrown(exception_ref) = e {
                 eprint!("Exception in thread \"rust init thread\" ");
                 print_stack_trace(main_thread_id, *exception_ref, &mut vm);
             }
@@ -253,7 +248,7 @@ impl VirtualMachine {
         Ok((vm, main_thread_id))
     }
 
-    fn initialize_main_thread(&mut self, main_thread_id: ThreadId) -> Result<(), JvmError> {
+    pub fn initialize_main_thread(&mut self, main_thread_id: ThreadId) -> Result<(), JvmError> {
         let system_thread_group_ref = self.create_system_thread_group(main_thread_id)?;
         let main_thread_group_ref =
             self.create_main_thread_group(main_thread_id, system_thread_group_ref)?;
@@ -271,12 +266,12 @@ impl VirtualMachine {
         Interpreter::run_method(
             main_thread_id,
             thread_constructor_id,
-            self,
             vec![
                 Value::Ref(self.get_thread(&main_thread_id).thread_obj),
                 Value::Ref(main_thread_group_ref),
                 Value::Ref(self.get_thread(&main_thread_id).name),
             ],
+            self,
         )?;
         Ok(())
     }
@@ -313,8 +308,8 @@ impl VirtualMachine {
         Interpreter::run_method(
             main_thread_id,
             thread_group_no_arg_constructor_id,
-            self,
             vec![Value::Ref(system_thread_group_ref)],
+            self,
         )?;
 
         Ok(system_thread_group_ref)
@@ -344,12 +339,12 @@ impl VirtualMachine {
         Interpreter::run_method(
             main_thread_id,
             thread_group_constructor_id,
-            self,
             vec![
                 Value::Ref(main_thread_group_ref),
                 Value::Ref(system_thread_group_ref),
                 Value::Ref(main_string_ref),
             ],
+            self,
         )?;
         Ok(main_thread_group_ref)
     }
@@ -392,6 +387,7 @@ impl VirtualMachine {
     }
 }
 
+//TODO: delete it. should be replaced like in start function
 fn print_stack_trace(thread_id: ThreadId, exception_ref: HeapRef, vm: &mut VirtualMachine) {
     let exception_class_id = vm
         .heap
@@ -405,12 +401,12 @@ fn print_stack_trace(thread_id: ThreadId, exception_ref: HeapRef, vm: &mut Virtu
         .get_vtable_method_id(&vm.method_area.br().print_stack_trace_mk)
         .expect("Exception class should have printStackTrace method");
     let args = vec![Value::Ref(exception_ref)];
-    Interpreter::run_method(thread_id, print_stack_trace_method_id, vm, args)
+    Interpreter::run_method(thread_id, print_stack_trace_method_id, args, vm)
         .expect("printStackTrace should run without errors");
 }
 
 pub fn start(config: VmConfig) -> Result<(), JvmError> {
-    // TODO: it doesn't actually print errors if any occur during VM initialization. fix
+    // TODO: it doesn't actually print errors in correct way if any occur during VM initialization. fix
     let (mut vm, main_thread_id) = VirtualMachine::new(config)?;
 
     #[cfg(feature = "debug-log")]
@@ -425,11 +421,41 @@ pub fn start(config: VmConfig) -> Result<(), JvmError> {
         .map_err(|_| JvmError::MainClassNotFound(vm.config.main_class.replace('/', ".")))?;
     debug_log_method!(&main_method_id, "Main method found");
 
-    Interpreter::invoke_static_method(main_thread_id, main_method_id, &mut vm, vec![]).inspect_err(
-        |e| {
-            if let JavaExceptionThrown(exception_ref) = e {
-                print_stack_trace(main_thread_id, *exception_ref, &mut vm);
-            }
-        },
-    )
+    // TODO: it works more or less correctly, but should be improved
+    if let Err(e) =
+        Interpreter::invoke_static_method(main_thread_id, main_method_id, &mut vm, vec![])
+    {
+        if let JvmError::JavaExceptionThrown(exception_ref) = e {
+            let get_thread_group_method_id = vm
+                .method_area
+                .get_class(&vm.method_area.br().get_java_lang_thread_id()?)
+                .get_vtable_method_id(&vm.method_area.br().thread_get_thread_group_mk)?;
+            let thread_group_ref = Interpreter::run_method(
+                main_thread_id,
+                get_thread_group_method_id,
+                vec![Value::Ref(vm.get_thread(&main_thread_id).thread_obj)],
+                &mut vm,
+            )?
+            .unwrap()
+            .as_obj_ref()?;
+            let uncaught_exception_method_id = vm
+                .method_area
+                .get_class(&vm.method_area.br().get_java_lang_thread_group_id()?)
+                .get_vtable_method_id(&vm.method_area.br().thread_group_uncaught_exception_mk)?;
+            Interpreter::run_method(
+                main_thread_id,
+                uncaught_exception_method_id,
+                vec![
+                    Value::Ref(thread_group_ref),
+                    Value::Ref(vm.get_thread(&main_thread_id).thread_obj),
+                    Value::Ref(exception_ref),
+                ],
+                &mut vm,
+            )?;
+            Err(e)?
+        } else {
+            Err(e)?
+        }
+    };
+    Ok(())
 }

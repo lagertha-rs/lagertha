@@ -5,5 +5,5 @@ expression: "&combined"
 ----- STDOUT -----
 
 ----- STDERR -----
-java.lang.AssertionError: Error message
+Exception in thread "main" java.lang.AssertionError: Error message
 	at exceptions.java_assert.JavaAssertShouldThrowErrMain.main(JavaAssertShouldThrowErrMain.java:5)

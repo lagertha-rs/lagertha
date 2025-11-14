@@ -5,7 +5,7 @@ expression: "&combined"
 ----- STDOUT -----
 
 ----- STDERR -----
-java.lang.NullPointerException: I want to see the stacktrace and error messages
+Exception in thread "main" java.lang.NullPointerException: I want to see the stacktrace and error messages
 	at exceptions.npe.NpeShouldPrintStackTraceErrMain.method2(NpeShouldPrintStackTraceErrMain.java:5)
 	at exceptions.npe.NpeShouldPrintStackTraceErrMain.method1(NpeShouldPrintStackTraceErrMain.java:9)
 	at exceptions.npe.NpeShouldPrintStackTraceErrMain.main(NpeShouldPrintStackTraceErrMain.java:13)
