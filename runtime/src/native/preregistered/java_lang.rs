@@ -206,12 +206,12 @@ fn java_lang_throwable_fill_in_stack_trace(
         .frames()
         .iter()
         .filter(|frame| {
+            //TODO: very hacky way to skip internal frames, should be improved and very probably doesn't show real throwable constructors
             let cur_method = vm.method_area.get_method(&frame.method_id());
-            cur_method.name != vm.method_area.br().init_sym
-                && !vm.method_area.instance_of(
-                    cur_method.class_id(),
-                    vm.method_area.br().java_lang_throwable_sym,
-                )
+            !vm.method_area.instance_of(
+                cur_method.class_id(),
+                vm.method_area.br().java_lang_throwable_sym,
+            )
         })
         .cloned() // TODO: very bad clone
         .collect();

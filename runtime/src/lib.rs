@@ -8,6 +8,7 @@ use common::error::JvmError;
 use common::error::JvmError::JavaExceptionThrown;
 use common::jtype::{HeapRef, Value};
 use lasso::{Spur, ThreadedRodeo};
+use once_cell::sync::OnceCell;
 use std::num::NonZeroU32;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -34,6 +35,11 @@ impl ThreadId {
     pub fn from_usize(index: usize) -> Self {
         ThreadId(NonZeroU32::new(index as u32).unwrap())
     }
+
+    pub fn from_index(index: usize) -> Self {
+        ThreadId(NonZeroU32::new((index as u32) + 1).unwrap())
+    }
+
     pub fn as_usize(&self) -> usize {
         self.0.get() as usize
     }
@@ -216,25 +222,16 @@ pub struct VirtualMachine {
     heap: Heap,
     native_registry: NativeRegistry,
     string_interner: Arc<ThreadedRodeo>,
-    thread_registry: Vec<JavaThreadState>,
-    rust_thread: JavaThreadState, // TODO: replace with something else
-    rust_thread_id: ThreadId,
+    threads: Vec<JavaThreadState>,
 }
 
 impl VirtualMachine {
-    pub fn new(config: VmConfig) -> Result<Self, JvmError> {
+    pub fn new(config: VmConfig) -> Result<(Self, ThreadId), JvmError> {
         config.validate();
         let string_interner = Arc::new(ThreadedRodeo::default());
         let method_area = MethodArea::new(&config, string_interner.clone())?;
 
         let native_registry = NativeRegistry::new(string_interner.clone());
-        let rust_thread = JavaThreadState {
-            thread_obj: 0,
-            group_obj: 0,
-            name: "init thread".to_string(),
-            stack: FrameStack::new(&config),
-        };
-        let rust_thread_id = ThreadId::new(NonZeroU32::MAX);
 
         let mut vm = Self {
             config,
@@ -242,29 +239,69 @@ impl VirtualMachine {
             string_interner,
             method_area,
             heap: Heap::new()?,
-            thread_registry: Vec::new(),
-            rust_thread,
-            rust_thread_id,
+            threads: Vec::new(),
         };
 
-        vm.initialize_main_thread().inspect_err(|e| {
+        let main_thread_id = vm.create_main_thread()?;
+        vm.initialize_main_thread(main_thread_id).inspect_err(|e| {
             if let JavaExceptionThrown(exception_ref) = e {
                 eprint!("Exception in thread \"rust init thread\" ");
-                print_stack_trace(*exception_ref, &mut vm);
+                print_stack_trace(main_thread_id, *exception_ref, &mut vm);
             }
         })?;
 
-        Ok(vm)
+        Ok((vm, main_thread_id))
     }
 
-    fn initialize_main_thread(&mut self) -> Result<(), JvmError> {
-        let system_thread_group_ref = self.create_system_thread_group()?;
-        let main_thread_group_ref = self.create_main_thread_group(system_thread_group_ref)?;
-        let main_thread_ref = self.create_main_thread(main_thread_group_ref)?;
+    fn initialize_main_thread(&mut self, main_thread_id: ThreadId) -> Result<(), JvmError> {
+        let system_thread_group_ref = self.create_system_thread_group(main_thread_id)?;
+        let main_thread_group_ref =
+            self.create_main_thread_group(main_thread_id, system_thread_group_ref)?;
+
+        let thread_class_id = self.method_area.br().get_java_lang_thread_id()?;
+        let thread_constructor_id = self
+            .method_area
+            .get_instance_class(&thread_class_id)?
+            .get_special_method_id(
+                &self
+                    .method_area
+                    .br()
+                    .thread_thread_group_and_name_constructor_mk,
+            )?;
+        Interpreter::run_method(
+            main_thread_id,
+            thread_constructor_id,
+            self,
+            vec![
+                Value::Ref(self.get_thread(&main_thread_id).thread_obj),
+                Value::Ref(main_thread_group_ref),
+                Value::Ref(self.get_thread(&main_thread_id).name),
+            ],
+        )?;
         Ok(())
     }
 
-    fn create_system_thread_group(&mut self) -> Result<HeapRef, JvmError> {
+    fn create_main_thread(&mut self) -> Result<ThreadId, JvmError> {
+        let thread_class_id = self.method_area.br().get_java_lang_thread_id()?;
+        let main_thread_ref = self
+            .heap
+            .alloc_instance(&mut self.method_area, thread_class_id)?;
+        let main_string_ref = self
+            .heap
+            .get_str_from_pool_or_new(self.method_area.br().main_sym, &mut self.method_area)?;
+        self.threads.push(JavaThreadState {
+            thread_obj: main_thread_ref,
+            group_obj: 0,
+            name: main_string_ref,
+            stack: FrameStack::new(&self.config),
+        });
+        Ok(ThreadId::from_index(0))
+    }
+
+    fn create_system_thread_group(
+        &mut self,
+        main_thread_id: ThreadId,
+    ) -> Result<HeapRef, JvmError> {
         let system_thread_group_class_id = self.method_area.br().get_java_lang_thread_group_id()?;
         let thread_group_no_arg_constructor_id = self
             .method_area
@@ -274,7 +311,7 @@ impl VirtualMachine {
             .heap
             .alloc_instance(&mut self.method_area, system_thread_group_class_id)?;
         Interpreter::run_method(
-            self.rust_thread_id,
+            main_thread_id,
             thread_group_no_arg_constructor_id,
             self,
             vec![Value::Ref(system_thread_group_ref)],
@@ -285,6 +322,7 @@ impl VirtualMachine {
 
     fn create_main_thread_group(
         &mut self,
+        main_thread_id: ThreadId,
         system_thread_group_ref: HeapRef,
     ) -> Result<HeapRef, JvmError> {
         let system_thread_group_class_id = self.method_area.br().get_java_lang_thread_group_id()?;
@@ -304,7 +342,7 @@ impl VirtualMachine {
             .heap
             .get_str_from_pool_or_new(self.method_area.br().main_sym, &mut self.method_area)?;
         Interpreter::run_method(
-            self.rust_thread_id,
+            main_thread_id,
             thread_group_constructor_id,
             self,
             vec![
@@ -316,61 +354,20 @@ impl VirtualMachine {
         Ok(main_thread_group_ref)
     }
 
-    fn create_main_thread(&mut self, thread_group_ref: HeapRef) -> Result<HeapRef, JvmError> {
-        let thread_class_id = self.method_area.br().get_java_lang_thread_id()?;
-        let thread_constructor_id = self
-            .method_area
-            .get_instance_class(&thread_class_id)?
-            .get_special_method_id(
-                &self
-                    .method_area
-                    .br()
-                    .thread_thread_group_and_name_constructor_mk,
-            )?;
-        let main_thread_ref = self
-            .heap
-            .alloc_instance(&mut self.method_area, thread_class_id)?;
-        let main_string_ref = self
-            .heap
-            .alloc_string_from_interned(self.method_area.br().main_sym, &mut self.method_area)?;
-        Interpreter::run_method(
-            self.rust_thread_id,
-            thread_constructor_id,
-            self,
-            vec![
-                Value::Ref(main_thread_ref),
-                Value::Ref(thread_group_ref),
-                Value::Ref(main_string_ref),
-            ],
-        )?;
-        Ok(main_thread_ref)
-    }
-
     // TODO: implement and no mut
-    pub fn get_thread_mut(&mut self, thread_id: ThreadId) -> &mut JavaThreadState {
-        assert_eq!(thread_id, self.rust_thread_id);
-        &mut self.rust_thread
+    pub fn get_thread_mut(&mut self, thread_id: &ThreadId) -> &mut JavaThreadState {
+        self.threads.get_mut(thread_id.to_index()).unwrap()
+    }
+    pub fn get_thread(&self, thread_id: &ThreadId) -> &JavaThreadState {
+        self.threads.get(thread_id.to_index()).unwrap()
     }
 
     pub fn get_stack_mut(&mut self, thread_id: &ThreadId) -> Result<&mut FrameStack, JvmError> {
-        if *thread_id == self.rust_thread_id {
-            Ok(&mut self.rust_thread.stack)
-        } else {
-            self.thread_registry
-                .get_mut(thread_id.to_index())
-                .ok_or(JvmError::Todo("No such thread".to_string()))
-                .map(|t| &mut t.stack)
-        }
+        Ok(&mut self.get_thread_mut(thread_id).stack)
     }
+
     pub fn get_stack(&self, thread_id: &ThreadId) -> Result<&FrameStack, JvmError> {
-        if *thread_id == self.rust_thread_id {
-            Ok(&self.rust_thread.stack)
-        } else {
-            self.thread_registry
-                .get(thread_id.to_index())
-                .ok_or(JvmError::Todo("No such thread".to_string()))
-                .map(|t| &t.stack)
-        }
+        Ok(&self.get_thread(thread_id).stack)
     }
 
     pub fn interner(&self) -> &ThreadedRodeo {
@@ -395,7 +392,7 @@ impl VirtualMachine {
     }
 }
 
-fn print_stack_trace(exception_ref: HeapRef, vm: &mut VirtualMachine) {
+fn print_stack_trace(thread_id: ThreadId, exception_ref: HeapRef, vm: &mut VirtualMachine) {
     let exception_class_id = vm
         .heap
         .get_class_id(&exception_ref)
@@ -408,13 +405,13 @@ fn print_stack_trace(exception_ref: HeapRef, vm: &mut VirtualMachine) {
         .get_vtable_method_id(&vm.method_area.br().print_stack_trace_mk)
         .expect("Exception class should have printStackTrace method");
     let args = vec![Value::Ref(exception_ref)];
-    Interpreter::run_method(vm.rust_thread_id, print_stack_trace_method_id, vm, args)
+    Interpreter::run_method(thread_id, print_stack_trace_method_id, vm, args)
         .expect("printStackTrace should run without errors");
 }
 
 pub fn start(config: VmConfig) -> Result<(), JvmError> {
     // TODO: it doesn't actually print errors if any occur during VM initialization. fix
-    let mut vm = VirtualMachine::new(config)?;
+    let (mut vm, main_thread_id) = VirtualMachine::new(config)?;
 
     #[cfg(feature = "debug-log")]
     debug_log::debug::init(&vm);
@@ -427,12 +424,11 @@ pub fn start(config: VmConfig) -> Result<(), JvmError> {
         .get_special_method_id(&vm.method_area.br().main_mk)
         .map_err(|_| JvmError::MainClassNotFound(vm.config.main_class.replace('/', ".")))?;
     debug_log_method!(&main_method_id, "Main method found");
-    let rust_thread_id = vm.rust_thread_id;
 
-    Interpreter::invoke_static_method(rust_thread_id, main_method_id, &mut vm, vec![]).inspect_err(
+    Interpreter::invoke_static_method(main_thread_id, main_method_id, &mut vm, vec![]).inspect_err(
         |e| {
             if let JavaExceptionThrown(exception_ref) = e {
-                print_stack_trace(*exception_ref, &mut vm);
+                print_stack_trace(main_thread_id, *exception_ref, &mut vm);
             }
         },
     )
