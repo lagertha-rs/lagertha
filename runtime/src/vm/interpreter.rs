@@ -7,7 +7,8 @@ use crate::{
 };
 use common::error::{JavaExceptionFromJvm, JvmError};
 use common::instruction::Instruction;
-use common::jtype::Value;
+use common::jtype::{HeapRef, Value};
+use jclass::attribute::method::ExceptionTableEntry;
 use std::cmp::Ordering;
 use std::ops::ControlFlow;
 use tracing_log::log::warn;
@@ -1127,11 +1128,11 @@ impl Interpreter {
     }
 
     //TODO: need to move it, refactor and it will still probably will not work for catch
-    fn allocate_and_throw(
+    fn map_rust_error_to_java_exception(
         thread_id: ThreadId,
-        exception: JavaExceptionFromJvm,
+        exception: &JavaExceptionFromJvm,
         vm: &mut VirtualMachine,
-    ) -> Result<(), JvmError> {
+    ) -> Result<HeapRef, JvmError> {
         let exception_ref = exception.as_reference();
         let class_id = vm
             .method_area
@@ -1157,7 +1158,7 @@ impl Interpreter {
             vec![Value::Ref(instance)]
         };
         Self::invoke_method_internal(thread_id, method_id, params, vm)?;
-        Err(JvmError::JavaExceptionThrown(instance))
+        Ok(instance)
     }
 
     fn prepare_method_args(
@@ -1182,6 +1183,59 @@ impl Interpreter {
         Ok(args)
     }
 
+    fn pc_in_range(pc: usize, entry: &ExceptionTableEntry) -> bool {
+        pc >= entry.start_pc as usize && pc < entry.end_pc as usize
+    }
+
+    fn is_exception_caught(
+        vm: &VirtualMachine,
+        entry: &ExceptionTableEntry,
+        method_id: &MethodId,
+        java_exception: &HeapRef,
+    ) -> Result<bool, JvmError> {
+        let catch_type = entry.catch_type;
+
+        if catch_type == 0 {
+            return Ok(true);
+        }
+
+        let exception_class_id = vm.heap.get_class_id(java_exception)?;
+        let catch_type_sym = vm
+            .method_area
+            .get_cp_by_method_id(method_id)?
+            .get_class_sym(&catch_type, vm.interner())?;
+
+        Ok(vm
+            .method_area
+            .instance_of(exception_class_id, catch_type_sym))
+    }
+
+    fn find_exception_handler(
+        vm: &mut VirtualMachine,
+        method_id: &MethodId,
+        java_exception: HeapRef,
+        thread_id: &ThreadId,
+    ) -> Result<bool, JvmError> {
+        let pc = vm.get_stack_mut(thread_id)?.pc()?;
+        let exception_table = vm.method_area.get_method(method_id).get_exception_table()?;
+
+        for entry in exception_table.iter() {
+            if !Self::pc_in_range(pc, entry) {
+                continue;
+            }
+
+            if Self::is_exception_caught(vm, entry, method_id, &java_exception)? {
+                let handler_pc = entry.handler_pc as usize;
+                let stack = vm.get_stack_mut(thread_id)?;
+                stack.push_operand(Value::Ref(java_exception))?;
+                *stack.pc_mut()? = handler_pc;
+                return Ok(true);
+            }
+        }
+
+        Ok(false)
+    }
+
     fn interpret_method(
         thread_id: ThreadId,
         method_id: MethodId,
@@ -1201,12 +1255,20 @@ impl Interpreter {
                         return Ok(res);
                     }
                 }
-                Err(e) => match e {
-                    JvmError::JavaException(exception) => {
-                        Self::allocate_and_throw(thread_id, exception, vm)?;
+                Err(e) => {
+                    let java_exception = match e {
+                        JvmError::JavaException(exception) => {
+                            Self::map_rust_error_to_java_exception(thread_id, &exception, vm)
+                        }
+                        JvmError::JavaExceptionThrown(exception_ref) => Ok(exception_ref),
+                        // TODO: this errors are not mapped yet or happened during mapping to java exception
+                        e => Err(e),
+                    }?;
+                    if !Self::find_exception_handler(vm, &method_id, java_exception, &thread_id)? {
+                        vm.get_stack_mut(&thread_id)?.pop_java_frame()?;
+                        return Err(JvmError::JavaExceptionThrown(java_exception));
                     }
-                    e => return Err(e),
-                },
+                }
             }
         }
     }
@@ -1227,13 +1289,24 @@ impl Interpreter {
                 method_key.class = None;
             }
             let frame = NativeFrame::new(method_id);
-            vm.get_stack_mut(&thread_id)?
-                .push_frame(FrameType::NativeFrame(frame))?;
-            let native = vm.native_registry.get(&method_key).ok_or(build_exception!(
+            let native = *vm.native_registry.get(&method_key).ok_or(build_exception!(
                 NoSuchMethodError,
                 vm.pretty_method_not_found_message(&method_id)
             ))?;
-            let native_res = native(vm, thread_id, args.as_slice())?;
+            vm.get_stack_mut(&thread_id)?
+                .push_frame(FrameType::NativeFrame(frame))?;
+            let native_res = match native(vm, thread_id, args.as_slice()) {
+                Ok(res) => res,
+                Err(JvmError::JavaException(e)) => {
+                    let exception_ref = Self::map_rust_error_to_java_exception(thread_id, &e, vm)?;
+                    vm.get_stack_mut(&thread_id)?.pop_native_frame()?;
+                    return Err(JvmError::JavaExceptionThrown(exception_ref));
+                }
+                Err(e) => {
+                    vm.get_stack_mut(&thread_id)?.pop_native_frame()?;
+                    return Err(e);
+                }
+            };
             vm.get_stack_mut(&thread_id)?.pop_native_frame()?;
             Ok(native_res)
         } else {

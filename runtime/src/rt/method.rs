@@ -3,7 +3,7 @@ use common::error::{JvmError, LinkageError};
 use jclass::attribute::method::code::{
     CodeAttributeInfo, LineNumberEntry, LocalVariableEntry, LocalVariableTypeEntry, StackMapFrame,
 };
-use jclass::attribute::method::{CodeAttribute, MethodAttribute};
+use jclass::attribute::method::{CodeAttribute, ExceptionTableEntry, MethodAttribute};
 use jclass::flags::MethodFlags;
 use jclass::method::MethodInfo;
 use std::cell::OnceCell;
@@ -14,6 +14,7 @@ pub struct CodeBody {
     max_locals: u16,
     // TODO: Create a dedicated struct? (now struct from jclass)
     line_numbers: Option<Vec<LineNumberEntry>>,
+    pub exception_table: Vec<ExceptionTableEntry>,
 }
 
 pub enum MethodBody {
@@ -88,10 +89,16 @@ impl Method {
     pub fn get_frame_attributes(&self) -> Result<(u16, u16), JvmError> {
         match &self.body {
             MethodBody::Interpreted(code_body) => {
-                // For simplicity, we return fixed values here.
-                // In a real implementation, you would parse the code attributes.
+                // TODO: For simplicity, we return fixed values here.
                 Ok((256, 256))
             }
+            _ => throw_exception!(InternalError, "Method is not interpretable"), //TODO
+        }
+    }
+
+    pub fn get_exception_table(&self) -> Result<&[ExceptionTableEntry], JvmError> {
+        match &self.body {
+            MethodBody::Interpreted(code_body) => Ok(&code_body.exception_table),
             _ => throw_exception!(InternalError, "Method is not interpretable"), //TODO
         }
     }
@@ -137,7 +144,8 @@ impl TryFrom<CodeAttribute> for CodeBody {
         let mut all_line_numbers: Option<Vec<LineNumberEntry>> = None;
         let mut all_local_vars: Option<Vec<LocalVariableEntry>> = None;
         let mut all_local_types: Option<Vec<LocalVariableTypeEntry>> = None;
-        let mut stack_map_table = OnceCell::<Vec<StackMapFrame>>::new();
+        let exception_table = code_attr.exception_table;
+        let stack_map_table = OnceCell::<Vec<StackMapFrame>>::new();
 
         for code_attr in code_attr.attributes {
             match code_attr {
@@ -175,6 +183,7 @@ impl TryFrom<CodeAttribute> for CodeBody {
             max_stack: code_attr.max_stack,
             max_locals: code_attr.max_locals,
             line_numbers: all_line_numbers,
+            exception_table,
         })
     }
 }

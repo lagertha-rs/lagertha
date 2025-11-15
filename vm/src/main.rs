@@ -1,8 +1,6 @@
 use clap::Parser;
 use common::utils::telemetry::init_tracing;
 use runtime::VmConfig;
-use std::thread::Thread;
-use std::time::Duration;
 use tracing_log::log::{debug, error};
 
 #[derive(Parser, Debug)]

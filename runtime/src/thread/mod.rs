@@ -7,7 +7,3 @@ pub struct JavaThreadState {
     pub name: HeapRef,
     pub stack: FrameStack,
 }
-
-pub struct RustThreadState {
-    pub stack: FrameStack,
-}

@@ -62,7 +62,7 @@ impl FrameStack {
         Ok(())
     }
 
-    fn pop_frame(&mut self) -> Result<FrameType, JvmError> {
+    pub fn pop_frame(&mut self) -> Result<FrameType, JvmError> {
         let old_frame = self.frames.pop().ok_or(JvmError::FrameStackIsEmpty)?;
         match &old_frame {
             FrameType::JavaFrame(f) => {

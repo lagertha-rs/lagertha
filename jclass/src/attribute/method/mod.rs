@@ -9,13 +9,13 @@ pub mod code;
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.3
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ExceptionTableEntry {
-    start_pc: u16,
-    end_pc: u16,
-    handler_pc: u16,
-    catch_type: u16,
+    pub start_pc: u16,
+    pub end_pc: u16,
+    pub handler_pc: u16,
+    pub catch_type: u16,
 }
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.3
+/// https://docs.oracle.com/javase/spehycs/jvms/se24/html/jvms-4.html#jvms-4.7.3
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CodeAttribute {
     pub max_stack: u16,
