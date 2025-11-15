@@ -1,0 +1,9 @@
+---
+source: vm/tests/integration_test.rs
+expression: "&combined"
+---
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.NullPointerException: NPE
+	at exceptions.wrong_type.WrongExceptionTypeShouldFailErrMain.main(WrongExceptionTypeShouldFailErrMain.java:6)

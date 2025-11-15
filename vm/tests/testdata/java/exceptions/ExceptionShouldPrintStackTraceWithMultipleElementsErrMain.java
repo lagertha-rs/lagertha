@@ -1,6 +1,6 @@
-package exceptions.npe;
+package exceptions.multiple_stacktrace_elements;
 
-public class NpeShouldPrintStackTraceErrMain {
+public class ExceptionShouldPrintStackTraceWithMultipleElementsErrMain {
     static void method2() {
         throw new NullPointerException("I want to see the stacktrace and error messages");
     }

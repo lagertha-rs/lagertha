@@ -1,0 +1,10 @@
+---
+source: vm/tests/integration_test.rs
+expression: "&combined"
+---
+----- STDOUT -----
+In try
+----- STDERR -----
+Exception in thread "main" java.lang.NullPointerException: Exception outside try
+	at exceptions.outside_try_catch.ExceptionOutsideTryCatchErrMain.throwException(ExceptionOutsideTryCatchErrMain.java:5)
+	at exceptions.outside_try_catch.ExceptionOutsideTryCatchErrMain.main(ExceptionOutsideTryCatchErrMain.java:14)

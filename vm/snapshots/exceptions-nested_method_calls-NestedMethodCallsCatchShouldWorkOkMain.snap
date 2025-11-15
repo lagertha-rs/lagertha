@@ -1,0 +1,8 @@
+---
+source: vm/tests/integration_test.rs
+expression: combined
+---
+----- STDOUT -----
+Caught NPE from nested calls
+Execution continues after catch
+----- STDERR -----

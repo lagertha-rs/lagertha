@@ -1,0 +1,8 @@
+---
+source: vm/tests/integration_test.rs
+expression: combined
+---
+----- STDOUT -----
+In catch block
+In finally block
+----- STDERR -----

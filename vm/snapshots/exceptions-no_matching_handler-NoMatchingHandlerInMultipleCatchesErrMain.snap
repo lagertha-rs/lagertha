@@ -1,0 +1,9 @@
+---
+source: vm/tests/integration_test.rs
+expression: "&combined"
+---
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.RuntimeException: Runtime error
+	at exceptions.no_matching_handler.NoMatchingHandlerInMultipleCatchesErrMain.main(NoMatchingHandlerInMultipleCatchesErrMain.java:6)

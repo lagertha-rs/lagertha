@@ -1,0 +1,11 @@
+---
+source: vm/tests/integration_test.rs
+expression: "&combined"
+---
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.NullPointerException: I want to see the stacktrace and error messages
+	at exceptions.multiple_stacktrace_elements.ExceptionShouldPrintStackTraceWithMultipleElementsErrMain.method2(ExceptionShouldPrintStackTraceWithMultipleElementsErrMain.java:5)
+	at exceptions.multiple_stacktrace_elements.ExceptionShouldPrintStackTraceWithMultipleElementsErrMain.method1(ExceptionShouldPrintStackTraceWithMultipleElementsErrMain.java:9)
+	at exceptions.multiple_stacktrace_elements.ExceptionShouldPrintStackTraceWithMultipleElementsErrMain.main(ExceptionShouldPrintStackTraceWithMultipleElementsErrMain.java:13)
