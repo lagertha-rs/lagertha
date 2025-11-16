@@ -45,7 +45,7 @@ impl FieldInfo {
         raw_descriptor: &str,
     ) -> std::fmt::Result {
         use crate::attribute::SharedAttribute;
-        use common::jtype::DescriptorType;
+        use common::jtype::JavaType;
         use common::pretty_try;
         use std::fmt::Write as _;
 
@@ -62,9 +62,9 @@ impl FieldInfo {
             });
             if let Some(sig_index) = generic_signature_opt {
                 let raw_sig = pretty_try!(ind, cp.get_utf8(sig_index));
-                pretty_try!(ind, DescriptorType::try_from(raw_sig))
+                pretty_try!(ind, JavaType::try_from(raw_sig))
             } else {
-                pretty_try!(ind, DescriptorType::try_from(raw_descriptor))
+                pretty_try!(ind, JavaType::try_from(raw_descriptor))
             }
         };
         write!(ind, "{field_type} ")

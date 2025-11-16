@@ -8,12 +8,13 @@ use crate::rt::method::Method;
 use crate::rt::{ClassLike, JvmClass, PrimitiveClass};
 use crate::vm::bootstrap_registry::BootstrapRegistry;
 use crate::{
-    ClassId, FieldKey, FullyQualifiedMethodKey, MethodDescriptorId, MethodId, Symbol,
-    TypeDescriptorId, VmConfig, debug_log,
+    ClassId, FieldDescriptorId, FieldKey, FullyQualifiedMethodKey, MethodDescriptorId, MethodId,
+    Symbol, VmConfig, debug_log,
 };
 use common::descriptor::MethodDescriptor;
 use common::error::{JvmError, LinkageError, MethodDescriptorErr};
-use common::jtype::{DescriptorType, HeapRef, PrimitiveType, Value};
+use common::jtype::{JavaType, PrimitiveType};
+use common::{HeapRef, Value};
 use jclass::ClassFile;
 use lasso::{Spur, ThreadedRodeo};
 use once_cell::sync::OnceCell;
@@ -27,8 +28,8 @@ pub struct MethodArea {
     classes: Vec<JvmClass>,
     methods: Vec<Method>,
 
-    type_descriptors: Vec<DescriptorType>,
-    type_descriptors_index: HashMap<Symbol, TypeDescriptorId>,
+    field_descriptors: Vec<JavaType>,
+    field_descriptors_index: HashMap<Symbol, FieldDescriptorId>,
 
     method_descriptors: Vec<MethodDescriptor>,
     method_descriptors_index: HashMap<Symbol, MethodDescriptorId>,
@@ -52,8 +53,8 @@ impl MethodArea {
             mirror_to_class_index: HashMap::new(),
             classes: Vec::new(),
             methods: Vec::new(),
-            type_descriptors: Vec::new(),
-            type_descriptors_index: HashMap::new(),
+            field_descriptors: Vec::new(),
+            field_descriptors_index: HashMap::new(),
             method_descriptors: Vec::new(),
             method_descriptors_index: HashMap::new(),
             bootstrap_registry: BootstrapRegistry::new(&string_interner),
@@ -118,13 +119,13 @@ impl MethodArea {
         FullyQualifiedMethodKey::new(name, method.name, method.desc)
     }
 
-    fn push_type_descriptor(&mut self, ty: DescriptorType) -> TypeDescriptorId {
-        self.type_descriptors.push(ty);
-        TypeDescriptorId::from_usize(self.type_descriptors.len())
+    fn push_field_descriptor(&mut self, ty: JavaType) -> FieldDescriptorId {
+        self.field_descriptors.push(ty);
+        FieldDescriptorId::from_usize(self.field_descriptors.len())
     }
 
-    pub fn get_type_descriptor(&self, id: &TypeDescriptorId) -> &DescriptorType {
-        &self.type_descriptors[id.to_index()]
+    pub fn get_field_descriptor(&self, id: &FieldDescriptorId) -> &JavaType {
+        &self.field_descriptors[id.to_index()]
     }
 
     fn push_method_descriptor(&mut self, descriptor: MethodDescriptor) -> MethodDescriptorId {
@@ -154,16 +155,16 @@ impl MethodArea {
         Ok(self.push_method_descriptor(method_descriptor))
     }
 
-    pub fn get_or_new_type_descriptor_id(
+    pub fn get_or_new_field_descriptor_id(
         &mut self,
         descriptor: Symbol,
-    ) -> Result<TypeDescriptorId, JvmError> {
-        if let Some(type_desc) = self.type_descriptors_index.get(&descriptor) {
+    ) -> Result<FieldDescriptorId, JvmError> {
+        if let Some(type_desc) = self.field_descriptors_index.get(&descriptor) {
             return Ok(*type_desc);
         }
         let descriptor_str = self.interner.resolve(&descriptor);
-        let ty = DescriptorType::try_from(descriptor_str)?;
-        Ok(self.push_type_descriptor(ty))
+        let ty = JavaType::try_from(descriptor_str)?;
+        Ok(self.push_field_descriptor(ty))
     }
 
     pub fn push_method(&mut self, method: Method) -> MethodId {
@@ -276,8 +277,8 @@ impl MethodArea {
     }
 
     pub(crate) fn load_array_class(&mut self, name_sym: Symbol) -> Result<ClassId, JvmError> {
-        let type_descriptor_id = self.get_or_new_type_descriptor_id(name_sym)?;
-        let type_descriptor = self.get_type_descriptor(&type_descriptor_id);
+        let type_descriptor_id = self.get_or_new_field_descriptor_id(name_sym)?;
+        let type_descriptor = self.get_field_descriptor(&type_descriptor_id);
         let obj_class_id = self.br().get_java_lang_object_id()?;
         let vtable = self
             .get_instance_class(&obj_class_id)?

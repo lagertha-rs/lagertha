@@ -3,9 +3,10 @@ use crate::heap::method_area::MethodArea;
 use crate::native::NativeRegistry;
 use crate::thread::JavaThreadState;
 use crate::vm::interpreter::Interpreter;
-use crate::vm::stack::{FrameStack, FrameType, JavaFrame};
+use crate::vm::stack::{FrameStack, JavaFrame};
+use common::HeapRef;
+use common::Value;
 use common::error::JvmError;
-use common::jtype::{HeapRef, Value};
 use lasso::{Spur, ThreadedRodeo};
 use std::num::NonZeroU32;
 use std::path::PathBuf;
@@ -67,11 +68,11 @@ impl MethodId {
 
 #[repr(transparent)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-pub struct TypeDescriptorId(NonZeroU32);
+pub struct MethodDescriptorId(NonZeroU32);
 
-impl TypeDescriptorId {
+impl MethodDescriptorId {
     pub fn from_usize(index: usize) -> Self {
-        TypeDescriptorId(NonZeroU32::new(index as u32).unwrap())
+        MethodDescriptorId(NonZeroU32::new(index as u32).unwrap())
     }
     pub fn to_index(&self) -> usize {
         (self.0.get() - 1) as usize
@@ -80,11 +81,11 @@ impl TypeDescriptorId {
 
 #[repr(transparent)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-pub struct MethodDescriptorId(NonZeroU32);
+pub struct FieldDescriptorId(NonZeroU32);
 
-impl MethodDescriptorId {
+impl FieldDescriptorId {
     pub fn from_usize(index: usize) -> Self {
-        MethodDescriptorId(NonZeroU32::new(index as u32).unwrap())
+        FieldDescriptorId(NonZeroU32::new(index as u32).unwrap())
     }
     pub fn to_index(&self) -> usize {
         (self.0.get() - 1) as usize

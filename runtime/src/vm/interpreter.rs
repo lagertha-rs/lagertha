@@ -7,7 +7,7 @@ use crate::{
 };
 use common::error::{JavaExceptionFromJvm, JvmError};
 use common::instruction::Instruction;
-use common::jtype::{HeapRef, Value};
+use common::{HeapRef, Value};
 use jclass::attribute::method::ExceptionTableEntry;
 use std::cmp::Ordering;
 use std::ops::ControlFlow;

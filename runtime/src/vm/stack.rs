@@ -1,6 +1,6 @@
 use crate::{MethodId, VmConfig, debug_log_method};
 use common::error::{JavaExceptionFromJvm, JvmError};
-use common::jtype::{HeapRef, Value};
+use common::{HeapRef, Value};
 
 #[derive(Clone)]
 pub enum FrameType {

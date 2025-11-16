@@ -1,13 +1,14 @@
 use crate::{ClassId, MethodId, MethodKey, Symbol};
+use common::HeapRef;
 use common::error::{JavaExceptionFromJvm, JvmError};
-use common::jtype::{DescriptorPrimitiveType, HeapRef};
+use common::jtype::PrimitiveType;
 use once_cell::sync::OnceCell;
 use std::collections::HashMap;
 
 pub struct PrimitiveArrayClass {
     pub name: Symbol,
     pub super_id: ClassId,
-    pub element_type: DescriptorPrimitiveType,
+    pub element_type: PrimitiveType,
     pub vtable: Vec<MethodId>,
     pub vtable_index: HashMap<MethodKey, u16>,
     pub(crate) mirror_ref: OnceCell<HeapRef>,

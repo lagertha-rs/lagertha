@@ -1,11 +1,16 @@
 use crate::error::MethodDescriptorErr;
-use crate::jtype::DescriptorType;
+use crate::jtype::{JavaType, ReturnType};
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.3
+/// Field descriptor - represents a field type (cannot be void)
+/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.3.2
+pub type FieldDescriptor = JavaType;
+
+/// Method descriptor - represents a method signature
+/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.3.3
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MethodDescriptor {
-    pub params: Vec<DescriptorType>,
-    pub ret: DescriptorType,
+    pub params: Vec<JavaType>,
+    pub ret: ReturnType,
 }
 
 impl MethodDescriptor {
@@ -43,7 +48,7 @@ impl TryFrom<&str> for MethodDescriptor {
                     break;
                 }
                 Some(_) => params.push(
-                    DescriptorType::try_recursive(&mut chars)
+                    JavaType::try_recursive(&mut chars)
                         .map_err(|e| MethodDescriptorErr::Type(desc.to_string(), e))?,
                 ),
                 None => {
@@ -54,7 +59,7 @@ impl TryFrom<&str> for MethodDescriptor {
             }
         }
 
-        let ret = DescriptorType::try_recursive(&mut chars)
+        let ret = ReturnType::try_recursive(&mut chars)
             .map_err(|e| MethodDescriptorErr::Type(desc.to_string(), e))?;
 
         if chars.next().is_some() {
@@ -68,7 +73,7 @@ impl TryFrom<&str> for MethodDescriptor {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::jtype::DescriptorPrimitiveType;
+    use crate::jtype::PrimitiveType;
 
     // Java: void add(int, int)
     #[test]
@@ -76,10 +81,10 @@ mod tests {
         // given
         let signature = "(II)V";
         let expected_param = vec![
-            DescriptorType::Primitive(DescriptorPrimitiveType::Int),
-            DescriptorType::Primitive(DescriptorPrimitiveType::Int),
+            JavaType::Primitive(PrimitiveType::Int),
+            JavaType::Primitive(PrimitiveType::Int),
         ];
-        let expected_ret = DescriptorType::Void;
+        let expected_ret = ReturnType::Void;
 
         // when
         let md = MethodDescriptor::try_from(signature).unwrap();
@@ -94,8 +99,8 @@ mod tests {
     fn parse_no_params_int_return() {
         // given
         let signature = "()I";
-        let expected_param: Vec<DescriptorType> = Vec::new();
-        let expected_ret = DescriptorType::Primitive(DescriptorPrimitiveType::Int);
+        let expected_param: Vec<JavaType> = Vec::new();
+        let expected_ret = ReturnType::Type(JavaType::Primitive(PrimitiveType::Int));
 
         // when
         let md = MethodDescriptor::try_from(signature).unwrap();
@@ -110,8 +115,8 @@ mod tests {
     fn parse_string_param_string_return() {
         // given
         let signature = "(Ljava/lang/String;)Ljava/lang/String;";
-        let expected_param = vec![DescriptorType::Instance("java/lang/String".into())];
-        let expected_ret = DescriptorType::Instance("java/lang/String".into());
+        let expected_param = vec![JavaType::Instance("java/lang/String".into())];
+        let expected_ret = ReturnType::Type(JavaType::Instance("java/lang/String".into()));
 
         // when
         let md = MethodDescriptor::try_from(signature).unwrap();
@@ -127,14 +132,12 @@ mod tests {
         // given
         let signature = "(I[Ljava/lang/String;)[I";
         let expected_param = vec![
-            DescriptorType::Primitive(DescriptorPrimitiveType::Int),
-            DescriptorType::Array(Box::new(DescriptorType::Instance(
-                "java/lang/String".into(),
-            ))),
+            JavaType::Primitive(PrimitiveType::Int),
+            JavaType::Array(Box::new(JavaType::Instance("java/lang/String".into()))),
         ];
-        let expected_ret = DescriptorType::Array(Box::new(DescriptorType::Primitive(
-            DescriptorPrimitiveType::Int,
-        )));
+        let expected_ret = ReturnType::Type(JavaType::Array(Box::new(JavaType::Primitive(
+            PrimitiveType::Int,
+        ))));
 
         // when
         let md = MethodDescriptor::try_from(signature).unwrap();
@@ -149,11 +152,10 @@ mod tests {
     fn parse_multi_dimensional_arrays() {
         // given
         let signature = "([[Ljava/lang/Object;)[[Ljava/lang/Object;";
-        let obj = DescriptorType::Instance("java/lang/Object".into());
-        let two_d_obj =
-            DescriptorType::Array(Box::new(DescriptorType::Array(Box::new(obj.clone()))));
+        let obj = JavaType::Instance("java/lang/Object".into());
+        let two_d_obj = JavaType::Array(Box::new(JavaType::Array(Box::new(obj.clone()))));
         let expected_param = vec![two_d_obj.clone()];
-        let expected_ret = two_d_obj;
+        let expected_ret = ReturnType::Type(two_d_obj);
 
         // when
         let md = MethodDescriptor::try_from(signature).unwrap();
@@ -161,5 +163,46 @@ mod tests {
         // then
         assert_eq!(md.params, expected_param);
         assert_eq!(md.ret, expected_ret);
+    }
+
+    // Test that void parameters are rejected
+    #[test]
+    fn parse_void_param_should_fail() {
+        let signature = "(V)I";
+        let result = MethodDescriptor::try_from(signature);
+        assert!(result.is_err());
+    }
+
+    // Test field descriptor parsing
+    #[test]
+    fn parse_field_descriptor_int() {
+        let mut chars = "I".chars().peekable();
+        let field = JavaType::try_recursive(&mut chars).unwrap();
+        assert_eq!(field, JavaType::Primitive(PrimitiveType::Int));
+    }
+
+    #[test]
+    fn parse_field_descriptor_string() {
+        let mut chars = "Ljava/lang/String;".chars().peekable();
+        let field = JavaType::try_recursive(&mut chars).unwrap();
+        assert_eq!(field, JavaType::Instance("java/lang/String".into()));
+    }
+
+    #[test]
+    fn parse_field_descriptor_array() {
+        let mut chars = "[I".chars().peekable();
+        let field = JavaType::try_recursive(&mut chars).unwrap();
+        assert_eq!(
+            field,
+            JavaType::Array(Box::new(JavaType::Primitive(PrimitiveType::Int)))
+        );
+    }
+
+    // Test that void field descriptor is rejected
+    #[test]
+    fn parse_field_descriptor_void_should_fail() {
+        let mut chars = "V".chars().peekable();
+        let result = JavaType::try_recursive(&mut chars);
+        assert!(result.is_err());
     }
 }
