@@ -1,5 +1,5 @@
+use common::HeapRef;
 use common::error::JvmError;
-use common::jtype::HeapRef;
 
 #[repr(C)]
 pub struct ObjectHeader {

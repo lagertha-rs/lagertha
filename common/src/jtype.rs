@@ -1,14 +1,15 @@
-use crate::error::{JavaExceptionFromJvm, JvmError, TypeDescriptorErr};
+use crate::error::TypeDescriptorErr;
+use crate::{HeapRef, Value};
 use core::fmt;
 use std::fmt::{Display, Formatter};
 use std::iter::Peekable;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TypeArg {
-    Any,                          // '*'
-    Extends(Box<DescriptorType>), // '+'
-    Super(Box<DescriptorType>),   // '-'
-    Exact(Box<DescriptorType>),   // no prefix
+    Any,                    // '*'
+    Extends(Box<JavaType>), // '+'
+    Super(Box<JavaType>),   // '-'
+    Exact(Box<JavaType>),   // no prefix
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -23,19 +24,6 @@ pub struct ClassSignature {
     pub suffix: Vec<ClassSignatureSegment>,
 }
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.3.2
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum DescriptorPrimitiveType {
-    Byte,
-    Char,
-    Double,
-    Float,
-    Int,
-    Long,
-    Short,
-    Boolean,
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PrimitiveType {
     Byte,
@@ -46,12 +34,11 @@ pub enum PrimitiveType {
     Long,
     Short,
     Boolean,
-    Void,
 }
 
 impl PrimitiveType {
     pub fn values() -> &'static [PrimitiveType] {
-        static PRIMITIVE_TYPES: [PrimitiveType; 9] = [
+        static PRIMITIVE_TYPES: [PrimitiveType; 8] = [
             PrimitiveType::Byte,
             PrimitiveType::Char,
             PrimitiveType::Double,
@@ -60,7 +47,6 @@ impl PrimitiveType {
             PrimitiveType::Long,
             PrimitiveType::Short,
             PrimitiveType::Boolean,
-            PrimitiveType::Void,
         ];
         &PRIMITIVE_TYPES
     }
@@ -77,123 +63,98 @@ impl Display for PrimitiveType {
             PrimitiveType::Long => write!(f, "long"),
             PrimitiveType::Short => write!(f, "short"),
             PrimitiveType::Boolean => write!(f, "boolean"),
-            PrimitiveType::Void => write!(f, "void"),
         }
     }
 }
 
-impl TryFrom<char> for DescriptorPrimitiveType {
+impl TryFrom<char> for PrimitiveType {
     type Error = (); // todo
 
     fn try_from(value: char) -> Result<Self, Self::Error> {
         match value {
-            'B' => Ok(DescriptorPrimitiveType::Byte),
-            'C' => Ok(DescriptorPrimitiveType::Char),
-            'D' => Ok(DescriptorPrimitiveType::Double),
-            'F' => Ok(DescriptorPrimitiveType::Float),
-            'I' => Ok(DescriptorPrimitiveType::Int),
-            'J' => Ok(DescriptorPrimitiveType::Long),
-            'S' => Ok(DescriptorPrimitiveType::Short),
-            'Z' => Ok(DescriptorPrimitiveType::Boolean),
+            'B' => Ok(PrimitiveType::Byte),
+            'C' => Ok(PrimitiveType::Char),
+            'D' => Ok(PrimitiveType::Double),
+            'F' => Ok(PrimitiveType::Float),
+            'I' => Ok(PrimitiveType::Int),
+            'J' => Ok(PrimitiveType::Long),
+            'S' => Ok(PrimitiveType::Short),
+            'Z' => Ok(PrimitiveType::Boolean),
             _ => Err(()),
         }
     }
 }
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.3.2
+/// Represents any actual Java type (cannot be void)
+/// Used for field descriptors and method parameters
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum DescriptorType {
-    Void,
-    Primitive(DescriptorPrimitiveType),
+pub enum JavaType {
+    Primitive(PrimitiveType),
     Instance(String), // TODO: should be interned?
     GenericInstance(ClassSignature),
     TypeVar(String),
-    Array(Box<DescriptorType>),
+    Array(Box<JavaType>),
 }
 
-//TODO: should be in this module?
-pub type HeapRef = usize;
-
-//TODO: draft. refactor
-//TODO: serializes right now only for runtime crate tests, but can't move it to dev deps
-//TODO: the whole common crate should be rethought
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum Value {
-    Integer(i32),
-    Long(i64),
-    Float(f32),
-    Double(f64),
-    Ref(HeapRef),
-    Null,
+/// Represents a method return type (can be void or any JavaType)
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ReturnType {
+    Void,
+    Type(JavaType),
 }
 
-impl Value {
-    pub fn as_obj_ref(&self) -> Result<HeapRef, JvmError> {
-        match self {
-            Value::Ref(addr) => Ok(*addr),
-            Value::Null => Err(JvmError::JavaException(
-                JavaExceptionFromJvm::NullPointerException(None),
-            )),
-            _ => Err(JvmError::Todo(
-                "Value::as_obj_ref called on non-reference value".to_string(),
-            )),
-        }
-    }
-
-    pub fn as_int(&self) -> Result<i32, JvmError> {
-        match self {
-            Value::Integer(v) => Ok(*v),
-            _ => Err(JvmError::Todo(
-                "Value::as_int called on non-integer value".to_string(),
-            )),
-        }
-    }
-}
-
-impl DescriptorPrimitiveType {
+impl PrimitiveType {
     pub fn get_default_value(&self) -> Value {
         match self {
-            DescriptorPrimitiveType::Byte
-            | DescriptorPrimitiveType::Char
-            | DescriptorPrimitiveType::Short
-            | DescriptorPrimitiveType::Int
-            | DescriptorPrimitiveType::Boolean => Value::Integer(0),
-            DescriptorPrimitiveType::Double => Value::Double(0.0),
-            DescriptorPrimitiveType::Float => Value::Float(0.0),
-            DescriptorPrimitiveType::Long => Value::Long(0),
+            PrimitiveType::Byte
+            | PrimitiveType::Char
+            | PrimitiveType::Short
+            | PrimitiveType::Int
+            | PrimitiveType::Boolean => Value::Integer(0),
+            PrimitiveType::Double => Value::Double(0.0),
+            PrimitiveType::Float => Value::Float(0.0),
+            PrimitiveType::Long => Value::Long(0),
         }
     }
 
     pub fn get_byte_size(&self) -> usize {
         match self {
-            DescriptorPrimitiveType::Byte | DescriptorPrimitiveType::Boolean => 1,
-            DescriptorPrimitiveType::Char | DescriptorPrimitiveType::Short => 2,
-            DescriptorPrimitiveType::Float | DescriptorPrimitiveType::Int => 4,
-            DescriptorPrimitiveType::Double | DescriptorPrimitiveType::Long => 8,
+            PrimitiveType::Byte | PrimitiveType::Boolean => 1,
+            PrimitiveType::Char | PrimitiveType::Short => 2,
+            PrimitiveType::Float | PrimitiveType::Int => 4,
+            PrimitiveType::Double | PrimitiveType::Long => 8,
         }
     }
 
     pub fn is_compatible_with(&self, value: &Value) -> bool {
         matches!(
             (self, value),
-            (DescriptorPrimitiveType::Byte, Value::Integer(_))
-                | (DescriptorPrimitiveType::Char, Value::Integer(_))
-                | (DescriptorPrimitiveType::Short, Value::Integer(_))
-                | (DescriptorPrimitiveType::Int, Value::Integer(_))
-                | (DescriptorPrimitiveType::Boolean, Value::Integer(_))
-                | (DescriptorPrimitiveType::Long, Value::Long(_))
-                | (DescriptorPrimitiveType::Float, Value::Float(_))
-                | (DescriptorPrimitiveType::Double, Value::Double(_))
+            (PrimitiveType::Byte, Value::Integer(_))
+                | (PrimitiveType::Char, Value::Integer(_))
+                | (PrimitiveType::Short, Value::Integer(_))
+                | (PrimitiveType::Int, Value::Integer(_))
+                | (PrimitiveType::Boolean, Value::Integer(_))
+                | (PrimitiveType::Long, Value::Long(_))
+                | (PrimitiveType::Float, Value::Float(_))
+                | (PrimitiveType::Double, Value::Double(_))
         )
     }
 }
 
-impl DescriptorType {
+impl TryFrom<&str> for JavaType {
+    type Error = TypeDescriptorErr;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        JavaType::try_recursive(&mut value.chars().peekable())
+    }
+}
+
+impl JavaType {
     // TODO: work only for one-dimensional arrays for now
-    pub fn get_primitive_array_element_type(&self) -> Option<DescriptorPrimitiveType> {
+    pub fn get_primitive_array_element_type(&self) -> Option<PrimitiveType> {
         match self {
-            DescriptorType::Array(elem) => match **elem {
-                DescriptorType::Primitive(prim) => Some(prim),
+            JavaType::Array(elem) => match **elem {
+                JavaType::Primitive(prim) => Some(prim),
                 _ => None,
             },
             _ => None,
@@ -203,8 +164,8 @@ impl DescriptorType {
     // TODO: work only for one-dimensional arrays for now
     pub fn get_instance_array_element_type(&self) -> Option<&str> {
         match self {
-            DescriptorType::Array(elem) => match **elem {
-                DescriptorType::Instance(ref name) => Some(name.as_str()),
+            JavaType::Array(elem) => match **elem {
+                JavaType::Instance(ref name) => Some(name.as_str()),
                 _ => None,
             },
             _ => None,
@@ -213,270 +174,256 @@ impl DescriptorType {
 
     pub fn is_primitive_array(&self) -> bool {
         match self {
-            DescriptorType::Array(elem) => matches!(**elem, DescriptorType::Primitive(_)),
+            JavaType::Array(elem) => matches!(**elem, JavaType::Primitive(_)),
             _ => false,
         }
     }
 
     pub fn get_byte_size(&self) -> usize {
         match self {
-            DescriptorType::Primitive(prim) => prim.get_byte_size(),
-            DescriptorType::Instance(_) | DescriptorType::Array(_) => {
-                std::mem::size_of::<HeapRef>()
-            }
+            JavaType::Primitive(prim) => prim.get_byte_size(),
+            JavaType::Instance(_) | JavaType::Array(_) => size_of::<HeapRef>(),
             _ => panic!("get_byte_size called on non-primitive type: {:?}", self),
         }
     }
 
     pub fn get_default_value(&self) -> Value {
         match self {
-            DescriptorType::Primitive(prim) => prim.get_default_value(),
-            DescriptorType::Instance(_)
-            | DescriptorType::GenericInstance(_)
-            | DescriptorType::TypeVar(_)
-            | DescriptorType::Array(_) => Value::Null,
-            DescriptorType::Void => panic!("No default value for type: {:?}", self),
+            JavaType::Primitive(prim) => prim.get_default_value(),
+            JavaType::Instance(_)
+            | JavaType::GenericInstance(_)
+            | JavaType::TypeVar(_)
+            | JavaType::Array(_) => Value::Null,
         }
     }
 
     pub fn is_compatible_with(&self, value: &Value) -> bool {
         match (self, value) {
-            (DescriptorType::Primitive(prim), val) => prim.is_compatible_with(val), // Delegate
-            (DescriptorType::Instance(_), Value::Ref(_) | Value::Null) => true, // TODO: check class
-            (DescriptorType::Array(_), Value::Ref(_) | Value::Null) => true,    // TODO: check class
-            (DescriptorType::GenericInstance(_), Value::Ref(_) | Value::Null) => true, // TODO: check class
-            (DescriptorType::TypeVar(_), Value::Ref(_) | Value::Null) => true, // TODO: check class
+            (JavaType::Primitive(prim), val) => prim.is_compatible_with(val), // Delegate
+            (JavaType::Instance(_), Value::Ref(_) | Value::Null) => true,     // TODO: check class
+            (JavaType::Array(_), Value::Ref(_) | Value::Null) => true,        // TODO: check class
+            (JavaType::GenericInstance(_), Value::Ref(_) | Value::Null) => true, // TODO: check class
+            (JavaType::TypeVar(_), Value::Ref(_) | Value::Null) => true, // TODO: check class
             _ => false,
         }
     }
 
-    pub fn try_recursive<I>(it: &mut Peekable<I>) -> Result<DescriptorType, TypeDescriptorErr>
+    /// Parse a JavaType from a character iterator
+    /// This cannot parse 'V' (void) - will return an error
+    pub fn try_recursive<I>(it: &mut Peekable<I>) -> Result<JavaType, TypeDescriptorErr>
     where
         I: Iterator<Item = char>,
     {
-        let c = it.next().ok_or(TypeDescriptorErr::UnexpectedEnd)?;
+        let c = it.peek().ok_or(TypeDescriptorErr::UnexpectedEnd)?;
 
-        if c == 'V' {
-            return Ok(DescriptorType::Void);
+        // Void is not allowed in JavaType
+        if *c == 'V' {
+            return Err(TypeDescriptorErr::InvalidType('V'));
         }
 
-        if let Ok(prim) = DescriptorPrimitiveType::try_from(c) {
-            return Ok(DescriptorType::Primitive(prim));
+        // Try to parse primitive
+        if let Ok(prim) = PrimitiveType::try_from(*c) {
+            it.next();
+            return Ok(JavaType::Primitive(prim));
         }
 
         match c {
-            'L' => Self::parse_class_type(it),
-            'T' => Self::parse_type_var(it),
             '[' => {
-                let elem = DescriptorType::try_recursive(it)?;
-                if matches!(elem, DescriptorType::Void) {
-                    return Err(TypeDescriptorErr::InvalidType('V'));
-                }
-                Ok(DescriptorType::Array(Box::new(elem)))
+                it.next();
+                let elem = JavaType::try_recursive(it)?;
+                Ok(JavaType::Array(Box::new(elem)))
             }
-            unknown => Err(TypeDescriptorErr::InvalidType(unknown)),
-        }
-    }
+            'L' => {
+                it.next();
+                let mut name = String::new();
+                let mut has_type_args = false;
+                let mut has_dot = false;
+                let mut depth = 0;
 
-    fn parse_type_var<I>(it: &mut Peekable<I>) -> Result<DescriptorType, TypeDescriptorErr>
-    where
-        I: Iterator<Item = char>,
-    {
-        let mut name = String::new();
-        while let Some(&ch) = it.peek() {
-            it.next();
-            if ch == ';' {
-                return Ok(DescriptorType::TypeVar(name));
-            }
-            name.push(ch);
-        }
-        Err(TypeDescriptorErr::UnexpectedEnd)
-    }
-
-    fn parse_class_type<I>(it: &mut Peekable<I>) -> Result<DescriptorType, TypeDescriptorErr>
-    where
-        I: Iterator<Item = char>,
-    {
-        let mut first_name = String::new();
-        let mut first_args: Vec<TypeArg> = Vec::new();
-        let mut suffix: Vec<ClassSignatureSegment> = Vec::new();
-
-        loop {
-            let ch = it.next().ok_or(TypeDescriptorErr::UnexpectedEnd)?;
-            match ch {
-                '<' => {
-                    first_args = Self::parse_type_args(it)?;
-                    match it.peek().copied() {
-                        Some('.') => {
-                            it.next();
-                            break;
+                loop {
+                    let ch = it.next().ok_or(TypeDescriptorErr::UnexpectedEnd)?;
+                    match ch {
+                        '<' => {
+                            has_type_args = true;
+                            depth += 1;
+                            name.push(ch);
                         }
-                        Some(';') => {
-                            it.next();
-                            return if first_args.is_empty() {
-                                Ok(DescriptorType::Instance(first_name))
-                            } else {
-                                Ok(DescriptorType::GenericInstance(ClassSignature {
-                                    first: ClassSignatureSegment {
-                                        name: first_name,
-                                        args: first_args,
-                                    },
-                                    suffix,
-                                }))
-                            };
+                        '>' => {
+                            depth -= 1;
+                            name.push(ch);
+                            if depth == 0 {
+                                // After closing type args, only '.' or ';' are valid
+                                match it.peek() {
+                                    Some('.') | Some(';') => {}
+                                    Some(&c) => return Err(TypeDescriptorErr::InvalidType(c)),
+                                    None => return Err(TypeDescriptorErr::UnexpectedEnd),
+                                }
+                            }
                         }
-                        Some(other) => return Err(TypeDescriptorErr::InvalidType(other)),
-                        None => return Err(TypeDescriptorErr::UnexpectedEnd),
+                        '.' => {
+                            has_dot = true;
+                            name.push(ch);
+                        }
+                        ';' => {
+                            if depth == 0 {
+                                break;
+                            }
+                            name.push(ch);
+                        }
+                        _ => {
+                            name.push(ch);
+                        }
                     }
                 }
-                '.' => {
-                    break;
+
+                if has_type_args || has_dot {
+                    let sig = Self::parse_class_signature(&name)?;
+                    Ok(JavaType::GenericInstance(sig))
+                } else {
+                    Ok(JavaType::Instance(name))
                 }
-                ';' => {
-                    return Ok(DescriptorType::Instance(first_name));
-                }
-                other => first_name.push(other),
             }
+            'T' => {
+                it.next();
+                let mut name = String::new();
+                loop {
+                    let ch = it.next().ok_or(TypeDescriptorErr::UnexpectedEnd)?;
+                    if ch == ';' {
+                        break;
+                    }
+                    name.push(ch);
+                }
+                Ok(JavaType::TypeVar(name))
+            }
+            _ => Err(TypeDescriptorErr::InvalidType(*c)),
         }
+    }
+
+    fn parse_class_signature(s: &str) -> Result<ClassSignature, TypeDescriptorErr> {
+        let mut it = s.chars().peekable();
+        let mut segments = Vec::new();
 
         loop {
             let mut seg_name = String::new();
-            let mut seg_args: Vec<TypeArg> = Vec::new();
 
-            loop {
-                let ch = it.next().ok_or(TypeDescriptorErr::UnexpectedEnd)?;
-                match ch {
-                    '<' => {
-                        seg_args = Self::parse_type_args(it)?;
-                        match it.peek().copied() {
-                            Some('.') => {
-                                it.next();
-                                suffix.push(ClassSignatureSegment {
-                                    name: seg_name,
-                                    args: seg_args,
-                                });
-                                break;
-                            }
-                            Some(';') => {
-                                it.next();
-                                suffix.push(ClassSignatureSegment {
-                                    name: seg_name,
-                                    args: seg_args,
-                                });
-                                return Ok(DescriptorType::GenericInstance(ClassSignature {
-                                    first: ClassSignatureSegment {
-                                        name: first_name,
-                                        args: first_args,
-                                    },
-                                    suffix,
-                                }));
-                            }
-                            Some(other) => return Err(TypeDescriptorErr::InvalidType(other)),
-                            None => return Err(TypeDescriptorErr::UnexpectedEnd),
-                        }
-                    }
-                    '.' => {
-                        suffix.push(ClassSignatureSegment {
-                            name: seg_name,
-                            args: seg_args,
-                        });
-                        break;
-                    }
-                    ';' => {
-                        suffix.push(ClassSignatureSegment {
-                            name: seg_name,
-                            args: seg_args,
-                        });
-                        return Ok(DescriptorType::GenericInstance(ClassSignature {
-                            first: ClassSignatureSegment {
-                                name: first_name,
-                                args: first_args,
-                            },
-                            suffix,
-                        }));
-                    }
-                    other => seg_name.push(other),
-                }
-            }
-        }
-    }
-
-    fn parse_type_args<I>(it: &mut Peekable<I>) -> Result<Vec<TypeArg>, TypeDescriptorErr>
-    where
-        I: Iterator<Item = char>,
-    {
-        let mut args = Vec::new();
-        loop {
-            let ch = *it.peek().ok_or(TypeDescriptorErr::UnexpectedEnd)?;
-            match ch {
-                '>' => {
-                    it.next();
+            // Read until '<' or '.' or end
+            while let Some(&ch) = it.peek() {
+                if ch == '<' || ch == '.' {
                     break;
                 }
-                '*' => {
-                    it.next();
-                    args.push(TypeArg::Any);
-                }
-                '+' => {
-                    it.next();
-                    args.push(TypeArg::Extends(Box::new(Self::parse_reference_type(it)?)));
-                }
-                '-' => {
-                    it.next();
-                    args.push(TypeArg::Super(Box::new(Self::parse_reference_type(it)?)));
-                }
-                _ => {
-                    args.push(TypeArg::Exact(Box::new(Self::parse_reference_type(it)?)));
+                seg_name.push(ch);
+                it.next();
+            }
+
+            let mut args = Vec::new();
+            if it.peek() == Some(&'<') {
+                it.next(); // consume '<'
+                loop {
+                    match it.peek() {
+                        Some('>') => {
+                            it.next(); // consume '>'
+                            break;
+                        }
+                        Some('*') => {
+                            it.next();
+                            args.push(TypeArg::Any);
+                        }
+                        Some('+') => {
+                            it.next();
+                            let ty = JavaType::try_recursive(&mut it)?;
+                            args.push(TypeArg::Extends(Box::new(ty)));
+                        }
+                        Some('-') => {
+                            it.next();
+                            let ty = JavaType::try_recursive(&mut it)?;
+                            args.push(TypeArg::Super(Box::new(ty)));
+                        }
+                        Some(_) => {
+                            let ty = JavaType::try_recursive(&mut it)?;
+                            args.push(TypeArg::Exact(Box::new(ty)));
+                        }
+                        None => return Err(TypeDescriptorErr::UnexpectedEnd),
+                    }
                 }
             }
-        }
-        Ok(args)
-    }
 
-    fn parse_reference_type<I>(it: &mut Peekable<I>) -> Result<DescriptorType, TypeDescriptorErr>
+            segments.push(ClassSignatureSegment {
+                name: seg_name,
+                args,
+            });
+
+            if it.peek() == Some(&'.') {
+                it.next(); // consume '.'
+            } else {
+                break;
+            }
+        }
+
+        if segments.is_empty() {
+            return Err(TypeDescriptorErr::UnexpectedEnd);
+        }
+
+        let first = segments.remove(0);
+        Ok(ClassSignature {
+            first,
+            suffix: segments,
+        })
+    }
+}
+
+impl ReturnType {
+    /// Parse a ReturnType from a character iterator
+    /// This can parse both 'V' (void) and any JavaType
+    pub fn try_recursive<I>(it: &mut Peekable<I>) -> Result<ReturnType, TypeDescriptorErr>
     where
         I: Iterator<Item = char>,
     {
-        let next = *it.peek().ok_or(TypeDescriptorErr::UnexpectedEnd)?;
-        match next {
-            'L' | 'T' | '[' => DescriptorType::try_recursive(it),
-            other => Err(TypeDescriptorErr::InvalidType(other)),
+        let c = it.peek().ok_or(TypeDescriptorErr::UnexpectedEnd)?;
+
+        if *c == 'V' {
+            it.next();
+            return Ok(ReturnType::Void);
+        }
+
+        let java_type = JavaType::try_recursive(it)?;
+        Ok(ReturnType::Type(java_type))
+    }
+
+    pub fn get_default_value(&self) -> Value {
+        match self {
+            ReturnType::Void => panic!("No default value for void"),
+            ReturnType::Type(java_type) => java_type.get_default_value(),
+        }
+    }
+
+    pub fn is_compatible_with(&self, value: &Value) -> bool {
+        match self {
+            ReturnType::Void => false,
+            ReturnType::Type(java_type) => java_type.is_compatible_with(value),
         }
     }
 }
 
-impl TryFrom<&str> for DescriptorType {
-    type Error = TypeDescriptorErr;
-
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        DescriptorType::try_recursive(&mut value.chars().peekable())
-    }
-}
-
-impl fmt::Display for DescriptorPrimitiveType {
+impl Display for JavaType {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
-            DescriptorPrimitiveType::Byte => write!(f, "byte"),
-            DescriptorPrimitiveType::Char => write!(f, "char"),
-            DescriptorPrimitiveType::Double => write!(f, "double"),
-            DescriptorPrimitiveType::Float => write!(f, "float"),
-            DescriptorPrimitiveType::Int => write!(f, "int"),
-            DescriptorPrimitiveType::Long => write!(f, "long"),
-            DescriptorPrimitiveType::Short => write!(f, "short"),
-            DescriptorPrimitiveType::Boolean => write!(f, "boolean"),
-        }
-    }
-}
+            JavaType::Primitive(prim) => {
+                let name = match prim {
+                    PrimitiveType::Byte => "byte",
+                    PrimitiveType::Char => "char",
+                    PrimitiveType::Double => "double",
+                    PrimitiveType::Float => "float",
+                    PrimitiveType::Int => "int",
+                    PrimitiveType::Long => "long",
+                    PrimitiveType::Short => "short",
+                    PrimitiveType::Boolean => "boolean",
+                };
+                write!(f, "{}", name)
+            }
 
-impl fmt::Display for DescriptorType {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            DescriptorType::Void => write!(f, "void"),
-            DescriptorType::Primitive(p) => write!(f, "{}", p),
+            JavaType::Instance(name) => write!(f, "{}", name.replace('/', ".")),
 
-            DescriptorType::Instance(name) => write!(f, "{}", name.replace('/', ".")),
-
-            DescriptorType::GenericInstance(sig) => {
+            JavaType::GenericInstance(sig) => {
                 // first segment with args
                 write!(f, "{}", sig.first.name.replace('/', "."))?;
                 if !sig.first.args.is_empty() {
@@ -506,9 +453,18 @@ impl fmt::Display for DescriptorType {
                 Ok(())
             }
 
-            DescriptorType::TypeVar(name) => write!(f, "{}", name),
+            JavaType::TypeVar(name) => write!(f, "{}", name),
 
-            DescriptorType::Array(elem) => write!(f, "{}[]", elem),
+            JavaType::Array(elem) => write!(f, "{}[]", elem),
+        }
+    }
+}
+
+impl Display for ReturnType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            ReturnType::Void => write!(f, "void"),
+            ReturnType::Type(java_type) => write!(f, "{}", java_type),
         }
     }
 }
@@ -528,14 +484,24 @@ impl fmt::Display for TypeArg {
 mod tests {
     use super::*;
 
-    fn parse_one(s: &str) -> Result<DescriptorType, TypeDescriptorErr> {
+    fn parse_one_descriptor(s: &str) -> Result<ReturnType, TypeDescriptorErr> {
         let mut it = s.chars().peekable();
-        DescriptorType::try_recursive(&mut it)
+        ReturnType::try_recursive(&mut it)
     }
 
-    fn parse_and_rest(s: &str) -> (Result<DescriptorType, TypeDescriptorErr>, String) {
+    fn parse_one_java(s: &str) -> Result<JavaType, TypeDescriptorErr> {
         let mut it = s.chars().peekable();
-        let res = DescriptorType::try_recursive(&mut it);
+        JavaType::try_recursive(&mut it)
+    }
+
+    fn parse_one_return(s: &str) -> Result<ReturnType, TypeDescriptorErr> {
+        let mut it = s.chars().peekable();
+        ReturnType::try_recursive(&mut it)
+    }
+
+    fn parse_and_rest(s: &str) -> (Result<ReturnType, TypeDescriptorErr>, String) {
+        let mut it = s.chars().peekable();
+        let res = ReturnType::try_recursive(&mut it);
         let rest: String = it.collect();
         (res, rest)
     }
@@ -543,89 +509,123 @@ mod tests {
     #[test]
     fn primitives_try_from_char() {
         let cases = vec![
-            ('B', DescriptorPrimitiveType::Byte),
-            ('C', DescriptorPrimitiveType::Char),
-            ('D', DescriptorPrimitiveType::Double),
-            ('F', DescriptorPrimitiveType::Float),
-            ('I', DescriptorPrimitiveType::Int),
-            ('J', DescriptorPrimitiveType::Long),
-            ('S', DescriptorPrimitiveType::Short),
-            ('Z', DescriptorPrimitiveType::Boolean),
+            ('B', PrimitiveType::Byte),
+            ('C', PrimitiveType::Char),
+            ('D', PrimitiveType::Double),
+            ('F', PrimitiveType::Float),
+            ('I', PrimitiveType::Int),
+            ('J', PrimitiveType::Long),
+            ('S', PrimitiveType::Short),
+            ('Z', PrimitiveType::Boolean),
         ];
         for (ch, ty) in cases {
-            assert_eq!(DescriptorPrimitiveType::try_from(ch), Ok(ty));
+            assert_eq!(PrimitiveType::try_from(ch), Ok(ty));
         }
         // invalid primitive
-        assert!(DescriptorPrimitiveType::try_from('Q').is_err());
+        assert!(PrimitiveType::try_from('Q').is_err());
         // 'V' (Void) is handled by the `Type` enum directly, it's not a `PrimitiveType`
-        assert!(DescriptorPrimitiveType::try_from('V').is_err());
+        assert!(PrimitiveType::try_from('V').is_err());
     }
 
     #[test]
-    fn parse_void() {
-        assert_eq!(parse_one("V").unwrap(), DescriptorType::Void);
+    fn parse_void_descriptor() {
+        assert_eq!(parse_one_descriptor("V").unwrap(), ReturnType::Void);
+    }
+
+    #[test]
+    fn parse_void_return() {
+        assert_eq!(parse_one_return("V").unwrap(), ReturnType::Void);
+    }
+
+    #[test]
+    fn parse_void_java_type_should_fail() {
+        assert!(parse_one_java("V").is_err());
     }
 
     #[test]
     fn parse_instance_object() {
         assert_eq!(
-            parse_one("Ljava/lang/String;").unwrap(),
-            DescriptorType::Instance("java/lang/String".to_string())
+            parse_one_descriptor("Ljava/lang/String;").unwrap(),
+            ReturnType::Type(JavaType::Instance("java/lang/String".to_string()))
+        );
+        assert_eq!(
+            parse_one_java("Ljava/lang/String;").unwrap(),
+            JavaType::Instance("java/lang/String".to_string())
         );
     }
 
     #[test]
     fn parse_array_of_primitive() {
         assert_eq!(
-            parse_one("[I").unwrap(),
-            DescriptorType::Array(Box::new(DescriptorType::Primitive(
-                DescriptorPrimitiveType::Int
-            ))) // <-- CHANGED
+            parse_one_descriptor("[I").unwrap(),
+            ReturnType::Type(JavaType::Array(Box::new(JavaType::Primitive(
+                PrimitiveType::Int
+            ))))
+        );
+        assert_eq!(
+            parse_one_java("[I").unwrap(),
+            JavaType::Array(Box::new(JavaType::Primitive(PrimitiveType::Int)))
         );
     }
 
     #[test]
     fn parse_array_of_object() {
         assert_eq!(
-            parse_one("[Ljava/util/List;").unwrap(),
-            DescriptorType::Array(Box::new(DescriptorType::Instance(
+            parse_one_descriptor("[Ljava/util/List;").unwrap(),
+            ReturnType::Type(JavaType::Array(Box::new(JavaType::Instance(
                 "java/util/List".to_string()
-            )))
+            ))))
+        );
+        assert_eq!(
+            parse_one_java("[Ljava/util/List;").unwrap(),
+            JavaType::Array(Box::new(JavaType::Instance("java/util/List".to_string())))
         );
     }
 
     #[test]
     fn parse_multi_dimensional_array() {
         assert_eq!(
-            parse_one("[[I").unwrap(),
-            DescriptorType::Array(Box::new(DescriptorType::Array(Box::new(
-                DescriptorType::Primitive(DescriptorPrimitiveType::Int)
-            ))))
+            parse_one_descriptor("[[I").unwrap(),
+            ReturnType::Type(JavaType::Array(Box::new(JavaType::Array(Box::new(
+                JavaType::Primitive(PrimitiveType::Int)
+            )))))
         );
         assert_eq!(
-            parse_one("[[Ljava/lang/String;").unwrap(),
-            DescriptorType::Array(Box::new(DescriptorType::Array(Box::new(
-                DescriptorType::Instance("java/lang/String".to_string())
-            ))))
+            parse_one_java("[[I").unwrap(),
+            JavaType::Array(Box::new(JavaType::Array(Box::new(JavaType::Primitive(
+                PrimitiveType::Int
+            )))))
+        );
+        assert_eq!(
+            parse_one_descriptor("[[Ljava/lang/String;").unwrap(),
+            ReturnType::Type(JavaType::Array(Box::new(JavaType::Array(Box::new(
+                JavaType::Instance("java/lang/String".to_string())
+            )))))
+        );
+        assert_eq!(
+            parse_one_java("[[Ljava/lang/String;").unwrap(),
+            JavaType::Array(Box::new(JavaType::Array(Box::new(JavaType::Instance(
+                "java/lang/String".to_string()
+            )))))
         );
     }
 
     #[test]
     fn error_unexpected_end_after_l() {
         // Missing ';' terminator
-        let err = parse_one("Ljava/lang/String").unwrap_err();
+        let err = parse_one_descriptor("Ljava/lang/String").unwrap_err();
         assert!(matches!(err, TypeDescriptorErr::UnexpectedEnd));
     }
 
     #[test]
     fn error_unexpected_end_after_array_prefix() {
-        let err = parse_one("[").unwrap_err();
+        let err = parse_one_descriptor("[").unwrap_err();
         assert!(matches!(err, TypeDescriptorErr::UnexpectedEnd));
     }
 
     #[test]
     fn error_invalid_type_tag() {
-        let err = parse_one("Q").unwrap_err();
+        let err = parse_one_descriptor("Q").unwrap_err();
         assert!(matches!(err, TypeDescriptorErr::InvalidType('Q')));
     }
 
@@ -634,23 +634,23 @@ mod tests {
         let (res, rest) = parse_and_rest("I[Ljava/lang/String;");
         assert_eq!(
             res.unwrap(),
-            DescriptorType::Primitive(DescriptorPrimitiveType::Int)
-        ); // <-- CHANGED
+            ReturnType::Type(JavaType::Primitive(PrimitiveType::Int))
+        );
         assert_eq!(rest, "[Ljava/lang/String;".to_string()); // untouched remainder
     }
 
-    // --- All Generic Signature tests below are unchanged ---
+    // --- Generic Signature tests ---
 
     #[test]
     fn generic_first_segment_only() {
         let s = "Ljava/util/List<+Ljava/lang/CharSequence;>;";
-        let t = parse_one(s).unwrap();
+        let t = parse_one_java(s).unwrap();
         assert_eq!(
             t,
-            DescriptorType::GenericInstance(ClassSignature {
+            JavaType::GenericInstance(ClassSignature {
                 first: ClassSignatureSegment {
                     name: "java/util/List".into(),
-                    args: vec![TypeArg::Extends(Box::new(DescriptorType::Instance(
+                    args: vec![TypeArg::Extends(Box::new(JavaType::Instance(
                         "java/lang/CharSequence".into()
                     )))],
                 },
@@ -662,24 +662,20 @@ mod tests {
     #[test]
     fn generic_with_suffix_and_args() {
         let s = "Ljava/util/Map<Ljava/lang/String;Ljava/lang/Integer;>.Entry<Ljava/lang/String;>;";
-        let t = parse_one(s).unwrap();
+        let t = parse_one_java(s).unwrap();
         assert_eq!(
             t,
-            DescriptorType::GenericInstance(ClassSignature {
+            JavaType::GenericInstance(ClassSignature {
                 first: ClassSignatureSegment {
                     name: "java/util/Map".into(),
                     args: vec![
-                        TypeArg::Exact(Box::new(DescriptorType::Instance(
-                            "java/lang/String".into()
-                        ))),
-                        TypeArg::Exact(Box::new(DescriptorType::Instance(
-                            "java/lang/Integer".into()
-                        ))),
+                        TypeArg::Exact(Box::new(JavaType::Instance("java/lang/String".into()))),
+                        TypeArg::Exact(Box::new(JavaType::Instance("java/lang/Integer".into()))),
                     ],
                 },
                 suffix: vec![ClassSignatureSegment {
                     name: "Entry".into(),
-                    args: vec![TypeArg::Exact(Box::new(DescriptorType::Instance(
+                    args: vec![TypeArg::Exact(Box::new(JavaType::Instance(
                         "java/lang/String".into()
                     )))],
                 }],
@@ -690,10 +686,10 @@ mod tests {
     #[test]
     fn suffix_without_args() {
         let s = "Lpkg/Outer.Inner;";
-        let t = parse_one(s).unwrap();
+        let t = parse_one_java(s).unwrap();
         assert_eq!(
             t,
-            DescriptorType::GenericInstance(ClassSignature {
+            JavaType::GenericInstance(ClassSignature {
                 first: ClassSignatureSegment {
                     name: "pkg/Outer".into(),
                     args: vec![]
@@ -709,14 +705,14 @@ mod tests {
     #[test]
     fn error_unexpected_end_in_type_args() {
         // Missing '>'
-        let err = parse_one("Ljava/util/List<").unwrap_err();
+        let err = parse_one_java("Ljava/util/List<").unwrap_err();
         assert!(matches!(err, TypeDescriptorErr::UnexpectedEnd));
     }
 
     #[test]
     fn error_invalid_after_type_args() {
         // After '<...>' must be '.' or ';'
-        let err = parse_one("Ljava/util/List<Ljava/lang/String;>X").unwrap_err();
+        let err = parse_one_java("Ljava/util/List<Ljava/lang/String;>X").unwrap_err();
         assert!(matches!(err, TypeDescriptorErr::InvalidType('X')));
     }
 }
