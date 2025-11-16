@@ -141,8 +141,8 @@ fn java_lang_system_arraycopy(
     let dest_pos = args[3].as_int()?;
     let length = args[4].as_int()?;
 
-    let src_class_id = vm.heap.get_class_id(&src_addr)?;
-    if !vm.heap.is_array(&src_addr)? {
+    let src_class_id = vm.heap_depr.get_class_id(&src_addr)?;
+    if !vm.heap_depr.is_array(&src_addr)? {
         throw_exception!(
             ArrayStoreException,
             "arraycopy: source type {} is not an array",
@@ -150,8 +150,8 @@ fn java_lang_system_arraycopy(
         )?;
     }
 
-    let dest_class_id = vm.heap.get_class_id(&dest_addr)?;
-    if !vm.heap.is_array(&dest_addr)? {
+    let dest_class_id = vm.heap_depr.get_class_id(&dest_addr)?;
+    if !vm.heap_depr.is_array(&dest_addr)? {
         throw_exception!(
             ArrayStoreException,
             "arraycopy: destination type {} is not an array",
@@ -163,7 +163,7 @@ fn java_lang_system_arraycopy(
         return Ok(None);
     }
 
-    vm.heap
+    vm.heap_depr
         .copy_primitive_slice(src_addr, src_pos, dest_addr, dest_pos, length)?;
     Ok(None)
 }
@@ -175,10 +175,10 @@ fn java_lang_object_get_class(
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.getClass");
     if let Value::Ref(h) = &args[0] {
-        let target_class_id = vm.heap.get_class_id(h)?;
+        let target_class_id = vm.heap_depr.get_class_id(h)?;
         let res = vm
             .method_area
-            .get_mirror_ref_or_create(target_class_id, &mut vm.heap)?;
+            .get_mirror_ref_or_create(target_class_id, &mut vm.heap_depr)?;
         Ok(Some(Value::Ref(res)))
     } else {
         panic!("java.lang.Class.getClass: expected object as argument");
@@ -228,28 +228,34 @@ fn java_lang_throwable_fill_in_stack_trace(
     let int_arr_class = vm
         .method_area
         .load_array_class(vm.method_area.br().int_array_desc)?;
-    let class_id_array =
-        vm.heap
-            .alloc_array_with_default_value(int_arr_class, Value::Integer(0), frames.len())?;
-    let method_id_array =
-        vm.heap
-            .alloc_array_with_default_value(int_arr_class, Value::Integer(0), frames.len())?;
-    let line_nbr_array =
-        vm.heap
-            .alloc_array_with_default_value(int_arr_class, Value::Integer(0), frames.len())?;
+    let class_id_array = vm.heap_depr.alloc_array_with_default_value(
+        int_arr_class,
+        Value::Integer(0),
+        frames.len(),
+    )?;
+    let method_id_array = vm.heap_depr.alloc_array_with_default_value(
+        int_arr_class,
+        Value::Integer(0),
+        frames.len(),
+    )?;
+    let line_nbr_array = vm.heap_depr.alloc_array_with_default_value(
+        int_arr_class,
+        Value::Integer(0),
+        frames.len(),
+    )?;
     for (pos, frame) in frames.iter().enumerate() {
         let method = vm.method_area.get_method(&frame.method_id());
-        vm.heap.write_array_element(
+        vm.heap_depr.write_array_element(
             class_id_array,
             pos as i32,
             Value::Integer(method.class_id().to_i32()),
         )?;
-        vm.heap.write_array_element(
+        vm.heap_depr.write_array_element(
             method_id_array,
             pos as i32,
             Value::Integer(frame.method_id().to_i32()),
         )?;
-        vm.heap.write_array_element(
+        vm.heap_depr.write_array_element(
             line_nbr_array,
             pos as i32,
             Value::Integer(match frame {
@@ -258,36 +264,38 @@ fn java_lang_throwable_fill_in_stack_trace(
             }),
         )?;
     }
-    let backtrace_addr = vm.heap.alloc_array_with_default_value(
+    let backtrace_addr = vm.heap_depr.alloc_array_with_default_value(
         vm.method_area.br().get_java_lang_object_id()?,
         Value::Null,
         3,
     )?;
-    vm.heap
+    vm.heap_depr
         .write_array_element(backtrace_addr, 0, Value::Ref(class_id_array))?;
-    vm.heap
+    vm.heap_depr
         .write_array_element(backtrace_addr, 1, Value::Ref(method_id_array))?;
-    vm.heap
+    vm.heap_depr
         .write_array_element(backtrace_addr, 2, Value::Ref(line_nbr_array))?;
     let throwable_addr = match args[0] {
         Value::Ref(h) => h,
         _ => panic!("java.lang.Throwable.fillInStackTrace: expected object"),
     };
-    let throwable_class_id = vm.heap.get_class_id(&throwable_addr)?;
+    let throwable_class_id = vm.heap_depr.get_class_id(&throwable_addr)?;
     let backtrace_field_offset = vm
         .method_area
         .get_instance_class(&throwable_class_id)?
-        .get_instance_field_offset(&vm.method_area.br().throwable_backtrace_fk)?;
+        .get_instance_field(&vm.method_area.br().throwable_backtrace_fk)?
+        .offset;
     let depth_field_offset = vm
         .method_area
         .get_instance_class(&throwable_class_id)?
-        .get_instance_field_offset(&vm.method_area.br().throwable_depth_fk)?;
-    vm.heap.write_instance_field(
+        .get_instance_field(&vm.method_area.br().throwable_depth_fk)?
+        .offset;
+    vm.heap_depr.write_instance_field(
         throwable_addr,
         backtrace_field_offset as usize,
         Value::Ref(backtrace_addr),
     )?;
-    vm.heap
+    vm.heap_depr
         .write_instance_field(
             throwable_addr,
             depth_field_offset as usize,
@@ -367,9 +375,9 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
     for i in 0..depth {
         let i = i as i32;
         let class_id = ClassId::from_i32(
-            vm.heap
+            vm.heap_depr
                 .get_array(
-                    &vm.heap
+                    &vm.heap_depr
                         .get_array(&object)?
                         .get_element(0)
                         .unwrap()
@@ -380,9 +388,9 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
                 .as_int()?,
         );
         let method_id = MethodId::from_i32(
-            vm.heap
+            vm.heap_depr
                 .get_array(
-                    &vm.heap
+                    &vm.heap_depr
                         .get_array(&object)?
                         .get_element(1)
                         .unwrap()
@@ -393,13 +401,18 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
                 .as_int()?,
         );
         let cp = vm
-            .heap
-            .get_array(&vm.heap.get_array(&object)?.get_element(2)?.as_obj_ref()?)?
+            .heap_depr
+            .get_array(
+                &vm.heap_depr
+                    .get_array(&object)?
+                    .get_element(2)?
+                    .as_obj_ref()?,
+            )?
             .get_element(i)?
             .as_int()?;
         let declaring_class_object = vm
             .method_area
-            .get_mirror_ref_or_create(class_id, &mut vm.heap)?;
+            .get_mirror_ref_or_create(class_id, &mut vm.heap_depr)?;
         let method_sym = vm.method_area.get_method(&method_id).name;
         let class_sym = vm.method_area.get_class(&class_id).get_name();
         let class_source_sym = vm
@@ -407,7 +420,7 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
             .get_instance_class(&class_id)?
             .get_source_file()
             .unwrap();
-        let class_name = vm.heap.alloc_string_from_interned_with_char_mapping(
+        let class_name = vm.heap_depr.alloc_string_from_interned_with_char_mapping(
             class_sym,
             &mut vm.method_area,
             &|c| {
@@ -415,10 +428,10 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
             },
         )?;
         let method_name = vm
-            .heap
+            .heap_depr
             .alloc_string_from_interned(method_sym, &mut vm.method_area)?;
         let source = vm
-            .heap
+            .heap_depr
             .alloc_string_from_interned(class_source_sym, &mut vm.method_area)?;
         let line_nbr = vm
             .method_area
@@ -426,47 +439,47 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
             .get_line_number_by_cp(cp)
             .unwrap();
         let cur_stack_trace_entry = vm
-            .heap
+            .heap_depr
             .get_array(&elements_array)?
             .get_element(i)?
             .as_obj_ref()?;
 
-        let stack_trace_class_id = vm.heap.get_class_id(&cur_stack_trace_entry)?;
+        let stack_trace_class_id = vm.heap_depr.get_class_id(&cur_stack_trace_entry)?;
         let stack_trace_class = vm.method_area.get_instance_class(&stack_trace_class_id)?;
 
-        vm.heap.write_instance_field(
+        vm.heap_depr.write_instance_field(
             cur_stack_trace_entry,
-            stack_trace_class.get_instance_field_offset(
-                &vm.method_area.br().stack_trace_declaring_class_name_fk,
-            )? as usize,
+            stack_trace_class
+                .get_instance_field(&vm.method_area.br().stack_trace_declaring_class_name_fk)?
+                .offset,
             Value::Ref(class_name),
         )?;
-        vm.heap.write_instance_field(
+        vm.heap_depr.write_instance_field(
             cur_stack_trace_entry,
             stack_trace_class
-                .get_instance_field_offset(&vm.method_area.br().stack_trace_method_name_fk)?
-                as usize,
+                .get_instance_field(&vm.method_area.br().stack_trace_method_name_fk)?
+                .offset,
             Value::Ref(method_name),
         )?;
-        vm.heap.write_instance_field(
+        vm.heap_depr.write_instance_field(
             cur_stack_trace_entry,
             stack_trace_class
-                .get_instance_field_offset(&vm.method_area.br().stack_trace_file_name_fk)?
-                as usize,
+                .get_instance_field(&vm.method_area.br().stack_trace_file_name_fk)?
+                .offset,
             Value::Ref(source),
         )?;
-        vm.heap.write_instance_field(
+        vm.heap_depr.write_instance_field(
             cur_stack_trace_entry,
             stack_trace_class
-                .get_instance_field_offset(&vm.method_area.br().stack_trace_line_number_fk)?
-                as usize,
+                .get_instance_field(&vm.method_area.br().stack_trace_line_number_fk)?
+                .offset,
             Value::Integer(line_nbr as i32),
         )?;
-        vm.heap.write_instance_field(
+        vm.heap_depr.write_instance_field(
             cur_stack_trace_entry,
             stack_trace_class
-                .get_instance_field_offset(&vm.method_area.br().stack_trace_declaring_class_fk)?
-                as usize,
+                .get_instance_field(&vm.method_area.br().stack_trace_declaring_class_fk)?
+                .offset,
             Value::Ref(declaring_class_object),
         )?;
     }
@@ -516,10 +529,12 @@ fn java_lang_string_intern(
         Value::Ref(h) => *h,
         _ => panic!("java.lang.String.intern: expected object"),
     };
-    let string_value = vm.heap.get_rust_string_from_java_string(&string_addr)?;
+    let string_value = vm
+        .heap_depr
+        .get_rust_string_from_java_string(&string_addr)?;
     let interned = vm.interner().get_or_intern(&string_value);
     let interned_addr = vm
-        .heap
+        .heap_depr
         .get_str_from_pool_or_new(interned, &mut vm.method_area)?;
     Ok(Some(Value::Ref(interned_addr)))
 }

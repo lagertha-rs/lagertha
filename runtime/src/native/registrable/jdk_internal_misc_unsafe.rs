@@ -119,7 +119,7 @@ fn jdk_internal_misc_unsafe_compare_and_set_int(
         Value::Integer(l) => l,
         _ => panic!("jdk.internal.misc.Unsafe.compareAndSetLong: expected long new value"),
     };
-    let instance = vm.heap.get_instance(object)?;
+    let instance = vm.heap_depr.get_instance(object)?;
     let field = instance.get_element_mut(offset as i32)?;
     if let Value::Integer(current_value) = field {
         if *current_value == expected {
@@ -155,7 +155,7 @@ fn jdk_internal_misc_unsafe_compare_and_set_long(
         Value::Long(l) => l,
         _ => panic!("jdk.internal.misc.Unsafe.compareAndSetLong: expected long new value"),
     };
-    let instance = vm.heap.get_instance(object)?;
+    let instance = vm.heap_depr.get_instance(object)?;
     let field = instance.get_element_mut(offset as i32)?;
     if let Value::Long(current_value) = field {
         if *current_value == expected {
@@ -185,7 +185,7 @@ fn jdk_internal_misc_unsafe_get_reference_volatile(
         Value::Long(x) => x,
         _ => panic!("Unsafe.getReferenceVolatile expects a long offset"),
     };
-    match vm.heap.get(&base)? {
+    match vm.heap_depr.get(&base)? {
         HeapObject::Instance(instance) => {
             let field = instance.get_element(off as i32)?;
             match field {
@@ -218,7 +218,7 @@ fn jdk_internal_misc_unsafe_object_field_offset_1(
         _ => panic!("jdk.internal.misc.Unsafe.objectFieldOffset: expected class object"),
     };
     let field_name = match &args[2] {
-        Value::Ref(h) => vm.heap.get_rust_string_from_java_string(h)?,
+        Value::Ref(h) => vm.heap_depr.get_rust_string_from_java_string(h)?,
         _ => panic!("jdk.internal.misc.Unsafe.objectFieldOffset: expected field name string"),
     };
     let interned_field_name = vm.interner().get_or_intern(&field_name);
@@ -226,7 +226,8 @@ fn jdk_internal_misc_unsafe_object_field_offset_1(
     let offset = vm
         .method_area
         .get_instance_class(&class_id)?
-        .get_instance_field_offset_by_name(&interned_field_name)?;
+        .get_instance_field_by_name(&interned_field_name)?
+        .offset;
     Ok(Some(Value::Long(offset as i64)))
 }
 
@@ -275,7 +276,7 @@ fn jdk_internal_misc_unsafe_compare_and_set_reference(
         Value::Ref(h) => h,
         _ => panic!("jdk.internal.misc.Unsafe.compareAndSetReference: expected long new value"),
     };
-    match vm.heap.get_mut(object)? {
+    match vm.heap_depr.get_mut(object)? {
         HeapObject::Array(array) => {
             if offset >= array.data_len() {
                 panic!(

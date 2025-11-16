@@ -173,7 +173,7 @@ macro_rules! debug_log_instruction {
                             .unwrap()
                             .as_obj_ref()
                             .unwrap();
-                        let actual_class_id = vm.heap.get_class_id(&object_ref).unwrap();
+                        let actual_class_id = vm.heap_depr.get_class_id(&object_ref).unwrap();
                         let actual_class_name =
                             vm.method_area.get_class(&actual_class_id).get_name();
                         msg_chunks.push(format!(

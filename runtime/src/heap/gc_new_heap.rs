@@ -1,5 +1,6 @@
-use common::HeapRef;
 use common::error::JvmError;
+use common::jtype::{JavaType, PrimitiveType};
+use common::{HeapRef, Value};
 
 #[repr(C)]
 pub struct ObjectHeader {
@@ -20,7 +21,7 @@ pub struct Heap {
 }
 
 impl Heap {
-    pub fn new(size_mb: usize) -> Result<Self, String> {
+    pub fn new(size_mb: usize) -> Result<Self, JvmError> {
         let capacity = size_mb * 1024 * 1024;
 
         let memory = unsafe {
@@ -35,7 +36,7 @@ impl Heap {
         };
 
         if memory == libc::MAP_FAILED {
-            return Err("mmap failed".to_string());
+            return Err(JvmError::Todo("mmap failed".to_string()));
         }
 
         Ok(Heap {
@@ -64,13 +65,126 @@ impl Heap {
         &mut self,
         heap_ref: HeapRef,
         field_offset: usize,
-        data: &[u8],
-    ) -> Result<(), String> {
+        value: Value,
+        field_type: &JavaType,
+    ) -> Result<(), JvmError> {
         let data_ptr = unsafe { self.get_data_ptr(heap_ref) };
-        unsafe {
-            std::ptr::copy_nonoverlapping(data.as_ptr(), data_ptr.add(field_offset), data.len());
+        let target_ptr = unsafe { data_ptr.add(field_offset) };
+
+        match field_type {
+            JavaType::Primitive(prim) => match prim {
+                PrimitiveType::Boolean => {
+                    if let Value::Integer(i) = value {
+                        unsafe {
+                            *(target_ptr as *mut u8) = if i != 0 { 1 } else { 0 };
+                        }
+                        Ok(())
+                    } else {
+                        Err(JvmError::Todo(
+                            "Expected Integer for Boolean field".to_string(),
+                        ))
+                    }
+                }
+                PrimitiveType::Byte => {
+                    if let Value::Integer(i) = value {
+                        unsafe {
+                            *(target_ptr as *mut i8) = i as i8;
+                        }
+                        Ok(())
+                    } else {
+                        Err(JvmError::Todo(
+                            "Expected Integer for Byte field".to_string(),
+                        ))
+                    }
+                }
+                PrimitiveType::Short => {
+                    if let Value::Integer(i) = value {
+                        unsafe {
+                            *(target_ptr as *mut i16) = i as i16;
+                        }
+                        Ok(())
+                    } else {
+                        Err(JvmError::Todo(
+                            "Expected Integer for Short field".to_string(),
+                        ))
+                    }
+                }
+                PrimitiveType::Int => {
+                    if let Value::Integer(i) = value {
+                        unsafe {
+                            *(target_ptr as *mut i32) = i;
+                        }
+                        Ok(())
+                    } else {
+                        Err(JvmError::Todo("Expected Integer for Int field".to_string()))
+                    }
+                }
+                PrimitiveType::Long => {
+                    if let Value::Long(l) = value {
+                        unsafe {
+                            *(target_ptr as *mut i64) = l;
+                        }
+                        Ok(())
+                    } else {
+                        Err(JvmError::Todo("Expected Long for Long field".to_string()))
+                    }
+                }
+                PrimitiveType::Float => {
+                    if let Value::Float(f) = value {
+                        unsafe {
+                            *(target_ptr as *mut f32) = f;
+                        }
+                        Ok(())
+                    } else {
+                        Err(JvmError::Todo("Expected Float for Float field".to_string()))
+                    }
+                }
+                PrimitiveType::Double => {
+                    if let Value::Double(d) = value {
+                        unsafe {
+                            *(target_ptr as *mut f64) = d;
+                        }
+                        Ok(())
+                    } else {
+                        Err(JvmError::Todo(
+                            "Expected Double for Double field".to_string(),
+                        ))
+                    }
+                }
+                PrimitiveType::Char => {
+                    if let Value::Integer(i) = value {
+                        unsafe {
+                            *(target_ptr as *mut u16) = i as u16;
+                        }
+                        Ok(())
+                    } else {
+                        Err(JvmError::Todo(
+                            "Expected Integer for Char field".to_string(),
+                        ))
+                    }
+                }
+            },
+            JavaType::Instance(_) | JavaType::Array(_) => match value {
+                Value::Ref(r) => {
+                    unsafe {
+                        *(target_ptr as *mut HeapRef) = r;
+                    }
+                    Ok(())
+                }
+                Value::Null => {
+                    unsafe {
+                        *(target_ptr as *mut HeapRef) = 0usize;
+                    }
+                    Ok(())
+                }
+                _ => Err(JvmError::Todo(
+                    "Expected Ref or Null for Object field".to_string(),
+                )),
+            },
+            _ => Err(JvmError::Todo(
+                "Unsupported field type in write_field".to_string(),
+            )),
         }
-        Ok(())
     }
 
     pub fn read_field(
@@ -78,7 +192,7 @@ impl Heap {
         heap_ref: HeapRef,
         field_offset: usize,
         size: usize,
-    ) -> Result<Vec<u8>, String> {
+    ) -> Result<Vec<u8>, JvmError> {
         let mut buffer = vec![0u8; size];
         let data_ptr = unsafe { self.get_data_ptr(heap_ref) };
         unsafe {
