@@ -1,5 +1,5 @@
 use crate::class_loader::ClassLoader;
-use crate::heap::Heap;
+use crate::heap::HeapDeprecated;
 use crate::rt::array::{ObjectArrayClass, PrimitiveArrayClass};
 use crate::rt::class::InstanceClass;
 use crate::rt::constant_pool::RuntimeConstantPool;
@@ -399,7 +399,7 @@ impl MethodArea {
     pub fn get_mirror_ref_or_create(
         &mut self,
         class_id: ClassId,
-        heap: &mut Heap,
+        heap: &mut HeapDeprecated,
     ) -> Result<HeapRef, JvmError> {
         if let Some(mirror_ref) = self.get_class(&class_id).get_mirror_ref() {
             return Ok(mirror_ref);
@@ -412,10 +412,10 @@ impl MethodArea {
         let name_ref = heap.alloc_string_from_interned_with_char_mapping(name_sym, self, &|c| {
             if c == '/' { '.' } else { c }
         })?;
-        let name_field_index = self
+        let name_field = self
             .get_instance_class(&self.br().get_java_lang_class_id()?)?
-            .get_instance_field_offset(&self.br().class_name_fk)?;
-        heap.write_instance_field(mirror_ref, name_field_index as usize, Value::Ref(name_ref))?;
+            .get_instance_field(&self.br().class_name_fk)?;
+        heap.write_instance_field(mirror_ref, name_field.offset, Value::Ref(name_ref))?;
         Ok(mirror_ref)
     }
 }

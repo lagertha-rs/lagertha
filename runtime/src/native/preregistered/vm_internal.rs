@@ -20,6 +20,6 @@ fn vm_internal_clone(vm: &mut VirtualMachine, _thread_id: ThreadId, args: &[Valu
         Value::Ref(h) => h,
         _ => panic!("internal clone: expected object"),
     };
-    let cloned = vm.heap.clone_object(obj)?;
+    let cloned = vm.heap_depr.clone_object(obj)?;
     Ok(Some(Value::Ref(cloned)))
 }

@@ -1,4 +1,5 @@
-use crate::heap::Heap;
+use crate::heap::HeapDeprecated;
+use crate::heap::gc_new_heap::Heap;
 use crate::heap::method_area::MethodArea;
 use crate::native::NativeRegistry;
 use crate::thread::JavaThreadState;
@@ -215,6 +216,7 @@ impl VmConfig {
 pub struct VirtualMachine {
     config: VmConfig,
     method_area: MethodArea,
+    heap_depr: HeapDeprecated,
     heap: Heap,
     native_registry: NativeRegistry,
     string_interner: Arc<ThreadedRodeo>,
@@ -234,7 +236,8 @@ impl VirtualMachine {
             native_registry,
             string_interner,
             method_area,
-            heap: Heap::new()?,
+            heap_depr: HeapDeprecated::new()?,
+            heap: Heap::new(1)?, //TODO: config.max_heap_size,
             threads: Vec::new(),
         };
 
@@ -280,10 +283,10 @@ impl VirtualMachine {
     fn create_main_thread(&mut self) -> Result<ThreadId, JvmError> {
         let thread_class_id = self.method_area.br().get_java_lang_thread_id()?;
         let main_thread_ref = self
-            .heap
+            .heap_depr
             .alloc_instance(&mut self.method_area, thread_class_id)?;
         let main_string_ref = self
-            .heap
+            .heap_depr
             .get_str_from_pool_or_new(self.method_area.br().main_sym, &mut self.method_area)?;
         self.threads.push(JavaThreadState {
             thread_obj: main_thread_ref,
@@ -304,7 +307,7 @@ impl VirtualMachine {
             .get_instance_class(&system_thread_group_class_id)?
             .get_special_method_id(&self.method_area.br().no_arg_constructor_mk)?;
         let system_thread_group_ref = self
-            .heap
+            .heap_depr
             .alloc_instance(&mut self.method_area, system_thread_group_class_id)?;
         Interpreter::run_method(
             main_thread_id,
@@ -323,7 +326,7 @@ impl VirtualMachine {
     ) -> Result<HeapRef, JvmError> {
         let system_thread_group_class_id = self.method_area.br().get_java_lang_thread_group_id()?;
         let main_thread_group_ref = self
-            .heap
+            .heap_depr
             .alloc_instance(&mut self.method_area, system_thread_group_class_id)?;
         let thread_group_constructor_id = self
             .method_area
@@ -335,7 +338,7 @@ impl VirtualMachine {
                     .thread_group_parent_and_name_constructor_mk,
             )?;
         let main_string_ref = self
-            .heap
+            .heap_depr
             .get_str_from_pool_or_new(self.method_area.br().main_sym, &mut self.method_area)?;
         Interpreter::run_method(
             main_thread_id,
@@ -391,7 +394,7 @@ impl VirtualMachine {
 //TODO: delete it. should be replaced like in start function
 fn print_stack_trace(thread_id: ThreadId, exception_ref: HeapRef, vm: &mut VirtualMachine) {
     let exception_class_id = vm
-        .heap
+        .heap_depr
         .get_class_id(&exception_ref)
         .expect("TODO msg: Exception object should exist");
     let exception_class = vm

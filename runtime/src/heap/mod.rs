@@ -8,7 +8,7 @@ use once_cell::sync::OnceCell;
 use std::collections::HashMap;
 use tracing_log::log::debug;
 
-mod gc_new_heap;
+pub mod gc_new_heap;
 pub mod method_area;
 
 pub enum HeapObject {
@@ -72,7 +72,7 @@ impl Instance {
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.5.3
-pub struct Heap {
+pub struct HeapDeprecated {
     objects: Vec<HeapObject>,
     // TODO: need to think about the string pool since I have the interner
     string_pool: HashMap<Symbol, HeapRef>,
@@ -82,7 +82,7 @@ pub struct Heap {
 }
 
 #[cfg_attr(feature = "hotpath", hotpath::measure_all)]
-impl Heap {
+impl HeapDeprecated {
     pub fn new() -> Result<Self, JvmError> {
         debug!("Creating Heap...");
         Ok(Self {

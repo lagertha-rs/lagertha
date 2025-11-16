@@ -196,16 +196,17 @@ impl InstanceClass {
                 };
                 static_fields.insert(field_key, static_field);
             } else {
-                let cur_offset = instance_size;
+                let position = instance_fields.len();
+                let instance_offset = instance_size;
                 instance_size += descriptor.get_byte_size();
                 instance_fields.push(InstanceField {
                     flags: field.access_flags,
                     descriptor_id,
-                    offset: cur_offset,
+                    offset: instance_offset,
                     declaring_class: this_id,
                 });
-                instance_fields_offset_map.insert(field_key, cur_offset);
-                instance_fields_name_offset_map.insert(field_key.name, cur_offset);
+                instance_fields_offset_map.insert(field_key, position);
+                instance_fields_name_offset_map.insert(field_key.name, position);
             }
         }
 
@@ -362,21 +363,25 @@ impl InstanceClass {
             ))
     }
 
-    pub fn get_instance_field_offset(&self, field_key: &FieldKey) -> Result<usize, JvmError> {
-        self.get_instance_fields_offset_map()?
+    pub fn get_instance_field(&self, field_key: &FieldKey) -> Result<&InstanceField, JvmError> {
+        let idx = self
+            .get_instance_fields_offset_map()?
             .get(field_key)
             .copied()
-            .ok_or(JvmError::Todo("No such field".to_string()))
+            .ok_or(JvmError::Todo("No such field".to_string()))?;
+        Ok(&self.get_instance_fields()?[idx])
     }
 
-    pub fn get_instance_field_offset_by_name(
+    pub fn get_instance_field_by_name(
         &self,
         field_name: &Symbol,
-    ) -> Result<usize, JvmError> {
-        self.get_instance_fields_name_offset_map()?
+    ) -> Result<&InstanceField, JvmError> {
+        let idx = self
+            .get_instance_fields_name_offset_map()?
             .get(field_name)
             .copied()
-            .ok_or(JvmError::Todo("No such field".to_string()))
+            .ok_or(JvmError::Todo("No such field".to_string()))?;
+        Ok(&self.get_instance_fields()?[idx])
     }
 
     pub fn get_vtable_method_id(&self, key: &MethodKey) -> Result<MethodId, JvmError> {

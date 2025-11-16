@@ -86,14 +86,14 @@ fn java_lang_class_get_primitive_class(
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.getPrimitiveClass");
     if let Value::Ref(h) = &args[0] {
-        let primitive_name = vm.heap.get_rust_string_from_java_string(h)?;
+        let primitive_name = vm.heap_depr.get_rust_string_from_java_string(h)?;
 
         let class_id = vm
             .method_area
             .get_class_id_or_load(vm.interner().get_or_intern(&primitive_name))?;
         let v = vm
             .method_area
-            .get_mirror_ref_or_create(class_id, &mut vm.heap)?;
+            .get_mirror_ref_or_create(class_id, &mut vm.heap_depr)?;
         Ok(Some(Value::Ref(v)))
     } else {
         panic!("java.lang.Class.getPrimitiveClass: expected object");
