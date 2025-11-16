@@ -7,7 +7,7 @@ use std::cell::RefCell;
 pub struct InstanceField {
     pub flags: FieldFlags,
     pub descriptor_id: TypeDescriptorId,
-    pub offset: u16,
+    pub offset: usize,
     pub declaring_class: ClassId,
 }
 

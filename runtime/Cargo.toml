@@ -14,8 +14,7 @@ hotpath-off = ["hotpath/hotpath-off"]
 
 [dependencies]
 once_cell = "1.19"
-dashmap = "6.1.0"
-parking_lot = "0.12"
+libc = "0.2.177"
 lasso = { version = "0.7.3", features = ["multi-threaded"] }
 walkdir = "2"
 

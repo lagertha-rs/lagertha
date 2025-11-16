@@ -117,7 +117,7 @@ pub type HeapRef = usize;
 //TODO: draft. refactor
 //TODO: serializes right now only for runtime crate tests, but can't move it to dev deps
 //TODO: the whole common crate should be rethought
-#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Value {
     Integer(i32),
     Long(i64),
@@ -164,6 +164,15 @@ impl DescriptorPrimitiveType {
         }
     }
 
+    pub fn get_byte_size(&self) -> usize {
+        match self {
+            DescriptorPrimitiveType::Byte | DescriptorPrimitiveType::Boolean => 1,
+            DescriptorPrimitiveType::Char | DescriptorPrimitiveType::Short => 2,
+            DescriptorPrimitiveType::Float | DescriptorPrimitiveType::Int => 4,
+            DescriptorPrimitiveType::Double | DescriptorPrimitiveType::Long => 8,
+        }
+    }
+
     pub fn is_compatible_with(&self, value: &Value) -> bool {
         matches!(
             (self, value),
@@ -206,6 +215,16 @@ impl DescriptorType {
         match self {
             DescriptorType::Array(elem) => matches!(**elem, DescriptorType::Primitive(_)),
             _ => false,
+        }
+    }
+
+    pub fn get_byte_size(&self) -> usize {
+        match self {
+            DescriptorType::Primitive(prim) => prim.get_byte_size(),
+            DescriptorType::Instance(_) | DescriptorType::Array(_) => {
+                std::mem::size_of::<HeapRef>()
+            }
+            _ => panic!("get_byte_size called on non-primitive type: {:?}", self),
         }
     }
 

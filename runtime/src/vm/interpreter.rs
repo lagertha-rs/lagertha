@@ -868,8 +868,7 @@ impl Interpreter {
                 let target_offset = vm
                     .method_area
                     .get_instance_class(&target_class_id)?
-                    .get_instance_field_offset(&field_view.name_and_type.into())?
-                    as usize;
+                    .get_instance_field_offset(&field_view.name_and_type.into())?;
                 vm.heap
                     .write_instance_field(target_obj_ref, target_offset, value)?;
             }
