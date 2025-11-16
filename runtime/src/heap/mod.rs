@@ -3,7 +3,7 @@
 use crate::heap::method_area::MethodArea;
 use crate::{ClassId, Symbol, throw_exception};
 use common::error::JvmError;
-use common::jtype::{HeapRef, Value};
+use common::{HeapRef, Value};
 use once_cell::sync::OnceCell;
 use std::collections::HashMap;
 use tracing_log::log::debug;
@@ -195,7 +195,7 @@ impl Heap {
             .get_class(&class_id)
             .get_instance_fields()
             .iter()
-            .map(|f| method_area.get_type_descriptor(&f.descriptor_id))
+            .map(|f| method_area.get_field_descriptor(&f.descriptor_id))
             .map(|d| d.get_default_value())
             .collect::<Vec<Value>>();
         Ok(self.push(HeapObject::Instance(Instance {

@@ -4,7 +4,7 @@ use crate::vm::stack::FrameType;
 use crate::{
     ClassId, FullyQualifiedMethodKey, MethodId, ThreadId, VirtualMachine, throw_exception,
 };
-use common::jtype::Value;
+use common::Value;
 use tracing_log::log::debug;
 
 pub(super) fn do_register_java_lang_preregistered_natives(native_registry: &mut NativeRegistry) {

@@ -314,7 +314,6 @@ impl BootstrapRegistry {
             PrimitiveType::Double => self.double_sym,
             PrimitiveType::Char => self.char_sym,
             PrimitiveType::Boolean => self.boolean_sym,
-            PrimitiveType::Void => self.void_sym,
         }
     }
 }

@@ -176,13 +176,13 @@ impl InstanceClass {
                 }
             };
 
-            let descriptor_id = method_area.get_or_new_type_descriptor_id(field_key.desc)?;
+            let descriptor_id = method_area.get_or_new_field_descriptor_id(field_key.desc)?;
             if field.access_flags.is_static() {
                 let static_field = StaticField {
                     flags: field.access_flags,
                     value: RefCell::new(
                         method_area
-                            .get_type_descriptor(&descriptor_id)
+                            .get_field_descriptor(&descriptor_id)
                             .get_default_value(),
                     ),
                     descriptor: descriptor_id,

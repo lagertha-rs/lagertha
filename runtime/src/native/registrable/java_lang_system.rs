@@ -1,6 +1,6 @@
 use crate::native::NativeRet;
 use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
-use common::jtype::Value;
+use common::Value;
 use tracing_log::log::debug;
 
 pub(super) fn java_lang_system_register_natives(

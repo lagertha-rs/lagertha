@@ -148,11 +148,11 @@ impl MethodInfo {
             common::descriptor::MethodDescriptor,
         >,
     ) -> std::fmt::Result {
-        use common::jtype::DescriptorType;
+        use common::jtype::JavaType;
         use either::Either;
         use std::fmt::Write as _;
 
-        let params: &[DescriptorType] = match descriptor {
+        let params: &[JavaType] = match descriptor {
             Either::Left(sig) => &sig.params,
             Either::Right(desc) => &desc.params,
         };
@@ -166,7 +166,7 @@ impl MethodInfo {
             let is_last = i + 1 == params.len();
             if is_last
                 && self.access_flags.is_varargs()
-                && let DescriptorType::Array(elem) = ty
+                && let JavaType::Array(elem) = ty
             {
                 write!(ind, "{}", &**elem)?;
                 ind.write_str("...")?;

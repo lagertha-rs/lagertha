@@ -1,4 +1,4 @@
-use crate::jtype::HeapRef;
+use crate::HeapRef;
 use crate::utils::cursor::CursorError;
 use std::fmt;
 use std::fmt::Display;

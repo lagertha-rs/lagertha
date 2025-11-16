@@ -1,6 +1,6 @@
 use crate::native::NativeRet;
 use crate::{ThreadId, VirtualMachine};
-use common::jtype::Value;
+use common::Value;
 use tracing_log::log::debug;
 
 pub(super) fn jdk_internal_misc_scoped_memory_access_register_natives(
