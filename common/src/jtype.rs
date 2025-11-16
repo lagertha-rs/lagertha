@@ -1,5 +1,5 @@
-use crate::Value;
 use crate::error::TypeDescriptorErr;
+use crate::{HeapRef, Value};
 use core::fmt;
 use std::fmt::{Display, Formatter};
 use std::iter::Peekable;
@@ -119,10 +119,10 @@ impl PrimitiveType {
 
     pub fn get_byte_size(&self) -> usize {
         match self {
-            DescriptorPrimitiveType::Byte | DescriptorPrimitiveType::Boolean => 1,
-            DescriptorPrimitiveType::Char | DescriptorPrimitiveType::Short => 2,
-            DescriptorPrimitiveType::Float | DescriptorPrimitiveType::Int => 4,
-            DescriptorPrimitiveType::Double | DescriptorPrimitiveType::Long => 8,
+            PrimitiveType::Byte | PrimitiveType::Boolean => 1,
+            PrimitiveType::Char | PrimitiveType::Short => 2,
+            PrimitiveType::Float | PrimitiveType::Int => 4,
+            PrimitiveType::Double | PrimitiveType::Long => 8,
         }
     }
 
@@ -181,10 +181,8 @@ impl JavaType {
 
     pub fn get_byte_size(&self) -> usize {
         match self {
-            DescriptorType::Primitive(prim) => prim.get_byte_size(),
-            DescriptorType::Instance(_) | DescriptorType::Array(_) => {
-                std::mem::size_of::<HeapRef>()
-            }
+            JavaType::Primitive(prim) => prim.get_byte_size(),
+            JavaType::Instance(_) | JavaType::Array(_) => size_of::<HeapRef>(),
             _ => panic!("get_byte_size called on non-primitive type: {:?}", self),
         }
     }

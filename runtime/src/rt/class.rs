@@ -186,7 +186,7 @@ impl InstanceClass {
             };
 
             let descriptor_id = method_area.get_or_new_field_descriptor_id(field_key.desc)?;
-            let descriptor = method_area.get_type_descriptor(&descriptor_id);
+            let descriptor = method_area.get_field_descriptor(&descriptor_id);
 
             if field.access_flags.is_static() {
                 let static_field = StaticField {
