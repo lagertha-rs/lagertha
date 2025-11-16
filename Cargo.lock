@@ -285,7 +285,6 @@ name = "common"
 version = "0.1.0"
 dependencies = [
  "num_enum",
- "serde",
  "thiserror 2.0.16",
  "tracing-subscriber",
 ]
@@ -978,9 +977,9 @@ checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
 name = "libc"
-version = "0.2.175"
+version = "0.2.177"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6a82ae493e598baaea5209805c49bbf2ea7de956d50d7da0da1164f9c6d28543"
+checksum = "2874a2af47a2325c2001a6e6fad9b16a53b802102b528163885171cf92b15976"
 
 [[package]]
 name = "libredox"
@@ -1137,16 +1136,6 @@ name = "once_cell_polyfill"
 version = "1.70.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a4895175b425cb1f87721b59f0f286c2092bd4af812243672510e1ac53e2e0ad"
-
-[[package]]
-name = "parking_lot"
-version = "0.12.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "70d58bf43669b5795d1576d0641cfb6fbb2057bf629506267a92807158584a13"
-dependencies = [
- "lock_api",
- "parking_lot_core",
-]
 
 [[package]]
 name = "parking_lot_core"
@@ -1394,13 +1383,12 @@ name = "runtime"
 version = "0.1.0"
 dependencies = [
  "common",
- "dashmap",
  "hotpath",
  "jclass",
  "jimage",
  "lasso",
+ "libc",
  "once_cell",
- "parking_lot",
  "toml",
  "tracing-log",
  "walkdir",

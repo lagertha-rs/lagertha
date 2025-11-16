@@ -8,6 +8,7 @@ use once_cell::sync::OnceCell;
 use std::collections::HashMap;
 use tracing_log::log::debug;
 
+mod gc_new_heap;
 pub mod method_area;
 
 pub enum HeapObject {
