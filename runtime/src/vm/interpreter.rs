@@ -132,11 +132,7 @@ impl Interpreter {
                     .get_class_sym(&idx, vm.interner())?;
                 let target_array_class_id =
                     vm.method_area.get_class_id_or_load(target_array_sym)?;
-                let array_ref = vm.heap_depr.alloc_array_with_default_value(
-                    target_array_class_id,
-                    Value::Null,
-                    size as usize,
-                )?;
+                let array_ref = vm.heap.allocate_object_array(target_array_class_id, size)?;
                 vm.get_stack_mut(&thread_id)?
                     .push_operand(Value::Ref(array_ref))?;
             }
@@ -297,9 +293,12 @@ impl Interpreter {
                     .method_area
                     .get_instance_class(&target_class_id)?
                     .get_instance_field(&field_view.name_and_type.into())?;
-                let value = vm
-                    .heap_depr
-                    .read_instance_field(&target_obj_ref, target_field.offset)?;
+                let value = vm.heap.read_field(
+                    target_obj_ref,
+                    target_field.offset,
+                    vm.method_area
+                        .get_field_descriptor(&target_field.descriptor_id),
+                )?;
                 vm.get_stack_mut(&thread_id)?.push_operand(value)?;
             }
             Instruction::Getstatic(idx) => {
@@ -832,9 +831,12 @@ impl Interpreter {
                     .get_class_sym(&idx, vm.interner())?;
                 let target_class_id = vm.method_area.get_class_id_or_load(target_class_name)?;
                 Self::ensure_initialized(thread_id, Some(target_class_id), vm)?;
-                let instance_ref = vm
-                    .heap_depr
-                    .alloc_instance(&mut vm.method_area, target_class_id)?;
+                let instance_ref = vm.heap.allocate_instance(
+                    vm.method_area
+                        .get_instance_class(&target_class_id)?
+                        .get_instance_size()?,
+                    target_class_id,
+                )?;
                 vm.get_stack_mut(&thread_id)?
                     .push_operand(Value::Ref(instance_ref))?;
             }
@@ -846,11 +848,9 @@ impl Interpreter {
                 let class_id = vm
                     .method_area
                     .load_array_class(vm.interner().get_or_intern(array_type.descriptor()))?;
-                let array_ref = vm.heap_depr.alloc_array_with_default_value(
-                    class_id,
-                    array_type.default_value(),
-                    size as usize,
-                )?;
+                let array_ref = vm
+                    .heap
+                    .allocate_primitive_array(class_id, array_type, size)?;
                 vm.get_stack_mut(&thread_id)?
                     .push_operand(Value::Ref(array_ref))?;
             }
@@ -871,26 +871,13 @@ impl Interpreter {
                     .method_area
                     .get_instance_class(&target_class_id)?
                     .get_instance_field(&field_view.name_and_type.into())?;
-                //vm.heap.write_field(target_obj_ref, )
-                vm.heap_depr
-                    .write_instance_field(target_obj_ref, target_field.offset, value)?;
-            }
-            Instruction::Putfield(idx) => {
-                let value = vm.get_stack_mut(&thread_id)?.pop_operand()?;
-                let target_obj_ref = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
-                let cur_frame_method_id =
-                    vm.get_stack_mut(&thread_id)?.cur_java_frame()?.method_id();
-                let field_view = vm
-                    .method_area
-                    .get_cp_by_method_id(&cur_frame_method_id)?
-                    .get_field_view(&idx, vm.interner())?;
-                let target_class_id = vm.method_area.get_class_id_or_load(field_view.class_sym)?;
-                let target_field = vm
-                    .method_area
-                    .get_instance_class(&target_class_id)?
-                    .get_instance_field(&field_view.name_and_type.into())?;
-                vm.heap_depr
-                    .write_instance_field(target_obj_ref, target_field.offset, value)?;
+                vm.heap.write_field(
+                    target_obj_ref,
+                    target_field.offset,
+                    value,
+                    vm.method_area
+                        .get_field_descriptor(&target_field.descriptor_id),
+                )?;
             }
             Instruction::Putstatic(idx) => {
                 let value = vm.get_stack_mut(&thread_id)?.pop_operand()?;

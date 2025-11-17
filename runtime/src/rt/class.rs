@@ -457,7 +457,7 @@ impl InstanceClass {
         ))
     }
 
-    fn get_instance_size(&self) -> Result<usize, JvmError> {
+    pub fn get_instance_size(&self) -> Result<usize, JvmError> {
         self.instance_size.get().copied().ok_or(JvmError::Todo(
             "Instance size not initialized yet".to_string(),
         ))
