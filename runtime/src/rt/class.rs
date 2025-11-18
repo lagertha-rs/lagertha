@@ -198,7 +198,7 @@ impl InstanceClass {
             } else {
                 let position = instance_fields.len();
                 let instance_offset = instance_size;
-                instance_size += descriptor.get_byte_size();
+                instance_size += descriptor.as_allocation_type().byte_size();
                 instance_fields.push(InstanceField {
                     flags: field.access_flags,
                     descriptor_id,
