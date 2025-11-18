@@ -1,12 +1,12 @@
-use crate::heap::method_area::MethodArea;
-use crate::heap::{HeapObject, Instance};
 use crate::{ClassId, Symbol};
 use common::error::JvmError;
 use common::instruction::ArrayType;
-use common::jtype::{JavaType, PrimitiveType};
+use common::jtype::AllocationType;
 use common::{HeapRef, Value};
+use lasso::ThreadedRodeo;
 use std::collections::HashMap;
 use std::num::NonZeroU32;
+use std::sync::Arc;
 
 #[repr(C)]
 pub struct ObjectHeader {
@@ -24,11 +24,25 @@ pub struct Heap {
     memory: *mut u8,
     capacity: usize,
     allocated: usize,
+    interner: Arc<ThreadedRodeo>,
     string_pool: HashMap<Symbol, HeapRef>,
+    string_class_id: ClassId,
+    string_instance_size: usize,
+    char_array_class_id: ClassId,
 }
 
 impl Heap {
-    pub fn new(size_mb: usize) -> Result<Self, JvmError> {
+    const ARRAY_LENGTH_OFFSET: usize = 0;
+    const ARRAY_TYPE_OFFSET: usize = 4;
+    const ARRAY_ELEMENTS_OFFSET: usize = 8;
+
+    pub fn new(
+        size_mb: usize,
+        interner: Arc<ThreadedRodeo>,
+        string_class_id: ClassId,
+        string_instance_size: usize,
+        char_array_class_id: ClassId,
+    ) -> Result<Self, JvmError> {
         let capacity = size_mb * 1024 * 1024;
 
         let memory = unsafe {
@@ -51,15 +65,19 @@ impl Heap {
             capacity,
             allocated: ObjectHeader::SIZE,
             string_pool: HashMap::new(),
+            interner,
+            string_class_id,
+            string_instance_size,
+            char_array_class_id,
         })
     }
 
-    pub fn allocate_instance(
+    pub fn alloc_instance(
         &mut self,
         instance_size: usize,
         class_id: ClassId,
     ) -> Result<HeapRef, JvmError> {
-        let heap_ref = self.allocate_raw(instance_size)?;
+        let heap_ref = self.alloc_raw(instance_size)?;
 
         let header = unsafe { self.get_header_mut(heap_ref) };
         header.class_id = class_id.0;
@@ -69,18 +87,19 @@ impl Heap {
         Ok(heap_ref)
     }
 
-    fn allocate_array_internal(
+    fn alloc_array_internal(
         &mut self,
         class_id: ClassId,
         length: i32,
-        element_size: usize,
+        allocation_type: AllocationType,
     ) -> Result<HeapRef, JvmError> {
         if length < 0 {
             return Err(JvmError::Todo("Negative array length".to_string()));
         }
 
-        let array_data_size = 4 + (length as usize * element_size);
-        let heap_ref = self.allocate_raw(array_data_size)?;
+        let element_size = allocation_type.byte_size();
+        let array_data_size = Self::ARRAY_ELEMENTS_OFFSET + (length as usize * element_size);
+        let heap_ref = self.alloc_raw(array_data_size)?;
 
         let header = unsafe { self.get_header_mut(heap_ref) };
         header.class_id = class_id.0;
@@ -90,32 +109,79 @@ impl Heap {
         let data_ptr = unsafe { self.get_data_ptr(heap_ref) };
         unsafe {
             *(data_ptr as *mut i32) = length;
+            *(data_ptr.add(Self::ARRAY_TYPE_OFFSET)) = allocation_type as u8;
         }
 
         Ok(heap_ref)
     }
 
-    pub fn allocate_primitive_array(
+    pub fn alloc_primitive_array(
         &mut self,
         class_id: ClassId,
         array_type: ArrayType,
         length: i32,
     ) -> Result<HeapRef, JvmError> {
-        self.allocate_array_internal(class_id, length, array_type.get_byte_size() as usize)
+        let allocation_type = match array_type {
+            ArrayType::Boolean => AllocationType::Boolean,
+            ArrayType::Byte => AllocationType::Byte,
+            ArrayType::Short => AllocationType::Short,
+            ArrayType::Char => AllocationType::Char,
+            ArrayType::Int => AllocationType::Int,
+            ArrayType::Long => AllocationType::Long,
+            ArrayType::Float => AllocationType::Float,
+            ArrayType::Double => AllocationType::Double,
+        };
+        self.alloc_array_internal(class_id, length, allocation_type)
     }
 
-    pub fn allocate_object_array(
+    pub fn alloc_object_array(
         &mut self,
         class_id: ClassId,
         length: i32,
     ) -> Result<HeapRef, JvmError> {
-        self.allocate_array_internal(class_id, length, size_of::<HeapRef>())
+        self.alloc_array_internal(class_id, length, AllocationType::Reference)
     }
 
-    pub fn read_array_length(&self, heap_ref: HeapRef) -> Result<i32, JvmError> {
+    pub fn get_class_id(&self, heap_ref: HeapRef) -> Result<ClassId, JvmError> {
+        let header = unsafe { self.get_header(heap_ref) };
+        Ok(ClassId(header.class_id))
+    }
+
+    pub fn get_array_length(&self, heap_ref: HeapRef) -> Result<i32, JvmError> {
         let data_ptr = unsafe { self.get_data_ptr(heap_ref) };
         let length = unsafe { *(data_ptr as *const i32) };
         Ok(length)
+    }
+
+    pub fn write_array_element(
+        &mut self,
+        heap_ref: HeapRef,
+        index: i32,
+        value: Value,
+    ) -> Result<(), JvmError> {
+        let length = self.get_array_length(heap_ref)?;
+        if index < 0 || index >= length {
+            return Err(JvmError::Todo("Array index out of bounds".to_string()));
+        }
+
+        let element_type = self.get_allocation_type(heap_ref)?;
+        let field_offset =
+            Self::ARRAY_ELEMENTS_OFFSET + (index as usize * element_type.byte_size());
+
+        self.write_field(heap_ref, field_offset, value, element_type)
+    }
+
+    pub fn read_array_element(&self, heap_ref: HeapRef, index: i32) -> Result<Value, JvmError> {
+        let length = self.get_array_length(heap_ref)?;
+        if index < 0 || index >= length {
+            return Err(JvmError::Todo("Array index out of bounds".to_string()));
+        }
+
+        let element_type = self.get_allocation_type(heap_ref)?;
+        let field_offset =
+            Self::ARRAY_ELEMENTS_OFFSET + (index as usize * element_type.byte_size());
+
+        self.read_field(heap_ref, field_offset, element_type)
     }
 
     pub fn write_field(
@@ -123,67 +189,67 @@ impl Heap {
         heap_ref: HeapRef,
         field_offset: usize,
         value: Value,
-        field_type: &JavaType,
+        field_type: AllocationType,
     ) -> Result<(), JvmError> {
         let data_ptr = unsafe { self.get_data_ptr(heap_ref) };
         let target_ptr = unsafe { data_ptr.add(field_offset) };
 
         match (value, field_type) {
-            (Value::Integer(i), JavaType::Primitive(PrimitiveType::Boolean)) => {
+            (Value::Integer(i), AllocationType::Boolean) => {
                 unsafe {
                     *(target_ptr) = if i != 0 { 1 } else { 0 };
                 }
                 Ok(())
             }
-            (Value::Integer(i), JavaType::Primitive(PrimitiveType::Byte)) => {
+            (Value::Integer(i), AllocationType::Byte) => {
                 unsafe {
                     *(target_ptr as *mut i8) = i as i8;
                 }
                 Ok(())
             }
-            (Value::Integer(i), JavaType::Primitive(PrimitiveType::Short)) => {
+            (Value::Integer(i), AllocationType::Short) => {
                 unsafe {
                     *(target_ptr as *mut i16) = i as i16;
                 }
                 Ok(())
             }
-            (Value::Integer(i), JavaType::Primitive(PrimitiveType::Char)) => {
+            (Value::Integer(i), AllocationType::Char) => {
                 unsafe {
                     *(target_ptr as *mut u16) = i as u16;
                 }
                 Ok(())
             }
-            (Value::Integer(i), JavaType::Primitive(PrimitiveType::Int)) => {
+            (Value::Integer(i), AllocationType::Int) => {
                 unsafe {
                     *(target_ptr as *mut i32) = i;
                 }
                 Ok(())
             }
-            (Value::Long(l), JavaType::Primitive(PrimitiveType::Long)) => {
+            (Value::Long(l), AllocationType::Long) => {
                 unsafe {
                     *(target_ptr as *mut i64) = l;
                 }
                 Ok(())
             }
-            (Value::Float(f), JavaType::Primitive(PrimitiveType::Float)) => {
+            (Value::Float(f), AllocationType::Float) => {
                 unsafe {
                     *(target_ptr as *mut f32) = f;
                 }
                 Ok(())
             }
-            (Value::Double(d), JavaType::Primitive(PrimitiveType::Double)) => {
+            (Value::Double(d), AllocationType::Double) => {
                 unsafe {
                     *(target_ptr as *mut f64) = d;
                 }
                 Ok(())
             }
-            (Value::Ref(r), JavaType::Instance(_) | JavaType::Array(_)) => {
+            (Value::Ref(r), AllocationType::Reference) => {
                 unsafe {
                     *(target_ptr as *mut HeapRef) = r;
                 }
                 Ok(())
             }
-            (Value::Null, JavaType::Instance(_) | JavaType::Array(_)) => {
+            (Value::Null, AllocationType::Reference) => {
                 unsafe {
                     *(target_ptr as *mut HeapRef) = 0usize;
                 }
@@ -197,47 +263,45 @@ impl Heap {
         &self,
         heap_ref: HeapRef,
         field_offset: usize,
-        field_type: &JavaType,
+        field_type: AllocationType,
     ) -> Result<Value, JvmError> {
         let data_ptr = unsafe { self.get_data_ptr(heap_ref) };
         let source_ptr = unsafe { data_ptr.add(field_offset) };
 
         match field_type {
-            JavaType::Primitive(prim) => match prim {
-                PrimitiveType::Boolean => {
-                    let byte_val = unsafe { *(source_ptr as *const u8) };
-                    Ok(Value::Integer(if byte_val != 0 { 1 } else { 0 }))
-                }
-                PrimitiveType::Byte => {
-                    let byte_val = unsafe { *(source_ptr as *const i8) };
-                    Ok(Value::Integer(byte_val as i32))
-                }
-                PrimitiveType::Short => {
-                    let short_val = unsafe { *(source_ptr as *const i16) };
-                    Ok(Value::Integer(short_val as i32))
-                }
-                PrimitiveType::Char => {
-                    let char_val = unsafe { *(source_ptr as *const u16) };
-                    Ok(Value::Integer(char_val as i32))
-                }
-                PrimitiveType::Int => {
-                    let int_val = unsafe { *(source_ptr as *const i32) };
-                    Ok(Value::Integer(int_val))
-                }
-                PrimitiveType::Long => {
-                    let long_val = unsafe { *(source_ptr as *const i64) };
-                    Ok(Value::Long(long_val))
-                }
-                PrimitiveType::Float => {
-                    let float_val = unsafe { *(source_ptr as *const f32) };
-                    Ok(Value::Float(float_val))
-                }
-                PrimitiveType::Double => {
-                    let double_val = unsafe { *(source_ptr as *const f64) };
-                    Ok(Value::Double(double_val))
-                }
-            },
-            JavaType::Instance(_) | JavaType::Array(_) => {
+            AllocationType::Boolean => {
+                let byte_val = unsafe { *(source_ptr as *const u8) };
+                Ok(Value::Integer(if byte_val != 0 { 1 } else { 0 }))
+            }
+            AllocationType::Byte => {
+                let byte_val = unsafe { *(source_ptr as *const i8) };
+                Ok(Value::Integer(byte_val as i32))
+            }
+            AllocationType::Short => {
+                let short_val = unsafe { *(source_ptr as *const i16) };
+                Ok(Value::Integer(short_val as i32))
+            }
+            AllocationType::Char => {
+                let char_val = unsafe { *(source_ptr as *const u16) };
+                Ok(Value::Integer(char_val as i32))
+            }
+            AllocationType::Int => {
+                let int_val = unsafe { *(source_ptr as *const i32) };
+                Ok(Value::Integer(int_val))
+            }
+            AllocationType::Long => {
+                let long_val = unsafe { *(source_ptr as *const i64) };
+                Ok(Value::Long(long_val))
+            }
+            AllocationType::Float => {
+                let float_val = unsafe { *(source_ptr as *const f32) };
+                Ok(Value::Float(float_val))
+            }
+            AllocationType::Double => {
+                let double_val = unsafe { *(source_ptr as *const f64) };
+                Ok(Value::Double(double_val))
+            }
+            AllocationType::Reference => {
                 let ref_val = unsafe { *(source_ptr as *const HeapRef) };
                 if ref_val == 0 {
                     Ok(Value::Null)
@@ -245,13 +309,10 @@ impl Heap {
                     Ok(Value::Ref(ref_val))
                 }
             }
-            _ => Err(JvmError::Todo(
-                "Unsupported field type in read_field".to_string(),
-            )),
         }
     }
 
-    fn allocate_raw(&mut self, size: usize) -> Result<HeapRef, JvmError> {
+    fn alloc_raw(&mut self, size: usize) -> Result<HeapRef, JvmError> {
         let total_needed = ObjectHeader::SIZE + size;
 
         let aligned_total = (total_needed + 7) & !7;
@@ -278,52 +339,87 @@ impl Heap {
         self.memory.add(heap_ref + ObjectHeader::SIZE)
     }
 
+    fn get_allocation_type(&self, heap_ref: HeapRef) -> Result<AllocationType, JvmError> {
+        let data_ptr = unsafe { self.get_data_ptr(heap_ref) };
+        let type_byte = unsafe { *(data_ptr.add(Self::ARRAY_TYPE_OFFSET) as *const u8) };
+        AllocationType::try_from(type_byte)
+            .map_err(|_| JvmError::Todo("Invalid allocation type".to_string()))
+    }
+
+    pub fn alloc_string(&mut self, s: &str) -> Result<HeapRef, JvmError> {
+        self.alloc_string_from_str_with_char_mapping(s, None)
+    }
+
+    // TODO:
+    pub fn alloc_string_from_str_with_char_mapping(
+        &mut self,
+        s: &str,
+        f: Option<&dyn Fn(char) -> char>,
+    ) -> Result<HeapRef, JvmError> {
+        let length = s.len() as i32;
+
+        let char_arr_ref =
+            self.alloc_primitive_array(self.char_array_class_id, ArrayType::Char, length)?;
+
+        for (i, c) in s.chars().enumerate() {
+            let mapped_c = f.map(|f| f(c)).unwrap_or(c);
+            self.write_array_element(char_arr_ref, i as i32, Value::Integer(mapped_c as i32))?;
+        }
+
+        let string_instance =
+            self.alloc_instance(self.string_instance_size, self.string_class_id)?;
+
+        // Write char[] reference to the "value" field (offset 0 in String)
+        self.write_field(
+            string_instance,
+            0,
+            Value::Ref(char_arr_ref),
+            AllocationType::Reference,
+        )?;
+
+        Ok(string_instance)
+    }
+
     pub fn alloc_string_from_interned_with_char_mapping(
         &mut self,
         val_sym: Symbol,
-        method_area: &mut MethodArea,
-        f: &dyn Fn(char) -> char,
+        f: Option<&dyn Fn(char) -> char>,
     ) -> Result<HeapRef, JvmError> {
-        let string_class_id = *self.string_class_id.get_or_try_init(|| {
-            method_area.get_class_id_or_load(method_area.br().java_lang_string_sym)
-        })?;
-        let char_array_class_id = *self.char_array_class_id.get_or_try_init(|| {
-            method_area.get_class_id_or_load(method_area.br().char_array_desc)
-        })?;
-        let chars_val = {
-            let s = method_area.interner().resolve(&val_sym);
-            s.chars()
-                .map(|c| Value::Integer(f(c) as i32))
-                .collect::<Vec<_>>()
-        };
-        let char_arr_ref = self.push(HeapObject::Array(Instance {
-            class_id: char_array_class_id,
-            data: chars_val,
-        }));
-        let instance = self.alloc_instance(method_area, string_class_id)?;
-        self.write_instance_field(instance, 0, Value::Ref(char_arr_ref))?;
-        Ok(instance)
+        let interner = self.interner.clone();
+        let s = interner.resolve(&val_sym);
+        self.alloc_string_from_str_with_char_mapping(&s, f)
     }
 
-    pub fn alloc_string_from_interned(
-        &mut self,
-        val_sym: Symbol,
-        method_area: &mut MethodArea,
-    ) -> Result<HeapRef, JvmError> {
-        self.alloc_string_from_interned_with_char_mapping(val_sym, method_area, &|c| c)
+    pub fn alloc_string_from_interned(&mut self, val_sym: Symbol) -> Result<HeapRef, JvmError> {
+        self.alloc_string_from_interned_with_char_mapping(val_sym, None)
     }
 
-    pub fn get_str_from_pool_or_new(
-        &mut self,
-        val_sym: Symbol,
-        method_area: &mut MethodArea,
-    ) -> Result<HeapRef, JvmError> {
+    pub fn get_str_from_pool_or_new(&mut self, val_sym: Symbol) -> Result<HeapRef, JvmError> {
         if let Some(h) = self.string_pool.get(&val_sym) {
             Ok(*h)
         } else {
-            let res = self.alloc_string_from_interned(val_sym, method_area)?;
+            let res = self.alloc_string_from_interned(val_sym)?;
             self.string_pool.insert(val_sym, res);
             Ok(res)
         }
+    }
+
+    // TODO: just a stub right now
+    pub fn get_rust_string_from_java_string(&mut self, h: HeapRef) -> Result<String, JvmError> {
+        let char_array_ref = self
+            .read_field(h, 0, AllocationType::Reference)
+            .map(|reference| reference.as_obj_ref().unwrap())
+            .unwrap_or(h);
+        let array_length = self.get_array_length(char_array_ref)?;
+        let mut result = String::new();
+
+        for i in 0..array_length {
+            let char_value = self.read_array_element(char_array_ref, i)?;
+            if let Value::Integer(c) = char_value {
+                result.push(std::char::from_u32(c as u32).unwrap_or('\u{FFFD}'));
+            }
+        }
+
+        Ok(result)
     }
 }

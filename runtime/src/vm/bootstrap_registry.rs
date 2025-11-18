@@ -72,6 +72,8 @@ pub struct BootstrapRegistry {
     java_lang_throwable_id: OnceCell<ClassId>,
     java_lang_thread_group_id: OnceCell<ClassId>,
     java_lang_thread_id: OnceCell<ClassId>,
+    java_lang_string_id: OnceCell<ClassId>,
+    char_array_class_id: OnceCell<ClassId>,
 }
 
 impl BootstrapRegistry {
@@ -236,6 +238,8 @@ impl BootstrapRegistry {
             java_lang_throwable_id: OnceCell::new(),
             java_lang_thread_group_id: OnceCell::new(),
             java_lang_thread_id: OnceCell::new(),
+            java_lang_string_id: OnceCell::new(),
+            char_array_class_id: OnceCell::new(),
         }
     }
 
@@ -267,6 +271,32 @@ impl BootstrapRegistry {
         self.java_lang_thread_id
             .set(class_id)
             .map_err(|_| JvmError::Todo("java/lang/Thread ID already set".to_string()))
+    }
+
+    pub fn set_java_lang_string_id(&self, class_id: ClassId) -> Result<(), JvmError> {
+        self.java_lang_string_id
+            .set(class_id)
+            .map_err(|_| JvmError::Todo("java/lang/String ID already set".to_string()))
+    }
+
+    pub fn set_char_array_class_id(&self, class_id: ClassId) -> Result<(), JvmError> {
+        self.char_array_class_id
+            .set(class_id)
+            .map_err(|_| JvmError::Todo("[C class ID already set".to_string()))
+    }
+
+    pub fn get_java_lang_string_id(&self) -> Result<ClassId, JvmError> {
+        self.java_lang_string_id
+            .get()
+            .copied()
+            .ok_or_else(|| JvmError::Todo("java/lang/String".to_string()))
+    }
+
+    pub fn get_char_array_class_id(&self) -> Result<ClassId, JvmError> {
+        self.char_array_class_id
+            .get()
+            .copied()
+            .ok_or_else(|| JvmError::Todo("[C".to_string()))
     }
 
     pub fn get_java_lang_thread_group_id(&self) -> Result<ClassId, JvmError> {

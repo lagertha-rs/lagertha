@@ -1,6 +1,7 @@
 use crate::error::TypeDescriptorErr;
 use crate::{HeapRef, Value};
 use core::fmt;
+use num_enum::TryFromPrimitive;
 use std::fmt::{Display, Formatter};
 use std::iter::Peekable;
 
@@ -85,6 +86,32 @@ impl TryFrom<char> for PrimitiveType {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, TryFromPrimitive)]
+#[repr(u8)]
+pub enum AllocationType {
+    Byte,
+    Char,
+    Double,
+    Float,
+    Int,
+    Long,
+    Short,
+    Boolean,
+    Reference,
+}
+
+impl AllocationType {
+    pub fn byte_size(&self) -> usize {
+        match self {
+            AllocationType::Byte | AllocationType::Boolean => 1,
+            AllocationType::Char | AllocationType::Short => 2,
+            AllocationType::Int | AllocationType::Float => 4,
+            AllocationType::Long | AllocationType::Double => 8,
+            AllocationType::Reference => size_of::<HeapRef>(),
+        }
+    }
+}
+
 /// Represents any actual Java type (cannot be void)
 /// Used for field descriptors and method parameters
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -117,15 +144,6 @@ impl PrimitiveType {
         }
     }
 
-    pub fn get_byte_size(&self) -> usize {
-        match self {
-            PrimitiveType::Byte | PrimitiveType::Boolean => 1,
-            PrimitiveType::Char | PrimitiveType::Short => 2,
-            PrimitiveType::Float | PrimitiveType::Int => 4,
-            PrimitiveType::Double | PrimitiveType::Long => 8,
-        }
-    }
-
     pub fn is_compatible_with(&self, value: &Value) -> bool {
         matches!(
             (self, value),
@@ -150,6 +168,23 @@ impl TryFrom<&str> for JavaType {
 }
 
 impl JavaType {
+    pub fn as_allocation_type(&self) -> AllocationType {
+        match self {
+            JavaType::Primitive(prim) => match prim {
+                PrimitiveType::Byte => AllocationType::Byte,
+                PrimitiveType::Char => AllocationType::Char,
+                PrimitiveType::Double => AllocationType::Double,
+                PrimitiveType::Float => AllocationType::Float,
+                PrimitiveType::Int => AllocationType::Int,
+                PrimitiveType::Long => AllocationType::Long,
+                PrimitiveType::Short => AllocationType::Short,
+                PrimitiveType::Boolean => AllocationType::Boolean,
+            },
+            JavaType::Instance(_) | JavaType::Array(_) => AllocationType::Reference,
+            _ => panic!("Cannot get allocation type for non-primitive, non-instance JavaType"),
+        }
+    }
+
     // TODO: work only for one-dimensional arrays for now
     pub fn get_primitive_array_element_type(&self) -> Option<PrimitiveType> {
         match self {
@@ -176,14 +211,6 @@ impl JavaType {
         match self {
             JavaType::Array(elem) => matches!(**elem, JavaType::Primitive(_)),
             _ => false,
-        }
-    }
-
-    pub fn get_byte_size(&self) -> usize {
-        match self {
-            JavaType::Primitive(prim) => prim.get_byte_size(),
-            JavaType::Instance(_) | JavaType::Array(_) => size_of::<HeapRef>(),
-            _ => panic!("get_byte_size called on non-primitive type: {:?}", self),
         }
     }
 

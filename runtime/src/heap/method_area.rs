@@ -1,5 +1,5 @@
 use crate::class_loader::ClassLoader;
-use crate::heap::HeapDeprecated;
+use crate::heap::gc_new_heap::Heap;
 use crate::rt::array::{ObjectArrayClass, PrimitiveArrayClass};
 use crate::rt::class::InstanceClass;
 use crate::rt::constant_pool::RuntimeConstantPool;
@@ -13,7 +13,7 @@ use crate::{
 };
 use common::descriptor::MethodDescriptor;
 use common::error::{JvmError, LinkageError, MethodDescriptorErr};
-use common::jtype::{JavaType, PrimitiveType};
+use common::jtype::{AllocationType, JavaType, PrimitiveType};
 use common::{HeapRef, Value};
 use jclass::ClassFile;
 use lasso::{Spur, ThreadedRodeo};
@@ -71,6 +71,10 @@ impl MethodArea {
             method_area.get_class_id_or_load(method_area.br().java_lang_thread_sym)?;
         let java_lang_thread_group_id =
             method_area.get_class_id_or_load(method_area.br().java_lang_thread_group_sym)?;
+        let java_lang_string_id =
+            method_area.get_class_id_or_load(method_area.br().java_lang_string_sym)?;
+        let char_array_class_id =
+            method_area.get_class_id_or_load(method_area.br().char_array_desc)?;
 
         for primitive_type in PrimitiveType::values() {
             let name_sym = method_area.br().get_primitive_sym(primitive_type);
@@ -80,6 +84,12 @@ impl MethodArea {
             method_area.class_name_to_index.insert(name_sym, class_id);
         }
 
+        method_area
+            .bootstrap_registry
+            .set_char_array_class_id(char_array_class_id)?;
+        method_area
+            .bootstrap_registry
+            .set_java_lang_string_id(java_lang_string_id)?;
         method_area
             .bootstrap_registry
             .set_java_lang_class_id(java_lang_class_id)?;
@@ -399,23 +409,33 @@ impl MethodArea {
     pub fn get_mirror_ref_or_create(
         &mut self,
         class_id: ClassId,
-        heap: &mut HeapDeprecated,
+        heap: &mut Heap,
     ) -> Result<HeapRef, JvmError> {
         if let Some(mirror_ref) = self.get_class(&class_id).get_mirror_ref() {
             return Ok(mirror_ref);
         }
-        let mirror_ref = heap.alloc_instance(self, self.br().get_java_lang_class_id()?)?;
+        let class_id = self.br().get_java_lang_class_id()?;
+        let class_instance_size = self.get_instance_class(&class_id)?.get_instance_size()?;
+        let mirror_ref = heap.alloc_instance(class_instance_size, class_id)?;
         self.mirror_to_class_index.insert(mirror_ref, class_id);
         let target_class = self.get_class(&class_id);
         target_class.set_mirror_ref(mirror_ref)?;
         let name_sym = target_class.get_name();
-        let name_ref = heap.alloc_string_from_interned_with_char_mapping(name_sym, self, &|c| {
-            if c == '/' { '.' } else { c }
-        })?;
+        let name_ref = heap.alloc_string_from_interned_with_char_mapping(
+            name_sym,
+            Some(&|c| {
+                if c == '/' { '.' } else { c }
+            }),
+        )?;
         let name_field = self
             .get_instance_class(&self.br().get_java_lang_class_id()?)?
             .get_instance_field(&self.br().class_name_fk)?;
-        heap.write_instance_field(mirror_ref, name_field.offset, Value::Ref(name_ref))?;
+        heap.write_field(
+            mirror_ref,
+            name_field.offset,
+            Value::Ref(name_ref),
+            AllocationType::Reference,
+        )?;
         Ok(mirror_ref)
     }
 }
