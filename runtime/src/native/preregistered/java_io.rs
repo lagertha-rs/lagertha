@@ -1,6 +1,7 @@
 use crate::native::{NativeRegistry, NativeRet};
 use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
 use common::Value;
+use common::jtype::AllocationType;
 use tracing_log::log::debug;
 
 pub(super) fn do_register_java_io_preregistered_natives(native_registry: &mut NativeRegistry) {
@@ -83,38 +84,39 @@ fn java_io_file_output_stream_write_bytes(
         _ => panic!("java.io.FileOutputStream.writeBytes: expected non-negative length"),
     };
 
-    let output_stream_class_id = vm.heap_depr.get_class_id(&output_stream_ref)?;
+    let output_stream_class_id = vm.heap.get_class_id(output_stream_ref)?;
     let output_stream_fd_field_offset = vm
         .method_area
         .get_instance_class(&output_stream_class_id)?
         .get_instance_field(&vm.method_area.br().file_output_stream_fd_fk)?
         .offset;
     let fd_obj = vm
-        .heap_depr
-        .get_instance(&output_stream_ref)?
-        .get_element(output_stream_fd_field_offset as i32)?
+        .heap
+        .read_field(
+            output_stream_ref,
+            output_stream_fd_field_offset,
+            AllocationType::Reference,
+        )?
         .as_obj_ref()?;
-    let fd_class_id = vm.heap_depr.get_class_id(&fd_obj)?;
+    let fd_class_id = vm.heap.get_class_id(fd_obj)?;
     let fd_fd_field_offset = vm
         .method_area
         .get_instance_class(&fd_class_id)?
         .get_instance_field(&vm.method_area.br().fd_fd_fk)?
         .offset;
     let fd_val = vm
-        .heap_depr
-        .get_instance(&fd_obj)?
-        .get_element(fd_fd_field_offset as i32)?
+        .heap
+        .read_field(fd_obj, fd_fd_field_offset, AllocationType::Int)?
         .as_int()?;
-    let array = vm.heap_depr.get_array(&bytes_array)?;
     for i in offset..offset + length {
-        let byte = match array.get_element(i as i32).unwrap() {
-            Value::Integer(b) => b,
-            _ => panic!("java.io.FileOutputStream.writeBytes: expected byte element"),
-        };
+        let byte = vm
+            .heap
+            .read_array_element(bytes_array, i as i32)?
+            .as_int()?;
         if fd_val == 1 {
-            print!("{}", *byte as u8 as char);
+            print!("{}", byte as u8 as char);
         } else if fd_val == 2 {
-            eprint!("{}", *byte as u8 as char);
+            eprint!("{}", byte as u8 as char);
         } else {
             unimplemented!(
                 "java.io.FileOutputStream.writeBytes: only stdout and stderr are supported"

@@ -1,4 +1,4 @@
-use crate::{ClassId, Symbol};
+use crate::{ClassId, Symbol, throw_exception};
 use common::error::JvmError;
 use common::instruction::ArrayType;
 use common::jtype::AllocationType;
@@ -32,9 +32,10 @@ pub struct Heap {
 }
 
 impl Heap {
-    const ARRAY_LENGTH_OFFSET: usize = 0;
-    const ARRAY_TYPE_OFFSET: usize = 4;
-    const ARRAY_ELEMENTS_OFFSET: usize = 8;
+    pub const OBJECT_HEADER_SIZE: usize = ObjectHeader::SIZE;
+    pub const ARRAY_LENGTH_OFFSET: usize = 0;
+    pub const ARRAY_TYPE_OFFSET: usize = 4;
+    pub const ARRAY_ELEMENTS_OFFSET: usize = 8;
 
     pub fn new(
         size_mb: usize,
@@ -421,5 +422,86 @@ impl Heap {
         }
 
         Ok(result)
+    }
+
+    pub fn copy_primitive_slice(
+        &mut self,
+        src: HeapRef,
+        src_pos: i32,
+        dest: HeapRef,
+        dest_pos: i32,
+        length: i32,
+    ) -> Result<(), JvmError> {
+        {
+            let src_type = self.get_allocation_type(src)?;
+            let dest_type = self.get_allocation_type(dest)?;
+
+            /* TODO
+            if src_type != dest_type {
+                return Err(JvmError::Todo(
+                    "Array types must match for copy".to_string(),
+                ));
+            }
+             */
+
+            let src_array_len = self.get_array_length(src)?;
+            let dest_array_len = self.get_array_length(dest)?;
+
+            if src_pos < 0
+                || dest_pos < 0
+                || length < 0
+                || (src_pos + length) > src_array_len
+                || (dest_pos + length) > dest_array_len
+            {
+                throw_exception!(
+                    ArrayIndexOutOfBoundsException,
+                    "Start or destination index out of bounds"
+                )?;
+            }
+        }
+
+        let src_pos = src_pos as usize;
+        let dest_pos = dest_pos as usize;
+        let allocation_type = self.get_allocation_type(src)?;
+        let element_size = allocation_type.byte_size();
+
+        let src_data_ptr = unsafe { self.get_data_ptr(src) };
+        let dest_data_ptr = unsafe { self.get_data_ptr(dest) };
+
+        let src_ptr =
+            unsafe { src_data_ptr.add(Self::ARRAY_ELEMENTS_OFFSET + src_pos * element_size) };
+        let dest_ptr =
+            unsafe { dest_data_ptr.add(Self::ARRAY_ELEMENTS_OFFSET + dest_pos * element_size) };
+
+        unsafe {
+            std::ptr::copy(src_ptr, dest_ptr, length as usize * element_size);
+        }
+
+        Ok(())
+    }
+
+    pub fn clone_object(&mut self, src: HeapRef) -> Result<HeapRef, JvmError> {
+        let (class_id, data_size) = {
+            let src_header = unsafe { self.get_header(src) };
+            (
+                src_header.class_id,
+                src_header.size as usize - ObjectHeader::SIZE,
+            )
+        };
+
+        let dest = self.alloc_raw(data_size)?;
+
+        let src_data_ptr = unsafe { self.get_data_ptr(src) };
+        let dest_data_ptr = unsafe { self.get_data_ptr(dest) };
+
+        unsafe {
+            std::ptr::copy_nonoverlapping(src_data_ptr, dest_data_ptr, data_size);
+        }
+
+        let dest_header = unsafe { self.get_header_mut(dest) };
+        dest_header.class_id = class_id;
+        dest_header.marked = false;
+
+        Ok(dest)
     }
 }

@@ -1,4 +1,4 @@
-use crate::heap::HeapObject;
+use crate::heap::gc_new_heap::Heap;
 use crate::native::NativeRet;
 use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
 use common::Value;
@@ -94,7 +94,8 @@ fn jdk_internal_misc_unsafe_array_base_offset_0(
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.arrayBaseOffset0");
-    Ok(Some(Value::Integer(0)))
+    let offset = Heap::OBJECT_HEADER_SIZE + Heap::ARRAY_ELEMENTS_OFFSET;
+    Ok(Some(Value::Integer(offset as i32)))
 }
 
 fn jdk_internal_misc_unsafe_compare_and_set_int(
@@ -121,20 +122,16 @@ fn jdk_internal_misc_unsafe_compare_and_set_int(
         _ => panic!("jdk.internal.misc.Unsafe.compareAndSetLong: expected long new value"),
     };
     let object_field_value = vm.heap.read_field(object, offset, AllocationType::Int)?;
-    if let Value::Integer(current_value) = object_field_value {
-        if current_value == expected {
-            vm.heap.write_field(
-                object,
-                offset,
-                Value::Integer(new_value),
-                AllocationType::Int,
-            )?;
-            Ok(Some(Value::Integer(1)))
-        } else {
-            Ok(Some(Value::Integer(0)))
-        }
+    if object_field_value == Value::Integer(expected) {
+        vm.heap.write_field(
+            object,
+            offset,
+            Value::Integer(new_value),
+            AllocationType::Int,
+        )?;
+        Ok(Some(Value::Integer(1)))
     } else {
-        panic!("jdk.internal.misc.Unsafe.compareAndSetLong: field at offset is not long");
+        Ok(Some(Value::Integer(0)))
     }
 }
 
@@ -190,26 +187,11 @@ fn jdk_internal_misc_unsafe_get_reference_volatile(
         Value::Long(x) => x,
         _ => panic!("Unsafe.getReferenceVolatile expects a long offset"),
     };
-    match vm.heap_depr.get(&base)? {
-        HeapObject::Instance(instance) => {
-            let field = instance.get_element(off as i32)?;
-            match field {
-                Value::Ref(_) => Ok(Some(*field)),
-                _ => panic!("Unsafe.getReferenceVolatile field is not an object"),
-            }
-        }
-        HeapObject::Array(array) => {
-            let idx = off as usize;
-            if idx >= array.data_len() {
-                panic!("Unsafe.getReferenceVolatile array index out of bounds");
-            }
-            let element = &array.data()[idx];
-            match element {
-                Value::Ref(_) | Value::Null => Ok(Some(*element)),
-                _ => panic!("Unsafe.getReferenceVolatile array element is not an object"),
-            }
-        }
-    }
+    Ok(Some(vm.heap.read_field(
+        base,
+        off as usize,
+        AllocationType::Reference,
+    )?))
 }
 
 fn jdk_internal_misc_unsafe_object_field_offset_1(
@@ -261,7 +243,7 @@ fn jdk_internal_misc_unsafe_compare_and_set_reference(
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.compareAndSetReference");
-    let object = match &args[1] {
+    let object = match args[1] {
         Value::Ref(h) => h,
         _ => panic!("jdk.internal.misc.Unsafe.compareAndSetReference: expected object"),
     };
@@ -281,29 +263,18 @@ fn jdk_internal_misc_unsafe_compare_and_set_reference(
         Value::Ref(h) => h,
         _ => panic!("jdk.internal.misc.Unsafe.compareAndSetReference: expected long new value"),
     };
-    match vm.heap_depr.get_mut(object)? {
-        HeapObject::Array(array) => {
-            if offset >= array.data_len() {
-                panic!(
-                    "jdk.internal.misc.Unsafe.compareAndSetReference: array index out of bounds"
-                );
-            }
-            let field = &mut array.data_mut()[offset];
-            if *field == expected {
-                *field = Value::Ref(new_value);
-                Ok(Some(Value::Integer(1)))
-            } else {
-                Ok(Some(Value::Integer(0)))
-            }
-        }
-        HeapObject::Instance(instance) => {
-            let field = instance.get_element_mut(offset as i32)?;
-            if *field == expected {
-                *field = Value::Ref(new_value);
-                Ok(Some(Value::Integer(1)))
-            } else {
-                Ok(Some(Value::Integer(0)))
-            }
-        }
+    let object_field_value = vm
+        .heap
+        .read_field(object, offset, AllocationType::Reference)?;
+    if object_field_value == expected {
+        vm.heap.write_field(
+            object,
+            offset,
+            Value::Ref(new_value),
+            AllocationType::Reference,
+        )?;
+        Ok(Some(Value::Integer(1)))
+    } else {
+        Ok(Some(Value::Integer(0)))
     }
 }
