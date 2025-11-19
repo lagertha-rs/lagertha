@@ -61,52 +61,51 @@ impl MethodArea {
             interner: string_interner,
         };
 
-        let java_lang_object_id =
-            method_area.get_class_id_or_load(method_area.br().java_lang_object_sym)?;
-        let java_lang_class_id =
-            method_area.get_class_id_or_load(method_area.br().java_lang_class_sym)?;
-        let java_lang_throwable_id =
-            method_area.get_class_id_or_load(method_area.br().java_lang_throwable_sym)?;
-        let java_lang_thread_id =
-            method_area.get_class_id_or_load(method_area.br().java_lang_thread_sym)?;
-        let java_lang_thread_group_id =
-            method_area.get_class_id_or_load(method_area.br().java_lang_thread_group_sym)?;
-        let java_lang_string_id =
-            method_area.get_class_id_or_load(method_area.br().java_lang_string_sym)?;
-        let char_array_class_id =
-            method_area.get_class_id_or_load(method_area.br().char_array_desc)?;
-
-        for primitive_type in PrimitiveType::values() {
-            let name_sym = method_area.br().get_primitive_sym(primitive_type);
-            let primitive_class =
-                JvmClass::Primitive(PrimitiveClass::new(name_sym, *primitive_type));
-            let class_id = method_area.push_class(primitive_class);
-            method_area.class_name_to_index.insert(name_sym, class_id);
-        }
-
-        method_area
-            .bootstrap_registry
-            .set_char_array_class_id(char_array_class_id)?;
-        method_area
-            .bootstrap_registry
-            .set_java_lang_string_id(java_lang_string_id)?;
-        method_area
-            .bootstrap_registry
-            .set_java_lang_class_id(java_lang_class_id)?;
-        method_area
-            .bootstrap_registry
-            .set_java_lang_object_id(java_lang_object_id)?;
-        method_area
-            .bootstrap_registry
-            .set_java_lang_throwable_id(java_lang_throwable_id)?;
-        method_area
-            .bootstrap_registry
-            .set_java_lang_thread_id(java_lang_thread_id)?;
-        method_area
-            .bootstrap_registry
-            .set_java_lang_thread_group_id(java_lang_thread_group_id)?;
+        method_area.preload_basic_classes()?;
 
         Ok(method_area)
+    }
+
+    fn preload_basic_classes(&mut self) -> Result<(), JvmError> {
+        let java_lang_object_id = self.get_class_id_or_load(self.br().java_lang_object_sym)?;
+        self.bootstrap_registry
+            .set_java_lang_object_id(java_lang_object_id)?;
+
+        let java_lang_class_id = self.get_class_id_or_load(self.br().java_lang_class_sym)?;
+        self.bootstrap_registry
+            .set_java_lang_class_id(java_lang_class_id)?;
+
+        let java_lang_throwable_id =
+            self.get_class_id_or_load(self.br().java_lang_throwable_sym)?;
+        self.bootstrap_registry
+            .set_java_lang_throwable_id(java_lang_throwable_id)?;
+
+        let java_lang_thread_id = self.get_class_id_or_load(self.br().java_lang_thread_sym)?;
+        self.bootstrap_registry
+            .set_java_lang_thread_id(java_lang_thread_id)?;
+
+        let java_lang_thread_group_id =
+            self.get_class_id_or_load(self.br().java_lang_thread_group_sym)?;
+        self.bootstrap_registry
+            .set_java_lang_thread_group_id(java_lang_thread_group_id)?;
+
+        let java_lang_string_id = self.get_class_id_or_load(self.br().java_lang_string_sym)?;
+        self.bootstrap_registry
+            .set_java_lang_string_id(java_lang_string_id)?;
+
+        let char_array_class_id = self.get_class_id_or_load(self.br().char_array_desc)?;
+        self.bootstrap_registry
+            .set_char_array_class_id(char_array_class_id)?;
+
+        for primitive_type in PrimitiveType::values() {
+            let name_sym = self.br().get_primitive_sym(primitive_type);
+            let primitive_class =
+                JvmClass::Primitive(PrimitiveClass::new(name_sym, *primitive_type));
+            let class_id = self.push_class(primitive_class);
+            self.class_name_to_index.insert(name_sym, class_id);
+        }
+
+        Ok(())
     }
 
     pub fn br(&self) -> &BootstrapRegistry {
@@ -414,9 +413,11 @@ impl MethodArea {
         if let Some(mirror_ref) = self.get_class(&class_id).get_mirror_ref() {
             return Ok(mirror_ref);
         }
-        let class_id = self.br().get_java_lang_class_id()?;
-        let class_instance_size = self.get_instance_class(&class_id)?.get_instance_size()?;
-        let mirror_ref = heap.alloc_instance(class_instance_size, class_id)?;
+        let class_class_id = self.br().get_java_lang_class_id()?;
+        let class_instance_size = self
+            .get_instance_class(&class_class_id)?
+            .get_instance_size()?;
+        let mirror_ref = heap.alloc_instance(class_instance_size, class_class_id)?;
         self.mirror_to_class_index.insert(mirror_ref, class_id);
         let target_class = self.get_class(&class_id);
         target_class.set_mirror_ref(mirror_ref)?;
@@ -428,7 +429,7 @@ impl MethodArea {
             }),
         )?;
         let name_field = self
-            .get_instance_class(&self.br().get_java_lang_class_id()?)?
+            .get_instance_class(&class_class_id)?
             .get_instance_field(&self.br().class_name_fk)?;
         heap.write_field(
             mirror_ref,

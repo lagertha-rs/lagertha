@@ -289,49 +289,49 @@ impl BootstrapRegistry {
         self.java_lang_string_id
             .get()
             .copied()
-            .ok_or_else(|| JvmError::Todo("java/lang/String".to_string()))
+            .ok_or_else(|| JvmError::Todo("java/lang/String is not loaded".to_string()))
     }
 
     pub fn get_char_array_class_id(&self) -> Result<ClassId, JvmError> {
         self.char_array_class_id
             .get()
             .copied()
-            .ok_or_else(|| JvmError::Todo("[C".to_string()))
+            .ok_or_else(|| JvmError::Todo("[C class is not loaded".to_string()))
     }
 
     pub fn get_java_lang_thread_group_id(&self) -> Result<ClassId, JvmError> {
         self.java_lang_thread_group_id
             .get()
             .copied()
-            .ok_or_else(|| JvmError::Todo("java/lang/ThreadGroup".to_string()))
+            .ok_or_else(|| JvmError::Todo("java/lang/ThreadGroup is not loaded".to_string()))
     }
 
     pub fn get_java_lang_thread_id(&self) -> Result<ClassId, JvmError> {
         self.java_lang_thread_id
             .get()
             .copied()
-            .ok_or_else(|| JvmError::Todo("java/lang/Thread".to_string()))
+            .ok_or_else(|| JvmError::Todo("java/lang/Thread is not loaded".to_string()))
     }
 
     pub fn get_java_lang_throwable_id(&self) -> Result<ClassId, JvmError> {
         self.java_lang_throwable_id
             .get()
             .copied()
-            .ok_or_else(|| JvmError::Todo("java/lang/Throwable".to_string()))
+            .ok_or_else(|| JvmError::Todo("java/lang/Throwable is not loaded".to_string()))
     }
 
     pub fn get_java_lang_class_id(&self) -> Result<ClassId, JvmError> {
         self.java_lang_class_id
             .get()
             .copied()
-            .ok_or_else(|| JvmError::Todo("java/lang/Class".to_string()))
+            .ok_or_else(|| JvmError::Todo("java/lang/Class is not loaded".to_string()))
     }
 
     pub fn get_java_lang_object_id(&self) -> Result<ClassId, JvmError> {
         self.java_lang_object_id
             .get()
             .copied()
-            .ok_or_else(|| JvmError::Todo("java/lang/Object".to_string()))
+            .ok_or_else(|| JvmError::Todo("java/lang/Object is not loaded".to_string()))
     }
 
     pub fn get_primitive_sym(&self, primitive: &PrimitiveType) -> Symbol {

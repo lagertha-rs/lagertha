@@ -42,7 +42,6 @@ impl Interpreter {
             Instruction::Aaload => {
                 let index = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
                 let array_addr = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
-                let array_class_id = vm.heap.get_class_id(array_addr)?;
                 let value = vm.heap.read_array_element(array_addr, index)?;
                 if matches!(value, Value::Ref(_) | Value::Null) {
                     vm.get_stack_mut(&thread_id)?.push_operand(value)?;
@@ -1277,7 +1276,7 @@ impl Interpreter {
     ) -> Result<Option<Value>, JvmError> {
         let method = vm.method_area.get_method(&method_id);
         if method.is_native() {
-            let mut method_key = vm
+            let method_key = vm
                 .method_area
                 .build_fully_qualified_native_method_key(&method_id);
             // native instance method of array special handling (for now, only Object.clone)

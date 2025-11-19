@@ -239,6 +239,9 @@ impl VirtualMachine {
             threads: Vec::new(),
         };
 
+        #[cfg(feature = "debug-log")]
+        debug_log::debug::init(&vm);
+
         let main_thread_id = vm.create_main_thread()?;
         vm.initialize_main_thread(main_thread_id).inspect_err(|e| {
             if let JvmError::JavaExceptionThrown(exception_ref) = e {

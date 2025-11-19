@@ -196,9 +196,14 @@ impl InstanceClass {
                 };
                 static_fields.insert(field_key, static_field);
             } else {
-                let position = instance_fields.len();
+                let size = descriptor.as_allocation_type().byte_size();
+                instance_size = (instance_size + size - 1) & !(size - 1);
+
                 let instance_offset = instance_size;
-                instance_size += descriptor.as_allocation_type().byte_size();
+                let position = instance_fields.len();
+
+                instance_size += size;
+
                 instance_fields.push(InstanceField {
                     flags: field.access_flags,
                     descriptor_id,
