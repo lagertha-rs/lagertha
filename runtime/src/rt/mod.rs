@@ -11,6 +11,7 @@ use jclass::flags::ClassFlags;
 use once_cell::sync::OnceCell;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
+use std::num::NonZeroU32;
 
 pub mod array;
 pub mod class;

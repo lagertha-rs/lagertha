@@ -13,11 +13,16 @@ pub struct ObjectHeader {
     size: u32, // total bytes (header + data)
     class_id: NonZeroU32,
     marked: bool, // for GC in future
-    _padding: [u8; 7],
+    is_array: bool,
+    _padding: [u8; 3],
 }
 
 impl ObjectHeader {
     const SIZE: usize = size_of::<ObjectHeader>();
+
+    pub fn is_array(&self) -> bool {
+        self.is_array
+    }
 }
 
 pub struct Heap {
@@ -44,6 +49,8 @@ impl Heap {
         string_instance_size: usize,
         char_array_class_id: ClassId,
     ) -> Result<Self, JvmError> {
+        // TODO: delete in the future
+        assert_eq!(size_of::<ObjectHeader>(), 16);
         let capacity = size_mb * 1024 * 1024;
 
         let memory = unsafe {
@@ -84,6 +91,7 @@ impl Heap {
         header.class_id = class_id.0;
         header.size = (ObjectHeader::SIZE + instance_size) as u32;
         header.marked = false;
+        header.is_array = false;
 
         Ok(heap_ref)
     }
@@ -106,6 +114,12 @@ impl Heap {
         header.class_id = class_id.0;
         header.size = (ObjectHeader::SIZE + array_data_size) as u32;
         header.marked = false;
+        header.is_array = true;
+
+        let data_ptr = unsafe { self.get_data_ptr(heap_ref) };
+        unsafe {
+            std::ptr::write_bytes(data_ptr, 0, array_data_size);
+        }
 
         let data_ptr = unsafe { self.get_data_ptr(heap_ref) };
         unsafe {
@@ -328,16 +342,16 @@ impl Heap {
         Ok(offset)
     }
 
-    unsafe fn get_header_mut(&mut self, heap_ref: HeapRef) -> &mut ObjectHeader {
-        &mut *(self.memory.add(heap_ref) as *mut ObjectHeader)
+    fn get_header_mut(&mut self, heap_ref: HeapRef) -> &mut ObjectHeader {
+        unsafe { &mut *(self.memory.add(heap_ref) as *mut ObjectHeader) }
     }
 
-    unsafe fn get_header(&self, heap_ref: HeapRef) -> &ObjectHeader {
-        &*(self.memory.add(heap_ref) as *const ObjectHeader)
+    pub fn get_header(&self, heap_ref: HeapRef) -> &ObjectHeader {
+        unsafe { &*(self.memory.add(heap_ref) as *const ObjectHeader) }
     }
 
-    unsafe fn get_data_ptr(&self, heap_ref: HeapRef) -> *mut u8 {
-        self.memory.add(heap_ref + ObjectHeader::SIZE)
+    fn get_data_ptr(&self, heap_ref: HeapRef) -> *mut u8 {
+        unsafe { self.memory.add(heap_ref + ObjectHeader::SIZE) }
     }
 
     fn get_allocation_type(&self, heap_ref: HeapRef) -> Result<AllocationType, JvmError> {
