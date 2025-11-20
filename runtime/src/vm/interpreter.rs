@@ -1276,13 +1276,13 @@ impl Interpreter {
     ) -> Result<Option<Value>, JvmError> {
         let method = vm.method_area.get_method(&method_id);
         if method.is_native() {
-            let method_key = vm
+            let mut method_key = vm
                 .method_area
                 .build_fully_qualified_native_method_key(&method_id);
             // native instance method of array special handling (for now, only Object.clone)
-            //if !method.is_static() && vm.heap_depr.is_array(&args[0].as_obj_ref()?)? {
-            //    method_key.class = None;
-            //}
+            if !method.is_static() && vm.heap.get_header(args[0].as_obj_ref()?).is_array() {
+                method_key.class = None;
+            }
             let frame = NativeFrame::new(method_id);
             let native = *vm.native_registry.get(&method_key).ok_or(build_exception!(
                 NoSuchMethodError,
