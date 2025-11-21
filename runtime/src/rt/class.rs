@@ -456,7 +456,7 @@ impl InstanceClass {
             .map_err(|_| JvmError::Todo("Vtable index already initialized".to_string()))
     }
 
-    fn get_instance_fields(&self) -> Result<&Vec<InstanceField>, JvmError> {
+    pub(crate) fn get_instance_fields(&self) -> Result<&Vec<InstanceField>, JvmError> {
         self.instance_fields.get().ok_or(JvmError::Todo(
             "Instance fields not initialized yet".to_string(),
         ))

@@ -89,15 +89,15 @@ impl TryFrom<char> for PrimitiveType {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, TryFromPrimitive)]
 #[repr(u8)]
 pub enum AllocationType {
-    Byte,
-    Char,
-    Double,
-    Float,
-    Int,
-    Long,
-    Short,
-    Boolean,
-    Reference,
+    Boolean = 0,
+    Byte = 1,
+    Char = 2,
+    Short = 3,
+    Int = 4,
+    Long = 5,
+    Float = 6,
+    Double = 7,
+    Reference = 8,
 }
 
 impl AllocationType {

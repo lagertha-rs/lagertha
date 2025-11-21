@@ -1,4 +1,4 @@
-use crate::heap::gc_new_heap::Heap;
+use crate::heap::Heap;
 use crate::native::NativeRet;
 use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
 use common::Value;

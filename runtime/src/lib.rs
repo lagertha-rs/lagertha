@@ -1,4 +1,4 @@
-use crate::heap::gc_new_heap::Heap;
+use crate::heap::Heap;
 use crate::heap::method_area::MethodArea;
 use crate::native::NativeRegistry;
 use crate::thread::JavaThreadState;
@@ -263,13 +263,13 @@ impl VirtualMachine {
         let string_instance_size = method_area
             .get_instance_class(&string_class_id)?
             .get_instance_size()?;
-        Ok(Heap::new(
+        Heap::new(
             1, // TODO: from config
             interner,
             string_class_id,
             string_instance_size,
             char_array_class_id,
-        )?)
+        )
     }
 
     fn initialize_main_thread(&mut self, main_thread_id: ThreadId) -> Result<(), JvmError> {
