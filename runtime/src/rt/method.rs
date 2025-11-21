@@ -125,15 +125,16 @@ impl Method {
             return None;
         }
 
-        for (i, entry) in ln_table.iter().enumerate() {
-            if i + 1 == ln_table.len() || cp < ln_table[i + 1].start_pc as usize {
-                if cp >= entry.start_pc as usize {
-                    return Some(entry.line_number as i32);
-                }
+        let mut result = None;
+        for entry in ln_table.iter() {
+            if entry.start_pc as usize <= cp {
+                result = Some(entry.line_number as i32);
+            } else {
+                break;
             }
         }
 
-        Some(ln_table[0].line_number as i32)
+        result.or_else(|| Some(ln_table[0].line_number as i32))
     }
 }
 

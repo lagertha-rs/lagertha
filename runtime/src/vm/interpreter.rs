@@ -61,16 +61,23 @@ impl Interpreter {
                 let array_addr = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
                 vm.heap.write_array_element(array_addr, index, value)?;
             }
-            Instruction::Caload | Instruction::Baload | Instruction::Iaload => {
+            Instruction::Iaload => {
                 let index = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
                 let array_addr = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
                 let value = vm.heap.read_array_element(array_addr, index)?;
-                if let Value::Integer(i) = value {
-                    vm.get_stack_mut(&thread_id)?
-                        .push_operand(Value::Integer(i & 0xFF))?;
-                } else {
-                    panic!("Expected integer value in caload");
-                }
+                vm.get_stack_mut(&thread_id)?.push_operand(value)?;
+            }
+            Instruction::Caload => {
+                let index = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
+                let array_addr = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
+                let value = vm.heap.read_array_element(array_addr, index)?;
+                vm.get_stack_mut(&thread_id)?.push_operand(value)?;
+            }
+            Instruction::Baload => {
+                let index = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
+                let array_addr = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
+                let value = vm.heap.read_array_element(array_addr, index)?;
+                vm.get_stack_mut(&thread_id)?.push_operand(value)?;
             }
             Instruction::Checkcast(_idx) => {
                 //TODO: stub

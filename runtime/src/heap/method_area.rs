@@ -1,5 +1,5 @@
 use crate::class_loader::ClassLoader;
-use crate::heap::gc_new_heap::Heap;
+use crate::heap::Heap;
 use crate::rt::array::{ObjectArrayClass, PrimitiveArrayClass};
 use crate::rt::class::InstanceClass;
 use crate::rt::constant_pool::RuntimeConstantPool;
