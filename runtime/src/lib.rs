@@ -1,193 +1,26 @@
 use crate::heap::Heap;
 use crate::heap::method_area::MethodArea;
+use crate::keys::{MethodId, Symbol, ThreadId};
 use crate::native::NativeRegistry;
 use crate::thread::JavaThreadState;
+use crate::vm::bootstrap_registry::BootstrapRegistry;
 use crate::vm::interpreter::Interpreter;
 use crate::vm::stack::FrameStack;
 use common::HeapRef;
 use common::Value;
 use common::error::JvmError;
-use lasso::{Spur, ThreadedRodeo};
-use std::num::NonZeroU32;
+use lasso::ThreadedRodeo;
 use std::path::PathBuf;
 use std::sync::Arc;
 
 mod class_loader;
 pub mod debug_log;
 pub mod heap;
+pub mod keys;
 mod native;
 pub mod rt;
 mod thread;
 mod vm;
-
-#[repr(transparent)]
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-pub struct ThreadId(NonZeroU32);
-
-impl ThreadId {
-    pub fn new(val: NonZeroU32) -> Self {
-        ThreadId(val)
-    }
-    pub fn from_usize(index: usize) -> Self {
-        ThreadId(NonZeroU32::new(index as u32).unwrap())
-    }
-
-    pub fn from_index(index: usize) -> Self {
-        ThreadId(NonZeroU32::new((index as u32) + 1).unwrap())
-    }
-
-    pub fn as_usize(&self) -> usize {
-        self.0.get() as usize
-    }
-    pub fn to_index(&self) -> usize {
-        (self.0.get() - 1) as usize
-    }
-}
-#[repr(transparent)]
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-pub struct MethodId(NonZeroU32);
-
-impl MethodId {
-    pub fn from_usize(index: usize) -> Self {
-        MethodId(NonZeroU32::new(index as u32).unwrap())
-    }
-    pub fn to_index(&self) -> usize {
-        (self.0.get() - 1) as usize
-    }
-
-    //TODO: bad
-    pub fn to_i32(&self) -> i32 {
-        self.0.get() as i32
-    }
-
-    //TODO: also need but needs for previous bad :D
-    pub fn from_i32(index: i32) -> Self {
-        MethodId(NonZeroU32::new(index as u32).unwrap())
-    }
-}
-
-#[repr(transparent)]
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-pub struct MethodDescriptorId(NonZeroU32);
-
-impl MethodDescriptorId {
-    pub fn from_usize(index: usize) -> Self {
-        MethodDescriptorId(NonZeroU32::new(index as u32).unwrap())
-    }
-    pub fn to_index(&self) -> usize {
-        (self.0.get() - 1) as usize
-    }
-}
-
-#[repr(transparent)]
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-pub struct FieldDescriptorId(NonZeroU32);
-
-impl FieldDescriptorId {
-    pub fn from_usize(index: usize) -> Self {
-        FieldDescriptorId(NonZeroU32::new(index as u32).unwrap())
-    }
-    pub fn to_index(&self) -> usize {
-        (self.0.get() - 1) as usize
-    }
-}
-
-#[repr(transparent)]
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-pub struct ClassId(NonZeroU32);
-
-impl ClassId {
-    pub fn from_usize(index: usize) -> Self {
-        ClassId(NonZeroU32::new(index as u32).unwrap())
-    }
-    pub fn to_index(&self) -> usize {
-        (self.0.get() - 1) as usize
-    }
-
-    //TODO: bad
-    pub fn to_i32(&self) -> i32 {
-        self.0.get() as i32
-    }
-
-    //TODO: also need but needs for previous bad :D
-    pub fn from_i32(index: i32) -> Self {
-        ClassId(NonZeroU32::new(index as u32).unwrap())
-    }
-}
-
-#[repr(transparent)]
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-pub struct FieldId(NonZeroU32);
-
-impl FieldId {
-    pub fn from_usize(index: usize) -> Self {
-        FieldId(NonZeroU32::new(index as u32).unwrap())
-    }
-    pub fn to_index(&self) -> usize {
-        (self.0.get() - 1) as usize
-    }
-}
-
-pub type Symbol = Spur;
-
-#[derive(Hash, Eq, PartialEq, Clone)]
-pub struct FullyQualifiedMethodKey {
-    pub class: Option<Symbol>,
-    pub name: Symbol,
-    pub desc: Symbol,
-}
-
-impl FullyQualifiedMethodKey {
-    pub fn new(class: Symbol, name: Symbol, desc: Symbol) -> Self {
-        Self {
-            class: Some(class),
-            name,
-            desc,
-        }
-    }
-
-    pub fn new_internal(name: Symbol, desc: Symbol) -> Self {
-        Self {
-            class: None,
-            name,
-            desc,
-        }
-    }
-
-    pub fn new_internal_with_str(name: &str, desc: &str, interner: &ThreadedRodeo) -> Self {
-        Self {
-            class: None,
-            name: interner.get_or_intern(name),
-            desc: interner.get_or_intern(desc),
-        }
-    }
-
-    pub fn new_with_str(class: &str, name: &str, desc: &str, interner: &ThreadedRodeo) -> Self {
-        Self {
-            class: Some(interner.get_or_intern(class)),
-            name: interner.get_or_intern(name),
-            desc: interner.get_or_intern(desc),
-        }
-    }
-}
-
-#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
-pub struct MethodKey {
-    pub name: Symbol,
-    pub desc: Symbol,
-}
-
-#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
-pub struct FieldKey {
-    pub name: Symbol,
-    pub desc: Symbol,
-}
-
-impl FieldKey {
-    pub fn new(name: Symbol, desc: Symbol) -> Self {
-        Self { name, desc }
-    }
-}
 
 #[derive(Debug, Clone)]
 pub struct VmConfig {
@@ -219,13 +52,14 @@ pub struct VirtualMachine {
     native_registry: NativeRegistry,
     string_interner: Arc<ThreadedRodeo>,
     threads: Vec<JavaThreadState>,
+    br: Arc<BootstrapRegistry>,
 }
 
 impl VirtualMachine {
     pub fn new(config: VmConfig) -> Result<(Self, ThreadId), JvmError> {
         config.validate();
         let string_interner = Arc::new(ThreadedRodeo::default());
-        let method_area = MethodArea::new(&config, string_interner.clone())?;
+        let (method_area, br) = MethodArea::init(&config, string_interner.clone())?;
         let heap = Self::create_heap(string_interner.clone(), &method_area)?;
 
         let native_registry = NativeRegistry::new(string_interner.clone());
@@ -237,6 +71,7 @@ impl VirtualMachine {
             method_area,
             heap,
             threads: Vec::new(),
+            br,
         };
 
         #[cfg(feature = "debug-log")]
@@ -259,7 +94,7 @@ impl VirtualMachine {
     ) -> Result<Heap, JvmError> {
         let bootstrap_registry = method_area.br();
         let string_class_id = bootstrap_registry.get_java_lang_string_id()?;
-        let char_array_class_id = bootstrap_registry.get_char_array_class_id()?;
+        let byte_array_class_id = bootstrap_registry.get_byte_array_class_id()?;
         let string_instance_size = method_area
             .get_instance_class(&string_class_id)?
             .get_instance_size()?;
@@ -268,7 +103,7 @@ impl VirtualMachine {
             interner,
             string_class_id,
             string_instance_size,
-            char_array_class_id,
+            byte_array_class_id,
         )
     }
 
@@ -277,16 +112,11 @@ impl VirtualMachine {
         let main_thread_group_ref =
             self.create_main_thread_group(main_thread_id, system_thread_group_ref)?;
 
-        let thread_class_id = self.method_area.br().get_java_lang_thread_id()?;
+        let thread_class_id = self.br().get_java_lang_thread_id()?;
         let thread_constructor_id = self
             .method_area
             .get_instance_class(&thread_class_id)?
-            .get_special_method_id(
-                &self
-                    .method_area
-                    .br()
-                    .thread_thread_group_and_name_constructor_mk,
-            )?;
+            .get_special_method_id(&self.br().thread_thread_group_and_name_constructor_mk)?;
         Interpreter::run_method(
             main_thread_id,
             thread_constructor_id,
@@ -301,7 +131,7 @@ impl VirtualMachine {
     }
 
     fn create_main_thread(&mut self) -> Result<ThreadId, JvmError> {
-        let thread_class_id = self.method_area.br().get_java_lang_thread_id()?;
+        let thread_class_id = self.br().get_java_lang_thread_id()?;
         let thread_instance_size = self
             .method_area
             .get_instance_class(&thread_class_id)?
@@ -309,9 +139,7 @@ impl VirtualMachine {
         let main_thread_ref = self
             .heap
             .alloc_instance(thread_instance_size, thread_class_id)?;
-        let main_string_ref = self
-            .heap
-            .get_str_from_pool_or_new(self.method_area.br().main_sym)?;
+        let main_string_ref = self.heap.get_str_from_pool_or_new(self.br().main_sym)?;
         self.threads.push(JavaThreadState {
             thread_obj: main_thread_ref,
             group_obj: 0,
@@ -325,14 +153,13 @@ impl VirtualMachine {
         &mut self,
         main_thread_id: ThreadId,
     ) -> Result<HeapRef, JvmError> {
-        let system_thread_group_class_id = self.method_area.br().get_java_lang_thread_group_id()?;
+        let system_thread_group_class_id = self.br().get_java_lang_thread_group_id()?;
         let (thread_group_no_arg_constructor_id, thread_group_instance_size) = {
             let thread_group_class = self
                 .method_area
                 .get_instance_class(&system_thread_group_class_id)?;
             (
-                thread_group_class
-                    .get_special_method_id(&self.method_area.br().no_arg_constructor_mk)?,
+                thread_group_class.get_special_method_id(&self.br().no_arg_constructor_mk)?,
                 thread_group_class.get_instance_size()?,
             )
         };
@@ -354,17 +181,14 @@ impl VirtualMachine {
         main_thread_id: ThreadId,
         system_thread_group_ref: HeapRef,
     ) -> Result<HeapRef, JvmError> {
-        let system_thread_group_class_id = self.method_area.br().get_java_lang_thread_group_id()?;
+        let system_thread_group_class_id = self.br().get_java_lang_thread_group_id()?;
         let (thread_group_constructor_id, thread_group_instance_size) = {
             let thread_group_class = self
                 .method_area
                 .get_instance_class(&system_thread_group_class_id)?;
             (
                 thread_group_class.get_special_method_id(
-                    &self
-                        .method_area
-                        .br()
-                        .thread_group_parent_and_name_constructor_mk,
+                    &self.br().thread_group_parent_and_name_constructor_mk,
                 )?,
                 thread_group_class.get_instance_size()?,
             )
@@ -372,9 +196,7 @@ impl VirtualMachine {
         let main_thread_group_ref = self
             .heap
             .alloc_instance(thread_group_instance_size, system_thread_group_class_id)?;
-        let main_string_ref = self
-            .heap
-            .get_str_from_pool_or_new(self.method_area.br().main_sym)?;
+        let main_string_ref = self.heap.get_str_from_pool_or_new(self.br().main_sym)?;
         Interpreter::run_method(
             main_thread_id,
             thread_group_constructor_id,
@@ -408,6 +230,10 @@ impl VirtualMachine {
         &self.string_interner
     }
 
+    pub fn br(&self) -> &BootstrapRegistry {
+        &self.br
+    }
+
     pub fn symbol_to_pretty_string(&self, sym: Symbol) -> String {
         self.string_interner.resolve(&sym).replace('/', ".")
     }
@@ -437,7 +263,7 @@ fn print_stack_trace(thread_id: ThreadId, exception_ref: HeapRef, vm: &mut Virtu
         .get_instance_class(&exception_class_id)
         .expect("TODO msg: Exception class should exist");
     let print_stack_trace_method_id = exception_class
-        .get_vtable_method_id(&vm.method_area.br().print_stack_trace_mk)
+        .get_vtable_method_id(&vm.br().print_stack_trace_mk)
         .expect("Exception class should have printStackTrace method");
     let args = vec![Value::Ref(exception_ref)];
     Interpreter::run_method(thread_id, print_stack_trace_method_id, args, vm)
@@ -456,7 +282,7 @@ pub fn start(config: VmConfig) -> Result<(), JvmError> {
     let main_method_id = vm
         .method_area
         .get_instance_class(&main_class_id)?
-        .get_special_method_id(&vm.method_area.br().main_mk)
+        .get_special_method_id(&vm.br().main_mk)
         .map_err(|_| JvmError::MainClassNotFound(vm.config.main_class.replace('/', ".")))?;
     debug_log_method!(&main_method_id, "Main method found");
 
@@ -467,8 +293,8 @@ pub fn start(config: VmConfig) -> Result<(), JvmError> {
         if let JvmError::JavaExceptionThrown(exception_ref) = e {
             let get_thread_group_method_id = vm
                 .method_area
-                .get_class(&vm.method_area.br().get_java_lang_thread_id()?)
-                .get_vtable_method_id(&vm.method_area.br().thread_get_thread_group_mk)?;
+                .get_class(&vm.br().get_java_lang_thread_id()?)
+                .get_vtable_method_id(&vm.br().thread_get_thread_group_mk)?;
             let thread_group_ref = Interpreter::run_method(
                 main_thread_id,
                 get_thread_group_method_id,
@@ -479,8 +305,8 @@ pub fn start(config: VmConfig) -> Result<(), JvmError> {
             .as_obj_ref()?;
             let uncaught_exception_method_id = vm
                 .method_area
-                .get_class(&vm.method_area.br().get_java_lang_thread_group_id()?)
-                .get_vtable_method_id(&vm.method_area.br().thread_group_uncaught_exception_mk)?;
+                .get_class(&vm.br().get_java_lang_thread_group_id()?)
+                .get_vtable_method_id(&vm.br().thread_group_uncaught_exception_mk)?;
             Interpreter::run_method(
                 main_thread_id,
                 uncaught_exception_method_id,

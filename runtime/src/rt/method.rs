@@ -1,4 +1,5 @@
-use crate::{ClassId, MethodDescriptorId, Symbol, throw_exception};
+use crate::keys::{ClassId, MethodDescriptorId};
+use crate::{Symbol, throw_exception};
 use common::error::{JvmError, LinkageError};
 use jclass::attribute::method::code::{
     CodeAttributeInfo, LineNumberEntry, LocalVariableEntry, LocalVariableTypeEntry, StackMapFrame,

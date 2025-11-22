@@ -1,4 +1,5 @@
-use crate::{ClassId, MethodId, MethodKey, Symbol};
+use crate::keys::{ClassId, MethodKey};
+use crate::{MethodId, Symbol};
 use common::HeapRef;
 use common::error::{JavaExceptionFromJvm, JvmError};
 use common::jtype::PrimitiveType;

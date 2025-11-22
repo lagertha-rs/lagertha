@@ -1,5 +1,8 @@
 use crate::class_loader::ClassLoader;
 use crate::heap::Heap;
+use crate::keys::{
+    ClassId, FieldDescriptorId, FieldKey, FullyQualifiedMethodKey, MethodDescriptorId,
+};
 use crate::rt::array::{ObjectArrayClass, PrimitiveArrayClass};
 use crate::rt::class::InstanceClass;
 use crate::rt::constant_pool::RuntimeConstantPool;
@@ -7,10 +10,7 @@ use crate::rt::interface::InterfaceClass;
 use crate::rt::method::Method;
 use crate::rt::{ClassLike, JvmClass, PrimitiveClass};
 use crate::vm::bootstrap_registry::BootstrapRegistry;
-use crate::{
-    ClassId, FieldDescriptorId, FieldKey, FullyQualifiedMethodKey, MethodDescriptorId, MethodId,
-    Symbol, VmConfig, debug_log,
-};
+use crate::{MethodId, Symbol, VmConfig, debug_log};
 use common::descriptor::MethodDescriptor;
 use common::error::{JvmError, LinkageError, MethodDescriptorErr};
 use common::jtype::{AllocationType, JavaType, PrimitiveType};
@@ -35,15 +35,15 @@ pub struct MethodArea {
     method_descriptors_index: HashMap<Symbol, MethodDescriptorId>,
 
     interner: Arc<ThreadedRodeo>,
-    bootstrap_registry: BootstrapRegistry,
+    bootstrap_registry: Arc<BootstrapRegistry>,
 }
 
 #[cfg_attr(feature = "hotpath", hotpath::measure_all)]
 impl MethodArea {
-    pub fn new(
+    pub fn init(
         vm_config: &VmConfig,
         string_interner: Arc<ThreadedRodeo>,
-    ) -> Result<Self, JvmError> {
+    ) -> Result<(Self, Arc<BootstrapRegistry>), JvmError> {
         debug_log!("Creating Method Area...");
         let bootstrap_class_loader = ClassLoader::new(vm_config)?;
 
@@ -57,13 +57,14 @@ impl MethodArea {
             field_descriptors_index: HashMap::new(),
             method_descriptors: Vec::new(),
             method_descriptors_index: HashMap::new(),
-            bootstrap_registry: BootstrapRegistry::new(&string_interner),
+            bootstrap_registry: Arc::new(BootstrapRegistry::new(&string_interner)),
             interner: string_interner,
         };
 
         method_area.preload_basic_classes()?;
+        let br = method_area.bootstrap_registry.clone();
 
-        Ok(method_area)
+        Ok((method_area, br))
     }
 
     fn preload_basic_classes(&mut self) -> Result<(), JvmError> {
@@ -93,9 +94,9 @@ impl MethodArea {
         self.bootstrap_registry
             .set_java_lang_string_id(java_lang_string_id)?;
 
-        let char_array_class_id = self.get_class_id_or_load(self.br().char_array_desc)?;
+        let byte_array_class_id = self.get_class_id_or_load(self.br().byte_array_desc)?;
         self.bootstrap_registry
-            .set_char_array_class_id(char_array_class_id)?;
+            .set_byte_array_class_id(byte_array_class_id)?;
 
         for primitive_type in PrimitiveType::values() {
             let name_sym = self.br().get_primitive_sym(primitive_type);

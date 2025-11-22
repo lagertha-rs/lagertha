@@ -1,4 +1,4 @@
-use crate::{ClassId, FieldKey, MethodKey, Symbol};
+use crate::keys::{ClassId, FieldKey, MethodKey, Symbol};
 use common::error::JvmError;
 use common::jtype::PrimitiveType;
 use lasso::ThreadedRodeo;
@@ -62,7 +62,7 @@ pub struct BootstrapRegistry {
     pub object_desc: Symbol,       // Ljava/lang/Object;
     pub class_desc: Symbol,        // Ljava/lang/Class;
     pub string_array_desc: Symbol, // [Ljava/lang/String;
-    pub char_array_desc: Symbol,   // [C
+    pub byte_array_desc: Symbol,   // [B
     pub int_array_desc: Symbol,    // [I
     pub int_desc: Symbol,          // I
 
@@ -73,7 +73,7 @@ pub struct BootstrapRegistry {
     java_lang_thread_group_id: OnceCell<ClassId>,
     java_lang_thread_id: OnceCell<ClassId>,
     java_lang_string_id: OnceCell<ClassId>,
-    char_array_class_id: OnceCell<ClassId>,
+    byte_array_class_id: OnceCell<ClassId>,
 }
 
 impl BootstrapRegistry {
@@ -89,7 +89,7 @@ impl BootstrapRegistry {
         let object_desc = interner.get_or_intern("Ljava/lang/Object;");
         let class_desc = interner.get_or_intern("Ljava/lang/Class;");
         let string_array_desc = interner.get_or_intern("[Ljava/lang/String;");
-        let char_array_desc = interner.get_or_intern("[C");
+        let byte_array_desc = interner.get_or_intern("[B");
         let int_desc = interner.get_or_intern("I");
         let desc_print_stream_sym = interner.get_or_intern("Ljava/io/PrintStream;");
 
@@ -217,7 +217,7 @@ impl BootstrapRegistry {
             object_desc,
             class_desc,
             string_array_desc,
-            char_array_desc,
+            byte_array_desc,
             int_desc,
             int_array_desc: interner.get_or_intern("[I"),
 
@@ -239,7 +239,7 @@ impl BootstrapRegistry {
             java_lang_thread_group_id: OnceCell::new(),
             java_lang_thread_id: OnceCell::new(),
             java_lang_string_id: OnceCell::new(),
-            char_array_class_id: OnceCell::new(),
+            byte_array_class_id: OnceCell::new(),
         }
     }
 
@@ -279,8 +279,8 @@ impl BootstrapRegistry {
             .map_err(|_| JvmError::Todo("java/lang/String ID already set".to_string()))
     }
 
-    pub fn set_char_array_class_id(&self, class_id: ClassId) -> Result<(), JvmError> {
-        self.char_array_class_id
+    pub fn set_byte_array_class_id(&self, class_id: ClassId) -> Result<(), JvmError> {
+        self.byte_array_class_id
             .set(class_id)
             .map_err(|_| JvmError::Todo("[C class ID already set".to_string()))
     }
@@ -292,8 +292,8 @@ impl BootstrapRegistry {
             .ok_or_else(|| JvmError::Todo("java/lang/String is not loaded".to_string()))
     }
 
-    pub fn get_char_array_class_id(&self) -> Result<ClassId, JvmError> {
-        self.char_array_class_id
+    pub fn get_byte_array_class_id(&self) -> Result<ClassId, JvmError> {
+        self.byte_array_class_id
             .get()
             .copied()
             .ok_or_else(|| JvmError::Todo("[C class is not loaded".to_string()))

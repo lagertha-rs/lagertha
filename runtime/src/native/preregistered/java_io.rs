@@ -1,5 +1,6 @@
+use crate::keys::FullyQualifiedMethodKey;
 use crate::native::{NativeRegistry, NativeRet};
-use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
+use crate::{ThreadId, VirtualMachine};
 use common::Value;
 use common::jtype::AllocationType;
 use tracing_log::log::debug;
@@ -88,7 +89,7 @@ fn java_io_file_output_stream_write_bytes(
     let output_stream_fd_field_offset = vm
         .method_area
         .get_instance_class(&output_stream_class_id)?
-        .get_instance_field(&vm.method_area.br().file_output_stream_fd_fk)?
+        .get_instance_field(&vm.br().file_output_stream_fd_fk)?
         .offset;
     let fd_obj = vm
         .heap
@@ -102,7 +103,7 @@ fn java_io_file_output_stream_write_bytes(
     let fd_fd_field_offset = vm
         .method_area
         .get_instance_class(&fd_class_id)?
-        .get_instance_field(&vm.method_area.br().fd_fd_fk)?
+        .get_instance_field(&vm.br().fd_fd_fk)?
         .offset;
     let fd_val = vm
         .heap

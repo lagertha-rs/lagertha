@@ -9,6 +9,9 @@ pub mod jtype;
 pub mod signature;
 pub mod utils;
 
+/* TODO: need to refactor crates structure, the heap reference type should be defined in heap module
+* and be a separate struct instead of usize. Only heap should be able to create heap ref instances.
+*/
 pub type HeapRef = usize;
 
 /// Used to represent stack operand, local variable, arguments and static field values.

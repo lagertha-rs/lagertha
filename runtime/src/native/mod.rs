@@ -1,9 +1,10 @@
 mod preregistered;
 mod registrable;
 
+use crate::keys::FullyQualifiedMethodKey;
 use crate::native::preregistered::preregister_natives;
 use crate::native::registrable::add_registrable_natives;
-use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
+use crate::{ThreadId, VirtualMachine};
 use common::Value;
 use common::error::JvmError;
 use lasso::ThreadedRodeo;

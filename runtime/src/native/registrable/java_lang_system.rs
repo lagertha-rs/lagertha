@@ -1,5 +1,6 @@
+use crate::keys::FullyQualifiedMethodKey;
 use crate::native::NativeRet;
-use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
+use crate::{ThreadId, VirtualMachine};
 use common::Value;
 use tracing_log::log::debug;
 
@@ -59,10 +60,10 @@ fn java_lang_system_set_out_0(
     };
     let system_class_id = vm
         .method_area
-        .get_class_id_or_load(vm.method_area.br().java_lang_system_sym)?;
+        .get_class_id_or_load(vm.br().java_lang_system_sym)?;
     vm.method_area
         .get_class_like(&system_class_id)?
-        .set_static_field_value(&vm.method_area.br().system_out_fk, Value::Ref(val))?;
+        .set_static_field_value(&vm.br().system_out_fk, Value::Ref(val))?;
     Ok(None)
 }
 
@@ -78,10 +79,10 @@ fn java_lang_system_set_err_0(
     };
     let system_class_id = vm
         .method_area
-        .get_class_id_or_load(vm.method_area.br().java_lang_system_sym)?;
+        .get_class_id_or_load(vm.br().java_lang_system_sym)?;
     vm.method_area
         .get_class_like(&system_class_id)?
-        .set_static_field_value(&vm.method_area.br().system_err_fk, Value::Ref(val))?;
+        .set_static_field_value(&vm.br().system_err_fk, Value::Ref(val))?;
     Ok(None)
 }
 

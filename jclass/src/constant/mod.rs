@@ -145,7 +145,7 @@ impl<'a> ConstantInfo {
             ConstantTag::Utf8 => {
                 let len = cursor.u16()?;
                 let bytes = cursor.bytes(len as usize)?;
-                Self::Utf8(String::from_utf8(bytes).unwrap())
+                Self::Utf8(String::from_utf8_lossy(bytes).to_string())
             }
             ConstantTag::Integer => {
                 let value = cursor.i32()?;

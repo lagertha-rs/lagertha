@@ -1,4 +1,4 @@
-use crate::{ClassId, FieldDescriptorId};
+use crate::keys::{ClassId, FieldDescriptorId};
 use common::Value;
 use jclass::flags::FieldFlags;
 use std::cell::RefCell;

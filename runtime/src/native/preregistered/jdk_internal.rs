@@ -1,5 +1,6 @@
+use crate::keys::FullyQualifiedMethodKey;
 use crate::native::{NativeRegistry, NativeRet};
-use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
+use crate::{ThreadId, VirtualMachine};
 use common::Value;
 use tracing_log::log::debug;
 
@@ -75,7 +76,7 @@ fn jdk_internal_util_system_props_raw_platform_properties(
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.platformProperties");
-    let string_class_sym = vm.method_area.br().java_lang_string_sym;
+    let string_class_sym = vm.br().java_lang_string_sym;
     // TODO: create a registry for interned common strings
     let empty_string_sym = vm.method_area.interner().get_or_intern("");
     let string_class_id = vm.method_area.get_class_id_or_load(string_class_sym)?;
@@ -105,7 +106,7 @@ fn jdk_internal_util_system_props_raw_vm_properties(
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.vmProperties");
-    let string_class_sym = vm.method_area.br().java_lang_string_sym;
+    let string_class_sym = vm.br().java_lang_string_sym;
     let string_class = vm.method_area.get_class_id_or_load(string_class_sym)?;
     //TODO: same here, it needs a registry for common interned strings
     let h = vm.heap.alloc_object_array(string_class, 4)?;
