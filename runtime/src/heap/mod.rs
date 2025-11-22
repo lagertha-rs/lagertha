@@ -1,5 +1,5 @@
 use crate::keys::ClassId;
-use crate::{Symbol, throw_exception};
+use crate::{Symbol, debug_error_log, debug_log, throw_exception};
 use common::error::JvmError;
 use common::instruction::ArrayType;
 use common::jtype::AllocationType;
@@ -649,11 +649,12 @@ impl Heap {
     }
 
     pub fn clone_object(&mut self, src: HeapRef) -> Result<HeapRef, JvmError> {
-        let (class_id, data_size) = {
-            let src_header = unsafe { self.get_header(src) };
+        let (class_id, data_size, is_array) = {
+            let src_header = self.get_header(src);
             (
                 src_header.class_id,
                 src_header.size as usize - ObjectHeader::SIZE,
+                src_header.is_array,
             )
         };
 
@@ -666,9 +667,10 @@ impl Heap {
             std::ptr::copy_nonoverlapping(src_data_ptr, dest_data_ptr, data_size);
         }
 
-        let dest_header = unsafe { self.get_header_mut(dest) };
+        let dest_header = self.get_header_mut(dest);
         dest_header.class_id = class_id;
         dest_header.marked = false;
+        dest_header.is_array = is_array;
 
         Ok(dest)
     }
@@ -740,5 +742,17 @@ impl Heap {
         let elements_ptr = unsafe { data_ptr.add(Self::ARRAY_ELEMENTS_OFFSET) };
 
         Ok(unsafe { std::slice::from_raw_parts(elements_ptr as *const i32, length as usize) })
+    }
+}
+
+impl Drop for Heap {
+    fn drop(&mut self) {
+        unsafe {
+            libc::munmap(self.memory as *mut libc::c_void, self.capacity);
+            let result = libc::munmap(self.memory as *mut libc::c_void, self.capacity);
+            if result != 0 {
+                debug_error_log!("munmap failed during Heap drop");
+            }
+        }
     }
 }

@@ -282,7 +282,7 @@ impl BootstrapRegistry {
     pub fn set_byte_array_class_id(&self, class_id: ClassId) -> Result<(), JvmError> {
         self.byte_array_class_id
             .set(class_id)
-            .map_err(|_| JvmError::Todo("[C class ID already set".to_string()))
+            .map_err(|_| JvmError::Todo("[B class ID already set".to_string()))
     }
 
     pub fn get_java_lang_string_id(&self) -> Result<ClassId, JvmError> {
@@ -296,7 +296,7 @@ impl BootstrapRegistry {
         self.byte_array_class_id
             .get()
             .copied()
-            .ok_or_else(|| JvmError::Todo("[C class is not loaded".to_string()))
+            .ok_or_else(|| JvmError::Todo("[B class is not loaded".to_string()))
     }
 
     pub fn get_java_lang_thread_group_id(&self) -> Result<ClassId, JvmError> {
