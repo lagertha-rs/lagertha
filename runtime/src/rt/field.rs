@@ -1,12 +1,12 @@
-use crate::{ClassId, TypeDescriptorId};
-use common::jtype::Value;
+use crate::keys::{ClassId, FieldDescriptorId};
+use common::Value;
 use jclass::flags::FieldFlags;
 use std::cell::RefCell;
 
 #[derive(Debug, Copy, Clone)]
 pub struct InstanceField {
     pub flags: FieldFlags,
-    pub descriptor_id: TypeDescriptorId,
+    pub descriptor_id: FieldDescriptorId,
     pub offset: usize,
     pub declaring_class: ClassId,
 }
@@ -14,6 +14,6 @@ pub struct InstanceField {
 #[derive(Debug)]
 pub struct StaticField {
     pub flags: FieldFlags,
-    pub descriptor: TypeDescriptorId,
+    pub descriptor: FieldDescriptorId,
     pub value: RefCell<Value>,
 }

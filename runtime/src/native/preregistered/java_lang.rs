@@ -1,9 +1,8 @@
+use crate::keys::{ClassId, FullyQualifiedMethodKey};
 use crate::native::{NativeRegistry, NativeRet};
 use crate::rt::ClassLike;
 use crate::vm::stack::FrameType;
-use crate::{
-    ClassId, FullyQualifiedMethodKey, MethodId, ThreadId, VirtualMachine, throw_exception,
-};
+use crate::{MethodId, ThreadId, VirtualMachine, throw_exception};
 use common::Value;
 use common::instruction::ArrayType;
 use common::jtype::AllocationType;
@@ -219,17 +218,13 @@ fn java_lang_throwable_fill_in_stack_trace(
         .filter(|frame| {
             //TODO: very hacky way to skip internal frames, should be improved and very probably doesn't show real throwable constructors
             let cur_method = vm.method_area.get_method(&frame.method_id());
-            !vm.method_area.instance_of(
-                cur_method.class_id(),
-                vm.method_area.br().java_lang_throwable_sym,
-            )
+            !vm.method_area
+                .instance_of(cur_method.class_id(), vm.br().java_lang_throwable_sym)
         })
         .cloned() // TODO: very bad clone
         .collect();
     frames.reverse();
-    let int_arr_class = vm
-        .method_area
-        .load_array_class(vm.method_area.br().int_array_desc)?;
+    let int_arr_class = vm.method_area.load_array_class(vm.br().int_array_desc)?;
     let class_id_array =
         vm.heap
             .alloc_primitive_array(int_arr_class, ArrayType::Int, frames.len() as i32)?;
@@ -262,7 +257,7 @@ fn java_lang_throwable_fill_in_stack_trace(
     }
     let backtrace_addr = vm
         .heap
-        .alloc_object_array(vm.method_area.br().get_java_lang_object_id()?, 3)?;
+        .alloc_object_array(vm.br().get_java_lang_object_id()?, 3)?;
     vm.heap
         .write_array_element(backtrace_addr, 0, Value::Ref(class_id_array))?;
     vm.heap
@@ -277,12 +272,12 @@ fn java_lang_throwable_fill_in_stack_trace(
     let backtrace_field_offset = vm
         .method_area
         .get_instance_class(&throwable_class_id)?
-        .get_instance_field(&vm.method_area.br().throwable_backtrace_fk)?
+        .get_instance_field(&vm.br().throwable_backtrace_fk)?
         .offset;
     let depth_field_offset = vm
         .method_area
         .get_instance_class(&throwable_class_id)?
-        .get_instance_field(&vm.method_area.br().throwable_depth_fk)?
+        .get_instance_field(&vm.br().throwable_depth_fk)?
         .offset;
     vm.heap.write_field(
         throwable_addr,
@@ -408,7 +403,7 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
         vm.heap.write_field(
             cur_stack_trace_entry,
             stack_trace_class
-                .get_instance_field(&vm.method_area.br().stack_trace_declaring_class_name_fk)?
+                .get_instance_field(&vm.br().stack_trace_declaring_class_name_fk)?
                 .offset,
             Value::Ref(class_name),
             AllocationType::Reference,
@@ -416,7 +411,7 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
         vm.heap.write_field(
             cur_stack_trace_entry,
             stack_trace_class
-                .get_instance_field(&vm.method_area.br().stack_trace_method_name_fk)?
+                .get_instance_field(&vm.br().stack_trace_method_name_fk)?
                 .offset,
             Value::Ref(method_name),
             AllocationType::Reference,
@@ -424,7 +419,7 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
         vm.heap.write_field(
             cur_stack_trace_entry,
             stack_trace_class
-                .get_instance_field(&vm.method_area.br().stack_trace_file_name_fk)?
+                .get_instance_field(&vm.br().stack_trace_file_name_fk)?
                 .offset,
             Value::Ref(source),
             AllocationType::Reference,
@@ -432,7 +427,7 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
         vm.heap.write_field(
             cur_stack_trace_entry,
             stack_trace_class
-                .get_instance_field(&vm.method_area.br().stack_trace_line_number_fk)?
+                .get_instance_field(&vm.br().stack_trace_line_number_fk)?
                 .offset,
             Value::Integer(line_nbr),
             AllocationType::Int,
@@ -440,7 +435,7 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
         vm.heap.write_field(
             cur_stack_trace_entry,
             stack_trace_class
-                .get_instance_field(&vm.method_area.br().stack_trace_declaring_class_fk)?
+                .get_instance_field(&vm.br().stack_trace_declaring_class_fk)?
                 .offset,
             Value::Ref(declaring_class_object),
             AllocationType::Reference,

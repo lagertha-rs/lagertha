@@ -1,9 +1,10 @@
 use crate::heap::method_area::MethodArea;
+use crate::keys::{ClassId, FieldKey, MethodKey};
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::field::{InstanceField, StaticField};
 use crate::rt::method::Method;
 use crate::rt::{BaseClass, ClassLike, JvmClass};
-use crate::{ClassId, FieldKey, MethodId, MethodKey, Symbol};
+use crate::{MethodId, Symbol};
 use common::error::{JavaExceptionFromJvm, JvmError};
 use jclass::ClassFile;
 use jclass::attribute::class::ClassAttribute;

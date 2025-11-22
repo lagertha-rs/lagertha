@@ -1,9 +1,9 @@
+use crate::keys::{ClassId, FieldKey, MethodKey};
 use crate::rt::constant_pool::RuntimeConstant;
 use crate::rt::{ClassLike, JvmClass};
 use crate::vm::stack::{FrameType, JavaFrame, NativeFrame};
 use crate::{
-    ClassId, FieldKey, MethodId, MethodKey, ThreadId, VirtualMachine, build_exception,
-    debug_log_instruction, throw_exception,
+    MethodId, ThreadId, VirtualMachine, build_exception, debug_log_instruction, throw_exception,
 };
 use common::error::{JavaExceptionFromJvm, JvmError};
 use common::instruction::Instruction;
@@ -1380,7 +1380,7 @@ impl Interpreter {
         let init_phase1_method_id = vm
             .method_area
             .get_instance_class(&class_id)?
-            .get_special_method_id(&vm.method_area.br().system_init_phase1_mk)?;
+            .get_special_method_id(&vm.br().system_init_phase1_mk)?;
         Self::invoke_method_internal(thread_id, init_phase1_method_id, vec![], vm)?;
         Ok(())
     }
@@ -1426,7 +1426,7 @@ impl Interpreter {
 
                 // probably in the future we can skip it for something like arraycopy native method
                 // I guess it doesn't need the whole class initialization
-                if cur_class_name == vm.method_area.br().java_lang_system_sym {
+                if cur_class_name == vm.br().java_lang_system_sym {
                     Self::run_init_phase1(thread_id, class_id, vm)?;
                 }
                 //TODO: stub

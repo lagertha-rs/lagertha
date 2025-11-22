@@ -1,9 +1,10 @@
+use crate::MethodId;
 use crate::heap::method_area::MethodArea;
+use crate::keys::{ClassId, FieldKey, MethodKey};
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::field::StaticField;
 use crate::rt::method::Method;
 use crate::rt::{BaseClass, ClassLike, JvmClass};
-use crate::{ClassId, FieldKey, MethodId, MethodKey};
 use common::error::JvmError;
 use jclass::ClassFile;
 use jclass::constant::pool::ConstantPool;

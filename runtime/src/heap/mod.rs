@@ -1,4 +1,5 @@
-use crate::{ClassId, Symbol, throw_exception};
+use crate::keys::ClassId;
+use crate::{Symbol, throw_exception};
 use common::error::JvmError;
 use common::instruction::ArrayType;
 use common::jtype::AllocationType;
@@ -9,9 +10,6 @@ use std::num::NonZeroU32;
 use std::sync::Arc;
 
 pub mod method_area;
-
-const LATIN1: i32 = 0;
-const UTF16: i32 = 1;
 
 #[repr(C)]
 pub struct ObjectHeader {
@@ -36,9 +34,9 @@ pub struct Heap {
     allocated: usize,
     interner: Arc<ThreadedRodeo>,
     string_pool: HashMap<Symbol, HeapRef>,
+    byte_array_class_id: ClassId,
     string_class_id: ClassId,
     string_instance_size: usize,
-    char_array_class_id: ClassId,
 }
 
 impl Heap {
@@ -46,6 +44,8 @@ impl Heap {
     pub const ARRAY_LENGTH_OFFSET: usize = 0;
     pub const ARRAY_TYPE_OFFSET: usize = 4;
     pub const ARRAY_ELEMENTS_OFFSET: usize = 8;
+    const LATIN1: i32 = 0;
+    const UTF16: i32 = 1;
 
     pub fn new(
         size_mb: usize,
@@ -81,8 +81,56 @@ impl Heap {
             interner,
             string_class_id,
             string_instance_size,
-            char_array_class_id,
+            byte_array_class_id: char_array_class_id,
         })
+    }
+
+    fn alloc_raw(&mut self, size: usize) -> Result<HeapRef, JvmError> {
+        let total_needed = ObjectHeader::SIZE + size;
+
+        // align to 8 bytes
+        let aligned_total = (total_needed + 7) & !7;
+
+        if self.allocated + aligned_total > self.capacity {
+            // TODO: OOM
+            return Err(JvmError::Todo("Heap full".to_string()));
+        }
+
+        let offset = self.allocated;
+        self.allocated += aligned_total;
+
+        // zero initialize
+        let data_ptr = unsafe { self.get_data_ptr(offset) };
+        unsafe {
+            std::ptr::write_bytes(data_ptr, 0, size);
+        }
+
+        Ok(offset)
+    }
+
+    pub fn is_array(&self, heap_ref: HeapRef) -> Result<bool, JvmError> {
+        let header = self.get_header(heap_ref);
+        Ok(header.is_array())
+    }
+
+    fn get_header_mut(&mut self, heap_ref: HeapRef) -> &mut ObjectHeader {
+        unsafe { &mut *(self.memory.add(heap_ref) as *mut ObjectHeader) }
+    }
+
+    pub fn get_header(&self, heap_ref: HeapRef) -> &ObjectHeader {
+        unsafe { &*(self.memory.add(heap_ref) as *const ObjectHeader) }
+    }
+
+    unsafe fn get_data_ptr(&self, heap_ref: HeapRef) -> *mut u8 {
+        self.memory.add(heap_ref + ObjectHeader::SIZE)
+    }
+
+    fn get_allocation_type(&self, heap_ref: HeapRef) -> Result<AllocationType, JvmError> {
+        self.is_array(heap_ref)?;
+        let data_ptr = unsafe { self.get_data_ptr(heap_ref) };
+        let type_byte = unsafe { *(data_ptr.add(Self::ARRAY_TYPE_OFFSET) as *const u8) };
+        AllocationType::try_from(type_byte)
+            .map_err(|_| JvmError::Todo("Invalid allocation type".to_string()))
     }
 
     pub fn alloc_instance(
@@ -92,8 +140,8 @@ impl Heap {
     ) -> Result<HeapRef, JvmError> {
         let heap_ref = self.alloc_raw(instance_size)?;
 
-        let header = unsafe { self.get_header_mut(heap_ref) };
-        header.class_id = class_id.0;
+        let header = self.get_header_mut(heap_ref);
+        header.class_id = class_id.into_inner();
         header.size = (ObjectHeader::SIZE + instance_size) as u32;
         header.marked = false;
         header.is_array = false;
@@ -115,16 +163,11 @@ impl Heap {
         let array_data_size = Self::ARRAY_ELEMENTS_OFFSET + (length as usize * element_size);
         let heap_ref = self.alloc_raw(array_data_size)?;
 
-        let header = unsafe { self.get_header_mut(heap_ref) };
-        header.class_id = class_id.0;
+        let header = self.get_header_mut(heap_ref);
+        header.class_id = class_id.into_inner();
         header.size = (ObjectHeader::SIZE + array_data_size) as u32;
         header.marked = false;
         header.is_array = true;
-
-        let data_ptr = unsafe { self.get_data_ptr(heap_ref) };
-        unsafe {
-            std::ptr::write_bytes(data_ptr, 0, array_data_size);
-        }
 
         let data_ptr = unsafe { self.get_data_ptr(heap_ref) };
         unsafe {
@@ -164,11 +207,12 @@ impl Heap {
     }
 
     pub fn get_class_id(&self, heap_ref: HeapRef) -> Result<ClassId, JvmError> {
-        let header = unsafe { self.get_header(heap_ref) };
-        Ok(ClassId(header.class_id))
+        let header = self.get_header(heap_ref);
+        Ok(ClassId::new(header.class_id))
     }
 
     pub fn get_array_length(&self, heap_ref: HeapRef) -> Result<i32, JvmError> {
+        self.is_array(heap_ref)?;
         let data_ptr = unsafe { self.get_data_ptr(heap_ref) };
         let length = unsafe { *(data_ptr as *const i32) };
         Ok(length)
@@ -343,45 +387,6 @@ impl Heap {
         }
     }
 
-    fn alloc_raw(&mut self, size: usize) -> Result<HeapRef, JvmError> {
-        let total_needed = ObjectHeader::SIZE + size;
-
-        let aligned_total = (total_needed + 7) & !7;
-
-        if self.allocated + aligned_total > self.capacity {
-            return Err(JvmError::Todo("Heap full".to_string()));
-        }
-
-        let offset = self.allocated;
-        self.allocated += aligned_total;
-
-        Ok(offset)
-    }
-
-    pub fn is_array(&self, heap_ref: HeapRef) -> Result<bool, JvmError> {
-        let header = self.get_header(heap_ref);
-        Ok(header.is_array())
-    }
-
-    fn get_header_mut(&mut self, heap_ref: HeapRef) -> &mut ObjectHeader {
-        unsafe { &mut *(self.memory.add(heap_ref) as *mut ObjectHeader) }
-    }
-
-    pub fn get_header(&self, heap_ref: HeapRef) -> &ObjectHeader {
-        unsafe { &*(self.memory.add(heap_ref) as *const ObjectHeader) }
-    }
-
-    unsafe fn get_data_ptr(&self, heap_ref: HeapRef) -> *mut u8 {
-        self.memory.add(heap_ref + ObjectHeader::SIZE)
-    }
-
-    fn get_allocation_type(&self, heap_ref: HeapRef) -> Result<AllocationType, JvmError> {
-        let data_ptr = unsafe { self.get_data_ptr(heap_ref) };
-        let type_byte = unsafe { *(data_ptr.add(Self::ARRAY_TYPE_OFFSET) as *const u8) };
-        AllocationType::try_from(type_byte)
-            .map_err(|_| JvmError::Todo("Invalid allocation type".to_string()))
-    }
-
     pub fn alloc_string(&mut self, s: &str) -> Result<HeapRef, JvmError> {
         self.alloc_string_from_str_with_char_mapping(s, None)
     }
@@ -389,71 +394,111 @@ impl Heap {
     fn can_encode_latin1(s: &str) -> bool {
         s.chars().all(|c| (c as u32) <= 0xFF)
     }
-
-    fn can_encode_latin1_utf16(utf16_units: &[u16]) -> bool {
-        utf16_units.iter().all(|&c| c <= 0xFF)
+    fn can_encode_latin1_with_map(s: &str, f: Option<&dyn Fn(char) -> char>) -> bool {
+        if let Some(mapper) = f {
+            s.chars().map(mapper).all(|c| (c as u32) <= 0xFF)
+        } else {
+            Self::can_encode_latin1(s)
+        }
     }
 
-    //TODO: optimize, avoid intermediate Vec
-    /// Uses java standard UTF-16 encoding
+    fn alloc_ascii_byte_array_internal(&mut self, s: &str) -> Result<(HeapRef, i32), JvmError> {
+        let byte_array =
+            self.alloc_primitive_array(self.byte_array_class_id, ArrayType::Byte, s.len() as i32)?;
+
+        let byte_slice = self.get_byte_array_slice_mut(byte_array)?;
+
+        unsafe {
+            std::ptr::copy_nonoverlapping(
+                s.as_ptr() as *const i8,
+                byte_slice.as_mut_ptr(),
+                s.len(),
+            );
+        }
+
+        Ok((byte_array, Self::LATIN1))
+    }
+
+    fn alloc_latin1_byte_array_internal(
+        &mut self,
+        s: &str,
+        f: Option<&dyn Fn(char) -> char>,
+    ) -> Result<(HeapRef, i32), JvmError> {
+        let char_count = s.chars().count();
+        let byte_array = self.alloc_primitive_array(
+            self.byte_array_class_id,
+            ArrayType::Byte,
+            char_count as i32,
+        )?;
+
+        let byte_slice = self.get_byte_array_slice_mut(byte_array)?;
+
+        if let Some(mapper) = f {
+            for (i, c) in s.chars().map(mapper).enumerate() {
+                byte_slice[i] = c as i8;
+            }
+        } else {
+            for (i, c) in s.chars().enumerate() {
+                byte_slice[i] = c as i8;
+            }
+        }
+
+        Ok((byte_array, Self::LATIN1))
+    }
+
+    fn alloc_utf16_byte_array_internal(
+        &mut self,
+        s: &str,
+        f: Option<&dyn Fn(char) -> char>,
+    ) -> Result<(HeapRef, i32), JvmError> {
+        let utf16_units: Vec<u16> = if let Some(mapper) = f {
+            let mut units = Vec::with_capacity(s.len() + (s.len() / 5)); // rough estimate
+            for c in s.chars() {
+                let mapped = mapper(c);
+                let mut buf = [0u16; 2];
+                let encoded = mapped.encode_utf16(&mut buf);
+                units.extend_from_slice(encoded);
+            }
+            units
+        } else {
+            s.encode_utf16().collect()
+        };
+
+        let byte_count = utf16_units.len() * 2;
+        let byte_array = self.alloc_primitive_array(
+            self.byte_array_class_id,
+            ArrayType::Byte,
+            byte_count as i32,
+        )?;
+
+        let byte_slice = self.get_byte_array_slice_mut(byte_array)?;
+
+        unsafe {
+            std::ptr::copy_nonoverlapping(
+                utf16_units.as_ptr() as *const i8,
+                byte_slice.as_mut_ptr(),
+                byte_count,
+            );
+        }
+
+        Ok((byte_array, Self::UTF16))
+    }
+
     pub fn alloc_string_from_str_with_char_mapping(
         &mut self,
         s: &str,
         f: Option<&dyn Fn(char) -> char>,
     ) -> Result<HeapRef, JvmError> {
-        let processed_string: String = if let Some(mapper) = f {
-            s.chars().map(mapper).collect()
+        let (byte_array_ref, coder) = if f.is_none() && s.is_ascii() {
+            // latin1 but optimized for ASCII
+            self.alloc_ascii_byte_array_internal(s)?
+        } else if Self::can_encode_latin1_with_map(s, f) {
+            // latin1
+            self.alloc_latin1_byte_array_internal(s, f)?
         } else {
-            s.to_string()
-        };
-
-        // Determine encoding
-        let use_latin1 = Self::can_encode_latin1(&processed_string);
-
-        let (byte_array_ref, coder) = if use_latin1 {
-            // LATIN1 encoding: 1 byte per character
-            let chars: Vec<u8> = processed_string.chars().map(|c| c as u8).collect();
-            let byte_array = self.alloc_primitive_array(
-                self.char_array_class_id,
-                ArrayType::Byte,
-                chars.len() as i32,
-            )?;
-
-            for (i, &byte_val) in chars.iter().enumerate() {
-                self.write_array_element(
-                    byte_array,
-                    i as i32,
-                    Value::Integer(byte_val as i8 as i32),
-                )?;
-            }
-
-            (byte_array, LATIN1)
-        } else {
-            // UTF-16 encoding: 2 bytes per character (UTF-16LE)
-            let utf16_units: Vec<u16> = processed_string.encode_utf16().collect();
-            let byte_count = utf16_units.len() * 2;
-
-            let byte_array = self.alloc_primitive_array(
-                self.char_array_class_id,
-                ArrayType::Byte,
-                byte_count as i32,
-            )?;
-
-            for (i, &code_unit) in utf16_units.iter().enumerate() {
-                let bytes = code_unit.to_le_bytes();
-                self.write_array_element(
-                    byte_array,
-                    (i * 2) as i32,
-                    Value::Integer(bytes[0] as i8 as i32),
-                )?;
-                self.write_array_element(
-                    byte_array,
-                    (i * 2 + 1) as i32,
-                    Value::Integer(bytes[1] as i8 as i32),
-                )?;
-            }
-
-            (byte_array, UTF16)
+            // UTF-16
+            // TODO: it is added but not tested at all, and my jclass can't take MUTF-8 strings yet
+            self.alloc_utf16_byte_array_internal(s, f)?
         };
 
         let string_instance =
@@ -524,13 +569,11 @@ impl Heap {
         let byte_slice = self.get_byte_array_slice(byte_array_ref)?;
 
         match coder {
-            LATIN1 => {
-                // LATIN1: each byte is a character
+            Self::LATIN1 => {
                 let chars: String = byte_slice.iter().map(|&b| (b as u8) as char).collect();
                 Ok(chars)
             }
-            UTF16 => {
-                // UTF-16LE: every 2 bytes form a UTF-16 code unit
+            Self::UTF16 => {
                 if byte_slice.len() % 2 != 0 {
                     return Err(JvmError::Todo(
                         "Invalid UTF-16 byte array (odd length)".to_string(),
@@ -671,6 +714,19 @@ impl Heap {
         let elements_ptr = unsafe { data_ptr.add(Self::ARRAY_ELEMENTS_OFFSET) };
 
         Ok(unsafe { std::slice::from_raw_parts(elements_ptr as *const i8, length as usize) })
+    }
+
+    pub fn get_byte_array_slice_mut(&self, heap_ref: HeapRef) -> Result<&mut [i8], JvmError> {
+        let allocation_type = self.get_allocation_type(heap_ref)?;
+        if allocation_type != AllocationType::Byte {
+            return Err(JvmError::Todo("Not a byte array".to_string()));
+        }
+
+        let length = self.get_array_length(heap_ref)?;
+        let data_ptr = unsafe { self.get_data_ptr(heap_ref) };
+        let elements_ptr = unsafe { data_ptr.add(Self::ARRAY_ELEMENTS_OFFSET) };
+
+        Ok(unsafe { std::slice::from_raw_parts_mut(elements_ptr as *mut i8, length as usize) })
     }
 
     pub fn get_int_array_slice(&self, heap_ref: HeapRef) -> Result<&[i32], JvmError> {
