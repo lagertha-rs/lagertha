@@ -1,4 +1,4 @@
-package exceptions.assert.failed_assert;
+package exceptions.asserts.failed_assert;
 
 public class FailedAssertErrMain {
     public static void main(String[] args) {

@@ -6,4 +6,4 @@ expression: "&combined"
 
 ----- STDERR -----
 Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: Index -1 out of bounds for length 1
-	at arrays.primitives.set_negative_array_index_should_throw_err.SetNegativeArrayIndexShouldThrowErrMain.main(SetNegativeArrayIndexShouldThrowErrMain.java:6)
+	at arrays.primitives.bounds.get_negative_index.GetNegativeIndexErrMain.main(GetNegativeIndexErrMain.java:6)

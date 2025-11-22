@@ -1,4 +1,4 @@
-package primitives.int.arithmetic.comprehensive;
+package primitives.ints.arithmetic.comprehensive;
 
 public class ArithmeticOkMain {
     public static void main(String[] args) {

@@ -1,4 +1,4 @@
-package exceptions.assert.passed_assert;
+package exceptions.asserts.passed_assert;
 
 public class PassedAssertOkMain {
     public static void main(String[] args) {

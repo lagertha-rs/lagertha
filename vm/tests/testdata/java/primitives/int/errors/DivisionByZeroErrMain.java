@@ -1,4 +1,4 @@
-package primitives.int.errors.division_by_zero;
+package primitives.ints.errors.division_by_zero;
 
 public class DivisionByZeroErrMain {
     public static void main(String[] args) {

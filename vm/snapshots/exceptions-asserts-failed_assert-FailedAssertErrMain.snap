@@ -6,4 +6,4 @@ expression: "&combined"
 
 ----- STDERR -----
 Exception in thread "main" java.lang.AssertionError: Error message
-	at exceptions.java_assert.JavaAssertShouldThrowErrMain.main(JavaAssertShouldThrowErrMain.java:5)
+	at exceptions.asserts.failed_assert.FailedAssertErrMain.main(FailedAssertErrMain.java:5)

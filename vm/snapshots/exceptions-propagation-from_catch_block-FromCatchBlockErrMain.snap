@@ -6,4 +6,4 @@ expression: "&combined"
 
 ----- STDERR -----
 Exception in thread "main" java.lang.IllegalArgumentException: New exception in catch
-	at exceptions.exception_in_catch_propagates.ExceptionInCatchBlockPropagatesErrMain.main(ExceptionInCatchBlockPropagatesErrMain.java:8)
+	at exceptions.propagation.from_catch_block.FromCatchBlockErrMain.main(FromCatchBlockErrMain.java:8)
