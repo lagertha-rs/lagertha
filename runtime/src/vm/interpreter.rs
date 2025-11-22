@@ -686,6 +686,48 @@ impl Interpreter {
                 vm.get_stack_mut(&thread_id)?
                     .push_operand(Value::Long(v1.wrapping_add(v2)))?;
             }
+            Instruction::Ldiv => {
+                let v2 = vm.get_stack_mut(&thread_id)?.pop_long_val()?;
+                let v1 = vm.get_stack_mut(&thread_id)?.pop_long_val()?;
+                if v2 == 0 {
+                    throw_exception!(ArithmeticException, "/ by zero")?
+                }
+                vm.get_stack_mut(&thread_id)?
+                    .push_operand(Value::Long(v1.wrapping_div(v2)))?;
+            }
+            Instruction::Lmul => {
+                let v2 = vm.get_stack_mut(&thread_id)?.pop_long_val()?;
+                let v1 = vm.get_stack_mut(&thread_id)?.pop_long_val()?;
+                vm.get_stack_mut(&thread_id)?
+                    .push_operand(Value::Long(v1.wrapping_mul(v2)))?;
+            }
+            Instruction::Lrem => {
+                let v2 = vm.get_stack_mut(&thread_id)?.pop_long_val()?;
+                let v1 = vm.get_stack_mut(&thread_id)?.pop_long_val()?;
+                if v2 == 0 {
+                    throw_exception!(ArithmeticException, "/ by zero")?
+                }
+                vm.get_stack_mut(&thread_id)?
+                    .push_operand(Value::Long(v1 % v2))?;
+            }
+            Instruction::Land => {
+                let v2 = vm.get_stack_mut(&thread_id)?.pop_long_val()?;
+                let v1 = vm.get_stack_mut(&thread_id)?.pop_long_val()?;
+                vm.get_stack_mut(&thread_id)?
+                    .push_operand(Value::Long(v1 & v2))?;
+            }
+            Instruction::Lor => {
+                let v2 = vm.get_stack_mut(&thread_id)?.pop_long_val()?;
+                let v1 = vm.get_stack_mut(&thread_id)?.pop_long_val()?;
+                vm.get_stack_mut(&thread_id)?
+                    .push_operand(Value::Long(v1 | v2))?;
+            }
+            Instruction::Lxor => {
+                let v2 = vm.get_stack_mut(&thread_id)?.pop_long_val()?;
+                let v1 = vm.get_stack_mut(&thread_id)?.pop_long_val()?;
+                vm.get_stack_mut(&thread_id)?
+                    .push_operand(Value::Long(v1 ^ v2))?;
+            }
             Instruction::Iand => {
                 let v2 = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
                 let v1 = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
