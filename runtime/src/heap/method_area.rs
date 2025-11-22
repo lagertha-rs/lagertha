@@ -1,5 +1,8 @@
 use crate::class_loader::ClassLoader;
 use crate::heap::Heap;
+use crate::keys::{
+    ClassId, FieldDescriptorId, FieldKey, FullyQualifiedMethodKey, MethodDescriptorId,
+};
 use crate::rt::array::{ObjectArrayClass, PrimitiveArrayClass};
 use crate::rt::class::InstanceClass;
 use crate::rt::constant_pool::RuntimeConstantPool;
@@ -7,13 +10,10 @@ use crate::rt::interface::InterfaceClass;
 use crate::rt::method::Method;
 use crate::rt::{ClassLike, JvmClass, PrimitiveClass};
 use crate::vm::bootstrap_registry::BootstrapRegistry;
-use crate::{
-    ClassId, FieldDescriptorId, FieldKey, FullyQualifiedMethodKey, MethodDescriptorId, MethodId,
-    Symbol, VmConfig, debug_log,
-};
+use crate::{MethodId, Symbol, VmConfig, debug_log};
 use common::descriptor::MethodDescriptor;
 use common::error::{JvmError, LinkageError, MethodDescriptorErr};
-use common::jtype::{JavaType, PrimitiveType};
+use common::jtype::{AllocationType, JavaType, PrimitiveType};
 use common::{HeapRef, Value};
 use jclass::ClassFile;
 use lasso::{Spur, ThreadedRodeo};
@@ -35,15 +35,15 @@ pub struct MethodArea {
     method_descriptors_index: HashMap<Symbol, MethodDescriptorId>,
 
     interner: Arc<ThreadedRodeo>,
-    bootstrap_registry: BootstrapRegistry,
+    bootstrap_registry: Arc<BootstrapRegistry>,
 }
 
 #[cfg_attr(feature = "hotpath", hotpath::measure_all)]
 impl MethodArea {
-    pub fn new(
+    pub fn init(
         vm_config: &VmConfig,
         string_interner: Arc<ThreadedRodeo>,
-    ) -> Result<Self, JvmError> {
+    ) -> Result<(Self, Arc<BootstrapRegistry>), JvmError> {
         debug_log!("Creating Method Area...");
         let bootstrap_class_loader = ClassLoader::new(vm_config)?;
 
@@ -57,46 +57,56 @@ impl MethodArea {
             field_descriptors_index: HashMap::new(),
             method_descriptors: Vec::new(),
             method_descriptors_index: HashMap::new(),
-            bootstrap_registry: BootstrapRegistry::new(&string_interner),
+            bootstrap_registry: Arc::new(BootstrapRegistry::new(&string_interner)),
             interner: string_interner,
         };
 
-        let java_lang_object_id =
-            method_area.get_class_id_or_load(method_area.br().java_lang_object_sym)?;
-        let java_lang_class_id =
-            method_area.get_class_id_or_load(method_area.br().java_lang_class_sym)?;
-        let java_lang_throwable_id =
-            method_area.get_class_id_or_load(method_area.br().java_lang_throwable_sym)?;
-        let java_lang_thread_id =
-            method_area.get_class_id_or_load(method_area.br().java_lang_thread_sym)?;
-        let java_lang_thread_group_id =
-            method_area.get_class_id_or_load(method_area.br().java_lang_thread_group_sym)?;
+        method_area.preload_basic_classes()?;
+        let br = method_area.bootstrap_registry.clone();
 
-        for primitive_type in PrimitiveType::values() {
-            let name_sym = method_area.br().get_primitive_sym(primitive_type);
-            let primitive_class =
-                JvmClass::Primitive(PrimitiveClass::new(name_sym, *primitive_type));
-            let class_id = method_area.push_class(primitive_class);
-            method_area.class_name_to_index.insert(name_sym, class_id);
-        }
+        Ok((method_area, br))
+    }
 
-        method_area
-            .bootstrap_registry
-            .set_java_lang_class_id(java_lang_class_id)?;
-        method_area
-            .bootstrap_registry
+    fn preload_basic_classes(&mut self) -> Result<(), JvmError> {
+        let java_lang_object_id = self.get_class_id_or_load(self.br().java_lang_object_sym)?;
+        self.bootstrap_registry
             .set_java_lang_object_id(java_lang_object_id)?;
-        method_area
-            .bootstrap_registry
+
+        let java_lang_class_id = self.get_class_id_or_load(self.br().java_lang_class_sym)?;
+        self.bootstrap_registry
+            .set_java_lang_class_id(java_lang_class_id)?;
+
+        let java_lang_throwable_id =
+            self.get_class_id_or_load(self.br().java_lang_throwable_sym)?;
+        self.bootstrap_registry
             .set_java_lang_throwable_id(java_lang_throwable_id)?;
-        method_area
-            .bootstrap_registry
+
+        let java_lang_thread_id = self.get_class_id_or_load(self.br().java_lang_thread_sym)?;
+        self.bootstrap_registry
             .set_java_lang_thread_id(java_lang_thread_id)?;
-        method_area
-            .bootstrap_registry
+
+        let java_lang_thread_group_id =
+            self.get_class_id_or_load(self.br().java_lang_thread_group_sym)?;
+        self.bootstrap_registry
             .set_java_lang_thread_group_id(java_lang_thread_group_id)?;
 
-        Ok(method_area)
+        let java_lang_string_id = self.get_class_id_or_load(self.br().java_lang_string_sym)?;
+        self.bootstrap_registry
+            .set_java_lang_string_id(java_lang_string_id)?;
+
+        let byte_array_class_id = self.get_class_id_or_load(self.br().byte_array_desc)?;
+        self.bootstrap_registry
+            .set_byte_array_class_id(byte_array_class_id)?;
+
+        for primitive_type in PrimitiveType::values() {
+            let name_sym = self.br().get_primitive_sym(primitive_type);
+            let primitive_class =
+                JvmClass::Primitive(PrimitiveClass::new(name_sym, *primitive_type));
+            let class_id = self.push_class(primitive_class);
+            self.class_name_to_index.insert(name_sym, class_id);
+        }
+
+        Ok(())
     }
 
     pub fn br(&self) -> &BootstrapRegistry {
@@ -404,18 +414,30 @@ impl MethodArea {
         if let Some(mirror_ref) = self.get_class(&class_id).get_mirror_ref() {
             return Ok(mirror_ref);
         }
-        let mirror_ref = heap.alloc_instance(self, self.br().get_java_lang_class_id()?)?;
+        let class_class_id = self.br().get_java_lang_class_id()?;
+        let class_instance_size = self
+            .get_instance_class(&class_class_id)?
+            .get_instance_size()?;
+        let mirror_ref = heap.alloc_instance(class_instance_size, class_class_id)?;
         self.mirror_to_class_index.insert(mirror_ref, class_id);
         let target_class = self.get_class(&class_id);
         target_class.set_mirror_ref(mirror_ref)?;
         let name_sym = target_class.get_name();
-        let name_ref = heap.alloc_string_from_interned_with_char_mapping(name_sym, self, &|c| {
-            if c == '/' { '.' } else { c }
-        })?;
-        let name_field_index = self
-            .get_instance_class(&self.br().get_java_lang_class_id()?)?
-            .get_instance_field_offset(&self.br().class_name_fk)?;
-        heap.write_instance_field(mirror_ref, name_field_index as usize, Value::Ref(name_ref))?;
+        let name_ref = heap.alloc_string_from_interned_with_char_mapping(
+            name_sym,
+            Some(&|c| {
+                if c == '/' { '.' } else { c }
+            }),
+        )?;
+        let name_field = self
+            .get_instance_class(&class_class_id)?
+            .get_instance_field(&self.br().class_name_fk)?;
+        heap.write_field(
+            mirror_ref,
+            name_field.offset,
+            Value::Ref(name_ref),
+            AllocationType::Reference,
+        )?;
         Ok(mirror_ref)
     }
 }

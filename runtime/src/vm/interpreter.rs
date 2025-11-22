@@ -1,9 +1,9 @@
+use crate::keys::{ClassId, FieldKey, MethodKey};
 use crate::rt::constant_pool::RuntimeConstant;
 use crate::rt::{ClassLike, JvmClass};
 use crate::vm::stack::{FrameType, JavaFrame, NativeFrame};
 use crate::{
-    ClassId, FieldKey, MethodId, MethodKey, ThreadId, VirtualMachine, build_exception,
-    debug_log_instruction, throw_exception,
+    MethodId, ThreadId, VirtualMachine, build_exception, debug_log_instruction, throw_exception,
 };
 use common::error::{JavaExceptionFromJvm, JvmError};
 use common::instruction::Instruction;
@@ -42,7 +42,7 @@ impl Interpreter {
             Instruction::Aaload => {
                 let index = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
                 let array_addr = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
-                let value = *vm.heap.get_array(&array_addr)?.get_element(index)?;
+                let value = vm.heap.read_array_element(array_addr, index)?;
                 if matches!(value, Value::Ref(_) | Value::Null) {
                     vm.get_stack_mut(&thread_id)?.push_operand(value)?;
                 } else {
@@ -56,22 +56,28 @@ impl Interpreter {
                 vm.heap.write_array_element(array_addr, index, value)?;
             }
             Instruction::Bastore => {
-                let value = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
+                let value = vm.get_stack_mut(&thread_id)?.pop_int()?;
                 let index = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
                 let array_addr = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
-                vm.heap
-                    .write_array_element(array_addr, index, Value::Integer(value & 0xFF))?;
+                vm.heap.write_array_element(array_addr, index, value)?;
             }
-            Instruction::Caload | Instruction::Baload | Instruction::Iaload => {
+            Instruction::Iaload => {
                 let index = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
                 let array_addr = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
-                let value = *vm.heap.get_array(&array_addr)?.get_element(index)?;
-                if let Value::Integer(i) = value {
-                    vm.get_stack_mut(&thread_id)?
-                        .push_operand(Value::Integer(i & 0xFF))?;
-                } else {
-                    panic!("Expected integer value in caload");
-                }
+                let value = vm.heap.read_array_element(array_addr, index)?;
+                vm.get_stack_mut(&thread_id)?.push_operand(value)?;
+            }
+            Instruction::Caload => {
+                let index = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
+                let array_addr = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
+                let value = vm.heap.read_array_element(array_addr, index)?;
+                vm.get_stack_mut(&thread_id)?.push_operand(value)?;
+            }
+            Instruction::Baload => {
+                let index = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
+                let array_addr = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
+                let value = vm.heap.read_array_element(array_addr, index)?;
+                vm.get_stack_mut(&thread_id)?.push_operand(value)?;
             }
             Instruction::Checkcast(_idx) => {
                 //TODO: stub
@@ -129,19 +135,15 @@ impl Interpreter {
                     .get_class_sym(&idx, vm.interner())?;
                 let target_array_class_id =
                     vm.method_area.get_class_id_or_load(target_array_sym)?;
-                let array_ref = vm.heap.alloc_array_with_default_value(
-                    target_array_class_id,
-                    Value::Null,
-                    size as usize,
-                )?;
+                let array_ref = vm.heap.alloc_object_array(target_array_class_id, size)?;
                 vm.get_stack_mut(&thread_id)?
                     .push_operand(Value::Ref(array_ref))?;
             }
             Instruction::ArrayLength => {
                 let array_ref = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
-                let length = vm.heap.get_array_len(&array_ref)?;
+                let length = vm.heap.get_array_length(array_ref)?;
                 vm.get_stack_mut(&thread_id)?
-                    .push_operand(Value::Integer(length as i32))?;
+                    .push_operand(Value::Integer(length))?;
             }
             Instruction::Astore0 => {
                 let value = vm.get_stack_mut(&thread_id)?.pop_nullable_ref()?;
@@ -290,14 +292,17 @@ impl Interpreter {
                     .get_cp_by_method_id(&cur_frame_method_id)?
                     .get_field_view(&idx, vm.interner())?;
                 let target_class_id = vm.method_area.get_class_id_or_load(field_view.class_sym)?;
-                let target_offset = vm
+                let target_field = vm
                     .method_area
                     .get_instance_class(&target_class_id)?
-                    .get_instance_field_offset(&field_view.name_and_type.into())?
-                    as usize;
-                let value = vm
-                    .heap
-                    .read_instance_field(&target_obj_ref, target_offset)?;
+                    .get_instance_field(&field_view.name_and_type.into())?;
+                let value = vm.heap.read_field(
+                    target_obj_ref,
+                    target_field.offset,
+                    vm.method_area
+                        .get_field_descriptor(&target_field.descriptor_id)
+                        .as_allocation_type(),
+                )?;
                 vm.get_stack_mut(&thread_id)?.push_operand(value)?;
             }
             Instruction::Getstatic(idx) => {
@@ -626,7 +631,7 @@ impl Interpreter {
                     .get_stack(&thread_id)?
                     .peek_at(arg_count - 1)?
                     .as_obj_ref()?;
-                let actual_class_id = vm.heap.get_class_id(&object_ref)?;
+                let actual_class_id = vm.heap.get_class_id(object_ref)?;
 
                 let target_method_id = vm
                     .method_area
@@ -645,7 +650,7 @@ impl Interpreter {
 
                 let obj_ref = vm.get_stack_mut(&thread_id)?.pop_nullable_ref_val()?;
                 if let Some(obj_ref) = obj_ref {
-                    let target_class = vm.heap.get_class_id(&obj_ref)?;
+                    let target_class = vm.heap.get_class_id(obj_ref)?;
                     let res = vm.method_area.instance_of(target_class, class_name_sym);
                     vm.get_stack_mut(&thread_id)?
                         .push_operand(Value::Integer(if res { 1 } else { 0 }))?;
@@ -811,9 +816,7 @@ impl Interpreter {
                         }
                         RuntimeConstant::String(str_entry) => {
                             let string_sym = str_entry.get_string_sym()?;
-                            let string_ref = vm
-                                .heap
-                                .get_str_from_pool_or_new(string_sym, &mut vm.method_area)?;
+                            let string_ref = vm.heap.get_str_from_pool_or_new(string_sym)?;
                             Value::Ref(string_ref)
                         }
                         _ => unimplemented!(),
@@ -830,9 +833,12 @@ impl Interpreter {
                     .get_class_sym(&idx, vm.interner())?;
                 let target_class_id = vm.method_area.get_class_id_or_load(target_class_name)?;
                 Self::ensure_initialized(thread_id, Some(target_class_id), vm)?;
-                let instance_ref = vm
-                    .heap
-                    .alloc_instance(&mut vm.method_area, target_class_id)?;
+                let instance_ref = vm.heap.alloc_instance(
+                    vm.method_area
+                        .get_instance_class(&target_class_id)?
+                        .get_instance_size()?,
+                    target_class_id,
+                )?;
                 vm.get_stack_mut(&thread_id)?
                     .push_operand(Value::Ref(instance_ref))?;
             }
@@ -844,11 +850,7 @@ impl Interpreter {
                 let class_id = vm
                     .method_area
                     .load_array_class(vm.interner().get_or_intern(array_type.descriptor()))?;
-                let array_ref = vm.heap.alloc_array_with_default_value(
-                    class_id,
-                    array_type.default_value(),
-                    size as usize,
-                )?;
+                let array_ref = vm.heap.alloc_primitive_array(class_id, array_type, size)?;
                 vm.get_stack_mut(&thread_id)?
                     .push_operand(Value::Ref(array_ref))?;
             }
@@ -865,13 +867,18 @@ impl Interpreter {
                     .get_cp_by_method_id(&cur_frame_method_id)?
                     .get_field_view(&idx, vm.interner())?;
                 let target_class_id = vm.method_area.get_class_id_or_load(field_view.class_sym)?;
-                let target_offset = vm
+                let target_field = vm
                     .method_area
                     .get_instance_class(&target_class_id)?
-                    .get_instance_field_offset(&field_view.name_and_type.into())?
-                    as usize;
-                vm.heap
-                    .write_instance_field(target_obj_ref, target_offset, value)?;
+                    .get_instance_field(&field_view.name_and_type.into())?;
+                vm.heap.write_field(
+                    target_obj_ref,
+                    target_field.offset,
+                    value,
+                    vm.method_area
+                        .get_field_descriptor(&target_field.descriptor_id)
+                        .as_allocation_type(),
+                )?;
             }
             Instruction::Putstatic(idx) => {
                 let value = vm.get_stack_mut(&thread_id)?.pop_operand()?;
@@ -918,7 +925,7 @@ impl Interpreter {
                         let _ = vm.get_stack_mut(&thread_id)?.pop_operand()?;
                     }
                 } else {
-                    let target_class_id = vm.heap.get_class_id(&object_ref)?;
+                    let target_class_id = vm.heap.get_class_id(object_ref)?;
                     let target_method_id = vm
                         .method_area
                         .get_instance_class(&target_class_id)?
@@ -1060,13 +1067,8 @@ impl Interpreter {
             Instruction::Saload => {
                 let index = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
                 let array_ref = vm.get_stack_mut(&thread_id)?.pop_obj_val()?;
-                let value = vm
-                    .heap
-                    .get_array(&array_ref)?
-                    .get_element(index)?
-                    .as_int()?;
-                vm.get_stack_mut(&thread_id)?
-                    .push_operand(Value::Integer(value))?;
+                let value = vm.heap.read_array_element(array_ref, index)?;
+                vm.get_stack_mut(&thread_id)?.push_operand(value)?;
             }
             Instruction::Sastore => {
                 let value = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
@@ -1138,22 +1140,22 @@ impl Interpreter {
             .method_area
             // TODO: fix interner usage, replace with direct symbol
             .get_class_id_or_load(vm.interner().get_or_intern(exception_ref.class))?;
-        let instance = vm.heap.alloc_instance(&mut vm.method_area, class_id)?;
-        let method_id = vm
-            .method_area
-            .get_instance_class(&class_id)?
-            .get_special_method_id(
-                // TODO: fix interner usage, replace with direct symbol
-                &MethodKey {
-                    name: vm.interner().get_or_intern(exception_ref.name),
-                    desc: vm.interner().get_or_intern(exception_ref.descriptor),
-                },
-            )?;
+        let (method_id, instance_size) = {
+            let class = vm.method_area.get_instance_class(&class_id)?;
+            (
+                class.get_special_method_id(
+                    // TODO: fix interner usage, replace with direct symbol
+                    &MethodKey {
+                        name: vm.interner().get_or_intern(exception_ref.name),
+                        desc: vm.interner().get_or_intern(exception_ref.descriptor),
+                    },
+                )?,
+                class.get_instance_size()?,
+            )
+        };
+        let instance = vm.heap.alloc_instance(instance_size, class_id)?;
         let params = if let Some(msg) = exception.get_message() {
-            vec![
-                Value::Ref(instance),
-                Value::Ref(vm.heap.alloc_string(msg, &mut vm.method_area)?),
-            ]
+            vec![Value::Ref(instance), Value::Ref(vm.heap.alloc_string(msg)?)]
         } else {
             vec![Value::Ref(instance)]
         };
@@ -1191,7 +1193,7 @@ impl Interpreter {
         vm: &VirtualMachine,
         entry: &ExceptionTableEntry,
         method_id: &MethodId,
-        java_exception: &HeapRef,
+        java_exception: HeapRef,
     ) -> Result<bool, JvmError> {
         let catch_type = entry.catch_type;
 
@@ -1224,7 +1226,7 @@ impl Interpreter {
                 continue;
             }
 
-            if Self::is_exception_caught(vm, entry, method_id, &java_exception)? {
+            if Self::is_exception_caught(vm, entry, method_id, java_exception)? {
                 let handler_pc = entry.handler_pc as usize;
                 let stack = vm.get_stack_mut(thread_id)?;
                 stack.push_operand(Value::Ref(java_exception))?;
@@ -1285,7 +1287,7 @@ impl Interpreter {
                 .method_area
                 .build_fully_qualified_native_method_key(&method_id);
             // native instance method of array special handling (for now, only Object.clone)
-            if !method.is_static() && vm.heap.is_array(&args[0].as_obj_ref()?)? {
+            if !method.is_static() && vm.heap.is_array(args[0].as_obj_ref()?)? {
                 method_key.class = None;
             }
             let frame = NativeFrame::new(method_id);
@@ -1378,7 +1380,7 @@ impl Interpreter {
         let init_phase1_method_id = vm
             .method_area
             .get_instance_class(&class_id)?
-            .get_special_method_id(&vm.method_area.br().system_init_phase1_mk)?;
+            .get_special_method_id(&vm.br().system_init_phase1_mk)?;
         Self::invoke_method_internal(thread_id, init_phase1_method_id, vec![], vm)?;
         Ok(())
     }
@@ -1424,7 +1426,7 @@ impl Interpreter {
 
                 // probably in the future we can skip it for something like arraycopy native method
                 // I guess it doesn't need the whole class initialization
-                if cur_class_name == vm.method_area.br().java_lang_system_sym {
+                if cur_class_name == vm.br().java_lang_system_sym {
                     Self::run_init_phase1(thread_id, class_id, vm)?;
                 }
                 //TODO: stub

@@ -1,6 +1,8 @@
+use crate::keys::FullyQualifiedMethodKey;
 use crate::native::{NativeRegistry, NativeRet};
-use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
+use crate::{ThreadId, VirtualMachine};
 use common::Value;
+use common::jtype::AllocationType;
 use tracing_log::log::debug;
 
 pub(super) fn do_register_java_io_preregistered_natives(native_registry: &mut NativeRegistry) {
@@ -68,7 +70,7 @@ fn java_io_file_output_stream_write_bytes(
     debug!("TODO: Partial implementation: java.io.FileOutputStream.writeBytes");
     let output_stream_ref = match &args[0] {
         Value::Ref(h) => *h,
-        _ => panic!("java.io.FileOutputStream.writeBytes: expected FileDescriptor object"),
+        _ => panic!("java.io.FileOutputStream.writeBytes: expected FileOutputStream object"),
     };
     let bytes_array = match &args[1] {
         Value::Ref(h) => *h,
@@ -83,41 +85,53 @@ fn java_io_file_output_stream_write_bytes(
         _ => panic!("java.io.FileOutputStream.writeBytes: expected non-negative length"),
     };
 
-    let output_stream_class_id = vm.heap.get_class_id(&output_stream_ref)?;
+    let output_stream_class_id = vm.heap.get_class_id(output_stream_ref)?;
     let output_stream_fd_field_offset = vm
         .method_area
         .get_instance_class(&output_stream_class_id)?
-        .get_instance_field_offset(&vm.method_area.br().file_output_stream_fd_fk)?;
+        .get_instance_field(&vm.br().file_output_stream_fd_fk)?
+        .offset;
     let fd_obj = vm
         .heap
-        .get_instance(&output_stream_ref)?
-        .get_element(output_stream_fd_field_offset as i32)?
+        .read_field(
+            output_stream_ref,
+            output_stream_fd_field_offset,
+            AllocationType::Reference,
+        )?
         .as_obj_ref()?;
-    let fd_class_id = vm.heap.get_class_id(&fd_obj)?;
+    let fd_class_id = vm.heap.get_class_id(fd_obj)?;
     let fd_fd_field_offset = vm
         .method_area
         .get_instance_class(&fd_class_id)?
-        .get_instance_field_offset(&vm.method_area.br().fd_fd_fk)?;
+        .get_instance_field(&vm.br().fd_fd_fk)?
+        .offset;
     let fd_val = vm
         .heap
-        .get_instance(&fd_obj)?
-        .get_element(fd_fd_field_offset as i32)?
+        .read_field(fd_obj, fd_fd_field_offset, AllocationType::Int)?
         .as_int()?;
-    let array = vm.heap.get_array(&bytes_array)?;
-    for i in offset..offset + length {
-        let byte = match array.get_element(i as i32).unwrap() {
-            Value::Integer(b) => b,
-            _ => panic!("java.io.FileOutputStream.writeBytes: expected byte element"),
-        };
-        if fd_val == 1 {
-            print!("{}", *byte as u8 as char);
-        } else if fd_val == 2 {
-            eprint!("{}", *byte as u8 as char);
-        } else {
-            unimplemented!(
-                "java.io.FileOutputStream.writeBytes: only stdout and stderr are supported"
-            );
-        }
+
+    let byte_slice = vm.heap.get_byte_array_slice(bytes_array)?;
+
+    if offset + length > byte_slice.len() {
+        panic!("writeBytes: offset + length exceeds array bounds");
+    }
+    let bytes_to_write = &byte_slice[offset..offset + length];
+
+    let unsigned_bytes: Vec<u8> = bytes_to_write.iter().map(|&b| b as u8).collect();
+
+    use std::io::Write;
+    if fd_val == 1 {
+        std::io::stdout()
+            .write_all(&unsigned_bytes)
+            .expect("Failed to write to stdout");
+        std::io::stdout().flush().expect("Failed to flush stdout");
+    } else if fd_val == 2 {
+        std::io::stderr()
+            .write_all(&unsigned_bytes)
+            .expect("Failed to write to stderr");
+        std::io::stderr().flush().expect("Failed to flush stderr");
+    } else {
+        unimplemented!("java.io.FileOutputStream.writeBytes: only stdout and stderr are supported");
     }
 
     Ok(None)

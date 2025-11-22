@@ -1,4 +1,4 @@
-use crate::{ClassId, FieldKey, MethodKey, Symbol};
+use crate::keys::{ClassId, FieldKey, MethodKey, Symbol};
 use common::error::JvmError;
 use common::jtype::PrimitiveType;
 use lasso::ThreadedRodeo;
@@ -62,7 +62,7 @@ pub struct BootstrapRegistry {
     pub object_desc: Symbol,       // Ljava/lang/Object;
     pub class_desc: Symbol,        // Ljava/lang/Class;
     pub string_array_desc: Symbol, // [Ljava/lang/String;
-    pub char_array_desc: Symbol,   // [C
+    pub byte_array_desc: Symbol,   // [B
     pub int_array_desc: Symbol,    // [I
     pub int_desc: Symbol,          // I
 
@@ -72,6 +72,8 @@ pub struct BootstrapRegistry {
     java_lang_throwable_id: OnceCell<ClassId>,
     java_lang_thread_group_id: OnceCell<ClassId>,
     java_lang_thread_id: OnceCell<ClassId>,
+    java_lang_string_id: OnceCell<ClassId>,
+    byte_array_class_id: OnceCell<ClassId>,
 }
 
 impl BootstrapRegistry {
@@ -87,7 +89,7 @@ impl BootstrapRegistry {
         let object_desc = interner.get_or_intern("Ljava/lang/Object;");
         let class_desc = interner.get_or_intern("Ljava/lang/Class;");
         let string_array_desc = interner.get_or_intern("[Ljava/lang/String;");
-        let char_array_desc = interner.get_or_intern("[C");
+        let byte_array_desc = interner.get_or_intern("[B");
         let int_desc = interner.get_or_intern("I");
         let desc_print_stream_sym = interner.get_or_intern("Ljava/io/PrintStream;");
 
@@ -215,7 +217,7 @@ impl BootstrapRegistry {
             object_desc,
             class_desc,
             string_array_desc,
-            char_array_desc,
+            byte_array_desc,
             int_desc,
             int_array_desc: interner.get_or_intern("[I"),
 
@@ -236,6 +238,8 @@ impl BootstrapRegistry {
             java_lang_throwable_id: OnceCell::new(),
             java_lang_thread_group_id: OnceCell::new(),
             java_lang_thread_id: OnceCell::new(),
+            java_lang_string_id: OnceCell::new(),
+            byte_array_class_id: OnceCell::new(),
         }
     }
 
@@ -269,39 +273,65 @@ impl BootstrapRegistry {
             .map_err(|_| JvmError::Todo("java/lang/Thread ID already set".to_string()))
     }
 
+    pub fn set_java_lang_string_id(&self, class_id: ClassId) -> Result<(), JvmError> {
+        self.java_lang_string_id
+            .set(class_id)
+            .map_err(|_| JvmError::Todo("java/lang/String ID already set".to_string()))
+    }
+
+    pub fn set_byte_array_class_id(&self, class_id: ClassId) -> Result<(), JvmError> {
+        self.byte_array_class_id
+            .set(class_id)
+            .map_err(|_| JvmError::Todo("[B class ID already set".to_string()))
+    }
+
+    pub fn get_java_lang_string_id(&self) -> Result<ClassId, JvmError> {
+        self.java_lang_string_id
+            .get()
+            .copied()
+            .ok_or_else(|| JvmError::Todo("java/lang/String is not loaded".to_string()))
+    }
+
+    pub fn get_byte_array_class_id(&self) -> Result<ClassId, JvmError> {
+        self.byte_array_class_id
+            .get()
+            .copied()
+            .ok_or_else(|| JvmError::Todo("[B class is not loaded".to_string()))
+    }
+
     pub fn get_java_lang_thread_group_id(&self) -> Result<ClassId, JvmError> {
         self.java_lang_thread_group_id
             .get()
             .copied()
-            .ok_or_else(|| JvmError::Todo("java/lang/ThreadGroup".to_string()))
+            .ok_or_else(|| JvmError::Todo("java/lang/ThreadGroup is not loaded".to_string()))
     }
 
     pub fn get_java_lang_thread_id(&self) -> Result<ClassId, JvmError> {
         self.java_lang_thread_id
             .get()
             .copied()
-            .ok_or_else(|| JvmError::Todo("java/lang/Thread".to_string()))
+            .ok_or_else(|| JvmError::Todo("java/lang/Thread is not loaded".to_string()))
     }
 
     pub fn get_java_lang_throwable_id(&self) -> Result<ClassId, JvmError> {
         self.java_lang_throwable_id
             .get()
             .copied()
-            .ok_or_else(|| JvmError::Todo("java/lang/Throwable".to_string()))
+            .ok_or_else(|| JvmError::Todo("java/lang/Throwable is not loaded".to_string()))
     }
 
     pub fn get_java_lang_class_id(&self) -> Result<ClassId, JvmError> {
         self.java_lang_class_id
             .get()
             .copied()
-            .ok_or_else(|| JvmError::Todo("java/lang/Class".to_string()))
+            .ok_or_else(|| JvmError::Todo("java/lang/Class is not loaded".to_string()))
     }
 
     pub fn get_java_lang_object_id(&self) -> Result<ClassId, JvmError> {
         self.java_lang_object_id
             .get()
             .copied()
-            .ok_or_else(|| JvmError::Todo("java/lang/Object".to_string()))
+            .ok_or_else(|| JvmError::Todo("java/lang/Object is not loaded".to_string()))
     }
 
     pub fn get_primitive_sym(&self, primitive: &PrimitiveType) -> Symbol {

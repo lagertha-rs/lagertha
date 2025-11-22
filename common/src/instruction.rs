@@ -38,6 +38,17 @@ pub enum ArrayType {
 }
 
 impl ArrayType {
+    pub fn get_byte_size(&self) -> u8 {
+        match self {
+            ArrayType::Boolean | ArrayType::Byte => 1,
+            ArrayType::Char | ArrayType::Short => 2,
+            ArrayType::Int | ArrayType::Float => 4,
+            ArrayType::Long | ArrayType::Double => 8,
+        }
+    }
+}
+
+impl ArrayType {
     pub fn default_value(&self) -> Value {
         match self {
             ArrayType::Boolean => Value::Integer(0),

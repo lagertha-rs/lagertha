@@ -1,5 +1,6 @@
+use crate::keys::FullyQualifiedMethodKey;
 use crate::native::{NativeRegistry, NativeRet};
-use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
+use crate::{ThreadId, VirtualMachine};
 use common::Value;
 use tracing_log::log::debug;
 
@@ -75,26 +76,21 @@ fn jdk_internal_util_system_props_raw_platform_properties(
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.platformProperties");
-    let string_class_sym = vm.method_area.br().java_lang_string_sym;
+    let string_class_sym = vm.br().java_lang_string_sym;
     // TODO: create a registry for interned common strings
     let empty_string_sym = vm.method_area.interner().get_or_intern("");
     let string_class_id = vm.method_area.get_class_id_or_load(string_class_sym)?;
-    let empty_string_stub = vm
-        .heap
-        .get_str_from_pool_or_new(empty_string_sym, &mut vm.method_area)?;
-    let h = vm.heap.alloc_array_with_default_value(
-        string_class_id,
-        Value::Ref(empty_string_stub),
-        40,
-    )?;
-    let utf8_sym = vm.method_area.interner().get_or_intern("UTF-8");
-    let enc = vm
-        .heap
-        .get_str_from_pool_or_new(utf8_sym, &mut vm.method_area)?;
+    let empty_string_stub = vm.heap.get_str_from_pool_or_new(empty_string_sym)?;
+    let h = vm.heap.alloc_object_array(string_class_id, 40)?;
+    // TODO: fill with real platform properties
+    for i in 0..40 {
+        vm.heap
+            .write_array_element(h, i, Value::Ref(empty_string_stub))?;
+    }
+    let encoding_sym = vm.method_area.interner().get_or_intern("UTF-8");
+    let enc = vm.heap.get_str_from_pool_or_new(encoding_sym)?;
     let line_sep_sym = vm.method_area.interner().get_or_intern("\n");
-    let line_separator_value = vm
-        .heap
-        .get_str_from_pool_or_new(line_sep_sym, &mut vm.method_area)?;
+    let line_separator_value = vm.heap.get_str_from_pool_or_new(line_sep_sym)?;
     vm.heap
         .write_array_element(h, 19, Value::Ref(line_separator_value))?;
     vm.heap.write_array_element(h, 27, Value::Ref(enc))?;
@@ -110,28 +106,23 @@ fn jdk_internal_util_system_props_raw_vm_properties(
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.vmProperties");
-    let string_class_sym = vm.method_area.br().java_lang_string_sym;
+    let string_class_sym = vm.br().java_lang_string_sym;
     let string_class = vm.method_area.get_class_id_or_load(string_class_sym)?;
     //TODO: same here, it needs a registry for common interned strings
-    let h = vm
+    let h = vm.heap.alloc_object_array(string_class, 4)?;
+    let java_home_key = vm
         .heap
-        .alloc_array_with_default_value(string_class, Value::Null, 4)?;
-    let java_home_key = vm.heap.get_str_from_pool_or_new(
-        vm.interner().get_or_intern("java.home"),
-        &mut vm.method_area,
-    )?;
+        .get_str_from_pool_or_new(vm.interner().get_or_intern("java.home"))?;
     let java_home_value = vm.heap.get_str_from_pool_or_new(
         vm.interner()
             .get_or_intern(vm.config.home.to_str().unwrap()),
-        &mut vm.method_area,
     )?;
-    let sun_page_align_stub = vm.heap.get_str_from_pool_or_new(
-        vm.interner().get_or_intern("sun.nio.PageAlignDirectMemory"),
-        &mut vm.method_area,
-    )?;
+    let sun_page_align_stub = vm
+        .heap
+        .get_str_from_pool_or_new(vm.interner().get_or_intern("sun.nio.PageAlignDirectMemory"))?;
     let false_str = vm
         .heap
-        .get_str_from_pool_or_new(vm.interner().get_or_intern("false"), &mut vm.method_area)?;
+        .get_str_from_pool_or_new(vm.interner().get_or_intern("false"))?;
     vm.heap
         .write_array_element(h, 0, Value::Ref(java_home_key))?;
     vm.heap
@@ -157,7 +148,7 @@ fn jdk_internal_misc_signal_find_signal_0(
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Signal.findSignal0");
-    let signal_name = match &args[0] {
+    let signal_name = match args[0] {
         Value::Ref(h) => vm.heap.get_rust_string_from_java_string(h)?,
         _ => panic!("jdk.internal.misc.Signal.findSignal0: expected signal name string"),
     };

@@ -1,7 +1,9 @@
-use crate::heap::HeapObject;
+use crate::heap::Heap;
+use crate::keys::FullyQualifiedMethodKey;
 use crate::native::NativeRet;
-use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
+use crate::{ThreadId, VirtualMachine};
 use common::Value;
+use common::jtype::AllocationType;
 use tracing_log::log::debug;
 
 pub(super) fn jdk_internal_misc_unsafe_register_natives(
@@ -93,43 +95,42 @@ fn jdk_internal_misc_unsafe_array_base_offset_0(
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.arrayBaseOffset0");
-    Ok(Some(Value::Integer(0)))
+    Ok(Some(Value::Integer(Heap::ARRAY_ELEMENTS_OFFSET as i32)))
 }
 
 fn jdk_internal_misc_unsafe_compare_and_set_int(
     vm: &mut VirtualMachine,
     _thread_id: ThreadId,
-
     args: &[Value],
 ) -> NativeRet {
-    debug!("TODO: Stub: jdk.internal.misc.Unsafe.compareAndSetInt");
-    let object = match &args[1] {
+    let object = match args[1] {
         Value::Ref(h) => h,
-        _ => panic!("jdk.internal.misc.Unsafe.compareAndSetLong: expected object"),
+        _ => panic!("compareAndSetInt: expected object"),
     };
     let offset = match args[2] {
         Value::Long(l) if l >= 0 => l as usize,
-        _ => panic!("jdk.internal.misc.Unsafe.compareAndSetLong: expected non-negative offset"),
+        _ => panic!("compareAndSetInt: expected non-negative offset"),
     };
     let expected = match args[3] {
-        Value::Integer(l) => l,
-        _ => panic!("jdk.internal.misc.Unsafe.compareAndSetLong: expected long expected value"),
+        Value::Integer(i) => i,
+        _ => panic!("compareAndSetInt: expected int expected"),
     };
     let new_value = match args[4] {
-        Value::Integer(l) => l,
-        _ => panic!("jdk.internal.misc.Unsafe.compareAndSetLong: expected long new value"),
+        Value::Integer(i) => i,
+        _ => panic!("compareAndSetInt: expected int new_value"),
     };
-    let instance = vm.heap.get_instance(object)?;
-    let field = instance.get_element_mut(offset as i32)?;
-    if let Value::Integer(current_value) = field {
-        if *current_value == expected {
-            *field = Value::Integer(new_value);
-            Ok(Some(Value::Integer(1)))
-        } else {
-            Ok(Some(Value::Integer(0)))
-        }
+
+    let current = vm.heap.read_field(object, offset, AllocationType::Int)?;
+    if current == Value::Integer(expected) {
+        vm.heap.write_field(
+            object,
+            offset,
+            Value::Integer(new_value),
+            AllocationType::Int,
+        )?;
+        Ok(Some(Value::Integer(1)))
     } else {
-        panic!("jdk.internal.misc.Unsafe.compareAndSetLong: field at offset is not long");
+        Ok(Some(Value::Integer(0)))
     }
 }
 
@@ -139,7 +140,7 @@ fn jdk_internal_misc_unsafe_compare_and_set_long(
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.compareAndSetLong");
-    let object = match &args[1] {
+    let object = match args[1] {
         Value::Ref(h) => h,
         _ => panic!("jdk.internal.misc.Unsafe.compareAndSetLong: expected object"),
     };
@@ -155,11 +156,11 @@ fn jdk_internal_misc_unsafe_compare_and_set_long(
         Value::Long(l) => l,
         _ => panic!("jdk.internal.misc.Unsafe.compareAndSetLong: expected long new value"),
     };
-    let instance = vm.heap.get_instance(object)?;
-    let field = instance.get_element_mut(offset as i32)?;
-    if let Value::Long(current_value) = field {
-        if *current_value == expected {
-            *field = Value::Long(new_value);
+    let object_field_value = vm.heap.read_field(object, offset, AllocationType::Long)?;
+    if let Value::Long(current_value) = object_field_value {
+        if current_value == expected {
+            vm.heap
+                .write_field(object, offset, Value::Long(new_value), AllocationType::Long)?;
             Ok(Some(Value::Integer(1)))
         } else {
             Ok(Some(Value::Integer(0)))
@@ -185,26 +186,11 @@ fn jdk_internal_misc_unsafe_get_reference_volatile(
         Value::Long(x) => x,
         _ => panic!("Unsafe.getReferenceVolatile expects a long offset"),
     };
-    match vm.heap.get(&base)? {
-        HeapObject::Instance(instance) => {
-            let field = instance.get_element(off as i32)?;
-            match field {
-                Value::Ref(_) => Ok(Some(*field)),
-                _ => panic!("Unsafe.getReferenceVolatile field is not an object"),
-            }
-        }
-        HeapObject::Array(array) => {
-            let idx = off as usize;
-            if idx >= array.data_len() {
-                panic!("Unsafe.getReferenceVolatile array index out of bounds");
-            }
-            let element = &array.data()[idx];
-            match element {
-                Value::Ref(_) | Value::Null => Ok(Some(*element)),
-                _ => panic!("Unsafe.getReferenceVolatile array element is not an object"),
-            }
-        }
-    }
+    Ok(Some(vm.heap.read_field(
+        base,
+        off as usize,
+        AllocationType::Reference,
+    )?))
 }
 
 fn jdk_internal_misc_unsafe_object_field_offset_1(
@@ -217,7 +203,7 @@ fn jdk_internal_misc_unsafe_object_field_offset_1(
         Value::Ref(h) => h,
         _ => panic!("jdk.internal.misc.Unsafe.objectFieldOffset: expected class object"),
     };
-    let field_name = match &args[2] {
+    let field_name = match args[2] {
         Value::Ref(h) => vm.heap.get_rust_string_from_java_string(h)?,
         _ => panic!("jdk.internal.misc.Unsafe.objectFieldOffset: expected field name string"),
     };
@@ -226,17 +212,40 @@ fn jdk_internal_misc_unsafe_object_field_offset_1(
     let offset = vm
         .method_area
         .get_instance_class(&class_id)?
-        .get_instance_field_offset_by_name(&interned_field_name)?;
+        .get_instance_field_by_name(&interned_field_name)?
+        .offset;
     Ok(Some(Value::Long(offset as i64)))
 }
 
 fn jdk_internal_misc_unsafe_array_index_scale_0(
-    _vm: &mut VirtualMachine,
+    vm: &mut VirtualMachine,
     _thread_id: ThreadId,
-    _args: &[Value],
+    args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.arrayIndexScale0");
-    Ok(Some(Value::Integer(1)))
+    let class_addr = match &args[1] {
+        Value::Ref(h) => h,
+        _ => panic!("arrayIndexScale0: expected class"),
+    };
+    let class_id = vm.method_area.get_class_id_by_mirror(class_addr)?;
+    let class_name_sym = vm.method_area.get_class(&class_id).get_name();
+    let class_name = vm.interner().resolve(&class_name_sym);
+
+    // Parse the class name to get element type
+    let scale = match class_name {
+        "[I" => 4,
+        "[J" => 8,
+        "[L" => 8,
+        "[Z" => 1,
+        "[B" => 1,
+        "[C" => 2,
+        "[S" => 2,
+        "[F" => 4,
+        "[D" => 8,
+        s if s.starts_with("[L") => 8,
+        _ => panic!("Unknown array type: {}", class_name),
+    };
+    Ok(Some(Value::Integer(scale)))
 }
 
 fn jdk_internal_misc_unsafe_full_fence(
@@ -248,56 +257,40 @@ fn jdk_internal_misc_unsafe_full_fence(
     Ok(None)
 }
 
-// TODO: pure mess
 fn jdk_internal_misc_unsafe_compare_and_set_reference(
     vm: &mut VirtualMachine,
     _thread_id: ThreadId,
     args: &[Value],
 ) -> NativeRet {
-    debug!("TODO: Stub: jdk.internal.misc.Unsafe.compareAndSetReference");
-    let object = match &args[1] {
+    let object = match args[1] {
         Value::Ref(h) => h,
-        _ => panic!("jdk.internal.misc.Unsafe.compareAndSetReference: expected object"),
+        _ => panic!("compareAndSetReference: expected object"),
     };
     let offset = match args[2] {
         Value::Long(l) if l >= 0 => l as usize,
-        _ => {
-            panic!("jdk.internal.misc.Unsafe.compareAndSetReference: expected non-negative offset")
-        }
+        _ => panic!("compareAndSetReference: expected non-negative offset"),
     };
     let expected = match args[3] {
-        Value::Ref(_) | Value::Null => args[3],
-        _ => {
-            panic!("jdk.internal.misc.Unsafe.compareAndSetReference: expected object")
-        }
+        v @ (Value::Ref(_) | Value::Null) => v,
+        _ => panic!("compareAndSetReference: expected object or null"),
     };
     let new_value = match args[4] {
         Value::Ref(h) => h,
-        _ => panic!("jdk.internal.misc.Unsafe.compareAndSetReference: expected long new value"),
+        _ => panic!("compareAndSetReference: expected object"),
     };
-    match vm.heap.get_mut(object)? {
-        HeapObject::Array(array) => {
-            if offset >= array.data_len() {
-                panic!(
-                    "jdk.internal.misc.Unsafe.compareAndSetReference: array index out of bounds"
-                );
-            }
-            let field = &mut array.data_mut()[offset];
-            if *field == expected {
-                *field = Value::Ref(new_value);
-                Ok(Some(Value::Integer(1)))
-            } else {
-                Ok(Some(Value::Integer(0)))
-            }
-        }
-        HeapObject::Instance(instance) => {
-            let field = instance.get_element_mut(offset as i32)?;
-            if *field == expected {
-                *field = Value::Ref(new_value);
-                Ok(Some(Value::Integer(1)))
-            } else {
-                Ok(Some(Value::Integer(0)))
-            }
-        }
+
+    let current = vm
+        .heap
+        .read_field(object, offset, AllocationType::Reference)?;
+    if current == expected {
+        vm.heap.write_field(
+            object,
+            offset,
+            Value::Ref(new_value),
+            AllocationType::Reference,
+        )?;
+        Ok(Some(Value::Integer(1)))
+    } else {
+        Ok(Some(Value::Integer(0)))
     }
 }

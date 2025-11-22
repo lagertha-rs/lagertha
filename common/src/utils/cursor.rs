@@ -83,8 +83,8 @@ impl<'a> ByteCursor<'a> {
     }
 
     #[inline]
-    pub fn bytes(&mut self, n: usize) -> Result<Vec<u8>, CursorError> {
-        Ok(self.slice(n)?.to_vec())
+    pub fn bytes(&mut self, n: usize) -> Result<&[u8], CursorError> {
+        self.slice(n)
     }
 
     #[inline]

@@ -1,6 +1,7 @@
-use crate::Value;
 use crate::error::TypeDescriptorErr;
+use crate::{HeapRef, Value};
 use core::fmt;
+use num_enum::TryFromPrimitive;
 use std::fmt::{Display, Formatter};
 use std::iter::Peekable;
 
@@ -85,6 +86,32 @@ impl TryFrom<char> for PrimitiveType {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, TryFromPrimitive)]
+#[repr(u8)]
+pub enum AllocationType {
+    Boolean = 0,
+    Byte = 1,
+    Char = 2,
+    Short = 3,
+    Int = 4,
+    Long = 5,
+    Float = 6,
+    Double = 7,
+    Reference = 8,
+}
+
+impl AllocationType {
+    pub fn byte_size(&self) -> usize {
+        match self {
+            AllocationType::Byte | AllocationType::Boolean => 1,
+            AllocationType::Char | AllocationType::Short => 2,
+            AllocationType::Int | AllocationType::Float => 4,
+            AllocationType::Long | AllocationType::Double => 8,
+            AllocationType::Reference => size_of::<HeapRef>(),
+        }
+    }
+}
+
 /// Represents any actual Java type (cannot be void)
 /// Used for field descriptors and method parameters
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -141,6 +168,23 @@ impl TryFrom<&str> for JavaType {
 }
 
 impl JavaType {
+    pub fn as_allocation_type(&self) -> AllocationType {
+        match self {
+            JavaType::Primitive(prim) => match prim {
+                PrimitiveType::Byte => AllocationType::Byte,
+                PrimitiveType::Char => AllocationType::Char,
+                PrimitiveType::Double => AllocationType::Double,
+                PrimitiveType::Float => AllocationType::Float,
+                PrimitiveType::Int => AllocationType::Int,
+                PrimitiveType::Long => AllocationType::Long,
+                PrimitiveType::Short => AllocationType::Short,
+                PrimitiveType::Boolean => AllocationType::Boolean,
+            },
+            JavaType::Instance(_) | JavaType::Array(_) => AllocationType::Reference,
+            _ => panic!("Cannot get allocation type for non-primitive, non-instance JavaType"),
+        }
+    }
+
     // TODO: work only for one-dimensional arrays for now
     pub fn get_primitive_array_element_type(&self) -> Option<PrimitiveType> {
         match self {

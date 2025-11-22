@@ -1,4 +1,4 @@
-use crate::{ClassId, FieldDescriptorId};
+use crate::keys::{ClassId, FieldDescriptorId};
 use common::Value;
 use jclass::flags::FieldFlags;
 use std::cell::RefCell;
@@ -7,7 +7,7 @@ use std::cell::RefCell;
 pub struct InstanceField {
     pub flags: FieldFlags,
     pub descriptor_id: FieldDescriptorId,
-    pub offset: u16,
+    pub offset: usize,
     pub declaring_class: ClassId,
 }
 

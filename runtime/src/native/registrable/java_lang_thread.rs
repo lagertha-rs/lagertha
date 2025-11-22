@@ -1,5 +1,6 @@
+use crate::keys::FullyQualifiedMethodKey;
 use crate::native::NativeRet;
-use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
+use crate::{ThreadId, VirtualMachine};
 use common::Value;
 use tracing_log::log::debug;
 

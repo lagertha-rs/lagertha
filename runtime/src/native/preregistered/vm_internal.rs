@@ -1,5 +1,6 @@
+use crate::keys::FullyQualifiedMethodKey;
 use crate::native::{NativeRegistry, NativeRet};
-use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
+use crate::{ThreadId, VirtualMachine};
 use common::Value;
 use tracing_log::log::debug;
 
@@ -16,7 +17,7 @@ pub(super) fn do_register_vm_internal_preregistered_natives(native_registry: &mu
 
 fn vm_internal_clone(vm: &mut VirtualMachine, _thread_id: ThreadId, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: internal clone");
-    let obj = match &args[0] {
+    let obj = match args[0] {
         Value::Ref(h) => h,
         _ => panic!("internal clone: expected object"),
     };

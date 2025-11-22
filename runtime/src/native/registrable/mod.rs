@@ -1,4 +1,4 @@
-use crate::FullyQualifiedMethodKey;
+use crate::keys::FullyQualifiedMethodKey;
 use crate::native::NativeRegistry;
 use crate::native::registrable::java_lang_class::java_lang_class_register_natives;
 use crate::native::registrable::java_lang_system::java_lang_system_register_natives;

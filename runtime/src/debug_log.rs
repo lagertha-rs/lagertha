@@ -36,6 +36,16 @@ macro_rules! debug_log {
 }
 
 #[macro_export]
+macro_rules! debug_error_log {
+    ($($arg:tt)*) => {
+        #[cfg(feature = "debug-log")]
+        {
+            tracing_log::log::error!($($arg)*);
+        }
+    };
+}
+
+#[macro_export]
 macro_rules! debug_log_method {
     ($method_id:expr, $msg:expr) => {
         #[cfg(feature = "debug-log")]
@@ -173,7 +183,8 @@ macro_rules! debug_log_instruction {
                             .unwrap()
                             .as_obj_ref()
                             .unwrap();
-                        let actual_class_id = vm.heap.get_class_id(&object_ref).unwrap();
+                        if object_ref != 0 {
+                        let actual_class_id = vm.heap.get_class_id(object_ref).unwrap();
                         let actual_class_name =
                             vm.method_area.get_class(&actual_class_id).get_name();
                         msg_chunks.push(format!(
@@ -183,6 +194,9 @@ macro_rules! debug_log_instruction {
                             vm.interner().resolve(&target_method_view.class_sym),
                             vm.interner().resolve(&actual_class_name)
                         ));
+                            } else {
+                        msg_chunks.push(format!("Object ref is zero, because of the stub of java lang access I guess"));
+                        }
                     }
 
                     _ => {}

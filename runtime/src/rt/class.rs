@@ -1,9 +1,10 @@
 use crate::heap::method_area::MethodArea;
+use crate::keys::{ClassId, FieldKey, MethodKey};
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::field::{InstanceField, StaticField};
 use crate::rt::method::Method;
 use crate::rt::{BaseClass, ClassLike, JvmClass};
-use crate::{ClassId, FieldKey, MethodId, MethodKey, Symbol};
+use crate::{MethodId, Symbol};
 use common::error::{JavaExceptionFromJvm, JvmError};
 use jclass::ClassFile;
 use jclass::attribute::class::ClassAttribute;
@@ -30,8 +31,10 @@ pub struct InstanceClass {
 
     // TODO: review if we need both offset maps
     pub instance_fields: OnceCell<Vec<InstanceField>>,
-    pub instance_fields_offset_map: OnceCell<HashMap<FieldKey, u16>>,
-    pub instance_fields_name_offset_map: OnceCell<HashMap<Symbol, u16>>,
+    pub instance_fields_offset_map: OnceCell<HashMap<FieldKey, usize>>,
+    pub instance_fields_name_offset_map: OnceCell<HashMap<Symbol, usize>>,
+
+    instance_size: OnceCell<usize>,
 }
 
 impl InstanceClass {
@@ -65,6 +68,7 @@ impl InstanceClass {
             instance_fields: OnceCell::new(),
             instance_fields_offset_map: OnceCell::new(),
             instance_fields_name_offset_map: OnceCell::new(),
+            instance_size: OnceCell::new(),
         }));
 
         Ok(method_area.push_class(class))
@@ -165,6 +169,12 @@ impl InstanceClass {
             .map(|class| class.get_instance_fields_name_offset_map().cloned())
             .transpose()?
             .unwrap_or_default();
+        let mut instance_size = super_id
+            .map(|id| method_area.get_instance_class(&id))
+            .transpose()?
+            .map(|class| class.get_instance_size())
+            .transpose()?
+            .unwrap_or_default();
         let mut static_fields = HashMap::new();
 
         for field in fields {
@@ -177,27 +187,32 @@ impl InstanceClass {
             };
 
             let descriptor_id = method_area.get_or_new_field_descriptor_id(field_key.desc)?;
+            let descriptor = method_area.get_field_descriptor(&descriptor_id);
+
             if field.access_flags.is_static() {
                 let static_field = StaticField {
                     flags: field.access_flags,
-                    value: RefCell::new(
-                        method_area
-                            .get_field_descriptor(&descriptor_id)
-                            .get_default_value(),
-                    ),
+                    value: RefCell::new(descriptor.get_default_value()),
                     descriptor: descriptor_id,
                 };
                 static_fields.insert(field_key, static_field);
             } else {
-                let cur_offset = instance_fields.len() as u16;
+                let size = descriptor.as_allocation_type().byte_size();
+                instance_size = (instance_size + size - 1) & !(size - 1);
+
+                let instance_offset = instance_size;
+                let position = instance_fields.len();
+
+                instance_size += size;
+
                 instance_fields.push(InstanceField {
                     flags: field.access_flags,
                     descriptor_id,
-                    offset: cur_offset,
+                    offset: instance_offset,
                     declaring_class: this_id,
                 });
-                instance_fields_offset_map.insert(field_key, cur_offset);
-                instance_fields_name_offset_map.insert(field_key.name, cur_offset);
+                instance_fields_offset_map.insert(field_key, position);
+                instance_fields_name_offset_map.insert(field_key.name, position);
             }
         }
 
@@ -205,6 +220,7 @@ impl InstanceClass {
         this.set_instance_fields(instance_fields)?;
         this.set_instance_fields_offset_map(instance_fields_offset_map)?;
         this.set_instance_fields_name_offset_map(instance_fields_name_offset_map)?;
+        this.set_instance_size(instance_size)?;
         this.base.set_static_fields(static_fields)?;
         Ok(())
     }
@@ -353,18 +369,25 @@ impl InstanceClass {
             ))
     }
 
-    pub fn get_instance_field_offset(&self, field_key: &FieldKey) -> Result<u16, JvmError> {
-        self.get_instance_fields_offset_map()?
+    pub fn get_instance_field(&self, field_key: &FieldKey) -> Result<&InstanceField, JvmError> {
+        let idx = self
+            .get_instance_fields_offset_map()?
             .get(field_key)
             .copied()
-            .ok_or(JvmError::Todo("No such field".to_string()))
+            .ok_or(JvmError::Todo("No such field".to_string()))?;
+        Ok(&self.get_instance_fields()?[idx])
     }
 
-    pub fn get_instance_field_offset_by_name(&self, field_name: &Symbol) -> Result<u16, JvmError> {
-        self.get_instance_fields_name_offset_map()?
+    pub fn get_instance_field_by_name(
+        &self,
+        field_name: &Symbol,
+    ) -> Result<&InstanceField, JvmError> {
+        let idx = self
+            .get_instance_fields_name_offset_map()?
             .get(field_name)
             .copied()
-            .ok_or(JvmError::Todo("No such field".to_string()))
+            .ok_or(JvmError::Todo("No such field".to_string()))?;
+        Ok(&self.get_instance_fields()?[idx])
     }
 
     pub fn get_vtable_method_id(&self, key: &MethodKey) -> Result<MethodId, JvmError> {
@@ -434,10 +457,22 @@ impl InstanceClass {
             .map_err(|_| JvmError::Todo("Vtable index already initialized".to_string()))
     }
 
-    fn get_instance_fields(&self) -> Result<&Vec<InstanceField>, JvmError> {
+    pub(crate) fn get_instance_fields(&self) -> Result<&Vec<InstanceField>, JvmError> {
         self.instance_fields.get().ok_or(JvmError::Todo(
             "Instance fields not initialized yet".to_string(),
         ))
+    }
+
+    pub fn get_instance_size(&self) -> Result<usize, JvmError> {
+        self.instance_size.get().copied().ok_or(JvmError::Todo(
+            "Instance size not initialized yet".to_string(),
+        ))
+    }
+
+    fn set_instance_size(&self, size: usize) -> Result<(), JvmError> {
+        self.instance_size
+            .set(size)
+            .map_err(|_| JvmError::Todo("Instance size already initialized".to_string()))
     }
 
     fn set_instance_fields(&self, instance_fields: Vec<InstanceField>) -> Result<(), JvmError> {
@@ -446,7 +481,7 @@ impl InstanceClass {
             .map_err(|_| JvmError::Todo("Instance fields already initialized".to_string()))
     }
 
-    fn get_instance_fields_offset_map(&self) -> Result<&HashMap<FieldKey, u16>, JvmError> {
+    fn get_instance_fields_offset_map(&self) -> Result<&HashMap<FieldKey, usize>, JvmError> {
         self.instance_fields_offset_map.get().ok_or(JvmError::Todo(
             "Instance fields offset map not initialized yet".to_string(),
         ))
@@ -454,7 +489,7 @@ impl InstanceClass {
 
     fn set_instance_fields_offset_map(
         &self,
-        instance_fields_offset_map: HashMap<FieldKey, u16>,
+        instance_fields_offset_map: HashMap<FieldKey, usize>,
     ) -> Result<(), JvmError> {
         self.instance_fields_offset_map
             .set(instance_fields_offset_map)
@@ -463,7 +498,7 @@ impl InstanceClass {
             })
     }
 
-    fn get_instance_fields_name_offset_map(&self) -> Result<&HashMap<Symbol, u16>, JvmError> {
+    fn get_instance_fields_name_offset_map(&self) -> Result<&HashMap<Symbol, usize>, JvmError> {
         self.instance_fields_name_offset_map
             .get()
             .ok_or(JvmError::Todo(
@@ -473,7 +508,7 @@ impl InstanceClass {
 
     fn set_instance_fields_name_offset_map(
         &self,
-        instance_fields_name_offset_map: HashMap<Symbol, u16>,
+        instance_fields_name_offset_map: HashMap<Symbol, usize>,
     ) -> Result<(), JvmError> {
         self.instance_fields_name_offset_map
             .set(instance_fields_name_offset_map)

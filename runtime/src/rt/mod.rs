@@ -1,9 +1,10 @@
+use crate::keys::{ClassId, FieldKey, MethodKey};
 use crate::rt::array::{ObjectArrayClass, PrimitiveArrayClass};
 use crate::rt::class::InstanceClass;
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::field::{InstanceField, StaticField};
 use crate::rt::interface::InterfaceClass;
-use crate::{ClassId, FieldKey, MethodId, MethodKey, Symbol};
+use crate::{MethodId, Symbol};
 use common::error::JvmError;
 use common::jtype::PrimitiveType;
 use common::{HeapRef, Value};
@@ -11,6 +12,7 @@ use jclass::flags::ClassFlags;
 use once_cell::sync::OnceCell;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
+use std::num::NonZeroU32;
 
 pub mod array;
 pub mod class;

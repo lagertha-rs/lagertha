@@ -1,6 +1,7 @@
+use crate::keys::FullyQualifiedMethodKey;
 use crate::native::NativeRet;
 use crate::rt::JvmClass;
-use crate::{FullyQualifiedMethodKey, ThreadId, VirtualMachine};
+use crate::{ThreadId, VirtualMachine};
 use common::Value;
 use tracing_log::log::debug;
 
@@ -85,7 +86,7 @@ fn java_lang_class_get_primitive_class(
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.getPrimitiveClass");
-    if let Value::Ref(h) = &args[0] {
+    if let Value::Ref(h) = args[0] {
         let primitive_name = vm.heap.get_rust_string_from_java_string(h)?;
 
         let class_id = vm
