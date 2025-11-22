@@ -144,26 +144,22 @@ fn java_lang_system_arraycopy(
     let length = args[4].as_int()?;
 
     let src_class_id = vm.heap.get_class_id(src_addr)?;
-    /* TODO
-    if !vm.heap_depr.is_array(&src_addr)? {
+    if !vm.heap.is_array(src_addr)? {
         throw_exception!(
             ArrayStoreException,
             "arraycopy: source type {} is not an array",
             vm.symbol_to_pretty_string(vm.method_area.get_class(&src_class_id).get_name())
         )?;
     }
-     */
 
     let dest_class_id = vm.heap.get_class_id(dest_addr)?;
-    /*
-    if !vm.heap_depr.is_array(&dest_addr)? {
+    if !vm.heap.is_array(dest_addr)? {
         throw_exception!(
             ArrayStoreException,
             "arraycopy: destination type {} is not an array",
             vm.symbol_to_pretty_string(vm.method_area.get_class(&dest_class_id).get_name())
         )?;
     }
-     */
 
     if length == 0 {
         return Ok(None);

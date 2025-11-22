@@ -358,6 +358,11 @@ impl Heap {
         Ok(offset)
     }
 
+    pub fn is_array(&self, heap_ref: HeapRef) -> Result<bool, JvmError> {
+        let header = self.get_header(heap_ref);
+        Ok(header.is_array())
+    }
+
     fn get_header_mut(&mut self, heap_ref: HeapRef) -> &mut ObjectHeader {
         unsafe { &mut *(self.memory.add(heap_ref) as *mut ObjectHeader) }
     }
