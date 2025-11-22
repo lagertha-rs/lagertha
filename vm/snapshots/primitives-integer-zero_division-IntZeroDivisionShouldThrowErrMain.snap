@@ -1,9 +1,0 @@
----
-source: vm/tests/integration_test.rs
-expression: "&combined"
----
------ STDOUT -----
-
------ STDERR -----
-Exception in thread "main" java.lang.ArithmeticException: / by zero
-	at primitives.integer.zero_division.IntZeroDivisionShouldThrowErrMain.main(IntZeroDivisionShouldThrowErrMain.java:5)

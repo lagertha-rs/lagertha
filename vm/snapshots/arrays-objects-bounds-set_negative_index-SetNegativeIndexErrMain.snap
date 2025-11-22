@@ -1,0 +1,9 @@
+---
+source: vm/tests/integration_test.rs
+expression: "&combined"
+---
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: Index -1 out of bounds for length 1
+	at arrays.objects.bounds.set_negative_index.SetNegativeIndexErrMain.main(SetNegativeIndexErrMain.java:6)

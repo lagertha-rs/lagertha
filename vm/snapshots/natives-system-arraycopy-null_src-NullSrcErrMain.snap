@@ -1,0 +1,10 @@
+---
+source: vm/tests/integration_test.rs
+expression: "&combined"
+---
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.NullPointerException
+	at java.lang.System.arraycopy(Native Method)
+	at natives.system.arraycopy.null_src.NullSrcErrMain.main(NullSrcErrMain.java:7)

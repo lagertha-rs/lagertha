@@ -1,9 +1,0 @@
----
-source: vm/tests/integration_test.rs
-expression: "&combined"
----
------ STDOUT -----
-
------ STDERR -----
-Exception in thread "main" java.lang.IllegalArgumentException: New exception in catch
-	at exceptions.exception_in_catch_propagates.ExceptionInCatchBlockPropagatesErrMain.main(ExceptionInCatchBlockPropagatesErrMain.java:8)

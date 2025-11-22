@@ -1,0 +1,9 @@
+---
+source: vm/tests/integration_test.rs
+expression: "&combined"
+---
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.NegativeArraySizeException: -1
+	at arrays.primitives.bounds.negative_size.NegativeSizeErrMain.main(NegativeSizeErrMain.java:5)

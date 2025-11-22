@@ -1,0 +1,9 @@
+---
+source: vm/tests/integration_test.rs
+expression: "&combined"
+---
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.AssertionError: Error message
+	at exceptions.asserts.failed_assert.FailedAssertErrMain.main(FailedAssertErrMain.java:5)

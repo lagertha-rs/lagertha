@@ -1,0 +1,9 @@
+---
+source: vm/tests/integration_test.rs
+expression: "&combined"
+---
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: Index 2 out of bounds for length 1
+	at arrays.objects.bounds.set_out_of_bounds.SetOutOfBoundsErrMain.main(SetOutOfBoundsErrMain.java:6)

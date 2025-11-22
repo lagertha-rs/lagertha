@@ -1,0 +1,10 @@
+---
+source: vm/tests/integration_test.rs
+expression: "&combined"
+---
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.ArrayStoreException: arraycopy: source type java.lang.Object is not an array
+	at java.lang.System.arraycopy(Native Method)
+	at natives.system.arraycopy.non_array_src.NonArraySrcErrMain.main(NonArraySrcErrMain.java:8)
