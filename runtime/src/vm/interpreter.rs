@@ -1287,7 +1287,7 @@ impl Interpreter {
                 .method_area
                 .build_fully_qualified_native_method_key(&method_id);
             // native instance method of array special handling (for now, only Object.clone)
-            if !method.is_static() && vm.heap.get_header(args[0].as_obj_ref()?).is_array() {
+            if !method.is_static() && vm.heap.is_array(args[0].as_obj_ref()?)? {
                 method_key.class = None;
             }
             let frame = NativeFrame::new(method_id);
