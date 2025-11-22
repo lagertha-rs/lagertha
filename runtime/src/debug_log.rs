@@ -36,6 +36,16 @@ macro_rules! debug_log {
 }
 
 #[macro_export]
+macro_rules! debug_error_log {
+    ($($arg:tt)*) => {
+        #[cfg(feature = "debug-log")]
+        {
+            tracing_log::log::error!($($arg)*);
+        }
+    };
+}
+
+#[macro_export]
 macro_rules! debug_log_method {
     ($method_id:expr, $msg:expr) => {
         #[cfg(feature = "debug-log")]
