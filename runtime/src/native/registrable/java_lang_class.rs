@@ -1,8 +1,9 @@
 use crate::keys::FullyQualifiedMethodKey;
 use crate::native::NativeRet;
-use crate::rt::JvmClass;
 use crate::{ThreadId, VirtualMachine};
 use common::Value;
+use common::error::JvmError;
+use common::jtype::AllocationType;
 use tracing_log::log::debug;
 
 pub(super) fn java_lang_class_register_natives(
@@ -50,6 +51,46 @@ pub(super) fn java_lang_class_register_natives(
         java_lang_class_is_primitive,
     );
 
+    vm.native_registry.register(
+        FullyQualifiedMethodKey::new_with_str(
+            "java/lang/Class",
+            "isInterface",
+            "()Z",
+            &vm.string_interner,
+        ),
+        java_lang_class_is_interface,
+    );
+
+    vm.native_registry.register(
+        FullyQualifiedMethodKey::new_with_str(
+            "java/lang/Class",
+            "isArray",
+            "()Z",
+            &vm.string_interner,
+        ),
+        java_lang_class_is_array,
+    );
+
+    vm.native_registry.register(
+        FullyQualifiedMethodKey::new_with_str(
+            "java/lang/Class",
+            "getModifiers",
+            "()I",
+            &vm.string_interner,
+        ),
+        java_lang_class_get_modifiers,
+    );
+
+    vm.native_registry.register(
+        FullyQualifiedMethodKey::new_with_str(
+            "java/lang/Class",
+            "getSuperclass",
+            "()Ljava/lang/Class;",
+            &vm.string_interner,
+        ),
+        java_lang_class_get_superclass,
+    );
+
     Ok(None)
 }
 
@@ -67,17 +108,63 @@ fn java_lang_class_is_primitive(
     _thread_id: ThreadId,
     args: &[Value],
 ) -> NativeRet {
-    debug!("TODO: Stub: java.lang.Class.isPrimitive");
-    if let Value::Ref(h) = &args[0] {
-        let target_class_id = vm.method_area.get_class_id_by_mirror(h)?;
-        let is_primitive = matches!(
-            vm.method_area.get_class(&target_class_id),
-            JvmClass::Primitive(_)
-        );
-        Ok(Some(Value::Integer(if is_primitive { 1 } else { 0 })))
-    } else {
-        panic!("java.lang.Class.isPrimitive: expected object");
-    }
+    let mirror_ref = args
+        .first()
+        .ok_or(JvmError::Todo(
+            "java.lang.Class.isPrimitive: missing 0 argument".to_string(),
+        ))?
+        .as_obj_ref()?;
+    let target_class_id = vm.method_area.get_class_id_by_mirror(&mirror_ref)?;
+    let is_primitive = vm.method_area.get_class(&target_class_id).is_primitive();
+    Ok(Some(Value::Integer(if is_primitive { 1 } else { 0 })))
+}
+
+fn java_lang_class_is_interface(
+    vm: &mut VirtualMachine,
+    _thread_id: ThreadId,
+    args: &[Value],
+) -> NativeRet {
+    let mirror_ref = args
+        .first()
+        .ok_or(JvmError::Todo(
+            "java.lang.Class.isInterface: missing 0 argument".to_string(),
+        ))?
+        .as_obj_ref()?;
+    let target_class_id = vm.method_area.get_class_id_by_mirror(&mirror_ref)?;
+    let is_interface = vm.method_area.get_class(&target_class_id).is_interface();
+    Ok(Some(Value::Integer(if is_interface { 1 } else { 0 })))
+}
+
+fn java_lang_class_is_array(
+    vm: &mut VirtualMachine,
+    _thread_id: ThreadId,
+    args: &[Value],
+) -> NativeRet {
+    let mirror_ref = args
+        .first()
+        .ok_or(JvmError::Todo(
+            "java.lang.Class.isArray: missing 0 argument".to_string(),
+        ))?
+        .as_obj_ref()?;
+    let target_class_id = vm.method_area.get_class_id_by_mirror(&mirror_ref)?;
+    let is_array = vm.method_area.get_class(&target_class_id).is_array();
+    Ok(Some(Value::Integer(if is_array { 1 } else { 0 })))
+}
+
+fn java_lang_class_get_modifiers(
+    vm: &mut VirtualMachine,
+    _thread_id: ThreadId,
+    args: &[Value],
+) -> NativeRet {
+    let mirror_ref = args
+        .first()
+        .ok_or(JvmError::Todo(
+            "java.lang.Class.getModifiers: missing 0 argument".to_string(),
+        ))?
+        .as_obj_ref()?;
+    let target_class_id = vm.method_area.get_class_id_by_mirror(&mirror_ref)?;
+    let modifiers = vm.method_area.get_class(&target_class_id).get_raw_flags();
+    Ok(Some(Value::Integer(modifiers)))
 }
 
 fn java_lang_class_get_primitive_class(
@@ -85,20 +172,22 @@ fn java_lang_class_get_primitive_class(
     _thread_id: ThreadId,
     args: &[Value],
 ) -> NativeRet {
-    debug!("TODO: Stub: java.lang.Class.getPrimitiveClass");
-    if let Value::Ref(h) = args[0] {
-        let primitive_name = vm.heap.get_rust_string_from_java_string(h)?;
-
-        let class_id = vm
-            .method_area
-            .get_class_id_or_load(vm.interner().get_or_intern(&primitive_name))?;
-        let v = vm
-            .method_area
-            .get_mirror_ref_or_create(class_id, &mut vm.heap)?;
-        Ok(Some(Value::Ref(v)))
-    } else {
-        panic!("java.lang.Class.getPrimitiveClass: expected object");
-    }
+    let primitive_name_ref = args
+        .first()
+        .ok_or(JvmError::Todo(
+            "java.lang.Class.getPrimitiveClass: missing 0 argument".to_string(),
+        ))?
+        .as_obj_ref()?;
+    let primitive_name = vm
+        .heap
+        .get_rust_string_from_java_string(primitive_name_ref)?;
+    let class_id = vm
+        .method_area
+        .get_class_id_or_load(vm.interner().get_or_intern(&primitive_name))?;
+    let v = vm
+        .method_area
+        .get_mirror_ref_or_create(class_id, &mut vm.heap)?;
+    Ok(Some(Value::Ref(v)))
 }
 
 fn java_lang_class_init_class_name(
@@ -106,28 +195,57 @@ fn java_lang_class_init_class_name(
     _thread_id: ThreadId,
     args: &[Value],
 ) -> NativeRet {
-    /*
-    debug!("TODO: Stub: java.lang.Class.initClassName");
-    if let Value::Ref(h) = &args[0] {
-        let class_name = vm
-            .heap
-            .get_class_by_mirror(h)
-            .unwrap()
-            .name()
-            .replace('/', ".");
-        let val = Value::Ref(vm.heap.get_or_new_string(&class_name));
-        let class_id = vm.heap.get_class_id(h);
-        let class = vm
-            .method_area_deprecated
-            .get_class_by_id(&class_id)
-            .unwrap();
-        vm.heap
-            .write_instance_field(*h, class.get_field_index("name").unwrap(), val)
-            .unwrap();
-        Ok(Some(val))
+    let mirror_ref = args
+        .first()
+        .ok_or(JvmError::Todo(
+            "java.lang.Class.initClassName: missing 0 argument".to_string(),
+        ))?
+        .as_obj_ref()?;
+    let class_class_id = vm.br.get_java_lang_class_id()?;
+    let class_name_fk = vm.br.class_name_fk;
+    let target_class_id = vm.method_area.get_class_id_by_mirror(&mirror_ref)?;
+    let name_sym = vm.method_area.get_class(&target_class_id).get_name();
+    let name_ref = vm.heap.alloc_string_from_interned_with_char_mapping(
+        name_sym,
+        Some(&|c| {
+            if c == '/' { '.' } else { c }
+        }),
+    )?;
+    let name_field = vm
+        .method_area
+        .get_instance_class(&class_class_id)?
+        .get_instance_field(&class_name_fk)?;
+    vm.heap.write_field(
+        mirror_ref,
+        name_field.offset,
+        Value::Ref(name_ref),
+        AllocationType::Reference,
+    )?;
+    Ok(Some(Value::Ref(name_ref)))
+}
+
+fn java_lang_class_get_superclass(
+    vm: &mut VirtualMachine,
+    _thread_id: ThreadId,
+    args: &[Value],
+) -> NativeRet {
+    let mirror_ref = args
+        .first()
+        .ok_or(JvmError::Todo(
+            "java.lang.Class.getModifiers: missing 0 argument".to_string(),
+        ))?
+        .as_obj_ref()?;
+    let target_class_id = vm.method_area.get_class_id_by_mirror(&mirror_ref)?;
+    let target_class = vm.method_area.get_class(&target_class_id);
+    let super_class_id = target_class.get_super_id();
+    if target_class.is_interface() || target_class.is_primitive() {
+        Ok(Some(Value::Null))
+    } else if let Some(super_id) = super_class_id {
+        let super_mirror_ref = vm
+            .method_area
+            .get_mirror_ref_or_create(super_id, &mut vm.heap)?;
+        Ok(Some(Value::Ref(super_mirror_ref)))
     } else {
-        panic!("java.lang.Class.initClassName: expected object as argument");
+        Ok(Some(Value::Null))
     }
-     */
-    todo!()
 }

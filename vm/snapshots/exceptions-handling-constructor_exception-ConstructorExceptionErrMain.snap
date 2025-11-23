@@ -1,0 +1,10 @@
+---
+source: vm/tests/integration_test.rs
+expression: "&combined"
+---
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.IllegalArgumentException: Exception from constructor
+	at exceptions.handling.constructor_exception.ConstructorExceptionErrMain$Foo.<init>(ConstructorExceptionErrMain.java:6)
+	at exceptions.handling.constructor_exception.ConstructorExceptionErrMain.main(ConstructorExceptionErrMain.java:10)

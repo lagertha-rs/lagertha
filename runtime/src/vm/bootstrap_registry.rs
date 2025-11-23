@@ -55,6 +55,7 @@ pub struct BootstrapRegistry {
     pub clinit_sym: Symbol,
     pub main_sym: Symbol,
     pub arraycopy_sym: Symbol,
+    pub clone_sym: Symbol,
 
     // Common descriptors (interned)
     pub void_desc: Symbol,         // ()V
@@ -65,6 +66,7 @@ pub struct BootstrapRegistry {
     pub byte_array_desc: Symbol,   // [B
     pub int_array_desc: Symbol,    // [I
     pub int_desc: Symbol,          // I
+    pub clone_desc: Symbol,        // ()Ljava/lang/Object;
 
     // core classes IDs
     java_lang_class_id: OnceCell<ClassId>,
@@ -210,6 +212,7 @@ impl BootstrapRegistry {
             clinit_sym,
             main_sym,
             arraycopy_sym: interner.get_or_intern("arraycopy"),
+            clone_sym: interner.get_or_intern("clone"),
 
             // Descriptors
             void_desc,
@@ -220,6 +223,7 @@ impl BootstrapRegistry {
             byte_array_desc,
             int_desc,
             int_array_desc: interner.get_or_intern("[I"),
+            clone_desc: interner.get_or_intern("()Ljava/lang/Object;"),
 
             // Primitive names
             int_sym,

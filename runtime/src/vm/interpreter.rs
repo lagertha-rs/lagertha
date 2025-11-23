@@ -32,7 +32,7 @@ impl Interpreter {
         let is_branch = instruction.is_branch();
         let instruction_byte_size = instruction.byte_size();
 
-        debug_log_instruction!(&instruction, &thread_id);
+        //debug_log_instruction!(&instruction, &thread_id);
 
         match instruction {
             Instruction::Athrow => {
@@ -840,6 +840,9 @@ impl Interpreter {
                     .set_local(index as usize, Value::Integer(value + (const_val as i32)))?;
             }
             Instruction::Ldc(idx) | Instruction::LdcW(idx) | Instruction::Ldc2W(idx) => {
+                if idx == 168 {
+                    println!()
+                }
                 let cur_method_id = vm.get_stack_mut(&thread_id)?.cur_java_frame()?.method_id();
                 let ldc_operand = {
                     let cp = vm.method_area.get_cp_by_method_id(&cur_method_id)?;
@@ -1325,11 +1328,18 @@ impl Interpreter {
     ) -> Result<Option<Value>, JvmError> {
         let method = vm.method_area.get_method(&method_id);
         if method.is_native() {
+            let clone_desc = vm.br.clone_desc;
+            let object_class_sym = vm.br.java_lang_object_sym;
             let mut method_key = vm
                 .method_area
                 .build_fully_qualified_native_method_key(&method_id);
             // native instance method of array special handling (for now, only Object.clone)
-            if !method.is_static() && vm.heap.is_array(args[0].as_obj_ref()?)? {
+            if !method.is_static()
+                && vm.heap.is_array(args[0].as_obj_ref()?)?
+                && method_key.name == vm.br.clone_sym
+                && method_key.desc == clone_desc
+                && method_key.class == Some(object_class_sym)
+            {
                 method_key.class = None;
             }
             let frame = NativeFrame::new(method_id);

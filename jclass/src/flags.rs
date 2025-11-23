@@ -68,6 +68,10 @@ impl ClassFlags {
     pub fn get_raw(&self) -> &u16 {
         &self.0
     }
+
+    pub fn get_raw_i32(&self) -> i32 {
+        self.0 as i32
+    }
 }
 
 impl InnerClassFlags {

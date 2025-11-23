@@ -198,6 +198,8 @@ pub enum JvmClass {
 
 //TODO: there is right now some code duplication between InstanceClass, InterfaceClass and JvmClass methods. refactor
 impl JvmClass {
+    const BUILTIN_CLASS_FLAGS: i32 = 0x411; // public, super, final
+
     pub fn as_class_like(&self) -> Result<&dyn ClassLike, JvmError> {
         match self {
             JvmClass::Instance(inst) => Ok(inst.as_ref()),
@@ -289,6 +291,29 @@ impl JvmClass {
             JvmClass::PrimitiveArray(arr) => Some(arr.super_id),
             JvmClass::InstanceArray(arr) => Some(arr.super_id),
             JvmClass::Primitive(_) => None,
+        }
+    }
+
+    pub fn is_primitive(&self) -> bool {
+        matches!(self, JvmClass::Primitive(_))
+    }
+
+    pub fn is_array(&self) -> bool {
+        matches!(
+            self,
+            JvmClass::PrimitiveArray(_) | JvmClass::InstanceArray(_)
+        )
+    }
+
+    pub fn is_interface(&self) -> bool {
+        matches!(self, JvmClass::Interface(_))
+    }
+
+    pub fn get_raw_flags(&self) -> i32 {
+        match self {
+            JvmClass::Instance(ic) => ic.flags().get_raw_i32(),
+            JvmClass::Interface(i) => i.flags().get_raw_i32(),
+            _ => Self::BUILTIN_CLASS_FLAGS,
         }
     }
 }

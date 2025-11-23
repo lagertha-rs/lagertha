@@ -422,22 +422,6 @@ impl MethodArea {
         self.mirror_to_class_index.insert(mirror_ref, class_id);
         let target_class = self.get_class(&class_id);
         target_class.set_mirror_ref(mirror_ref)?;
-        let name_sym = target_class.get_name();
-        let name_ref = heap.alloc_string_from_interned_with_char_mapping(
-            name_sym,
-            Some(&|c| {
-                if c == '/' { '.' } else { c }
-            }),
-        )?;
-        let name_field = self
-            .get_instance_class(&class_class_id)?
-            .get_instance_field(&self.br().class_name_fk)?;
-        heap.write_field(
-            mirror_ref,
-            name_field.offset,
-            Value::Ref(name_ref),
-            AllocationType::Reference,
-        )?;
         Ok(mirror_ref)
     }
 }
