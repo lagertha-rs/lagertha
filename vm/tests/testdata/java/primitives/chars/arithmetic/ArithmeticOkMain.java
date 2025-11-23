@@ -23,8 +23,8 @@ public class ArithmeticOkMain {
         assert (a / b) * b + (a % b) == a : "divrem.identity";
 
         // Shifts (shift distance is masked to 5 bits for int promotion)
-        assert ((char) (1 << 16)) == 1 : "shl.mask.16";
-        assert ((char) (1 << 17)) == 2 : "shl.mask.17";
+        assert ((char) (1 << 32)) == 1 : "shl.mask.16";
+        assert ((char) (1 << 33)) == 2 : "shl.mask.17";
         char c = (char) 0xFFFE; // -2 as signed, but unsigned in char context
         assert ((char) (c >> 1)) == 0x7FFF : "shr.unsigned.promoted";
         assert ((char) (c >>> 1)) == 0x7FFF : "shr.logic.same";
