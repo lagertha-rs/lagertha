@@ -232,7 +232,7 @@ fn java_lang_class_get_superclass(
     let mirror_ref = args
         .first()
         .ok_or(JvmError::Todo(
-            "java.lang.Class.getModifiers: missing 0 argument".to_string(),
+            "java.lang.Class.getSuperclass: missing 0 argument".to_string(),
         ))?
         .as_obj_ref()?;
     let target_class_id = vm.method_area.get_class_id_by_mirror(&mirror_ref)?;

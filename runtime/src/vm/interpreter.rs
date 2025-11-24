@@ -840,9 +840,6 @@ impl Interpreter {
                     .set_local(index as usize, Value::Integer(value + (const_val as i32)))?;
             }
             Instruction::Ldc(idx) | Instruction::LdcW(idx) | Instruction::Ldc2W(idx) => {
-                if idx == 168 {
-                    println!()
-                }
                 let cur_method_id = vm.get_stack_mut(&thread_id)?.cur_java_frame()?.method_id();
                 let ldc_operand = {
                     let cp = vm.method_area.get_cp_by_method_id(&cur_method_id)?;

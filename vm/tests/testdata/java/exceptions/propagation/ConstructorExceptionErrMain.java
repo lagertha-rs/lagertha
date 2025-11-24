@@ -1,4 +1,4 @@
-package exceptions.handling.constructor_exception;
+package exceptions.propagation.constructor_exception;
 
 public class ConstructorExceptionErrMain {
     static class Foo {
