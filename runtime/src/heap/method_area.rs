@@ -419,6 +419,17 @@ impl MethodArea {
             .get_instance_class(&class_class_id)?
             .get_instance_size()?;
         let mirror_ref = heap.alloc_instance(class_instance_size, class_class_id)?;
+        if self.get_class(&class_id).is_primitive() {
+            let primitive_field_key = self
+                .get_instance_class(&class_class_id)?
+                .get_instance_field(&self.br().class_primitive_fk)?;
+            heap.write_field(
+                mirror_ref,
+                primitive_field_key.offset,
+                Value::Integer(1),
+                AllocationType::Boolean,
+            )?;
+        }
         self.mirror_to_class_index.insert(mirror_ref, class_id);
         let target_class = self.get_class(&class_id);
         target_class.set_mirror_ref(mirror_ref)?;

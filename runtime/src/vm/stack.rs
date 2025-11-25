@@ -139,6 +139,16 @@ impl FrameStack {
         self.cur_java_frame()?.get_local(index)
     }
 
+    pub fn get_local_double(&self, index: u8) -> Result<&Value, JvmError> {
+        let local = self.get_local(index)?;
+        match local {
+            Value::Double(_) => Ok(local),
+            _ => Err(JvmError::UnexpectedType(
+                "Expected Double in local variable".to_string(),
+            )),
+        }
+    }
+
     pub fn get_local_long(&self, index: u8) -> Result<&Value, JvmError> {
         let local = self.get_local(index)?;
         match local {
@@ -319,7 +329,7 @@ impl FrameStack {
     }
 }
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-2.html#jvms-2.6
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.6
 #[derive(Clone)]
 pub struct JavaFrame {
     locals: Vec<Option<Value>>,

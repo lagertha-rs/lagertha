@@ -3,6 +3,7 @@ use crate::keys::FullyQualifiedMethodKey;
 use crate::native::NativeRet;
 use crate::{ThreadId, VirtualMachine};
 use common::Value;
+use common::error::JvmError;
 use common::jtype::AllocationType;
 use tracing_log::log::debug;
 
@@ -84,6 +85,15 @@ pub(super) fn jdk_internal_misc_unsafe_register_natives(
             &vm.string_interner,
         ),
         jdk_internal_misc_unsafe_compare_and_set_long,
+    );
+    vm.native_registry.register(
+        FullyQualifiedMethodKey::new_with_str(
+            "jdk/internal/misc/Unsafe",
+            "putByte",
+            "(Ljava/lang/Object;JB)V",
+            &vm.string_interner,
+        ),
+        jdk_internal_misc_unsafe_put_byte,
     );
 
     Ok(None)
@@ -293,4 +303,30 @@ fn jdk_internal_misc_unsafe_compare_and_set_reference(
     } else {
         Ok(Some(Value::Integer(0)))
     }
+}
+
+fn jdk_internal_misc_unsafe_put_byte(
+    vm: &mut VirtualMachine,
+    _thread_id: ThreadId,
+    args: &[Value],
+) -> NativeRet {
+    let object = args
+        .get(1)
+        .ok_or(JvmError::Todo("putByte: missing 1 argument".to_string()))?
+        .as_obj_ref()?;
+    let offset = match args
+        .get(2)
+        .ok_or(JvmError::Todo("putByte: missing 2 argument".to_string()))?
+    {
+        Value::Long(l) if *l >= 0 => *l as usize,
+        _ => panic!("putByte: expected non-negative offset"),
+    };
+    let value = args
+        .get(3)
+        .ok_or(JvmError::Todo("putByte: missing 3 argument".to_string()))?
+        .as_int()?;
+
+    vm.heap
+        .write_field(object, offset, Value::Integer(value), AllocationType::Byte)?;
+    Ok(None)
 }

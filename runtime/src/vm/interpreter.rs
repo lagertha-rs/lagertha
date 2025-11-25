@@ -3,7 +3,8 @@ use crate::rt::constant_pool::RuntimeConstant;
 use crate::rt::{ClassLike, JvmClass};
 use crate::vm::stack::{FrameType, JavaFrame, NativeFrame};
 use crate::{
-    MethodId, ThreadId, VirtualMachine, build_exception, debug_log_instruction, throw_exception,
+    MethodId, ThreadId, VirtualMachine, build_exception, debug_log_instruction, error_log_method,
+    throw_exception,
 };
 use common::error::{JavaExceptionFromJvm, JvmError};
 use common::instruction::Instruction;
@@ -32,7 +33,7 @@ impl Interpreter {
         let is_branch = instruction.is_branch();
         let instruction_byte_size = instruction.byte_size();
 
-        //debug_log_instruction!(&instruction, &thread_id);
+        debug_log_instruction!(&instruction, &thread_id);
 
         match instruction {
             Instruction::Athrow => {
@@ -183,6 +184,13 @@ impl Interpreter {
                 vm.get_stack_mut(&thread_id)?
                     .push_operand(Value::Double(v1 + v2))?;
             }
+            Instruction::Ddiv => {
+                let v2 = vm.get_stack_mut(&thread_id)?.pop_double_val()?;
+                let v1 = vm.get_stack_mut(&thread_id)?.pop_double_val()?;
+                // TODO: zero division handling
+                vm.get_stack_mut(&thread_id)?
+                    .push_operand(Value::Double(v1 / v2))?;
+            }
             Instruction::Dconst0 => {
                 vm.get_stack_mut(&thread_id)?
                     .push_operand(Value::Double(0.0))?;
@@ -190,6 +198,26 @@ impl Interpreter {
             Instruction::Dconst1 => {
                 vm.get_stack_mut(&thread_id)?
                     .push_operand(Value::Double(1.0))?;
+            }
+            Instruction::Dload0 => {
+                let value = *vm.get_stack_mut(&thread_id)?.get_local_double(0)?;
+                vm.get_stack_mut(&thread_id)?.push_operand(value)?;
+            }
+            Instruction::Dload1 => {
+                let value = *vm.get_stack_mut(&thread_id)?.get_local_double(1)?;
+                vm.get_stack_mut(&thread_id)?.push_operand(value)?;
+            }
+            Instruction::Dload2 => {
+                let value = *vm.get_stack_mut(&thread_id)?.get_local_double(2)?;
+                vm.get_stack_mut(&thread_id)?.push_operand(value)?;
+            }
+            Instruction::Dload3 => {
+                let value = *vm.get_stack_mut(&thread_id)?.get_local_double(3)?;
+                vm.get_stack_mut(&thread_id)?.push_operand(value)?;
+            }
+            Instruction::Dload(n) => {
+                let value = *vm.get_stack_mut(&thread_id)?.get_local_double(n)?;
+                vm.get_stack_mut(&thread_id)?.push_operand(value)?;
             }
             Instruction::Dup => {
                 vm.get_stack_mut(&thread_id)?.dup_top()?;
@@ -756,6 +784,11 @@ impl Interpreter {
                 vm.get_stack_mut(&thread_id)?
                     .push_operand(Value::Float(v as f32))?;
             }
+            Instruction::D2i => {
+                let v = vm.get_stack_mut(&thread_id)?.pop_double_val()?;
+                vm.get_stack_mut(&thread_id)?
+                    .push_operand(Value::Integer(v as i32))?;
+            }
             Instruction::D2l => {
                 let v = vm.get_stack_mut(&thread_id)?.pop_double_val()?;
                 vm.get_stack_mut(&thread_id)?
@@ -795,6 +828,11 @@ impl Interpreter {
                 let v = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
                 vm.get_stack_mut(&thread_id)?
                     .push_operand(Value::Float(v as f32))?;
+            }
+            Instruction::I2d => {
+                let v = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
+                vm.get_stack_mut(&thread_id)?
+                    .push_operand(Value::Double(v as f64))?;
             }
             Instruction::I2b => {
                 let v = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
@@ -1062,6 +1100,14 @@ impl Interpreter {
                 vm.get_stack_mut(&thread_id)?
                     .push_operand(Value::Long(result))?;
             }
+            Instruction::Lshr => {
+                let v2 = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
+                let v1 = vm.get_stack_mut(&thread_id)?.pop_long_val()?;
+                let shift = (v2 & 0x3F) as u32;
+                let result = v1.wrapping_shr(shift);
+                vm.get_stack_mut(&thread_id)?
+                    .push_operand(Value::Long(result))?;
+            }
             Instruction::Lstore0 => {
                 let value = vm.get_stack_mut(&thread_id)?.pop_long()?;
                 vm.get_stack_mut(&thread_id)?.set_local(0, value)?;
@@ -1082,6 +1128,12 @@ impl Interpreter {
                 let value = vm.get_stack_mut(&thread_id)?.pop_long()?;
                 vm.get_stack_mut(&thread_id)?
                     .set_local(idx as usize, value)?;
+            }
+            Instruction::Lsub => {
+                let v2 = vm.get_stack_mut(&thread_id)?.pop_long_val()?;
+                let v1 = vm.get_stack_mut(&thread_id)?.pop_long_val()?;
+                vm.get_stack_mut(&thread_id)?
+                    .push_operand(Value::Long(v1.wrapping_sub(v2)))?;
             }
             Instruction::Iastore => {
                 let value = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
@@ -1137,6 +1189,10 @@ impl Interpreter {
             }
             Instruction::Return => {
                 return Ok(ControlFlow::Break(None));
+            }
+            Instruction::Dreturn => {
+                let ret_value = vm.get_stack_mut(&thread_id)?.pop_double()?;
+                return Ok(ControlFlow::Break(Some(ret_value)));
             }
             Instruction::Ireturn => {
                 let ret_value = vm.get_stack_mut(&thread_id)?.pop_int()?;
@@ -1349,11 +1405,21 @@ impl Interpreter {
             let native_res = match native(vm, thread_id, args.as_slice()) {
                 Ok(res) => res,
                 Err(JvmError::JavaException(e)) => {
+                    error_log_method!(
+                        &method_id,
+                        &JvmError::JavaException(e.clone()),
+                        "👹👹👹 Java exception thrown in native method"
+                    );
                     let exception_ref = Self::map_rust_error_to_java_exception(thread_id, &e, vm)?;
                     vm.get_stack_mut(&thread_id)?.pop_native_frame()?;
                     return Err(JvmError::JavaExceptionThrown(exception_ref));
                 }
                 Err(e) => {
+                    error_log_method!(
+                        &method_id,
+                        &e,
+                        "👹👹👹 Java exception thrown in native method"
+                    );
                     vm.get_stack_mut(&thread_id)?.pop_native_frame()?;
                     return Err(e);
                 }
@@ -1368,7 +1434,15 @@ impl Interpreter {
             let frame = JavaFrame::new(method_id, max_stack, max_locals, args);
             vm.get_stack_mut(&thread_id)?
                 .push_frame(FrameType::JavaFrame(frame))?;
-            let method_ret = Self::interpret_method(thread_id, method_id, vm)?;
+            let method_ret = Self::interpret_method(thread_id, method_id, vm);
+            if let Err(e) = &method_ret {
+                error_log_method!(
+                    &method_id,
+                    e,
+                    "👹👹👹 Java exception thrown in interpreted method"
+                );
+            }
+            let method_ret = method_ret?;
             vm.get_stack_mut(&thread_id)?.pop_java_frame()?;
             Ok(method_ret)
         }

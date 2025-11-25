@@ -4,7 +4,7 @@ use crate::constant::pool::ConstantPool;
 use crate::flags::FieldFlags;
 use common::utils::cursor::ByteCursor;
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.5
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.5
 #[derive(Debug)]
 pub struct FieldInfo {
     pub access_flags: FieldFlags,

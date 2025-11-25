@@ -4,7 +4,7 @@ use crate::constant::pool::ConstantPool;
 use common::utils::cursor::ByteCursor;
 use num_enum::TryFromPrimitive;
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.3
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7.3
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CodeAttributeInfo {
     LineNumberTable(Vec<LineNumberEntry>),
@@ -15,14 +15,14 @@ pub enum CodeAttributeInfo {
     RuntimeInvisibleTypeAnnotations,
 }
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.12
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7.12
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LineNumberEntry {
     pub start_pc: u16,
     pub line_number: u16,
 }
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.13
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7.13
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LocalVariableEntry {
     pub start_pc: u16,
@@ -32,7 +32,7 @@ pub struct LocalVariableEntry {
     pub index: u16,
 }
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.14
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7.14
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LocalVariableTypeEntry {
     pub start_pc: u16,
@@ -42,7 +42,7 @@ pub struct LocalVariableTypeEntry {
     pub index: u16,
 }
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.4
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7.4
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum StackMapFrame {
     Same {

@@ -6,7 +6,7 @@ use common::utils::cursor::ByteCursor;
 
 pub mod code;
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.3
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7.3
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ExceptionTableEntry {
     pub start_pc: u16,
@@ -15,7 +15,7 @@ pub struct ExceptionTableEntry {
     pub catch_type: u16,
 }
 
-/// https://docs.oracle.com/javase/spehycs/jvms/se24/html/jvms-4.html#jvms-4.7.3
+/// https://docs.oracle.com/javase/spehycs/jvms/se25/html/jvms-4.html#jvms-4.7.3
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CodeAttribute {
     pub max_stack: u16,
@@ -31,7 +31,7 @@ pub struct MethodParameterEntry {
     pub access_flags: u16,
 }
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MethodAttribute {
     Shared(SharedAttribute),

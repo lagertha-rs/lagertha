@@ -18,7 +18,7 @@ pub mod print;
 // TODO: review all access levels in the crate (methods, fields, modules, structs, etc.)
 // TODO: align enums that end with "Info"/"Ref" and "Type"/"Kind" suffixes
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html
 /// A rust representation of a Java .class file. All structures in the crates have public only public
 /// fields for easier access, because anyway it will be remapped to runtime structures.
 ///
@@ -72,7 +72,7 @@ impl TryFrom<Vec<u8>> for ClassFile {
             constant_pool.push(constant.clone());
             match constant {
                 // described in JVM spec that Long and Double take two entries in the constant pool
-                // https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.4.5
+                // https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.4.5
                 ConstantInfo::Long(_) | ConstantInfo::Double(_) => {
                     constant_pool.push(ConstantInfo::Unused);
                     i += 2;

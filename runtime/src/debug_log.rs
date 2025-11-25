@@ -68,6 +68,42 @@ macro_rules! debug_log_method {
 }
 
 #[macro_export]
+macro_rules! error_log_method {
+    ($method_id:expr, $exception:expr, $msg:expr) => {
+        #[cfg(feature = "debug-log")]
+        {
+            crate::debug_log::debug::with_vm(|vm| {
+                let method = vm.method_area.get_method($method_id);
+                let class_name = vm
+                    .interner()
+                    .resolve(&vm.method_area.get_class(&method.class_id()).get_name());
+                let method_name = vm.interner().resolve(&method.name);
+                let signature = vm
+                    .method_area
+                    .get_method_descriptor(&method.descriptor_id())
+                    .to_java_signature(method_name);
+
+                let exp_class_name = if let JvmError::JavaExceptionThrown(hr) = $exception {
+                    let excp_id = vm.heap.get_class_id(*hr).unwrap();
+                    let excp_class_name = vm.method_area.get_class(&excp_id).get_name();
+                    vm.interner().resolve(&excp_class_name).to_string()
+                } else {
+                    format!("{:?}", $exception)
+                };
+
+                tracing_log::log::error!(
+                    "{}. Exception: {} in {} of {}",
+                    $msg,
+                    exp_class_name,
+                    signature,
+                    class_name
+                );
+            });
+        }
+    };
+}
+
+#[macro_export]
 macro_rules! debug_log_instruction {
     ($instruction:expr, $thread_id:expr) => {
         #[cfg(feature = "debug-log")]

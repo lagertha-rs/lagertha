@@ -5,7 +5,7 @@ use std::fmt::{Display, Formatter};
 
 pub mod pool;
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.4-210
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.4-210
 /// Table 4.4-B. Constant pool tags (by tag)
 #[derive(Debug, Clone, PartialEq, Eq, TryFromPrimitive)]
 #[repr(u8)]
@@ -30,7 +30,7 @@ pub enum ConstantTag {
     Package = 20,
 }
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.4-140
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.4-140
 /// Each entry is as described in section column of Table 4.4-A. Constant pool tags (by section)
 #[derive(Debug, Clone, PartialEq)]
 pub enum ConstantInfo {
@@ -64,14 +64,14 @@ pub struct NameAndTypeInfo {
     pub descriptor_index: u16,
 }
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.4.10
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.4.10
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DynamicInfo {
     pub bootstrap_method_attr_index: u16,
     pub name_and_type_index: u16,
 }
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.4.8
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.4.8
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MethodHandleInfo {
     pub reference_kind: u8,

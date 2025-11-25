@@ -8,4 +8,4 @@
 
 ## Loading and Running a Program
 
-[Chapter 5. Loading, Linking, and Initializing](https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-5.html)
+[Chapter 5. Loading, Linking, and Initializing](https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-5.html)

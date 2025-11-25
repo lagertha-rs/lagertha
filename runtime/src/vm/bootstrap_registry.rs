@@ -18,6 +18,7 @@ pub struct BootstrapRegistry {
 
     // Common field keys
     pub class_name_fk: FieldKey,
+    pub class_primitive_fk: FieldKey,
     pub system_out_fk: FieldKey,
     pub system_err_fk: FieldKey,
     pub file_output_stream_fd_fk: FieldKey,
@@ -66,6 +67,7 @@ pub struct BootstrapRegistry {
     pub byte_array_desc: Symbol,   // [B
     pub int_array_desc: Symbol,    // [I
     pub int_desc: Symbol,          // I
+    pub boolean_desc: Symbol,      // Z
     pub clone_desc: Symbol,        // ()Ljava/lang/Object;
 
     // core classes IDs
@@ -93,6 +95,7 @@ impl BootstrapRegistry {
         let string_array_desc = interner.get_or_intern("[Ljava/lang/String;");
         let byte_array_desc = interner.get_or_intern("[B");
         let int_desc = interner.get_or_intern("I");
+        let boolean_desc = interner.get_or_intern("Z");
         let desc_print_stream_sym = interner.get_or_intern("Ljava/io/PrintStream;");
 
         // Primitive type names
@@ -152,6 +155,10 @@ impl BootstrapRegistry {
             class_name_fk: FieldKey {
                 name: name_field,
                 desc: string_desc,
+            },
+            class_primitive_fk: FieldKey {
+                name: interner.get_or_intern("primitive"),
+                desc: boolean_desc,
             },
             throwable_backtrace_fk: FieldKey {
                 name: interner.get_or_intern("backtrace"),
@@ -222,6 +229,7 @@ impl BootstrapRegistry {
             string_array_desc,
             byte_array_desc,
             int_desc,
+            boolean_desc,
             int_array_desc: interner.get_or_intern("[I"),
             clone_desc: interner.get_or_intern("()Ljava/lang/Object;"),
 

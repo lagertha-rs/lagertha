@@ -8,7 +8,7 @@ pub mod class;
 pub mod field;
 pub mod method;
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum AttributeType {
     ConstantValue,
@@ -178,7 +178,7 @@ impl<'a> SharedAttribute {
     }
 }
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.16
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7.16
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Annotation {
     pub type_index: u16,
@@ -202,7 +202,7 @@ impl<'a> Annotation {
     }
 }
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.16
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7.16
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ElementValuePair {
     pub element_name_index: u16,
@@ -218,7 +218,7 @@ impl<'a> ElementValuePair {
     }
 }
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.16.1
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7.16.1
 #[derive(Debug, Clone, PartialEq, Eq, TryFromPrimitive)]
 #[repr(u8)]
 pub enum ElementTag {
@@ -237,7 +237,7 @@ pub enum ElementTag {
     ArrayType = b'[',
 }
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.16.1
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7.16.1
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ElementValue {
     Byte(u16),

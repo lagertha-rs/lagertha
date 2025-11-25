@@ -39,6 +39,7 @@ classes = [
     "java.lang.IndexOutOfBoundsException",
     "java.lang.StackTraceElement",
     "java.lang.Math",
+    "java.lang.StrictMath",
     "java.lang.Double",
     "java.lang.VersionProps",
     "java.lang.Runtime",

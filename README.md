@@ -1,15 +1,15 @@
 # Toy Java Virtual Machine
 
 This project is an educational implementation of a Java Virtual Machine following
-the [Java Virtual Machine Specification](https://docs.oracle.com/javase/specs/jvms/se24/html/). It aims to provide a
-simple but functional runtime for executing Java bytecode. I'm targeting fully featured Java 24 support.
+the [Java Virtual Machine Specification](https://docs.oracle.com/javase/specs/jvms/se25/html/). It aims to provide a
+simple but functional runtime for executing Java bytecode. I'm targeting fully featured Java 25 support.
 
 ## Status
 
 This project is currently in early development. It executes a very limited instruction set, ignoring many important
 aspects of the JVM specification.
 
-The first milestone is to execute a "Hello, World!" program compiled with Java 24. It sounds easy, but it is actually
+The first milestone is to execute a "Hello, World!" program compiled with Java 25. It sounds easy, but it is actually
 not.
 
 ## Project Structure
@@ -30,7 +30,7 @@ TODO
 
 ### References
 
-- [JVM Specification SE 24](https://docs.oracle.com/javase/specs/jvms/se24/html/)
+- [JVM Specification SE 25](https://docs.oracle.com/javase/specs/jvms/se25/html/)
 
 ### Launch CI locally
 
@@ -68,7 +68,7 @@ that I don't break anything.
 - `prepare_fixtures.py`: A script to prepare all test fixtures. It is used for the CI pipeline and for local testing.
   It compiles all Java files, from all crates and organizes them into the appropriate directory structure. For the
   classes from `fixtures.toml` it extracts the required classes from the JDK. For the rest of java source files. It
-  compiles all of them using `javac` with java 24.
+  compiles all of them using `javac` with java 25.
 - `jclass` tests reads all `.class` complied from all classes from `fixtures.toml`, all classes used in `runtime`
   tests, and all classes from `vm/tests`. It checks that it is parsed correctly. Right now it uses both snapshots
   and compare against `javap -v -p` output. In the future I want to remove one of them, because testing the same thing

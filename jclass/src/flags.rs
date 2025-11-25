@@ -1,25 +1,25 @@
 // TODO: Right now I plan to use it in runtime as well. idk if it's a good idea or not.
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.1-200-E.1
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.1-200-E.1
 /// Table 4.1-B. Class access and property modifiers
 #[derive(Debug, Clone, Copy)]
 pub struct ClassFlags(u16);
 
-/// https://docs.oracle.com/javase/specs/jvms/se23/html/jvms-4.html#jvms-4.7.6-300-D.1-D.1
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7.6-300-D.1-D.1
 /// Table 4.7.6-A. Nested class access and property flags
 #[derive(Debug, Clone, Copy)]
 pub struct InnerClassFlags(u16);
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.6-200-A.1
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.6-200-A.1
 /// Table 4.6-A. Method access and property flags
 #[derive(Debug, Clone, Copy)]
 pub struct MethodFlags(u16);
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.7.24
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7.24
 #[derive(Debug, Clone, Copy)]
 pub struct MethodParamFlags(u16);
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.5-200-A.1
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.5-200-A.1
 /// Table 4.5-A. Field access and property flags
 #[derive(Debug, Clone, Copy)]
 pub struct FieldFlags(u16);

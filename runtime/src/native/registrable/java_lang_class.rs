@@ -44,16 +44,6 @@ pub(super) fn java_lang_class_register_natives(
     vm.native_registry.register(
         FullyQualifiedMethodKey::new_with_str(
             "java/lang/Class",
-            "isPrimitive",
-            "()Z",
-            &vm.string_interner,
-        ),
-        java_lang_class_is_primitive,
-    );
-
-    vm.native_registry.register(
-        FullyQualifiedMethodKey::new_with_str(
-            "java/lang/Class",
             "isInterface",
             "()Z",
             &vm.string_interner,
@@ -101,22 +91,6 @@ fn java_lang_class_desired_assertion_status_0(
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.desiredAssertionStatus0");
     Ok(Some(Value::Integer(1)))
-}
-
-fn java_lang_class_is_primitive(
-    vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
-    args: &[Value],
-) -> NativeRet {
-    let mirror_ref = args
-        .first()
-        .ok_or(JvmError::Todo(
-            "java.lang.Class.isPrimitive: missing 0 argument".to_string(),
-        ))?
-        .as_obj_ref()?;
-    let target_class_id = vm.method_area.get_class_id_by_mirror(&mirror_ref)?;
-    let is_primitive = vm.method_area.get_class(&target_class_id).is_primitive();
-    Ok(Some(Value::Integer(if is_primitive { 1 } else { 0 })))
 }
 
 fn java_lang_class_is_interface(

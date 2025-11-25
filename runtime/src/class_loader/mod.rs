@@ -16,7 +16,7 @@ struct ClassSource {
     entry_name: String,
 }
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-5.html#jvms-5.3.1
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-5.html#jvms-5.3.1
 pub struct ClassLoader {
     tested_parsing: HashSet<String>,
     jimage: JImage,

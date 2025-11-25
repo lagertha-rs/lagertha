@@ -1,7 +1,7 @@
 use crate::constant::{ConstantInfo, ConstantTag};
 use common::error::ClassFormatErr;
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.4
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.4
 #[derive(Debug, Clone, PartialEq)]
 pub struct ConstantPool {
     pub inner: Vec<ConstantInfo>,

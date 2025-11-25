@@ -92,10 +92,10 @@ fn jdk_internal_util_system_props_raw_platform_properties(
     let line_sep_sym = vm.method_area.interner().get_or_intern("\n");
     let line_separator_value = vm.heap.get_str_from_pool_or_new(line_sep_sym)?;
     vm.heap
-        .write_array_element(h, 19, Value::Ref(line_separator_value))?;
+        .write_array_element(h, 18, Value::Ref(line_separator_value))?;
     vm.heap.write_array_element(h, 27, Value::Ref(enc))?;
-    vm.heap.write_array_element(h, 28, Value::Ref(enc))?;
-    vm.heap.write_array_element(h, 34, Value::Ref(enc))?;
+    vm.heap.write_array_element(h, 29, Value::Ref(enc))?;
+    vm.heap.write_array_element(h, 35, Value::Ref(enc))?;
 
     Ok(Some(Value::Ref(h)))
 }

@@ -4,7 +4,7 @@ use crate::constant::pool::ConstantPool;
 use crate::flags::MethodFlags;
 use common::utils::cursor::ByteCursor;
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-4.html#jvms-4.6
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.6
 #[derive(Debug)]
 pub struct MethodInfo {
     pub access_flags: MethodFlags,

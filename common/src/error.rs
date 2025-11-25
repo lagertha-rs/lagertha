@@ -219,7 +219,7 @@ pub struct JavaExceptionReference {
     pub descriptor: &'static str,
 }
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, Clone)]
 pub enum JavaExceptionFromJvm {
     ArithmeticException(Option<String>),
     UnsupportedOperationException(Option<String>),

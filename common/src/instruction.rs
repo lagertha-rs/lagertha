@@ -4,7 +4,7 @@ use crate::utils::cursor::ByteCursor;
 use num_enum::TryFromPrimitive;
 use std::fmt::Formatter;
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-6.html#jvms-6.5.lookupswitch
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.lookupswitch
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LookupSwitchData {
     pub padding: u8,
@@ -22,7 +22,7 @@ pub struct TableSwitchData {
     pub offsets: Vec<i32>,
 }
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-6.html#jvms-6.5.newarray
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.newarray
 /// Table 6.5-A. Newarray type codes
 #[derive(Debug, Clone, Copy, PartialEq, Eq, TryFromPrimitive)]
 #[repr(u8)]
@@ -122,7 +122,7 @@ impl From<&ArrayType> for Value {
     }
 }
 
-/// https://docs.oracle.com/javase/specs/jvms/se24/html/jvms-6.html
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html
 #[derive(Debug, Clone, Copy, PartialEq, Eq, TryFromPrimitive)]
 #[repr(u8)]
 pub enum Opcode {
