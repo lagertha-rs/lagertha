@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         rust: [ stable ]
-        jdk: [ '25' ]
+        jdk: [ '25.0.0' ]
         jdk_distribution: [ 'oracle' ]
     
     
