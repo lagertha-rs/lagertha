@@ -15,7 +15,7 @@ pub struct ExceptionTableEntry {
     pub catch_type: u16,
 }
 
-/// https://docs.oracle.com/javase/spehycs/jvms/se25/html/jvms-4.html#jvms-4.7.3
+/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7.3
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CodeAttribute {
     pub max_stack: u16,
