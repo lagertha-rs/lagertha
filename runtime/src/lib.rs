@@ -36,9 +36,9 @@ pub struct VmConfig {
 //TODO: make it better
 impl VmConfig {
     pub fn validate(&self) {
-        if self.version != "25" {
+        if self.version != "25.0.1" {
             panic!(
-                "Unsupported Java version: {}. Only 25.0.0 is supported.",
+                "Unsupported Java version: {}. Only 25.0.1 is supported.",
                 self.version
             );
         }
