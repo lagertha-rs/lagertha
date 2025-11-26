@@ -26,6 +26,16 @@ pub enum Value {
 }
 
 impl Value {
+    pub fn as_nullable_obj_ref(&self) -> Result<Option<HeapRef>, JvmError> {
+        match self {
+            Value::Ref(addr) => Ok(Some(*addr)),
+            Value::Null => Ok(None),
+            _ => Err(JvmError::Todo(
+                "Value::as_nullable_obj_ref called on non-reference value".to_string(),
+            )),
+        }
+    }
+
     pub fn as_obj_ref(&self) -> Result<HeapRef, JvmError> {
         match self {
             Value::Ref(addr) => Ok(*addr),
