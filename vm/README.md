@@ -43,7 +43,7 @@ cargo run --bin vm -- -cp . com/example/HelloWorldMain.class
 ### Execution with logging enabled
 
 ```bash
-cargo run --bin vm --features=debug-log -- -cp . com/example/HelloWorldMain.class
+cargo run --bin vm --features=log-runtime-traces -- -cp . com/example/HelloWorldMain.class
 ```
 
 ### Execution with `hotpath` profiling enabled

@@ -75,7 +75,7 @@ impl VirtualMachine {
             br,
         };
 
-        #[cfg(feature = "debug-log")]
+        #[cfg(feature = "log-runtime-traces")]
         debug_log::debug::init(&vm);
 
         let main_thread_id = vm.create_main_thread()?;
@@ -275,7 +275,7 @@ pub fn start(config: VmConfig) -> Result<(), JvmError> {
     // TODO: it doesn't actually print errors in correct way if any occur during VM initialization. fix
     let (mut vm, main_thread_id) = VirtualMachine::new(config)?;
 
-    #[cfg(feature = "debug-log")]
+    #[cfg(feature = "log-runtime-traces")]
     debug_log::debug::init(&vm);
 
     let main_class_sym = vm.string_interner.get_or_intern(&vm.config.main_class);

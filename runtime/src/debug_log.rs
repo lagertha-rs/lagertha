@@ -1,4 +1,4 @@
-#[cfg(feature = "debug-log")]
+#[cfg(feature = "log-runtime-traces")]
 pub(crate) mod debug {
     use crate::VirtualMachine;
     use std::sync::atomic::{AtomicPtr, Ordering};
@@ -28,7 +28,7 @@ pub(crate) mod debug {
 #[macro_export]
 macro_rules! debug_log {
     ($($arg:tt)*) => {
-        #[cfg(feature = "debug-log")]
+        #[cfg(feature = "log-runtime-traces")]
         {
             tracing_log::log::debug!($($arg)*);
         }
@@ -38,7 +38,7 @@ macro_rules! debug_log {
 #[macro_export]
 macro_rules! debug_error_log {
     ($($arg:tt)*) => {
-        #[cfg(feature = "debug-log")]
+        #[cfg(feature = "log-runtime-traces")]
         {
             tracing_log::log::error!($($arg)*);
         }
@@ -48,7 +48,7 @@ macro_rules! debug_error_log {
 #[macro_export]
 macro_rules! debug_log_method {
     ($method_id:expr, $msg:expr) => {
-        #[cfg(feature = "debug-log")]
+        #[cfg(feature = "log-runtime-traces")]
         {
             crate::debug_log::debug::with_vm(|vm| {
                 let method = vm.method_area.get_method($method_id);
@@ -70,7 +70,7 @@ macro_rules! debug_log_method {
 #[macro_export]
 macro_rules! error_log_method {
     ($method_id:expr, $exception:expr, $msg:expr) => {
-        #[cfg(feature = "debug-log")]
+        #[cfg(feature = "log-runtime-traces")]
         {
             crate::debug_log::debug::with_vm(|vm| {
                 let method = vm.method_area.get_method($method_id);
@@ -106,7 +106,7 @@ macro_rules! error_log_method {
 #[macro_export]
 macro_rules! debug_log_instruction {
     ($instruction:expr, $thread_id:expr) => {
-        #[cfg(feature = "debug-log")]
+        #[cfg(feature = "log-runtime-traces")]
         {
             crate::debug_log::debug::with_vm(|vm| {
                 let mut msg_chunks = vec![format!("{:?}", $instruction)];

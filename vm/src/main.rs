@@ -52,7 +52,7 @@ fn create_vm_configuration(mut args: Args, main_class: String) -> Result<VmConfi
 
 #[cfg_attr(feature = "hotpath", hotpath::main)]
 fn main() {
-    #[cfg(feature = "debug-log")]
+    #[cfg(feature = "log-runtime-traces")]
     common::utils::telemetry::init_tracing();
     let args = Args::parse();
     debug!("Provided command line arguments: {:?}", args);

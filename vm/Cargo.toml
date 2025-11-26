@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [features]
-debug-log = ["runtime/debug-log"]
+log-runtime-traces = ["runtime/log-runtime-traces"]
 hotpath = ["dep:hotpath", "hotpath/hotpath", "runtime/hotpath"]
 
 [dependencies]
