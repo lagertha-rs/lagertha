@@ -151,6 +151,9 @@ pub enum ClassLoaderErr {
     ArchiveErr,
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub struct JavaExceptionRef(pub HeapRef);
+
 #[derive(Debug, Error)]
 pub enum JvmError {
     #[error(

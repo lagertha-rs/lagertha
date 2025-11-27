@@ -6,7 +6,7 @@ use crate::vm::stack::{FrameType, JavaFrame, NativeFrame};
 use crate::{
     MethodId, ThreadId, VirtualMachine, build_exception, debug_log_instruction, error_log_method,
 };
-use common::error::{JavaExceptionFromJvm, JvmError};
+use common::error::{JavaExceptionFromJvm, JavaExceptionRef, JvmError};
 use common::instruction::Instruction;
 use common::{HeapRef, Value};
 use jclass::attribute::method::ExceptionTableEntry;
@@ -226,9 +226,9 @@ impl Interpreter {
     //TODO: need to move it, refactor and it will still probably will not work for catch
     fn map_rust_error_to_java_exception(
         thread_id: ThreadId,
-        exception: &JavaExceptionFromJvm,
+        exception: JvmError,
         vm: &mut VirtualMachine,
-    ) -> Result<HeapRef, JvmError> {
+    ) -> JavaExceptionRef {
         let exception_ref = exception.as_reference();
         let class_id = vm
             .method_area
@@ -254,7 +254,7 @@ impl Interpreter {
             vec![Value::Ref(instance)]
         };
         Self::invoke_method_internal(thread_id, method_id, params, vm)?;
-        Ok(instance)
+        JavaExceptionRef(instance)
     }
 
     fn prepare_method_args(
@@ -287,7 +287,7 @@ impl Interpreter {
         vm: &VirtualMachine,
         entry: &ExceptionTableEntry,
         method_id: &MethodId,
-        java_exception: HeapRef,
+        java_exception: JavaExceptionRef,
     ) -> Result<bool, JvmError> {
         let catch_type = entry.catch_type;
 
@@ -295,7 +295,7 @@ impl Interpreter {
             return Ok(true);
         }
 
-        let exception_class_id = vm.heap.get_class_id(java_exception)?;
+        let exception_class_id = vm.heap.get_class_id(java_exception.0)?;
         let catch_type_sym = vm
             .method_area
             .get_cp_by_method_id(method_id)?
@@ -309,7 +309,7 @@ impl Interpreter {
     fn find_exception_handler(
         vm: &mut VirtualMachine,
         method_id: &MethodId,
-        java_exception: HeapRef,
+        java_exception: JavaExceptionRef,
         thread_id: &ThreadId,
     ) -> Result<bool, JvmError> {
         let pc = vm.get_stack_mut(thread_id)?.pc()?;
@@ -323,7 +323,7 @@ impl Interpreter {
             if Self::is_exception_caught(vm, entry, method_id, java_exception)? {
                 let handler_pc = entry.handler_pc as usize;
                 let stack = vm.get_stack_mut(thread_id)?;
-                stack.push_operand(Value::Ref(java_exception))?;
+                stack.push_operand(Value::Ref(java_exception.0))?;
                 *stack.pc_mut()? = handler_pc;
                 return Ok(true);
             }
@@ -336,7 +336,7 @@ impl Interpreter {
         thread_id: ThreadId,
         method_id: MethodId,
         vm: &mut VirtualMachine,
-    ) -> Result<Option<Value>, JvmError> {
+    ) -> Result<Option<Value>, JavaExceptionRef> {
         let code_ptr = vm.method_area.get_method(&method_id).get_code()? as *const [u8];
         loop {
             // SAFETY: code_ptr is valid as long as method exists in method area (always)
@@ -352,17 +352,10 @@ impl Interpreter {
                     }
                 }
                 Err(e) => {
-                    let java_exception = match e {
-                        JvmError::JavaException(exception) => {
-                            Self::map_rust_error_to_java_exception(thread_id, &exception, vm)
-                        }
-                        JvmError::JavaExceptionThrown(exception_ref) => Ok(exception_ref),
-                        // TODO: this errors are not mapped yet or happened during mapping to java exception
-                        e => Err(e),
-                    }?;
+                    let java_exception = Self::map_rust_error_to_java_exception(thread_id, e, vm);
                     if !Self::find_exception_handler(vm, &method_id, java_exception, &thread_id)? {
                         vm.get_stack_mut(&thread_id)?.pop_java_frame()?;
-                        return Err(JvmError::JavaExceptionThrown(java_exception));
+                        return Err(java_exception);
                     }
                 }
             }
@@ -374,7 +367,7 @@ impl Interpreter {
         method_id: MethodId,
         args: Vec<Value>,
         vm: &mut VirtualMachine,
-    ) -> Result<Option<Value>, JvmError> {
+    ) -> Result<Option<Value>, JavaExceptionRef> {
         let method = vm.method_area.get_method(&method_id);
         if method.is_native() {
             let clone_desc = vm.br.clone_desc;
@@ -449,21 +442,12 @@ impl Interpreter {
         method_id: MethodId,
         args: Vec<Value>,
         vm: &mut VirtualMachine,
-    ) -> Result<(), JvmError> {
+    ) -> Result<(), JavaExceptionRef> {
         let method_ret = Self::invoke_method_core(thread_id, method_id, args, vm)?;
         if let Some(ret) = method_ret {
             vm.get_stack_mut(&thread_id)?.push_operand(ret)?;
         }
         Ok(())
-    }
-
-    pub fn run_method(
-        thread_id: ThreadId,
-        method_id: MethodId,
-        args: Vec<Value>,
-        vm: &mut VirtualMachine,
-    ) -> Result<Option<Value>, JvmError> {
-        Self::invoke_method_core(thread_id, method_id, args, vm)
     }
 
     fn interface_needs_initialization(
@@ -488,19 +472,6 @@ impl Interpreter {
             Self::invoke_method_internal(thread_id, clinit_method_id, vec![], vm)?;
         }
 
-        Ok(())
-    }
-
-    fn run_init_phase1(
-        thread_id: ThreadId,
-        class_id: ClassId,
-        vm: &mut VirtualMachine,
-    ) -> Result<(), JvmError> {
-        let init_phase1_method_id = vm
-            .method_area
-            .get_instance_class(&class_id)?
-            .get_special_method_id(&vm.br().system_init_phase1_mk)?;
-        Self::invoke_method_internal(thread_id, init_phase1_method_id, vec![], vm)?;
         Ok(())
     }
 
@@ -543,11 +514,6 @@ impl Interpreter {
 
                 let cur_class_name = vm.method_area.get_instance_class(&class_id)?.name();
 
-                // probably in the future we can skip it for something like arraycopy native method
-                // I guess it doesn't need the whole class initialization
-                if cur_class_name == vm.br().java_lang_system_sym {
-                    Self::run_init_phase1(thread_id, class_id, vm)?;
-                }
                 //TODO: stub
                 if vm.interner().resolve(&cur_class_name) == "jdk/internal/access/SharedSecrets" {
                     warn!(
@@ -580,12 +546,22 @@ impl Interpreter {
         Ok(())
     }
 
+    pub fn invoke_instance_method(
+        thread_id: ThreadId,
+        method_id: MethodId,
+        vm: &mut VirtualMachine,
+        args: Vec<Value>,
+    ) -> Result<Option<Value>, JavaExceptionRef> {
+        //TODO: do I need to check that args[0] is not null?
+        Self::invoke_method_core(thread_id, method_id, args, vm)
+    }
+
     pub fn invoke_static_method(
         thread_id: ThreadId,
         method_id: MethodId,
         vm: &mut VirtualMachine,
         args: Vec<Value>,
-    ) -> Result<(), JvmError> {
+    ) -> Result<(), JavaExceptionRef> {
         let class_id = vm.method_area.get_method(&method_id).class_id();
         Self::ensure_initialized(thread_id, Some(class_id), vm)?;
         Self::invoke_method_internal(thread_id, method_id, args, vm)?;

@@ -72,6 +72,10 @@ impl MethodArea {
         self.bootstrap_registry
             .set_java_lang_object_id(java_lang_object_id)?;
 
+        let java_lang_system_id = self.get_class_id_or_load(self.br().java_lang_system_sym)?;
+        self.bootstrap_registry
+            .set_java_lang_system_id(java_lang_system_id)?;
+
         let java_lang_class_id = self.get_class_id_or_load(self.br().java_lang_class_sym)?;
         self.bootstrap_registry
             .set_java_lang_class_id(java_lang_class_id)?;
