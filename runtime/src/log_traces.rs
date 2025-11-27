@@ -3,10 +3,10 @@ pub(crate) mod debug {
     use crate::VirtualMachine;
     use std::sync::atomic::{AtomicPtr, Ordering};
 
-    static METHOD_AREA: AtomicPtr<VirtualMachine> = AtomicPtr::new(std::ptr::null_mut());
+    static VM: AtomicPtr<VirtualMachine> = AtomicPtr::new(std::ptr::null_mut());
 
     pub fn init(ma: &VirtualMachine) {
-        METHOD_AREA.store(
+        VM.store(
             ma as *const VirtualMachine as *mut VirtualMachine,
             Ordering::Release,
         );
@@ -16,7 +16,7 @@ pub(crate) mod debug {
     where
         F: FnOnce(&VirtualMachine) -> R,
     {
-        let ptr = METHOD_AREA.load(Ordering::Acquire);
+        let ptr = VM.load(Ordering::Acquire);
         if ptr.is_null() {
             None
         } else {
@@ -50,7 +50,7 @@ macro_rules! debug_log_method {
     ($method_id:expr, $msg:expr) => {
         #[cfg(feature = "log-runtime-traces")]
         {
-            crate::debug_log::debug::with_vm(|vm| {
+            crate::log_traces::debug::with_vm(|vm| {
                 let method = vm.method_area.get_method($method_id);
                 let class_name = vm
                     .interner()
@@ -72,7 +72,7 @@ macro_rules! error_log_method {
     ($method_id:expr, $exception:expr, $msg:expr) => {
         #[cfg(feature = "log-runtime-traces")]
         {
-            crate::debug_log::debug::with_vm(|vm| {
+            crate::log_traces::debug::with_vm(|vm| {
                 let method = vm.method_area.get_method($method_id);
                 let class_name = vm
                     .interner()
@@ -108,7 +108,7 @@ macro_rules! debug_log_instruction {
     ($instruction:expr, $thread_id:expr) => {
         #[cfg(feature = "log-runtime-traces")]
         {
-            crate::debug_log::debug::with_vm(|vm| {
+            crate::log_traces::debug::with_vm(|vm| {
                 let mut msg_chunks = vec![format!("{:?}", $instruction)];
                 match $instruction {
                     common::instruction::Instruction::Getstatic(idx) => {
@@ -237,7 +237,7 @@ macro_rules! debug_log_instruction {
 
                     _ => {}
                 }
-                tracing_log::log::debug!("Executing: {}", msg_chunks.join(" "));
+                tracing_log::log::debug!(target: "bytecode","Executing: {}", msg_chunks.join(" "));
             });
         }
     };

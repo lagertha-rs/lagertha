@@ -1,5 +1,5 @@
 use crate::keys::ClassId;
-use crate::{Symbol, debug_error_log, debug_log, throw_exception};
+use crate::{Symbol, debug_error_log, log_traces, throw_exception};
 use common::error::JvmError;
 use common::instruction::ArrayType;
 use common::jtype::AllocationType;

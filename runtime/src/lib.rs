@@ -14,10 +14,10 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 mod class_loader;
-pub mod debug_log;
 pub mod heap;
 mod interpreter;
 pub mod keys;
+pub mod log_traces;
 mod native;
 pub mod rt;
 mod thread;
@@ -76,7 +76,7 @@ impl VirtualMachine {
         };
 
         #[cfg(feature = "log-runtime-traces")]
-        debug_log::debug::init(&vm);
+        log_traces::debug::init(&vm);
 
         let main_thread_id = vm.create_main_thread()?;
         vm.initialize_main_thread(main_thread_id).inspect_err(|e| {
@@ -276,7 +276,7 @@ pub fn start(config: VmConfig) -> Result<(), JvmError> {
     let (mut vm, main_thread_id) = VirtualMachine::new(config)?;
 
     #[cfg(feature = "log-runtime-traces")]
-    debug_log::debug::init(&vm);
+    log_traces::debug::init(&vm);
 
     let main_class_sym = vm.string_interner.get_or_intern(&vm.config.main_class);
     let main_class_id = vm.method_area.get_class_id_or_load(main_class_sym)?;
