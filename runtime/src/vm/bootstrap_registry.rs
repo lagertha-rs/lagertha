@@ -71,7 +71,6 @@ pub struct BootstrapRegistry {
     pub clone_desc: Symbol,        // ()Ljava/lang/Object;
 
     // core classes IDs
-    java_lang_system_id: OnceCell<ClassId>,
     java_lang_class_id: OnceCell<ClassId>,
     java_lang_object_id: OnceCell<ClassId>,
     java_lang_throwable_id: OnceCell<ClassId>,
@@ -246,7 +245,6 @@ impl BootstrapRegistry {
             void_sym,
 
             // Class IDs
-            java_lang_system_id: OnceCell::new(),
             java_lang_class_id: OnceCell::new(),
             java_lang_object_id: OnceCell::new(),
             java_lang_throwable_id: OnceCell::new(),
@@ -297,19 +295,6 @@ impl BootstrapRegistry {
         self.byte_array_class_id
             .set(class_id)
             .map_err(|_| JvmError::Todo("[B class ID already set".to_string()))
-    }
-
-    pub fn set_java_lang_system_id(&self, class_id: ClassId) -> Result<(), JvmError> {
-        self.java_lang_system_id
-            .set(class_id)
-            .map_err(|_| JvmError::Todo("java/lang/System ID already set".to_string()))
-    }
-
-    pub fn get_java_lang_system_id(&self) -> Result<ClassId, JvmError> {
-        self.java_lang_system_id
-            .get()
-            .copied()
-            .ok_or_else(|| JvmError::Todo("java/lang/System is not loaded".to_string()))
     }
 
     pub fn get_java_lang_string_id(&self) -> Result<ClassId, JvmError> {
