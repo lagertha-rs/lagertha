@@ -1,5 +1,5 @@
 use crate::keys::{ClassId, MethodKey};
-use crate::{MethodId, Symbol};
+use crate::{MethodId, Symbol, build_exception};
 use common::HeapRef;
 use common::error::{JavaExceptionFromJvm, JvmError};
 use common::jtype::PrimitiveType;
@@ -31,9 +31,7 @@ impl PrimitiveArrayClass {
             .vtable_index
             .get(key)
             .copied()
-            .ok_or(JvmError::JavaException(
-                JavaExceptionFromJvm::NoSuchMethodError(None),
-            ))?;
+            .ok_or(build_exception!(NoSuchMethodError))?; //TODO: message
         Ok(self.vtable[pos as usize])
     }
 }
@@ -59,13 +57,9 @@ impl ObjectArrayClass {
     }
 
     pub fn get_vtable_method_id(&self, key: &MethodKey) -> Result<MethodId, JvmError> {
-        let pos = self
-            .vtable_index
-            .get(key)
-            .copied()
-            .ok_or(JvmError::JavaException(
-                JavaExceptionFromJvm::NoSuchMethodError(None),
-            ))?;
+        let pos = self.vtable_index.get(key).copied().ok_or(
+            build_exception!(NoSuchMethodError), //TODO: message
+        )?;
         Ok(self.vtable[pos as usize])
     }
 }

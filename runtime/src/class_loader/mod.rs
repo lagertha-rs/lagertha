@@ -1,6 +1,6 @@
 use crate::class_loader::system::SystemClassLoader;
 use crate::{VmConfig, debug_log};
-use common::error::{ClassLoaderErr, JvmError};
+use common::error::JvmError;
 use jimage::JImage;
 use std::collections::HashSet;
 use std::path::PathBuf;
@@ -46,7 +46,7 @@ impl ClassLoader {
         classes_set
     }
 
-    pub fn new(vm_config: &VmConfig) -> Result<Self, ClassLoaderErr> {
+    pub fn new(vm_config: &VmConfig) -> Result<Self, JvmError> {
         debug_log!("Creating ClassLoader...");
         let modules_path = &vm_config.home.join("lib").join("modules");
         debug_log!("Loading JImage from path: {:?}", modules_path);

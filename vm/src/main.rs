@@ -66,8 +66,7 @@ fn main() {
             return;
         }
     };
-    if let Err(err) = runtime::start(vm_config) {
-        error!("VM execution failed: {err}");
+    if let Err(_) = runtime::start(vm_config) {
         std::process::exit(1);
     }
 }

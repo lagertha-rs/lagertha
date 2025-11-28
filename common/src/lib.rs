@@ -39,9 +39,7 @@ impl Value {
     pub fn as_obj_ref(&self) -> Result<HeapRef, JvmError> {
         match self {
             Value::Ref(addr) => Ok(*addr),
-            Value::Null => Err(JvmError::JavaException(
-                JavaExceptionFromJvm::NullPointerException(None),
-            )),
+            Value::Null => Err(JvmError::Todo("npe".to_string())),
             _ => Err(JvmError::Todo(
                 "Value::as_obj_ref called on non-reference value".to_string(),
             )),

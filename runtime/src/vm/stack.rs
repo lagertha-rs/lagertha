@@ -1,4 +1,4 @@
-use crate::{MethodId, VmConfig, debug_log_method};
+use crate::{MethodId, VmConfig, build_exception, debug_log_method};
 use common::error::{JavaExceptionFromJvm, JvmError};
 use common::{HeapRef, Value};
 
@@ -303,9 +303,8 @@ impl FrameStack {
     }
 
     pub fn pop_obj_val(&mut self) -> Result<HeapRef, JvmError> {
-        self.pop_nullable_ref_val()?.ok_or(JvmError::JavaException(
-            JavaExceptionFromJvm::NullPointerException(None),
-        ))
+        self.pop_nullable_ref_val()?
+            .ok_or(build_exception!(NullPointerException))
     }
 
     pub fn pop_operand(&mut self) -> Result<Value, JvmError> {

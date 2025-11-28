@@ -223,7 +223,7 @@ impl Interpreter {
         Ok(ControlFlow::Continue(()))
     }
 
-    //TODO: need to move it, refactor and it will still probably will not work for catch
+    //TODO: need to move it probaly to vm, and refactor
     fn map_rust_error_to_java_exception(
         thread_id: ThreadId,
         exception: &JavaExceptionFromJvm,
@@ -248,7 +248,7 @@ impl Interpreter {
             )
         };
         let instance = vm.heap.alloc_instance(instance_size, class_id)?;
-        let params = if let Some(msg) = exception.get_message() {
+        let params = if let Some(msg) = exception.message() {
             vec![Value::Ref(instance), Value::Ref(vm.heap.alloc_string(msg)?)]
         } else {
             vec![Value::Ref(instance)]

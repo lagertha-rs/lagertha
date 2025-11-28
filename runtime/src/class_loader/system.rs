@@ -1,5 +1,6 @@
-use crate::class_loader::{ClassLoaderErr, ClassSource};
-use crate::debug_log;
+use crate::class_loader::ClassSource;
+use crate::{build_exception, debug_log};
+use common::error::JvmError;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
@@ -12,7 +13,7 @@ pub(super) struct SystemClassLoader {
 }
 
 impl SystemClassLoader {
-    pub fn new(path: &Vec<String>) -> Result<Self, ClassLoaderErr> {
+    pub fn new(path: &Vec<String>) -> Result<Self, JvmError> {
         debug_log!("Creating SystemClassLoader from classpath entries: {path:?}");
         let mut index = HashMap::new();
 
@@ -46,18 +47,19 @@ impl SystemClassLoader {
         Ok(Self { index })
     }
 
-    pub(crate) fn find_class(&self, name: &str) -> Result<Vec<u8>, ClassLoaderErr> {
+    pub(crate) fn find_class(&self, name: &str) -> Result<Vec<u8>, JvmError> {
         let key = Self::normalize_key(name);
         let src = self
             .index
             .get(&key)
-            .ok_or_else(|| ClassLoaderErr::ClassNotFound(name.to_string()))?;
+            .ok_or_else(|| build_exception!(ClassNotFoundException, name.replace('/', ".")))?;
 
         let abs_path = src.jmod_path.join(&src.entry_name);
-        let mut file = File::open(&abs_path).map_err(|_| ClassLoaderErr::CanNotAccessSource)?;
+        let mut file = File::open(&abs_path)
+            .map_err(|_| build_exception!(ClassNotFoundException, name.replace('/', ".")))?;
         let mut buf = Vec::new();
         file.read_to_end(&mut buf)
-            .map_err(|_| ClassLoaderErr::CanNotAccessSource)?;
+            .map_err(|_| build_exception!(ClassNotFoundException, name.replace('/', ".")))?;
         Ok(buf)
     }
 

@@ -271,20 +271,34 @@ fn print_stack_trace(thread_id: ThreadId, exception_ref: HeapRef, vm: &mut Virtu
         .expect("printStackTrace should run without errors");
 }
 
-pub fn start(config: VmConfig) -> Result<(), JvmError> {
+pub fn start(config: VmConfig) -> Result<(), ()> {
     // TODO: it doesn't actually print errors in correct way if any occur during VM initialization. fix
-    let (mut vm, main_thread_id) = VirtualMachine::new(config)?;
+    let (mut vm, main_thread_id) = VirtualMachine::new(config).map_err(|e| {
+        eprintln!("Error: Could not initialize JVM.");
+        eprintln!("Caused by: {}", e);
+    })?;
 
     #[cfg(feature = "log-runtime-traces")]
     log_traces::debug::init(&vm);
 
     let main_class_sym = vm.string_interner.get_or_intern(&vm.config.main_class);
-    let main_class_id = vm.method_area.get_class_id_or_load(main_class_sym)?;
+    let main_class_id = vm
+        .method_area
+        .get_class_id_or_load(main_class_sym)
+        .map_err(|e| {
+            eprintln!(
+                "Error: Could not find or load main class {}",
+                vm.config.main_class.replace('/', ".")
+            );
+            eprintln!("Caused by: {}", e);
+        })?;
     let main_method_id = vm
         .method_area
-        .get_instance_class(&main_class_id)?
+        .get_instance_class(&main_class_id)
+        .unwrap()
         .get_special_method_id(&vm.br().main_mk)
-        .map_err(|_| JvmError::MainClassNotFound(vm.config.main_class.replace('/', ".")))?;
+        .map_err(|_| JvmError::MainClassNotFound(vm.config.main_class.replace('/', ".")))
+        .unwrap();
     debug_log_method!(&main_method_id, "Main method found");
 
     // TODO: it works more or less correctly, but should be improved
@@ -294,20 +308,24 @@ pub fn start(config: VmConfig) -> Result<(), JvmError> {
         if let JvmError::JavaExceptionThrown(exception_ref) = e {
             let get_thread_group_method_id = vm
                 .method_area
-                .get_class(&vm.br().get_java_lang_thread_id()?)
-                .get_vtable_method_id(&vm.br().thread_get_thread_group_mk)?;
+                .get_class(&vm.br().get_java_lang_thread_id().unwrap())
+                .get_vtable_method_id(&vm.br().thread_get_thread_group_mk)
+                .unwrap();
             let thread_group_ref = Interpreter::run_method(
                 main_thread_id,
                 get_thread_group_method_id,
                 vec![Value::Ref(vm.get_thread(&main_thread_id).thread_obj)],
                 &mut vm,
-            )?
+            )
             .unwrap()
-            .as_obj_ref()?;
+            .unwrap()
+            .as_obj_ref()
+            .unwrap();
             let uncaught_exception_method_id = vm
                 .method_area
-                .get_class(&vm.br().get_java_lang_thread_group_id()?)
-                .get_vtable_method_id(&vm.br().thread_group_uncaught_exception_mk)?;
+                .get_class(&vm.br().get_java_lang_thread_group_id().unwrap())
+                .get_vtable_method_id(&vm.br().thread_group_uncaught_exception_mk)
+                .unwrap();
             Interpreter::run_method(
                 main_thread_id,
                 uncaught_exception_method_id,
@@ -317,10 +335,11 @@ pub fn start(config: VmConfig) -> Result<(), JvmError> {
                     Value::Ref(exception_ref),
                 ],
                 &mut vm,
-            )?;
-            Err(e)?
+            )
+            .unwrap();
+            Err(e).unwrap()
         } else {
-            Err(e)?
+            Err(e).unwrap()
         }
     };
     Ok(())

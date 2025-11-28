@@ -4,7 +4,7 @@ use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::field::{InstanceField, StaticField};
 use crate::rt::method::Method;
 use crate::rt::{BaseClass, ClassLike, JvmClass};
-use crate::{MethodId, Symbol};
+use crate::{MethodId, Symbol, build_exception, throw_exception};
 use common::error::{JavaExceptionFromJvm, JvmError};
 use jclass::ClassFile;
 use jclass::attribute::class::ClassAttribute;
@@ -361,12 +361,9 @@ impl InstanceClass {
     }
 
     pub fn get_interface_method_id(&self, key: &MethodKey) -> Result<MethodId, JvmError> {
-        self.get_itable()?
-            .get(key)
-            .copied()
-            .ok_or(JvmError::JavaException(
-                JavaExceptionFromJvm::NoSuchMethodError(None),
-            ))
+        self.get_itable()?.get(key).copied().ok_or(
+            build_exception!(NoSuchMethodError), // TODO: message
+        )
     }
 
     pub fn get_instance_field(&self, field_key: &FieldKey) -> Result<&InstanceField, JvmError> {
@@ -395,9 +392,7 @@ impl InstanceClass {
         let pos = vtable_index
             .get(key)
             .copied()
-            .ok_or(JvmError::JavaException(
-                JavaExceptionFromJvm::NoSuchMethodError(None),
-            ))?;
+            .ok_or(build_exception!(NoSuchMethodError))?; // TODO: message
         Ok(self.get_vtable()?[pos as usize])
     }
 
@@ -408,9 +403,7 @@ impl InstanceClass {
         if let Some(method_id) = self.get_vtable_index()?.get(key) {
             return Ok(self.get_vtable()?[*method_id as usize]);
         }
-        Err(JvmError::JavaException(
-            JavaExceptionFromJvm::NoSuchMethodError(None),
-        ))
+        throw_exception!(NoSuchMethodError) // TODO: message
     }
 
     // Internal getters and setters for "lazy" initialized fields

@@ -140,18 +140,6 @@ pub enum ClassFormatErr {
 }
 
 #[derive(Debug, Error)]
-pub enum ClassLoaderErr {
-    #[error("JavaHomeIsNotSet")]
-    JavaHomeIsNotSet,
-    #[error("CanNotAccessSource")]
-    CanNotAccessSource,
-    #[error("ClassNotFoundException: {0}")]
-    ClassNotFound(String),
-    #[error("ArchiveErr")]
-    ArchiveErr,
-}
-
-#[derive(Debug, Error)]
 pub enum JvmError {
     #[error(
         "Error: Main method not found in class {0}, please define the main method as:\n\tpublic static void main(String[] args)"
@@ -163,16 +151,12 @@ pub enum JvmError {
     Cursor(#[from] CursorError),
     #[error("RuntimeConstantPoolError: {0}")]
     RuntimePool(#[from] RuntimePoolError),
-    #[error(transparent)]
-    ClassLoader(#[from] ClassLoaderErr),
     #[error("MissingAttributeInConstantPoll")]
     MissingAttributeInConstantPoll,
     #[error("ConstantNotFoundInRuntimePool")]
     ConstantNotFoundInRuntimePool,
     #[error("TrailingBytes")]
     TrailingBytes,
-    #[error("ClassNotFoundException: {0}")]
-    ClassNotFound(String),
     #[error("stack overflow")]
     StackOverflow,
     #[error("Frame stack is empty")]
@@ -219,28 +203,52 @@ pub struct JavaExceptionReference {
     pub descriptor: &'static str,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum JavaExceptionKind {
+    ArithmeticException,
+    UnsupportedOperationException,
+    ArrayIndexOutOfBoundsException,
+    NegativeArraySizeException,
+    NullPointerException,
+    ArrayStoreException,
+    InternalError,
+    NoSuchMethodError,
+    ClassNotFoundException,
+}
+
+impl JavaExceptionKind {
+    pub const fn class_name(self) -> &'static str {
+        match self {
+            Self::ArithmeticException => "java/lang/ArithmeticException",
+            Self::UnsupportedOperationException => "java/lang/UnsupportedOperationException",
+            Self::ArrayIndexOutOfBoundsException => "java/lang/ArrayIndexOutOfBoundsException",
+            Self::NegativeArraySizeException => "java/lang/NegativeArraySizeException",
+            Self::NullPointerException => "java/lang/NullPointerException",
+            Self::ArrayStoreException => "java/lang/ArrayStoreException",
+            Self::InternalError => "java/lang/InternalError",
+            Self::NoSuchMethodError => "java/lang/NoSuchMethodError",
+            Self::ClassNotFoundException => "java/lang/ClassNotFoundException",
+        }
+    }
+
+    pub fn class_name_dot(self) -> String {
+        self.class_name().replace('/', ".")
+    }
+}
+
 #[derive(Debug, Error, Clone)]
-pub enum JavaExceptionFromJvm {
-    ArithmeticException(Option<String>),
-    UnsupportedOperationException(Option<String>),
-    ArrayIndexOutOfBoundsException(Option<String>),
-    NegativeArraySizeException(Option<String>),
-    NullPointerException(Option<String>),
-    ArrayStoreException(Option<String>),
-    InternalError(Option<String>),
-    NoSuchMethodError(Option<String>),
+pub struct JavaExceptionFromJvm {
+    pub kind: JavaExceptionKind,
+    pub message: Option<String>,
+    pub cause: Option<Box<JavaExceptionFromJvm>>,
 }
 
 impl Display for JavaExceptionFromJvm {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let class_name = self.get_class_name_dot();
-        let msg_option = self.get_message();
-        write!(f, "{}", class_name)?;
-
-        if let Some(msg) = msg_option {
+        write!(f, "{}", self.kind.class_name_dot())?;
+        if let Some(msg) = &self.message {
             write!(f, ": {}", msg)?;
         }
-
         Ok(())
     }
 }
@@ -250,81 +258,35 @@ impl JavaExceptionFromJvm {
     const STRING_PARAM_CONSTRUCTOR: &'static str = "(Ljava/lang/String;)V";
     const NO_PARAM_CONSTRUCTOR: &'static str = "()V";
 
-    fn has_message(&self) -> bool {
-        match self {
-            JavaExceptionFromJvm::ArithmeticException(msg) => msg.is_some(),
-            JavaExceptionFromJvm::UnsupportedOperationException(msg) => msg.is_some(),
-            JavaExceptionFromJvm::ArrayIndexOutOfBoundsException(msg) => msg.is_some(),
-            JavaExceptionFromJvm::NegativeArraySizeException(msg) => msg.is_some(),
-            JavaExceptionFromJvm::NullPointerException(msg) => msg.is_some(),
-            JavaExceptionFromJvm::ArrayStoreException(msg) => msg.is_some(),
-            JavaExceptionFromJvm::InternalError(msg) => msg.is_some(),
-            JavaExceptionFromJvm::NoSuchMethodError(msg) => msg.is_some(),
+    pub fn new(kind: JavaExceptionKind) -> Self {
+        Self {
+            kind,
+            message: None,
+            cause: None,
         }
     }
 
-    pub fn get_class_name(&self) -> &'static str {
-        match self {
-            JavaExceptionFromJvm::ArithmeticException(_) => "java/lang/ArithmeticException",
-            JavaExceptionFromJvm::UnsupportedOperationException(_) => {
-                "java/lang/UnsupportedOperationException"
-            }
-            JavaExceptionFromJvm::ArrayIndexOutOfBoundsException(_) => {
-                "java/lang/ArrayIndexOutOfBoundsException"
-            }
-            JavaExceptionFromJvm::NegativeArraySizeException(_) => {
-                "java/lang/NegativeArraySizeException"
-            }
-            JavaExceptionFromJvm::NullPointerException(_) => "java/lang/NullPointerException",
-            JavaExceptionFromJvm::ArrayStoreException(_) => "java/lang/ArrayStoreException",
-            JavaExceptionFromJvm::InternalError(_) => "java/lang/InternalError",
-            JavaExceptionFromJvm::NoSuchMethodError(_) => "java/lang/NoSuchMethodError",
-        }
-    }
-
-    pub fn get_class_name_dot(&self) -> &'static str {
-        match self {
-            JavaExceptionFromJvm::ArithmeticException(_) => "java.lang.ArithmeticException",
-            JavaExceptionFromJvm::UnsupportedOperationException(_) => {
-                "java.lang.UnsupportedOperationException"
-            }
-            JavaExceptionFromJvm::ArrayIndexOutOfBoundsException(_) => {
-                "java.lang.ArrayIndexOutOfBoundsException"
-            }
-            JavaExceptionFromJvm::NegativeArraySizeException(_) => {
-                "java.lang.NegativeArraySizeException"
-            }
-            JavaExceptionFromJvm::NullPointerException(_) => "java.lang.NullPointerException",
-            JavaExceptionFromJvm::ArrayStoreException(_) => "java.lang.ArrayStoreException",
-            JavaExceptionFromJvm::InternalError(_) => "java.lang.InternalError",
-            JavaExceptionFromJvm::NoSuchMethodError(_) => "java.lang.NoSuchMethodException",
+    pub fn with_message(kind: JavaExceptionKind, message: impl Into<String>) -> Self {
+        Self {
+            kind,
+            message: Some(message.into()),
+            cause: None,
         }
     }
 
     pub fn as_reference(&self) -> JavaExceptionReference {
-        let descriptor = if self.has_message() {
-            Self::STRING_PARAM_CONSTRUCTOR
-        } else {
-            Self::NO_PARAM_CONSTRUCTOR
-        };
-        let class = self.get_class_name();
         JavaExceptionReference {
-            class,
+            class: self.kind.class_name(),
             name: Self::CONSTRUCTOR_NAME,
-            descriptor,
+            descriptor: if self.message.is_some() {
+                Self::STRING_PARAM_CONSTRUCTOR
+            } else {
+                Self::NO_PARAM_CONSTRUCTOR
+            },
         }
     }
 
-    pub fn get_message(&self) -> &Option<String> {
-        match self {
-            JavaExceptionFromJvm::ArithmeticException(msg) => msg,
-            JavaExceptionFromJvm::UnsupportedOperationException(msg) => msg,
-            JavaExceptionFromJvm::ArrayIndexOutOfBoundsException(msg) => msg,
-            JavaExceptionFromJvm::NegativeArraySizeException(msg) => msg,
-            JavaExceptionFromJvm::ArrayStoreException(msg) => msg,
-            JavaExceptionFromJvm::NullPointerException(msg) => msg,
-            JavaExceptionFromJvm::InternalError(msg) => msg,
-            JavaExceptionFromJvm::NoSuchMethodError(msg) => msg,
-        }
+    pub fn message(&self) -> Option<&str> {
+        self.message.as_deref()
     }
 }
