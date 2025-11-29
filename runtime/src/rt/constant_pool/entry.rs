@@ -1,6 +1,6 @@
+use crate::error::JvmError;
 use crate::keys::{FieldKey, MethodKey};
 use crate::{Symbol, throw_exception};
-use common::error::JvmError;
 use once_cell::sync::OnceCell;
 
 pub(crate) struct Utf8Entry {

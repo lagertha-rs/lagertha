@@ -45,11 +45,3 @@ cargo run --bin vm -- -cp . com/example/HelloWorldMain.class
 ```bash
 cargo run --bin vm --features=log-runtime-traces -- -cp . com/example/HelloWorldMain.class
 ```
-
-### Execution with `hotpath` profiling enabled
-
-TODO: Usable but isn't configured properly yet.
-
-```bash
-cargo run --bin vm --features=hotpath -- -cp . com/example/HelloWorldMain.class
-```

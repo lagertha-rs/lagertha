@@ -1,6 +1,6 @@
 use crate::class_loader::ClassSource;
+use crate::error::JvmError;
 use crate::{build_exception, debug_log};
-use common::error::JvmError;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;

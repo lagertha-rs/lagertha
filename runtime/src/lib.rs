@@ -1,19 +1,19 @@
-use crate::heap::Heap;
+use crate::error::JvmError;
 use crate::heap::method_area::MethodArea;
+use crate::heap::{Heap, HeapRef};
 use crate::interpreter::Interpreter;
 use crate::keys::{MethodId, Symbol, ThreadId};
 use crate::native::NativeRegistry;
 use crate::thread::JavaThreadState;
+use crate::vm::Value;
 use crate::vm::bootstrap_registry::BootstrapRegistry;
 use crate::vm::stack::FrameStack;
-use common::HeapRef;
-use common::Value;
-use common::error::JvmError;
 use lasso::ThreadedRodeo;
 use std::path::PathBuf;
 use std::sync::Arc;
 
 mod class_loader;
+mod error;
 pub mod heap;
 mod interpreter;
 pub mod keys;
@@ -57,9 +57,11 @@ pub struct VirtualMachine {
 }
 
 impl VirtualMachine {
-    pub fn new(config: VmConfig) -> Result<(Self, ThreadId), JvmError> {
+    pub fn new(
+        config: VmConfig,
+        string_interner: Arc<ThreadedRodeo>,
+    ) -> Result<(Self, ThreadId), JvmError> {
         config.validate();
-        let string_interner = Arc::new(ThreadedRodeo::default());
         let (method_area, br) = MethodArea::init(&config, string_interner.clone())?;
         let heap = Self::create_heap(string_interner.clone(), &method_area)?;
 
@@ -79,12 +81,9 @@ impl VirtualMachine {
         log_traces::debug::init(&vm);
 
         let main_thread_id = vm.create_main_thread()?;
-        vm.initialize_main_thread(main_thread_id).inspect_err(|e| {
-            if let JvmError::JavaExceptionThrown(exception_ref) = e {
-                eprint!("Exception in thread \"rust init thread\" ");
-                print_stack_trace(main_thread_id, *exception_ref, &mut vm);
-            }
-        })?;
+        vm.initialize_main_thread(main_thread_id)?;
+
+        vm.initialize_system_class(main_thread_id)?;
 
         Ok((vm, main_thread_id))
     }
@@ -118,7 +117,7 @@ impl VirtualMachine {
             .method_area
             .get_instance_class(&thread_class_id)?
             .get_special_method_id(&self.br().thread_thread_group_and_name_constructor_mk)?;
-        Interpreter::run_method(
+        Interpreter::invoke_instance_method(
             main_thread_id,
             thread_constructor_id,
             vec![
@@ -167,7 +166,7 @@ impl VirtualMachine {
         let system_thread_group_ref = self
             .heap
             .alloc_instance(thread_group_instance_size, system_thread_group_class_id)?;
-        Interpreter::run_method(
+        Interpreter::invoke_instance_method(
             main_thread_id,
             thread_group_no_arg_constructor_id,
             vec![Value::Ref(system_thread_group_ref)],
@@ -198,7 +197,7 @@ impl VirtualMachine {
             .heap
             .alloc_instance(thread_group_instance_size, system_thread_group_class_id)?;
         let main_string_ref = self.heap.get_str_from_pool_or_new(self.br().main_sym)?;
-        Interpreter::run_method(
+        Interpreter::invoke_instance_method(
             main_thread_id,
             thread_group_constructor_id,
             vec![
@@ -209,6 +208,66 @@ impl VirtualMachine {
             self,
         )?;
         Ok(main_thread_group_ref)
+    }
+
+    fn initialize_system_class(&mut self, thread_id: ThreadId) -> Result<(), JvmError> {
+        let system_class_id = self.br().get_java_lang_system_id()?;
+
+        let init_phase1_method_key = self.br().system_init_phase1_mk;
+        let init_phase2_method_key = self.br().system_init_phase2_mk;
+        let init_phase3_method_key = self.br().system_init_phase3_mk;
+
+        // Run initPhase1
+
+        let init_phase1_method_id = self
+            .method_area
+            .get_instance_class(&system_class_id)?
+            .get_special_method_id(&init_phase1_method_key)?;
+
+        Interpreter::invoke_static_method(thread_id, init_phase1_method_id, self, vec![])?;
+
+        // Run initPhase2
+        /*
+        let init_phase2_method_id = self
+            .method_area
+            .get_instance_class(&system_class_id)?
+            .get_special_method_id(&init_phase2_method_key)?;
+
+        Interpreter::invoke_static_method(
+            thread_id,
+            init_phase2_method_id,
+            self,
+            vec![Value::Integer(1), Value::Integer(1)],
+        )?;
+         */
+
+        Ok(())
+    }
+
+    // Not sure, I need it at all. Might be removed later
+    fn print_stack_trace_manually(
+        thread_id: ThreadId,
+        exception_ref: HeapRef,
+        vm: &mut VirtualMachine,
+    ) {
+        let exception_class_id = vm
+            .heap
+            .get_class_id(exception_ref)
+            .expect("TODO msg: Exception object should exist");
+
+        let exception_class = vm
+            .method_area
+            .get_instance_class(&exception_class_id)
+            .expect("TODO msg: Exception class should exist");
+
+        let print_stack_trace_method_id = exception_class
+            .get_vtable_method_id(&vm.br().print_stack_trace_mk)
+            .expect("Exception class should have printStackTrace method");
+
+        let args = vec![Value::Ref(exception_ref)];
+
+        Interpreter::invoke_instance_method(thread_id, print_stack_trace_method_id, args, vm)
+            .expect("printStackTrace should run without errors");
     }
 
     // TODO: implement and no mut
@@ -235,6 +294,7 @@ impl VirtualMachine {
         &self.br
     }
 
+    //TODO: avoid allocations
     pub fn symbol_to_pretty_string(&self, sym: Symbol) -> String {
         self.string_interner.resolve(&sym).replace('/', ".")
     }
@@ -245,38 +305,19 @@ impl VirtualMachine {
             .method_area
             .get_method_descriptor(&method.descriptor_id());
         let class_sym = self.method_area.get_class(&method.class_id()).get_name();
-        method_desc.to_java_signature(&format!(
-            "{}.{}",
-            self.symbol_to_pretty_string(class_sym),
-            self.symbol_to_pretty_string(method.name)
-        ))
+        let class_name = self.interner().resolve(&class_sym);
+        let method_name = self.interner().resolve(&method.name);
+        method_desc.to_java_signature(class_name, method_name)
     }
 }
 
-//TODO: delete it. should be replaced like in start function
-fn print_stack_trace(thread_id: ThreadId, exception_ref: HeapRef, vm: &mut VirtualMachine) {
-    let exception_class_id = vm
-        .heap
-        .get_class_id(exception_ref)
-        .expect("TODO msg: Exception object should exist");
-    let exception_class = vm
-        .method_area
-        .get_instance_class(&exception_class_id)
-        .expect("TODO msg: Exception class should exist");
-    let print_stack_trace_method_id = exception_class
-        .get_vtable_method_id(&vm.br().print_stack_trace_mk)
-        .expect("Exception class should have printStackTrace method");
-    let args = vec![Value::Ref(exception_ref)];
-    Interpreter::run_method(thread_id, print_stack_trace_method_id, args, vm)
-        .expect("printStackTrace should run without errors");
-}
-
 pub fn start(config: VmConfig) -> Result<(), ()> {
-    // TODO: it doesn't actually print errors in correct way if any occur during VM initialization. fix
-    let (mut vm, main_thread_id) = VirtualMachine::new(config).map_err(|e| {
-        eprintln!("Error: Could not initialize JVM.");
-        eprintln!("Caused by: {}", e);
-    })?;
+    let string_interner = Arc::new(ThreadedRodeo::default());
+    let (mut vm, main_thread_id) =
+        VirtualMachine::new(config, string_interner.clone()).map_err(|e| {
+            eprintln!("Error: Could not initialize JVM.");
+            eprintln!("Caused by: {}", e.into_pretty_string(&string_interner));
+        })?;
 
     #[cfg(feature = "log-runtime-traces")]
     log_traces::debug::init(&vm);
@@ -290,7 +331,7 @@ pub fn start(config: VmConfig) -> Result<(), ()> {
                 "Error: Could not find or load main class {}",
                 vm.config.main_class.replace('/', ".")
             );
-            eprintln!("Caused by: {}", e);
+            eprintln!("Caused by: {}", e.into_pretty_string(&string_interner));
         })?;
     let main_method_id = vm
         .method_area
@@ -311,7 +352,7 @@ pub fn start(config: VmConfig) -> Result<(), ()> {
                 .get_class(&vm.br().get_java_lang_thread_id().unwrap())
                 .get_vtable_method_id(&vm.br().thread_get_thread_group_mk)
                 .unwrap();
-            let thread_group_ref = Interpreter::run_method(
+            let thread_group_ref = Interpreter::invoke_instance_method(
                 main_thread_id,
                 get_thread_group_method_id,
                 vec![Value::Ref(vm.get_thread(&main_thread_id).thread_obj)],
@@ -326,7 +367,7 @@ pub fn start(config: VmConfig) -> Result<(), ()> {
                 .get_class(&vm.br().get_java_lang_thread_group_id().unwrap())
                 .get_vtable_method_id(&vm.br().thread_group_uncaught_exception_mk)
                 .unwrap();
-            Interpreter::run_method(
+            Interpreter::invoke_instance_method(
                 main_thread_id,
                 uncaught_exception_method_id,
                 vec![
@@ -337,9 +378,7 @@ pub fn start(config: VmConfig) -> Result<(), ()> {
                 &mut vm,
             )
             .unwrap();
-            Err(e).unwrap()
-        } else {
-            Err(e).unwrap()
+            return Err(());
         }
     };
     Ok(())

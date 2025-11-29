@@ -1,3 +1,4 @@
+use crate::error::JvmError;
 use crate::heap::method_area::MethodArea;
 use crate::keys::{ClassId, FieldKey, MethodKey};
 use crate::rt::constant_pool::RuntimeConstantPool;
@@ -5,7 +6,6 @@ use crate::rt::field::{InstanceField, StaticField};
 use crate::rt::method::Method;
 use crate::rt::{BaseClass, ClassLike, JvmClass};
 use crate::{MethodId, Symbol, build_exception, throw_exception};
-use common::error::{JavaExceptionFromJvm, JvmError};
 use jclass::ClassFile;
 use jclass::attribute::class::ClassAttribute;
 use jclass::constant::pool::ConstantPool;
@@ -192,7 +192,7 @@ impl InstanceClass {
             if field.access_flags.is_static() {
                 let static_field = StaticField {
                     flags: field.access_flags,
-                    value: RefCell::new(descriptor.get_default_value()),
+                    value: RefCell::new(descriptor.into()),
                     descriptor: descriptor_id,
                 };
                 static_fields.insert(field_key, static_field);
@@ -361,9 +361,10 @@ impl InstanceClass {
     }
 
     pub fn get_interface_method_id(&self, key: &MethodKey) -> Result<MethodId, JvmError> {
-        self.get_itable()?.get(key).copied().ok_or(
-            build_exception!(NoSuchMethodError), // TODO: message
-        )
+        self.get_itable()?
+            .get(key)
+            .copied()
+            .ok_or(build_exception!(NoSuchMethodError, method_key: *key, class_sym: self.name()))
     }
 
     pub fn get_instance_field(&self, field_key: &FieldKey) -> Result<&InstanceField, JvmError> {
@@ -392,7 +393,7 @@ impl InstanceClass {
         let pos = vtable_index
             .get(key)
             .copied()
-            .ok_or(build_exception!(NoSuchMethodError))?; // TODO: message
+            .ok_or(build_exception!(NoSuchMethodError, method_key: *key, class_sym: self.name()))?;
         Ok(self.get_vtable()?[pos as usize])
     }
 
@@ -403,7 +404,7 @@ impl InstanceClass {
         if let Some(method_id) = self.get_vtable_index()?.get(key) {
             return Ok(self.get_vtable()?[*method_id as usize]);
         }
-        throw_exception!(NoSuchMethodError) // TODO: message
+        throw_exception!(NoSuchMethodError, method_key: *key, class_sym: self.name())
     }
 
     // Internal getters and setters for "lazy" initialized fields

@@ -59,7 +59,7 @@ macro_rules! debug_log_method {
                 let signature = vm
                     .method_area
                     .get_method_descriptor(&method.descriptor_id())
-                    .to_java_signature(method_name);
+                    .to_java_signature(method_name, class_name);
 
                 tracing_log::log::debug!("{}: {} of {}", $msg, signature, class_name);
             });
@@ -81,7 +81,7 @@ macro_rules! error_log_method {
                 let signature = vm
                     .method_area
                     .get_method_descriptor(&method.descriptor_id())
-                    .to_java_signature(method_name);
+                    .to_java_signature(method_name, class_name);
 
                 let exp_class_name = if let JvmError::JavaExceptionThrown(hr) = $exception {
                     let excp_id = vm.heap.get_class_id(*hr).unwrap();

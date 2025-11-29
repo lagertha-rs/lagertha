@@ -1,7 +1,7 @@
 use crate::keys::FullyQualifiedMethodKey;
 use crate::native::{NativeRegistry, NativeRet};
+use crate::vm::Value;
 use crate::{ThreadId, VirtualMachine};
-use common::Value;
 use tracing_log::log::debug;
 
 pub(super) fn do_register_jdk_internal_preregistered_natives(native_registry: &mut NativeRegistry) {

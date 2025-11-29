@@ -1,5 +1,6 @@
 use crate::class_loader::ClassLoader;
-use crate::heap::Heap;
+use crate::error::JvmError;
+use crate::heap::{Heap, HeapRef};
 use crate::keys::{
     ClassId, FieldDescriptorId, FieldKey, FullyQualifiedMethodKey, MethodDescriptorId,
 };
@@ -9,12 +10,12 @@ use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::interface::InterfaceClass;
 use crate::rt::method::Method;
 use crate::rt::{ClassLike, JvmClass, PrimitiveClass};
+use crate::vm::Value;
 use crate::vm::bootstrap_registry::BootstrapRegistry;
 use crate::{MethodId, Symbol, VmConfig, debug_log};
 use common::descriptor::MethodDescriptor;
-use common::error::{JvmError, LinkageError, MethodDescriptorErr};
+use common::error::{LinkageError, MethodDescriptorErr};
 use common::jtype::{AllocationType, JavaType, PrimitiveType};
-use common::{HeapRef, Value};
 use jclass::ClassFile;
 use lasso::{Spur, ThreadedRodeo};
 use once_cell::sync::OnceCell;
@@ -38,7 +39,6 @@ pub struct MethodArea {
     bootstrap_registry: Arc<BootstrapRegistry>,
 }
 
-#[cfg_attr(feature = "hotpath", hotpath::measure_all)]
 impl MethodArea {
     pub fn init(
         vm_config: &VmConfig,
@@ -71,6 +71,10 @@ impl MethodArea {
         let java_lang_object_id = self.get_class_id_or_load(self.br().java_lang_object_sym)?;
         self.bootstrap_registry
             .set_java_lang_object_id(java_lang_object_id)?;
+
+        let java_lang_system_id = self.get_class_id_or_load(self.br().java_lang_system_sym)?;
+        self.bootstrap_registry
+            .set_java_lang_system_id(java_lang_system_id)?;
 
         let java_lang_class_id = self.get_class_id_or_load(self.br().java_lang_class_sym)?;
         self.bootstrap_registry
@@ -152,7 +156,6 @@ impl MethodArea {
         self.get_method_descriptor(&method.descriptor_id())
     }
 
-    #[cfg_attr(feature = "hotpath", hotpath::measure)]
     pub fn get_or_new_method_descriptor_id(
         &mut self,
         descriptor: &Symbol,

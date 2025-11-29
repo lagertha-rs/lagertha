@@ -1,8 +1,8 @@
+use crate::error::JvmError;
 use crate::keys::FullyQualifiedMethodKey;
 use crate::native::NativeRet;
+use crate::vm::Value;
 use crate::{ThreadId, VirtualMachine};
-use common::Value;
-use common::error::JvmError;
 use common::jtype::AllocationType;
 use tracing_log::log::debug;
 

@@ -1,11 +1,11 @@
 use crate::MethodId;
+use crate::error::JvmError;
 use crate::heap::method_area::MethodArea;
 use crate::keys::{ClassId, FieldKey, MethodKey};
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::field::StaticField;
 use crate::rt::method::Method;
 use crate::rt::{BaseClass, ClassLike, JvmClass};
-use common::error::JvmError;
 use jclass::ClassFile;
 use jclass::constant::pool::ConstantPool;
 use jclass::field::FieldInfo;
@@ -106,11 +106,7 @@ impl InterfaceClass {
             let descriptor_id = method_area.get_or_new_field_descriptor_id(field_key.desc)?;
             let static_field = StaticField {
                 flags: field.access_flags,
-                value: RefCell::new(
-                    method_area
-                        .get_field_descriptor(&descriptor_id)
-                        .get_default_value(),
-                ),
+                value: RefCell::new(method_area.get_field_descriptor(&descriptor_id).into()),
                 descriptor: descriptor_id,
             };
             static_fields.insert(field_key, static_field);

@@ -5,7 +5,6 @@ edition = "2024"
 
 [features]
 log-runtime-traces = ["runtime/log-runtime-traces"]
-hotpath = ["dep:hotpath", "hotpath/hotpath", "runtime/hotpath"]
 
 [dependencies]
 clap = { version = "4.5.47", features = ["derive"] }
@@ -14,7 +13,6 @@ common = { path = "../common" }
 runtime = { path = "../runtime" }
 
 tracing-log = { workspace = true }
-hotpath = { workspace = true, optional = true }
 
 [dev-dependencies]
 assert_cmd = "2"

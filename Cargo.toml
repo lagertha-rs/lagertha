@@ -4,8 +4,6 @@ resolver = "2"
 members = ["jclass", "common", "vm", "javap", "runtime", "jimage"]
 
 [workspace.dependencies]
-thiserror = "2.0.16"
 tracing = { version = "0.1", features = ["attributes", "log", "max_level_debug", "release_max_level_info"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 tracing-log = "0.2"
-hotpath = { version = "0.5.3" }

@@ -1,5 +1,5 @@
+use crate::error::JvmError;
 use crate::keys::{ClassId, FieldKey, MethodKey, Symbol};
-use common::error::JvmError;
 use common::jtype::PrimitiveType;
 use lasso::ThreadedRodeo;
 use std::cell::OnceCell;
@@ -10,6 +10,8 @@ pub struct BootstrapRegistry {
     pub no_arg_constructor_mk: MethodKey,
     pub main_mk: MethodKey,
     pub system_init_phase1_mk: MethodKey,
+    pub system_init_phase2_mk: MethodKey,
+    pub system_init_phase3_mk: MethodKey,
     pub print_stack_trace_mk: MethodKey,
     pub thread_group_parent_and_name_constructor_mk: MethodKey,
     pub thread_thread_group_and_name_constructor_mk: MethodKey,
@@ -78,6 +80,7 @@ pub struct BootstrapRegistry {
     java_lang_thread_id: OnceCell<ClassId>,
     java_lang_string_id: OnceCell<ClassId>,
     byte_array_class_id: OnceCell<ClassId>,
+    java_lang_system_id: OnceCell<ClassId>,
 }
 
 impl BootstrapRegistry {
@@ -128,6 +131,14 @@ impl BootstrapRegistry {
             },
             system_init_phase1_mk: MethodKey {
                 name: interner.get_or_intern("initPhase1"),
+                desc: void_desc,
+            },
+            system_init_phase2_mk: MethodKey {
+                name: interner.get_or_intern("initPhase2"),
+                desc: interner.get_or_intern("(ZZ)V"),
+            },
+            system_init_phase3_mk: MethodKey {
+                name: interner.get_or_intern("initPhase3"),
                 desc: void_desc,
             },
             print_stack_trace_mk: MethodKey {
@@ -252,6 +263,7 @@ impl BootstrapRegistry {
             java_lang_thread_id: OnceCell::new(),
             java_lang_string_id: OnceCell::new(),
             byte_array_class_id: OnceCell::new(),
+            java_lang_system_id: OnceCell::new(),
         }
     }
 
@@ -295,6 +307,19 @@ impl BootstrapRegistry {
         self.byte_array_class_id
             .set(class_id)
             .map_err(|_| JvmError::Todo("[B class ID already set".to_string()))
+    }
+
+    pub fn set_java_lang_system_id(&self, class_id: ClassId) -> Result<(), JvmError> {
+        self.java_lang_system_id
+            .set(class_id)
+            .map_err(|_| JvmError::Todo("java/lang/System ID already set".to_string()))
+    }
+
+    pub fn get_java_lang_system_id(&self) -> Result<ClassId, JvmError> {
+        self.java_lang_system_id
+            .get()
+            .copied()
+            .ok_or_else(|| JvmError::Todo("java/lang/System is not loaded".to_string()))
     }
 
     pub fn get_java_lang_string_id(&self) -> Result<ClassId, JvmError> {

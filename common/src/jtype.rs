@@ -1,5 +1,4 @@
 use crate::error::TypeDescriptorErr;
-use crate::{HeapRef, Value};
 use core::fmt;
 use num_enum::TryFromPrimitive;
 use std::fmt::{Display, Formatter};
@@ -107,7 +106,7 @@ impl AllocationType {
             AllocationType::Char | AllocationType::Short => 2,
             AllocationType::Int | AllocationType::Float => 4,
             AllocationType::Long | AllocationType::Double => 8,
-            AllocationType::Reference => size_of::<HeapRef>(),
+            AllocationType::Reference => 8, // TODO: I guess it is 4 bytes on hotspot, mine is HeapRef usize
         }
     }
 }
@@ -128,35 +127,6 @@ pub enum JavaType {
 pub enum ReturnType {
     Void,
     Type(JavaType),
-}
-
-impl PrimitiveType {
-    pub fn get_default_value(&self) -> Value {
-        match self {
-            PrimitiveType::Byte
-            | PrimitiveType::Char
-            | PrimitiveType::Short
-            | PrimitiveType::Int
-            | PrimitiveType::Boolean => Value::Integer(0),
-            PrimitiveType::Double => Value::Double(0.0),
-            PrimitiveType::Float => Value::Float(0.0),
-            PrimitiveType::Long => Value::Long(0),
-        }
-    }
-
-    pub fn is_compatible_with(&self, value: &Value) -> bool {
-        matches!(
-            (self, value),
-            (PrimitiveType::Byte, Value::Integer(_))
-                | (PrimitiveType::Char, Value::Integer(_))
-                | (PrimitiveType::Short, Value::Integer(_))
-                | (PrimitiveType::Int, Value::Integer(_))
-                | (PrimitiveType::Boolean, Value::Integer(_))
-                | (PrimitiveType::Long, Value::Long(_))
-                | (PrimitiveType::Float, Value::Float(_))
-                | (PrimitiveType::Double, Value::Double(_))
-        )
-    }
 }
 
 impl TryFrom<&str> for JavaType {
@@ -210,27 +180,6 @@ impl JavaType {
     pub fn is_primitive_array(&self) -> bool {
         match self {
             JavaType::Array(elem) => matches!(**elem, JavaType::Primitive(_)),
-            _ => false,
-        }
-    }
-
-    pub fn get_default_value(&self) -> Value {
-        match self {
-            JavaType::Primitive(prim) => prim.get_default_value(),
-            JavaType::Instance(_)
-            | JavaType::GenericInstance(_)
-            | JavaType::TypeVar(_)
-            | JavaType::Array(_) => Value::Null,
-        }
-    }
-
-    pub fn is_compatible_with(&self, value: &Value) -> bool {
-        match (self, value) {
-            (JavaType::Primitive(prim), val) => prim.is_compatible_with(val), // Delegate
-            (JavaType::Instance(_), Value::Ref(_) | Value::Null) => true,     // TODO: check class
-            (JavaType::Array(_), Value::Ref(_) | Value::Null) => true,        // TODO: check class
-            (JavaType::GenericInstance(_), Value::Ref(_) | Value::Null) => true, // TODO: check class
-            (JavaType::TypeVar(_), Value::Ref(_) | Value::Null) => true, // TODO: check class
             _ => false,
         }
     }
@@ -414,20 +363,6 @@ impl ReturnType {
 
         let java_type = JavaType::try_recursive(it)?;
         Ok(ReturnType::Type(java_type))
-    }
-
-    pub fn get_default_value(&self) -> Value {
-        match self {
-            ReturnType::Void => panic!("No default value for void"),
-            ReturnType::Type(java_type) => java_type.get_default_value(),
-        }
-    }
-
-    pub fn is_compatible_with(&self, value: &Value) -> bool {
-        match self {
-            ReturnType::Void => false,
-            ReturnType::Type(java_type) => java_type.is_compatible_with(value),
-        }
     }
 }
 

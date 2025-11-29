@@ -1,15 +1,19 @@
+use crate::error::JvmError;
 use crate::keys::ClassId;
-use crate::{Symbol, debug_error_log, log_traces, throw_exception};
-use common::error::JvmError;
+use crate::vm::Value;
+use crate::{Symbol, debug_error_log, throw_exception};
 use common::instruction::ArrayType;
 use common::jtype::AllocationType;
-use common::{HeapRef, Value};
 use lasso::ThreadedRodeo;
 use std::collections::HashMap;
 use std::num::NonZeroU32;
 use std::sync::Arc;
 
 pub mod method_area;
+
+// TODO: use u32 or usize for HeapRef?
+// TODO: add specific struct for heap reference, and allow only heap create instance
+pub type HeapRef = usize;
 
 #[repr(C)]
 pub struct ObjectHeader {

@@ -1,7 +1,7 @@
 use crate::VirtualMachine;
+use crate::error::JvmError;
 use crate::keys::ThreadId;
-use common::Value;
-use common::error::JvmError;
+use crate::vm::Value;
 
 #[inline]
 pub(super) fn handle_dreturn(

@@ -1,7 +1,7 @@
 use crate::keys::FullyQualifiedMethodKey;
 use crate::native::{NativeRegistry, NativeRet};
+use crate::vm::Value;
 use crate::{ThreadId, VirtualMachine};
-use common::Value;
 use common::jtype::AllocationType;
 use tracing_log::log::debug;
 

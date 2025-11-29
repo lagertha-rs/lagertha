@@ -1,5 +1,5 @@
 use crate::keys::{ClassId, FieldDescriptorId};
-use common::Value;
+use crate::vm::Value;
 use jclass::flags::FieldFlags;
 use std::cell::RefCell;
 

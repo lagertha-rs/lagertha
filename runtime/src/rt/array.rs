@@ -1,7 +1,7 @@
+use crate::error::JvmError;
+use crate::heap::HeapRef;
 use crate::keys::{ClassId, MethodKey};
 use crate::{MethodId, Symbol, build_exception};
-use common::HeapRef;
-use common::error::{JavaExceptionFromJvm, JvmError};
 use common::jtype::PrimitiveType;
 use once_cell::sync::OnceCell;
 use std::collections::HashMap;
@@ -27,11 +27,10 @@ impl PrimitiveArrayClass {
     }
 
     pub fn get_vtable_method_id(&self, key: &MethodKey) -> Result<MethodId, JvmError> {
-        let pos = self
-            .vtable_index
-            .get(key)
-            .copied()
-            .ok_or(build_exception!(NoSuchMethodError))?; //TODO: message
+        let pos =
+            self.vtable_index.get(key).copied().ok_or(
+                build_exception!(NoSuchMethodError, method_key: *key, class_sym: self.name),
+            )?;
         Ok(self.vtable[pos as usize])
     }
 }
@@ -57,9 +56,10 @@ impl ObjectArrayClass {
     }
 
     pub fn get_vtable_method_id(&self, key: &MethodKey) -> Result<MethodId, JvmError> {
-        let pos = self.vtable_index.get(key).copied().ok_or(
-            build_exception!(NoSuchMethodError), //TODO: message
-        )?;
+        let pos =
+            self.vtable_index.get(key).copied().ok_or(
+                build_exception!(NoSuchMethodError, method_key: *key, class_sym: self.name),
+            )?;
         Ok(self.vtable[pos as usize])
     }
 }

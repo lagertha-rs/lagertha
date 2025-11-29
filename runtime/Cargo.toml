@@ -6,11 +6,6 @@ edition = "2024"
 [features]
 default = []
 log-runtime-traces = []
-hotpath = ["dep:hotpath", "hotpath/hotpath"]
-hotpath-alloc-bytes-total = ["hotpath/hotpath-alloc-bytes-total"]
-hotpath-alloc-count-total = ["hotpath/hotpath-alloc-count-total"]
-hotpath-alloc-self = ["hotpath/hotpath-alloc-self"]
-hotpath-off = ["hotpath/hotpath-off"]
 
 [dependencies]
 once_cell = "1.19"
@@ -18,7 +13,6 @@ libc = "0.2.177"
 lasso = { version = "0.7.3", features = ["multi-threaded"] }
 walkdir = "2"
 
-hotpath = { workspace = true, optional = true }
 tracing-log = { workspace = true }
 
 jclass = { path = "../jclass" }

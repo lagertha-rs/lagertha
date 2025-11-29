@@ -14,17 +14,29 @@ pub struct MethodDescriptor {
 }
 
 impl MethodDescriptor {
-    pub fn to_java_signature(&self, name: &str) -> String {
-        format!(
-            "{} {}({})",
-            self.ret,
-            name,
-            self.params
-                .iter()
-                .map(|p| p.to_string())
-                .collect::<Vec<_>>()
-                .join(", ")
-        )
+    pub fn to_java_signature(&self, class_name: &str, method_name: &str) -> String {
+        let mut buffer = String::with_capacity(
+            class_name.len() + method_name.len() + self.params.len() * 10 + 10,
+        );
+
+        use std::fmt::Write;
+        write!(buffer, "{} ", self.ret).unwrap();
+
+        for c in class_name.chars() {
+            buffer.push(if c == '/' { '.' } else { c });
+        }
+
+        write!(buffer, ".{}(", method_name).unwrap();
+
+        for (i, p) in self.params.iter().enumerate() {
+            if i > 0 {
+                buffer.push_str(", ");
+            }
+            write!(buffer, "{}", p).unwrap();
+        }
+
+        buffer.push(')');
+        buffer
     }
 }
 

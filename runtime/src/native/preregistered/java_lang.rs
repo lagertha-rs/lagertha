@@ -1,9 +1,9 @@
 use crate::keys::{ClassId, FullyQualifiedMethodKey};
 use crate::native::{NativeRegistry, NativeRet};
 use crate::rt::ClassLike;
+use crate::vm::Value;
 use crate::vm::stack::FrameType;
 use crate::{MethodId, ThreadId, VirtualMachine, throw_exception};
-use common::Value;
 use common::instruction::ArrayType;
 use common::jtype::AllocationType;
 use tracing_log::log::debug;

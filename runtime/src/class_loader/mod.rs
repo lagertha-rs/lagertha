@@ -1,6 +1,6 @@
 use crate::class_loader::system::SystemClassLoader;
+use crate::error::JvmError;
 use crate::{VmConfig, debug_log};
-use common::error::JvmError;
 use jimage::JImage;
 use std::collections::HashSet;
 use std::path::PathBuf;

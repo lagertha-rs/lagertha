@@ -1,9 +1,9 @@
+use crate::error::JvmError;
 use crate::interpreter::Interpreter;
 use crate::keys::{FieldKey, MethodKey, ThreadId};
 use crate::rt::constant_pool::RuntimeConstant;
+use crate::vm::Value;
 use crate::{VirtualMachine, throw_exception};
-use common::Value;
-use common::error::JvmError;
 use common::instruction::{ArrayType, LookupSwitchData, TableSwitchData};
 use std::cmp::Ordering;
 use tracing_log::log::warn;

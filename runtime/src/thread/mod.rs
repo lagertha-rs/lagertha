@@ -1,5 +1,5 @@
+use crate::heap::HeapRef;
 use crate::vm::stack::FrameStack;
-use common::HeapRef;
 
 pub struct JavaThreadState {
     pub thread_obj: HeapRef,

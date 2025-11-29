@@ -1,6 +1,6 @@
 use clap::Parser;
 use runtime::VmConfig;
-use tracing_log::log::{debug, error};
+use tracing_log::log::debug;
 
 #[derive(Parser, Debug)]
 #[command(version, about)]
@@ -50,7 +50,6 @@ fn create_vm_configuration(mut args: Args, main_class: String) -> Result<VmConfi
     Err("JAVA_VERSION not found in release file".to_string())
 }
 
-#[cfg_attr(feature = "hotpath", hotpath::main)]
 fn main() {
     #[cfg(feature = "log-runtime-traces")]
     common::utils::telemetry::init_tracing();

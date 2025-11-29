@@ -13,12 +13,8 @@ itertools = "0.14.0"
 
 either = "1.15.0" # TODO: add only under pretty_print feature
 
-thiserror = { workspace = true }
-
 common = { path = "../common" }
 
 [dev-dependencies]
-insta = { version = "1.42.2", features = ["yaml"] }
-rstest = "0.26.1"
 
 

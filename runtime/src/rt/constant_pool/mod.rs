@@ -1,9 +1,10 @@
 use crate::Symbol;
+use crate::error::JvmError;
 use crate::rt::constant_pool::entry::{
     ClassEntry, FieldEntry, FieldEntryView, MethodEntry, MethodEntryView, NameAndTypeEntry,
     NameAndTypeEntryView, StringEntry, Utf8Entry,
 };
-use common::error::{JvmError, RuntimePoolError};
+use common::error::RuntimePoolError;
 use jclass::constant::ConstantInfo;
 use lasso::ThreadedRodeo;
 use std::fmt::Display;

@@ -1,14 +1,11 @@
-use thiserror::Error;
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ByteOrder {
     BigEndian,
     LittleEndian,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Error)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CursorError {
-    #[error("Unexpected end of data")]
     UnexpectedEof,
 }
 
