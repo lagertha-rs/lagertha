@@ -1,8 +1,8 @@
-use crate::error::JvmError;
+use crate::error::{JavaExceptionFromJvm, JvmError};
 use crate::heap::method_area::MethodArea;
 use crate::heap::{Heap, HeapRef};
 use crate::interpreter::Interpreter;
-use crate::keys::{MethodId, Symbol, ThreadId};
+use crate::keys::{MethodId, MethodKey, Symbol, ThreadId};
 use crate::native::NativeRegistry;
 use crate::thread::JavaThreadState;
 use crate::vm::Value;
@@ -60,17 +60,24 @@ impl VirtualMachine {
     pub fn new(
         config: VmConfig,
         string_interner: Arc<ThreadedRodeo>,
-    ) -> Result<(Self, ThreadId), JvmError> {
+    ) -> Result<(Self, ThreadId), ()> {
         config.validate();
-        let (method_area, br) = MethodArea::init(&config, string_interner.clone())?;
-        let heap = Self::create_heap(string_interner.clone(), &method_area)?;
+        let (method_area, br) =
+            MethodArea::init(&config, string_interner.clone()).map_err(|e| {
+                eprintln!("Error: Could not initialize JVM.");
+                eprintln!("Caused by: {}", e.into_pretty_string(&string_interner));
+            })?;
+        let heap = Self::create_heap(string_interner.clone(), &method_area).map_err(|e| {
+            eprintln!("Error: Could not initialize JVM.");
+            eprintln!("Caused by: {}", e.into_pretty_string(&string_interner));
+        })?;
 
         let native_registry = NativeRegistry::new(string_interner.clone());
 
         let mut vm = Self {
             config,
             native_registry,
-            string_interner,
+            string_interner: string_interner.clone(),
             method_area,
             heap,
             threads: Vec::new(),
@@ -80,10 +87,27 @@ impl VirtualMachine {
         #[cfg(feature = "log-runtime-traces")]
         log_traces::debug::init(&vm);
 
-        let main_thread_id = vm.create_main_thread()?;
-        vm.initialize_main_thread(main_thread_id)?;
+        let main_thread_id = vm.create_main_thread().map_err(|e| {
+            eprintln!("Error: Could not initialize JVM.");
+            eprintln!("Caused by: {}", e.into_pretty_string(&string_interner));
+        })?;
 
-        vm.initialize_system_class(main_thread_id)?;
+        vm.initialize_main_thread(main_thread_id).map_err(|e| {
+            eprintln!("Error: Could not initialize JVM.");
+            eprintln!("Caused by: {}", e.into_pretty_string(&string_interner));
+        })?;
+
+        // TODO: need actually refactor error struct, because this is ugly
+        vm.initialize_system_class(main_thread_id).map_err(|e| {
+            if let JvmError::JavaException(java_ex) = e {
+                let mapped = vm
+                    .map_rust_error_to_java_exception(main_thread_id, java_ex)
+                    .unwrap();
+                vm.unhandled_exception(main_thread_id, JvmError::JavaExceptionThrown(mapped));
+            } else {
+                vm.unhandled_exception(main_thread_id, e);
+            }
+        })?;
 
         Ok((vm, main_thread_id))
     }
@@ -120,12 +144,12 @@ impl VirtualMachine {
         Interpreter::invoke_instance_method(
             main_thread_id,
             thread_constructor_id,
+            self,
             vec![
                 Value::Ref(self.get_thread(&main_thread_id).thread_obj),
                 Value::Ref(main_thread_group_ref),
                 Value::Ref(self.get_thread(&main_thread_id).name),
             ],
-            self,
         )?;
         Ok(())
     }
@@ -169,8 +193,8 @@ impl VirtualMachine {
         Interpreter::invoke_instance_method(
             main_thread_id,
             thread_group_no_arg_constructor_id,
-            vec![Value::Ref(system_thread_group_ref)],
             self,
+            vec![Value::Ref(system_thread_group_ref)],
         )?;
 
         Ok(system_thread_group_ref)
@@ -200,12 +224,12 @@ impl VirtualMachine {
         Interpreter::invoke_instance_method(
             main_thread_id,
             thread_group_constructor_id,
+            self,
             vec![
                 Value::Ref(main_thread_group_ref),
                 Value::Ref(system_thread_group_ref),
                 Value::Ref(main_string_ref),
             ],
-            self,
         )?;
         Ok(main_thread_group_ref)
     }
@@ -244,30 +268,83 @@ impl VirtualMachine {
         Ok(())
     }
 
-    // Not sure, I need it at all. Might be removed later
-    fn print_stack_trace_manually(
+    // TODO: refactor and improve error handling. ideally can't fail
+    //TODO: exception arg should be actually JvmError, like any error
+    fn map_rust_error_to_java_exception(
+        &mut self,
         thread_id: ThreadId,
-        exception_ref: HeapRef,
-        vm: &mut VirtualMachine,
-    ) {
-        let exception_class_id = vm
-            .heap
-            .get_class_id(exception_ref)
-            .expect("TODO msg: Exception object should exist");
-
-        let exception_class = vm
+        exception: JavaExceptionFromJvm,
+    ) -> Result<HeapRef, JvmError> {
+        let exception_ref = exception.as_reference();
+        let class_id = self
             .method_area
-            .get_instance_class(&exception_class_id)
-            .expect("TODO msg: Exception class should exist");
+            // TODO: fix interner usage, replace with direct symbol
+            .get_class_id_or_load(self.interner().get_or_intern(exception_ref.class))?;
+        let (method_id, instance_size) = {
+            let class = self.method_area.get_instance_class(&class_id)?;
+            (
+                class.get_special_method_id(
+                    // TODO: fix interner usage, replace with direct symbol
+                    &MethodKey {
+                        name: self.interner().get_or_intern(exception_ref.name),
+                        desc: self.interner().get_or_intern(exception_ref.descriptor),
+                    },
+                )?,
+                class.get_instance_size()?,
+            )
+        };
+        let instance = self.heap.alloc_instance(instance_size, class_id)?;
+        let params = if let Some(msg) = exception.message {
+            let resolved_msg = msg.into_resolved(self.interner());
+            vec![
+                Value::Ref(instance),
+                Value::Ref(self.heap.alloc_string(&resolved_msg)?),
+            ]
+        } else {
+            vec![Value::Ref(instance)]
+        };
+        Interpreter::invoke_instance_method(thread_id, method_id, self, params)?;
+        Ok(instance)
+    }
 
-        let print_stack_trace_method_id = exception_class
-            .get_vtable_method_id(&vm.br().print_stack_trace_mk)
-            .expect("Exception class should have printStackTrace method");
-
-        let args = vec![Value::Ref(exception_ref)];
-
-        Interpreter::invoke_instance_method(thread_id, print_stack_trace_method_id, args, vm)
-            .expect("printStackTrace should run without errors");
+    //TODO: exception should be allocated on java heap at this point, and be a reference
+    //TODO: get rid of unwrap, need to understand how to handle errors here properly
+    fn unhandled_exception(&mut self, thread_id: ThreadId, exception: JvmError) {
+        if let JvmError::JavaExceptionThrown(exception_ref) = exception {
+            let get_thread_group_method_id = self
+                .method_area
+                .get_class(&self.br().get_java_lang_thread_id().unwrap())
+                .get_vtable_method_id(&self.br().thread_get_thread_group_mk)
+                .unwrap();
+            let thread_group_ref = Interpreter::invoke_instance_method(
+                thread_id,
+                get_thread_group_method_id,
+                self,
+                vec![Value::Ref(self.get_thread(&thread_id).thread_obj)],
+            )
+            .unwrap()
+            .unwrap()
+            .as_obj_ref()
+            .unwrap();
+            let uncaught_exception_method_id = self
+                .method_area
+                .get_class(&self.br().get_java_lang_thread_group_id().unwrap())
+                .get_vtable_method_id(&self.br().thread_group_uncaught_exception_mk)
+                .unwrap();
+            Interpreter::invoke_instance_method(
+                thread_id,
+                uncaught_exception_method_id,
+                self,
+                vec![
+                    Value::Ref(thread_group_ref),
+                    Value::Ref(self.get_thread(&thread_id).thread_obj),
+                    Value::Ref(exception_ref),
+                ],
+            )
+            .unwrap();
+        } else {
+            eprintln!("Unhandled exception: {}", exception);
+        }
     }
 
     // TODO: implement and no mut
@@ -314,10 +391,7 @@ impl VirtualMachine {
 pub fn start(config: VmConfig) -> Result<(), ()> {
     let string_interner = Arc::new(ThreadedRodeo::default());
     let (mut vm, main_thread_id) =
-        VirtualMachine::new(config, string_interner.clone()).map_err(|e| {
-            eprintln!("Error: Could not initialize JVM.");
-            eprintln!("Caused by: {}", e.into_pretty_string(&string_interner));
-        })?;
+        VirtualMachine::new(config, string_interner.clone()).map_err(|_| {})?;
 
     #[cfg(feature = "log-runtime-traces")]
     log_traces::debug::init(&vm);
@@ -346,40 +420,9 @@ pub fn start(config: VmConfig) -> Result<(), ()> {
     if let Err(e) =
         Interpreter::invoke_static_method(main_thread_id, main_method_id, &mut vm, vec![])
     {
-        if let JvmError::JavaExceptionThrown(exception_ref) = e {
-            let get_thread_group_method_id = vm
-                .method_area
-                .get_class(&vm.br().get_java_lang_thread_id().unwrap())
-                .get_vtable_method_id(&vm.br().thread_get_thread_group_mk)
-                .unwrap();
-            let thread_group_ref = Interpreter::invoke_instance_method(
-                main_thread_id,
-                get_thread_group_method_id,
-                vec![Value::Ref(vm.get_thread(&main_thread_id).thread_obj)],
-                &mut vm,
-            )
-            .unwrap()
-            .unwrap()
-            .as_obj_ref()
-            .unwrap();
-            let uncaught_exception_method_id = vm
-                .method_area
-                .get_class(&vm.br().get_java_lang_thread_group_id().unwrap())
-                .get_vtable_method_id(&vm.br().thread_group_uncaught_exception_mk)
-                .unwrap();
-            Interpreter::invoke_instance_method(
-                main_thread_id,
-                uncaught_exception_method_id,
-                vec![
-                    Value::Ref(thread_group_ref),
-                    Value::Ref(vm.get_thread(&main_thread_id).thread_obj),
-                    Value::Ref(exception_ref),
-                ],
-                &mut vm,
-            )
-            .unwrap();
-            return Err(());
-        }
-    };
-    Ok(())
+        vm.unhandled_exception(main_thread_id, e);
+        Err(())
+    } else {
+        Ok(())
+    }
 }

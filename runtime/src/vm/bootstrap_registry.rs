@@ -135,7 +135,7 @@ impl BootstrapRegistry {
             },
             system_init_phase2_mk: MethodKey {
                 name: interner.get_or_intern("initPhase2"),
-                desc: interner.get_or_intern("(ZZ)V"),
+                desc: interner.get_or_intern("(ZZ)I"),
             },
             system_init_phase3_mk: MethodKey {
                 name: interner.get_or_intern("initPhase3"),

@@ -16,6 +16,10 @@ impl FrameType {
             FrameType::NativeFrame(f) => f.method_id,
         }
     }
+
+    pub fn is_native(&self) -> bool {
+        matches!(self, FrameType::NativeFrame(_))
+    }
 }
 
 #[derive(Clone)]
@@ -102,6 +106,12 @@ impl FrameStack {
                 "Expected Native frame on top of the stack".to_string(),
             )),
         }
+    }
+
+    pub fn cur_frame(&self) -> Result<&FrameType, JvmError> {
+        self.frames.last().ok_or(JvmError::UnexpectedType(
+            "Expected frame on top of the stack".to_string(),
+        ))
     }
 
     pub fn cur_java_frame_mut(&mut self) -> Result<&mut JavaFrame, JvmError> {

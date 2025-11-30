@@ -224,42 +224,6 @@ impl Interpreter {
     }
 
     //TODO: need to move it probaly to vm, and refactor
-    fn map_rust_error_to_java_exception(
-        thread_id: ThreadId,
-        exception: JavaExceptionFromJvm,
-        vm: &mut VirtualMachine,
-    ) -> Result<HeapRef, JvmError> {
-        let exception_ref = exception.as_reference();
-        let class_id = vm
-            .method_area
-            // TODO: fix interner usage, replace with direct symbol
-            .get_class_id_or_load(vm.interner().get_or_intern(exception_ref.class))?;
-        let (method_id, instance_size) = {
-            let class = vm.method_area.get_instance_class(&class_id)?;
-            (
-                class.get_special_method_id(
-                    // TODO: fix interner usage, replace with direct symbol
-                    &MethodKey {
-                        name: vm.interner().get_or_intern(exception_ref.name),
-                        desc: vm.interner().get_or_intern(exception_ref.descriptor),
-                    },
-                )?,
-                class.get_instance_size()?,
-            )
-        };
-        let instance = vm.heap.alloc_instance(instance_size, class_id)?;
-        let params = if let Some(msg) = exception.message {
-            let resolved_msg = msg.into_resolved(&vm.interner());
-            vec![
-                Value::Ref(instance),
-                Value::Ref(vm.heap.alloc_string(&resolved_msg)?),
-            ]
-        } else {
-            vec![Value::Ref(instance)]
-        };
-        Self::invoke_method_internal(thread_id, method_id, params, vm)?;
-        Ok(instance)
-    }
 
     fn prepare_method_args(
         thread_id: ThreadId,
@@ -358,12 +322,15 @@ impl Interpreter {
                 Err(e) => {
                     let java_exception = match e {
                         JvmError::JavaException(exception) => {
-                            Self::map_rust_error_to_java_exception(thread_id, exception, vm)
+                            vm.map_rust_error_to_java_exception(thread_id, exception)
                         }
                         JvmError::JavaExceptionThrown(exception_ref) => Ok(exception_ref),
                         // TODO: this errors are not mapped yet or happened during mapping to java exception
                         e => Err(e),
                     }?;
+                    if vm.get_stack(&thread_id)?.cur_frame()?.is_native() {
+                        vm.get_stack_mut(&thread_id)?.pop_native_frame()?;
+                    }
                     if !Self::find_exception_handler(vm, &method_id, java_exception, &thread_id)? {
                         vm.get_stack_mut(&thread_id)?.pop_java_frame()?;
                         return Err(JvmError::JavaExceptionThrown(java_exception));
@@ -371,6 +338,78 @@ impl Interpreter {
                 }
             }
         }
+    }
+
+    fn invoke_native_method(
+        thread_id: ThreadId,
+        method_id: MethodId,
+        args: Vec<Value>,
+        vm: &mut VirtualMachine,
+    ) -> Result<Option<Value>, JvmError> {
+        let method = vm.method_area.get_method(&method_id);
+        if vm.interner().resolve(&method.name) == "ki" {
+            println!()
+        }
+        let clone_desc = vm.br.clone_desc;
+        let object_class_sym = vm.br.java_lang_object_sym;
+        let mut method_key = vm
+            .method_area
+            .build_fully_qualified_native_method_key(&method_id);
+        // native instance method of array special handling (for now, only Object.clone)
+        if !method.is_static()
+            && vm.heap.is_array(args[0].as_obj_ref()?)?
+            && method_key.name == vm.br.clone_sym
+            && method_key.desc == clone_desc
+            && method_key.class == Some(object_class_sym)
+        {
+            method_key.class = None;
+        }
+        let frame = NativeFrame::new(method_id);
+        vm.get_stack_mut(&thread_id)?
+            .push_frame(FrameType::NativeFrame(frame))?;
+        let native = *vm.native_registry.get(&method_key).ok_or(build_exception!(
+            UnsatisfiedLinkError,
+            vm.pretty_method_not_found_message(&method_id)
+        ))?;
+        let native_res = match native(vm, thread_id, args.as_slice()) {
+            Ok(res) => res,
+            Err(e) => {
+                error_log_method!(
+                    &method_id,
+                    &e,
+                    "👹👹👹 Java exception thrown in native method"
+                );
+                return Err(e);
+            }
+        };
+        vm.get_stack_mut(&thread_id)?.pop_native_frame()?;
+        Ok(native_res)
+    }
+
+    fn invoke_java_method(
+        thread_id: ThreadId,
+        method_id: MethodId,
+        args: Vec<Value>,
+        vm: &mut VirtualMachine,
+    ) -> Result<Option<Value>, JvmError> {
+        let (max_stack, max_locals) = vm
+            .method_area
+            .get_method(&method_id)
+            .get_frame_attributes()?;
+        let frame = JavaFrame::new(method_id, max_stack, max_locals, args);
+        vm.get_stack_mut(&thread_id)?
+            .push_frame(FrameType::JavaFrame(frame))?;
+        let method_ret = Self::interpret_method(thread_id, method_id, vm);
+        if let Err(e) = &method_ret {
+            error_log_method!(
+                &method_id,
+                e,
+                "👹👹👹 Java exception thrown in interpreted method"
+            );
+        }
+        let method_ret = method_ret?;
+        vm.get_stack_mut(&thread_id)?.pop_java_frame()?;
+        Ok(method_ret)
     }
 
     fn invoke_method_core(
@@ -381,70 +420,9 @@ impl Interpreter {
     ) -> Result<Option<Value>, JvmError> {
         let method = vm.method_area.get_method(&method_id);
         if method.is_native() {
-            let clone_desc = vm.br.clone_desc;
-            let object_class_sym = vm.br.java_lang_object_sym;
-            let mut method_key = vm
-                .method_area
-                .build_fully_qualified_native_method_key(&method_id);
-            // native instance method of array special handling (for now, only Object.clone)
-            if !method.is_static()
-                && vm.heap.is_array(args[0].as_obj_ref()?)?
-                && method_key.name == vm.br.clone_sym
-                && method_key.desc == clone_desc
-                && method_key.class == Some(object_class_sym)
-            {
-                method_key.class = None;
-            }
-            let frame = NativeFrame::new(method_id);
-            let native = *vm.native_registry.get(&method_key).ok_or(build_exception!(
-                NoSuchMethodError,
-                vm.pretty_method_not_found_message(&method_id)
-            ))?;
-            vm.get_stack_mut(&thread_id)?
-                .push_frame(FrameType::NativeFrame(frame))?;
-            let native_res = match native(vm, thread_id, args.as_slice()) {
-                Ok(res) => res,
-                Err(JvmError::JavaException(e)) => {
-                    error_log_method!(
-                        &method_id,
-                        &JvmError::JavaException(e.clone()),
-                        "👹👹👹 Java exception thrown in native method"
-                    );
-                    let exception_ref = Self::map_rust_error_to_java_exception(thread_id, e, vm)?;
-                    vm.get_stack_mut(&thread_id)?.pop_native_frame()?;
-                    return Err(JvmError::JavaExceptionThrown(exception_ref));
-                }
-                Err(e) => {
-                    error_log_method!(
-                        &method_id,
-                        &e,
-                        "👹👹👹 Java exception thrown in native method"
-                    );
-                    vm.get_stack_mut(&thread_id)?.pop_native_frame()?;
-                    return Err(e);
-                }
-            };
-            vm.get_stack_mut(&thread_id)?.pop_native_frame()?;
-            Ok(native_res)
+            Self::invoke_native_method(thread_id, method_id, args, vm)
         } else {
-            let (max_stack, max_locals) = vm
-                .method_area
-                .get_method(&method_id)
-                .get_frame_attributes()?;
-            let frame = JavaFrame::new(method_id, max_stack, max_locals, args);
-            vm.get_stack_mut(&thread_id)?
-                .push_frame(FrameType::JavaFrame(frame))?;
-            let method_ret = Self::interpret_method(thread_id, method_id, vm);
-            if let Err(e) = &method_ret {
-                error_log_method!(
-                    &method_id,
-                    e,
-                    "👹👹👹 Java exception thrown in interpreted method"
-                );
-            }
-            let method_ret = method_ret?;
-            vm.get_stack_mut(&thread_id)?.pop_java_frame()?;
-            Ok(method_ret)
+            Self::invoke_java_method(thread_id, method_id, args, vm)
         }
     }
 
@@ -560,8 +538,8 @@ impl Interpreter {
     pub fn invoke_instance_method(
         thread_id: ThreadId,
         method_id: MethodId,
-        args: Vec<Value>,
         vm: &mut VirtualMachine,
+        args: Vec<Value>,
     ) -> Result<Option<Value>, JvmError> {
         //TODO: do I need to check that args[0] is not null?
         Self::invoke_method_core(thread_id, method_id, args, vm)

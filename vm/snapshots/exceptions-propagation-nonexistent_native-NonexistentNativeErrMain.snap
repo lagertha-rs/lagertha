@@ -1,0 +1,10 @@
+---
+source: vm/tests/integration_test.rs
+expression: "&combined"
+---
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.UnsatisfiedLinkError: void exceptions.propagation.nonexistent_native.NonexistentNativeErrMain.fakeNative()
+	at exceptions.propagation.nonexistent_native.NonexistentNativeErrMain.fakeNative(Native Method)
+	at exceptions.propagation.nonexistent_native.NonexistentNativeErrMain.main(NonexistentNativeErrMain.java:7)

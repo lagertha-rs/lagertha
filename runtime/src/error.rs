@@ -140,6 +140,7 @@ pub enum JavaExceptionKind {
     InternalError,
     NoSuchMethodError,
     ClassNotFoundException,
+    UnsatisfiedLinkError,
 }
 
 impl JavaExceptionKind {
@@ -154,6 +155,7 @@ impl JavaExceptionKind {
             Self::InternalError => "java/lang/InternalError",
             Self::NoSuchMethodError => "java/lang/NoSuchMethodError",
             Self::ClassNotFoundException => "java/lang/ClassNotFoundException",
+            Self::UnsatisfiedLinkError => "java/lang/UnsatisfiedLinkError",
         }
     }
 
