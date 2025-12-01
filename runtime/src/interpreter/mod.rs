@@ -166,6 +166,7 @@ impl Interpreter {
             }
             Instruction::InvokeSpecial(idx) => handle_invokespecial(thread_id, vm, idx)?,
             Instruction::InvokeStatic(idx) => handle_invokestatic(thread_id, vm, idx)?,
+            Instruction::InvokeDynamic(idx) => handle_invokedynamic(thread_id, vm, idx)?,
             Instruction::Iushr => handle_iushr(thread_id, vm)?,
             Instruction::Lload0 => handle_lload0(thread_id, vm)?,
             Instruction::Lload1 => handle_lload1(thread_id, vm)?,

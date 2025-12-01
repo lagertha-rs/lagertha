@@ -131,6 +131,20 @@ impl FieldEntryView {
     }
 }
 
+pub(crate) struct InvokeDynamicEntry {
+    pub bootstrap_idx: u16,
+    pub nat_idx: u16,
+}
+
+impl InvokeDynamicEntry {
+    pub fn new(bootstrap_idx: u16, nat_idx: u16) -> Self {
+        Self {
+            bootstrap_idx,
+            nat_idx,
+        }
+    }
+}
+
 pub(crate) struct NameAndTypeEntry {
     pub name_idx: u16,
     pub descriptor_idx: u16,

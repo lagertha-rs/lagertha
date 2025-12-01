@@ -1,4 +1,4 @@
-use crate::attribute::class::ClassAttribute;
+use crate::attribute::class::ClassAttr;
 use crate::constant::pool::ConstantPool;
 use crate::flags::ClassFlags;
 use common::error::ClassFormatErr;
@@ -34,7 +34,7 @@ pub struct ClassFile {
     pub interfaces: Vec<u16>,
     pub fields: Vec<FieldInfo>,
     pub methods: Vec<MethodInfo>,
-    pub attributes: Vec<ClassAttribute>,
+    pub attributes: Vec<ClassAttr>,
 }
 
 impl ClassFile {
@@ -107,7 +107,7 @@ impl TryFrom<Vec<u8>> for ClassFile {
         let attributes_count = cursor.u16()?;
         let mut attributes = Vec::with_capacity(attributes_count as usize);
         for _ in 0..attributes_count {
-            attributes.push(ClassAttribute::read(&constant_pool, &mut cursor)?);
+            attributes.push(ClassAttr::read(&constant_pool, &mut cursor)?);
         }
 
         if cursor.u8().is_ok() {
@@ -150,7 +150,7 @@ impl ClassFile {
         let super_class_name = pretty_try!(ind, self.cp.get_pretty_class_name(&self.super_class));
         let super_is_object = super_class_name == "java.lang.Object";
         if let Some(sig_index) = self.attributes.iter().find_map(|attr| {
-            if let ClassAttribute::Shared(shared) = attr {
+            if let ClassAttr::Shared(shared) = attr {
                 match shared {
                     SharedAttribute::Signature(sig_index) => Some(sig_index),
                     _ => None,

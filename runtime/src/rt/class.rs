@@ -7,7 +7,7 @@ use crate::rt::method::Method;
 use crate::rt::{BaseClass, ClassLike, JvmClass};
 use crate::{MethodId, Symbol, build_exception, throw_exception};
 use jclass::ClassFile;
-use jclass::attribute::class::ClassAttribute;
+use jclass::attribute::class::ClassAttr;
 use jclass::constant::pool::ConstantPool;
 use jclass::field::FieldInfo;
 use jclass::flags::ClassFlags;
@@ -41,17 +41,16 @@ impl InstanceClass {
         super_id: Option<ClassId>,
         method_area: &mut MethodArea,
         flags: ClassFlags,
-        cp: ConstantPool,
+        cp: RuntimeConstantPool,
         this_class: u16,
-        attributes: Vec<ClassAttribute>,
+        attributes: Vec<ClassAttr>,
     ) -> Result<ClassId, JvmError> {
-        let cp = RuntimeConstantPool::new(cp.inner);
         let name = cp.get_class_sym(&this_class, method_area.interner())?;
 
         //TODO: clean up
         let mut source_file = None;
         for attr in &attributes {
-            if let ClassAttribute::SourceFile(sourcefile_index) = attr {
+            if let ClassAttr::SourceFile(sourcefile_index) = attr {
                 source_file = Some(cp.get_utf8_sym(sourcefile_index, method_area.interner())?);
                 break;
             }
@@ -319,16 +318,30 @@ impl InstanceClass {
         Ok(())
     }
 
+    fn prepare_cp(cp: ConstantPool, attr: &mut Vec<ClassAttr>) -> RuntimeConstantPool {
+        let methods = attr
+            .iter()
+            .position(|a| matches!(a, ClassAttr::BootstrapMethods(_)))
+            .map(|pos| match attr.remove(pos) {
+                ClassAttr::BootstrapMethods(m) => m,
+                _ => unreachable!(),
+            })
+            .unwrap_or_default();
+
+        RuntimeConstantPool::new(cp.inner, methods)
+    }
+
     pub fn load_and_link(
-        cf: ClassFile,
+        mut cf: ClassFile,
         method_area: &mut MethodArea,
         super_id: Option<ClassId>,
     ) -> Result<ClassId, JvmError> {
+        let runtime_cp = Self::prepare_cp(cf.cp, &mut cf.attributes);
         let this_id = Self::load(
             super_id,
             method_area,
             cf.access_flags,
-            cf.cp,
+            runtime_cp,
             cf.this_class,
             cf.attributes,
         )?;

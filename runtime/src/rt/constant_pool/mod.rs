@@ -1,10 +1,11 @@
 use crate::Symbol;
 use crate::error::JvmError;
 use crate::rt::constant_pool::entry::{
-    ClassEntry, FieldEntry, FieldEntryView, MethodEntry, MethodEntryView, NameAndTypeEntry,
-    NameAndTypeEntryView, StringEntry, Utf8Entry,
+    ClassEntry, FieldEntry, FieldEntryView, InvokeDynamicEntry, MethodEntry, MethodEntryView,
+    NameAndTypeEntry, NameAndTypeEntryView, StringEntry, Utf8Entry,
 };
 use common::error::RuntimePoolError;
+use jclass::attribute::class::BootstrapMethodEntry;
 use jclass::constant::ConstantInfo;
 use lasso::ThreadedRodeo;
 use std::fmt::Display;
@@ -67,7 +68,7 @@ pub enum RuntimeConstant {
     String(StringEntry),
     Method(MethodEntry),
     Field(FieldEntry),
-    InvokeDynamic,                /*(Arc<InvokeDynamicReferenceDeprecated>)*/
+    InvokeDynamic(InvokeDynamicEntry),
     InterfaceMethod(MethodEntry), /*(Arc<MethodReferenceDeprecated>)*/
     NameAndType(NameAndTypeEntry),
     MethodType,   /*(Arc<MethodTypeReferenceDeprecated>)*/
@@ -89,7 +90,7 @@ impl RuntimeConstant {
             RuntimeConstant::Field(_) => RuntimeConstantType::Field,
             RuntimeConstant::InterfaceMethod(_) => RuntimeConstantType::InterfaceMethod,
             RuntimeConstant::NameAndType(_) => RuntimeConstantType::NameAndType,
-            RuntimeConstant::InvokeDynamic => RuntimeConstantType::InvokeDynamic,
+            RuntimeConstant::InvokeDynamic(_) => RuntimeConstantType::InvokeDynamic,
             RuntimeConstant::MethodType => RuntimeConstantType::MethodType,
             RuntimeConstant::MethodHandle => RuntimeConstantType::MethodHandle,
         }
@@ -101,7 +102,8 @@ pub struct RuntimeConstantPool {
 }
 
 impl RuntimeConstantPool {
-    pub fn new(entries: Vec<ConstantInfo>) -> Self {
+    pub fn new(entries: Vec<ConstantInfo>, bootstrap_methods: Vec<BootstrapMethodEntry>) -> Self {
+        todo!("Handle bootstrap methods: {:?}", bootstrap_methods);
         let mut rt_entries = Vec::with_capacity(entries.len());
         for entry in entries {
             let rt_entry = match entry {
@@ -127,7 +129,12 @@ impl RuntimeConstantPool {
                 ConstantInfo::InterfaceMethodRef(ref_info) => RuntimeConstant::InterfaceMethod(
                     MethodEntry::new(ref_info.class_index, ref_info.name_and_type_index),
                 ),
-                ConstantInfo::InvokeDynamic(_) => RuntimeConstant::InvokeDynamic,
+                ConstantInfo::InvokeDynamic(dynamic_info) => {
+                    RuntimeConstant::InvokeDynamic(InvokeDynamicEntry::new(
+                        dynamic_info.bootstrap_method_attr_index,
+                        dynamic_info.name_and_type_index,
+                    ))
+                }
                 ConstantInfo::MethodType(_) => RuntimeConstant::MethodType,
                 ConstantInfo::MethodHandle(_) => RuntimeConstant::MethodHandle,
                 other => unimplemented!("{:?} not implemented yet", other),

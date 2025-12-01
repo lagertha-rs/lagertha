@@ -4,7 +4,7 @@ use crate::constant::pool::ConstantPool;
 use common::utils::cursor::ByteCursor;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ClassAttribute {
+pub enum ClassAttr {
     Shared(SharedAttribute),
     SourceFile(u16),
     InnerClasses(Vec<InnerClassEntry>),
@@ -59,7 +59,7 @@ impl InnerClassEntry {
     }
 }
 
-impl<'a> ClassAttribute {
+impl<'a> ClassAttr {
     pub(crate) fn read(
         pool: &ConstantPool,
         cursor: &mut ByteCursor<'a>,
@@ -69,7 +69,7 @@ impl<'a> ClassAttribute {
 
         let attribute_type = AttributeType::try_from(pool.get_utf8(&attribute_name_index)?)?;
         match attribute_type {
-            AttributeType::SourceFile => Ok(ClassAttribute::SourceFile(cursor.u16()?)),
+            AttributeType::SourceFile => Ok(ClassAttr::SourceFile(cursor.u16()?)),
             AttributeType::BootstrapMethods => {
                 let number_of_bootstrap_methods = cursor.u16()? as usize;
                 let mut methods = Vec::with_capacity(number_of_bootstrap_methods);
@@ -85,7 +85,7 @@ impl<'a> ClassAttribute {
                         bootstrap_arguments,
                     ));
                 }
-                Ok(ClassAttribute::BootstrapMethods(methods))
+                Ok(ClassAttr::BootstrapMethods(methods))
             }
             AttributeType::InnerClasses => {
                 let number_of_classes = cursor.u16()? as usize;
@@ -98,7 +98,7 @@ impl<'a> ClassAttribute {
                         cursor.u16()?,
                     ));
                 }
-                Ok(ClassAttribute::InnerClasses(classes))
+                Ok(ClassAttr::InnerClasses(classes))
             }
             AttributeType::NestMembers => {
                 let number_of_classes = cursor.u16()? as usize;
@@ -106,16 +106,16 @@ impl<'a> ClassAttribute {
                 for _ in 0..number_of_classes {
                     classes.push(cursor.u16()?);
                 }
-                Ok(ClassAttribute::NestMembers(classes))
+                Ok(ClassAttr::NestMembers(classes))
             }
             AttributeType::NestHost => {
                 let host_class_index = cursor.u16()?;
-                Ok(ClassAttribute::NestHost(host_class_index))
+                Ok(ClassAttr::NestHost(host_class_index))
             }
             AttributeType::EnclosingMethod => {
                 let class_index = cursor.u16()?;
                 let method_index = cursor.u16()?;
-                Ok(ClassAttribute::EnclosingMethod(class_index, method_index))
+                Ok(ClassAttr::EnclosingMethod(class_index, method_index))
             }
             AttributeType::PermittedSubclasses => {
                 let number_of_classes = cursor.u16()? as usize;
@@ -123,13 +123,13 @@ impl<'a> ClassAttribute {
                 for _ in 0..number_of_classes {
                     classes.push(cursor.u16()?);
                 }
-                Ok(ClassAttribute::PermittedSubclasses(classes))
+                Ok(ClassAttr::PermittedSubclasses(classes))
             }
             AttributeType::RuntimeVisibleAnnotations
             | AttributeType::Synthetic
             | AttributeType::Deprecated
             | AttributeType::RuntimeInvisibleAnnotations
-            | AttributeType::Signature => Ok(ClassAttribute::Shared(SharedAttribute::read(
+            | AttributeType::Signature => Ok(ClassAttr::Shared(SharedAttribute::read(
                 attribute_type,
                 cursor,
             )?)),
@@ -148,15 +148,15 @@ impl<'a> ClassAttribute {
         use std::fmt::Write as _;
 
         match self {
-            ClassAttribute::Shared(shared) => shared.fmt_pretty(ind, cp)?,
-            ClassAttribute::SourceFile(idx) => {
+            ClassAttr::Shared(shared) => shared.fmt_pretty(ind, cp)?,
+            ClassAttr::SourceFile(idx) => {
                 writeln!(
                     ind,
                     "SourceFile: \"{}\"",
                     pretty_try!(ind, cp.get_utf8(idx))
                 )?;
             }
-            ClassAttribute::InnerClasses(inner) => {
+            ClassAttr::InnerClasses(inner) => {
                 writeln!(ind, "InnerClasses:")?;
                 ind.with_indent(|ind| {
                     for entry in inner {
@@ -210,7 +210,7 @@ impl<'a> ClassAttribute {
                     Ok(())
                 })?;
             }
-            ClassAttribute::EnclosingMethod(class_idx, method_idx) => {
+            ClassAttr::EnclosingMethod(class_idx, method_idx) => {
                 let method = if *method_idx == 0 {
                     ""
                 } else {
@@ -225,8 +225,8 @@ impl<'a> ClassAttribute {
                     method
                 )?;
             }
-            ClassAttribute::SourceDebugExtension => unimplemented!(),
-            ClassAttribute::BootstrapMethods(bootstrap_methods) => {
+            ClassAttr::SourceDebugExtension => unimplemented!(),
+            ClassAttr::BootstrapMethods(bootstrap_methods) => {
                 writeln!(ind, "BootstrapMethods:")?;
                 ind.with_indent(|ind| {
                     for (i, method) in bootstrap_methods.iter().enumerate() {
@@ -259,10 +259,10 @@ impl<'a> ClassAttribute {
                     Ok(())
                 })?;
             }
-            ClassAttribute::Module => unimplemented!(),
-            ClassAttribute::ModulePackages => unimplemented!(),
-            ClassAttribute::ModuleMainClass => unimplemented!(),
-            ClassAttribute::NestHost(idx) => {
+            ClassAttr::Module => unimplemented!(),
+            ClassAttr::ModulePackages => unimplemented!(),
+            ClassAttr::ModuleMainClass => unimplemented!(),
+            ClassAttr::NestHost(idx) => {
                 let constant = pretty_try!(ind, cp.get_raw(idx));
                 writeln!(
                     ind,
@@ -270,7 +270,7 @@ impl<'a> ClassAttribute {
                     pretty_try!(ind, constant.get_pretty_type_and_value(cp, &0))
                 )?;
             }
-            ClassAttribute::NestMembers(members) => {
+            ClassAttr::NestMembers(members) => {
                 writeln!(ind, "NestMembers:")?;
                 ind.with_indent(|ind| {
                     for member in members {
@@ -279,8 +279,8 @@ impl<'a> ClassAttribute {
                     Ok(())
                 })?;
             }
-            ClassAttribute::Record => unimplemented!(),
-            ClassAttribute::PermittedSubclasses(classes) => {
+            ClassAttr::Record => unimplemented!(),
+            ClassAttr::PermittedSubclasses(classes) => {
                 writeln!(ind, "PermittedSubclasses:")?;
                 ind.with_indent(|ind| {
                     for class in classes {
