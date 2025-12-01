@@ -15,7 +15,6 @@ use jclass::method::MethodInfo;
 use once_cell::sync::OnceCell;
 use std::cell::RefCell;
 use std::collections::HashMap;
-use tracing_log::log::warn;
 
 //TODO: I guess hotspot doesn't split class and interface classes. Right now we do the same
 // but probably it would be better to have separate InterfaceClass struct
@@ -75,12 +74,12 @@ impl InstanceClass {
     }
 
     // TODO: needs clean up
-    fn link_methods(
+    fn prepare_methods(
         methods: Vec<MethodInfo>,
         this_id: ClassId,
         super_id: Option<ClassId>,
         method_area: &mut MethodArea,
-    ) -> Result<(), JvmError> {
+    ) -> Result<(Vec<MethodId>, HashMap<MethodKey, u16>), JvmError> {
         let mut declared_index = HashMap::new();
         let (mut vtable, mut vtable_index) = super_id
             .map(|id| method_area.get_instance_class(&id))
@@ -140,9 +139,7 @@ impl InstanceClass {
 
         let this = method_area.get_instance_class(&this_id)?;
         this.set_declared_methods(declared_index)?;
-        this.set_vtable(vtable)?;
-        this.set_vtable_index(vtable_index)?;
-        Ok(())
+        Ok((vtable, vtable_index))
     }
 
     fn link_fields(
@@ -258,10 +255,12 @@ impl InstanceClass {
         Ok(())
     }
 
-    fn link_itable(
+    fn link_itable_and_vtable(
         this_id: ClassId,
         super_id: Option<ClassId>,
         method_area: &mut MethodArea,
+        mut vtable: Vec<MethodId>,
+        mut vtable_index: HashMap<MethodKey, u16>,
     ) -> Result<(), JvmError> {
         let mut itable = super_id
             .map(|id| method_area.get_instance_class(&id))
@@ -278,61 +277,45 @@ impl InstanceClass {
             let interface_class = method_area.get_interface_class(interface)?;
             let interface_methods = interface_class.get_methods();
             for (method_key, method_id) in interface_methods {
-                if !method_area.get_method(method_id).is_abstract() {
-                    warn!(
-                        "Skipping non-abstract interface method in itable linking, not supported yet"
-                    );
-                    continue;
-                }
-                let impl_method_id = match method_area
-                    .get_instance_class(&this_id)?
-                    .get_vtable_method_id(method_key)
-                {
-                    Ok(id) => id,
-                    Err(_) => {
-                        // abstract class isn't required to implement interface methods
-                        if !method_area
-                            .get_instance_class(&this_id)?
-                            .base
-                            .flags
-                            .is_abstract()
-                        {
-                            return Err(JvmError::Todo(format!(
-                                "Concrete class {} does not implement interface method {} {}",
-                                method_area
-                                    .interner()
-                                    .resolve(&method_area.get_instance_class(&this_id)?.base.name),
-                                method_area.interner().resolve(&method_key.name),
-                                method_area.interner().resolve(&method_key.desc)
-                            )));
+                let impl_method_id = match vtable_index.get(method_key) {
+                    Some(&idx) => vtable[idx as usize],
+                    None => {
+                        // not in vtable yet
+                        if !method_area.get_method(method_id).is_abstract() {
+                            // Default method - add to vtable
+                            let idx = vtable.len() as u16;
+                            vtable_index.insert(*method_key, idx);
+                            vtable.push(*method_id);
+                            *method_id
+                        } else {
+                            // Abstract - class must be abstract or it's an error
+                            if !method_area
+                                .get_instance_class(&this_id)?
+                                .base
+                                .flags
+                                .is_abstract()
+                            {
+                                return Err(JvmError::Todo(format!(
+                                    "Concrete class {} does not implement interface method {} {}",
+                                    method_area.interner().resolve(
+                                        &method_area.get_instance_class(&this_id)?.base.name
+                                    ),
+                                    method_area.interner().resolve(&method_key.name),
+                                    method_area.interner().resolve(&method_key.desc)
+                                )));
+                            }
+                            continue;
                         }
-                        continue;
                     }
                 };
-                if method_area.get_method(&impl_method_id).is_abstract() {
-                    if !method_area
-                        .get_instance_class(&this_id)?
-                        .base
-                        .flags
-                        .is_abstract()
-                    {
-                        Err(JvmError::Todo(format!(
-                            "Class {} does not implement interface method {} {}",
-                            method_area
-                                .interner()
-                                .resolve(&method_area.get_instance_class(&this_id)?.base.name),
-                            method_area.interner().resolve(&method_key.name),
-                            method_area.interner().resolve(&method_key.desc)
-                        )))?;
-                    }
-                    continue;
-                }
                 itable.insert(*method_key, impl_method_id);
             }
         }
 
         let this = method_area.get_instance_class(&this_id)?;
         this.set_itable(itable)?;
+        this.set_vtable(vtable)?;
+        this.set_vtable_index(vtable_index)?;
         Ok(())
     }
 
@@ -351,9 +334,10 @@ impl InstanceClass {
         )?;
 
         Self::link_fields(cf.fields, this_id, super_id, method_area)?;
-        Self::link_methods(cf.methods, this_id, super_id, method_area)?;
+        let (vtable, vtable_index) =
+            Self::prepare_methods(cf.methods, this_id, super_id, method_area)?;
         Self::link_interfaces(cf.interfaces, this_id, super_id, method_area)?;
-        Self::link_itable(this_id, super_id, method_area)?;
+        Self::link_itable_and_vtable(this_id, super_id, method_area, vtable, vtable_index)?;
 
         let this = method_area.get_instance_class(&this_id)?;
         this.set_linked();
