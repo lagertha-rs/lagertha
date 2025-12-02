@@ -7,6 +7,7 @@ use crate::rt::field::StaticField;
 use crate::rt::method::Method;
 use crate::rt::{BaseClass, ClassLike, JvmClass};
 use jclass::ClassFile;
+use jclass::attribute::class::ClassAttr;
 use jclass::constant::pool::ConstantPool;
 use jclass::field::FieldInfo;
 use jclass::flags::ClassFlags;
@@ -26,12 +27,11 @@ pub struct InterfaceClass {
 impl InterfaceClass {
     fn load(
         flags: ClassFlags,
-        cp: ConstantPool,
+        cp: RuntimeConstantPool,
         method_area: &mut MethodArea,
         super_id: Option<ClassId>,
         this_class: u16,
     ) -> Result<ClassId, JvmError> {
-        let cp = RuntimeConstantPool::new(cp.inner);
         let name = cp.get_class_sym(&this_class, method_area.interner())?;
 
         //TODO: source file name? etc
@@ -151,15 +151,26 @@ impl InterfaceClass {
         Ok(())
     }
 
+    fn prepare_cp(cp: ConstantPool, attr: &mut Vec<ClassAttr>) -> RuntimeConstantPool {
+        let methods = attr
+            .iter()
+            .position(|a| matches!(a, ClassAttr::BootstrapMethods(_)))
+            .map(|pos| match attr.remove(pos) {
+                ClassAttr::BootstrapMethods(m) => m,
+                _ => unreachable!(),
+            })
+            .unwrap_or_default();
+
+        RuntimeConstantPool::new(cp.inner, methods)
+    }
+
     pub fn load_and_link(
-        cf: ClassFile,
+        mut cf: ClassFile,
         method_area: &mut MethodArea,
         super_id: Option<ClassId>,
     ) -> Result<ClassId, JvmError> {
-        let this_id = Self::load(cf.access_flags, cf.cp, method_area, super_id, cf.this_class)?;
-        let dbg = method_area
-            .interner()
-            .resolve(&method_area.get_class(&this_id).get_name());
+        let cp = Self::prepare_cp(cf.cp, &mut cf.attributes);
+        let this_id = Self::load(cf.access_flags, cp, method_area, super_id, cf.this_class)?;
 
         Self::link_methods(cf.methods, this_id, method_area)?;
         Self::link_fields(cf.fields, this_id, method_area)?;

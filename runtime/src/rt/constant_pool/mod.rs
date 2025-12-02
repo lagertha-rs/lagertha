@@ -1,12 +1,13 @@
 use crate::Symbol;
 use crate::error::JvmError;
 use crate::rt::constant_pool::entry::{
-    ClassEntry, FieldEntry, FieldEntryView, InvokeDynamicEntry, MethodEntry, MethodEntryView,
-    NameAndTypeEntry, NameAndTypeEntryView, StringEntry, Utf8Entry,
+    ClassEntry, FieldEntry, FieldEntryView, InvokeDynamicEntry, InvokeDynamicEntryView,
+    MethodEntry, MethodEntryView, MethodHandleEntryView, NameAndTypeEntry, NameAndTypeEntryView,
+    StringEntry, Utf8Entry,
 };
 use common::error::RuntimePoolError;
 use jclass::attribute::class::BootstrapMethodEntry;
-use jclass::constant::ConstantInfo;
+use jclass::constant::{ConstantInfo, MethodHandleInfo};
 use lasso::ThreadedRodeo;
 use std::fmt::Display;
 
@@ -57,6 +58,18 @@ impl Display for RuntimeConstantType {
     }
 }
 
+pub enum MethodHandleType {
+    GetField(u16),
+    GetStatic(u16),
+    PutField(u16),
+    PutStatic(u16),
+    InvokeVirtual(u16),
+    InvokeStatic(u16),
+    InvokeSpecial(u16),
+    NewInvokeSpecial(u16),
+    InvokeInterface(u16),
+}
+
 pub enum RuntimeConstant {
     Unused,
     Utf8(Utf8Entry),
@@ -69,10 +82,10 @@ pub enum RuntimeConstant {
     Method(MethodEntry),
     Field(FieldEntry),
     InvokeDynamic(InvokeDynamicEntry),
-    InterfaceMethod(MethodEntry), /*(Arc<MethodReferenceDeprecated>)*/
+    InterfaceMethod(MethodEntry),
     NameAndType(NameAndTypeEntry),
-    MethodType,   /*(Arc<MethodTypeReferenceDeprecated>)*/
-    MethodHandle, /*(Arc<MethodHandleReferenceDeprecated>)*/
+    MethodType,
+    MethodHandle(MethodHandleType), // TODO: use our own struct
 }
 
 impl RuntimeConstant {
@@ -92,18 +105,18 @@ impl RuntimeConstant {
             RuntimeConstant::NameAndType(_) => RuntimeConstantType::NameAndType,
             RuntimeConstant::InvokeDynamic(_) => RuntimeConstantType::InvokeDynamic,
             RuntimeConstant::MethodType => RuntimeConstantType::MethodType,
-            RuntimeConstant::MethodHandle => RuntimeConstantType::MethodHandle,
+            RuntimeConstant::MethodHandle(_) => RuntimeConstantType::MethodHandle,
         }
     }
 }
 
 pub struct RuntimeConstantPool {
     entries: Vec<RuntimeConstant>,
+    bootstrap_entries: Vec<BootstrapMethodEntry>,
 }
 
 impl RuntimeConstantPool {
     pub fn new(entries: Vec<ConstantInfo>, bootstrap_methods: Vec<BootstrapMethodEntry>) -> Self {
-        todo!("Handle bootstrap methods: {:?}", bootstrap_methods);
         let mut rt_entries = Vec::with_capacity(entries.len());
         for entry in entries {
             let rt_entry = match entry {
@@ -136,13 +149,34 @@ impl RuntimeConstantPool {
                     ))
                 }
                 ConstantInfo::MethodType(_) => RuntimeConstant::MethodType,
-                ConstantInfo::MethodHandle(_) => RuntimeConstant::MethodHandle,
+                // TODO: handle could have already mapped MethodHandleKind enum instead of u8
+                ConstantInfo::MethodHandle(handle) => {
+                    let method_handle_type = match handle.reference_kind {
+                        1 => MethodHandleType::GetField(handle.reference_index),
+                        2 => MethodHandleType::GetStatic(handle.reference_index),
+                        3 => MethodHandleType::PutField(handle.reference_index),
+                        4 => MethodHandleType::PutStatic(handle.reference_index),
+                        5 => MethodHandleType::InvokeVirtual(handle.reference_index),
+                        6 => MethodHandleType::InvokeStatic(handle.reference_index),
+                        7 => MethodHandleType::InvokeSpecial(handle.reference_index),
+                        8 => MethodHandleType::NewInvokeSpecial(handle.reference_index),
+                        9 => MethodHandleType::InvokeInterface(handle.reference_index),
+                        other => {
+                            unimplemented!(
+                                "MethodHandle reference kind {} not implemented yet",
+                                other
+                            )
+                        }
+                    };
+                    RuntimeConstant::MethodHandle(method_handle_type)
+                }
                 other => unimplemented!("{:?} not implemented yet", other),
             };
             rt_entries.push(rt_entry);
         }
         Self {
             entries: rt_entries,
+            bootstrap_entries: bootstrap_methods,
         }
     }
 
@@ -172,6 +206,12 @@ impl RuntimeConstantPool {
 
     fn entry(&self, idx: &u16) -> Result<&RuntimeConstant, RuntimePoolError> {
         self.entries
+            .get(*idx as usize)
+            .ok_or(RuntimePoolError::WrongIndex(*idx))
+    }
+
+    fn bootstrap_entry(&self, idx: &u16) -> Result<&BootstrapMethodEntry, RuntimePoolError> {
+        self.bootstrap_entries
             .get(*idx as usize)
             .ok_or(RuntimePoolError::WrongIndex(*idx))
     }
@@ -277,6 +317,82 @@ impl RuntimeConstantPool {
             other => Err(RuntimePoolError::TypeError(
                 *idx,
                 RuntimeConstantType::Field.to_string(),
+                other.get_type().to_string(),
+            )),
+        }
+    }
+
+    pub fn get_method_handle_view(
+        &self,
+        idx: &u16,
+        interner: &ThreadedRodeo,
+    ) -> Result<MethodHandleEntryView, RuntimePoolError> {
+        match self.entry(idx)? {
+            RuntimeConstant::MethodHandle(entry) => {
+                let res = match entry {
+                    MethodHandleType::GetField(idx) => {
+                        MethodHandleEntryView::GetField(self.get_field_view(idx, interner)?)
+                    }
+                    MethodHandleType::GetStatic(idx) => {
+                        MethodHandleEntryView::GetStatic(self.get_field_view(idx, interner)?)
+                    }
+                    MethodHandleType::PutField(idx) => {
+                        MethodHandleEntryView::PutField(self.get_field_view(idx, interner)?)
+                    }
+                    MethodHandleType::PutStatic(idx) => {
+                        MethodHandleEntryView::PutStatic(self.get_field_view(idx, interner)?)
+                    }
+                    MethodHandleType::InvokeVirtual(idx) => {
+                        MethodHandleEntryView::InvokeVirtual(self.get_method_view(idx, interner)?)
+                    }
+                    MethodHandleType::InvokeStatic(idx) => {
+                        MethodHandleEntryView::InvokeStatic(self.get_method_view(idx, interner)?)
+                    }
+                    MethodHandleType::InvokeSpecial(idx) => {
+                        MethodHandleEntryView::InvokeSpecial(self.get_method_view(idx, interner)?)
+                    }
+                    MethodHandleType::NewInvokeSpecial(idx) => {
+                        MethodHandleEntryView::NewInvokeSpecial(
+                            self.get_method_view(idx, interner)?,
+                        )
+                    }
+                    MethodHandleType::InvokeInterface(idx) => {
+                        MethodHandleEntryView::InvokeInterface(
+                            self.get_interface_method_view(idx, interner)?,
+                        )
+                    }
+                };
+                Ok(res)
+            }
+            other => Err(RuntimePoolError::TypeError(
+                *idx,
+                RuntimeConstantType::MethodHandle.to_string(),
+                other.get_type().to_string(),
+            )),
+        }
+    }
+
+    pub fn get_invoke_dynamic_view(
+        &self,
+        idx: &u16,
+        interner: &ThreadedRodeo,
+    ) -> Result<InvokeDynamicEntryView, RuntimePoolError> {
+        match self.entry(idx)? {
+            // TODO: need to review all structs, for method handle as well
+            RuntimeConstant::InvokeDynamic(entry) => {
+                let bootstrap_entry = self.bootstrap_entry(&entry.bootstrap_idx)?;
+                let method_handle_view =
+                    self.get_method_handle_view(&bootstrap_entry.bootstrap_method_idx, interner)?;
+                let nat_view = self.get_nat_view(&entry.nat_idx, interner)?;
+                Ok(InvokeDynamicEntryView::new(
+                    method_handle_view,
+                    bootstrap_entry.bootstrap_arguments.clone(),
+                    nat_view,
+                ))
+            }
+            other => Err(RuntimePoolError::TypeError(
+                *idx,
+                RuntimeConstantType::InvokeDynamic.to_string(),
                 other.get_type().to_string(),
             )),
         }

@@ -348,9 +348,6 @@ impl Interpreter {
         vm: &mut VirtualMachine,
     ) -> Result<Option<Value>, JvmError> {
         let method = vm.method_area.get_method(&method_id);
-        if vm.interner().resolve(&method.name) == "ki" {
-            println!()
-        }
         let clone_desc = vm.br.clone_desc;
         let object_class_sym = vm.br.java_lang_object_sym;
         let mut method_key = vm

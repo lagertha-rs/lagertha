@@ -117,9 +117,23 @@ impl FieldEntry {
     }
 }
 
+#[derive(Copy, Clone)]
 pub struct FieldEntryView {
     pub class_sym: Symbol,
     pub name_and_type: NameAndTypeEntryView,
+}
+
+#[derive(Copy, Clone)]
+pub enum MethodHandleEntryView {
+    GetField(FieldEntryView),
+    GetStatic(FieldEntryView),
+    PutField(FieldEntryView),
+    PutStatic(FieldEntryView),
+    InvokeVirtual(MethodEntryView),
+    InvokeStatic(MethodEntryView),
+    InvokeSpecial(MethodEntryView),
+    NewInvokeSpecial(MethodEntryView),
+    InvokeInterface(MethodEntryView),
 }
 
 impl FieldEntryView {
@@ -159,6 +173,28 @@ impl NameAndTypeEntry {
             descriptor_idx,
             name_sym: OnceCell::new(),
             descriptor_sym: OnceCell::new(),
+        }
+    }
+}
+
+//#[derive(Copy, Clone)]
+#[derive(Clone)]
+pub struct InvokeDynamicEntryView {
+    pub method_handle: MethodHandleEntryView,
+    pub bootstrap_arguments: Vec<u16>, // TODO: need better representation
+    pub nat_view: NameAndTypeEntryView,
+}
+
+impl InvokeDynamicEntryView {
+    pub fn new(
+        method_handle: MethodHandleEntryView,
+        bootstrap_arguments: Vec<u16>,
+        nat_view: NameAndTypeEntryView,
+    ) -> Self {
+        Self {
+            method_handle,
+            bootstrap_arguments,
+            nat_view,
         }
     }
 }

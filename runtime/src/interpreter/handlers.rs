@@ -1488,10 +1488,11 @@ pub(super) fn handle_invokedynamic(
     idx: u16,
 ) -> Result<(), JvmError> {
     let cur_frame_method_id = vm.get_stack_mut(&thread_id)?.cur_java_frame()?.method_id();
-    let target_method_view = vm
+    let bootstrap_method = vm
         .method_area
         .get_cp_by_method_id(&cur_frame_method_id)?
-        .get_
+        .get_invoke_dynamic_view(&idx, vm.interner())?;
+    println!();
     todo!()
 }
 

@@ -22,14 +22,14 @@ pub enum ClassAttr {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct BootstrapMethodEntry {
-    pub bootstrap_method_ref: u16,
+    pub bootstrap_method_idx: u16,
     pub bootstrap_arguments: Vec<u16>,
 }
 
 impl BootstrapMethodEntry {
     pub fn new(bootstrap_method_ref: u16, bootstrap_arguments: Vec<u16>) -> Self {
         Self {
-            bootstrap_method_ref,
+            bootstrap_method_idx: bootstrap_method_ref,
             bootstrap_arguments,
         }
     }
@@ -231,12 +231,12 @@ impl<'a> ClassAttr {
                 ind.with_indent(|ind| {
                     for (i, method) in bootstrap_methods.iter().enumerate() {
                         let method_handle =
-                            pretty_try!(ind, cp.get_raw(&method.bootstrap_method_ref));
+                            pretty_try!(ind, cp.get_raw(&method.bootstrap_method_idx));
                         writeln!(
                             ind,
                             "{}: #{} {}",
                             i,
-                            method.bootstrap_method_ref,
+                            method.bootstrap_method_idx,
                             pretty_try!(ind, method_handle.get_pretty_type_and_value(cp, &0))
                         )?;
                         ind.with_indent(|ind| {
