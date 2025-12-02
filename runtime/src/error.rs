@@ -1,5 +1,6 @@
 use crate::heap::HeapRef;
 use crate::keys::{MethodKey, Symbol};
+use crate::rt::constant_pool::RuntimeConstantType;
 use common::descriptor::MethodDescriptor;
 use common::error::{InstructionErr, LinkageError, RuntimePoolError, TypeDescriptorErr};
 use common::utils::cursor::CursorError;
@@ -111,6 +112,11 @@ pub struct JavaExceptionReference {
 pub enum ExceptionMessage {
     Resolved(String),
     MethodNotFound(MethodKey, Symbol),
+    IncompatibleClassChangeRuntimePool {
+        pool_idx: u16,
+        expected: RuntimeConstantType,
+        actual: RuntimeConstantType,
+    },
 }
 
 impl ExceptionMessage {
@@ -124,6 +130,16 @@ impl ExceptionMessage {
                 MethodDescriptor::try_from(desc_str)
                     .unwrap()
                     .to_java_signature(class_name, method_name)
+            }
+            ExceptionMessage::IncompatibleClassChangeRuntimePool {
+                pool_idx,
+                expected,
+                actual,
+            } => {
+                format!(
+                    "Incompatible class change at runtime constant pool index {}: expected {}, found {}",
+                    pool_idx, expected, actual
+                )
             }
         }
     }
@@ -141,6 +157,8 @@ pub enum JavaExceptionKind {
     NoSuchMethodError,
     ClassNotFoundException,
     UnsatisfiedLinkError,
+    IncompatibleClassChangeError,
+    ClassFormatError,
 }
 
 impl JavaExceptionKind {
@@ -156,6 +174,8 @@ impl JavaExceptionKind {
             Self::NoSuchMethodError => "java/lang/NoSuchMethodError",
             Self::ClassNotFoundException => "java/lang/ClassNotFoundException",
             Self::UnsatisfiedLinkError => "java/lang/UnsatisfiedLinkError",
+            Self::IncompatibleClassChangeError => "java/lang/IncompatibleClassChangeError",
+            Self::ClassFormatError => "java/lang/ClassFormatError",
         }
     }
 
@@ -200,6 +220,23 @@ impl JavaExceptionFromJvm {
         Self {
             kind,
             message: Some(ExceptionMessage::MethodNotFound(key, class_sym)),
+            cause: None,
+        }
+    }
+
+    pub fn with_runtime_pool_incompatible_class_change(
+        kind: JavaExceptionKind,
+        pool_idx: u16,
+        expected: RuntimeConstantType,
+        actual: RuntimeConstantType,
+    ) -> Self {
+        Self {
+            kind,
+            message: Some(ExceptionMessage::IncompatibleClassChangeRuntimePool {
+                pool_idx,
+                expected,
+                actual,
+            }),
             cause: None,
         }
     }

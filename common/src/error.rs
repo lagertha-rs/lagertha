@@ -97,8 +97,6 @@ impl From<ClassFormatErr> for LinkageError {
 pub enum RuntimePoolError {
     MethodDescriptor(MethodDescriptorErr),
     TypeDescriptor(TypeDescriptorErr),
-    WrongIndex(u16),
-    TypeError(u16, String, String),
     TryingToAccessUnresolved(u16, String),
 }
 

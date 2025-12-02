@@ -32,6 +32,16 @@ macro_rules! build_exception {
             )
         )
     };
+    ($kind:ident, pool_idx: $pool_idx:expr, expected: $expected:expr, actual: $actual:expr) => {
+        crate::error::JvmError::JavaException(
+            crate::error::JavaExceptionFromJvm::with_runtime_pool_incompatible_class_change(
+                crate::error::JavaExceptionKind::$kind,
+                $pool_idx,
+                $expected,
+                $actual,
+            )
+        )
+    };
 }
 
 #[macro_export]

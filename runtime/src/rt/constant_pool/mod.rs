@@ -1,18 +1,18 @@
-use crate::Symbol;
 use crate::error::JvmError;
 use crate::rt::constant_pool::entry::{
     ClassEntry, FieldEntry, FieldEntryView, InvokeDynamicEntry, InvokeDynamicEntryView,
     MethodEntry, MethodEntryView, MethodHandleEntryView, NameAndTypeEntry, NameAndTypeEntryView,
     StringEntry, Utf8Entry,
 };
-use common::error::RuntimePoolError;
+use crate::{Symbol, build_exception, throw_exception};
 use jclass::attribute::class::BootstrapMethodEntry;
-use jclass::constant::{ConstantInfo, MethodHandleInfo};
+use jclass::constant::ConstantInfo;
 use lasso::ThreadedRodeo;
 use std::fmt::Display;
 
 pub mod entry;
 
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum RuntimeConstantType {
     Unused,
     Utf8,
@@ -204,32 +204,35 @@ impl RuntimeConstantPool {
         Ok(entry)
     }
 
-    fn entry(&self, idx: &u16) -> Result<&RuntimeConstant, RuntimePoolError> {
-        self.entries
-            .get(*idx as usize)
-            .ok_or(RuntimePoolError::WrongIndex(*idx))
+    fn entry(&self, idx: &u16) -> Result<&RuntimeConstant, JvmError> {
+        self.entries.get(*idx as usize).ok_or(build_exception!(
+            ClassFormatError,
+            "Invalid constant pool index: {}",
+            *idx
+        ))
     }
 
-    fn bootstrap_entry(&self, idx: &u16) -> Result<&BootstrapMethodEntry, RuntimePoolError> {
+    fn bootstrap_entry(&self, idx: &u16) -> Result<&BootstrapMethodEntry, JvmError> {
         self.bootstrap_entries
             .get(*idx as usize)
-            .ok_or(RuntimePoolError::WrongIndex(*idx))
+            .ok_or(build_exception!(
+                ClassFormatError,
+                "Invalid bootstrap methods index: {}",
+                *idx
+            ))
     }
 
-    pub fn get_utf8_sym(
-        &self,
-        idx: &u16,
-        interner: &ThreadedRodeo,
-    ) -> Result<Symbol, RuntimePoolError> {
+    pub fn get_utf8_sym(&self, idx: &u16, interner: &ThreadedRodeo) -> Result<Symbol, JvmError> {
         match self.entry(idx)? {
             RuntimeConstant::Utf8(entry) => Ok(*entry
                 .utf8_sym
                 .get_or_init(|| interner.get_or_intern(&entry.value))),
-            other => Err(RuntimePoolError::TypeError(
-                *idx,
-                RuntimeConstantType::Utf8.to_string(),
-                other.get_type().to_string(),
-            )),
+            other => throw_exception!(
+                IncompatibleClassChangeError,
+                pool_idx: *idx,
+                expected: RuntimeConstantType::Utf8,
+                actual: other.get_type()
+            ),
         }
     }
 
@@ -237,25 +240,24 @@ impl RuntimeConstantPool {
         &self,
         idx: &u16,
         interner: &ThreadedRodeo,
-    ) -> Result<NameAndTypeEntryView, RuntimePoolError> {
+    ) -> Result<NameAndTypeEntryView, JvmError> {
         match self.entry(idx)? {
             RuntimeConstant::NameAndType(entry) => {
-                let name_sym = *entry.name_sym.get_or_try_init::<_, RuntimePoolError>(|| {
-                    self.get_utf8_sym(&entry.name_idx, interner)
-                })?;
+                let name_sym = *entry
+                    .name_sym
+                    .get_or_try_init(|| self.get_utf8_sym(&entry.name_idx, interner))?;
                 let descriptor_sym = *entry
                     .descriptor_sym
                     //TODO: delete explicit type?
-                    .get_or_try_init::<_, RuntimePoolError>(|| {
-                        self.get_utf8_sym(&entry.descriptor_idx, interner)
-                    })?;
+                    .get_or_try_init(|| self.get_utf8_sym(&entry.descriptor_idx, interner))?;
                 Ok(NameAndTypeEntryView::new(name_sym, descriptor_sym))
             }
-            other => Err(RuntimePoolError::TypeError(
-                *idx,
-                RuntimeConstantType::MethodNameAndType.to_string(),
-                other.get_type().to_string(),
-            )),
+            other => throw_exception!(
+                IncompatibleClassChangeError,
+                pool_idx: *idx,
+                expected: RuntimeConstantType::MethodNameAndType,
+                actual: other.get_type()
+            ),
         }
     }
 
@@ -263,7 +265,7 @@ impl RuntimeConstantPool {
         &self,
         idx: &u16,
         interner: &ThreadedRodeo,
-    ) -> Result<MethodEntryView, RuntimePoolError> {
+    ) -> Result<MethodEntryView, JvmError> {
         match self.entry(idx)? {
             RuntimeConstant::Method(entry) => {
                 let class_sym = *entry
@@ -272,11 +274,12 @@ impl RuntimeConstantPool {
                 let nat_view = self.get_nat_view(&entry.nat_idx, interner)?;
                 Ok(MethodEntryView::new(class_sym, nat_view))
             }
-            other => Err(RuntimePoolError::TypeError(
-                *idx,
-                RuntimeConstantType::Method.to_string(),
-                other.get_type().to_string(),
-            )),
+            other => throw_exception!(
+                IncompatibleClassChangeError,
+                pool_idx: *idx,
+                expected: RuntimeConstantType::Method,
+                actual: other.get_type()
+            ),
         }
     }
 
@@ -284,7 +287,7 @@ impl RuntimeConstantPool {
         &self,
         idx: &u16,
         interner: &ThreadedRodeo,
-    ) -> Result<MethodEntryView, RuntimePoolError> {
+    ) -> Result<MethodEntryView, JvmError> {
         match self.entry(idx)? {
             RuntimeConstant::InterfaceMethod(entry) => {
                 let class_sym = *entry
@@ -293,11 +296,12 @@ impl RuntimeConstantPool {
                 let nat_view = self.get_nat_view(&entry.nat_idx, interner)?;
                 Ok(MethodEntryView::new(class_sym, nat_view))
             }
-            other => Err(RuntimePoolError::TypeError(
-                *idx,
-                RuntimeConstantType::InterfaceMethod.to_string(),
-                other.get_type().to_string(),
-            )),
+            other => throw_exception!(
+                IncompatibleClassChangeError,
+                pool_idx: *idx,
+                expected: RuntimeConstantType::InterfaceMethod,
+                actual: other.get_type()
+            ),
         }
     }
 
@@ -305,7 +309,7 @@ impl RuntimeConstantPool {
         &self,
         idx: &u16,
         interner: &ThreadedRodeo,
-    ) -> Result<FieldEntryView, RuntimePoolError> {
+    ) -> Result<FieldEntryView, JvmError> {
         match self.entry(idx)? {
             RuntimeConstant::Field(entry) => {
                 let class_sym = *entry
@@ -314,11 +318,12 @@ impl RuntimeConstantPool {
                 let nat_view = self.get_nat_view(&entry.nat_idx, interner)?;
                 Ok(FieldEntryView::new(class_sym, nat_view))
             }
-            other => Err(RuntimePoolError::TypeError(
-                *idx,
-                RuntimeConstantType::Field.to_string(),
-                other.get_type().to_string(),
-            )),
+            other => throw_exception!(
+                IncompatibleClassChangeError,
+                pool_idx: *idx,
+                expected: RuntimeConstantType::Field,
+                actual: other.get_type()
+            ),
         }
     }
 
@@ -326,7 +331,7 @@ impl RuntimeConstantPool {
         &self,
         idx: &u16,
         interner: &ThreadedRodeo,
-    ) -> Result<MethodHandleEntryView, RuntimePoolError> {
+    ) -> Result<MethodHandleEntryView, JvmError> {
         match self.entry(idx)? {
             RuntimeConstant::MethodHandle(entry) => {
                 let res = match entry {
@@ -364,11 +369,12 @@ impl RuntimeConstantPool {
                 };
                 Ok(res)
             }
-            other => Err(RuntimePoolError::TypeError(
-                *idx,
-                RuntimeConstantType::MethodHandle.to_string(),
-                other.get_type().to_string(),
-            )),
+            other => throw_exception!(
+                IncompatibleClassChangeError,
+                pool_idx: *idx,
+                expected: RuntimeConstantType::MethodHandle,
+                actual: other.get_type()
+            ),
         }
     }
 
@@ -376,7 +382,7 @@ impl RuntimeConstantPool {
         &self,
         idx: &u16,
         interner: &ThreadedRodeo,
-    ) -> Result<InvokeDynamicEntryView, RuntimePoolError> {
+    ) -> Result<InvokeDynamicEntryView, JvmError> {
         match self.entry(idx)? {
             // TODO: need to review all structs, for method handle as well
             RuntimeConstant::InvokeDynamic(entry) => {
@@ -390,51 +396,42 @@ impl RuntimeConstantPool {
                     nat_view,
                 ))
             }
-            other => Err(RuntimePoolError::TypeError(
-                *idx,
-                RuntimeConstantType::InvokeDynamic.to_string(),
-                other.get_type().to_string(),
-            )),
+            other => throw_exception!(
+                IncompatibleClassChangeError,
+                pool_idx: *idx,
+                expected: RuntimeConstantType::InvokeDynamic,
+                actual: other.get_type()
+            ),
         }
     }
 
-    pub fn get_string_sym(
-        &self,
-        idx: &u16,
-        interner: &ThreadedRodeo,
-    ) -> Result<Symbol, RuntimePoolError> {
+    pub fn get_string_sym(&self, idx: &u16, interner: &ThreadedRodeo) -> Result<Symbol, JvmError> {
         match self.entry(idx)? {
             RuntimeConstant::String(entry) => entry
                 .string_sym
-                .get_or_try_init::<_, RuntimePoolError>(|| {
-                    self.get_utf8_sym(&entry.string_idx, interner)
-                })
+                .get_or_try_init(|| self.get_utf8_sym(&entry.string_idx, interner))
                 .copied(),
-            other => Err(RuntimePoolError::TypeError(
-                *idx,
-                RuntimeConstantType::String.to_string(),
-                other.get_type().to_string(),
-            )),
+            other => throw_exception!(
+                IncompatibleClassChangeError,
+                pool_idx: *idx,
+                expected: RuntimeConstantType::String,
+                actual: other.get_type()
+            ),
         }
     }
 
-    pub fn get_class_sym(
-        &self,
-        idx: &u16,
-        interner: &ThreadedRodeo,
-    ) -> Result<Symbol, RuntimePoolError> {
+    pub fn get_class_sym(&self, idx: &u16, interner: &ThreadedRodeo) -> Result<Symbol, JvmError> {
         match self.entry(idx)? {
             RuntimeConstant::Class(entry) => entry
                 .name_sym
-                .get_or_try_init::<_, RuntimePoolError>(|| {
-                    self.get_utf8_sym(&entry.name_idx, interner)
-                })
+                .get_or_try_init(|| self.get_utf8_sym(&entry.name_idx, interner))
                 .copied(),
-            other => Err(RuntimePoolError::TypeError(
-                *idx,
-                RuntimeConstantType::Class.to_string(),
-                other.get_type().to_string(),
-            )),
+            other => throw_exception!(
+                IncompatibleClassChangeError,
+                pool_idx: *idx,
+                expected: RuntimeConstantType::Class,
+                actual: other.get_type()
+            ),
         }
     }
 }

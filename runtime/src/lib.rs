@@ -99,6 +99,8 @@ impl VirtualMachine {
 
         // TODO: need actually refactor error struct, because this is ugly
         vm.initialize_system_class(main_thread_id).map_err(|e| {
+            // actually somewhere in java this exception is already caught at this point
+            /*
             if let JvmError::JavaException(java_ex) = e {
                 let mapped = vm
                     .map_rust_error_to_java_exception(main_thread_id, java_ex)
@@ -107,6 +109,7 @@ impl VirtualMachine {
             } else {
                 vm.unhandled_exception(main_thread_id, e);
             }
+             */
         })?;
 
         Ok((vm, main_thread_id))
@@ -251,7 +254,6 @@ impl VirtualMachine {
         Interpreter::invoke_static_method(thread_id, init_phase1_method_id, self, vec![])?;
 
         // Run initPhase2
-        /*
         let init_phase2_method_id = self
             .method_area
             .get_instance_class(&system_class_id)?
@@ -263,7 +265,6 @@ impl VirtualMachine {
             self,
             vec![Value::Integer(1), Value::Integer(1)],
         )?;
-         */
 
         Ok(())
     }
