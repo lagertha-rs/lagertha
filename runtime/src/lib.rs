@@ -254,6 +254,7 @@ impl VirtualMachine {
         Interpreter::invoke_static_method(thread_id, init_phase1_method_id, self, vec![])?;
 
         // Run initPhase2
+        /*
         let init_phase2_method_id = self
             .method_area
             .get_instance_class(&system_class_id)?
@@ -265,6 +266,7 @@ impl VirtualMachine {
             self,
             vec![Value::Integer(1), Value::Integer(1)],
         )?;
+         */
 
         Ok(())
     }

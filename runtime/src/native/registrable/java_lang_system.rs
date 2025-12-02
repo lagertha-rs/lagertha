@@ -45,7 +45,25 @@ pub(super) fn java_lang_system_register_natives(
         ),
         java_lang_system_identity_hash_code,
     );
+    vm.native_registry.register(
+        FullyQualifiedMethodKey::new_with_str(
+            "java/lang/System",
+            "nanoTime",
+            "()J",
+            &vm.string_interner,
+        ),
+        java_lang_system_nano_time,
+    );
     Ok(None)
+}
+
+fn java_lang_system_nano_time(
+    _vm: &mut VirtualMachine,
+    _thread_id: ThreadId,
+    _args: &[Value],
+) -> NativeRet {
+    debug!("TODO: Stub: java.lang.System.nanoTime");
+    Ok(Some(Value::Long(0)))
 }
 
 fn java_lang_system_set_out_0(

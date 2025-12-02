@@ -16,8 +16,6 @@ use once_cell::sync::OnceCell;
 use std::cell::RefCell;
 use std::collections::HashMap;
 
-//TODO: I guess hotspot doesn't split class and interface classes. Right now we do the same
-// but probably it would be better to have separate InterfaceClass struct
 pub struct InterfaceClass {
     pub base: BaseClass,
     pub cp: RuntimeConstantPool,

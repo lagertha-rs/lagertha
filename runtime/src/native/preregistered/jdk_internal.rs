@@ -68,6 +68,24 @@ pub(super) fn do_register_jdk_internal_preregistered_natives(native_registry: &m
         ),
         jdk_internal_util_system_props_raw_vm_properties,
     );
+    native_registry.register(
+        FullyQualifiedMethodKey::new_with_str(
+            "jdk/internal/misc/CDS",
+            "getRandomSeedForDumping",
+            "()J",
+            &native_registry.string_interner,
+        ),
+        jdk_internal_misc_cds_get_random_seed_for_dumping,
+    );
+}
+
+fn jdk_internal_misc_cds_get_random_seed_for_dumping(
+    _vm: &mut VirtualMachine,
+    _thread_id: ThreadId,
+    _args: &[Value],
+) -> NativeRet {
+    debug!("TODO: Stub: jdk.internal.misc.CDS.getRandomSeedForDumping");
+    Ok(Some(Value::Long(0)))
 }
 
 fn jdk_internal_util_system_props_raw_platform_properties(

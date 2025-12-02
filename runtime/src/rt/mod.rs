@@ -244,6 +244,19 @@ impl JvmClass {
             JvmClass::InstanceArray(arr) => arr.get_vtable_method_id(key),
         }
     }
+
+    // TODO: it is more like a stub right now, no guarantees that method is actually static
+    pub fn get_static_method_id(&self, key: &MethodKey) -> Result<MethodId, JvmError> {
+        match self {
+            JvmClass::Instance(inst) => inst.get_special_method_id(key),
+            JvmClass::Interface(i) => i.get_methods().get(key).copied().ok_or(JvmError::Todo(
+                "No such method in InterfaceClass".to_string(),
+            )),
+            _ => Err(JvmError::Todo(
+                "get_static_method_id not implemented for this JvmClass variant".to_string(),
+            )),
+        }
+    }
     pub fn get_name(&self) -> Symbol {
         match self {
             JvmClass::Instance(ic) => ic.name(),

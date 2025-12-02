@@ -1468,15 +1468,15 @@ pub(super) fn handle_invokestatic(
     let target_method_view = vm
         .method_area
         .get_cp_by_method_id(&cur_frame_method_id)?
-        .get_method_view(&idx, vm.interner())?;
+        .get_method_or_interface_method_view(&idx, vm.interner())?;
     let target_class_id = vm
         .method_area
         .get_class_id_or_load(target_method_view.class_sym)?;
     Interpreter::ensure_initialized(thread_id, Some(target_class_id), vm)?;
     let target_method_id = vm
         .method_area
-        .get_instance_class(&target_class_id)?
-        .get_special_method_id(&target_method_view.name_and_type.into())?;
+        .get_class(&target_class_id)
+        .get_static_method_id(&target_method_view.name_and_type.into())?;
     let args = Interpreter::prepare_method_args(thread_id, target_method_id, vm)?;
     Interpreter::invoke_static_method(thread_id, target_method_id, vm, args)
 }
@@ -1561,6 +1561,16 @@ pub(super) fn handle_lshl(thread_id: ThreadId, vm: &mut VirtualMachine) -> Resul
     let v1 = vm.get_stack_mut(&thread_id)?.pop_long_val()?;
     let shift = (v2 & 0x3F) as u32;
     let result = v1.wrapping_shl(shift);
+    vm.get_stack_mut(&thread_id)?
+        .push_operand(Value::Long(result))
+}
+
+#[inline]
+pub(super) fn handle_lushr(thread_id: ThreadId, vm: &mut VirtualMachine) -> Result<(), JvmError> {
+    let v2 = vm.get_stack_mut(&thread_id)?.pop_int_val()?;
+    let v1 = vm.get_stack_mut(&thread_id)?.pop_long_val()?;
+    let shift = (v2 & 0x3F) as u32;
+    let result = ((v1 as u64) >> shift) as i64;
     vm.get_stack_mut(&thread_id)?
         .push_operand(Value::Long(result))
 }

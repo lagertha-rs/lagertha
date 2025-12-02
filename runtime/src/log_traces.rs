@@ -188,7 +188,7 @@ macro_rules! debug_log_instruction {
                             .method_area
                             .get_cp_by_method_id(&cur_frame_method_id)
                             .unwrap()
-                            .get_method_view(&idx, vm.interner())
+                            .get_method_or_interface_method_view(&idx, vm.interner())
                             .unwrap();
                         msg_chunks.push(format!(
                             "Method {} {} of {}",

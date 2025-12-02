@@ -175,6 +175,7 @@ impl Interpreter {
             Instruction::Lload(pos) => handle_lload(thread_id, vm, pos)?,
             Instruction::Lshl => handle_lshl(thread_id, vm)?,
             Instruction::Lshr => handle_lshr(thread_id, vm)?,
+            Instruction::Lushr => handle_lushr(thread_id, vm)?,
             Instruction::Lstore0 => handle_lstore0(thread_id, vm)?,
             Instruction::Lstore1 => handle_lstore1(thread_id, vm)?,
             Instruction::Lstore2 => handle_lstore2(thread_id, vm)?,

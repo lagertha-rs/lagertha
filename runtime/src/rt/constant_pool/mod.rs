@@ -261,6 +261,24 @@ impl RuntimeConstantPool {
         }
     }
 
+    // TODO: error kind?
+    pub fn get_method_or_interface_method_view(
+        &self,
+        idx: &u16,
+        interner: &ThreadedRodeo,
+    ) -> Result<MethodEntryView, JvmError> {
+        match self.entry(idx)? {
+            RuntimeConstant::Method(_) => self.get_method_view(idx, interner),
+            RuntimeConstant::InterfaceMethod(_) => self.get_interface_method_view(idx, interner),
+            other => throw_exception!(
+                IncompatibleClassChangeError,
+                pool_idx: *idx,
+                expected: RuntimeConstantType::Method,
+                actual: other.get_type()
+            ),
+        }
+    }
+
     pub fn get_method_view(
         &self,
         idx: &u16,
