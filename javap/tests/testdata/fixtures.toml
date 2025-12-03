@@ -2,6 +2,8 @@
 [modules."java.base"]
 classes = [
     # java.lang
+    "java.lang.module.ModuleDescriptor$1",
+    "java.lang.Character$CharacterCache",
     "java.lang.Appendable",
     "java.lang.Object",
     "java.lang.Boolean",
@@ -73,10 +75,18 @@ classes = [
     "java.lang.reflect.AnnotatedElement",
     "java.lang.reflect.Type",
     "java.lang.reflect.Member",
+    "java.lang.reflect.AccessibleObject",
+    "java.lang.reflect.Constructor",
+    "java.lang.reflect.Executable",
+    "java.lang.reflect.Field",
+    "java.lang.reflect.Method",
+    "java.lang.reflect.Modifier",
+    "java.lang.Module",
     "java.lang.invoke.TypeDescriptor$OfField",
     "java.lang.invoke.TypeDescriptor",
     "java.lang.invoke.MemberName$Factory",
     "java.lang.invoke.MethodHandle",
+    "java.lang.invoke.MethodHandles$Lookup",
     "java.lang.constant.Constable",
     "java.lang.Comparable",
     "java.lang.Character",
@@ -84,6 +94,10 @@ classes = [
     "java.lang.constant.ConstantDesc",
     "java.lang.Cloneable",
     # java.io
+    "java.io.File",
+    "java.io.DefaultFileSystem",
+    "java/io/UnixFileSystem",
+    "java/io/FileSystem",
     "java.io.Closeable",
     "java.io.Flushable",
     "java.io.Serializable",
@@ -139,6 +153,7 @@ classes = [
     "sun.nio.cs.UTF_32LE",
     "sun.nio.cs.UTF_32",
     "sun.nio.cs.StreamEncoder",
+    "sun.invoke.util.VerifyAccess",
     # java.io
     "java.io.PrintStream",
     "java.io.OutputStreamWriter",
@@ -148,6 +163,9 @@ classes = [
     "java.io.ObjectStreamField",
     "java.io.BufferedOutputStream",
     # java.util
+    "java.util.KeyValueHolder",
+    "java.util.ImmutableCollections$MapN$MapNIterator",
+    "java.util.ImmutableCollections$MapN$1",
     "java.util.ImmutableCollections$Set12",
     "java.util.ImmutableCollections$AbstractImmutableSet",
     "java.util.ImmutableCollections$AbstractImmutableCollection",
@@ -206,7 +224,11 @@ classes = [
     "java.util.concurrent.ConcurrentHashMap$CounterCell",
     "java.util.concurrent.ConcurrentHashMap$Node",
     "java.util.concurrent.locks.LockSupport",
+    "java.util.concurrent.atomic.AtomicInteger",
+    "java.util.HexFormat",
     # internal
+    "jdk.internal.access.JavaLangModuleAccess",
+    "jdk.internal.util.ClassFileDumper",
     "jdk.internal.reflect.Reflection",
     "jdk.internal.module.ModuleBootstrap",
     "jdk.internal.loader.BuiltinClassLoader",

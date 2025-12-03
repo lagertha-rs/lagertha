@@ -47,6 +47,24 @@ impl Value {
             )),
         }
     }
+
+    pub fn as_long(&self) -> Result<i64, JvmError> {
+        match self {
+            Value::Long(v) => Ok(*v),
+            _ => Err(JvmError::Todo(
+                "Value::as_long called on non-long value".to_string(),
+            )),
+        }
+    }
+
+    pub fn as_double(&self) -> Result<f64, JvmError> {
+        match self {
+            Value::Double(v) => Ok(*v),
+            _ => Err(JvmError::Todo(
+                "Value::as_double called on non-double value".to_string(),
+            )),
+        }
+    }
 }
 
 impl From<&PrimitiveType> for Value {

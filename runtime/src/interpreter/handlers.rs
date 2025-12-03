@@ -234,6 +234,32 @@ pub(super) fn handle_dadd(thread_id: ThreadId, vm: &mut VirtualMachine) -> Resul
 }
 
 #[inline]
+pub(super) fn handle_dcmpl(thread_id: ThreadId, vm: &mut VirtualMachine) -> Result<(), JvmError> {
+    let v2 = vm.get_stack_mut(&thread_id)?.pop_double_val()?;
+    let v1 = vm.get_stack_mut(&thread_id)?.pop_double_val()?;
+    let res = match v1.total_cmp(&v2) {
+        Ordering::Less => -1,
+        Ordering::Equal => 0,
+        Ordering::Greater => 1,
+    };
+    vm.get_stack_mut(&thread_id)?
+        .push_operand(Value::Integer(res))
+}
+
+#[inline]
+pub(super) fn handle_dcmpg(thread_id: ThreadId, vm: &mut VirtualMachine) -> Result<(), JvmError> {
+    let v2 = vm.get_stack_mut(&thread_id)?.pop_double_val()?;
+    let v1 = vm.get_stack_mut(&thread_id)?.pop_double_val()?;
+    let res = match v1.total_cmp(&v2) {
+        Ordering::Less => -1,
+        Ordering::Equal => 0,
+        Ordering::Greater => 1,
+    };
+    vm.get_stack_mut(&thread_id)?
+        .push_operand(Value::Integer(res))
+}
+
+#[inline]
 pub(super) fn handle_ddiv(thread_id: ThreadId, vm: &mut VirtualMachine) -> Result<(), JvmError> {
     let v2 = vm.get_stack_mut(&thread_id)?.pop_double_val()?;
     let v1 = vm.get_stack_mut(&thread_id)?.pop_double_val()?;
@@ -279,6 +305,14 @@ pub(super) fn handle_dload3(thread_id: ThreadId, vm: &mut VirtualMachine) -> Res
 }
 
 #[inline]
+pub(super) fn handle_dmul(thread_id: ThreadId, vm: &mut VirtualMachine) -> Result<(), JvmError> {
+    let v2 = vm.get_stack_mut(&thread_id)?.pop_double_val()?;
+    let v1 = vm.get_stack_mut(&thread_id)?.pop_double_val()?;
+    vm.get_stack_mut(&thread_id)?
+        .push_operand(Value::Double(v1 * v2))
+}
+
+#[inline]
 pub(super) fn handle_dload(
     thread_id: ThreadId,
     vm: &mut VirtualMachine,
@@ -289,20 +323,30 @@ pub(super) fn handle_dload(
 }
 
 #[inline]
+pub(super) fn handle_dstore(
+    thread_id: ThreadId,
+    vm: &mut VirtualMachine,
+    n: u8,
+) -> Result<(), JvmError> {
+    let value = vm.get_stack_mut(&thread_id)?.pop_double()?;
+    vm.get_stack_mut(&thread_id)?.set_local(n as usize, value)
+}
+
+#[inline]
 pub(super) fn handle_dup(thread_id: ThreadId, vm: &mut VirtualMachine) -> Result<(), JvmError> {
     vm.get_stack_mut(&thread_id)?.dup_top()
 }
 
 #[inline]
 pub(super) fn handle_dup2(thread_id: ThreadId, vm: &mut VirtualMachine) -> Result<(), JvmError> {
-    match vm.get_stack(&thread_id)?.peek()? {
+    match vm.get_stack(&thread_id)?.peek_operand()? {
         Value::Long(_) | Value::Double(_) => {
-            let value = *vm.get_stack(&thread_id)?.peek()?;
+            let value = *vm.get_stack(&thread_id)?.peek_operand()?;
             vm.get_stack_mut(&thread_id)?.push_operand(value)
         }
         _ => {
-            let value1 = *vm.get_stack(&thread_id)?.peek()?;
-            let value2 = *vm.get_stack(&thread_id)?.peek_at(1)?;
+            let value1 = *vm.get_stack(&thread_id)?.peek_operand()?;
+            let value2 = *vm.get_stack(&thread_id)?.peek_operand_at(1)?;
             vm.get_stack_mut(&thread_id)?.push_operand(value2)?;
             vm.get_stack_mut(&thread_id)?.push_operand(value1)
         }
@@ -964,7 +1008,7 @@ pub(super) fn handle_invokevirtual(
 
     let object_ref = vm
         .get_stack(&thread_id)?
-        .peek_at(arg_count - 1)?
+        .peek_operand_at(arg_count - 1)?
         .as_obj_ref()?;
     let actual_class_id = vm.heap.get_class_id(object_ref)?;
 
@@ -1412,7 +1456,7 @@ pub(super) fn handle_invokeinterface(
         .get_interface_method_view(&idx, vm.interner())?;
     let object_ref = vm
         .get_stack(&thread_id)?
-        .peek_at(count as usize - 1)?
+        .peek_operand_at(count as usize - 1)?
         .as_obj_ref()?;
     if target_method_view.class_sym
         == vm

@@ -128,6 +128,15 @@ pub(super) fn do_register_java_lang_preregistered_natives(native_registry: &mut 
             &native_registry.string_interner,
         ),
         java_lang_string_intern,
+    );
+    native_registry.register(
+        FullyQualifiedMethodKey::new_with_str(
+            "java/lang/Double",
+            "longBitsToDouble",
+            "(J)D",
+            &native_registry.string_interner,
+        ),
+        java_lang_double_long_bits_to_double,
     )
 }
 
@@ -491,4 +500,13 @@ fn java_lang_string_intern(
     let interned = vm.interner().get_or_intern(&string_value);
     let interned_addr = vm.heap.get_str_from_pool_or_new(interned)?;
     Ok(Some(Value::Ref(interned_addr)))
+}
+
+fn java_lang_double_long_bits_to_double(
+    _vm: &mut VirtualMachine,
+    _thread_id: ThreadId,
+    args: &[Value],
+) -> NativeRet {
+    let double = args[0].as_long()?;
+    Ok(Some(Value::Double(f64::from_bits(double as u64))))
 }

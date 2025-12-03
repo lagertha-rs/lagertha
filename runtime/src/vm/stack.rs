@@ -322,11 +322,18 @@ impl FrameStack {
         self.cur_java_frame_mut()?.pop_operand()
     }
 
-    pub fn peek(&self) -> Result<&Value, JvmError> {
+    pub fn peek_frame_at(&self, index: usize) -> Result<&FrameType, JvmError> {
+        if index >= self.frames.len() {
+            return Err(JvmError::FrameStackIsEmpty);
+        }
+        Ok(&self.frames[self.frames.len() - 1 - index])
+    }
+
+    pub fn peek_operand(&self) -> Result<&Value, JvmError> {
         self.cur_java_frame()?.peek()
     }
 
-    pub fn peek_at(&self, index: usize) -> Result<&Value, JvmError> {
+    pub fn peek_operand_at(&self, index: usize) -> Result<&Value, JvmError> {
         let frame = self.cur_java_frame()?;
         if index >= frame.operands.len() {
             return Err(JvmError::OperandStackIsEmpty);
@@ -335,7 +342,7 @@ impl FrameStack {
     }
 
     pub fn dup_top(&mut self) -> Result<(), JvmError> {
-        self.push_operand(*self.peek()?)
+        self.push_operand(*self.peek_operand()?)
     }
 }
 

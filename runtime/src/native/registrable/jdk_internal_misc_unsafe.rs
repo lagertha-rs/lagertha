@@ -1,5 +1,6 @@
 use crate::error::JvmError;
 use crate::heap::Heap;
+use crate::interpreter::Interpreter;
 use crate::keys::FullyQualifiedMethodKey;
 use crate::native::NativeRet;
 use crate::vm::Value;
@@ -95,7 +96,27 @@ pub(super) fn jdk_internal_misc_unsafe_register_natives(
         ),
         jdk_internal_misc_unsafe_put_byte,
     );
+    vm.native_registry.register(
+        FullyQualifiedMethodKey::new_with_str(
+            "jdk/internal/misc/Unsafe",
+            "ensureClassInitialized0",
+            "(Ljava/lang/Class;)V",
+            &vm.string_interner,
+        ),
+        jdk_internal_misc_unsafe_ensure_class_initialized_0,
+    );
 
+    Ok(None)
+}
+
+fn jdk_internal_misc_unsafe_ensure_class_initialized_0(
+    vm: &mut VirtualMachine,
+    thread_id: ThreadId,
+    args: &[Value],
+) -> NativeRet {
+    let mirror_ref = args[1].as_obj_ref()?;
+    let class_id = vm.method_area.get_class_id_by_mirror(&mirror_ref)?;
+    Interpreter::ensure_initialized(thread_id, Some(class_id), vm)?;
     Ok(None)
 }
 

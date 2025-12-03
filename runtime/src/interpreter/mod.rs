@@ -56,6 +56,8 @@ impl Interpreter {
             Instruction::Castore => handle_castore(thread_id, vm)?,
             Instruction::Dadd => handle_dadd(thread_id, vm)?,
             Instruction::Ddiv => handle_ddiv(thread_id, vm)?,
+            Instruction::Dcmpl => handle_dcmpl(thread_id, vm)?,
+            Instruction::Dcmpg => handle_dcmpg(thread_id, vm)?,
             Instruction::Dconst0 => handle_dconst0(thread_id, vm)?,
             Instruction::Dconst1 => handle_dconst1(thread_id, vm)?,
             Instruction::Dload0 => handle_dload0(thread_id, vm)?,
@@ -63,6 +65,8 @@ impl Interpreter {
             Instruction::Dload2 => handle_dload2(thread_id, vm)?,
             Instruction::Dload3 => handle_dload3(thread_id, vm)?,
             Instruction::Dload(n) => handle_dload(thread_id, vm, n)?,
+            Instruction::Dmul => handle_dmul(thread_id, vm)?,
+            Instruction::Dstore(n) => handle_dstore(thread_id, vm, n)?,
             Instruction::Dup => handle_dup(thread_id, vm)?,
             Instruction::Dup2 => handle_dup2(thread_id, vm)?,
             Instruction::DupX1 => handle_dup_x1(thread_id, vm)?,
@@ -463,7 +467,7 @@ impl Interpreter {
         Ok(())
     }
 
-    fn ensure_initialized(
+    pub fn ensure_initialized(
         thread_id: ThreadId,
         class_id: Option<ClassId>,
         vm: &mut VirtualMachine,
