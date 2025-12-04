@@ -290,6 +290,9 @@ impl MethodArea {
     }
 
     pub(crate) fn load_array_class(&mut self, name_sym: Symbol) -> Result<ClassId, JvmError> {
+        if let Some(class_id) = self.class_name_to_index.get(&name_sym) {
+            return Ok(*class_id);
+        }
         let type_descriptor_id = self.get_or_new_field_descriptor_id(name_sym)?;
         let type_descriptor = self.get_field_descriptor(&type_descriptor_id);
         let obj_class_id = self.br().get_java_lang_object_id()?;

@@ -18,6 +18,7 @@ pub type HeapRef = usize;
 #[repr(C)]
 pub struct ObjectHeader {
     size: u32, // total bytes (header + data)
+    // be careful with arrays, because class_id for arrays isn't [ (problematic for mirrors)
     class_id: NonZeroU32,
     marked: bool, // for GC in future
     is_array: bool,

@@ -60,6 +60,15 @@ pub(super) fn do_register_java_io_preregistered_natives(native_registry: &mut Na
         ),
         java_io_file_output_stream_init_ids,
     );
+    native_registry.register(
+        FullyQualifiedMethodKey::new_with_str(
+            "java/io/UnixFileSystem",
+            "initIDs",
+            "()V",
+            &native_registry.string_interner,
+        ),
+        java_io_file_system_unix_init_ids,
+    )
 }
 
 fn java_io_file_output_stream_write_bytes(
@@ -179,5 +188,14 @@ fn java_io_file_output_stream_init_ids(
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.io.FileInputStream.initIDs");
+    Ok(None)
+}
+
+fn java_io_file_system_unix_init_ids(
+    _vm: &mut VirtualMachine,
+    _thread_id: ThreadId,
+    _args: &[Value],
+) -> NativeRet {
+    debug!("TODO: Stub: java.io.UnixFileSystem.initIDs");
     Ok(None)
 }

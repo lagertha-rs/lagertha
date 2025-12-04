@@ -210,6 +210,14 @@ impl JvmClass {
         }
     }
 
+    pub fn get_source_file(&self) -> Option<Symbol> {
+        match self {
+            JvmClass::Instance(inst) => inst.get_source_file(),
+            JvmClass::Interface(i) => i.get_source_file(),
+            _ => None,
+        }
+    }
+
     pub fn get_cp(&self) -> Result<&RuntimeConstantPool, JvmError> {
         match self {
             JvmClass::Instance(inst) => Ok(&inst.cp),

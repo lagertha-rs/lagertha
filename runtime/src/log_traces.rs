@@ -215,7 +215,7 @@ macro_rules! debug_log_instruction {
                         let object_ref = vm
                             .get_stack($thread_id)
                             .unwrap()
-                            .peek_at(*count as usize - 1)
+                            .peek_operand_at(*count as usize - 1)
                             .unwrap()
                             .as_obj_ref()
                             .unwrap();

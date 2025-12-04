@@ -6,6 +6,7 @@ use crate::vm::stack::FrameType;
 use crate::{MethodId, ThreadId, VirtualMachine, throw_exception};
 use common::instruction::ArrayType;
 use common::jtype::AllocationType;
+use lasso::Interner;
 use tracing_log::log::debug;
 
 pub(super) fn do_register_java_lang_preregistered_natives(native_registry: &mut NativeRegistry) {
@@ -184,15 +185,25 @@ fn java_lang_object_get_class(
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.getClass");
-    if let Value::Ref(h) = args[0] {
-        let target_class_id = vm.heap.get_class_id(h)?;
-        let res = vm
-            .method_area
-            .get_mirror_ref_or_create(target_class_id, &mut vm.heap)?;
-        Ok(Some(Value::Ref(res)))
-    } else {
-        panic!("java.lang.Class.getClass: expected object as argument");
-    }
+    let object_ref = args[0].as_obj_ref()?;
+    let target_class_id = {
+        let class_id = vm.heap.get_class_id(object_ref)?;
+        //TODO: refactor and rethink how I handle array classes and their mirrors
+        //right now I put on heap for arrays the class id of the element type, but the mirror has to be of the array type
+        if vm.heap.is_array(object_ref)? {
+            let class_name_sym = vm.method_area.get_class(&class_id).get_name();
+            let raw_name = vm.interner().resolve(&class_name_sym);
+            let array_name = format!("[L{};", raw_name);
+            let array_class_name_sym = vm.interner().get_or_intern(&array_name);
+            vm.method_area.load_array_class(array_class_name_sym)?
+        } else {
+            class_id
+        }
+    };
+    let res = vm
+        .method_area
+        .get_mirror_ref_or_create(target_class_id, &mut vm.heap)?;
+    Ok(Some(Value::Ref(res)))
 }
 
 fn java_lang_object_hash_code(
@@ -385,9 +396,9 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
         let class_sym = vm.method_area.get_class(&class_id).get_name();
         let class_source_sym = vm
             .method_area
-            .get_instance_class(&class_id)?
+            .get_class(&class_id)
             .get_source_file()
-            .unwrap();
+            .unwrap_or(vm.interner().get_or_intern("TODO: Unknown Source"));
         let class_name = vm.heap.alloc_string_from_interned_with_char_mapping(
             class_sym,
             Some(&|c| {
@@ -400,7 +411,7 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
             .method_area
             .get_method(&method_id)
             .get_line_number_by_cp(cp)
-            .unwrap();
+            .unwrap_or(-1);
         let cur_stack_trace_entry = vm
             .heap
             .read_array_element(elements_array, i)?

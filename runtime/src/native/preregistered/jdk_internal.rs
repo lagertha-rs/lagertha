@@ -108,7 +108,15 @@ fn jdk_internal_util_system_props_raw_platform_properties(
     let encoding_sym = vm.method_area.interner().get_or_intern("UTF-8");
     let enc = vm.heap.get_str_from_pool_or_new(encoding_sym)?;
     let line_sep_sym = vm.method_area.interner().get_or_intern("\n");
+    let file_sep_sym = vm.method_area.interner().get_or_intern("/");
+    let path_sep_sym = vm.method_area.interner().get_or_intern(":");
     let line_separator_value = vm.heap.get_str_from_pool_or_new(line_sep_sym)?;
+    let file_separator_value = vm.heap.get_str_from_pool_or_new(file_sep_sym)?;
+    let path_separator_value = vm.heap.get_str_from_pool_or_new(path_sep_sym)?;
+    vm.heap
+        .write_array_element(h, 4, Value::Ref(file_separator_value))?;
+    vm.heap
+        .write_array_element(h, 23, Value::Ref(path_separator_value))?;
     vm.heap
         .write_array_element(h, 18, Value::Ref(line_separator_value))?;
     vm.heap.write_array_element(h, 27, Value::Ref(enc))?;
