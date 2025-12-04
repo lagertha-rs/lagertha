@@ -13,6 +13,7 @@ use jclass::flags::ClassFlags;
 use once_cell::sync::OnceCell;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
+use std::fmt::Display;
 
 pub mod array;
 pub mod class;
@@ -196,6 +197,18 @@ pub enum JvmClass {
     InstanceArray(ObjectArrayClass),
 }
 
+impl Display for JvmClass {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            JvmClass::Instance(_) => write!(f, "InstanceClass"),
+            JvmClass::Interface(_) => write!(f, "InterfaceClass"),
+            JvmClass::Primitive(_) => write!(f, "PrimitiveClass"),
+            JvmClass::PrimitiveArray(_) => write!(f, "PrimitiveArrayClass"),
+            JvmClass::InstanceArray(_) => write!(f, "ObjectArrayClass"),
+        }
+    }
+}
+
 //TODO: there is right now some code duplication between InstanceClass, InterfaceClass and JvmClass methods. refactor
 impl JvmClass {
     const BUILTIN_CLASS_FLAGS: i32 = 0x411; // public, super, final
@@ -243,6 +256,15 @@ impl JvmClass {
             )),
         }
     }
+
+    pub fn get_interfaces(&self) -> Result<&HashSet<ClassId>, JvmError> {
+        match self {
+            JvmClass::Instance(inst) => inst.get_interfaces(),
+            JvmClass::Interface(i) => i.get_interfaces(),
+            other => unimplemented!("{other}"),
+        }
+    }
+
     pub fn get_vtable_method_id(&self, key: &MethodKey) -> Result<MethodId, JvmError> {
         match self {
             JvmClass::Instance(inst) => inst.get_vtable_method_id(key),

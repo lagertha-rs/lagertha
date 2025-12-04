@@ -126,6 +126,8 @@ impl<'a> ClassAttr {
                 Ok(ClassAttr::PermittedSubclasses(classes))
             }
             AttributeType::RuntimeVisibleAnnotations
+            | AttributeType::RuntimeVisibleTypeAnnotations
+            | AttributeType::RuntimeInvisibleTypeAnnotations
             | AttributeType::Synthetic
             | AttributeType::Deprecated
             | AttributeType::RuntimeInvisibleAnnotations

@@ -105,7 +105,37 @@ pub(super) fn jdk_internal_misc_unsafe_register_natives(
         ),
         jdk_internal_misc_unsafe_ensure_class_initialized_0,
     );
+    vm.native_registry.register(
+        FullyQualifiedMethodKey::new_with_str(
+            "jdk/internal/misc/Unsafe",
+            "getIntVolatile",
+            "(Ljava/lang/Object;J)I",
+            &vm.string_interner,
+        ),
+        jdk_internal_misc_unsafe_get_int_volatile,
+    );
+    vm.native_registry.register(
+        FullyQualifiedMethodKey::new_with_str(
+            "jdk/internal/loader/BootLoader",
+            "setBootLoaderUnnamedModule0",
+            "(Ljava/lang/Module;)V",
+            &vm.string_interner,
+        ),
+        jdk_internal_loader_boot_loader_set_boot_loader_unnamed_module_0,
+    );
 
+    Ok(None)
+}
+
+fn jdk_internal_loader_boot_loader_set_boot_loader_unnamed_module_0(
+    _vm: &mut VirtualMachine,
+    _thread_id: ThreadId,
+    _args: &[Value],
+) -> NativeRet {
+    debug!("TODO: Stub: jdk.internal.loader.BootLoader.setBootLoaderUnnamedModule0");
+    // TODO: this is unnamed module handling
+    // should take arg 0 (Module instance) and set internally it in somewhere in jvm
+    // and then this instance should be returned when .getModule() for bootstrap classes is called
     Ok(None)
 }
 
@@ -118,6 +148,21 @@ fn jdk_internal_misc_unsafe_ensure_class_initialized_0(
     let class_id = vm.method_area.get_class_id_by_mirror(&mirror_ref)?;
     Interpreter::ensure_initialized(thread_id, Some(class_id), vm)?;
     Ok(None)
+}
+
+fn jdk_internal_misc_unsafe_get_int_volatile(
+    vm: &mut VirtualMachine,
+    _thread_id: ThreadId,
+    args: &[Value],
+) -> NativeRet {
+    debug!("TODO: Stub: jdk.internal.misc.Unsafe.getIntVolatile");
+    let base = args[1].as_obj_ref()?;
+    let off = args[2].as_long()?;
+    let value = vm
+        .heap
+        .read_field(base, off as usize, AllocationType::Int)?
+        .as_int()?;
+    Ok(Some(Value::Integer(value)))
 }
 
 fn jdk_internal_misc_unsafe_array_base_offset_0(

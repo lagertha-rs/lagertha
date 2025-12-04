@@ -70,7 +70,6 @@ pub(super) fn java_lang_class_register_natives(
         ),
         java_lang_class_get_modifiers,
     );
-
     vm.native_registry.register(
         FullyQualifiedMethodKey::new_with_str(
             "java/lang/Class",
@@ -80,8 +79,35 @@ pub(super) fn java_lang_class_register_natives(
         ),
         java_lang_class_get_superclass,
     );
+    vm.native_registry.register(
+        FullyQualifiedMethodKey::new_with_str(
+            "java/lang/Class",
+            "isAssignableFrom",
+            "(Ljava/lang/Class;)Z",
+            &vm.string_interner,
+        ),
+        java_lang_class_is_assignable_from,
+    );
 
     Ok(None)
+}
+
+fn java_lang_class_is_assignable_from(
+    vm: &mut VirtualMachine,
+    _thread_id: ThreadId,
+    args: &[Value],
+) -> NativeRet {
+    debug!("TODO: Stub: java.lang.Class.isAssignableFrom");
+    let this_class_mirror = args[0].as_obj_ref()?;
+    let other_class_mirror = args[1].as_obj_ref()?;
+
+    let this_class_id = vm.method_area.get_class_id_by_mirror(&this_class_mirror)?;
+    let other_class_id = vm.method_area.get_class_id_by_mirror(&other_class_mirror)?;
+    let is_assignable = vm
+        .method_area
+        .is_assignable_from(this_class_id, other_class_id);
+
+    Ok(Some(Value::Integer(if is_assignable { 1 } else { 0 })))
 }
 
 fn java_lang_class_desired_assertion_status_0(

@@ -1,6 +1,6 @@
 use crate::ClassFormatErr;
 use crate::attribute::method::code::CodeAttributeInfo;
-use crate::attribute::{AttributeType, SharedAttribute};
+use crate::attribute::{Annotation, AttributeType, SharedAttribute};
 use crate::constant::pool::ConstantPool;
 use common::utils::cursor::ByteCursor;
 
@@ -86,6 +86,16 @@ impl<'a> MethodAttribute {
                     exception_index_table.push(cursor.u16()?);
                 }
                 Ok(MethodAttribute::Exceptions(exception_index_table))
+            }
+            AttributeType::RuntimeVisibleParameterAnnotations => {
+                let number_of_parameters = cursor.u8()?;
+                for _ in 0..number_of_parameters {
+                    let num_annotations = cursor.u16()?;
+                    for _ in 0..num_annotations {
+                        let _annotation = Annotation::read(cursor)?;
+                    }
+                }
+                Ok(MethodAttribute::RuntimeVisibleParameterAnnotations)
             }
             other => unimplemented!("Method attribute {:?} not implemented", other),
         }

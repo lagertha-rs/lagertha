@@ -335,12 +335,38 @@ impl MethodArea {
         Ok(class_id)
     }
 
+    pub fn is_assignable_from(&self, this_class: ClassId, cls: ClassId) -> bool {
+        self.is_subclass_of(cls, this_class)
+    }
+
     fn is_subclass_of(&self, this_class: ClassId, target_class: ClassId) -> bool {
         if this_class == target_class {
             return true;
         }
 
         let this = self.get_class(&this_class);
+        let target = self.get_class(&target_class);
+
+        if this.is_array() && target.is_array() {
+            match (this, target) {
+                (JvmClass::PrimitiveArray(this_array), JvmClass::PrimitiveArray(target_array)) => {
+                    return this_array.element_type == target_array.element_type;
+                }
+                (JvmClass::InstanceArray(this_array), JvmClass::InstanceArray(target_array)) => {
+                    return self.is_subclass_of(
+                        this_array.element_class_id,
+                        target_array.element_class_id,
+                    );
+                }
+                (JvmClass::PrimitiveArray(_), JvmClass::InstanceArray(_)) => {
+                    return false;
+                }
+                (JvmClass::InstanceArray(_), JvmClass::PrimitiveArray(_)) => {
+                    return false;
+                }
+                _ => unreachable!(),
+            }
+        }
 
         if let Some(super_id) = this.get_super_id() {
             if self.is_subclass_of(super_id, target_class) {
@@ -348,14 +374,11 @@ impl MethodArea {
             }
         }
 
-        // TODO: check interfaces?
-        /*
-        for interface_id in this.get_interfaces() {
+        for interface_id in this.get_interfaces().unwrap() {
             if self.is_subclass_of(*interface_id, target_class) {
                 return true;
             }
         }
-         */
 
         false
     }

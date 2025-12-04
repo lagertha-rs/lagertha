@@ -1,8 +1,8 @@
-use crate::error::{JavaExceptionFromJvm, JvmError};
+use crate::error::JvmError;
 use crate::heap::HeapRef;
 use crate::interpreter::handlers::*;
 use crate::interpreter::return_handlers::*;
-use crate::keys::{ClassId, FieldKey, MethodKey};
+use crate::keys::{ClassId, FieldKey};
 use crate::rt::{ClassLike, JvmClass};
 use crate::vm::Value;
 use crate::vm::stack::{FrameType, JavaFrame, NativeFrame};
@@ -28,7 +28,7 @@ impl Interpreter {
         let is_branch = instruction.is_branch();
         let instr_size = instruction.byte_size();
 
-        debug_log_instruction!(&instruction, &thread_id);
+        //debug_log_instruction!(&instruction, &thread_id);
 
         match instruction {
             Instruction::Athrow => handle_athrow(thread_id, vm)?,
