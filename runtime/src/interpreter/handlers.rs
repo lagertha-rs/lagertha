@@ -1536,7 +1536,6 @@ pub(super) fn handle_invokedynamic(
         .method_area
         .get_cp_by_method_id(&cur_frame_method_id)?
         .get_invoke_dynamic_view(&idx, vm.interner())?;
-    println!();
     todo!()
 }
 

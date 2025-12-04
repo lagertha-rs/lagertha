@@ -355,11 +355,15 @@ impl InstanceClass {
         Ok(this_id)
     }
 
+    /** TODO: need to check actually if it is correct, seems yes for example:
+     * Map.of().getClass();
+     * it uses invokeinterface, but the method is in vtable inherited from Object
+     */
     pub fn get_interface_method_id(&self, key: &MethodKey) -> Result<MethodId, JvmError> {
-        self.get_itable()?
-            .get(key)
-            .copied()
-            .ok_or(build_exception!(NoSuchMethodError, method_key: *key, class_sym: self.name()))
+        if let Some(interface_method_id) = self.get_itable()?.get(key) {
+            return Ok(*interface_method_id);
+        }
+        self.get_vtable_method_id(key)
     }
 
     pub fn get_instance_field(&self, field_key: &FieldKey) -> Result<&InstanceField, JvmError> {

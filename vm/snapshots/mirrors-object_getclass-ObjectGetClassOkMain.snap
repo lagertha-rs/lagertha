@@ -1,0 +1,7 @@
+---
+source: vm/tests/integration_test.rs
+expression: combined
+---
+----- STDOUT -----
+mirrors.object_getclass.ObjectGetClassOkMain$MyClass
+----- STDERR -----

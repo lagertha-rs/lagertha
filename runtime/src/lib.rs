@@ -266,7 +266,6 @@ impl VirtualMachine {
             self,
             vec![Value::Integer(1), Value::Integer(1)],
         )?;
-
          */
 
         Ok(())
