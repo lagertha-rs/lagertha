@@ -2,7 +2,7 @@ use crate::class_loader::ClassLoader;
 use crate::error::JvmError;
 use crate::heap::{Heap, HeapRef};
 use crate::keys::{
-    ClassId, FieldDescriptorId, FieldKey, FullyQualifiedMethodKey, MethodDescriptorId,
+    ClassId, FieldDescriptorId, FieldKey, FullyQualifiedMethodKey, MethodDescriptorId, MethodKey,
 };
 use crate::rt::array::{ObjectArrayClass, PrimitiveArrayClass};
 use crate::rt::class::InstanceClass;
@@ -12,7 +12,7 @@ use crate::rt::method::Method;
 use crate::rt::{ClassLike, JvmClass, PrimitiveClass};
 use crate::vm::Value;
 use crate::vm::bootstrap_registry::BootstrapRegistry;
-use crate::{MethodId, Symbol, VmConfig, debug_log};
+use crate::{MethodId, Symbol, VmConfig, debug_log, throw_exception};
 use common::descriptor::MethodDescriptor;
 use common::error::{LinkageError, MethodDescriptorErr};
 use common::jtype::{AllocationType, JavaType, PrimitiveType};
@@ -47,15 +47,16 @@ impl MethodArea {
         debug_log!("Creating Method Area...");
         let bootstrap_class_loader = ClassLoader::new(vm_config)?;
 
+        //TODO: preallocate better. check why method_descriptors needs so much space
         let mut method_area = Self {
             bootstrap_class_loader,
             class_name_to_index: HashMap::new(),
             mirror_to_class_index: HashMap::new(),
-            classes: Vec::new(),
-            methods: Vec::new(),
-            field_descriptors: Vec::new(),
+            classes: Vec::with_capacity(1024),
+            methods: Vec::with_capacity(16384),
+            field_descriptors: Vec::with_capacity(2048),
             field_descriptors_index: HashMap::new(),
-            method_descriptors: Vec::new(),
+            method_descriptors: Vec::with_capacity(65536),
             method_descriptors_index: HashMap::new(),
             bootstrap_registry: Arc::new(BootstrapRegistry::new(&string_interner)),
             interner: string_interner,
@@ -209,6 +210,37 @@ impl MethodArea {
                 "Not an instance class".to_string(),
             )),
         }
+    }
+
+    fn get_static_method_id_rec(
+        &self,
+        class_id: &ClassId,
+        key: &MethodKey,
+    ) -> Result<Option<MethodId>, JvmError> {
+        let class = self.get_class(class_id);
+
+        if let Some(method_id) = class.get_static_method_id_opt(key) {
+            return Ok(Some(method_id));
+        }
+        if let Some(super_id) = class.get_super_id() {
+            if let Some(method_id) = self.get_static_method_id_rec(&super_id, key)? {
+                return Ok(Some(method_id));
+            }
+        }
+        Ok(None)
+    }
+
+    pub fn get_static_method_id(
+        &self,
+        class_id: &ClassId,
+        key: MethodKey,
+    ) -> Result<MethodId, JvmError> {
+        if let Some(method_id) = self.get_static_method_id_rec(class_id, &key)? {
+            return Ok(method_id);
+        }
+        let class_sym = self.get_class(class_id).get_name();
+
+        throw_exception!(NoSuchMethodError, method_key: key, class_sym: class_sym)
     }
 
     pub fn get_interface_class(&self, class_id: &ClassId) -> Result<&InterfaceClass, JvmError> {

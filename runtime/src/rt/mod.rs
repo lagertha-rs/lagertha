@@ -287,6 +287,15 @@ impl JvmClass {
             )),
         }
     }
+
+    pub fn get_static_method_id_opt(&self, key: &MethodKey) -> Option<MethodId> {
+        match self {
+            JvmClass::Instance(inst) => inst.get_special_method_id_opt(key),
+            JvmClass::Interface(i) => i.get_methods().get(key).copied(),
+            _ => None,
+        }
+    }
+
     pub fn get_name(&self) -> Symbol {
         match self {
             JvmClass::Instance(ic) => ic.name(),

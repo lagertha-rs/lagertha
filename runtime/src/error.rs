@@ -159,6 +159,7 @@ pub enum JavaExceptionKind {
     UnsatisfiedLinkError,
     IncompatibleClassChangeError,
     ClassFormatError,
+    IOException,
 }
 
 impl JavaExceptionKind {
@@ -176,6 +177,7 @@ impl JavaExceptionKind {
             Self::UnsatisfiedLinkError => "java/lang/UnsatisfiedLinkError",
             Self::IncompatibleClassChangeError => "java/lang/IncompatibleClassChangeError",
             Self::ClassFormatError => "java/lang/ClassFormatError",
+            Self::IOException => "java/io/IOException",
         }
     }
 

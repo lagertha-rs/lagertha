@@ -123,6 +123,25 @@ pub(super) fn jdk_internal_misc_unsafe_register_natives(
         ),
         jdk_internal_loader_boot_loader_set_boot_loader_unnamed_module_0,
     );
+    vm.native_registry.register(
+        FullyQualifiedMethodKey::new_with_str(
+            "jdk/internal/misc/Unsafe",
+            "getLong",
+            "(Ljava/lang/Object;J)J",
+            &vm.string_interner,
+        ),
+        jdk_internal_misc_unsafe_get_long,
+    );
+
+    vm.native_registry.register(
+        FullyQualifiedMethodKey::new_with_str(
+            "jdk/internal/misc/Unsafe",
+            "getInt",
+            "(Ljava/lang/Object;J)I",
+            &vm.string_interner,
+        ),
+        jdk_internal_misc_unsafe_get_int,
+    );
 
     Ok(None)
 }
@@ -156,6 +175,34 @@ fn jdk_internal_misc_unsafe_get_int_volatile(
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.getIntVolatile");
+    let base = args[1].as_obj_ref()?;
+    let off = args[2].as_long()?;
+    let value = vm
+        .heap
+        .read_field(base, off as usize, AllocationType::Int)?
+        .as_int()?;
+    Ok(Some(Value::Integer(value)))
+}
+
+fn jdk_internal_misc_unsafe_get_long(
+    vm: &mut VirtualMachine,
+    _thread_id: ThreadId,
+    args: &[Value],
+) -> NativeRet {
+    let base = args[1].as_obj_ref()?;
+    let off = args[2].as_long()?;
+    let value = vm
+        .heap
+        .read_field(base, off as usize, AllocationType::Long)?
+        .as_long()?;
+    Ok(Some(Value::Long(value)))
+}
+
+fn jdk_internal_misc_unsafe_get_int(
+    vm: &mut VirtualMachine,
+    _thread_id: ThreadId,
+    args: &[Value],
+) -> NativeRet {
     let base = args[1].as_obj_ref()?;
     let off = args[2].as_long()?;
     let value = vm

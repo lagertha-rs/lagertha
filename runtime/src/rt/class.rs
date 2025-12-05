@@ -397,13 +397,20 @@ impl InstanceClass {
     }
 
     pub fn get_special_method_id(&self, key: &MethodKey) -> Result<MethodId, JvmError> {
-        if let Some(method_id) = self.get_declared_methods()?.get(key) {
-            return Ok(*method_id);
-        }
-        if let Some(method_id) = self.get_vtable_index()?.get(key) {
-            return Ok(self.get_vtable()?[*method_id as usize]);
+        if let Some(id) = self.get_special_method_id_opt(key) {
+            return Ok(id);
         }
         throw_exception!(NoSuchMethodError, method_key: *key, class_sym: self.name())
+    }
+
+    pub fn get_special_method_id_opt(&self, key: &MethodKey) -> Option<MethodId> {
+        if let Some(method_id) = self.get_declared_methods().ok()?.get(key) {
+            return Some(*method_id);
+        }
+        if let Some(method_id) = self.get_vtable_index().ok()?.get(key) {
+            return Some(self.get_vtable().ok()?[*method_id as usize]);
+        }
+        None
     }
 
     // Internal getters and setters for "lazy" initialized fields

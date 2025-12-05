@@ -1519,8 +1519,7 @@ pub(super) fn handle_invokestatic(
     Interpreter::ensure_initialized(thread_id, Some(target_class_id), vm)?;
     let target_method_id = vm
         .method_area
-        .get_class(&target_class_id)
-        .get_static_method_id(&target_method_view.name_and_type.into())?;
+        .get_static_method_id(&target_class_id, target_method_view.name_and_type.into())?;
     let args = Interpreter::prepare_method_args(thread_id, target_method_id, vm)?;
     Interpreter::invoke_static_method(thread_id, target_method_id, vm, args)
 }

@@ -21,3 +21,4 @@ common = { path = "../common" }
 
 # TODO to be deleted
 toml = "0.8"
+toml_edit = "0.22"

@@ -32,6 +32,8 @@ pub struct BootstrapRegistry {
     pub stack_trace_file_name_fk: FieldKey,
     pub stack_trace_line_number_fk: FieldKey,
     pub stack_trace_declaring_class_name_fk: FieldKey,
+    pub reference_referent_fk: FieldKey,
+    pub file_path_fk: FieldKey,
 
     // Common class names (interned)
     pub java_lang_object_sym: Symbol,
@@ -41,6 +43,8 @@ pub struct BootstrapRegistry {
     pub java_lang_system_sym: Symbol,
     pub java_lang_thread_sym: Symbol,
     pub java_lang_thread_group_sym: Symbol,
+    pub java_lang_ref_reference_sym: Symbol,
+    pub java_io_file_sym: Symbol,
 
     // Primitive name symbols
     pub int_sym: Symbol,
@@ -175,6 +179,10 @@ impl BootstrapRegistry {
                 name: interner.get_or_intern("backtrace"),
                 desc: object_desc,
             },
+            reference_referent_fk: FieldKey {
+                name: interner.get_or_intern("referent"),
+                desc: object_desc,
+            },
             throwable_depth_fk: FieldKey {
                 name: interner.get_or_intern("depth"),
                 desc: int_desc,
@@ -215,6 +223,10 @@ impl BootstrapRegistry {
                 name: interner.get_or_intern("declaringClass"),
                 desc: string_desc,
             },
+            file_path_fk: FieldKey {
+                name: interner.get_or_intern("path"),
+                desc: string_desc,
+            },
 
             // Class names
             java_lang_object_sym: interner.get_or_intern("java/lang/Object"),
@@ -224,6 +236,8 @@ impl BootstrapRegistry {
             java_lang_system_sym: interner.get_or_intern("java/lang/System"),
             java_lang_thread_sym: interner.get_or_intern("java/lang/Thread"),
             java_lang_thread_group_sym: interner.get_or_intern("java/lang/ThreadGroup"),
+            java_lang_ref_reference_sym: interner.get_or_intern("java/lang/ref/Reference"),
+            java_io_file_sym: interner.get_or_intern("java/io/File"),
 
             // Method names
             init_sym,

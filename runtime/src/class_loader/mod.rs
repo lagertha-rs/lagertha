@@ -5,6 +5,7 @@ use jimage::JImage;
 use std::collections::HashSet;
 use std::path::PathBuf;
 use toml::Value;
+use toml_edit::Document;
 
 mod system;
 
@@ -17,35 +18,14 @@ struct ClassSource {
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-5.html#jvms-5.3.1
+
 pub struct ClassLoader {
-    tested_parsing: HashSet<String>,
     jimage: JImage,
     system: SystemClassLoader,
+    fixtures_path: PathBuf,
 }
 
 impl ClassLoader {
-    //TODO: remove afterwards, it forces whatever is loaded to be present in fixtures.toml (jclass tested)
-    fn prepare_tested_classes() -> HashSet<String> {
-        let fixtures_toml = include_str!("../../../javap/tests/testdata/fixtures.toml");
-        let root_value: Value = fixtures_toml.parse().expect("Failed to parse TOML");
-
-        let classes_set: HashSet<String> = root_value
-            .get("modules")
-            .and_then(|modules| modules.get("java.base"))
-            .and_then(|java_base| java_base.get("classes"))
-            .and_then(|classes_value| classes_value.as_array())
-            .map(|classes_array| {
-                classes_array
-                    .iter()
-                    .filter_map(|val| val.as_str())
-                    .map(|v| v.replace('.', "/"))
-                    .collect()
-            })
-            .unwrap();
-
-        classes_set
-    }
-
     pub fn new(vm_config: &VmConfig) -> Result<Self, JvmError> {
         debug_log!("Creating ClassLoader...");
         let modules_path = &vm_config.home.join("lib").join("modules");
@@ -56,28 +36,54 @@ impl ClassLoader {
             vm_config.class_path
         );
         let system_loader = SystemClassLoader::new(&vm_config.class_path)?;
+
+        let fixtures_path = PathBuf::from("javap/tests/testdata/fixtures.toml");
+
         Ok(Self {
             jimage,
             system: system_loader,
-            tested_parsing: Self::prepare_tested_classes(),
+            fixtures_path,
         })
     }
 
-    // TODO: Can return &[u8] to avoid copying, but need to support proper SystemClassLoader first
     pub fn load(&self, name: &str) -> Result<Vec<u8>, JvmError> {
         if let Some(bytes) = self.jimage.open_java_base_class(name) {
             debug_log!("Bytecode of \"{name}\" found using JImage.");
-            // TODO: remove afterwards
-            assert!(
-                self.tested_parsing.contains(name),
-                "Class \"{}\" is not tested",
-                name
-            );
+            self.add_tested_class(name)?;
             Ok(bytes.to_vec())
         } else {
             let bytes = self.system.find_class(name)?;
-            debug_log!("Bytecode of \"{name}\" found using SystemClassLoader.",);
+            debug_log!("Bytecode of \"{name}\" found using SystemClassLoader.");
             Ok(bytes)
         }
+    }
+
+    fn add_tested_class(&self, name: &str) -> Result<(), JvmError> {
+        let content = std::fs::read_to_string(&self.fixtures_path).unwrap();
+
+        let mut doc: Document = content.parse().unwrap();
+
+        let classes = doc
+            .entry("modules")
+            .or_insert_with(toml_edit::table)
+            .as_table_mut()
+            .unwrap()
+            .entry("java.base")
+            .or_insert_with(toml_edit::table)
+            .as_table_mut()
+            .unwrap()
+            .entry("classes")
+            .or_insert_with(toml_edit::array)
+            .as_array_mut()
+            .unwrap();
+
+        if !classes.iter().any(|item| item.as_str() == Some(name)) {
+            classes.push(name);
+            debug_log!("Added class \"{}\" to fixtures.toml", name);
+        }
+
+        std::fs::write(&self.fixtures_path, doc.to_string()).unwrap();
+
+        Ok(())
     }
 }

@@ -1,7 +1,7 @@
 use crate::keys::FullyQualifiedMethodKey;
 use crate::native::{NativeRegistry, NativeRet};
 use crate::vm::Value;
-use crate::{ThreadId, VirtualMachine};
+use crate::{ThreadId, VirtualMachine, throw_exception};
 use common::jtype::AllocationType;
 use tracing_log::log::debug;
 
@@ -67,7 +67,25 @@ pub(super) fn do_register_java_io_preregistered_natives(native_registry: &mut Na
             "()V",
             &native_registry.string_interner,
         ),
-        java_io_file_system_unix_init_ids,
+        java_io_unix_file_system_init_ids,
+    );
+    native_registry.register(
+        FullyQualifiedMethodKey::new_with_str(
+            "java/io/UnixFileSystem",
+            "canonicalize0",
+            "(Ljava/lang/String;)Ljava/lang/String;",
+            &native_registry.string_interner,
+        ),
+        java_io_unix_file_system_canonicalize_0,
+    );
+    native_registry.register(
+        FullyQualifiedMethodKey::new_with_str(
+            "java/io/UnixFileSystem",
+            "getBooleanAttributes0",
+            "(Ljava/io/File;)I",
+            &native_registry.string_interner,
+        ),
+        java_io_unix_file_system_get_boolean_attributes_0,
     )
 }
 
@@ -191,11 +209,78 @@ fn java_io_file_output_stream_init_ids(
     Ok(None)
 }
 
-fn java_io_file_system_unix_init_ids(
+fn java_io_unix_file_system_init_ids(
     _vm: &mut VirtualMachine,
     _thread_id: ThreadId,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.io.UnixFileSystem.initIDs");
     Ok(None)
+}
+
+fn java_io_unix_file_system_canonicalize_0(
+    vm: &mut VirtualMachine,
+    _thread_id: ThreadId,
+    args: &[Value],
+) -> NativeRet {
+    let str_ref = args[1].as_obj_ref()?;
+    let path = vm.heap.get_rust_string_from_java_string(str_ref)?;
+    match std::fs::canonicalize(&path) {
+        Ok(canonical) => {
+            let res = canonical.to_string_lossy().to_string();
+            let res_ref = vm.heap.alloc_string(&res)?;
+            Ok(Some(Value::Ref(res_ref)))
+        }
+        Err(e) => {
+            throw_exception!(IOException, e.to_string())
+        }
+    }
+}
+
+fn java_io_unix_file_system_get_boolean_attributes_0(
+    vm: &mut VirtualMachine,
+    _thread_id: ThreadId,
+    args: &[Value],
+) -> NativeRet {
+    const BA_EXISTS: i32 = 0x01;
+    const BA_REGULAR: i32 = 0x02;
+    const BA_DIRECTORY: i32 = 0x04;
+    const BA_HIDDEN: i32 = 0x08;
+
+    let file_class_id = vm
+        .method_area
+        .get_class_id_or_load(vm.br.java_io_file_sym)?;
+    let path_field_offset = vm
+        .method_area
+        .get_instance_class(&file_class_id)?
+        .get_instance_field(&vm.br.file_path_fk)?
+        .offset;
+    let file_ref = args[1].as_obj_ref()?;
+    let path_ref = vm
+        .heap
+        .read_field(file_ref, path_field_offset, AllocationType::Reference)?
+        .as_obj_ref()?;
+    let path_str = vm.heap.get_rust_string_from_java_string(path_ref)?;
+    let path = std::path::Path::new(&path_str);
+
+    let mut attrs = 0;
+
+    if let Ok(metadata) = std::fs::metadata(path) {
+        attrs |= BA_EXISTS;
+        if metadata.is_file() {
+            attrs |= BA_REGULAR;
+        }
+        if metadata.is_dir() {
+            attrs |= BA_DIRECTORY;
+        }
+    }
+
+    // Unix hidden = starts with '.'
+    if let Some(name) = path.file_name() {
+        if name.to_string_lossy().starts_with('.') {
+            attrs |= BA_HIDDEN;
+        }
+    }
+
+    Ok(Some(Value::Integer(attrs)))
 }
