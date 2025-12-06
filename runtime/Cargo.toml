@@ -6,12 +6,16 @@ edition = "2024"
 [features]
 default = []
 log-runtime-traces = []
+hotpath = ["hotpath/hotpath"]
+hotpath-alloc = ["hotpath/hotpath-alloc"]
+hotpath-off = ["hotpath/hotpath-off"]
 
 [dependencies]
 once_cell = "1.19"
 libc = "0.2.177"
 lasso = { version = "0.7.3", features = ["multi-threaded"] }
 walkdir = "2"
+hotpath = { workspace = true }
 
 tracing-log = { workspace = true }
 

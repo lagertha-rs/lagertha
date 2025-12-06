@@ -50,6 +50,7 @@ fn create_vm_configuration(mut args: Args, main_class: String) -> Result<VmConfi
     Err("JAVA_VERSION not found in release file".to_string())
 }
 
+#[hotpath::main]
 fn main() {
     #[cfg(feature = "log-runtime-traces")]
     common::utils::telemetry::init_tracing();

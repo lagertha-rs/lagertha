@@ -46,6 +46,7 @@ impl ClassLoader {
         })
     }
 
+    #[hotpath::measure]
     pub fn load(&self, name: &str) -> Result<Vec<u8>, JvmError> {
         if let Some(bytes) = self.jimage.open_java_base_class(name) {
             debug_log!("Bytecode of \"{name}\" found using JImage.");

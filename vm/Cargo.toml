@@ -5,10 +5,14 @@ edition = "2024"
 
 [features]
 log-runtime-traces = ["runtime/log-runtime-traces"]
+hotpath = ["hotpath/hotpath"]
+hotpath-alloc = ["hotpath/hotpath-alloc"]
+hotpath-off = ["hotpath/hotpath-off"]
 
 [dependencies]
 clap = { version = "4.5.47", features = ["derive"] }
 
+hotpath = { workspace = true }
 common = { path = "../common" }
 runtime = { path = "../runtime" }
 

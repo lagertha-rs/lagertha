@@ -424,15 +424,21 @@ impl MethodArea {
         }
     }
 
+    #[hotpath::measure]
     fn load_class(&mut self, name_sym: Symbol) -> Result<ClassId, JvmError> {
         let data = {
-            let name_str = self.interner.resolve(&name_sym);
-            if name_str.starts_with("[") {
-                return self.load_array_class(name_sym);
-            }
-            self.bootstrap_class_loader.load(name_str)?
+            hotpath::measure_block!("load_class::read_raw_class", {
+                let name_str = self.interner.resolve(&name_sym);
+                if name_str.starts_with("[") {
+                    return self.load_array_class(name_sym);
+                }
+                self.bootstrap_class_loader.load(name_str)?
+            })
         };
-        let cf = ClassFile::try_from(data).map_err(LinkageError::from)?;
+        let cf = hotpath::measure_block!(
+            "load_class::parse_class_file",
+            ClassFile::try_from(data).map_err(LinkageError::from)?
+        );
         let super_id = match cf.get_super_class_name() {
             Some(super_name) => {
                 let super_name = super_name.unwrap();
@@ -441,19 +447,24 @@ impl MethodArea {
             }
             None => None,
         };
-        let class_id = if cf.access_flags.is_interface() {
-            InterfaceClass::load_and_link(cf, self, super_id)?
-        } else {
-            InstanceClass::load_and_link(cf, self, super_id)?
-        };
+        let class_id = hotpath::measure_block!("load_class::load_and_link_class", {
+            if cf.access_flags.is_interface() {
+                InterfaceClass::load_and_link(cf, self, super_id)?
+            } else {
+                InstanceClass::load_and_link(cf, self, super_id)?
+            }
+        });
         self.class_name_to_index.insert(name_sym, class_id);
         Ok(class_id)
     }
 
+    #[hotpath::measure]
     pub fn get_class_id_or_load(&mut self, name_sym: Symbol) -> Result<ClassId, JvmError> {
-        if let Some(class_id) = self.class_name_to_index.get(&name_sym) {
-            return Ok(*class_id);
-        }
+        hotpath::measure_block!("get_class_id_or_load::cache_lookup", {
+            if let Some(class_id) = self.class_name_to_index.get(&name_sym) {
+                return Ok(*class_id);
+            }
+        });
         let class_id = self.load_class(name_sym)?;
         Ok(class_id)
     }

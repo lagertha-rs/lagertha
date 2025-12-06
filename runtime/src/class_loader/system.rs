@@ -47,6 +47,7 @@ impl SystemClassLoader {
         Ok(Self { index })
     }
 
+    #[hotpath::measure]
     pub(crate) fn find_class(&self, name: &str) -> Result<Vec<u8>, JvmError> {
         let key = Self::normalize_key(name);
         let src = self
