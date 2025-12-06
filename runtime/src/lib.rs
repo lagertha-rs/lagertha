@@ -11,11 +11,14 @@ use crate::vm::stack::FrameStack;
 use lasso::ThreadedRodeo;
 use std::path::PathBuf;
 use std::sync::Arc;
+use std::sync::atomic::Ordering;
+use std::time::Duration;
 
 mod class_loader;
 mod error;
 pub mod heap;
 mod interpreter;
+mod jdwp;
 pub mod keys;
 pub mod log_traces;
 mod native;
@@ -32,6 +35,7 @@ pub struct VmConfig {
     pub initial_heap_size: usize,
     pub max_heap_size: usize,
     pub frame_stack_size: usize,
+    pub jdwp_port: Option<u16>,
 }
 
 //TODO: make it better
@@ -86,6 +90,20 @@ impl VirtualMachine {
 
         #[cfg(feature = "log-runtime-traces")]
         log_traces::debug::init(&vm);
+
+        let debug_state = Arc::new(jdwp::DebugState::new());
+        if let Some(jdwp_port) = vm.config.jdwp_port {
+            jdwp::start_jdwp_agent(debug_state.clone(), jdwp_port);
+            debug_state.suspend_all(); //TODO: I assume always suspended at start (suspend=y)
+
+            while !debug_state.connected.load(Ordering::SeqCst) {
+                std::thread::sleep(Duration::from_millis(100));
+            }
+        }
+
+        //TODO: I guess hotspot puts it just before main method invocation
+        // that's why I don't stop in debugger in initPhase1 etc..
+        debug_state.wait_if_suspended();
 
         let main_thread_id = vm.create_main_thread().map_err(|e| {
             eprintln!("Error: Could not initialize JVM.");
@@ -254,18 +272,20 @@ impl VirtualMachine {
         Interpreter::invoke_static_method(thread_id, init_phase1_method_id, self, vec![])?;
 
         // Run initPhase2
+        /*
+               let init_phase2_method_id = self
+                   .method_area
+                   .get_instance_class(&system_class_id)?
+                   .get_special_method_id(&init_phase2_method_key)?;
 
-        let init_phase2_method_id = self
-            .method_area
-            .get_instance_class(&system_class_id)?
-            .get_special_method_id(&init_phase2_method_key)?;
+               Interpreter::invoke_static_method(
+                   thread_id,
+                   init_phase2_method_id,
+                   self,
+                   vec![Value::Integer(1), Value::Integer(1)],
+               )?;
 
-        Interpreter::invoke_static_method(
-            thread_id,
-            init_phase2_method_id,
-            self,
-            vec![Value::Integer(1), Value::Integer(1)],
-        )?;
+        */
 
         Ok(())
     }

@@ -15,6 +15,12 @@ pub struct Args {
     )]
     pub class_path: Vec<String>,
     #[arg(
+        short = 'j',
+        long = "jdwp-port",
+        help = "If provided, starts JDWP agent listening on the specified port"
+    )]
+    pub jdwp_port: Option<u16>,
+    #[arg(
         help = "Main class to run from path that matches the package structure \
         (e.g. com.example.Main or com/example/Main for com/example/Main.class)"
     )]
@@ -44,6 +50,7 @@ fn create_vm_configuration(mut args: Args, main_class: String) -> Result<VmConfi
                 initial_heap_size: 0,
                 max_heap_size: 0,
                 frame_stack_size: 256,
+                jdwp_port: args.jdwp_port,
             });
         }
     }
