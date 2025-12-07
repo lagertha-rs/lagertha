@@ -2,6 +2,7 @@ use crate::error::{JavaExceptionFromJvm, JvmError};
 use crate::heap::method_area::MethodArea;
 use crate::heap::{Heap, HeapRef};
 use crate::interpreter::Interpreter;
+use crate::jdwp::agent::start_jdwp_agent;
 use crate::keys::{MethodId, MethodKey, Symbol, ThreadId};
 use crate::native::NativeRegistry;
 use crate::thread::JavaThreadState;
@@ -11,8 +12,6 @@ use crate::vm::stack::FrameStack;
 use lasso::ThreadedRodeo;
 use std::path::PathBuf;
 use std::sync::Arc;
-use std::sync::atomic::Ordering;
-use std::time::Duration;
 
 mod class_loader;
 mod error;
@@ -93,12 +92,10 @@ impl VirtualMachine {
 
         let debug_state = Arc::new(jdwp::DebugState::new());
         if let Some(jdwp_port) = vm.config.jdwp_port {
-            jdwp::start_jdwp_agent(debug_state.clone(), jdwp_port);
+            start_jdwp_agent(debug_state.clone(), jdwp_port);
             debug_state.suspend_all(); //TODO: I assume always suspended at start (suspend=y)
 
-            while !debug_state.connected.load(Ordering::SeqCst) {
-                std::thread::sleep(Duration::from_millis(100));
-            }
+            debug_state.wait_until_connected()
         }
 
         //TODO: I guess hotspot puts it just before main method invocation

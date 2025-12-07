@@ -1233,6 +1233,7 @@ dependencies = [
 name = "runtime"
 version = "0.1.0"
 dependencies = [
+ "byteorder",
  "common",
  "crossbeam",
  "hotpath",

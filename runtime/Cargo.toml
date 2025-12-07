@@ -16,8 +16,9 @@ libc = "0.2.177"
 lasso = { version = "0.7.3", features = ["multi-threaded"] }
 walkdir = "2"
 crossbeam = "0.8"
-hotpath = { workspace = true }
+byteorder = "1.5"
 
+hotpath = { workspace = true }
 tracing-log = { workspace = true }
 
 jclass = { path = "../jclass" }

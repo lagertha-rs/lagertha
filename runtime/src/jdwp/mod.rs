@@ -1,11 +1,10 @@
 use crate::keys::{ClassId, MethodId};
 use crossbeam::channel::{Receiver, Sender, unbounded};
 use std::collections::HashMap;
-use std::io::{BufRead, BufReader, Read, Write};
-use std::net::TcpStream;
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Arc, Condvar, Mutex, RwLock};
-use std::thread::JoinHandle;
+use std::sync::{Condvar, Mutex, RwLock};
+
+pub mod agent;
 
 pub enum DebugEvent {}
 
@@ -27,6 +26,8 @@ pub struct DebugState {
     pub event_rx: Receiver<DebugEvent>,
 
     pub connected: AtomicBool,
+    pub connected_lock: Mutex<()>,
+    pub connected_signal: Condvar,
 }
 
 impl DebugState {
@@ -40,6 +41,8 @@ impl DebugState {
             event_tx,
             event_rx,
             connected: AtomicBool::new(false),
+            connected_lock: Mutex::new(()),
+            connected_signal: Condvar::new(),
         }
     }
 
@@ -65,69 +68,23 @@ impl DebugState {
             guard = self.resume_signal.wait(guard).unwrap();
         }
     }
-}
 
-pub fn start_jdwp_agent(debug: Arc<DebugState>, port: u16) -> JoinHandle<()> {
-    std::thread::spawn(move || {
-        jdwp_agent_routine(debug, port);
-    })
-}
-
-fn jdwp_agent_routine(debug: Arc<DebugState>, port: u16) {
-    let listener = std::net::TcpListener::bind(format!("127.0.0.1:{}", port)).unwrap();
-    println!("JDWP agent listening on port {}", port);
-
-    loop {
-        let (mut stream, addr) = listener.accept().unwrap();
-        println!("Debugger connected from {}", addr);
-
-        if let Err(e) = perform_handshake(&mut stream) {
-            eprintln!("Handshake failed: {}", e);
-            continue;
+    pub fn wait_until_connected(&self) {
+        if self.connected.load(Ordering::Relaxed) {
+            return;
         }
 
-        debug.connected.store(true, Ordering::SeqCst);
+        println!("Waiting for debugger to connect");
 
-        connection_handler(debug.clone(), stream);
-
-        debug.connected.store(false, Ordering::SeqCst);
-        debug.resume_all();
-
-        println!("Debugger disconnected from {}", addr);
-    }
-}
-
-fn connection_handler(debug: Arc<DebugState>, stream: TcpStream) {
-    let mut reader = BufReader::new(stream);
-
-    loop {
-        let mut buf = String::new();
-        let bytes = reader.read_line(&mut buf).unwrap();
-
-        if bytes == 0 {
-            break;
-        }
-
-        let cmd = buf.trim();
-
-        if cmd == "run" {
-            debug.resume_all();
-        } else {
-            println!("Received unknown command: {}", cmd);
+        let guard = self.connected_lock.lock().unwrap();
+        let mut guard = guard;
+        while !self.connected.load(Ordering::SeqCst) {
+            guard = self.connected_signal.wait(guard).unwrap();
         }
     }
-}
 
-fn perform_handshake(stream: &mut TcpStream) -> Result<(), String> {
-    let mut buf = [0u8; 14];
-    stream.read_exact(&mut buf).map_err(|e| e.to_string())?;
-
-    if &buf != b"JDWP-Handshake" {
-        return Err("Invalid JDWP handshake".to_string());
+    pub fn set_connected(&self, connected: bool) {
+        self.connected.store(connected, Ordering::SeqCst);
+        self.connected_signal.notify_all();
     }
-
-    stream
-        .write_all(b"JDWP-Handshake")
-        .map_err(|e| e.to_string())?;
-    Ok(())
 }
