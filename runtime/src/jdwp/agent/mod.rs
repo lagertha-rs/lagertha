@@ -8,10 +8,10 @@ use std::net::TcpStream;
 use std::sync::Arc;
 use std::thread::JoinHandle;
 
-mod command;
-mod error_code;
-mod packet;
-mod reader;
+pub mod command;
+pub mod error_code;
+pub mod packet;
+pub mod reader;
 
 const HANDSHAKE: &[u8; 14] = b"JDWP-Handshake";
 
@@ -107,13 +107,27 @@ fn handle_command(
     debug: Arc<DebugState>,
     cmd_packet: CommandPacket,
 ) -> Result<ReplyPacket, JdwpError> {
-    let cmd = JdwpCommand::parse(cmd_packet.command_set, cmd_packet.command, &cmd_packet.data)?;
+    let cmd = JdwpCommand::parse(
+        cmd_packet.command_set,
+        cmd_packet.command,
+        &cmd_packet.data,
+        debug.clone(),
+    )?;
 
     println!("Received command: {:?}", cmd);
 
     let data = match cmd {
         JdwpCommand::VmIdSizes => Ok(handle_id_size()),
-        _ => Err(JdwpError::ConnectionClosed),
+        JdwpCommand::EventRequestSet(event_request) => {
+            let event_id = event_request.id;
+            debug.add_event_request(event_request);
+            Ok(event_id.to_be_bytes().to_vec())
+        }
+        JdwpCommand::VmVersion => Ok(handle_vm_version()),
+        cmd => {
+            eprintln!("Unhandled command: {:?}", cmd);
+            Err(JdwpError::ConnectionClosed)
+        }
     }?;
 
     Ok(ReplyPacket {
@@ -131,4 +145,25 @@ fn handle_id_size() -> Vec<u8> {
     response.extend(&(4i32).to_be_bytes()); // referenceTypeID size
     response.extend(&(4i32).to_be_bytes()); // frameID size
     response
+}
+
+fn handle_vm_version() -> Vec<u8> {
+    let description = "Java Debug Wire Protocol (Reference Implementation)";
+    let jdwp_major: i32 = 25;
+    let jdwp_minor: i32 = 0;
+    let vm_version = "25.0";
+    let vm_name = "toyjvm";
+
+    let mut buf = Vec::new();
+
+    buf.extend(&(description.len() as i32).to_be_bytes());
+    buf.extend(description.as_bytes());
+    buf.extend(&jdwp_major.to_be_bytes());
+    buf.extend(&jdwp_minor.to_be_bytes());
+    buf.extend(&(vm_version.len() as i32).to_be_bytes());
+    buf.extend(vm_version.as_bytes());
+    buf.extend(&(vm_name.len() as i32).to_be_bytes());
+    buf.extend(vm_name.as_bytes());
+
+    buf
 }

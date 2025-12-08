@@ -1,6 +1,19 @@
+use crate::jdwp::DebugState;
 use crate::jdwp::agent::error_code::JdwpError;
 use byteorder::{BigEndian, ReadBytesExt};
 use std::io::Cursor;
+use std::sync::Arc;
+
+#[derive(Debug, Clone)]
+pub struct EventRequest {
+    pub id: u32, // TODO: investigate, in spec it is int (it is signed by default)
+    pub event_kind: u8,
+    pub suspend_policy: u8,
+    pub modifiers: Vec<EventModifier>,
+}
+
+#[derive(Debug, Clone)]
+pub enum EventModifier {}
 
 #[derive(Debug, Clone)]
 pub enum JdwpCommand {
@@ -29,13 +42,18 @@ pub enum JdwpCommand {
     VmAllModules,
 
     // EventRequest (15)
-    EventRequestSet {},
+    EventRequestSet(EventRequest),
     EventRequestClear,
     EventRequestClearAllBreakpoints,
 }
 
 impl JdwpCommand {
-    pub fn parse(command_set: u8, command: u8, data: &[u8]) -> Result<Self, JdwpError> {
+    pub fn parse(
+        command_set: u8,
+        command: u8,
+        data: &[u8],
+        state: Arc<DebugState>,
+    ) -> Result<Self, JdwpError> {
         let mut cursor = Cursor::new(data);
 
         match (command_set, command) {
@@ -66,7 +84,23 @@ impl JdwpCommand {
             (1, 22) => Ok(JdwpCommand::VmAllModules),
 
             // EventRequest
-            (15, 1) => todo!(),
+            (15, 1) => {
+                let event_kind = cursor.read_u8()?;
+                let suspend_policy = cursor.read_u8()?;
+                let modifier_count = cursor.read_i32::<BigEndian>()?;
+
+                let modifiers = Vec::with_capacity(modifier_count as usize);
+                if modifier_count > 0 {
+                    unimplemented!()
+                }
+                let event_id = state.get_next_event_id();
+                Ok(JdwpCommand::EventRequestSet(EventRequest {
+                    id: event_id,
+                    event_kind,
+                    suspend_policy,
+                    modifiers,
+                }))
+            }
             (15, 2) => todo!(),
             (15, 3) => Ok(JdwpCommand::EventRequestClearAllBreakpoints),
             _ => Err(JdwpError::UnknownCommand {

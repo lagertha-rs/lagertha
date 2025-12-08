@@ -25,18 +25,16 @@ pub enum Packet {
     Command(CommandPacket),
     Reply(ReplyPacket),
 }
-
 impl Packet {
     pub fn read(stream: &mut TcpStream) -> Result<Self, JdwpError> {
         let length = stream.read_u32::<BigEndian>()?;
         let id = stream.read_u32::<BigEndian>()?;
         let flags = stream.read_u8()?;
 
-        let data_len = (length as usize).saturating_sub(11);
-
         if flags & FLAG_REPLY != 0 {
             let error_code = stream.read_u16::<BigEndian>()?;
-            let mut data = vec![0u8; data_len.saturating_sub(2)];
+            let data_len = (length as usize).saturating_sub(11);
+            let mut data = vec![0u8; data_len];
             if !data.is_empty() {
                 stream.read_exact(&mut data)?;
             }
@@ -48,7 +46,8 @@ impl Packet {
         } else {
             let command_set = stream.read_u8()?;
             let command = stream.read_u8()?;
-            let mut data = vec![0u8; data_len.saturating_sub(2)];
+            let data_len = (length as usize).saturating_sub(11);
+            let mut data = vec![0u8; data_len];
             if !data.is_empty() {
                 stream.read_exact(&mut data)?;
             }

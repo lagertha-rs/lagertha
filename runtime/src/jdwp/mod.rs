@@ -1,7 +1,8 @@
+use crate::jdwp::agent::command::EventRequest;
 use crate::keys::{ClassId, MethodId};
 use crossbeam::channel::{Receiver, Sender, unbounded};
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use std::sync::{Condvar, Mutex, RwLock};
 
 pub mod agent;
@@ -28,6 +29,9 @@ pub struct DebugState {
     pub connected: AtomicBool,
     pub connected_lock: Mutex<()>,
     pub connected_signal: Condvar,
+
+    pub next_event_id: AtomicU32,
+    pub events: RwLock<HashMap<u32, EventRequest>>,
 }
 
 impl DebugState {
@@ -43,6 +47,8 @@ impl DebugState {
             connected: AtomicBool::new(false),
             connected_lock: Mutex::new(()),
             connected_signal: Condvar::new(),
+            next_event_id: AtomicU32::new(1),
+            events: RwLock::new(HashMap::new()),
         }
     }
 
@@ -86,5 +92,14 @@ impl DebugState {
     pub fn set_connected(&self, connected: bool) {
         self.connected.store(connected, Ordering::SeqCst);
         self.connected_signal.notify_all();
+    }
+
+    pub fn get_next_event_id(&self) -> u32 {
+        self.next_event_id.fetch_add(1, Ordering::SeqCst)
+    }
+
+    pub fn add_event_request(&self, event_request: EventRequest) {
+        let mut events = self.events.write().unwrap();
+        events.insert(event_request.id, event_request);
     }
 }
