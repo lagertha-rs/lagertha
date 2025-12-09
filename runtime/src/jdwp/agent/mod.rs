@@ -123,6 +123,8 @@ fn handle_command(
             debug.add_event_request(event_request);
             Ok(event_id.to_be_bytes().to_vec())
         }
+        JdwpCommand::VmCapabilities => Ok(handle_vm_capabilities()),
+        JdwpCommand::VmCapabilitiesNew => Ok(handle_vm_capabilities_new()),
         JdwpCommand::VmVersion => Ok(handle_vm_version()),
         cmd => {
             eprintln!("Unhandled command: {:?}", cmd);
@@ -165,5 +167,61 @@ fn handle_vm_version() -> Vec<u8> {
     buf.extend(&(vm_name.len() as i32).to_be_bytes());
     buf.extend(vm_name.as_bytes());
 
+    buf
+}
+
+fn handle_vm_capabilities() -> Vec<u8> {
+    let mut buf = Vec::new();
+    buf.extend(&0u8.to_be_bytes()); // canWatchFieldModification
+    buf.extend(&0u8.to_be_bytes()); // canWatchFieldAccess
+    buf.extend(&0u8.to_be_bytes()); // canGetBytecodes
+    buf.extend(&0u8.to_be_bytes()); // canGetSyntheticAttribute
+    buf.extend(&0u8.to_be_bytes()); // canGetOwnedMonitorInfo
+    buf.extend(&0u8.to_be_bytes()); // canGetCurrentContendedMonitor
+    buf.extend(&0u8.to_be_bytes()); // canGetMonitorInfo
+
+    buf
+}
+
+fn handle_vm_capabilities_new() -> Vec<u8> {
+    let mut buf = Vec::new();
+    buf.extend(&0u8.to_be_bytes()); // canWatchFieldModification
+    buf.extend(&0u8.to_be_bytes()); // canWatchFieldAccess
+    buf.extend(&0u8.to_be_bytes()); // canGetBytecodes
+    buf.extend(&0u8.to_be_bytes()); // canGetSyntheticAttribute
+    buf.extend(&0u8.to_be_bytes()); // canGetOwnedMonitorInfo
+    buf.extend(&0u8.to_be_bytes()); // canGetCurrentContendedMonitor
+    buf.extend(&0u8.to_be_bytes()); // canGetMonitorInfo
+    buf.extend(&0u8.to_be_bytes()); // canRedefineClasses
+    buf.extend(&0u8.to_be_bytes()); // canAddMethod
+    buf.extend(&0u8.to_be_bytes()); // canUnrestrictedlyRedefineClasses
+    buf.extend(&0u8.to_be_bytes()); // canPopFrames
+    buf.extend(&0u8.to_be_bytes()); // canUseInstanceFilters
+    buf.extend(&0u8.to_be_bytes()); // canGetSourceDebugExtension
+    buf.extend(&0u8.to_be_bytes()); // canRequestVMDeathEvent
+    buf.extend(&0u8.to_be_bytes()); // canSetDefaultStratum
+    buf.extend(&0u8.to_be_bytes()); // canGetInstanceInfo
+    buf.extend(&0u8.to_be_bytes()); // canRequestMonitorEvents
+    buf.extend(&0u8.to_be_bytes()); // canGetMonitorFrameInfo
+    buf.extend(&0u8.to_be_bytes()); // canUseSourceNameFilters
+    buf.extend(&0u8.to_be_bytes()); // canGetConstantPool
+    buf.extend(&0u8.to_be_bytes()); // canForceEarlyReturn
+    buf.extend(&0u8.to_be_bytes()); // reserved22
+    buf.extend(&0u8.to_be_bytes()); // reserved23
+    buf.extend(&0u8.to_be_bytes()); // reserved24
+    buf.extend(&0u8.to_be_bytes()); // reserved25
+    buf.extend(&0u8.to_be_bytes()); // reserved26
+    buf.extend(&0u8.to_be_bytes()); // reserved27
+    buf.extend(&0u8.to_be_bytes()); // reserved28
+    buf.extend(&0u8.to_be_bytes()); // reserved29
+    buf.extend(&0u8.to_be_bytes()); // reserved30
+    buf.extend(&0u8.to_be_bytes()); // reserved31
+    buf.extend(&0u8.to_be_bytes()); // reserved32
+
+    buf
+}
+
+fn handle_vm_all_classes() -> Vec<u8> {
+    let mut buf = Vec::new();
     buf
 }
