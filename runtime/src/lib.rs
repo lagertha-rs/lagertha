@@ -11,7 +11,7 @@ use crate::vm::bootstrap_registry::BootstrapRegistry;
 use crate::vm::stack::FrameStack;
 use lasso::ThreadedRodeo;
 use std::path::PathBuf;
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 
 mod class_loader;
 mod error;
@@ -51,11 +51,10 @@ impl VmConfig {
 
 pub struct VirtualMachine {
     config: VmConfig,
-    method_area: MethodArea,
-    heap: Heap,
+    method_area: RwLock<MethodArea>,
+    heap: RwLock<Heap>,
     native_registry: NativeRegistry,
     string_interner: Arc<ThreadedRodeo>,
-    threads: Vec<JavaThreadState>,
     br: Arc<BootstrapRegistry>,
 }
 
@@ -63,7 +62,7 @@ impl VirtualMachine {
     pub fn new(
         config: VmConfig,
         string_interner: Arc<ThreadedRodeo>,
-    ) -> Result<(Self, ThreadId), ()> {
+    ) -> Result<(Self, JavaThreadState), ()> {
         config.validate();
         let (method_area, br) =
             MethodArea::init(&config, string_interner.clone()).map_err(|e| {
@@ -81,9 +80,8 @@ impl VirtualMachine {
             config,
             native_registry,
             string_interner: string_interner.clone(),
-            method_area,
-            heap,
-            threads: Vec::new(),
+            method_area: RwLock::new(method_area),
+            heap: RwLock::new(heap),
             br,
         };
 
@@ -102,18 +100,18 @@ impl VirtualMachine {
         // that's why I don't stop in debugger in initPhase1 etc..
         debug_state.wait_if_suspended();
 
-        let main_thread_id = vm.create_main_thread().map_err(|e| {
+        let mut main_thread = vm.create_main_thread().map_err(|e| {
             eprintln!("Error: Could not initialize JVM.");
             eprintln!("Caused by: {}", e.into_pretty_string(&string_interner));
         })?;
 
-        vm.initialize_main_thread(main_thread_id).map_err(|e| {
+        vm.initialize_main_thread(&mut main_thread).map_err(|e| {
             eprintln!("Error: Could not initialize JVM.");
             eprintln!("Caused by: {}", e.into_pretty_string(&string_interner));
         })?;
 
         // TODO: need actually refactor error struct, because this is ugly
-        vm.initialize_system_class(main_thread_id).map_err(|e| {
+        vm.initialize_system_class(&mut main_thread).map_err(|e| {
             // actually somewhere in java this exception is already caught at this point
             /*
             if let JvmError::JavaException(java_ex) = e {
@@ -127,7 +125,7 @@ impl VirtualMachine {
              */
         })?;
 
-        Ok((vm, main_thread_id))
+        Ok((vm, main_thread))
     }
 
     fn create_heap(
@@ -149,67 +147,72 @@ impl VirtualMachine {
         )
     }
 
-    fn initialize_main_thread(&mut self, main_thread_id: ThreadId) -> Result<(), JvmError> {
-        let system_thread_group_ref = self.create_system_thread_group(main_thread_id)?;
+    fn initialize_main_thread(
+        &mut self,
+        main_thread: &mut JavaThreadState,
+    ) -> Result<(), JvmError> {
+        let system_thread_group_ref = self.create_system_thread_group(main_thread)?;
         let main_thread_group_ref =
-            self.create_main_thread_group(main_thread_id, system_thread_group_ref)?;
+            self.create_main_thread_group(main_thread, system_thread_group_ref)?;
 
         let thread_class_id = self.br().get_java_lang_thread_id()?;
         let thread_constructor_id = self
-            .method_area
+            .method_area_read()
             .get_instance_class(&thread_class_id)?
             .get_special_method_id(&self.br().thread_thread_group_and_name_constructor_mk)?;
         Interpreter::invoke_instance_method(
-            main_thread_id,
+            main_thread,
             thread_constructor_id,
             self,
             vec![
-                Value::Ref(self.get_thread(&main_thread_id).thread_obj),
+                Value::Ref(main_thread.thread_obj),
                 Value::Ref(main_thread_group_ref),
-                Value::Ref(self.get_thread(&main_thread_id).name),
+                Value::Ref(main_thread.name),
             ],
         )?;
         Ok(())
     }
 
-    fn create_main_thread(&mut self) -> Result<ThreadId, JvmError> {
+    fn create_main_thread(&mut self) -> Result<JavaThreadState, JvmError> {
         let thread_class_id = self.br().get_java_lang_thread_id()?;
         let thread_instance_size = self
-            .method_area
+            .method_area_read()
             .get_instance_class(&thread_class_id)?
             .get_instance_size()?;
         let main_thread_ref = self
-            .heap
+            .heap_write()
             .alloc_instance(thread_instance_size, thread_class_id)?;
-        let main_string_ref = self.heap.get_str_from_pool_or_new(self.br().main_sym)?;
-        self.threads.push(JavaThreadState {
+        let main_string_ref = self
+            .heap_write()
+            .get_str_from_pool_or_new(self.br().main_sym)?;
+        let thread = JavaThreadState {
+            id: ThreadId::from_index(0), // TODO: hardcoded for main thread
             thread_obj: main_thread_ref,
             group_obj: 0,
             name: main_string_ref,
             stack: FrameStack::new(&self.config),
-        });
-        Ok(ThreadId::from_index(0))
+        };
+        Ok(thread)
     }
 
     fn create_system_thread_group(
         &mut self,
-        main_thread_id: ThreadId,
+        main_thread: &mut JavaThreadState,
     ) -> Result<HeapRef, JvmError> {
         let system_thread_group_class_id = self.br().get_java_lang_thread_group_id()?;
         let (thread_group_no_arg_constructor_id, thread_group_instance_size) = {
-            let thread_group_class = self
-                .method_area
-                .get_instance_class(&system_thread_group_class_id)?;
+            let ma = self.method_area_read();
+            let thread_group_class = ma.get_instance_class(&system_thread_group_class_id)?;
             (
                 thread_group_class.get_special_method_id(&self.br().no_arg_constructor_mk)?,
                 thread_group_class.get_instance_size()?,
             )
         };
         let system_thread_group_ref = self
-            .heap
+            .heap_write()
             .alloc_instance(thread_group_instance_size, system_thread_group_class_id)?;
         Interpreter::invoke_instance_method(
-            main_thread_id,
+            main_thread,
             thread_group_no_arg_constructor_id,
             self,
             vec![Value::Ref(system_thread_group_ref)],
@@ -220,14 +223,13 @@ impl VirtualMachine {
 
     fn create_main_thread_group(
         &mut self,
-        main_thread_id: ThreadId,
+        main_thread: &mut JavaThreadState,
         system_thread_group_ref: HeapRef,
     ) -> Result<HeapRef, JvmError> {
         let system_thread_group_class_id = self.br().get_java_lang_thread_group_id()?;
         let (thread_group_constructor_id, thread_group_instance_size) = {
-            let thread_group_class = self
-                .method_area
-                .get_instance_class(&system_thread_group_class_id)?;
+            let ma = self.method_area_read();
+            let thread_group_class = ma.get_instance_class(&system_thread_group_class_id)?;
             (
                 thread_group_class.get_special_method_id(
                     &self.br().thread_group_parent_and_name_constructor_mk,
@@ -236,11 +238,13 @@ impl VirtualMachine {
             )
         };
         let main_thread_group_ref = self
-            .heap
+            .heap_write()
             .alloc_instance(thread_group_instance_size, system_thread_group_class_id)?;
-        let main_string_ref = self.heap.get_str_from_pool_or_new(self.br().main_sym)?;
+        let main_string_ref = self
+            .heap_write()
+            .get_str_from_pool_or_new(self.br().main_sym)?;
         Interpreter::invoke_instance_method(
-            main_thread_id,
+            main_thread,
             thread_group_constructor_id,
             self,
             vec![
@@ -252,7 +256,7 @@ impl VirtualMachine {
         Ok(main_thread_group_ref)
     }
 
-    fn initialize_system_class(&mut self, thread_id: ThreadId) -> Result<(), JvmError> {
+    fn initialize_system_class(&mut self, thread: &mut JavaThreadState) -> Result<(), JvmError> {
         let system_class_id = self.br().get_java_lang_system_id()?;
 
         let init_phase1_method_key = self.br().system_init_phase1_mk;
@@ -262,11 +266,11 @@ impl VirtualMachine {
         // Run initPhase1
 
         let init_phase1_method_id = self
-            .method_area
+            .method_area_read()
             .get_instance_class(&system_class_id)?
             .get_special_method_id(&init_phase1_method_key)?;
 
-        Interpreter::invoke_static_method(thread_id, init_phase1_method_id, self, vec![])?;
+        Interpreter::invoke_static_method(thread, init_phase1_method_id, self, vec![])?;
 
         // Run initPhase2
         /*
@@ -291,16 +295,17 @@ impl VirtualMachine {
     //TODO: exception arg should be actually JvmError, like any error
     fn map_rust_error_to_java_exception(
         &mut self,
-        thread_id: ThreadId,
+        thread: &mut JavaThreadState,
         exception: JavaExceptionFromJvm,
     ) -> Result<HeapRef, JvmError> {
         let exception_ref = exception.as_reference();
         let class_id = self
-            .method_area
+            .method_area_write()
             // TODO: fix interner usage, replace with direct symbol
             .get_class_id_or_load(self.interner().get_or_intern(exception_ref.class))?;
         let (method_id, instance_size) = {
-            let class = self.method_area.get_instance_class(&class_id)?;
+            let ma = self.method_area_read();
+            let class = ma.get_instance_class(&class_id)?;
             (
                 class.get_special_method_id(
                     // TODO: fix interner usage, replace with direct symbol
@@ -312,51 +317,51 @@ impl VirtualMachine {
                 class.get_instance_size()?,
             )
         };
-        let instance = self.heap.alloc_instance(instance_size, class_id)?;
+        let instance = self.heap_write().alloc_instance(instance_size, class_id)?;
         let params = if let Some(msg) = exception.message {
             let resolved_msg = msg.into_resolved(self.interner());
             vec![
                 Value::Ref(instance),
-                Value::Ref(self.heap.alloc_string(&resolved_msg)?),
+                Value::Ref(self.heap_write().alloc_string(&resolved_msg)?),
             ]
         } else {
             vec![Value::Ref(instance)]
         };
-        Interpreter::invoke_instance_method(thread_id, method_id, self, params)?;
+        Interpreter::invoke_instance_method(thread, method_id, self, params)?;
         Ok(instance)
     }
 
     //TODO: exception should be allocated on java heap at this point, and be a reference
     //TODO: get rid of unwrap, need to understand how to handle errors here properly
-    fn unhandled_exception(&mut self, thread_id: ThreadId, exception: JvmError) {
+    fn unhandled_exception(&mut self, thread: &mut JavaThreadState, exception: JvmError) {
         if let JvmError::JavaExceptionThrown(exception_ref) = exception {
             let get_thread_group_method_id = self
-                .method_area
+                .method_area_read()
                 .get_class(&self.br().get_java_lang_thread_id().unwrap())
                 .get_vtable_method_id(&self.br().thread_get_thread_group_mk)
                 .unwrap();
             let thread_group_ref = Interpreter::invoke_instance_method(
-                thread_id,
+                thread,
                 get_thread_group_method_id,
                 self,
-                vec![Value::Ref(self.get_thread(&thread_id).thread_obj)],
+                vec![Value::Ref(thread.thread_obj)],
             )
             .unwrap()
             .unwrap()
             .as_obj_ref()
             .unwrap();
             let uncaught_exception_method_id = self
-                .method_area
+                .method_area_read()
                 .get_class(&self.br().get_java_lang_thread_group_id().unwrap())
                 .get_vtable_method_id(&self.br().thread_group_uncaught_exception_mk)
                 .unwrap();
             Interpreter::invoke_instance_method(
-                thread_id,
+                thread,
                 uncaught_exception_method_id,
                 self,
                 vec![
                     Value::Ref(thread_group_ref),
-                    Value::Ref(self.get_thread(&thread_id).thread_obj),
+                    Value::Ref(thread.thread_obj),
                     Value::Ref(exception_ref),
                 ],
             )
@@ -364,22 +369,6 @@ impl VirtualMachine {
         } else {
             eprintln!("Unhandled exception: {}", exception);
         }
-    }
-
-    // TODO: implement and no mut
-    pub fn get_thread_mut(&mut self, thread_id: &ThreadId) -> &mut JavaThreadState {
-        self.threads.get_mut(thread_id.to_index()).unwrap()
-    }
-    pub fn get_thread(&self, thread_id: &ThreadId) -> &JavaThreadState {
-        self.threads.get(thread_id.to_index()).unwrap()
-    }
-
-    pub fn get_stack_mut(&mut self, thread_id: &ThreadId) -> Result<&mut FrameStack, JvmError> {
-        Ok(&mut self.get_thread_mut(thread_id).stack)
-    }
-
-    pub fn get_stack(&self, thread_id: &ThreadId) -> Result<&FrameStack, JvmError> {
-        Ok(&self.get_thread(thread_id).stack)
     }
 
     pub fn interner(&self) -> &ThreadedRodeo {
@@ -396,20 +385,35 @@ impl VirtualMachine {
     }
 
     pub fn pretty_method_not_found_message(&self, method_id: &MethodId) -> String {
-        let method = self.method_area.get_method(method_id);
-        let method_desc = self
-            .method_area
-            .get_method_descriptor(&method.descriptor_id());
-        let class_sym = self.method_area.get_class(&method.class_id()).get_name();
+        let ma = self.method_area_read();
+        let method = ma.get_method(method_id);
+        let method_desc = ma.get_method_descriptor(&method.descriptor_id());
+        let class_sym = ma.get_class(&method.class_id()).get_name();
         let class_name = self.interner().resolve(&class_sym);
         let method_name = self.interner().resolve(&method.name);
         method_desc.to_java_signature(class_name, method_name)
+    }
+
+    pub fn method_area_read(&self) -> std::sync::RwLockReadGuard<'_, MethodArea> {
+        self.method_area.read().unwrap()
+    }
+
+    pub fn heap_read(&self) -> std::sync::RwLockReadGuard<'_, Heap> {
+        self.heap.read().unwrap()
+    }
+
+    pub fn heap_write(&self) -> std::sync::RwLockWriteGuard<'_, Heap> {
+        self.heap.write().unwrap()
+    }
+
+    pub fn method_area_write(&self) -> std::sync::RwLockWriteGuard<'_, MethodArea> {
+        self.method_area.write().unwrap()
     }
 }
 
 pub fn start(config: VmConfig) -> Result<(), ()> {
     let string_interner = Arc::new(ThreadedRodeo::default());
-    let (mut vm, main_thread_id) =
+    let (mut vm, mut main_thread) =
         VirtualMachine::new(config, string_interner.clone()).map_err(|_| {})?;
 
     #[cfg(feature = "log-runtime-traces")]
@@ -417,7 +421,7 @@ pub fn start(config: VmConfig) -> Result<(), ()> {
 
     let main_class_sym = vm.string_interner.get_or_intern(&vm.config.main_class);
     let main_class_id = vm
-        .method_area
+        .method_area_write()
         .get_class_id_or_load(main_class_sym)
         .map_err(|e| {
             eprintln!(
@@ -427,7 +431,7 @@ pub fn start(config: VmConfig) -> Result<(), ()> {
             eprintln!("Caused by: {}", e.into_pretty_string(&string_interner));
         })?;
     let main_method_id = vm
-        .method_area
+        .method_area_read()
         .get_instance_class(&main_class_id)
         .unwrap()
         .get_special_method_id(&vm.br().main_mk)
@@ -437,9 +441,9 @@ pub fn start(config: VmConfig) -> Result<(), ()> {
 
     // TODO: it works more or less correctly, but should be improved
     if let Err(e) =
-        Interpreter::invoke_static_method(main_thread_id, main_method_id, &mut vm, vec![])
+        Interpreter::invoke_static_method(&mut main_thread, main_method_id, &mut vm, vec![])
     {
-        vm.unhandled_exception(main_thread_id, e);
+        vm.unhandled_exception(&mut main_thread, e);
         Err(())
     } else {
         Ok(())

@@ -10,7 +10,7 @@ use tracing_log::log::debug;
 
 pub(super) fn jdk_internal_misc_unsafe_register_natives(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.registerNatives");
@@ -148,7 +148,7 @@ pub(super) fn jdk_internal_misc_unsafe_register_natives(
 
 fn jdk_internal_loader_boot_loader_set_boot_loader_unnamed_module_0(
     _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.loader.BootLoader.setBootLoaderUnnamedModule0");
@@ -160,7 +160,7 @@ fn jdk_internal_loader_boot_loader_set_boot_loader_unnamed_module_0(
 
 fn jdk_internal_misc_unsafe_ensure_class_initialized_0(
     vm: &mut VirtualMachine,
-    thread_id: ThreadId,
+    thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     let mirror_ref = args[1].as_obj_ref()?;
@@ -171,7 +171,7 @@ fn jdk_internal_misc_unsafe_ensure_class_initialized_0(
 
 fn jdk_internal_misc_unsafe_get_int_volatile(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.getIntVolatile");
@@ -186,7 +186,7 @@ fn jdk_internal_misc_unsafe_get_int_volatile(
 
 fn jdk_internal_misc_unsafe_get_long(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     let base = args[1].as_obj_ref()?;
@@ -200,7 +200,7 @@ fn jdk_internal_misc_unsafe_get_long(
 
 fn jdk_internal_misc_unsafe_get_int(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     let base = args[1].as_obj_ref()?;
@@ -214,7 +214,7 @@ fn jdk_internal_misc_unsafe_get_int(
 
 fn jdk_internal_misc_unsafe_array_base_offset_0(
     _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.arrayBaseOffset0");
@@ -223,7 +223,7 @@ fn jdk_internal_misc_unsafe_array_base_offset_0(
 
 fn jdk_internal_misc_unsafe_compare_and_set_int(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     let object = match args[1] {
@@ -259,7 +259,7 @@ fn jdk_internal_misc_unsafe_compare_and_set_int(
 
 fn jdk_internal_misc_unsafe_compare_and_set_long(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.compareAndSetLong");
@@ -295,7 +295,7 @@ fn jdk_internal_misc_unsafe_compare_and_set_long(
 
 fn jdk_internal_misc_unsafe_get_reference_volatile(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.getReferenceVolatile");
@@ -318,7 +318,7 @@ fn jdk_internal_misc_unsafe_get_reference_volatile(
 
 fn jdk_internal_misc_unsafe_object_field_offset_1(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.objectFieldOffset1");
@@ -342,7 +342,7 @@ fn jdk_internal_misc_unsafe_object_field_offset_1(
 
 fn jdk_internal_misc_unsafe_array_index_scale_0(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.arrayIndexScale0");
@@ -373,7 +373,7 @@ fn jdk_internal_misc_unsafe_array_index_scale_0(
 
 fn jdk_internal_misc_unsafe_full_fence(
     _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.fullFence");
@@ -382,7 +382,7 @@ fn jdk_internal_misc_unsafe_full_fence(
 
 fn jdk_internal_misc_unsafe_compare_and_set_reference(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     let object = match args[1] {
@@ -420,7 +420,7 @@ fn jdk_internal_misc_unsafe_compare_and_set_reference(
 
 fn jdk_internal_misc_unsafe_put_byte(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     let object = args

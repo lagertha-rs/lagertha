@@ -8,7 +8,7 @@ use tracing_log::log::debug;
 
 pub(super) fn java_lang_class_register_natives(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     vm.native_registry.register(
@@ -94,7 +94,7 @@ pub(super) fn java_lang_class_register_natives(
 
 fn java_lang_class_is_assignable_from(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.isAssignableFrom");
@@ -112,7 +112,7 @@ fn java_lang_class_is_assignable_from(
 
 fn java_lang_class_desired_assertion_status_0(
     _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.desiredAssertionStatus0");
@@ -121,7 +121,7 @@ fn java_lang_class_desired_assertion_status_0(
 
 fn java_lang_class_is_interface(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     let mirror_ref = args
@@ -137,7 +137,7 @@ fn java_lang_class_is_interface(
 
 fn java_lang_class_is_array(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     let mirror_ref = args
@@ -153,7 +153,7 @@ fn java_lang_class_is_array(
 
 fn java_lang_class_get_modifiers(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     let mirror_ref = args
@@ -169,7 +169,7 @@ fn java_lang_class_get_modifiers(
 
 fn java_lang_class_get_primitive_class(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     let primitive_name_ref = args
@@ -192,7 +192,7 @@ fn java_lang_class_get_primitive_class(
 
 fn java_lang_class_init_class_name(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     let mirror_ref = args
@@ -226,7 +226,7 @@ fn java_lang_class_init_class_name(
 
 fn java_lang_class_get_superclass(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     let mirror_ref = args

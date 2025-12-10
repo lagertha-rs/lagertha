@@ -1,6 +1,7 @@
 use crate::VirtualMachine;
-use crate::keys::{FullyQualifiedMethodKey, ThreadId};
+use crate::keys::FullyQualifiedMethodKey;
 use crate::native::{NativeRegistry, NativeRet};
+use crate::thread::JavaThreadState;
 use crate::vm::Value;
 use common::jtype::AllocationType;
 
@@ -20,20 +21,20 @@ pub(super) fn do_register_java_lang_ref_preregistered_natives(
 
 fn java_lang_ref_reference_refers_to_0(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     let referent_ref = args[0].as_obj_ref()?;
     let referent_fk = vm.br.reference_referent_fk;
     let reference_class_id = vm
-        .method_area
+        .method_area_write()
         .get_class_id_or_load(vm.br.java_lang_ref_reference_sym)?;
     let referent_field_offset = vm
-        .method_area
+        .method_area_read()
         .get_instance_class(&reference_class_id)?
         .get_instance_field(&referent_fk)?
         .offset;
-    let referent_value = vm.heap.read_field(
+    let referent_value = vm.heap_read().read_field(
         referent_ref,
         referent_field_offset,
         AllocationType::Reference,

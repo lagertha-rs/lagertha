@@ -15,7 +15,11 @@ pub(super) fn do_register_vm_internal_preregistered_natives(native_registry: &mu
     );
 }
 
-fn vm_internal_clone(vm: &mut VirtualMachine, _thread_id: ThreadId, args: &[Value]) -> NativeRet {
+fn vm_internal_clone(
+    vm: &mut VirtualMachine,
+    _thread: &mut JavaThreadState,
+    args: &[Value],
+) -> NativeRet {
     debug!("TODO: Stub: internal clone");
     let obj = match args[0] {
         Value::Ref(h) => h,

@@ -553,7 +553,7 @@ impl Heap {
     }
 
     // TODO: just a stub right now
-    pub fn get_rust_string_from_java_string(&mut self, h: HeapRef) -> Result<String, JvmError> {
+    pub fn get_rust_string_from_java_string(&self, h: HeapRef) -> Result<String, JvmError> {
         // Read byte[] value field (offset 0)
         let byte_array_ref = match self.read_field(h, 0, AllocationType::Reference)? {
             Value::Ref(r) => r,

@@ -7,6 +7,7 @@ use crate::keys::{
 use crate::rt::array::{ObjectArrayClass, PrimitiveArrayClass};
 use crate::rt::class::InstanceClass;
 use crate::rt::constant_pool::RuntimeConstantPool;
+use crate::rt::field::InstanceField;
 use crate::rt::interface::InterfaceClass;
 use crate::rt::method::Method;
 use crate::rt::{ClassLike, JvmClass, PrimitiveClass};
@@ -20,7 +21,7 @@ use jclass::ClassFile;
 use lasso::{Spur, ThreadedRodeo};
 use once_cell::sync::OnceCell;
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 
 pub struct MethodArea {
     bootstrap_class_loader: ClassLoader,
@@ -210,6 +211,26 @@ impl MethodArea {
                 "Not an instance class".to_string(),
             )),
         }
+    }
+
+    pub fn get_instance_field(
+        &self,
+        class_id: &ClassId,
+        key: &FieldKey,
+    ) -> Result<&InstanceField, JvmError> {
+        let class = self.get_instance_class(class_id)?;
+
+        class.get_instance_field(key)
+    }
+
+    pub fn get_static_field_value(
+        &self,
+        class_id: &ClassId,
+        key: &FieldKey,
+    ) -> Result<Value, JvmError> {
+        let class = self.get_class(class_id);
+
+        class.get_static_field_value(key)
     }
 
     fn get_static_method_id_rec(
@@ -481,7 +502,7 @@ impl MethodArea {
     pub fn get_mirror_ref_or_create(
         &mut self,
         class_id: ClassId,
-        heap: &mut Heap,
+        heap: &RwLock<Heap>,
     ) -> Result<HeapRef, JvmError> {
         if let Some(mirror_ref) = self.get_class(&class_id).get_mirror_ref() {
             return Ok(mirror_ref);
@@ -490,12 +511,15 @@ impl MethodArea {
         let class_instance_size = self
             .get_instance_class(&class_class_id)?
             .get_instance_size()?;
-        let mirror_ref = heap.alloc_instance(class_instance_size, class_class_id)?;
+        let mirror_ref = heap
+            .write()
+            .unwrap()
+            .alloc_instance(class_instance_size, class_class_id)?;
         if self.get_class(&class_id).is_primitive() {
             let primitive_field_key = self
                 .get_instance_class(&class_class_id)?
                 .get_instance_field(&self.br().class_primitive_fk)?;
-            heap.write_field(
+            heap.write().unwrap().write_field(
                 mirror_ref,
                 primitive_field_key.offset,
                 Value::Integer(1),

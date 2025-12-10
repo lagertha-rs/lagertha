@@ -1,5 +1,6 @@
 use crate::keys::FullyQualifiedMethodKey;
 use crate::native::{NativeRegistry, NativeRet};
+use crate::thread::JavaThreadState;
 use crate::vm::Value;
 use crate::{ThreadId, VirtualMachine};
 use tracing_log::log::debug;
@@ -81,7 +82,7 @@ pub(super) fn do_register_jdk_internal_preregistered_natives(native_registry: &m
 
 fn jdk_internal_misc_cds_get_random_seed_for_dumping(
     _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.CDS.getRandomSeedForDumping");
@@ -90,14 +91,16 @@ fn jdk_internal_misc_cds_get_random_seed_for_dumping(
 
 fn jdk_internal_util_system_props_raw_platform_properties(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.platformProperties");
     let string_class_sym = vm.br().java_lang_string_sym;
     // TODO: create a registry for interned common strings
-    let empty_string_sym = vm.method_area.interner().get_or_intern("");
-    let string_class_id = vm.method_area.get_class_id_or_load(string_class_sym)?;
+    let empty_string_sym = vm.interner().get_or_intern("");
+    let string_class_id = vm
+        .method_area_read()
+        .get_class_id_or_load(string_class_sym)?;
     let empty_string_stub = vm.heap.get_str_from_pool_or_new(empty_string_sym)?;
     let h = vm.heap.alloc_object_array(string_class_id, 40)?;
     // TODO: fill with real platform properties
@@ -128,7 +131,7 @@ fn jdk_internal_util_system_props_raw_platform_properties(
 
 fn jdk_internal_util_system_props_raw_vm_properties(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.vmProperties");
@@ -161,7 +164,7 @@ fn jdk_internal_util_system_props_raw_vm_properties(
 
 fn jdk_internal_misc_vm_initialize(
     _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.VM.initialize");
@@ -170,7 +173,7 @@ fn jdk_internal_misc_vm_initialize(
 
 fn jdk_internal_misc_signal_find_signal_0(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Signal.findSignal0");
@@ -205,7 +208,7 @@ fn jdk_internal_misc_signal_find_signal_0(
 
 fn jdk_internal_misc_signal_handle_0(
     _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Signal.handle0");
@@ -214,7 +217,7 @@ fn jdk_internal_misc_signal_handle_0(
 
 fn jdk_internal_misc_cds_get_cds_config_status(
     _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
 
     _args: &[Value],
 ) -> NativeRet {
@@ -224,7 +227,7 @@ fn jdk_internal_misc_cds_get_cds_config_status(
 
 fn jdk_internal_misc_cds_initialize_from_archive(
     _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
 
     _args: &[Value],
 ) -> NativeRet {

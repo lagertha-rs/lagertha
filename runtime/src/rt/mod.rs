@@ -18,7 +18,7 @@ use std::fmt::Display;
 pub mod array;
 pub mod class;
 pub mod constant_pool;
-mod field;
+pub mod field;
 pub mod interface;
 pub mod method;
 

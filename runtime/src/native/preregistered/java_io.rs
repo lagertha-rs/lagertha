@@ -1,5 +1,6 @@
 use crate::keys::FullyQualifiedMethodKey;
 use crate::native::{NativeRegistry, NativeRet};
+use crate::thread::JavaThreadState;
 use crate::vm::Value;
 use crate::{ThreadId, VirtualMachine, throw_exception};
 use common::jtype::AllocationType;
@@ -91,7 +92,7 @@ pub(super) fn do_register_java_io_preregistered_natives(native_registry: &mut Na
 
 fn java_io_file_output_stream_write_bytes(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Partial implementation: java.io.FileOutputStream.writeBytes");
@@ -112,32 +113,33 @@ fn java_io_file_output_stream_write_bytes(
         _ => panic!("java.io.FileOutputStream.writeBytes: expected non-negative length"),
     };
 
-    let output_stream_class_id = vm.heap.get_class_id(output_stream_ref)?;
+    let output_stream_class_id = vm.heap_read().get_class_id(output_stream_ref)?;
     let output_stream_fd_field_offset = vm
-        .method_area
+        .method_area_read()
         .get_instance_class(&output_stream_class_id)?
         .get_instance_field(&vm.br().file_output_stream_fd_fk)?
         .offset;
     let fd_obj = vm
-        .heap
+        .heap_read()
         .read_field(
             output_stream_ref,
             output_stream_fd_field_offset,
             AllocationType::Reference,
         )?
         .as_obj_ref()?;
-    let fd_class_id = vm.heap.get_class_id(fd_obj)?;
+    let fd_class_id = vm.heap_read().get_class_id(fd_obj)?;
     let fd_fd_field_offset = vm
-        .method_area
+        .method_area_read()
         .get_instance_class(&fd_class_id)?
         .get_instance_field(&vm.br().fd_fd_fk)?
         .offset;
     let fd_val = vm
-        .heap
+        .heap_read()
         .read_field(fd_obj, fd_fd_field_offset, AllocationType::Int)?
         .as_int()?;
 
-    let byte_slice = vm.heap.get_byte_array_slice(bytes_array)?;
+    let heap_read = vm.heap_read();
+    let byte_slice = heap_read.get_byte_array_slice(bytes_array)?;
 
     if offset + length > byte_slice.len() {
         panic!("writeBytes: offset + length exceeds array bounds");
@@ -166,7 +168,7 @@ fn java_io_file_output_stream_write_bytes(
 
 fn java_io_file_input_stream_init_ids(
     _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.io.FileInputStream.initIDs");
@@ -175,7 +177,7 @@ fn java_io_file_input_stream_init_ids(
 
 fn java_io_file_descriptor_init_ids(
     _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.io.FileDescriptor.initIDs");
@@ -184,7 +186,7 @@ fn java_io_file_descriptor_init_ids(
 
 fn java_io_file_descriptor_get_handle(
     _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.io.FileDescriptor.getHandle");
@@ -193,7 +195,7 @@ fn java_io_file_descriptor_get_handle(
 
 fn java_io_file_descriptor_get_append(
     _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.io.FileDescriptor.getAppend");
@@ -202,7 +204,7 @@ fn java_io_file_descriptor_get_append(
 
 fn java_io_file_output_stream_init_ids(
     _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.io.FileInputStream.initIDs");
@@ -211,7 +213,7 @@ fn java_io_file_output_stream_init_ids(
 
 fn java_io_unix_file_system_init_ids(
     _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.io.UnixFileSystem.initIDs");
@@ -220,15 +222,15 @@ fn java_io_unix_file_system_init_ids(
 
 fn java_io_unix_file_system_canonicalize_0(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     let str_ref = args[1].as_obj_ref()?;
-    let path = vm.heap.get_rust_string_from_java_string(str_ref)?;
+    let path = vm.heap_read().get_rust_string_from_java_string(str_ref)?;
     match std::fs::canonicalize(&path) {
         Ok(canonical) => {
             let res = canonical.to_string_lossy().to_string();
-            let res_ref = vm.heap.alloc_string(&res)?;
+            let res_ref = vm.heap_write().alloc_string(&res)?;
             Ok(Some(Value::Ref(res_ref)))
         }
         Err(e) => {
@@ -239,7 +241,7 @@ fn java_io_unix_file_system_canonicalize_0(
 
 fn java_io_unix_file_system_get_boolean_attributes_0(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     const BA_EXISTS: i32 = 0x01;
@@ -248,19 +250,19 @@ fn java_io_unix_file_system_get_boolean_attributes_0(
     const BA_HIDDEN: i32 = 0x08;
 
     let file_class_id = vm
-        .method_area
+        .method_area_write()
         .get_class_id_or_load(vm.br.java_io_file_sym)?;
     let path_field_offset = vm
-        .method_area
+        .method_area_read()
         .get_instance_class(&file_class_id)?
         .get_instance_field(&vm.br.file_path_fk)?
         .offset;
     let file_ref = args[1].as_obj_ref()?;
     let path_ref = vm
-        .heap
+        .heap_read()
         .read_field(file_ref, path_field_offset, AllocationType::Reference)?
         .as_obj_ref()?;
-    let path_str = vm.heap.get_rust_string_from_java_string(path_ref)?;
+    let path_str = vm.heap_read().get_rust_string_from_java_string(path_ref)?;
     let path = std::path::Path::new(&path_str);
 
     let mut attrs = 0;

@@ -1,6 +1,7 @@
 use crate::VirtualMachine;
-use crate::keys::{FullyQualifiedMethodKey, ThreadId};
+use crate::keys::FullyQualifiedMethodKey;
 use crate::native::{NativeRegistry, NativeRet};
+use crate::thread::JavaThreadState;
 use crate::vm::Value;
 use tracing_log::log::debug;
 
@@ -20,7 +21,7 @@ pub(super) fn do_register_java_lang_module_preregistered_natives(
 
 fn java_lang_module_define_module_0(
     _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("Stub: java/lang/Module.defineModule0()");

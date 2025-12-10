@@ -1,12 +1,11 @@
 use crate::keys::{ClassId, FullyQualifiedMethodKey};
 use crate::native::{NativeRegistry, NativeRet};
-use crate::rt::ClassLike;
+use crate::thread::JavaThreadState;
 use crate::vm::Value;
 use crate::vm::stack::FrameType;
-use crate::{MethodId, ThreadId, VirtualMachine, throw_exception};
+use crate::{MethodId, VirtualMachine, throw_exception};
 use common::instruction::ArrayType;
 use common::jtype::AllocationType;
-use lasso::Interner;
 use tracing_log::log::debug;
 
 pub(super) fn do_register_java_lang_preregistered_natives(native_registry: &mut NativeRegistry) {
@@ -143,7 +142,7 @@ pub(super) fn do_register_java_lang_preregistered_natives(native_registry: &mut 
 
 fn java_lang_system_arraycopy(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     let src_addr = args[0].as_obj_ref()?;
@@ -152,21 +151,21 @@ fn java_lang_system_arraycopy(
     let dest_pos = args[3].as_int()?;
     let length = args[4].as_int()?;
 
-    let src_class_id = vm.heap.get_class_id(src_addr)?;
-    if !vm.heap.is_array(src_addr)? {
+    let src_class_id = vm.heap_read().get_class_id(src_addr)?;
+    if !vm.heap_read().is_array(src_addr)? {
         throw_exception!(
             ArrayStoreException,
             "arraycopy: source type {} is not an array",
-            vm.symbol_to_pretty_string(vm.method_area.get_class(&src_class_id).get_name())
+            vm.symbol_to_pretty_string(vm.method_area_read().get_class(&src_class_id).get_name())
         )?;
     }
 
-    let dest_class_id = vm.heap.get_class_id(dest_addr)?;
-    if !vm.heap.is_array(dest_addr)? {
+    let dest_class_id = vm.heap_read().get_class_id(dest_addr)?;
+    if !vm.heap_read().is_array(dest_addr)? {
         throw_exception!(
             ArrayStoreException,
             "arraycopy: destination type {} is not an array",
-            vm.symbol_to_pretty_string(vm.method_area.get_class(&dest_class_id).get_name())
+            vm.symbol_to_pretty_string(vm.method_area_read().get_class(&dest_class_id).get_name())
         )?;
     }
 
@@ -174,41 +173,42 @@ fn java_lang_system_arraycopy(
         return Ok(None);
     }
 
-    vm.heap
+    vm.heap_write()
         .copy_primitive_slice(src_addr, src_pos, dest_addr, dest_pos, length)?;
     Ok(None)
 }
 
 fn java_lang_object_get_class(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.getClass");
     let object_ref = args[0].as_obj_ref()?;
     let target_class_id = {
-        let class_id = vm.heap.get_class_id(object_ref)?;
+        let class_id = vm.heap_read().get_class_id(object_ref)?;
         //TODO: refactor and rethink how I handle array classes and their mirrors
         //right now I put on heap for arrays the class id of the element type, but the mirror has to be of the array type
-        if vm.heap.is_array(object_ref)? {
-            let class_name_sym = vm.method_area.get_class(&class_id).get_name();
+        if vm.heap_read().is_array(object_ref)? {
+            let class_name_sym = vm.method_area_read().get_class(&class_id).get_name();
             let raw_name = vm.interner().resolve(&class_name_sym);
             let array_name = format!("[L{};", raw_name);
             let array_class_name_sym = vm.interner().get_or_intern(&array_name);
-            vm.method_area.load_array_class(array_class_name_sym)?
+            vm.method_area_write()
+                .load_array_class(array_class_name_sym)?
         } else {
             class_id
         }
     };
     let res = vm
-        .method_area
-        .get_mirror_ref_or_create(target_class_id, &mut vm.heap)?;
+        .method_area_write()
+        .get_mirror_ref_or_create(target_class_id, &vm.heap)?;
     Ok(Some(Value::Ref(res)))
 }
 
 fn java_lang_object_hash_code(
     _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Object.hashCode");
@@ -227,46 +227,61 @@ fn java_lang_object_hash_code(
 /// - an int array with the line pc of the methods in the stack frames
 fn java_lang_throwable_fill_in_stack_trace(
     vm: &mut VirtualMachine,
-    thread_id: ThreadId,
+    thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Throwable.fillInStackTrace");
-    let mut frames: Vec<_> = vm
-        .get_stack(&thread_id)?
+    let mut frames: Vec<_> = thread
+        .stack
         .frames()
         .iter()
         .filter(|frame| {
             //TODO: very hacky way to skip internal frames, should be improved and very probably doesn't show real throwable constructors
-            let cur_method = vm.method_area.get_method(&frame.method_id());
-            !vm.method_area
-                .instance_of(cur_method.class_id(), vm.br().java_lang_throwable_sym)
+            let class_id = vm
+                .method_area_read()
+                .get_method(&frame.method_id())
+                .class_id();
+            !vm.method_area_read()
+                .instance_of(class_id, vm.br().java_lang_throwable_sym)
         })
         .cloned() // TODO: very bad clone
         .collect();
     frames.reverse();
-    let int_arr_class = vm.method_area.load_array_class(vm.br().int_array_desc)?;
-    let class_id_array =
-        vm.heap
-            .alloc_primitive_array(int_arr_class, ArrayType::Int, frames.len() as i32)?;
-    let method_id_array =
-        vm.heap
-            .alloc_primitive_array(int_arr_class, ArrayType::Int, frames.len() as i32)?;
-    let line_nbr_array =
-        vm.heap
-            .alloc_primitive_array(int_arr_class, ArrayType::Int, frames.len() as i32)?;
+    let int_arr_class = vm
+        .method_area_write()
+        .load_array_class(vm.br().int_array_desc)?;
+    let class_id_array = vm.heap_write().alloc_primitive_array(
+        int_arr_class,
+        ArrayType::Int,
+        frames.len() as i32,
+    )?;
+    let method_id_array = vm.heap_write().alloc_primitive_array(
+        int_arr_class,
+        ArrayType::Int,
+        frames.len() as i32,
+    )?;
+    let line_nbr_array = vm.heap_write().alloc_primitive_array(
+        int_arr_class,
+        ArrayType::Int,
+        frames.len() as i32,
+    )?;
     for (pos, frame) in frames.iter().enumerate() {
-        let method = vm.method_area.get_method(&frame.method_id());
-        vm.heap.write_array_element(
+        let class_id = vm
+            .method_area_read()
+            .get_method(&frame.method_id())
+            .class_id()
+            .to_i32();
+        vm.heap_write().write_array_element(
             class_id_array,
             pos as i32,
-            Value::Integer(method.class_id().to_i32()),
+            Value::Integer(class_id),
         )?;
-        vm.heap.write_array_element(
+        vm.heap_write().write_array_element(
             method_id_array,
             pos as i32,
             Value::Integer(frame.method_id().to_i32()),
         )?;
-        vm.heap.write_array_element(
+        vm.heap_write().write_array_element(
             line_nbr_array,
             pos as i32,
             Value::Integer(match frame {
@@ -276,36 +291,36 @@ fn java_lang_throwable_fill_in_stack_trace(
         )?;
     }
     let backtrace_addr = vm
-        .heap
+        .heap_write()
         .alloc_object_array(vm.br().get_java_lang_object_id()?, 3)?;
-    vm.heap
+    vm.heap_write()
         .write_array_element(backtrace_addr, 0, Value::Ref(class_id_array))?;
-    vm.heap
+    vm.heap_write()
         .write_array_element(backtrace_addr, 1, Value::Ref(method_id_array))?;
-    vm.heap
+    vm.heap_write()
         .write_array_element(backtrace_addr, 2, Value::Ref(line_nbr_array))?;
     let throwable_addr = match args[0] {
         Value::Ref(h) => h,
         _ => panic!("java.lang.Throwable.fillInStackTrace: expected object"),
     };
-    let throwable_class_id = vm.heap.get_class_id(throwable_addr)?;
+    let throwable_class_id = vm.heap_read().get_class_id(throwable_addr)?;
     let backtrace_field_offset = vm
-        .method_area
+        .method_area_read()
         .get_instance_class(&throwable_class_id)?
         .get_instance_field(&vm.br().throwable_backtrace_fk)?
         .offset;
     let depth_field_offset = vm
-        .method_area
+        .method_area_read()
         .get_instance_class(&throwable_class_id)?
         .get_instance_field(&vm.br().throwable_depth_fk)?
         .offset;
-    vm.heap.write_field(
+    vm.heap_write().write_field(
         throwable_addr,
         backtrace_field_offset,
         Value::Ref(backtrace_addr),
         AllocationType::Reference,
     )?;
-    vm.heap.write_field(
+    vm.heap_write().write_field(
         throwable_addr,
         depth_field_offset,
         Value::Integer(frames.len() as i32),
@@ -317,7 +332,7 @@ fn java_lang_throwable_fill_in_stack_trace(
 
 fn java_lang_float_float_to_raw_int_bits(
     _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Float.floatToRawIntBits");
@@ -330,7 +345,7 @@ fn java_lang_float_float_to_raw_int_bits(
 
 fn java_lang_double_double_to_raw_long_bits(
     _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Double.doubleToRawLongBits");
@@ -343,7 +358,7 @@ fn java_lang_double_double_to_raw_long_bits(
 
 fn java_lang_runtime_max_memory(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Runtime.maxMemory");
@@ -352,7 +367,7 @@ fn java_lang_runtime_max_memory(
 
 fn java_lang_runtime_available_processors(
     _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Runtime.availableProcessors");
@@ -361,7 +376,7 @@ fn java_lang_runtime_available_processors(
 
 fn java_lang_stack_trace_element_init_stack_trace_elements(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.StackTraceElement.initStackTraceElements");
@@ -383,80 +398,102 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
     // TODO: obviously need to clean this up
     for i in 0..depth {
         let i = i as i32;
-        let classes_array = vm.heap.read_array_element(object, 0)?.as_obj_ref()?;
-        let class_id = ClassId::from_i32(vm.heap.read_array_element(classes_array, i)?.as_int()?);
-        let methods_array = vm.heap.read_array_element(object, 1)?.as_obj_ref()?;
-        let method_id = MethodId::from_i32(vm.heap.read_array_element(methods_array, i)?.as_int()?);
-        let cp_array = vm.heap.read_array_element(object, 2)?.as_obj_ref()?;
-        let cp = vm.heap.read_array_element(cp_array, i)?.as_int()?;
+        let classes_array = vm.heap_read().read_array_element(object, 0)?.as_obj_ref()?;
+        let class_id = ClassId::from_i32(
+            vm.heap_read()
+                .read_array_element(classes_array, i)?
+                .as_int()?,
+        );
+        let methods_array = vm.heap_read().read_array_element(object, 1)?.as_obj_ref()?;
+        let method_id = MethodId::from_i32(
+            vm.heap_read()
+                .read_array_element(methods_array, i)?
+                .as_int()?,
+        );
+        let cp_array = vm.heap_read().read_array_element(object, 2)?.as_obj_ref()?;
+        let cp = vm.heap_read().read_array_element(cp_array, i)?.as_int()?;
         let declaring_class_object = vm
-            .method_area
-            .get_mirror_ref_or_create(class_id, &mut vm.heap)?;
-        let method_sym = vm.method_area.get_method(&method_id).name;
-        let class_sym = vm.method_area.get_class(&class_id).get_name();
+            .method_area_write()
+            .get_mirror_ref_or_create(class_id, &vm.heap)?;
+        let method_sym = vm.method_area_read().get_method(&method_id).name;
+        let class_sym = vm.method_area_read().get_class(&class_id).get_name();
         let class_source_sym = vm
-            .method_area
+            .method_area_read()
             .get_class(&class_id)
             .get_source_file()
             .unwrap_or(vm.interner().get_or_intern("TODO: Unknown Source"));
-        let class_name = vm.heap.alloc_string_from_interned_with_char_mapping(
-            class_sym,
-            Some(&|c| {
-                if c == '/' { '.' } else { c }
-            }),
-        )?;
-        let method_name = vm.heap.alloc_string_from_interned(method_sym)?;
-        let source = vm.heap.alloc_string_from_interned(class_source_sym)?;
+        let class_name = vm
+            .heap_write()
+            .alloc_string_from_interned_with_char_mapping(
+                class_sym,
+                Some(&|c| {
+                    if c == '/' { '.' } else { c }
+                }),
+            )?;
+        let method_name = vm.heap_write().alloc_string_from_interned(method_sym)?;
+        let source = vm
+            .heap_write()
+            .alloc_string_from_interned(class_source_sym)?;
         let line_nbr = vm
-            .method_area
+            .method_area_read()
             .get_method(&method_id)
             .get_line_number_by_cp(cp)
             .unwrap_or(-1);
         let cur_stack_trace_entry = vm
-            .heap
+            .heap_read()
             .read_array_element(elements_array, i)?
             .as_obj_ref()?;
 
-        let stack_trace_class_id = vm.heap.get_class_id(cur_stack_trace_entry)?;
-        let stack_trace_class = vm.method_area.get_instance_class(&stack_trace_class_id)?;
+        let stack_trace_class_id = vm.heap_read().get_class_id(cur_stack_trace_entry)?;
+        let (a, b, c, d, e) = {
+            let ma = vm.method_area_read();
+            let stack_trace_class = ma.get_instance_class(&stack_trace_class_id)?;
+            (
+                stack_trace_class
+                    .get_instance_field(&vm.br().stack_trace_declaring_class_name_fk)?
+                    .offset,
+                stack_trace_class
+                    .get_instance_field(&vm.br().stack_trace_method_name_fk)?
+                    .offset,
+                stack_trace_class
+                    .get_instance_field(&vm.br().stack_trace_file_name_fk)?
+                    .offset,
+                stack_trace_class
+                    .get_instance_field(&vm.br().stack_trace_line_number_fk)?
+                    .offset,
+                stack_trace_class
+                    .get_instance_field(&vm.br().stack_trace_declaring_class_fk)?
+                    .offset,
+            )
+        };
 
-        vm.heap.write_field(
+        vm.heap_write().write_field(
             cur_stack_trace_entry,
-            stack_trace_class
-                .get_instance_field(&vm.br().stack_trace_declaring_class_name_fk)?
-                .offset,
+            a,
             Value::Ref(class_name),
             AllocationType::Reference,
         )?;
-        vm.heap.write_field(
+        vm.heap_write().write_field(
             cur_stack_trace_entry,
-            stack_trace_class
-                .get_instance_field(&vm.br().stack_trace_method_name_fk)?
-                .offset,
+            b,
             Value::Ref(method_name),
             AllocationType::Reference,
         )?;
-        vm.heap.write_field(
+        vm.heap_write().write_field(
             cur_stack_trace_entry,
-            stack_trace_class
-                .get_instance_field(&vm.br().stack_trace_file_name_fk)?
-                .offset,
+            c,
             Value::Ref(source),
             AllocationType::Reference,
         )?;
-        vm.heap.write_field(
+        vm.heap_write().write_field(
             cur_stack_trace_entry,
-            stack_trace_class
-                .get_instance_field(&vm.br().stack_trace_line_number_fk)?
-                .offset,
+            d,
             Value::Integer(line_nbr),
             AllocationType::Int,
         )?;
-        vm.heap.write_field(
+        vm.heap_write().write_field(
             cur_stack_trace_entry,
-            stack_trace_class
-                .get_instance_field(&vm.br().stack_trace_declaring_class_fk)?
-                .offset,
+            e,
             Value::Ref(declaring_class_object),
             AllocationType::Reference,
         )?;
@@ -466,7 +503,7 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
 
 fn java_lang_object_notify_all(
     _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Object.notifyAll");
@@ -475,7 +512,7 @@ fn java_lang_object_notify_all(
 
 fn java_lang_float_int_bits_to_float(
     _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Float.intBitsToFloat");
@@ -488,7 +525,7 @@ fn java_lang_float_int_bits_to_float(
 
 fn java_lang_null_pointer_exception_get_extended_npe_message(
     _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.NullPointerException.getExtendedNPEMessage");
@@ -499,7 +536,7 @@ fn java_lang_null_pointer_exception_get_extended_npe_message(
 
 fn java_lang_string_intern(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.String.intern");
@@ -507,15 +544,17 @@ fn java_lang_string_intern(
         Value::Ref(h) => *h,
         _ => panic!("java.lang.String.intern: expected object"),
     };
-    let string_value = vm.heap.get_rust_string_from_java_string(string_addr)?;
+    let string_value = vm
+        .heap_read()
+        .get_rust_string_from_java_string(string_addr)?;
     let interned = vm.interner().get_or_intern(&string_value);
-    let interned_addr = vm.heap.get_str_from_pool_or_new(interned)?;
+    let interned_addr = vm.heap_write().get_str_from_pool_or_new(interned)?;
     Ok(Some(Value::Ref(interned_addr)))
 }
 
 fn java_lang_double_long_bits_to_double(
     _vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     let double = args[0].as_long()?;

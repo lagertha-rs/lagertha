@@ -1,19 +1,20 @@
 mod preregistered;
 mod registrable;
 
+use crate::VirtualMachine;
 use crate::error::JvmError;
 use crate::keys::FullyQualifiedMethodKey;
 use crate::native::preregistered::preregister_natives;
 use crate::native::registrable::add_registrable_natives;
+use crate::thread::JavaThreadState;
 use crate::vm::Value;
-use crate::{ThreadId, VirtualMachine};
 use lasso::ThreadedRodeo;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tracing_log::log::debug;
 
 pub type NativeRet = Result<Option<Value>, JvmError>;
-pub type NativeFn = fn(&mut VirtualMachine, thread_id: ThreadId, &[Value]) -> NativeRet;
+pub type NativeFn = fn(&mut VirtualMachine, thread: &mut JavaThreadState, &[Value]) -> NativeRet;
 
 pub struct NativeRegistry {
     map: HashMap<FullyQualifiedMethodKey, NativeFn>,

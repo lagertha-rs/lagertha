@@ -5,7 +5,7 @@ use crate::{ThreadId, VirtualMachine};
 
 pub(super) fn java_lang_thread_register_natives(
     vm: &mut VirtualMachine,
-    _thread_id: ThreadId,
+    _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     vm.native_registry.register(
@@ -22,7 +22,7 @@ pub(super) fn java_lang_thread_register_natives(
 
 fn java_lang_thread_current_thread(
     vm: &mut VirtualMachine,
-    thread_id: ThreadId,
+    thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     Ok(Some(Value::Ref(vm.get_thread(&thread_id).thread_obj)))
