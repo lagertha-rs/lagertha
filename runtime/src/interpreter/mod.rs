@@ -26,6 +26,7 @@ impl Interpreter {
     ) -> Result<ControlFlow<Option<Value>>, JvmError> {
         let is_branch = instruction.is_branch();
         let instr_size = instruction.byte_size();
+        warn!("Executing instruction: {:?}", instruction);
 
         //debug_log_instruction!(&instruction, &thread);
 
@@ -360,7 +361,7 @@ impl Interpreter {
             .method_area_read()
             .build_fully_qualified_native_method_key(&method_id);
         // native instance method of array special handling (for now, only Object.clone)
-        if is_static
+        if !is_static
             && vm.heap_read().is_array(args[0].as_obj_ref()?)?
             && method_key.name == vm.br.clone_sym
             && method_key.desc == clone_desc

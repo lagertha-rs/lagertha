@@ -2,10 +2,9 @@ use crate::class_loader::system::SystemClassLoader;
 use crate::error::JvmError;
 use crate::{VmConfig, debug_log};
 use jimage::JImage;
-use std::collections::HashSet;
 use std::path::PathBuf;
-use toml::Value;
-use toml_edit::Document;
+//use toml::Value;
+//use toml_edit::Document;
 
 mod system;
 
@@ -22,7 +21,7 @@ struct ClassSource {
 pub struct ClassLoader {
     jimage: JImage,
     system: SystemClassLoader,
-    fixtures_path: PathBuf,
+    //fixtures_path: PathBuf,
 }
 
 impl ClassLoader {
@@ -37,12 +36,12 @@ impl ClassLoader {
         );
         let system_loader = SystemClassLoader::new(&vm_config.class_path)?;
 
-        let fixtures_path = PathBuf::from("javap/tests/testdata/fixtures.toml");
+        //let fixtures_path = PathBuf::from("javap/tests/testdata/fixtures.toml");
 
         Ok(Self {
             jimage,
             system: system_loader,
-            fixtures_path,
+            //fixtures_path,
         })
     }
 
@@ -50,7 +49,7 @@ impl ClassLoader {
     pub fn load(&self, name: &str) -> Result<Vec<u8>, JvmError> {
         if let Some(bytes) = self.jimage.open_java_base_class(name) {
             debug_log!("Bytecode of \"{name}\" found using JImage.");
-            self.add_tested_class(name)?;
+            //self.add_tested_class(name)?;
             Ok(bytes.to_vec())
         } else {
             let bytes = self.system.find_class(name)?;
@@ -59,6 +58,7 @@ impl ClassLoader {
         }
     }
 
+    /*
     fn add_tested_class(&self, name: &str) -> Result<(), JvmError> {
         let content = std::fs::read_to_string(&self.fixtures_path).unwrap();
 
@@ -87,4 +87,5 @@ impl ClassLoader {
 
         Ok(())
     }
+     */
 }

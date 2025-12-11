@@ -99,32 +99,35 @@ fn jdk_internal_util_system_props_raw_platform_properties(
     // TODO: create a registry for interned common strings
     let empty_string_sym = vm.interner().get_or_intern("");
     let string_class_id = vm
-        .method_area_read()
+        .method_area_write()
         .get_class_id_or_load(string_class_sym)?;
-    let empty_string_stub = vm.heap.get_str_from_pool_or_new(empty_string_sym)?;
-    let h = vm.heap.alloc_object_array(string_class_id, 40)?;
+    let empty_string_stub = vm.heap_write().get_str_from_pool_or_new(empty_string_sym)?;
+    let h = vm.heap_write().alloc_object_array(string_class_id, 40)?;
     // TODO: fill with real platform properties
     for i in 0..40 {
-        vm.heap
+        vm.heap_write()
             .write_array_element(h, i, Value::Ref(empty_string_stub))?;
     }
-    let encoding_sym = vm.method_area.interner().get_or_intern("UTF-8");
-    let enc = vm.heap.get_str_from_pool_or_new(encoding_sym)?;
-    let line_sep_sym = vm.method_area.interner().get_or_intern("\n");
-    let file_sep_sym = vm.method_area.interner().get_or_intern("/");
-    let path_sep_sym = vm.method_area.interner().get_or_intern(":");
-    let line_separator_value = vm.heap.get_str_from_pool_or_new(line_sep_sym)?;
-    let file_separator_value = vm.heap.get_str_from_pool_or_new(file_sep_sym)?;
-    let path_separator_value = vm.heap.get_str_from_pool_or_new(path_sep_sym)?;
-    vm.heap
+    let encoding_sym = vm.interner().get_or_intern("UTF-8");
+    let enc = vm.heap_write().get_str_from_pool_or_new(encoding_sym)?;
+    let line_sep_sym = vm.interner().get_or_intern("\n");
+    let file_sep_sym = vm.interner().get_or_intern("/");
+    let path_sep_sym = vm.interner().get_or_intern(":");
+    let line_separator_value = vm.heap_write().get_str_from_pool_or_new(line_sep_sym)?;
+    let file_separator_value = vm.heap_write().get_str_from_pool_or_new(file_sep_sym)?;
+    let path_separator_value = vm.heap_write().get_str_from_pool_or_new(path_sep_sym)?;
+    vm.heap_write()
         .write_array_element(h, 4, Value::Ref(file_separator_value))?;
-    vm.heap
+    vm.heap_write()
         .write_array_element(h, 23, Value::Ref(path_separator_value))?;
-    vm.heap
+    vm.heap_write()
         .write_array_element(h, 18, Value::Ref(line_separator_value))?;
-    vm.heap.write_array_element(h, 27, Value::Ref(enc))?;
-    vm.heap.write_array_element(h, 29, Value::Ref(enc))?;
-    vm.heap.write_array_element(h, 35, Value::Ref(enc))?;
+    vm.heap_write()
+        .write_array_element(h, 27, Value::Ref(enc))?;
+    vm.heap_write()
+        .write_array_element(h, 29, Value::Ref(enc))?;
+    vm.heap_write()
+        .write_array_element(h, 35, Value::Ref(enc))?;
 
     Ok(Some(Value::Ref(h)))
 }
@@ -136,29 +139,32 @@ fn jdk_internal_util_system_props_raw_vm_properties(
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.vmProperties");
     let string_class_sym = vm.br().java_lang_string_sym;
-    let string_class = vm.method_area.get_class_id_or_load(string_class_sym)?;
+    let string_class = vm
+        .method_area_write()
+        .get_class_id_or_load(string_class_sym)?;
     //TODO: same here, it needs a registry for common interned strings
-    let h = vm.heap.alloc_object_array(string_class, 4)?;
+    let h = vm.heap_write().alloc_object_array(string_class, 4)?;
     let java_home_key = vm
-        .heap
+        .heap_write()
         .get_str_from_pool_or_new(vm.interner().get_or_intern("java.home"))?;
-    let java_home_value = vm.heap.get_str_from_pool_or_new(
+    let java_home_value = vm.heap_write().get_str_from_pool_or_new(
         vm.interner()
             .get_or_intern(vm.config.home.to_str().unwrap()),
     )?;
     let sun_page_align_stub = vm
-        .heap
+        .heap_write()
         .get_str_from_pool_or_new(vm.interner().get_or_intern("sun.nio.PageAlignDirectMemory"))?;
     let false_str = vm
-        .heap
+        .heap_write()
         .get_str_from_pool_or_new(vm.interner().get_or_intern("false"))?;
-    vm.heap
+    vm.heap_write()
         .write_array_element(h, 0, Value::Ref(java_home_key))?;
-    vm.heap
+    vm.heap_write()
         .write_array_element(h, 1, Value::Ref(java_home_value))?;
-    vm.heap
+    vm.heap_write()
         .write_array_element(h, 2, Value::Ref(sun_page_align_stub))?;
-    vm.heap.write_array_element(h, 3, Value::Ref(false_str))?;
+    vm.heap_write()
+        .write_array_element(h, 3, Value::Ref(false_str))?;
     Ok(Some(Value::Ref(h)))
 }
 
@@ -178,7 +184,7 @@ fn jdk_internal_misc_signal_find_signal_0(
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Signal.findSignal0");
     let signal_name = match args[0] {
-        Value::Ref(h) => vm.heap.get_rust_string_from_java_string(h)?,
+        Value::Ref(h) => vm.heap_read().get_rust_string_from_java_string(h)?,
         _ => panic!("jdk.internal.misc.Signal.findSignal0: expected signal name string"),
     };
     let signal_number = match signal_name.as_str() {

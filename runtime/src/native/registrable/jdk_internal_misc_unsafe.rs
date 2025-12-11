@@ -3,6 +3,7 @@ use crate::heap::Heap;
 use crate::interpreter::Interpreter;
 use crate::keys::FullyQualifiedMethodKey;
 use crate::native::NativeRet;
+use crate::thread::JavaThreadState;
 use crate::vm::Value;
 use crate::{ThreadId, VirtualMachine};
 use common::jtype::AllocationType;
@@ -164,8 +165,8 @@ fn jdk_internal_misc_unsafe_ensure_class_initialized_0(
     args: &[Value],
 ) -> NativeRet {
     let mirror_ref = args[1].as_obj_ref()?;
-    let class_id = vm.method_area.get_class_id_by_mirror(&mirror_ref)?;
-    Interpreter::ensure_initialized(thread_id, Some(class_id), vm)?;
+    let class_id = vm.method_area_read().get_class_id_by_mirror(&mirror_ref)?;
+    Interpreter::ensure_initialized(thread, Some(class_id), vm)?;
     Ok(None)
 }
 
@@ -178,7 +179,7 @@ fn jdk_internal_misc_unsafe_get_int_volatile(
     let base = args[1].as_obj_ref()?;
     let off = args[2].as_long()?;
     let value = vm
-        .heap
+        .heap_read()
         .read_field(base, off as usize, AllocationType::Int)?
         .as_int()?;
     Ok(Some(Value::Integer(value)))
@@ -192,7 +193,7 @@ fn jdk_internal_misc_unsafe_get_long(
     let base = args[1].as_obj_ref()?;
     let off = args[2].as_long()?;
     let value = vm
-        .heap
+        .heap_read()
         .read_field(base, off as usize, AllocationType::Long)?
         .as_long()?;
     Ok(Some(Value::Long(value)))
@@ -206,7 +207,7 @@ fn jdk_internal_misc_unsafe_get_int(
     let base = args[1].as_obj_ref()?;
     let off = args[2].as_long()?;
     let value = vm
-        .heap
+        .heap_read()
         .read_field(base, off as usize, AllocationType::Int)?
         .as_int()?;
     Ok(Some(Value::Integer(value)))
@@ -243,9 +244,11 @@ fn jdk_internal_misc_unsafe_compare_and_set_int(
         _ => panic!("compareAndSetInt: expected int new_value"),
     };
 
-    let current = vm.heap.read_field(object, offset, AllocationType::Int)?;
+    let current = vm
+        .heap_read()
+        .read_field(object, offset, AllocationType::Int)?;
     if current == Value::Integer(expected) {
-        vm.heap.write_field(
+        vm.heap_write().write_field(
             object,
             offset,
             Value::Integer(new_value),
@@ -279,11 +282,17 @@ fn jdk_internal_misc_unsafe_compare_and_set_long(
         Value::Long(l) => l,
         _ => panic!("jdk.internal.misc.Unsafe.compareAndSetLong: expected long new value"),
     };
-    let object_field_value = vm.heap.read_field(object, offset, AllocationType::Long)?;
+    let object_field_value = vm
+        .heap_read()
+        .read_field(object, offset, AllocationType::Long)?;
     if let Value::Long(current_value) = object_field_value {
         if current_value == expected {
-            vm.heap
-                .write_field(object, offset, Value::Long(new_value), AllocationType::Long)?;
+            vm.heap_write().write_field(
+                object,
+                offset,
+                Value::Long(new_value),
+                AllocationType::Long,
+            )?;
             Ok(Some(Value::Integer(1)))
         } else {
             Ok(Some(Value::Integer(0)))
@@ -309,7 +318,7 @@ fn jdk_internal_misc_unsafe_get_reference_volatile(
         Value::Long(x) => x,
         _ => panic!("Unsafe.getReferenceVolatile expects a long offset"),
     };
-    Ok(Some(vm.heap.read_field(
+    Ok(Some(vm.heap_read().read_field(
         base,
         off as usize,
         AllocationType::Reference,
@@ -327,16 +336,17 @@ fn jdk_internal_misc_unsafe_object_field_offset_1(
         _ => panic!("jdk.internal.misc.Unsafe.objectFieldOffset: expected class object"),
     };
     let field_name = match args[2] {
-        Value::Ref(h) => vm.heap.get_rust_string_from_java_string(h)?,
+        Value::Ref(h) => vm.heap_read().get_rust_string_from_java_string(h)?,
         _ => panic!("jdk.internal.misc.Unsafe.objectFieldOffset: expected field name string"),
     };
     let interned_field_name = vm.interner().get_or_intern(&field_name);
-    let class_id = vm.method_area.get_class_id_by_mirror(class_addr)?;
-    let offset = vm
-        .method_area
-        .get_instance_class(&class_id)?
-        .get_instance_field_by_name(&interned_field_name)?
-        .offset;
+    let class_id = vm.method_area_read().get_class_id_by_mirror(class_addr)?;
+    let offset = {
+        let ma = vm.method_area_read();
+        ma.get_instance_class(&class_id)?
+            .get_instance_field_by_name(&interned_field_name)?
+            .offset
+    };
     Ok(Some(Value::Long(offset as i64)))
 }
 
@@ -350,8 +360,8 @@ fn jdk_internal_misc_unsafe_array_index_scale_0(
         Value::Ref(h) => h,
         _ => panic!("arrayIndexScale0: expected class"),
     };
-    let class_id = vm.method_area.get_class_id_by_mirror(class_addr)?;
-    let class_name_sym = vm.method_area.get_class(&class_id).get_name();
+    let class_id = vm.method_area_read().get_class_id_by_mirror(class_addr)?;
+    let class_name_sym = vm.method_area_read().get_class(&class_id).get_name();
     let class_name = vm.interner().resolve(&class_name_sym);
 
     // Parse the class name to get element type
@@ -403,10 +413,10 @@ fn jdk_internal_misc_unsafe_compare_and_set_reference(
     };
 
     let current = vm
-        .heap
+        .heap_read()
         .read_field(object, offset, AllocationType::Reference)?;
     if current == expected {
-        vm.heap.write_field(
+        vm.heap_write().write_field(
             object,
             offset,
             Value::Ref(new_value),
@@ -439,7 +449,7 @@ fn jdk_internal_misc_unsafe_put_byte(
         .ok_or(JvmError::Todo("putByte: missing 3 argument".to_string()))?
         .as_int()?;
 
-    vm.heap
+    vm.heap_write()
         .write_field(object, offset, Value::Integer(value), AllocationType::Byte)?;
     Ok(None)
 }

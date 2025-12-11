@@ -1,5 +1,6 @@
 use crate::keys::FullyQualifiedMethodKey;
 use crate::native::NativeRet;
+use crate::thread::JavaThreadState;
 use crate::vm::Value;
 use crate::{ThreadId, VirtualMachine};
 use tracing_log::log::debug;
@@ -77,9 +78,9 @@ fn java_lang_system_set_out_0(
         _ => panic!("java.lang.System.setOut0: expected PrintStream object"),
     };
     let system_class_id = vm
-        .method_area
+        .method_area_write()
         .get_class_id_or_load(vm.br().java_lang_system_sym)?;
-    vm.method_area
+    vm.method_area_read()
         .get_class_like(&system_class_id)?
         .set_static_field_value(&vm.br().system_out_fk, Value::Ref(val))?;
     Ok(None)
@@ -96,9 +97,9 @@ fn java_lang_system_set_err_0(
         _ => panic!("java.lang.System.setOut0: expected PrintStream object"),
     };
     let system_class_id = vm
-        .method_area
+        .method_area_write()
         .get_class_id_or_load(vm.br().java_lang_system_sym)?;
-    vm.method_area
+    vm.method_area_read()
         .get_class_like(&system_class_id)?
         .set_static_field_value(&vm.br().system_err_fk, Value::Ref(val))?;
     Ok(None)

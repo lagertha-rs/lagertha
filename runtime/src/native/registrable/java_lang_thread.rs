@@ -1,5 +1,6 @@
 use crate::keys::FullyQualifiedMethodKey;
 use crate::native::NativeRet;
+use crate::thread::JavaThreadState;
 use crate::vm::Value;
 use crate::{ThreadId, VirtualMachine};
 
@@ -21,9 +22,9 @@ pub(super) fn java_lang_thread_register_natives(
 }
 
 fn java_lang_thread_current_thread(
-    vm: &mut VirtualMachine,
+    _vm: &mut VirtualMachine,
     thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
-    Ok(Some(Value::Ref(vm.get_thread(&thread_id).thread_obj)))
+    Ok(Some(Value::Ref(thread.thread_obj)))
 }

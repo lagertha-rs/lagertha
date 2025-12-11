@@ -1211,6 +1211,7 @@ pub(super) fn handle_ldc_ldcw_ldc2w(
             RuntimeConstant::Double(val) => Value::Double(*val),
             RuntimeConstant::Class(class_entry) => {
                 let class_name_sym = class_entry.get_name_sym()?;
+                drop(ma);
                 let class_id = vm
                     .method_area_write()
                     .get_class_id_or_load(class_name_sym)?;

@@ -1,4 +1,5 @@
 use crate::native::NativeRet;
+use crate::thread::JavaThreadState;
 use crate::vm::Value;
 use crate::{ThreadId, VirtualMachine};
 use tracing_log::log::debug;

@@ -1,5 +1,6 @@
 use crate::keys::FullyQualifiedMethodKey;
 use crate::native::{NativeRegistry, NativeRet};
+use crate::thread::JavaThreadState;
 use crate::vm::Value;
 use crate::{ThreadId, VirtualMachine};
 use tracing_log::log::debug;
@@ -25,6 +26,6 @@ fn vm_internal_clone(
         Value::Ref(h) => h,
         _ => panic!("internal clone: expected object"),
     };
-    let cloned = vm.heap.clone_object(obj)?;
+    let cloned = vm.heap_write().clone_object(obj)?;
     Ok(Some(Value::Ref(cloned)))
 }

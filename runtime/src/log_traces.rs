@@ -51,13 +51,13 @@ macro_rules! debug_log_method {
         #[cfg(feature = "log-runtime-traces")]
         {
             crate::log_traces::debug::with_vm(|vm| {
-                let method = vm.method_area.get_method($method_id);
+                let ma = vm.method_area_read();
+                let method = ma.get_method($method_id);
                 let class_name = vm
                     .interner()
-                    .resolve(&vm.method_area.get_class(&method.class_id()).get_name());
+                    .resolve(&ma.get_class(&method.class_id()).get_name());
                 let method_name = vm.interner().resolve(&method.name);
-                let signature = vm
-                    .method_area
+                let signature = ma
                     .get_method_descriptor(&method.descriptor_id())
                     .to_java_signature(method_name, class_name);
 
@@ -73,19 +73,19 @@ macro_rules! error_log_method {
         #[cfg(feature = "log-runtime-traces")]
         {
             crate::log_traces::debug::with_vm(|vm| {
-                let method = vm.method_area.get_method($method_id);
+                let ma = vm.method_area_read();
+                let method = ma.get_method($method_id);
                 let class_name = vm
                     .interner()
-                    .resolve(&vm.method_area.get_class(&method.class_id()).get_name());
+                    .resolve(&ma.get_class(&method.class_id()).get_name());
                 let method_name = vm.interner().resolve(&method.name);
-                let signature = vm
-                    .method_area
+                let signature = ma
                     .get_method_descriptor(&method.descriptor_id())
                     .to_java_signature(method_name, class_name);
 
                 let exp_class_name = if let JvmError::JavaExceptionThrown(hr) = $exception {
-                    let excp_id = vm.heap.get_class_id(*hr).unwrap();
-                    let excp_class_name = vm.method_area.get_class(&excp_id).get_name();
+                    let excp_id = vm.heap_read().get_class_id(*hr).unwrap();
+                    let excp_class_name = ma.get_class(&excp_id).get_name();
                     vm.interner().resolve(&excp_class_name).to_string()
                 } else {
                     format!("{:?}", $exception)
