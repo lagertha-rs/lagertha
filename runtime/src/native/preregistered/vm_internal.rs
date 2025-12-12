@@ -17,7 +17,7 @@ pub(super) fn do_register_vm_internal_preregistered_natives(native_registry: &mu
 }
 
 fn vm_internal_clone(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {

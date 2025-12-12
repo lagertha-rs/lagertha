@@ -22,7 +22,7 @@ impl Interpreter {
     fn interpret_instruction(
         thread: &mut JavaThreadState,
         instruction: Instruction,
-        vm: &mut VirtualMachine,
+        vm: &VirtualMachine,
     ) -> Result<ControlFlow<Option<Value>>, JvmError> {
         let is_branch = instruction.is_branch();
         let instr_size = instruction.byte_size();
@@ -232,7 +232,7 @@ impl Interpreter {
     fn prepare_method_args(
         thread: &mut JavaThreadState,
         method_id: MethodId,
-        vm: &mut VirtualMachine,
+        vm: &VirtualMachine,
     ) -> Result<Vec<Value>, JvmError> {
         let mut args_count = vm
             .method_area_read()
@@ -279,7 +279,7 @@ impl Interpreter {
     }
 
     fn find_exception_handler(
-        vm: &mut VirtualMachine,
+        vm: &VirtualMachine,
         method_id: &MethodId,
         java_exception: HeapRef,
         thread: &mut JavaThreadState,
@@ -308,7 +308,7 @@ impl Interpreter {
     fn interpret_method(
         thread: &mut JavaThreadState,
         method_id: MethodId,
-        vm: &mut VirtualMachine,
+        vm: &VirtualMachine,
     ) -> Result<Option<Value>, JvmError> {
         let code_ptr = vm.method_area_read().get_method(&method_id).get_code()? as *const [u8];
         loop {
@@ -349,7 +349,7 @@ impl Interpreter {
         thread: &mut JavaThreadState,
         method_id: MethodId,
         args: Vec<Value>,
-        vm: &mut VirtualMachine,
+        vm: &VirtualMachine,
     ) -> Result<Option<Value>, JvmError> {
         let is_static = {
             let ma = vm.method_area_read();
@@ -371,7 +371,7 @@ impl Interpreter {
         }
         let frame = NativeFrame::new(method_id);
         thread.stack.push_frame(FrameType::NativeFrame(frame))?;
-        let native = *vm.native_registry.get(&method_key).ok_or(build_exception!(
+        let native = vm.native_registry.get(&method_key).ok_or(build_exception!(
             UnsatisfiedLinkError,
             vm.pretty_method_not_found_message(&method_id)
         ))?;
@@ -394,7 +394,7 @@ impl Interpreter {
         thread: &mut JavaThreadState,
         method_id: MethodId,
         args: Vec<Value>,
-        vm: &mut VirtualMachine,
+        vm: &VirtualMachine,
     ) -> Result<Option<Value>, JvmError> {
         let (max_stack, max_locals) = vm
             .method_area_read()
@@ -419,7 +419,7 @@ impl Interpreter {
         thread: &mut JavaThreadState,
         method_id: MethodId,
         args: Vec<Value>,
-        vm: &mut VirtualMachine,
+        vm: &VirtualMachine,
     ) -> Result<Option<Value>, JvmError> {
         let is_native = {
             let ma = vm.method_area_read();
@@ -436,7 +436,7 @@ impl Interpreter {
         thread: &mut JavaThreadState,
         method_id: MethodId,
         args: Vec<Value>,
-        vm: &mut VirtualMachine,
+        vm: &VirtualMachine,
     ) -> Result<(), JvmError> {
         let method_ret = Self::invoke_method_core(thread, method_id, args, vm)?;
         if let Some(ret) = method_ret {
@@ -461,7 +461,7 @@ impl Interpreter {
     fn run_clinit_if_exists(
         thread: &mut JavaThreadState,
         class_id: ClassId,
-        vm: &mut VirtualMachine,
+        vm: &VirtualMachine,
     ) -> Result<(), JvmError> {
         let ma = vm.method_area_read();
         if let Some(&clinit_method_id) = ma.get_class_like(&class_id)?.get_clinit_method_id() {
@@ -475,7 +475,7 @@ impl Interpreter {
     pub fn ensure_initialized(
         thread: &mut JavaThreadState,
         class_id: Option<ClassId>,
-        vm: &mut VirtualMachine,
+        vm: &VirtualMachine,
     ) -> Result<(), JvmError> {
         let Some(class_id) = class_id else {
             return Ok(());
@@ -565,7 +565,7 @@ impl Interpreter {
     pub fn invoke_instance_method(
         thread: &mut JavaThreadState,
         method_id: MethodId,
-        vm: &mut VirtualMachine,
+        vm: &VirtualMachine,
         args: Vec<Value>,
     ) -> Result<Option<Value>, JvmError> {
         //TODO: do I need to check that args[0] is not null?
@@ -575,7 +575,7 @@ impl Interpreter {
     pub fn invoke_static_method(
         thread: &mut JavaThreadState,
         method_id: MethodId,
-        vm: &mut VirtualMachine,
+        vm: &VirtualMachine,
         args: Vec<Value>,
     ) -> Result<(), JvmError> {
         let class_id = vm.method_area_read().get_method(&method_id).class_id();

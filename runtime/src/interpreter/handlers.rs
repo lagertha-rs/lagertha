@@ -25,7 +25,7 @@ pub(super) fn handle_athrow(thread: &mut JavaThreadState) -> Result<(), JvmError
 #[inline]
 pub(super) fn handle_aaload(
     thread: &mut JavaThreadState,
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
 ) -> Result<(), JvmError> {
     let index = thread.stack.pop_int_val()?;
     let array_addr = thread.stack.pop_obj_val()?;
@@ -41,7 +41,7 @@ pub(super) fn handle_aaload(
 #[inline]
 pub(super) fn handle_aastore(
     thread: &mut JavaThreadState,
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
 ) -> Result<(), JvmError> {
     let value = thread.stack.pop_nullable_ref()?;
     let index = thread.stack.pop_int_val()?;
@@ -53,7 +53,7 @@ pub(super) fn handle_aastore(
 #[inline]
 pub(super) fn handle_bastore(
     thread: &mut JavaThreadState,
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
 ) -> Result<(), JvmError> {
     let value = thread.stack.pop_int()?;
     let index = thread.stack.pop_int_val()?;
@@ -65,7 +65,7 @@ pub(super) fn handle_bastore(
 #[inline]
 pub(super) fn handle_iaload(
     thread: &mut JavaThreadState,
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
 ) -> Result<(), JvmError> {
     let index = thread.stack.pop_int_val()?;
     let array_addr = thread.stack.pop_obj_val()?;
@@ -76,7 +76,7 @@ pub(super) fn handle_iaload(
 #[inline]
 pub(super) fn handle_caload(
     thread: &mut JavaThreadState,
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
 ) -> Result<(), JvmError> {
     let index = thread.stack.pop_int_val()?;
     let array_addr = thread.stack.pop_obj_val()?;
@@ -87,7 +87,7 @@ pub(super) fn handle_caload(
 #[inline]
 pub(super) fn handle_baload(
     thread: &mut JavaThreadState,
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
 ) -> Result<(), JvmError> {
     let index = thread.stack.pop_int_val()?;
     let array_addr = thread.stack.pop_obj_val()?;
@@ -140,7 +140,7 @@ pub(super) fn handle_aload(thread: &mut JavaThreadState, pos: u8) -> Result<(), 
 #[inline]
 pub(super) fn handle_anewarray(
     thread: &mut JavaThreadState,
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     idx: u16,
 ) -> Result<(), JvmError> {
     let size = thread.stack.pop_int_val()?;
@@ -164,7 +164,7 @@ pub(super) fn handle_anewarray(
 #[inline]
 pub(super) fn handle_arraylength(
     thread: &mut JavaThreadState,
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
 ) -> Result<(), JvmError> {
     let array_ref = thread.stack.pop_obj_val()?;
     let length = vm.heap_read().get_array_length(array_ref)?;
@@ -209,7 +209,7 @@ pub(super) fn handle_bipush(thread: &mut JavaThreadState, val: i8) -> Result<(),
 #[inline]
 pub(super) fn handle_castore(
     thread: &mut JavaThreadState,
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
 ) -> Result<(), JvmError> {
     let value = thread.stack.pop_int_val()?;
     let index = thread.stack.pop_int_val()?;
@@ -437,7 +437,7 @@ pub(super) fn handle_fstore(thread: &mut JavaThreadState, n: u8) -> Result<(), J
 #[inline]
 pub(super) fn handle_getfield(
     thread: &mut JavaThreadState,
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     idx: u16,
 ) -> Result<(), JvmError> {
     let target_obj_ref = thread.stack.pop_obj_val()?;
@@ -468,7 +468,7 @@ pub(super) fn handle_getfield(
 #[inline]
 pub(super) fn handle_getstatic(
     thread: &mut JavaThreadState,
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     idx: u16,
 ) -> Result<(), JvmError> {
     let cur_frame_method_id = thread.stack.cur_java_frame()?.method_id();
@@ -901,7 +901,7 @@ pub(super) fn handle_iload(thread: &mut JavaThreadState, pos: u8) -> Result<(), 
 #[inline]
 pub(super) fn handle_invokevirtual(
     thread: &mut JavaThreadState,
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     idx: u16,
 ) -> Result<(), JvmError> {
     let cur_frame_method_id = thread.stack.cur_java_frame()?.method_id();
@@ -936,7 +936,7 @@ pub(super) fn handle_invokevirtual(
 #[inline]
 pub(super) fn handle_instanceof(
     thread: &mut JavaThreadState,
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     idx: u16,
 ) -> Result<(), JvmError> {
     let cur_frame_method_id = thread.stack.cur_java_frame()?.method_id();
@@ -1197,7 +1197,7 @@ pub(super) fn handle_iinc(
 #[inline]
 pub(super) fn handle_ldc_ldcw_ldc2w(
     thread: &mut JavaThreadState,
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     idx: u16,
 ) -> Result<(), JvmError> {
     let cur_method_id = thread.stack.cur_java_frame()?.method_id();
@@ -1234,7 +1234,7 @@ pub(super) fn handle_ldc_ldcw_ldc2w(
 #[inline]
 pub(super) fn handle_new(
     thread: &mut JavaThreadState,
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     idx: u16,
 ) -> Result<(), JvmError> {
     let cur_frame_method_id = thread.stack.cur_java_frame()?.method_id();
@@ -1258,7 +1258,7 @@ pub(super) fn handle_new(
 #[inline]
 pub(super) fn handle_newarray(
     thread: &mut JavaThreadState,
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     array_type: ArrayType,
 ) -> Result<(), JvmError> {
     let size = thread.stack.pop_int_val()?;
@@ -1283,7 +1283,7 @@ pub(super) fn handle_pop(thread: &mut JavaThreadState) -> Result<(), JvmError> {
 #[inline]
 pub(super) fn handle_putfield(
     thread: &mut JavaThreadState,
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     idx: u16,
 ) -> Result<(), JvmError> {
     let value = thread.stack.pop_operand()?;
@@ -1315,7 +1315,7 @@ pub(super) fn handle_putfield(
 #[inline]
 pub(super) fn handle_putstatic(
     thread: &mut JavaThreadState,
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     idx: u16,
 ) -> Result<(), JvmError> {
     let value = thread.stack.pop_operand()?;
@@ -1340,7 +1340,7 @@ pub(super) fn handle_putstatic(
 #[inline]
 pub(super) fn handle_invokeinterface(
     thread: &mut JavaThreadState,
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     idx: u16,
     count: u8,
 ) -> Result<(), JvmError> {
@@ -1378,7 +1378,7 @@ pub(super) fn handle_invokeinterface(
 #[inline]
 pub(super) fn handle_invokespecial(
     thread: &mut JavaThreadState,
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     idx: u16,
 ) -> Result<(), JvmError> {
     let cur_frame_method_id = thread.stack.cur_java_frame()?.method_id();
@@ -1400,7 +1400,7 @@ pub(super) fn handle_invokespecial(
 #[inline]
 pub(super) fn handle_invokestatic(
     thread: &mut JavaThreadState,
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     idx: u16,
 ) -> Result<(), JvmError> {
     let cur_frame_method_id = thread.stack.cur_java_frame()?.method_id();
@@ -1422,7 +1422,7 @@ pub(super) fn handle_invokestatic(
 #[inline]
 pub(super) fn handle_invokedynamic(
     thread: &mut JavaThreadState,
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     idx: u16,
 ) -> Result<(), JvmError> {
     let cur_frame_method_id = thread.stack.cur_java_frame()?.method_id();
@@ -1539,7 +1539,7 @@ pub(super) fn handle_lsub(thread: &mut JavaThreadState) -> Result<(), JvmError> 
 #[inline]
 pub(super) fn handle_iastore(
     thread: &mut JavaThreadState,
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
 ) -> Result<(), JvmError> {
     let value = thread.stack.pop_int_val()?;
     let index = thread.stack.pop_int_val()?;
@@ -1569,7 +1569,7 @@ pub(super) fn handle_ishr(thread: &mut JavaThreadState) -> Result<(), JvmError> 
 #[inline]
 pub(super) fn handle_saload(
     thread: &mut JavaThreadState,
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
 ) -> Result<(), JvmError> {
     let index = thread.stack.pop_int_val()?;
     let array_ref = thread.stack.pop_obj_val()?;
@@ -1580,7 +1580,7 @@ pub(super) fn handle_saload(
 #[inline]
 pub(super) fn handle_sastore(
     thread: &mut JavaThreadState,
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
 ) -> Result<(), JvmError> {
     let value = thread.stack.pop_int_val()?;
     let index = thread.stack.pop_int_val()?;

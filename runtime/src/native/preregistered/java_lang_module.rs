@@ -20,7 +20,7 @@ pub(super) fn do_register_java_lang_module_preregistered_natives(
 }
 
 fn java_lang_module_define_module_0(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {

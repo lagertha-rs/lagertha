@@ -81,7 +81,7 @@ pub(super) fn do_register_jdk_internal_preregistered_natives(native_registry: &m
 }
 
 fn jdk_internal_misc_cds_get_random_seed_for_dumping(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -90,7 +90,7 @@ fn jdk_internal_misc_cds_get_random_seed_for_dumping(
 }
 
 fn jdk_internal_util_system_props_raw_platform_properties(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -133,7 +133,7 @@ fn jdk_internal_util_system_props_raw_platform_properties(
 }
 
 fn jdk_internal_util_system_props_raw_vm_properties(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -169,7 +169,7 @@ fn jdk_internal_util_system_props_raw_vm_properties(
 }
 
 fn jdk_internal_misc_vm_initialize(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -178,7 +178,7 @@ fn jdk_internal_misc_vm_initialize(
 }
 
 fn jdk_internal_misc_signal_find_signal_0(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -213,7 +213,7 @@ fn jdk_internal_misc_signal_find_signal_0(
 }
 
 fn jdk_internal_misc_signal_handle_0(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -222,7 +222,7 @@ fn jdk_internal_misc_signal_handle_0(
 }
 
 fn jdk_internal_misc_cds_get_cds_config_status(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
 
     _args: &[Value],
@@ -232,7 +232,7 @@ fn jdk_internal_misc_cds_get_cds_config_status(
 }
 
 fn jdk_internal_misc_cds_initialize_from_archive(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
 
     _args: &[Value],

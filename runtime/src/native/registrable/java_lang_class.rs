@@ -8,7 +8,7 @@ use common::jtype::AllocationType;
 use tracing_log::log::debug;
 
 pub(super) fn java_lang_class_register_natives(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -94,7 +94,7 @@ pub(super) fn java_lang_class_register_natives(
 }
 
 fn java_lang_class_is_assignable_from(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -116,7 +116,7 @@ fn java_lang_class_is_assignable_from(
 }
 
 fn java_lang_class_desired_assertion_status_0(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -125,7 +125,7 @@ fn java_lang_class_desired_assertion_status_0(
 }
 
 fn java_lang_class_is_interface(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -144,7 +144,7 @@ fn java_lang_class_is_interface(
 }
 
 fn java_lang_class_is_array(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -160,7 +160,7 @@ fn java_lang_class_is_array(
 }
 
 fn java_lang_class_get_modifiers(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -179,7 +179,7 @@ fn java_lang_class_get_modifiers(
 }
 
 fn java_lang_class_get_primitive_class(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -202,7 +202,7 @@ fn java_lang_class_get_primitive_class(
 }
 
 fn java_lang_class_init_class_name(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -239,7 +239,7 @@ fn java_lang_class_init_class_name(
 }
 
 fn java_lang_class_get_superclass(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {

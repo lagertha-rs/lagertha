@@ -29,7 +29,7 @@ pub(super) fn do_register_jdk_internal_reflect_preregistered_natives(
 }
 
 fn jdk_internal_reflect_reflection_get_caller_class(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -45,7 +45,7 @@ fn jdk_internal_reflect_reflection_get_caller_class(
 }
 
 fn jdk_internal_reflect_reflection_get_class_access_flags(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {

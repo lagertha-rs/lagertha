@@ -1236,6 +1236,7 @@ dependencies = [
  "byteorder",
  "common",
  "crossbeam",
+ "dashmap",
  "hotpath",
  "jclass",
  "jimage",

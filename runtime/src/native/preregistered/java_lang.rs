@@ -141,7 +141,7 @@ pub(super) fn do_register_java_lang_preregistered_natives(native_registry: &mut 
 }
 
 fn java_lang_system_arraycopy(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -179,7 +179,7 @@ fn java_lang_system_arraycopy(
 }
 
 fn java_lang_object_get_class(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -207,7 +207,7 @@ fn java_lang_object_get_class(
 }
 
 fn java_lang_object_hash_code(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -226,7 +226,7 @@ fn java_lang_object_hash_code(
 /// - an int array with the name indexes of the methods in the stack frames
 /// - an int array with the line pc of the methods in the stack frames
 fn java_lang_throwable_fill_in_stack_trace(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -331,7 +331,7 @@ fn java_lang_throwable_fill_in_stack_trace(
 }
 
 fn java_lang_float_float_to_raw_int_bits(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -344,7 +344,7 @@ fn java_lang_float_float_to_raw_int_bits(
 }
 
 fn java_lang_double_double_to_raw_long_bits(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -357,7 +357,7 @@ fn java_lang_double_double_to_raw_long_bits(
 }
 
 fn java_lang_runtime_max_memory(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -366,7 +366,7 @@ fn java_lang_runtime_max_memory(
 }
 
 fn java_lang_runtime_available_processors(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -375,7 +375,7 @@ fn java_lang_runtime_available_processors(
 }
 
 fn java_lang_stack_trace_element_init_stack_trace_elements(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -502,7 +502,7 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
 }
 
 fn java_lang_object_notify_all(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -511,7 +511,7 @@ fn java_lang_object_notify_all(
 }
 
 fn java_lang_float_int_bits_to_float(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -524,7 +524,7 @@ fn java_lang_float_int_bits_to_float(
 }
 
 fn java_lang_null_pointer_exception_get_extended_npe_message(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -535,7 +535,7 @@ fn java_lang_null_pointer_exception_get_extended_npe_message(
 }
 
 fn java_lang_string_intern(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -553,7 +553,7 @@ fn java_lang_string_intern(
 }
 
 fn java_lang_double_long_bits_to_double(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {

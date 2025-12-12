@@ -62,7 +62,7 @@ impl VirtualMachine {
     pub fn new(
         config: VmConfig,
         string_interner: Arc<ThreadedRodeo>,
-    ) -> Result<(Self, JavaThreadState), ()> {
+    ) -> Result<(Arc<Self>, JavaThreadState), ()> {
         config.validate();
         let (method_area, br) =
             MethodArea::init(&config, string_interner.clone()).map_err(|e| {
@@ -76,14 +76,14 @@ impl VirtualMachine {
 
         let native_registry = NativeRegistry::new(string_interner.clone());
 
-        let mut vm = Self {
+        let vm = Arc::new(Self {
             config,
             native_registry,
             string_interner: string_interner.clone(),
             method_area: RwLock::new(method_area),
             heap: RwLock::new(heap),
             br,
-        };
+        });
 
         #[cfg(feature = "log-runtime-traces")]
         log_traces::debug::init(&vm);
@@ -147,10 +147,7 @@ impl VirtualMachine {
         )
     }
 
-    fn initialize_main_thread(
-        &mut self,
-        main_thread: &mut JavaThreadState,
-    ) -> Result<(), JvmError> {
+    fn initialize_main_thread(&self, main_thread: &mut JavaThreadState) -> Result<(), JvmError> {
         let system_thread_group_ref = self.create_system_thread_group(main_thread)?;
         let main_thread_group_ref =
             self.create_main_thread_group(main_thread, system_thread_group_ref)?;
@@ -173,7 +170,7 @@ impl VirtualMachine {
         Ok(())
     }
 
-    fn create_main_thread(&mut self) -> Result<JavaThreadState, JvmError> {
+    fn create_main_thread(&self) -> Result<JavaThreadState, JvmError> {
         let thread_class_id = self.br().get_java_lang_thread_id()?;
         let thread_instance_size = self
             .method_area_read()
@@ -196,7 +193,7 @@ impl VirtualMachine {
     }
 
     fn create_system_thread_group(
-        &mut self,
+        &self,
         main_thread: &mut JavaThreadState,
     ) -> Result<HeapRef, JvmError> {
         let system_thread_group_class_id = self.br().get_java_lang_thread_group_id()?;
@@ -222,7 +219,7 @@ impl VirtualMachine {
     }
 
     fn create_main_thread_group(
-        &mut self,
+        &self,
         main_thread: &mut JavaThreadState,
         system_thread_group_ref: HeapRef,
     ) -> Result<HeapRef, JvmError> {
@@ -256,7 +253,7 @@ impl VirtualMachine {
         Ok(main_thread_group_ref)
     }
 
-    fn initialize_system_class(&mut self, thread: &mut JavaThreadState) -> Result<(), JvmError> {
+    fn initialize_system_class(&self, thread: &mut JavaThreadState) -> Result<(), JvmError> {
         let system_class_id = self.br().get_java_lang_system_id()?;
 
         let init_phase1_method_key = self.br().system_init_phase1_mk;
@@ -294,7 +291,7 @@ impl VirtualMachine {
     // TODO: refactor and improve error handling. ideally can't fail
     //TODO: exception arg should be actually JvmError, like any error
     fn map_rust_error_to_java_exception(
-        &mut self,
+        &self,
         thread: &mut JavaThreadState,
         exception: JavaExceptionFromJvm,
     ) -> Result<HeapRef, JvmError> {
@@ -333,7 +330,7 @@ impl VirtualMachine {
 
     //TODO: exception should be allocated on java heap at this point, and be a reference
     //TODO: get rid of unwrap, need to understand how to handle errors here properly
-    fn unhandled_exception(&mut self, thread: &mut JavaThreadState, exception: JvmError) {
+    fn unhandled_exception(&self, thread: &mut JavaThreadState, exception: JvmError) {
         if let JvmError::JavaExceptionThrown(exception_ref) = exception {
             let get_thread_group_method_id = self
                 .method_area_read()

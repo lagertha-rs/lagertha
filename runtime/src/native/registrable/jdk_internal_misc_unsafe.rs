@@ -10,7 +10,7 @@ use common::jtype::AllocationType;
 use tracing_log::log::debug;
 
 pub(super) fn jdk_internal_misc_unsafe_register_natives(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -148,7 +148,7 @@ pub(super) fn jdk_internal_misc_unsafe_register_natives(
 }
 
 fn jdk_internal_loader_boot_loader_set_boot_loader_unnamed_module_0(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -160,7 +160,7 @@ fn jdk_internal_loader_boot_loader_set_boot_loader_unnamed_module_0(
 }
 
 fn jdk_internal_misc_unsafe_ensure_class_initialized_0(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -171,7 +171,7 @@ fn jdk_internal_misc_unsafe_ensure_class_initialized_0(
 }
 
 fn jdk_internal_misc_unsafe_get_int_volatile(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -186,7 +186,7 @@ fn jdk_internal_misc_unsafe_get_int_volatile(
 }
 
 fn jdk_internal_misc_unsafe_get_long(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -200,7 +200,7 @@ fn jdk_internal_misc_unsafe_get_long(
 }
 
 fn jdk_internal_misc_unsafe_get_int(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -214,7 +214,7 @@ fn jdk_internal_misc_unsafe_get_int(
 }
 
 fn jdk_internal_misc_unsafe_array_base_offset_0(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -223,7 +223,7 @@ fn jdk_internal_misc_unsafe_array_base_offset_0(
 }
 
 fn jdk_internal_misc_unsafe_compare_and_set_int(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -261,7 +261,7 @@ fn jdk_internal_misc_unsafe_compare_and_set_int(
 }
 
 fn jdk_internal_misc_unsafe_compare_and_set_long(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -303,7 +303,7 @@ fn jdk_internal_misc_unsafe_compare_and_set_long(
 }
 
 fn jdk_internal_misc_unsafe_get_reference_volatile(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -326,7 +326,7 @@ fn jdk_internal_misc_unsafe_get_reference_volatile(
 }
 
 fn jdk_internal_misc_unsafe_object_field_offset_1(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -351,7 +351,7 @@ fn jdk_internal_misc_unsafe_object_field_offset_1(
 }
 
 fn jdk_internal_misc_unsafe_array_index_scale_0(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -382,7 +382,7 @@ fn jdk_internal_misc_unsafe_array_index_scale_0(
 }
 
 fn jdk_internal_misc_unsafe_full_fence(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -391,7 +391,7 @@ fn jdk_internal_misc_unsafe_full_fence(
 }
 
 fn jdk_internal_misc_unsafe_compare_and_set_reference(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -429,7 +429,7 @@ fn jdk_internal_misc_unsafe_compare_and_set_reference(
 }
 
 fn jdk_internal_misc_unsafe_put_byte(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {

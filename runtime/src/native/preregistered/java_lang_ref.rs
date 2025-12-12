@@ -20,7 +20,7 @@ pub(super) fn do_register_java_lang_ref_preregistered_natives(
 }
 
 fn java_lang_ref_reference_refers_to_0(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {

@@ -6,7 +6,7 @@ use crate::{ThreadId, VirtualMachine};
 use tracing_log::log::debug;
 
 pub(super) fn java_lang_system_register_natives(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -59,7 +59,7 @@ pub(super) fn java_lang_system_register_natives(
 }
 
 fn java_lang_system_nano_time(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -68,7 +68,7 @@ fn java_lang_system_nano_time(
 }
 
 fn java_lang_system_set_out_0(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -87,7 +87,7 @@ fn java_lang_system_set_out_0(
 }
 
 fn java_lang_system_set_err_0(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -106,7 +106,7 @@ fn java_lang_system_set_err_0(
 }
 
 fn java_lang_system_identity_hash_code(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -119,7 +119,7 @@ fn java_lang_system_identity_hash_code(
 }
 
 fn java_lang_system_set_in_0(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {

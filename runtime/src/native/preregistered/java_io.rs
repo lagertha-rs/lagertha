@@ -91,7 +91,7 @@ pub(super) fn do_register_java_io_preregistered_natives(native_registry: &mut Na
 }
 
 fn java_io_file_output_stream_write_bytes(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -167,7 +167,7 @@ fn java_io_file_output_stream_write_bytes(
 }
 
 fn java_io_file_input_stream_init_ids(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -176,7 +176,7 @@ fn java_io_file_input_stream_init_ids(
 }
 
 fn java_io_file_descriptor_init_ids(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -185,7 +185,7 @@ fn java_io_file_descriptor_init_ids(
 }
 
 fn java_io_file_descriptor_get_handle(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -194,7 +194,7 @@ fn java_io_file_descriptor_get_handle(
 }
 
 fn java_io_file_descriptor_get_append(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -203,7 +203,7 @@ fn java_io_file_descriptor_get_append(
 }
 
 fn java_io_file_output_stream_init_ids(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -212,7 +212,7 @@ fn java_io_file_output_stream_init_ids(
 }
 
 fn java_io_unix_file_system_init_ids(
-    _vm: &mut VirtualMachine,
+    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -221,7 +221,7 @@ fn java_io_unix_file_system_init_ids(
 }
 
 fn java_io_unix_file_system_canonicalize_0(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -240,7 +240,7 @@ fn java_io_unix_file_system_canonicalize_0(
 }
 
 fn java_io_unix_file_system_get_boolean_attributes_0(
-    vm: &mut VirtualMachine,
+    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
