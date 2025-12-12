@@ -15,6 +15,7 @@ use jclass::method::MethodInfo;
 use once_cell::sync::OnceCell;
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::sync::RwLock;
 
 pub struct InterfaceClass {
     pub base: BaseClass,
@@ -104,7 +105,7 @@ impl InterfaceClass {
             let descriptor_id = method_area.get_or_new_field_descriptor_id(field_key.desc)?;
             let static_field = StaticField {
                 flags: field.access_flags,
-                value: RefCell::new(method_area.get_field_descriptor(&descriptor_id).into()),
+                value: RwLock::new(method_area.get_field_descriptor(&descriptor_id).into()),
                 descriptor: descriptor_id,
             };
             static_fields.insert(field_key, static_field);

@@ -15,6 +15,7 @@ use jclass::method::MethodInfo;
 use once_cell::sync::OnceCell;
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::sync::RwLock;
 
 pub struct InstanceClass {
     base: BaseClass,
@@ -186,7 +187,7 @@ impl InstanceClass {
             if field.access_flags.is_static() {
                 let static_field = StaticField {
                     flags: field.access_flags,
-                    value: RefCell::new(descriptor.into()),
+                    value: RwLock::new(descriptor.into()),
                     descriptor: descriptor_id,
                 };
                 static_fields.insert(field_key, static_field);

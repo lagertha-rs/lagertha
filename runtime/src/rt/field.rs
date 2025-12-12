@@ -1,7 +1,7 @@
 use crate::keys::{ClassId, FieldDescriptorId};
 use crate::vm::Value;
 use jclass::flags::FieldFlags;
-use std::cell::RefCell;
+use std::sync::RwLock;
 
 #[derive(Debug, Copy, Clone)]
 pub struct InstanceField {
@@ -15,5 +15,5 @@ pub struct InstanceField {
 pub struct StaticField {
     pub flags: FieldFlags,
     pub descriptor: FieldDescriptorId,
-    pub value: RefCell<Value>,
+    pub value: RwLock<Value>,
 }

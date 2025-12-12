@@ -11,9 +11,9 @@ use crate::{MethodId, Symbol};
 use common::jtype::PrimitiveType;
 use jclass::flags::ClassFlags;
 use once_cell::sync::OnceCell;
-use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::fmt::Display;
+use std::sync::atomic::{AtomicU8, Ordering};
 
 pub mod array;
 pub mod class;
@@ -71,7 +71,7 @@ pub trait ClassLike {
             .get_static_fields()?
             .get(field_key)
             .ok_or(JvmError::Todo("No such field".to_string()))?;
-        *static_field.value.borrow_mut() = value;
+        *static_field.value.write().unwrap() = value;
         Ok(())
     }
 
@@ -81,7 +81,7 @@ pub trait ClassLike {
             .get_static_fields()?
             .get(field_key)
             .ok_or(JvmError::Todo("No such field".to_string()))?;
-        Ok(*static_field.value.borrow())
+        Ok(*static_field.value.read().unwrap())
     }
 
     fn get_interfaces(&self) -> Result<&HashSet<ClassId>, JvmError> {
@@ -89,26 +89,30 @@ pub trait ClassLike {
     }
 
     fn set_linked(&self) {
-        *self.base().state.borrow_mut() = ClassState::Linked;
+        self.base()
+            .state
+            .store(ClassState::Linked as u8, Ordering::Release);
     }
 
     fn is_initializing(&self) -> bool {
-        matches!(*self.base().state.borrow(), ClassState::Initializing)
+        self.base().state.load(Ordering::Acquire) == ClassState::Initializing as u8
     }
 
     fn set_initializing(&self) {
-        *self.base().state.borrow_mut() = ClassState::Initializing;
+        self.base()
+            .state
+            .store(ClassState::Initializing as u8, Ordering::Release);
     }
 
     fn set_initialized(&self) {
-        *self.base().state.borrow_mut() = ClassState::Initialized;
+        self.base()
+            .state
+            .store(ClassState::Initialized as u8, Ordering::Release);
     }
 
     fn is_initialized_or_initializing(&self) -> bool {
-        matches!(
-            *self.base().state.borrow(),
-            ClassState::Initialized | ClassState::Initializing
-        )
+        let state = self.base().state.load(Ordering::Acquire);
+        state == ClassState::Initialized as u8 || state == ClassState::Initializing as u8
     }
 }
 
@@ -116,7 +120,7 @@ pub struct BaseClass {
     name: Symbol,
     flags: ClassFlags,
     super_id: Option<ClassId>,
-    state: RefCell<ClassState>,
+    state: AtomicU8,
     mirror_ref: OnceCell<HeapRef>,
     interfaces: OnceCell<HashSet<ClassId>>,
     static_fields: OnceCell<HashMap<FieldKey, StaticField>>,
@@ -136,7 +140,7 @@ impl BaseClass {
             flags,
             super_id,
             source_file,
-            state: RefCell::new(ClassState::Loaded),
+            state: AtomicU8::new(ClassState::Loaded as u8),
             mirror_ref: OnceCell::new(),
             interfaces: OnceCell::new(),
             static_fields: OnceCell::new(),
@@ -182,11 +186,25 @@ impl BaseClass {
 }
 
 // TODO: something like that...
+#[repr(u8)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ClassState {
-    Loaded,       // Parsed, superclass loaded
-    Linked,       // Verified, prepared
-    Initializing, // <clinit> in progress
-    Initialized,  // <clinit> executed
+    Loaded = 0,       // Parsed, superclass loaded
+    Linked = 1,       // Verified, prepared
+    Initializing = 2, // <clinit> in progress
+    Initialized = 3,  // <clinit> executed
+}
+
+impl From<u8> for ClassState {
+    fn from(v: u8) -> Self {
+        match v {
+            0 => ClassState::Loaded,
+            1 => ClassState::Linked,
+            2 => ClassState::Initializing,
+            3 => ClassState::Initialized,
+            _ => unreachable!(),
+        }
+    }
 }
 
 pub enum JvmClass {

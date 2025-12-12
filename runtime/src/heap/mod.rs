@@ -44,6 +44,10 @@ pub struct Heap {
     string_instance_size: usize,
 }
 
+// Safety: Heap uses raw pointers for memory management, the struct is wrapped with RwLock in VM
+unsafe impl Send for Heap {}
+unsafe impl Sync for Heap {}
+
 impl Heap {
     pub const OBJECT_HEADER_SIZE: usize = ObjectHeader::SIZE;
     pub const ARRAY_LENGTH_OFFSET: usize = 0;

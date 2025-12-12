@@ -90,7 +90,7 @@ impl VirtualMachine {
 
         let debug_state = Arc::new(jdwp::DebugState::new());
         if let Some(jdwp_port) = vm.config.jdwp_port {
-            start_jdwp_agent(debug_state.clone(), jdwp_port);
+            start_jdwp_agent(vm.clone(), debug_state.clone(), jdwp_port);
             debug_state.suspend_all(); //TODO: I assume always suspended at start (suspend=y)
 
             debug_state.wait_until_connected()

@@ -2,7 +2,7 @@ use crate::error::JvmError;
 use crate::keys::{ClassId, FieldKey, MethodKey, Symbol};
 use common::jtype::PrimitiveType;
 use lasso::ThreadedRodeo;
-use std::cell::OnceCell;
+use once_cell::sync::OnceCell;
 
 pub struct BootstrapRegistry {
     // Common method keys

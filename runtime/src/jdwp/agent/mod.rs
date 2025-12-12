@@ -1,3 +1,4 @@
+use crate::VirtualMachine;
 use crate::jdwp::DebugState;
 use crate::jdwp::agent::command::JdwpCommand;
 use crate::jdwp::agent::error_code::JdwpError;
@@ -15,13 +16,17 @@ pub mod reader;
 
 const HANDSHAKE: &[u8; 14] = b"JDWP-Handshake";
 
-pub fn start_jdwp_agent(debug: Arc<DebugState>, port: u16) -> JoinHandle<()> {
+pub fn start_jdwp_agent(
+    vm: Arc<VirtualMachine>,
+    debug: Arc<DebugState>,
+    port: u16,
+) -> JoinHandle<()> {
     std::thread::spawn(move || {
-        jdwp_agent_routine(debug, port);
+        jdwp_agent_routine(vm, debug, port);
     })
 }
 
-fn jdwp_agent_routine(debug: Arc<DebugState>, port: u16) {
+fn jdwp_agent_routine(vm: Arc<VirtualMachine>, debug: Arc<DebugState>, port: u16) {
     let listener = std::net::TcpListener::bind(format!("127.0.0.1:{}", port)).unwrap();
     println!("JDWP agent listening on port {}", port);
 
