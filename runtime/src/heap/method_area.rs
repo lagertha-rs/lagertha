@@ -115,6 +115,10 @@ impl MethodArea {
         Ok(())
     }
 
+    pub fn classes(&self) -> &Vec<JvmClass> {
+        &self.classes
+    }
+
     pub fn br(&self) -> &BootstrapRegistry {
         &self.bootstrap_registry
     }

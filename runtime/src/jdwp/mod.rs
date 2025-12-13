@@ -7,7 +7,10 @@ use std::sync::{Condvar, Mutex, RwLock};
 
 pub mod agent;
 
-pub enum DebugEvent {}
+pub enum DebugEvent {
+    VMStart,
+    VMDeath,
+}
 
 #[derive(Clone, Copy, Hash, Eq, PartialEq)]
 pub struct BreakpointLocation {
@@ -101,5 +104,9 @@ impl DebugState {
     pub fn add_event_request(&self, event_request: EventRequest) {
         let mut events = self.events.write().unwrap();
         events.insert(event_request.id, event_request);
+    }
+
+    pub fn send_event(&self, event: DebugEvent) {
+        let _ = self.event_tx.send(event);
     }
 }

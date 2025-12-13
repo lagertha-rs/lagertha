@@ -18,6 +18,7 @@ walkdir = "2"
 crossbeam = "0.8"
 byteorder = "1.5"
 dashmap = "6.1.0"
+smallvec = "1.15.1"
 
 hotpath = { workspace = true }
 tracing-log = { workspace = true }

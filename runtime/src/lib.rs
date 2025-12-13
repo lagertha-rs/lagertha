@@ -3,6 +3,7 @@ use crate::heap::method_area::MethodArea;
 use crate::heap::{Heap, HeapRef};
 use crate::interpreter::Interpreter;
 use crate::jdwp::agent::start_jdwp_agent;
+use crate::jdwp::{DebugEvent, DebugState};
 use crate::keys::{MethodId, MethodKey, Symbol, ThreadId};
 use crate::native::NativeRegistry;
 use crate::thread::JavaThreadState;
@@ -56,6 +57,7 @@ pub struct VirtualMachine {
     native_registry: NativeRegistry,
     string_interner: Arc<ThreadedRodeo>,
     br: Arc<BootstrapRegistry>,
+    debug_state: Arc<DebugState>,
 }
 
 impl VirtualMachine {
@@ -76,6 +78,7 @@ impl VirtualMachine {
 
         let native_registry = NativeRegistry::new(string_interner.clone());
 
+        let debug_state = Arc::new(DebugState::new());
         let vm = Arc::new(Self {
             config,
             native_registry,
@@ -83,17 +86,18 @@ impl VirtualMachine {
             method_area: RwLock::new(method_area),
             heap: RwLock::new(heap),
             br,
+            debug_state: debug_state.clone(),
         });
 
         #[cfg(feature = "log-runtime-traces")]
         log_traces::debug::init(&vm);
 
-        let debug_state = Arc::new(jdwp::DebugState::new());
         if let Some(jdwp_port) = vm.config.jdwp_port {
             start_jdwp_agent(vm.clone(), debug_state.clone(), jdwp_port);
+            debug_state.send_event(DebugEvent::VMStart);
             debug_state.suspend_all(); //TODO: I assume always suspended at start (suspend=y)
 
-            debug_state.wait_until_connected()
+            debug_state.wait_until_connected();
         }
 
         //TODO: I guess hotspot puts it just before main method invocation
@@ -437,9 +441,9 @@ pub fn start(config: VmConfig) -> Result<(), ()> {
     debug_log_method!(&main_method_id, "Main method found");
 
     // TODO: it works more or less correctly, but should be improved
-    if let Err(e) =
-        Interpreter::invoke_static_method(&mut main_thread, main_method_id, &mut vm, vec![])
-    {
+    let res = Interpreter::invoke_static_method(&mut main_thread, main_method_id, &mut vm, vec![]);
+    vm.debug_state.send_event(DebugEvent::VMDeath);
+    if let Err(e) = res {
         vm.unhandled_exception(&mut main_thread, e);
         Err(())
     } else {

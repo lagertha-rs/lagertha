@@ -1,7 +1,7 @@
 use crate::jdwp::DebugState;
 use crate::jdwp::agent::error_code::JdwpError;
 use byteorder::{BigEndian, ReadBytesExt};
-use std::io::Cursor;
+use std::io::{Cursor, Read};
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
@@ -13,7 +13,10 @@ pub struct EventRequest {
 }
 
 #[derive(Debug, Clone)]
-pub enum EventModifier {}
+pub enum EventModifier {
+    PlatformThreadsOnly,
+    ClassMatch { class_pattern: String },
+}
 
 #[derive(Debug, Clone)]
 pub enum JdwpCommand {
@@ -40,6 +43,9 @@ pub enum JdwpCommand {
     VmAllClassesWithGeneric,
     VmInstanceCounts { ref_types: Vec<u64> },
     VmAllModules,
+
+    // ClassType (3)
+    ClassTypeSuperclass { class_id: u32 },
 
     // EventRequest (15)
     EventRequestSet(EventRequest),
@@ -83,15 +89,37 @@ impl JdwpCommand {
             (1, 21) => todo!(),
             (1, 22) => Ok(JdwpCommand::VmAllModules),
 
+            // ClassType
+            (3, 1) => Ok(JdwpCommand::ClassTypeSuperclass {
+                class_id: cursor.read_u32::<BigEndian>()?,
+            }),
+
             // EventRequest
             (15, 1) => {
                 let event_kind = cursor.read_u8()?;
                 let suspend_policy = cursor.read_u8()?;
                 let modifier_count = cursor.read_i32::<BigEndian>()?;
 
-                let modifiers = Vec::with_capacity(modifier_count as usize);
+                let mut modifiers = Vec::with_capacity(modifier_count as usize);
                 if modifier_count > 0 {
-                    unimplemented!()
+                    let kind = cursor.read_u8()?;
+                    match kind {
+                        5 => {
+                            let class_pattern = {
+                                let str_len = cursor.read_i32::<BigEndian>()? as usize;
+                                let mut str_bytes = vec![0u8; str_len];
+                                cursor.read_exact(&mut str_bytes)?;
+                                String::from_utf8(str_bytes).unwrap()
+                            };
+                            modifiers.push(EventModifier::ClassMatch { class_pattern });
+                        }
+                        13 => {
+                            modifiers.push(EventModifier::PlatformThreadsOnly);
+                        }
+                        other => {
+                            unimplemented!("Event modifier kind {} not implemented", other);
+                        }
+                    }
                 }
                 let event_id = state.get_next_event_id();
                 Ok(JdwpCommand::EventRequestSet(EventRequest {

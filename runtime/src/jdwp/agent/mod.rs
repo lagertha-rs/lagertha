@@ -1,8 +1,8 @@
 use crate::VirtualMachine;
-use crate::jdwp::DebugState;
 use crate::jdwp::agent::command::JdwpCommand;
 use crate::jdwp::agent::error_code::JdwpError;
 use crate::jdwp::agent::packet::{CommandPacket, Packet, ReplyPacket};
+use crate::jdwp::{DebugEvent, DebugState};
 use std::io;
 use std::io::{Read, Write};
 use std::net::TcpStream;
@@ -41,7 +41,7 @@ fn jdwp_agent_routine(vm: Arc<VirtualMachine>, debug: Arc<DebugState>, port: u16
 
         debug.set_connected(true);
 
-        handle_connection(debug.clone(), stream);
+        handle_connection(vm.clone(), debug.clone(), stream);
 
         debug.set_connected(false);
         debug.resume_all();
@@ -83,11 +83,53 @@ fn send_reply(stream: &mut TcpStream, reply_packet: ReplyPacket) -> Result<(), J
     Ok(())
 }
 
-fn handle_connection(debug: Arc<DebugState>, mut stream: TcpStream) {
+fn send_events(stream: &mut TcpStream, events: &[DebugEvent]) -> Result<(), JdwpError> {
+    let mut buffer = Vec::new();
+    buffer.extend(&2u8.to_be_bytes()); // TODO: hardcoded suspend policy: SUSPEND_ALL
+    buffer.extend(&(events.len() as u32).to_be_bytes()); // number of events
+    for event in events {
+        match event {
+            DebugEvent::VMStart => {
+                buffer.extend(90u8.to_be_bytes()); // TODO: hardcoded event kind: VM_START
+                buffer.extend(&0u32.to_be_bytes()); // request id
+                buffer.extend(&1u32.to_be_bytes()); // TODO: hardcoded thread id: 1
+            }
+        }
+    }
+
+    let mut header = Vec::new();
+    header.extend(&((11 + buffer.len()) as u32).to_be_bytes()); // length
+    header.extend(&0u32.to_be_bytes()); // id (0 for events)
+    header.extend(&0u8.to_be_bytes()); // flags (0 for command)
+    header.extend(&64u8.to_be_bytes()); // command set: Event
+    header.extend(&100u8.to_be_bytes()); // command: Composite
+
+    stream.write_all(&header)?;
+    stream.write_all(&buffer)?;
+    stream.flush()?;
+
+    Ok(())
+}
+
+fn handle_connection(vm: Arc<VirtualMachine>, debug: Arc<DebugState>, mut stream: TcpStream) {
+    let mut event_buffer = Vec::new();
     loop {
+        while let Ok(event) = debug.event_rx.try_recv() {
+            event_buffer.push(event)
+        }
+        if !event_buffer.is_empty() {
+            if let Err(e) = send_events(&mut stream, &event_buffer) {
+                eprintln!("Error sending events: {}", e);
+                break;
+            }
+            event_buffer.clear();
+        }
+
         match Packet::read(&mut stream) {
-            Ok(Packet::Command(cmd_packet)) => match handle_command(debug.clone(), cmd_packet) {
-                Ok(reply_packet) => {
+            Ok(Packet::Command(cmd_packet)) => match handle_command(&vm, debug.clone(), cmd_packet)
+            {
+                Ok(None) => {}
+                Ok(Some(reply_packet)) => {
                     if let Err(e) = send_reply(&mut stream, reply_packet) {
                         eprintln!("Error sending reply: {}", e);
                         break;
@@ -109,9 +151,10 @@ fn handle_connection(debug: Arc<DebugState>, mut stream: TcpStream) {
 }
 
 fn handle_command(
+    vm: &VirtualMachine,
     debug: Arc<DebugState>,
     cmd_packet: CommandPacket,
-) -> Result<ReplyPacket, JdwpError> {
+) -> Result<Option<ReplyPacket>, JdwpError> {
     let cmd = JdwpCommand::parse(
         cmd_packet.command_set,
         cmd_packet.command,
@@ -128,8 +171,14 @@ fn handle_command(
             debug.add_event_request(event_request);
             Ok(event_id.to_be_bytes().to_vec())
         }
+        JdwpCommand::VmResume => {
+            debug.resume_all();
+            return Ok(None);
+        }
         JdwpCommand::VmCapabilities => Ok(handle_vm_capabilities()),
         JdwpCommand::VmCapabilitiesNew => Ok(handle_vm_capabilities_new()),
+        JdwpCommand::VmAllClasses => Ok(handle_vm_all_classes(vm)),
+        JdwpCommand::VmTopLevelThreadGroups => Ok(handle_top_level_thread_groups()),
         JdwpCommand::VmVersion => Ok(handle_vm_version()),
         cmd => {
             eprintln!("Unhandled command: {:?}", cmd);
@@ -137,11 +186,48 @@ fn handle_command(
         }
     }?;
 
-    Ok(ReplyPacket {
+    Ok(Some(ReplyPacket {
         id: cmd_packet.id,
         error_code: 0,
         data,
-    })
+    }))
+}
+
+fn handle_vm_all_classes(vm: &VirtualMachine) -> Vec<u8> {
+    let one_class_approx_size = 1 + 4 + 4 + (20 * 8) + 4; // refTypeTag + typeId + signatureLen + signature + status
+    let ma_read = vm.method_area_read();
+    let classes = ma_read.classes();
+    let mut buf = Vec::with_capacity(4 + classes.len() * one_class_approx_size); // number of classes + classes data
+    buf.extend(&(classes.len() as i32).to_be_bytes()); // number of classes
+    //TODO: I guess need to skip primitive types?
+    for (i, class) in classes.iter().enumerate() {
+        let ref_type_tag: u8 = if class.is_interface() {
+            0x02
+        } else if class.is_array() {
+            0x03
+        } else {
+            0x01
+        };
+        buf.extend(&ref_type_tag.to_be_bytes()); // refTypeTag
+
+        let type_id = i as u32 + 1; // typeId
+        buf.extend(&type_id.to_be_bytes()); // typeId
+
+        let signature = vm.interner().resolve(&class.get_name());
+        buf.extend(&(signature.len() as i32).to_be_bytes()); // signature length
+        buf.extend(signature.as_bytes()); // signature
+
+        let status: i32 = 0x02; //TODO: hardcoded status (VERIFIED)
+        buf.extend(&status.to_be_bytes()); // status
+    }
+    buf
+}
+
+fn handle_top_level_thread_groups() -> Vec<u8> {
+    let mut response = Vec::new();
+    response.extend(&(1i32).to_be_bytes()); // number of thread groups
+    response.extend(&(666u32).to_be_bytes()); // TODO: hardcoded thread group id
+    response
 }
 
 fn handle_id_size() -> Vec<u8> {
@@ -223,10 +309,5 @@ fn handle_vm_capabilities_new() -> Vec<u8> {
     buf.extend(&0u8.to_be_bytes()); // reserved31
     buf.extend(&0u8.to_be_bytes()); // reserved32
 
-    buf
-}
-
-fn handle_vm_all_classes() -> Vec<u8> {
-    let mut buf = Vec::new();
     buf
 }
