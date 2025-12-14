@@ -94,6 +94,10 @@ fn send_events(stream: &mut TcpStream, events: &[DebugEvent]) -> Result<(), Jdwp
                 buffer.extend(&0u32.to_be_bytes()); // request id
                 buffer.extend(&1u32.to_be_bytes()); // TODO: hardcoded thread id: 1
             }
+            DebugEvent::VMDeath => {
+                buffer.extend(99u8.to_be_bytes()); // TODO: hardcoded event kind: VM_DEATH
+                buffer.extend(&0u32.to_be_bytes()); // request id
+            }
         }
     }
 
