@@ -173,7 +173,7 @@ fn handle_command(
         JdwpCommand::EventRequestSet(event_request) => {
             let event_id = event_request.id;
             debug.add_event_request(event_request);
-            Ok(event_id.to_be_bytes().to_vec())
+            Ok(event_id.0.to_be_bytes().to_vec())
         }
         JdwpCommand::VmResume => {
             debug.resume_all();

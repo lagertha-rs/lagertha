@@ -1,15 +1,57 @@
 use crate::jdwp::agent::command::EventRequest;
+use crate::jdwp::class_matcher::ClassPatternMatcher;
 use crate::keys::{ClassId, MethodId};
 use crossbeam::channel::{Receiver, Sender, unbounded};
+use dashmap::DashMap;
+use num_enum::TryFromPrimitive;
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicI32, AtomicU32, Ordering};
 use std::sync::{Condvar, Mutex, RwLock};
 
 pub mod agent;
+mod class_matcher;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct EventRequestId(pub i32);
 
 pub enum DebugEvent {
     VMStart,
     VMDeath,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, TryFromPrimitive)]
+#[repr(u8)]
+pub enum SuspendPolicy {
+    None = 0,
+    EventThread = 1,
+    All = 2,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, TryFromPrimitive)]
+#[repr(u8)]
+pub enum EventKind {
+    SingleStep = 1,
+    Breakpoint = 2,
+    FramePop = 3,
+    Exception = 4,
+    UserDefined = 5,
+    ThreadStart = 6,
+    ThreadDeath = 7,
+    ClassPrepare = 8,
+    ClassUnload = 9,
+    ClassLoad = 10,
+    FieldAccess = 20,
+    FieldModification = 21,
+    ExceptionCatch = 30,
+    MethodEntry = 40,
+    MethodExit = 41,
+    MethodExitWithReturnValue = 42,
+    MonitorContendedEnter = 43,
+    MonitorContendedEntered = 44,
+    MonitorWait = 45,
+    MonitorWaited = 46,
+    VmStart = 90,
+    VmDeath = 99,
 }
 
 #[derive(Clone, Copy, Hash, Eq, PartialEq)]
@@ -24,7 +66,9 @@ pub struct DebugState {
     pub suspend_lock: Mutex<()>,
     pub resume_signal: Condvar,
 
-    pub breakpoints: RwLock<HashMap<BreakpointLocation, u32>>,
+    pub breakpoints: DashMap<BreakpointLocation, u32>,
+    pub suspend_policies: DashMap<EventRequestId, SuspendPolicy>,
+    pub class_prepare_events: RwLock<ClassPatternMatcher>,
 
     pub event_tx: Sender<DebugEvent>,
     pub event_rx: Receiver<DebugEvent>,
@@ -33,8 +77,7 @@ pub struct DebugState {
     pub connected_lock: Mutex<()>,
     pub connected_signal: Condvar,
 
-    pub next_event_id: AtomicU32,
-    pub events: RwLock<HashMap<u32, EventRequest>>,
+    pub next_event_id: AtomicI32,
 }
 
 impl DebugState {
@@ -44,14 +87,15 @@ impl DebugState {
             suspended: AtomicBool::new(false),
             suspend_lock: Mutex::new(()),
             resume_signal: Condvar::new(),
-            breakpoints: RwLock::new(HashMap::new()),
+            breakpoints: DashMap::new(),
+            suspend_policies: DashMap::new(),
+            class_prepare_events: RwLock::new(ClassPatternMatcher::new()),
             event_tx,
             event_rx,
             connected: AtomicBool::new(false),
             connected_lock: Mutex::new(()),
             connected_signal: Condvar::new(),
-            next_event_id: AtomicU32::new(1),
-            events: RwLock::new(HashMap::new()),
+            next_event_id: AtomicI32::new(1),
         }
     }
 
@@ -97,13 +141,21 @@ impl DebugState {
         self.connected_signal.notify_all();
     }
 
-    pub fn get_next_event_id(&self) -> u32 {
-        self.next_event_id.fetch_add(1, Ordering::SeqCst)
+    pub fn get_next_event_id(&self) -> EventRequestId {
+        EventRequestId(self.next_event_id.fetch_add(1, Ordering::SeqCst))
     }
 
     pub fn add_event_request(&self, event_request: EventRequest) {
-        let mut events = self.events.write().unwrap();
-        events.insert(event_request.id, event_request);
+        let event_kind = event_request.event_kind;
+        let event_id = event_request.id;
+
+        match event_request.event_kind {
+            EventKind::ClassPrepare => todo!(),
+            _ => unimplemented!(),
+        }
+
+        self.suspend_policies
+            .insert(event_id, event_request.suspend_policy);
     }
 
     pub fn send_event(&self, event: DebugEvent) {

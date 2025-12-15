@@ -1242,6 +1242,7 @@ dependencies = [
  "jimage",
  "lasso",
  "libc",
+ "num_enum",
  "once_cell",
  "smallvec",
  "toml",

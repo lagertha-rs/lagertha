@@ -1,14 +1,14 @@
-use crate::jdwp::DebugState;
 use crate::jdwp::agent::error_code::JdwpError;
+use crate::jdwp::{DebugState, EventKind, EventRequestId, SuspendPolicy};
 use byteorder::{BigEndian, ReadBytesExt};
 use std::io::{Cursor, Read};
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 pub struct EventRequest {
-    pub id: u32, // TODO: investigate, in spec it is int (it is signed by default)
-    pub event_kind: u8,
-    pub suspend_policy: u8,
+    pub id: EventRequestId,
+    pub event_kind: EventKind,
+    pub suspend_policy: SuspendPolicy,
     pub modifiers: Vec<EventModifier>,
 }
 
@@ -121,11 +121,11 @@ impl JdwpCommand {
                         }
                     }
                 }
-                let event_id = state.get_next_event_id();
+                let id = state.get_next_event_id();
                 Ok(JdwpCommand::EventRequestSet(EventRequest {
-                    id: event_id,
-                    event_kind,
-                    suspend_policy,
+                    id,
+                    event_kind: EventKind::try_from(event_kind).unwrap(),
+                    suspend_policy: SuspendPolicy::try_from(suspend_policy).unwrap(),
                     modifiers,
                 }))
             }
