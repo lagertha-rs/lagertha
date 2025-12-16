@@ -69,7 +69,7 @@ fn java_lang_system_nano_time(
 
 fn java_lang_system_set_out_0(
     vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
+    thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.System.setIn0");
@@ -79,7 +79,7 @@ fn java_lang_system_set_out_0(
     };
     let system_class_id = vm
         .method_area_write()
-        .get_class_id_or_load(vm.br().java_lang_system_sym)?;
+        .get_class_id_or_load(vm.br().java_lang_system_sym, thread.id)?;
     vm.method_area_read()
         .get_class_like(&system_class_id)?
         .set_static_field_value(&vm.br().system_out_fk, Value::Ref(val))?;
@@ -88,7 +88,7 @@ fn java_lang_system_set_out_0(
 
 fn java_lang_system_set_err_0(
     vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
+    thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.System.setIn0");
@@ -98,7 +98,7 @@ fn java_lang_system_set_err_0(
     };
     let system_class_id = vm
         .method_area_write()
-        .get_class_id_or_load(vm.br().java_lang_system_sym)?;
+        .get_class_id_or_load(vm.br().java_lang_system_sym, thread.id)?;
     vm.method_area_read()
         .get_class_like(&system_class_id)?
         .set_static_field_value(&vm.br().system_err_fk, Value::Ref(val))?;

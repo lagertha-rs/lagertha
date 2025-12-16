@@ -180,7 +180,7 @@ fn java_lang_class_get_modifiers(
 
 fn java_lang_class_get_primitive_class(
     vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
+    thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     let primitive_name_ref = args
@@ -194,7 +194,7 @@ fn java_lang_class_get_primitive_class(
         .get_rust_string_from_java_string(primitive_name_ref)?;
     let class_id = vm
         .method_area_write()
-        .get_class_id_or_load(vm.interner().get_or_intern(&primitive_name))?;
+        .get_class_id_or_load(vm.interner().get_or_intern(&primitive_name), thread.id)?;
     let v = vm
         .method_area_write()
         .get_mirror_ref_or_create(class_id, &vm.heap)?;

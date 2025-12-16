@@ -21,14 +21,14 @@ pub(super) fn do_register_java_lang_ref_preregistered_natives(
 
 fn java_lang_ref_reference_refers_to_0(
     vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
+    thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     let referent_ref = args[0].as_obj_ref()?;
     let referent_fk = vm.br.reference_referent_fk;
     let reference_class_id = vm
         .method_area_write()
-        .get_class_id_or_load(vm.br.java_lang_ref_reference_sym)?;
+        .get_class_id_or_load(vm.br.java_lang_ref_reference_sym, thread.id)?;
     let referent_field_offset = vm
         .method_area_read()
         .get_instance_class(&reference_class_id)?

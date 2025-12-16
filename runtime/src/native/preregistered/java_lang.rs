@@ -180,7 +180,7 @@ fn java_lang_system_arraycopy(
 
 fn java_lang_object_get_class(
     vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
+    thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.getClass");
@@ -195,7 +195,7 @@ fn java_lang_object_get_class(
             let array_name = format!("[L{};", raw_name);
             let array_class_name_sym = vm.interner().get_or_intern(&array_name);
             vm.method_area_write()
-                .load_array_class(array_class_name_sym)?
+                .load_array_class(array_class_name_sym, thread.id)?
         } else {
             class_id
         }
@@ -249,7 +249,7 @@ fn java_lang_throwable_fill_in_stack_trace(
     frames.reverse();
     let int_arr_class = vm
         .method_area_write()
-        .load_array_class(vm.br().int_array_desc)?;
+        .load_array_class(vm.br().int_array_desc, thread.id)?;
     let class_id_array = vm.heap_write().alloc_primitive_array(
         int_arr_class,
         ArrayType::Int,

@@ -1,9 +1,10 @@
+use crate::jdwp::EventRequestId;
 use std::collections::HashMap;
 
 pub struct ClassPatternMatcher {
-    exact: HashMap<String, Vec<u32>>,
-    prefix: Vec<(String, u32)>,
-    suffix: Vec<(String, u32)>,
+    exact: HashMap<String, Vec<EventRequestId>>,
+    prefix: Vec<(String, EventRequestId)>,
+    suffix: Vec<(String, EventRequestId)>,
 }
 
 impl ClassPatternMatcher {
@@ -15,7 +16,7 @@ impl ClassPatternMatcher {
         }
     }
 
-    pub fn add(&mut self, pattern: String, request_id: u32) {
+    pub fn add(&mut self, pattern: String, request_id: EventRequestId) {
         if pattern.ends_with('*') {
             self.prefix
                 .push((pattern[..pattern.len() - 1].to_string(), request_id));
@@ -26,7 +27,7 @@ impl ClassPatternMatcher {
         }
     }
 
-    pub fn remove(&mut self, request_id: u32) {
+    pub fn remove(&mut self, request_id: EventRequestId) {
         for ids in self.exact.values_mut() {
             ids.retain(|id| *id != request_id);
         }
@@ -34,22 +35,22 @@ impl ClassPatternMatcher {
         self.suffix.retain(|(_, id)| *id != request_id);
     }
 
-    pub fn matches(&self, class_name: &str) -> Vec<u32> {
-        let mut ids = Vec::new();
+    pub fn matches(&self, class_name: &str) -> Option<Vec<EventRequestId>> {
+        let mut ids: Option<Vec<EventRequestId>> = None;
 
         if let Some(exact_ids) = self.exact.get(class_name) {
-            ids.extend(exact_ids);
+            ids.get_or_insert_with(Vec::new).extend(exact_ids);
         }
 
         for (prefix, id) in &self.prefix {
             if class_name.starts_with(prefix) {
-                ids.push(*id);
+                ids.get_or_insert_with(Vec::new).push(*id);
             }
         }
 
         for (suffix, id) in &self.suffix {
             if class_name.ends_with(suffix) {
-                ids.push(*id);
+                ids.get_or_insert_with(Vec::new).push(*id);
             }
         }
 

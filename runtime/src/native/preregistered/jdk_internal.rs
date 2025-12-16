@@ -91,7 +91,7 @@ fn jdk_internal_misc_cds_get_random_seed_for_dumping(
 
 fn jdk_internal_util_system_props_raw_platform_properties(
     vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
+    thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.platformProperties");
@@ -100,7 +100,7 @@ fn jdk_internal_util_system_props_raw_platform_properties(
     let empty_string_sym = vm.interner().get_or_intern("");
     let string_class_id = vm
         .method_area_write()
-        .get_class_id_or_load(string_class_sym)?;
+        .get_class_id_or_load(string_class_sym, thread.id)?;
     let empty_string_stub = vm.heap_write().get_str_from_pool_or_new(empty_string_sym)?;
     let h = vm.heap_write().alloc_object_array(string_class_id, 40)?;
     // TODO: fill with real platform properties
@@ -134,14 +134,14 @@ fn jdk_internal_util_system_props_raw_platform_properties(
 
 fn jdk_internal_util_system_props_raw_vm_properties(
     vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
+    thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.vmProperties");
     let string_class_sym = vm.br().java_lang_string_sym;
     let string_class = vm
         .method_area_write()
-        .get_class_id_or_load(string_class_sym)?;
+        .get_class_id_or_load(string_class_sym, thread.id)?;
     //TODO: same here, it needs a registry for common interned strings
     let h = vm.heap_write().alloc_object_array(string_class, 4)?;
     let java_home_key = vm

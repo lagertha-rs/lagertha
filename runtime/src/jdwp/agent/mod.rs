@@ -98,6 +98,13 @@ fn send_events(stream: &mut TcpStream, events: &[DebugEvent]) -> Result<(), Jdwp
                 buffer.extend(99u8.to_be_bytes()); // TODO: hardcoded event kind: VM_DEATH
                 buffer.extend(&0u32.to_be_bytes()); // request id
             }
+            DebugEvent::ClassPrepare { class_name } => {
+                buffer.extend(8u8.to_be_bytes()); // TODO: hardcoded event kind: CLASS_PREPARE
+                buffer.extend(&0u32.to_be_bytes()); // request id
+
+                let class_name_bytes = class_name.as_bytes();
+                buffer.extend(&(class_name_bytes.len() as u32).to_be_bytes()); // class name length
+                buffer.extend(class_name_bytes); // class name
         }
     }
 

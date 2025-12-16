@@ -1,6 +1,6 @@
 use crate::error::JvmError;
 use crate::heap::method_area::MethodArea;
-use crate::keys::{ClassId, FieldKey, MethodKey};
+use crate::keys::{ClassId, FieldKey, MethodKey, ThreadId};
 use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::field::{InstanceField, StaticField};
 use crate::rt::method::Method;
@@ -225,6 +225,7 @@ impl InstanceClass {
         this_id: ClassId,
         super_id: Option<ClassId>,
         method_area: &mut MethodArea,
+        thread_id: ThreadId,
     ) -> Result<(), JvmError> {
         let mut interface_ids = super_id
             .map(|id| method_area.get_instance_class(&id))
@@ -236,7 +237,7 @@ impl InstanceClass {
         for interface in interfaces {
             let cp = &method_area.get_instance_class(&this_id)?.cp;
             let interface_name = cp.get_class_sym(&interface, method_area.interner())?;
-            let interface_id = method_area.get_class_id_or_load(interface_name)?;
+            let interface_id = method_area.get_class_id_or_load(interface_name, thread_id)?;
             interface_ids.insert(interface_id);
 
             /* TODO: probably need to handle superinterfaces as well
@@ -334,6 +335,7 @@ impl InstanceClass {
         mut cf: ClassFile,
         method_area: &mut MethodArea,
         super_id: Option<ClassId>,
+        thread_id: ThreadId,
     ) -> Result<ClassId, JvmError> {
         let runtime_cp = Self::prepare_cp(cf.cp, &mut cf.attributes);
         let this_id = Self::load(
@@ -348,7 +350,7 @@ impl InstanceClass {
         Self::link_fields(cf.fields, this_id, super_id, method_area)?;
         let (vtable, vtable_index) =
             Self::prepare_methods(cf.methods, this_id, super_id, method_area)?;
-        Self::link_interfaces(cf.interfaces, this_id, super_id, method_area)?;
+        Self::link_interfaces(cf.interfaces, this_id, super_id, method_area, thread_id)?;
         Self::link_itable_and_vtable(this_id, super_id, method_area, vtable, vtable_index)?;
 
         let this = method_area.get_instance_class(&this_id)?;

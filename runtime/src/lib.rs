@@ -66,11 +66,14 @@ impl VirtualMachine {
         string_interner: Arc<ThreadedRodeo>,
     ) -> Result<(Arc<Self>, JavaThreadState), ()> {
         config.validate();
+        let debug_state = Arc::new(DebugState::new());
         let (method_area, br) =
-            MethodArea::init(&config, string_interner.clone()).map_err(|e| {
-                eprintln!("Error: Could not initialize JVM.");
-                eprintln!("Caused by: {}", e.into_pretty_string(&string_interner));
-            })?;
+            MethodArea::init(&config, string_interner.clone(), debug_state.clone()).map_err(
+                |e| {
+                    eprintln!("Error: Could not initialize JVM.");
+                    eprintln!("Caused by: {}", e.into_pretty_string(&string_interner));
+                },
+            )?;
         let heap = Self::create_heap(string_interner.clone(), &method_area).map_err(|e| {
             eprintln!("Error: Could not initialize JVM.");
             eprintln!("Caused by: {}", e.into_pretty_string(&string_interner));
@@ -78,7 +81,6 @@ impl VirtualMachine {
 
         let native_registry = NativeRegistry::new(string_interner.clone());
 
-        let debug_state = Arc::new(DebugState::new());
         let vm = Arc::new(Self {
             config,
             native_registry,
@@ -303,7 +305,10 @@ impl VirtualMachine {
         let class_id = self
             .method_area_write()
             // TODO: fix interner usage, replace with direct symbol
-            .get_class_id_or_load(self.interner().get_or_intern(exception_ref.class))?;
+            .get_class_id_or_load(
+                self.interner().get_or_intern(exception_ref.class),
+                thread.id,
+            )?;
         let (method_id, instance_size) = {
             let ma = self.method_area_read();
             let class = ma.get_instance_class(&class_id)?;
@@ -423,7 +428,7 @@ pub fn start(config: VmConfig) -> Result<(), ()> {
     let main_class_sym = vm.string_interner.get_or_intern(&vm.config.main_class);
     let main_class_id = vm
         .method_area_write()
-        .get_class_id_or_load(main_class_sym)
+        .get_class_id_or_load(main_class_sym, main_thread.id)
         .map_err(|e| {
             eprintln!(
                 "Error: Could not find or load main class {}",

@@ -1,8 +1,10 @@
 use crate::class_loader::ClassLoader;
 use crate::error::JvmError;
 use crate::heap::{Heap, HeapRef};
+use crate::jdwp::{ClassStatus, DebugEvent, DebugState, TypeTag};
 use crate::keys::{
     ClassId, FieldDescriptorId, FieldKey, FullyQualifiedMethodKey, MethodDescriptorId, MethodKey,
+    ThreadId,
 };
 use crate::rt::array::{ObjectArrayClass, PrimitiveArrayClass};
 use crate::rt::class::InstanceClass;
@@ -24,6 +26,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 
 pub struct MethodArea {
+    debug_state: Arc<DebugState>,
     bootstrap_class_loader: ClassLoader,
     class_name_to_index: HashMap<Spur, ClassId>,
     mirror_to_class_index: HashMap<HeapRef, ClassId>,
@@ -44,12 +47,14 @@ impl MethodArea {
     pub fn init(
         vm_config: &VmConfig,
         string_interner: Arc<ThreadedRodeo>,
+        debug_state: Arc<DebugState>,
     ) -> Result<(Self, Arc<BootstrapRegistry>), JvmError> {
         debug_log!("Creating Method Area...");
         let bootstrap_class_loader = ClassLoader::new(vm_config)?;
 
         //TODO: preallocate better. check why method_descriptors needs so much space
         let mut method_area = Self {
+            debug_state,
             bootstrap_class_loader,
             class_name_to_index: HashMap::new(),
             mirror_to_class_index: HashMap::new(),
@@ -70,37 +75,42 @@ impl MethodArea {
     }
 
     fn preload_basic_classes(&mut self) -> Result<(), JvmError> {
-        let java_lang_object_id = self.get_class_id_or_load(self.br().java_lang_object_sym)?;
+        let todo = ThreadId::from_usize(666);
+        let java_lang_object_id =
+            self.get_class_id_or_load(self.br().java_lang_object_sym, todo)?;
         self.bootstrap_registry
             .set_java_lang_object_id(java_lang_object_id)?;
 
-        let java_lang_system_id = self.get_class_id_or_load(self.br().java_lang_system_sym)?;
+        let java_lang_system_id =
+            self.get_class_id_or_load(self.br().java_lang_system_sym, todo)?;
         self.bootstrap_registry
             .set_java_lang_system_id(java_lang_system_id)?;
 
-        let java_lang_class_id = self.get_class_id_or_load(self.br().java_lang_class_sym)?;
+        let java_lang_class_id = self.get_class_id_or_load(self.br().java_lang_class_sym, todo)?;
         self.bootstrap_registry
             .set_java_lang_class_id(java_lang_class_id)?;
 
         let java_lang_throwable_id =
-            self.get_class_id_or_load(self.br().java_lang_throwable_sym)?;
+            self.get_class_id_or_load(self.br().java_lang_throwable_sym, todo)?;
         self.bootstrap_registry
             .set_java_lang_throwable_id(java_lang_throwable_id)?;
 
-        let java_lang_thread_id = self.get_class_id_or_load(self.br().java_lang_thread_sym)?;
+        let java_lang_thread_id =
+            self.get_class_id_or_load(self.br().java_lang_thread_sym, todo)?;
         self.bootstrap_registry
             .set_java_lang_thread_id(java_lang_thread_id)?;
 
         let java_lang_thread_group_id =
-            self.get_class_id_or_load(self.br().java_lang_thread_group_sym)?;
+            self.get_class_id_or_load(self.br().java_lang_thread_group_sym, todo)?;
         self.bootstrap_registry
             .set_java_lang_thread_group_id(java_lang_thread_group_id)?;
 
-        let java_lang_string_id = self.get_class_id_or_load(self.br().java_lang_string_sym)?;
+        let java_lang_string_id =
+            self.get_class_id_or_load(self.br().java_lang_string_sym, todo)?;
         self.bootstrap_registry
             .set_java_lang_string_id(java_lang_string_id)?;
 
-        let byte_array_class_id = self.get_class_id_or_load(self.br().byte_array_desc)?;
+        let byte_array_class_id = self.get_class_id_or_load(self.br().byte_array_desc, todo)?;
         self.bootstrap_registry
             .set_byte_array_class_id(byte_array_class_id)?;
 
@@ -346,7 +356,11 @@ impl MethodArea {
         self.get_cp(&class_id)
     }
 
-    pub(crate) fn load_array_class(&mut self, name_sym: Symbol) -> Result<ClassId, JvmError> {
+    pub(crate) fn load_array_class(
+        &mut self,
+        name_sym: Symbol,
+        thread_id: ThreadId,
+    ) -> Result<ClassId, JvmError> {
         if let Some(class_id) = self.class_name_to_index.get(&name_sym) {
             return Ok(*class_id);
         }
@@ -377,7 +391,7 @@ impl MethodArea {
                 name: name_sym,
                 super_id: self.br().get_java_lang_object_id()?,
                 element_class_id: self
-                    .get_class_id_or_load(self.interner.get_or_intern(instance_type))?,
+                    .get_class_id_or_load(self.interner.get_or_intern(instance_type), thread_id)?,
                 vtable,
                 vtable_index,
                 mirror_ref: OnceCell::new(),
@@ -450,12 +464,12 @@ impl MethodArea {
     }
 
     #[hotpath::measure]
-    fn load_class(&mut self, name_sym: Symbol) -> Result<ClassId, JvmError> {
+    fn load_class(&mut self, name_sym: Symbol, thread_id: ThreadId) -> Result<ClassId, JvmError> {
         let data = {
             hotpath::measure_block!("load_class::read_raw_class", {
                 let name_str = self.interner.resolve(&name_sym);
                 if name_str.starts_with("[") {
-                    return self.load_array_class(name_sym);
+                    return self.load_array_class(name_sym, thread_id);
                 }
                 self.bootstrap_class_loader.load(name_str)?
             })
@@ -468,29 +482,62 @@ impl MethodArea {
             Some(super_name) => {
                 let super_name = super_name.unwrap();
                 let super_name_sym = self.interner.get_or_intern(super_name);
-                Some(self.get_class_id_or_load(super_name_sym)?)
+                Some(self.get_class_id_or_load(super_name_sym, thread_id)?)
             }
             None => None,
         };
         let class_id = hotpath::measure_block!("load_class::load_and_link_class", {
             if cf.access_flags.is_interface() {
-                InterfaceClass::load_and_link(cf, self, super_id)?
+                InterfaceClass::load_and_link(cf, self, super_id, thread_id)?
             } else {
-                InstanceClass::load_and_link(cf, self, super_id)?
+                InstanceClass::load_and_link(cf, self, super_id, thread_id)?
             }
         });
         self.class_name_to_index.insert(name_sym, class_id);
         Ok(class_id)
     }
 
+    fn get_class_type_tag(&self, class_id: &ClassId) -> TypeTag {
+        let class = self.get_class(class_id);
+        if class.is_array() {
+            unimplemented!(
+                "I need to return correct signature, for now in get_class_id_or_load I'll hardcode it for class and interface only, but when it panics I'll know where to fix"
+            );
+            //TypeTag::Array
+        } else if class.is_interface() {
+            TypeTag::Interface
+        } else {
+            TypeTag::Class
+        }
+    }
+
     #[hotpath::measure]
-    pub fn get_class_id_or_load(&mut self, name_sym: Symbol) -> Result<ClassId, JvmError> {
+    pub fn get_class_id_or_load(
+        &mut self,
+        name_sym: Symbol,
+        thread_id: ThreadId,
+    ) -> Result<ClassId, JvmError> {
         hotpath::measure_block!("get_class_id_or_load::cache_lookup", {
             if let Some(class_id) = self.class_name_to_index.get(&name_sym) {
                 return Ok(*class_id);
             }
         });
-        let class_id = self.load_class(name_sym)?;
+        let class_id = self.load_class(name_sym, thread_id)?;
+        if self.debug_state.should_check() {
+            let name_str = self.interner.resolve(&name_sym);
+            if let Some(matched) = self.debug_state.matches_class_prepare(name_str) {
+                for request_id in matched {
+                    self.debug_state.send_event(DebugEvent::ClassPrepare {
+                        request_id,
+                        thread_id,
+                        ref_type_tag: self.get_class_type_tag(&class_id),
+                        type_id: class_id,
+                        signature: format!("L{};", name_str),
+                        status: ClassStatus::Prepared, // Todo: hardcoded for now
+                    })
+                }
+            }
+        }
         Ok(class_id)
     }
 

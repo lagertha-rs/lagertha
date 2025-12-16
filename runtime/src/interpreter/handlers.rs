@@ -154,7 +154,7 @@ pub(super) fn handle_anewarray(
         .get_class_sym(&idx, vm.interner())?;
     let target_array_class_id = vm
         .method_area_write()
-        .get_class_id_or_load(target_array_sym)?;
+        .get_class_id_or_load(target_array_sym, thread.id)?;
     let array_ref = vm
         .heap_write()
         .alloc_object_array(target_array_class_id, size)?;
@@ -448,7 +448,7 @@ pub(super) fn handle_getfield(
         .get_field_view(&idx, vm.interner())?;
     let target_class_id = vm
         .method_area_write()
-        .get_class_id_or_load(field_view.class_sym)?;
+        .get_class_id_or_load(field_view.class_sym, thread.id)?;
     let (target_field_offset, target_field_descriptor_id) = {
         let ma = vm.method_area_read();
         let target_field =
@@ -478,7 +478,7 @@ pub(super) fn handle_getstatic(
         .get_field_view(&idx, vm.interner())?;
     let target_class_id = vm
         .method_area_write()
-        .get_class_id_or_load(target_field_view.class_sym)?;
+        .get_class_id_or_load(target_field_view.class_sym, thread.id)?;
     Interpreter::ensure_initialized(thread, Some(target_class_id), vm)?;
     let field_key: FieldKey = target_field_view.name_and_type.into();
     let actual_static_field_class_id = vm
@@ -1214,7 +1214,7 @@ pub(super) fn handle_ldc_ldcw_ldc2w(
                 drop(ma);
                 let class_id = vm
                     .method_area_write()
-                    .get_class_id_or_load(class_name_sym)?;
+                    .get_class_id_or_load(class_name_sym, thread.id)?;
                 Value::Ref(
                     vm.method_area_write()
                         .get_mirror_ref_or_create(class_id, &vm.heap)?,
@@ -1244,7 +1244,7 @@ pub(super) fn handle_new(
         .get_class_sym(&idx, vm.interner())?;
     let target_class_id = vm
         .method_area_write()
-        .get_class_id_or_load(target_class_name)?;
+        .get_class_id_or_load(target_class_name, thread.id)?;
     Interpreter::ensure_initialized(thread, Some(target_class_id), vm)?;
     let instance_ref = vm.heap_write().alloc_instance(
         vm.method_area_read()
@@ -1265,9 +1265,10 @@ pub(super) fn handle_newarray(
     if size < 0 {
         throw_exception!(NegativeArraySizeException, size.to_string())?
     }
-    let class_id = vm
-        .method_area_write()
-        .load_array_class(vm.interner().get_or_intern(array_type.descriptor()))?;
+    let class_id = vm.method_area_write().load_array_class(
+        vm.interner().get_or_intern(array_type.descriptor()),
+        thread.id,
+    )?;
     let array_ref = vm
         .heap_write()
         .alloc_primitive_array(class_id, array_type, size)?;
@@ -1295,7 +1296,7 @@ pub(super) fn handle_putfield(
         .get_field_view(&idx, vm.interner())?;
     let target_class_id = vm
         .method_area_write()
-        .get_class_id_or_load(field_view.class_sym)?;
+        .get_class_id_or_load(field_view.class_sym, thread.id)?;
     let (target_field_offset, target_field_descriptor_id) = {
         let ma = vm.method_area_read();
         let target_field =
@@ -1326,7 +1327,7 @@ pub(super) fn handle_putstatic(
         .get_field_view(&idx, vm.interner())?;
     let target_class_id = vm
         .method_area_write()
-        .get_class_id_or_load(target_field_view.class_sym)?;
+        .get_class_id_or_load(target_field_view.class_sym, thread.id)?;
     Interpreter::ensure_initialized(thread, Some(target_class_id), vm)?;
     let field_key: FieldKey = target_field_view.name_and_type.into();
     let actual_static_field_class_id = vm
@@ -1388,7 +1389,7 @@ pub(super) fn handle_invokespecial(
         .get_method_view(&idx, vm.interner())?;
     let target_class_id = vm
         .method_area_write()
-        .get_class_id_or_load(target_method_view.class_sym)?;
+        .get_class_id_or_load(target_method_view.class_sym, thread.id)?;
     let target_method_id = vm
         .method_area_read()
         .get_instance_class(&target_class_id)?
@@ -1410,7 +1411,7 @@ pub(super) fn handle_invokestatic(
         .get_method_or_interface_method_view(&idx, vm.interner())?;
     let target_class_id = vm
         .method_area_write()
-        .get_class_id_or_load(target_method_view.class_sym)?;
+        .get_class_id_or_load(target_method_view.class_sym, thread.id)?;
     Interpreter::ensure_initialized(thread, Some(target_class_id), vm)?;
     let target_method_id = vm
         .method_area_read()

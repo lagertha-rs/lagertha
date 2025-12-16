@@ -241,7 +241,7 @@ fn java_io_unix_file_system_canonicalize_0(
 
 fn java_io_unix_file_system_get_boolean_attributes_0(
     vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
+    thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     const BA_EXISTS: i32 = 0x01;
@@ -251,7 +251,7 @@ fn java_io_unix_file_system_get_boolean_attributes_0(
 
     let file_class_id = vm
         .method_area_write()
-        .get_class_id_or_load(vm.br.java_io_file_sym)?;
+        .get_class_id_or_load(vm.br.java_io_file_sym, thread.id)?;
     let path_field_offset = vm
         .method_area_read()
         .get_instance_class(&file_class_id)?
