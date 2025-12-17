@@ -88,6 +88,10 @@ pub trait ClassLike {
         self.base().get_interfaces()
     }
 
+    fn get_direct_interfaces(&self) -> Result<&HashSet<ClassId>, JvmError> {
+        self.base().get_direct_interfaces()
+    }
+
     fn set_linked(&self) {
         self.base()
             .state
@@ -123,6 +127,7 @@ pub struct BaseClass {
     state: AtomicU8,
     mirror_ref: OnceCell<HeapRef>,
     interfaces: OnceCell<HashSet<ClassId>>,
+    direct_interfaces: OnceCell<HashSet<ClassId>>,
     static_fields: OnceCell<HashMap<FieldKey, StaticField>>,
     clinit: OnceCell<MethodId>,
     source_file: Option<Symbol>,
@@ -143,6 +148,7 @@ impl BaseClass {
             state: AtomicU8::new(ClassState::Loaded as u8),
             mirror_ref: OnceCell::new(),
             interfaces: OnceCell::new(),
+            direct_interfaces: OnceCell::new(),
             static_fields: OnceCell::new(),
             clinit: OnceCell::new(),
         }
@@ -163,10 +169,22 @@ impl BaseClass {
             .ok_or(JvmError::Todo("BaseClass interfaces not set".to_string()))
     }
 
+    fn get_direct_interfaces(&self) -> Result<&HashSet<ClassId>, JvmError> {
+        self.direct_interfaces.get().ok_or(JvmError::Todo(
+            "BaseClass direct_interfaces not set".to_string(),
+        ))
+    }
+
     fn set_interfaces(&self, interfaces: HashSet<ClassId>) -> Result<(), JvmError> {
         self.interfaces
             .set(interfaces)
             .map_err(|_| JvmError::Todo("BaseClass interfaces already set".to_string()))
+    }
+
+    fn set_direct_interfaces(&self, interfaces: HashSet<ClassId>) -> Result<(), JvmError> {
+        self.direct_interfaces
+            .set(interfaces)
+            .map_err(|_| JvmError::Todo("BaseClass direct_interfaces already set".to_string()))
     }
 
     fn set_static_fields(
@@ -275,10 +293,21 @@ impl JvmClass {
         }
     }
 
+    // TODO: use base instead?
     pub fn get_interfaces(&self) -> Result<&HashSet<ClassId>, JvmError> {
         match self {
             JvmClass::Instance(inst) => inst.get_interfaces(),
             JvmClass::Interface(i) => i.get_interfaces(),
+            other => unimplemented!("{other}"),
+        }
+    }
+
+    // TODO: use base instead?
+    pub fn get_direct_interfaces(&self) -> Result<&HashSet<ClassId>, JvmError> {
+        match self {
+            JvmClass::Instance(inst) => inst.get_direct_interfaces(),
+            JvmClass::Interface(i) => i.get_direct_interfaces(),
+
             other => unimplemented!("{other}"),
         }
     }

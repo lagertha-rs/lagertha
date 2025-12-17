@@ -29,17 +29,19 @@ pub enum ClassStatus {
     Error = 8,
 }
 
+pub struct ClassPrepareInfo {
+    pub request_id: EventRequestId,
+    pub thread_id: ThreadId,
+    pub ref_type_tag: TypeTag, // JDWP.TypeTag: 1=CLASS, 2=INTERFACE, 3=ARRAY
+    pub type_id: ClassId,
+    pub signature: String,
+    pub status: ClassStatus,
+}
+
 pub enum DebugEvent {
     VMStart,
     VMDeath,
-    ClassPrepare {
-        request_id: EventRequestId, // The requestID from the original EventRequest.Set
-        thread_id: ThreadId,        // The thread loading the class (or null if VM thread)
-        ref_type_tag: TypeTag,      // JDWP.TypeTag: 1=CLASS, 2=INTERFACE, 3=ARRAY
-        type_id: ClassId,           // Your internal ID for this class
-        signature: String,          // "Ljava/lang/String;" format
-        status: ClassStatus, // JDWP.ClassStatus bitmask (VERIFIED=1, PREPARED=2, INITIALIZED=4, ERROR=8)
-    },
+    ClassPrepare(ClassPrepareInfo),
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, TryFromPrimitive)]

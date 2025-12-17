@@ -27,6 +27,10 @@ impl ThreadId {
     pub fn to_index(&self) -> usize {
         (self.0.get() - 1) as usize
     }
+
+    pub fn to_be_bytes(&self) -> [u8; 4] {
+        self.0.get().to_be_bytes()
+    }
 }
 #[repr(transparent)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
@@ -107,6 +111,10 @@ impl ClassId {
     }
     pub fn into_inner(self) -> NonZeroU32 {
         self.0
+    }
+
+    pub fn to_be_bytes(&self) -> [u8; 4] {
+        self.0.get().to_be_bytes()
     }
 }
 

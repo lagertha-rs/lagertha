@@ -1,6 +1,7 @@
 use crate::jdwp::agent::error_code::JdwpError;
 use crate::jdwp::{DebugState, EventKind, EventRequestId, SuspendPolicy};
 use byteorder::{BigEndian, ReadBytesExt};
+use itertools::Itertools;
 use std::io::{Cursor, Read};
 use std::sync::Arc;
 
@@ -43,6 +44,9 @@ pub enum JdwpCommand {
     VmAllClassesWithGeneric,
     VmInstanceCounts { ref_types: Vec<u64> },
     VmAllModules,
+
+    // ReferenceType (2)
+    ReferenceTypeInterfaces { class_id: u32 },
 
     // ClassType (3)
     ClassTypeSuperclass { class_id: u32 },
@@ -89,6 +93,11 @@ impl JdwpCommand {
             (1, 21) => todo!(),
             (1, 22) => Ok(JdwpCommand::VmAllModules),
 
+            // ReferenceType
+            (2, 10) => Ok(JdwpCommand::ReferenceTypeInterfaces {
+                class_id: cursor.read_u32::<BigEndian>()?,
+            }),
+
             // ClassType
             (3, 1) => Ok(JdwpCommand::ClassTypeSuperclass {
                 class_id: cursor.read_u32::<BigEndian>()?,
@@ -109,6 +118,11 @@ impl JdwpCommand {
                                 let str_len = cursor.read_i32::<BigEndian>()? as usize;
                                 let mut str_bytes = vec![0u8; str_len];
                                 cursor.read_exact(&mut str_bytes)?;
+                                for i in 0..str_len {
+                                    if str_bytes[i] == b'.' {
+                                        str_bytes[i] = b'/';
+                                    }
+                                }
                                 String::from_utf8(str_bytes).unwrap()
                             };
                             modifiers.push(EventModifier::ClassMatch { class_pattern });

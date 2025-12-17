@@ -13,8 +13,7 @@ use jclass::field::FieldInfo;
 use jclass::flags::ClassFlags;
 use jclass::method::MethodInfo;
 use once_cell::sync::OnceCell;
-use std::cell::RefCell;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::RwLock;
 
 pub struct InstanceClass {
@@ -233,12 +232,14 @@ impl InstanceClass {
             .map(|class| class.base.get_interfaces().cloned())
             .transpose()?
             .unwrap_or_default();
+        let mut direct_interfaces = HashSet::new();
 
         for interface in interfaces {
             let cp = &method_area.get_instance_class(&this_id)?.cp;
             let interface_name = cp.get_class_sym(&interface, method_area.interner())?;
             let interface_id = method_area.get_class_id_or_load(interface_name, thread_id)?;
             interface_ids.insert(interface_id);
+            direct_interfaces.insert(interface_id);
 
             /* TODO: probably need to handle superinterfaces as well
                 something like:
@@ -251,6 +252,7 @@ impl InstanceClass {
         }
         let this = method_area.get_instance_class(&this_id)?;
         this.base.set_interfaces(interface_ids)?;
+        this.base.set_direct_interfaces(direct_interfaces)?;
         Ok(())
     }
 

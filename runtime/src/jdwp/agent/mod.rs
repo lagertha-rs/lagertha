@@ -3,9 +3,11 @@ use crate::jdwp::agent::command::JdwpCommand;
 use crate::jdwp::agent::error_code::JdwpError;
 use crate::jdwp::agent::packet::{CommandPacket, Packet, ReplyPacket};
 use crate::jdwp::{DebugEvent, DebugState};
+use crate::keys::ClassId;
 use std::io;
 use std::io::{Read, Write};
 use std::net::TcpStream;
+use std::num::NonZeroU32;
 use std::sync::Arc;
 use std::thread::JoinHandle;
 
@@ -98,13 +100,17 @@ fn send_events(stream: &mut TcpStream, events: &[DebugEvent]) -> Result<(), Jdwp
                 buffer.extend(99u8.to_be_bytes()); // TODO: hardcoded event kind: VM_DEATH
                 buffer.extend(&0u32.to_be_bytes()); // request id
             }
-            DebugEvent::ClassPrepare { class_name } => {
+            DebugEvent::ClassPrepare(info) => {
                 buffer.extend(8u8.to_be_bytes()); // TODO: hardcoded event kind: CLASS_PREPARE
                 buffer.extend(&0u32.to_be_bytes()); // request id
-
-                let class_name_bytes = class_name.as_bytes();
-                buffer.extend(&(class_name_bytes.len() as u32).to_be_bytes()); // class name length
-                buffer.extend(class_name_bytes); // class name
+                buffer.extend(&info.thread_id.to_be_bytes()); // thread id
+                buffer.extend(&(info.ref_type_tag as u8).to_be_bytes()); // ref type tag
+                buffer.extend(&info.type_id.to_be_bytes()); // class id
+                let signature_bytes = info.signature.as_bytes();
+                buffer.extend(&(signature_bytes.len() as u32).to_be_bytes());
+                buffer.extend(signature_bytes);
+                buffer.extend(&(info.status as i32).to_be_bytes()); // status
+            }
         }
     }
 
@@ -191,6 +197,12 @@ fn handle_command(
         JdwpCommand::VmAllClasses => Ok(handle_vm_all_classes(vm)),
         JdwpCommand::VmTopLevelThreadGroups => Ok(handle_top_level_thread_groups()),
         JdwpCommand::VmVersion => Ok(handle_vm_version()),
+        JdwpCommand::ClassTypeSuperclass { class_id } => {
+            Ok(handle_class_type_superclass(vm, class_id))
+        }
+        JdwpCommand::ReferenceTypeInterfaces { class_id } => {
+            Ok(handle_reference_type_interfaces(vm, class_id))
+        }
         cmd => {
             eprintln!("Unhandled command: {:?}", cmd);
             Err(JdwpError::ConnectionClosed)
@@ -204,14 +216,42 @@ fn handle_command(
     }))
 }
 
+fn handle_reference_type_interfaces(vm: &VirtualMachine, class_id: u32) -> Vec<u8> {
+    let ma_read = vm.method_area_read();
+    let class = ma_read.get_class(&ClassId::new(NonZeroU32::new(class_id).unwrap()));
+    let interface = class.get_direct_interfaces().unwrap();
+    let mut buf = Vec::with_capacity(4 + interface.len() * 4); // number of interfaces + interfaces data
+    buf.extend(&(interface.len() as i32).to_be_bytes()); // number of interfaces
+    for interface_id in interface {
+        buf.extend(&interface_id.to_i32().to_be_bytes()); // interface id
+    }
+    buf
+}
+
+fn handle_class_type_superclass(vm: &VirtualMachine, class_id: u32) -> Vec<u8> {
+    let ma_read = vm.method_area_read();
+    let class = ma_read.get_class(&ClassId::new(NonZeroU32::new(class_id).unwrap()));
+    let super_class_id = if let Some(super_class) = class.get_super_id() {
+        super_class.to_i32()
+    } else {
+        0
+    };
+    super_class_id.to_be_bytes().to_vec()
+}
+
 fn handle_vm_all_classes(vm: &VirtualMachine) -> Vec<u8> {
     let one_class_approx_size = 1 + 4 + 4 + (20 * 8) + 4; // refTypeTag + typeId + signatureLen + signature + status
     let ma_read = vm.method_area_read();
     let classes = ma_read.classes();
+    let mut classes_count: i32 = 0;
     let mut buf = Vec::with_capacity(4 + classes.len() * one_class_approx_size); // number of classes + classes data
-    buf.extend(&(classes.len() as i32).to_be_bytes()); // number of classes
+    buf.extend(&classes_count.to_be_bytes()); // placeholder for number of classes
     //TODO: I guess need to skip primitive types?
     for (i, class) in classes.iter().enumerate() {
+        if class.is_primitive() {
+            continue;
+        }
+        classes_count += 1;
         let ref_type_tag: u8 = if class.is_interface() {
             0x02
         } else if class.is_array() {
@@ -231,6 +271,9 @@ fn handle_vm_all_classes(vm: &VirtualMachine) -> Vec<u8> {
         let status: i32 = 0x02; //TODO: hardcoded status (VERIFIED)
         buf.extend(&status.to_be_bytes()); // status
     }
+    // Update the number of classes at the beginning
+    let classes_count_bytes = classes_count.to_be_bytes();
+    buf[0..4].copy_from_slice(&classes_count_bytes);
     buf
 }
 

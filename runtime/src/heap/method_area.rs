@@ -1,7 +1,7 @@
 use crate::class_loader::ClassLoader;
 use crate::error::JvmError;
 use crate::heap::{Heap, HeapRef};
-use crate::jdwp::{ClassStatus, DebugEvent, DebugState, TypeTag};
+use crate::jdwp::{ClassPrepareInfo, ClassStatus, DebugEvent, DebugState, TypeTag};
 use crate::keys::{
     ClassId, FieldDescriptorId, FieldKey, FullyQualifiedMethodKey, MethodDescriptorId, MethodKey,
     ThreadId,
@@ -527,14 +527,16 @@ impl MethodArea {
             let name_str = self.interner.resolve(&name_sym);
             if let Some(matched) = self.debug_state.matches_class_prepare(name_str) {
                 for request_id in matched {
-                    self.debug_state.send_event(DebugEvent::ClassPrepare {
-                        request_id,
-                        thread_id,
-                        ref_type_tag: self.get_class_type_tag(&class_id),
-                        type_id: class_id,
-                        signature: format!("L{};", name_str),
-                        status: ClassStatus::Prepared, // Todo: hardcoded for now
-                    })
+                    println!("Sending ClassPrepare event for class {}", name_str);
+                    self.debug_state
+                        .send_event(DebugEvent::ClassPrepare(ClassPrepareInfo {
+                            request_id,
+                            thread_id,
+                            ref_type_tag: self.get_class_type_tag(&class_id),
+                            type_id: class_id,
+                            signature: format!("L{};", name_str),
+                            status: ClassStatus::Prepared, // Todo: hardcoded for now
+                        }))
                 }
             }
         }
