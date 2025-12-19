@@ -1,12 +1,11 @@
 use crate::jdwp::agent::command::{EventModifier, EventRequest};
 use crate::jdwp::class_matcher::ClassPatternMatcher;
 use crate::keys::{ClassId, MethodId, ThreadId};
-use crossbeam::channel::{Receiver, Sender, unbounded};
 use dashmap::DashMap;
 use num_enum::TryFromPrimitive;
-use std::collections::HashMap;
-use std::sync::atomic::{AtomicBool, AtomicI32, AtomicU32, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicI32, Ordering};
 use std::sync::{Condvar, Mutex, RwLock};
+use tokio::sync::mpsc::UnboundedSender;
 
 pub mod agent;
 mod class_matcher;
@@ -95,8 +94,7 @@ pub struct DebugState {
     pub suspend_policies: DashMap<EventRequestId, SuspendPolicy>,
     pub class_prepare_events: RwLock<ClassPatternMatcher>,
 
-    pub event_tx: Sender<DebugEvent>,
-    pub event_rx: Receiver<DebugEvent>,
+    pub event_tx: UnboundedSender<DebugEvent>,
 
     pub connected: AtomicBool,
     pub connected_lock: Mutex<()>,
@@ -106,8 +104,7 @@ pub struct DebugState {
 }
 
 impl DebugState {
-    pub fn new() -> Self {
-        let (event_tx, event_rx) = unbounded();
+    pub fn new(event_tx: UnboundedSender<DebugEvent>) -> Self {
         Self {
             suspended: AtomicBool::new(false),
             suspend_lock: Mutex::new(()),
@@ -116,7 +113,6 @@ impl DebugState {
             suspend_policies: DashMap::new(),
             class_prepare_events: RwLock::new(ClassPatternMatcher::new()),
             event_tx,
-            event_rx,
             connected: AtomicBool::new(false),
             connected_lock: Mutex::new(()),
             connected_signal: Condvar::new(),

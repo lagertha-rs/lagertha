@@ -1,7 +1,6 @@
 use crate::jdwp::agent::error_code::JdwpError;
-use byteorder::{BigEndian, ReadBytesExt};
-use std::io::Read;
-use std::net::TcpStream;
+use tokio::io::AsyncReadExt;
+use tokio::net::TcpStream;
 
 const FLAG_REPLY: u8 = 0x80;
 
@@ -26,17 +25,17 @@ pub enum Packet {
     Reply(ReplyPacket),
 }
 impl Packet {
-    pub fn read(stream: &mut TcpStream) -> Result<Self, JdwpError> {
-        let length = stream.read_u32::<BigEndian>()?;
-        let id = stream.read_u32::<BigEndian>()?;
-        let flags = stream.read_u8()?;
+    pub async fn read(stream: &mut TcpStream) -> Result<Self, JdwpError> {
+        let length = stream.read_u32().await?;
+        let id = stream.read_u32().await?;
+        let flags = stream.read_u8().await?;
 
         if flags & FLAG_REPLY != 0 {
-            let error_code = stream.read_u16::<BigEndian>()?;
+            let error_code = stream.read_u16().await?;
             let data_len = (length as usize).saturating_sub(11);
             let mut data = vec![0u8; data_len];
             if !data.is_empty() {
-                stream.read_exact(&mut data)?;
+                stream.read_exact(&mut data).await?;
             }
             Ok(Packet::Reply(ReplyPacket {
                 id,
@@ -44,12 +43,12 @@ impl Packet {
                 data,
             }))
         } else {
-            let command_set = stream.read_u8()?;
-            let command = stream.read_u8()?;
+            let command_set = stream.read_u8().await?;
+            let command = stream.read_u8().await?;
             let data_len = (length as usize).saturating_sub(11);
             let mut data = vec![0u8; data_len];
             if !data.is_empty() {
-                stream.read_exact(&mut data)?;
+                stream.read_exact(&mut data).await?;
             }
             Ok(Packet::Command(CommandPacket {
                 id,

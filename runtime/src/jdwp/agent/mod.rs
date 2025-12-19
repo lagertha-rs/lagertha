@@ -5,11 +5,12 @@ use crate::jdwp::agent::packet::{CommandPacket, Packet, ReplyPacket};
 use crate::jdwp::{DebugEvent, DebugState};
 use crate::keys::ClassId;
 use std::io;
-use std::io::{Read, Write};
-use std::net::TcpStream;
 use std::num::NonZeroU32;
 use std::sync::Arc;
 use std::thread::JoinHandle;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::net::{TcpListener, TcpStream};
+use tokio::sync::mpsc::UnboundedReceiver;
 
 pub mod command;
 pub mod error_code;
@@ -21,40 +22,57 @@ const HANDSHAKE: &[u8; 14] = b"JDWP-Handshake";
 pub fn start_jdwp_agent(
     vm: Arc<VirtualMachine>,
     debug: Arc<DebugState>,
+    event_rx: UnboundedReceiver<DebugEvent>,
     port: u16,
 ) -> JoinHandle<()> {
     std::thread::spawn(move || {
-        jdwp_agent_routine(vm, debug, port);
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_io()
+            .build()
+            .unwrap();
+
+        runtime.block_on(async {
+            jdwp_agent_routine(vm, debug, event_rx, port).await;
+        })
     })
 }
 
-fn jdwp_agent_routine(vm: Arc<VirtualMachine>, debug: Arc<DebugState>, port: u16) {
-    let listener = std::net::TcpListener::bind(format!("127.0.0.1:{}", port)).unwrap();
+async fn jdwp_agent_routine(
+    vm: Arc<VirtualMachine>,
+    debug: Arc<DebugState>,
+    event_rx: UnboundedReceiver<DebugEvent>,
+    port: u16,
+) {
+    let listener = TcpListener::bind(format!("127.0.0.1:{}", port))
+        .await
+        .unwrap();
     println!("JDWP agent listening on port {}", port);
 
-    loop {
-        let (mut stream, addr) = listener.accept().unwrap();
+    let (stream, addr) = loop {
+        let (mut stream, addr) = listener.accept().await.unwrap();
         println!("Debugger connected from {}", addr);
 
-        if let Err(e) = perform_handshake(&mut stream) {
+        if let Err(e) = perform_handshake(&mut stream).await {
             eprintln!("Handshake failed: {}", e);
             continue;
         }
+        break (stream, addr);
+    };
 
-        debug.set_connected(true);
+    debug.set_connected(true);
 
-        handle_connection(vm.clone(), debug.clone(), stream);
+    handle_connection(vm.clone(), debug.clone(), stream, event_rx).await;
 
-        debug.set_connected(false);
-        debug.resume_all();
+    debug.set_connected(false);
+    debug.resume_all();
 
-        println!("Debugger disconnected from {}", addr);
-    }
+    println!("Debugger disconnected from {}", addr);
 }
 
-fn perform_handshake(stream: &mut TcpStream) -> Result<(), JdwpError> {
+//TODO: need timeout on handshake
+async fn perform_handshake(stream: &mut TcpStream) -> Result<(), JdwpError> {
     let mut buf = [0u8; 14];
-    stream.read_exact(&mut buf)?;
+    stream.read_exact(&mut buf).await?;
 
     if &buf != HANDSHAKE {
         return Err(JdwpError::Io(io::Error::new(
@@ -62,14 +80,13 @@ fn perform_handshake(stream: &mut TcpStream) -> Result<(), JdwpError> {
             "Invalid handshake",
         )));
     }
-
-    stream.write_all(HANDSHAKE)?;
-    stream.flush()?;
+    stream.write_all(HANDSHAKE).await?;
+    stream.flush().await?;
 
     Ok(())
 }
 
-fn send_reply(stream: &mut TcpStream, reply_packet: ReplyPacket) -> Result<(), JdwpError> {
+async fn send_reply(stream: &mut TcpStream, reply_packet: ReplyPacket) -> Result<(), JdwpError> {
     let length = 11 + reply_packet.data.len() as u32;
     let mut buffer = Vec::with_capacity(length as usize);
 
@@ -79,13 +96,13 @@ fn send_reply(stream: &mut TcpStream, reply_packet: ReplyPacket) -> Result<(), J
     buffer.extend(&reply_packet.error_code.to_be_bytes());
     buffer.extend(&reply_packet.data);
 
-    stream.write_all(&buffer)?;
-    stream.flush()?;
+    stream.write_all(&buffer).await?;
+    stream.flush().await?;
 
     Ok(())
 }
 
-fn send_events(stream: &mut TcpStream, events: &[DebugEvent]) -> Result<(), JdwpError> {
+async fn send_events(stream: &mut TcpStream, events: &[DebugEvent]) -> Result<(), JdwpError> {
     let mut buffer = Vec::new();
     buffer.extend(&2u8.to_be_bytes()); // TODO: hardcoded suspend policy: SUSPEND_ALL
     buffer.extend(&(events.len() as u32).to_be_bytes()); // number of events
@@ -121,33 +138,32 @@ fn send_events(stream: &mut TcpStream, events: &[DebugEvent]) -> Result<(), Jdwp
     header.extend(&64u8.to_be_bytes()); // command set: Event
     header.extend(&100u8.to_be_bytes()); // command: Composite
 
-    stream.write_all(&header)?;
-    stream.write_all(&buffer)?;
-    stream.flush()?;
+    stream.write_all(&header).await?;
+    stream.write_all(&buffer).await?;
+    stream.flush().await?;
 
     Ok(())
 }
 
-fn handle_connection(vm: Arc<VirtualMachine>, debug: Arc<DebugState>, mut stream: TcpStream) {
-    let mut event_buffer = Vec::new();
+async fn handle_connection(
+    vm: Arc<VirtualMachine>,
+    debug: Arc<DebugState>,
+    mut stream: TcpStream,
+    mut event_rx: UnboundedReceiver<DebugEvent>,
+) {
+    let mut event_buffer = Vec::with_capacity(10);
     loop {
-        while let Ok(event) = debug.event_rx.try_recv() {
-            event_buffer.push(event)
-        }
-        if !event_buffer.is_empty() {
-            if let Err(e) = send_events(&mut stream, &event_buffer) {
-                eprintln!("Error sending events: {}", e);
-                break;
-            }
+        tokio::select! {
+        _ = event_rx.recv_many(&mut event_buffer, 10) => {
+               send_events(&mut stream, &event_buffer).await.unwrap();
             event_buffer.clear();
-        }
-
-        match Packet::read(&mut stream) {
+            }
+            packet = Packet::read(&mut stream) => match packet {
             Ok(Packet::Command(cmd_packet)) => match handle_command(&vm, debug.clone(), cmd_packet)
             {
                 Ok(None) => {}
                 Ok(Some(reply_packet)) => {
-                    if let Err(e) = send_reply(&mut stream, reply_packet) {
+                    if let Err(e) = send_reply(&mut stream, reply_packet).await {
                         eprintln!("Error sending reply: {}", e);
                         break;
                     }
@@ -162,6 +178,7 @@ fn handle_connection(vm: Arc<VirtualMachine>, debug: Arc<DebugState>, mut stream
             Err(e) => {
                 eprintln!("Error reading packet: {}", e);
                 break;
+            }
             }
         }
     }

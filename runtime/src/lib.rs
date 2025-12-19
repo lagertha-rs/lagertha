@@ -13,6 +13,7 @@ use crate::vm::stack::FrameStack;
 use lasso::ThreadedRodeo;
 use std::path::PathBuf;
 use std::sync::{Arc, RwLock};
+use tokio::sync::mpsc::unbounded_channel;
 
 mod class_loader;
 mod error;
@@ -66,7 +67,8 @@ impl VirtualMachine {
         string_interner: Arc<ThreadedRodeo>,
     ) -> Result<(Arc<Self>, JavaThreadState), ()> {
         config.validate();
-        let debug_state = Arc::new(DebugState::new());
+        let (event_tx, event_rx) = unbounded_channel();
+        let debug_state = Arc::new(DebugState::new(event_tx));
         let (method_area, br) =
             MethodArea::init(&config, string_interner.clone(), debug_state.clone()).map_err(
                 |e| {
@@ -95,7 +97,7 @@ impl VirtualMachine {
         log_traces::debug::init(&vm);
 
         if let Some(jdwp_port) = vm.config.jdwp_port {
-            start_jdwp_agent(vm.clone(), debug_state.clone(), jdwp_port);
+            start_jdwp_agent(vm.clone(), debug_state.clone(), event_rx, jdwp_port);
             debug_state.send_event(DebugEvent::VMStart);
             debug_state.suspend_all(); //TODO: I assume always suspended at start (suspend=y)
 
