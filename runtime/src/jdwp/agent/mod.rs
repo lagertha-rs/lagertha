@@ -151,10 +151,13 @@ async fn handle_connection(
     mut stream: TcpStream,
     mut event_rx: UnboundedReceiver<DebugEvent>,
 ) {
-    let mut event_buffer = Vec::with_capacity(10);
+    let mut event_buffer = Vec::with_capacity(32);
     loop {
         tokio::select! {
-        _ = event_rx.recv_many(&mut event_buffer, 10) => {
+        count = event_rx.recv_many(&mut event_buffer, 32) => {
+                if count == 0 {
+                    break; // TODO: channel closed (internal err?)
+                }
                send_events(&mut stream, &event_buffer).await.unwrap();
             event_buffer.clear();
             }
