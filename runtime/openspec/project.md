@@ -1,11 +1,11 @@
 # Project Context
 
 ## Purpose
-Core JVM implementation providing class loading, memory management, bytecode interpretation, native method registration, threading, and JDWP debugging support. This crate is the heart of the Java Virtual Machine where bytecode execution happens.
+Core JVM implementation providing class loading, memory management, bytecode interpretation, native method registration, and JDWP debugging support (JDWP is early stage and doesn't work yet). This crate is the heart of the Java Virtual Machine where bytecode execution happens.
 
 ## Tech Stack
-- **Core Dependencies**: `once_cell`, `libc`, `lasso` (multi-threaded), `dashmap`, `tokio` (sync/net/rt), `byteorder`, `num_enum`, `smallvec`, `itertools`, `walkdir`
-- **Workspace Dependencies**: `hotpath` (performance profiling), `tracing-log` (structured logging)
+- **Core Dependencies**: `once_cell`, `libc`, `lasso`, `dashmap`, `tokio` (sync/net/rt), `byteorder`, `num_enum`, `smallvec`, `itertools`, `walkdir`
+- **Workspace Dependencies**: `hotpath` (experimental performance profiling, not heavily used), `tracing-log` (structured logging)
 - **Internal Dependencies**: `jclass`, `jimage`, `common` (all workspace crates)
 
 ## Workspace Context
@@ -20,7 +20,7 @@ Core JVM implementation providing class loading, memory management, bytecode int
 - **Main Struct**: `VirtualMachine` manages heap, method area, native registry, and debug state
 - **VmConfig**: Configuration for heap size, classpath, JDWP port, Java version validation
 - **Memory Management**: Heap using `mmap`, object allocation with headers, string interning via `lasso`
-- **Threading Model**: `dashmap` for concurrent data structures, `tokio` for async JDWP agent
+- **Threading Model**: Only 2 threads (Rust main thread + tokio async JDWP agent); `dashmap` for concurrent data structures
 
 ### Module Organization
 ```
@@ -55,8 +55,8 @@ src/
 
 ### Feature Flags
 - **`log-runtime-traces`**: Enables detailed execution tracing via `debug_log!` macros
-- **`hotpath`**: Performance measurement for interpreter hot paths
-- **`hotpath-alloc`**: Performance measurement for allocation paths
+- **`hotpath`**: Experimental performance measurement for interpreter hot paths (not heavily used)
+- **`hotpath-alloc`**: Experimental performance measurement for allocation paths (not heavily used)
 - **`hotpath-off`**: Disables all hotpath instrumentation
 
 ### Error Handling
@@ -65,7 +65,7 @@ src/
 - **Comprehensive Coverage**: Class loading, bytecode interpretation, native method, memory allocation errors
 
 ### Performance Considerations
-- **String Interning**: `lasso` with multi-threaded support for symbol management
+- **String Interning**: `lasso` for symbol management
 - **Concurrent Data Structures**: `dashmap` for shared method area and heap structures
 - **Memory Layout**: Careful object header design to match JVM specification
 - **Hot Path Optimization**: Feature-gated performance measurement for critical paths
@@ -75,6 +75,7 @@ src/
 - **Debug Logging**: `log-runtime-traces` feature enables detailed execution tracing for debugging
 - **Error Scenarios**: Comprehensive error handling tested through integration test error cases
 - **No Dedicated Test Directory**: Relies on higher-level testing in dependent crates
+- **API Stability**: Frequent API changes (almost each commit) as the project evolves
 
 ## Domain Knowledge Required
 
@@ -92,8 +93,8 @@ src/
 
 ### Performance Considerations
 - **Method Dispatch**: Virtual method lookup, interface method resolution
-- **Garbage Collection**: Basic allocation strategies (future extension)
-- **Thread Synchronization**: Monitor entry/exit, thread state management
+- **Garbage Collection**: No garbage collection yet; only basic allocation strategies
+- **Thread Synchronization**: Monitor opcodes are currently no-op; only Rust main thread mapped to Java main thread
 
 ## Important Constraints
 
@@ -117,13 +118,13 @@ src/
 ### Runtime Dependencies
 - **`once_cell = "1.19"**: One-time initialization of global state
 - **`libc = "0.2.177"**: System calls for memory management (`mmap`, `munmap`)
-- **`lasso = { version = "0.7.3", features = ["multi-threaded"] }**: String interning
+- **`lasso = "0.7.3"**: String interning
 - **`dashmap = "6.1.0"**: Concurrent hash maps for shared data structures
 - **`tokio = { version = "1.48.0", features = ["sync", "net", "rt", "io-util", "macros"] }**: Async runtime for JDWP agent
 - **`byteorder = "1.5"**, `num_enum = "0.7.4"`, `smallvec = "1.15.1"`, `itertools = "0.14.0"`, `walkdir = "2"**: Data manipulation utilities
 
 ### Workspace Dependencies
-- **`hotpath`**: Performance profiling macros
+- **`hotpath`**: Experimental performance profiling macros (not heavily used)
 - **`tracing-log`**: Structured logging integration
 
 ### Internal Workspace Dependencies

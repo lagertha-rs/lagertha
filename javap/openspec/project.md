@@ -1,7 +1,7 @@
 # Project Context
 
 ## Purpose
-Java class file disassembler tool that prints the structure of `.class` files (equivalent to `javap -v -p`). Demonstrates and tests the `jclass` crate's parsing capabilities while providing a useful standalone utility for examining Java bytecode.
+Java class file disassembler tool that prints the structure of `.class` files (equivalent to `javap -v -p`). Demonstrates and tests the `jclass` crate's parsing capabilities while providing a useful standalone utility for examining Java bytecode. Targets Java 25 class file format.
 
 ## Tech Stack
 - **Core Dependencies**: `jclass` (with `pretty_print` feature), `sha2` (SHA-256 checksums), `chrono` (timestamp formatting)
@@ -23,7 +23,7 @@ Java class file disassembler tool that prints the structure of `.class` files (e
 - **Metadata Display**: Shows file size, modification timestamp, SHA-256 checksum, source file attribute
 
 ### Build System Integration
-- **Build Script**: `build.rs` extracts JDK module class files from `.jmod` archives based on `fixtures.toml` manifest
+- **Test Fixture Preparation**: `build.rs` (located in `tests/` folder) extracts JDK module class files from `.jmod` archives based on `fixtures.toml` manifest solely for test purposes
 - **Fixture Management**: `tests/testdata/fixtures.toml` defines which classes to extract from JDK modules
 - **JMOD Extraction**: Uses `jmod` tool to extract classes from JDK module archives
 
@@ -34,7 +34,7 @@ tests/
 ├── testdata/
 │   ├── fixtures.toml           # Class manifest for extraction
 │   └── compiled/              # Extracted .class files (generated)
-└── (no snapshots)              # Line-by-line comparison instead
+└── (no snapshots)              # Line-by-line comparison with Oracle javap (deterministic output)
 ```
 
 ### Feature Flags
@@ -46,7 +46,7 @@ tests/
 ### Integration Testing Philosophy
 - **Oracle Comparison**: Compares output line-by-line with Oracle's `javap -v -p` (whitespace normalized)
 - **Comprehensive Coverage**: Tests all class files defined in `fixtures.toml` manifest
-- **No Snapshot Storage**: Uses direct comparison instead of snapshot files to avoid drift
+- **No Snapshot Storage**: Uses direct comparison with Oracle javap output (deterministic) instead of snapshot files to avoid drift
 - **Parameterized Testing**: Uses `rstest` to test all `.class` files in compiled fixtures directory
 
 ### Test Execution

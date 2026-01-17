@@ -5,7 +5,7 @@ Command-line interface that parses arguments, configures the runtime environment
 
 ## Tech Stack
 - **Core Dependencies**: `clap` (with derive feature) for command-line argument parsing
-- **Workspace Dependencies**: `hotpath` (performance profiling), `tracing-log` (structured logging)
+- **Workspace Dependencies**: `hotpath` (experimental performance profiling, not heavily used), `tracing-log` (structured logging)
 - **Internal Dependencies**: `runtime` (core JVM), `common` (shared utilities)
 - **Testing Dependencies**: `assert_cmd`, `insta`, `rstest` for integration testing
 
@@ -18,9 +18,9 @@ Command-line interface that parses arguments, configures the runtime environment
 ## Crate-Specific Conventions
 
 ### CLI Architecture
-- **Args Struct**: Uses `clap::Parser` with comprehensive argument parsing
+- **Args Struct**: Uses `clap::Parser` with basic argument parsing (currently only class-path support)
 - **Classpath Resolution**: Supports both dotted and slash-separated class names
-- **Java Home Detection**: Reads `JAVA_HOME` environment variable and `release` file
+- **Java Home Detection**: Reads `JAVA_HOME` environment variable and `release` file (used to assert Java version 25)
 - **Configuration Building**: `create_vm_configuration()` builds `runtime::VmConfig` from CLI args
 
 ### Build System Integration
@@ -40,8 +40,8 @@ tests/
 
 ### Feature Flags
 - **`log-runtime-traces`**: Propagates to `runtime` crate for execution tracing
-- **`hotpath`**: Performance measurement for VM launch paths
-- **`hotpath-alloc`**: Performance measurement for allocation paths
+- **`hotpath`**: Experimental performance measurement for VM launch paths (not heavily used)
+- **`hotpath-alloc`**: Experimental performance measurement for allocation paths (not heavily used)
 - **`hotpath-off`**: Disables all hotpath instrumentation
 
 ## Testing Approach
@@ -115,7 +115,7 @@ tests/
 - **`clap = { version = "4.5.47", features = ["derive"] }`**: Command-line argument parsing
 
 ### Workspace Dependencies
-- **`hotpath`**: Performance profiling macros
+- **`hotpath`**: Experimental performance profiling macros (not heavily used)
 - **`tracing-log`**: Structured logging integration
 
 ### Internal Workspace Dependencies

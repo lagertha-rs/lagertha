@@ -1,7 +1,7 @@
 # Project Context
 
 ## Purpose
-Java module system `jimage` file reader for Java 9+ runtime images. Provides memory-mapped access to Java runtime modules (like `/java.base`) for efficient class loading without filesystem extraction. Implements the jimage format specification for locating and extracting resources from Java runtime images.
+Java module system `jimage` file reader for Java 9+ runtime images. Provides memory-mapped access to Java runtime modules (like `/java.base`) for efficient class loading without filesystem extraction. Implements the jimage format specification for locating and extracting resources from Java runtime images. Note: The jimage format is not officially documented; implementation is based on public sources and AI analysis.
 
 ## Tech Stack
 - **Core Dependency**: `memmap2` (0.9.8) for memory-mapped file access

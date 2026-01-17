@@ -31,7 +31,7 @@ Complete Java 25 `.class` file parser implementing JVM Specification SE 25 Chapt
 
 ### Pretty Printing System
 - **Feature-Gated**: `pretty_print` feature enables comprehensive Display implementations
-- **javap Compatibility**: Output designed to match `javap -v -p` format for comparison
+- **Internal javap Tool Compatibility**: Output designed to match Oracle's `javap -v -p` format for comparison with the internal `javap` crate
 - **Structured Formatting**: Consistent column widths, comments, and indentation
 - **Generic Support**: Displays generic signatures when Signature attribute present
 
@@ -41,11 +41,11 @@ Complete Java 25 `.class` file parser implementing JVM Specification SE 25 Chapt
 - **Error Conversion**: Leverages `common::error` hierarchy with From trait implementations
 
 ## Testing Approach
-- **Unit Tests**: Embedded parsing tests for individual structures
-- **Integration Tests**: Comparison against `javap -v -p` output for real class files
-- **Snapshot Testing**: Pretty-printed output captured for regression testing
+- **Minimal Unit Tests**: Basic parsing tests for individual structures
+- **Integration Validation**: Primary validation through comparison with Oracle's `javap -v -p` output via the internal `javap` crate
+- **Snapshot Testing**: Used only for custom test classes; JDK classes validated via direct `javap` comparison
 - **Fixture-Based**: Uses compiled Java test classes and JDK classes as test data
-- **Cross-Version Testing**: Verification with multiple Java version class files
+- **Java 25 Focus**: Currently targets Java 25 class file format
 
 ## Domain Knowledge Required
 - **JVM Class File Format**: Understanding of Chapter 4 structures (magic, version, constant_pool_count, etc.)

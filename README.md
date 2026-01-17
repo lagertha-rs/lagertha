@@ -22,6 +22,15 @@ This workspace consists of several crates:
 - **runtime** - Library implementing the virtual machine that executes Java bytecode
 - **vm** - Binary application that launches the runtime
 
+## AI Assistant Infrastructure (OpenCode & OpenSpec)
+
+This project uses OpenCode and OpenSpec to enable AI-assisted development. Important context:
+
+1. **Primary Goal**: The main purpose of this project is to learn about Java and the JVM. AI agents will only be used to generate tests, documentation, and perform cosmetic refactoring—not to implement any core technical logic.
+2. **Project Scope**: As a solo project, it may not evolve into a production-ready system. AI assistance helps with non-functional tasks that would otherwise require additional contributors.
+3. **Skill Development**: Using these tools provides practical experience with AI-assisted development workflows.
+4. **OpenSpec Structure**: OpenSpec doesn't handle nested openspec directories well (e.g., specs inside crate folders). Two solutions exist: symlinks or file duplication. I chose duplication because crates will eventually become separate repositories, making this a temporary arrangement.
+
 ## Documentation
 
 ### Implementation Details
