@@ -63,6 +63,16 @@ After deployment, create separate PR to:
 - Use `openspec archive <change-id> --skip-specs --yes` for tooling-only changes (always pass the change ID explicitly)
 - Run `openspec validate --strict` to confirm the archived change passes checks
 
+## Git Command Policy
+
+**Coding agents are FORBIDDEN from executing non-read git commands.**
+
+Forbidden commands: `git add`, `git commit`, `git push`, `git reset`, `git rebase`, `git merge`, and any other write operations.
+
+Read-only git commands are allowed: `git status`, `git diff`, `git log`, `git show`, `git branch`, `git remote`, etc.
+
+**Users must explicitly request git commits or pushes.** Never create commits or push changes unless the user directly asks you to do so.
+
 ## Before Any Task
 
 **Context Checklist:**
