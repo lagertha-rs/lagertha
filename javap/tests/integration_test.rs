@@ -1,4 +1,4 @@
-use assert_cmd::Command;
+use assert_cmd::cargo_bin_cmd;
 use rstest::*;
 use std::io::BufRead;
 use std::path::PathBuf;
@@ -9,7 +9,7 @@ fn compare_with_javap(
     #[files("**/*.class")]
     path: PathBuf,
 ) {
-    let mut cmd = Command::cargo_bin("javap").unwrap();
+    let mut cmd = cargo_bin_cmd!("javap");
     cmd.arg(&path);
 
     let output = cmd.assert().success().get_output().clone();

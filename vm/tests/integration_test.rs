@@ -1,4 +1,4 @@
-use assert_cmd::Command;
+use assert_cmd::cargo::cargo_bin_cmd;
 use insta::with_settings;
 use rstest::rstest;
 use std::path::{Path, PathBuf};
@@ -46,7 +46,7 @@ fn non_error_cases(
     let current_dir = std::env::current_dir().expect("Cannot get current dir");
     let class_path = current_dir.join("tests/testdata/compiled");
     let main_class_path = transform_absolute_path_to_package(&path);
-    let mut cmd = Command::cargo_bin("vm").unwrap();
+    let mut cmd = cargo_bin_cmd!("vm");
     cmd.arg("-c").arg(class_path).arg(&main_class_path);
 
     let output = cmd.assert().success().get_output().clone();
@@ -82,7 +82,7 @@ fn error_cases(
     let current_dir = std::env::current_dir().expect("Cannot get current dir");
     let class_path = current_dir.join("tests/testdata/compiled");
     let main_class_path = transform_absolute_path_to_package(&path);
-    let mut cmd = Command::cargo_bin("vm").unwrap();
+    let mut cmd = cargo_bin_cmd!("vm");
     cmd.arg("-c").arg(class_path).arg(&main_class_path);
 
     // when
