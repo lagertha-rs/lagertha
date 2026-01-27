@@ -3,16 +3,18 @@
 
 These instructions are for AI assistants working in this project.
 
-Always open `@/openspec/AGENTS.md` when the request:
-- Mentions planning or proposals (words like proposal, spec, change, plan)
-- Introduces new capabilities, breaking changes, architecture shifts, or big performance/security work
-- Sounds ambiguous and you need the authoritative spec before coding
+**This is a Cargo workspace member crate.** OpenSpec documentation is consolidated at the workspace root.
 
-Use `@/openspec/AGENTS.md` to learn:
-- How to create and apply change proposals
-- Spec format and conventions
-- Project structure and guidelines
+## Quick Links
 
-Keep this managed block so 'openspec update' can refresh the instructions.
+- **Full OpenSpec Instructions**: `@/openspec/AGENTS.md`
+- **Crate-Specific Context**: See the "## common" section in `@/openspec/project.md`
+- **Workspace Overview**: See the top-level sections in `@/openspec/project.md`
+
+## common Crate Summary
+
+Foundation crate providing shared utilities, error types, parsing helpers, and logging infrastructure. All other crates depend on `common`.
+
+For detailed conventions, module structure, and constraints, see `@/openspec/project.md`.
 
 <!-- OPENSPEC:END -->

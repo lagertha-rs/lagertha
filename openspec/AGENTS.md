@@ -2,6 +2,38 @@
 
 Instructions for AI coding assistants using OpenSpec for spec-driven development.
 
+## Workspace Structure
+
+This is a **Cargo workspace** with 6 member crates. All OpenSpec documentation is consolidated at the workspace root level.
+
+### Crate Overview
+
+| Crate | Role | Key Files |
+|-------|------|-----------|
+| `common` | Foundation layer (errors, parsing, types) | `common/src/` |
+| `jclass` | Java .class file parser | `jclass/src/` |
+| `jimage` | Java module system jimage reader | `jimage/src/` |
+| `runtime` | Core JVM (interpreter, memory, debugging) | `runtime/src/` |
+| `vm` | CLI launcher and integration tests | `vm/src/`, `vm/tests/` |
+| `javap` | Java disassembler tool | `javap/src/`, `javap/tests/` |
+
+### Finding Crate-Specific Context
+
+When working in a specific crate, refer to the **"Crate Details"** section in `openspec/project.md` which contains dedicated documentation for each crate including:
+- Purpose and tech stack
+- Module structure and conventions
+- Testing approach
+- Important constraints
+
+### Navigation Pattern
+
+- **Working in `common/`?** → See "## common" section in `openspec/project.md`
+- **Working in `jclass/`?** → See "## jclass" section in `openspec/project.md`
+- **Working in `jimage/`?** → See "## jimage" section in `openspec/project.md`
+- **Working in `runtime/`?** → See "## runtime" section in `openspec/project.md`
+- **Working in `vm/`?** → See "## vm" section in `openspec/project.md`
+- **Working in `javap/`?** → See "## javap" section in `openspec/project.md`
+
 ## TL;DR Quick Checklist
 
 - Search existing work: `openspec spec list --long`, `openspec list` (use `rg` only for full-text search)
