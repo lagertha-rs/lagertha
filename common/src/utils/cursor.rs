@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ByteOrder {
     BigEndian,
@@ -7,6 +9,14 @@ pub enum ByteOrder {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CursorError {
     UnexpectedEof,
+}
+
+impl Display for CursorError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            CursorError::UnexpectedEof => write!(f, "Unexpected end of input"),
+        }
+    }
 }
 
 pub struct ByteCursor<'a> {

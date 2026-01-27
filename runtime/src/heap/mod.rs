@@ -727,7 +727,7 @@ impl Heap {
         Ok(unsafe { std::slice::from_raw_parts(elements_ptr as *const i8, length as usize) })
     }
 
-    pub fn get_byte_array_slice_mut(&self, heap_ref: HeapRef) -> Result<&mut [i8], JvmError> {
+    pub fn get_byte_array_slice_mut(&mut self, heap_ref: HeapRef) -> Result<&mut [i8], JvmError> {
         let allocation_type = self.get_allocation_type(heap_ref)?;
         if allocation_type != AllocationType::Byte {
             return Err(JvmError::Todo("Not a byte array".to_string()));

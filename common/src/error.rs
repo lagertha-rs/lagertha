@@ -1,4 +1,5 @@
 use crate::utils::cursor::CursorError;
+use std::fmt::{Display, Formatter};
 
 // TODO: looks like a trash bin, needs refactoring
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -14,6 +15,28 @@ pub enum SignatureErr {
     InvalidSuperClassType,
 }
 
+impl Display for SignatureErr {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            SignatureErr::UnexpectedEnd => write!(f, "Unexpected end of signature"),
+            SignatureErr::MissingParamsOpenParen => {
+                write!(f, "Missing opening parenthesis for method parameters")
+            }
+            SignatureErr::MissingParamsCloseParen => {
+                write!(f, "Missing closing parenthesis for method parameters")
+            }
+            SignatureErr::TrailingCharacters => write!(f, "Trailing characters after signature"),
+            SignatureErr::InvalidIdentifier => write!(f, "Invalid identifier in signature"),
+            SignatureErr::MissingSuper => write!(f, "Missing 'super' in class signature"),
+            SignatureErr::InvalidBound => write!(f, "Invalid bound in type variable"),
+            SignatureErr::Type(err) => write!(f, "Type descriptor error: {}", err),
+            SignatureErr::InvalidSuperClassType => {
+                write!(f, "Invalid superclass type in class signature")
+            }
+        }
+    }
+}
+
 impl From<TypeDescriptorErr> for SignatureErr {
     fn from(value: TypeDescriptorErr) -> Self {
         SignatureErr::Type(value)
@@ -27,6 +50,16 @@ pub enum TypeDescriptorErr {
     InvalidObjectRef,
 }
 
+impl Display for TypeDescriptorErr {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TypeDescriptorErr::UnexpectedEnd => write!(f, "Unexpected end of type descriptor"),
+            TypeDescriptorErr::InvalidType(c) => write!(f, "Invalid type character: {}", c),
+            TypeDescriptorErr::InvalidObjectRef => write!(f, "Invalid object reference type"),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MethodDescriptorErr {
     ShouldStartWithParentheses(String),
@@ -35,12 +68,50 @@ pub enum MethodDescriptorErr {
     Type(String, TypeDescriptorErr),
 }
 
+impl Display for MethodDescriptorErr {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            MethodDescriptorErr::ShouldStartWithParentheses(desc) => {
+                write!(f, "Method descriptor should start with '(': {}", desc)
+            }
+            MethodDescriptorErr::MissingClosingParenthesis(desc) => {
+                write!(
+                    f,
+                    "Missing closing parenthesis in method descriptor: {}",
+                    desc
+                )
+            }
+            MethodDescriptorErr::TrailingCharacters => {
+                write!(f, "Trailing characters after method descriptor")
+            }
+            MethodDescriptorErr::Type(desc, err) => {
+                write!(f, "Type descriptor error in '{}': {}", desc, err)
+            }
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum InstructionErr {
     UnsupportedOpCode(u8),
     UnknownArrayType(u8),
     Cursor(CursorError),
     UnexpectedEof,
+}
+
+impl Display for InstructionErr {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            InstructionErr::UnsupportedOpCode(opcode) => {
+                write!(f, "Unsupported opcode: {:#X}", opcode)
+            }
+            InstructionErr::UnknownArrayType(atype) => {
+                write!(f, "Unknown array type: {}", atype)
+            }
+            InstructionErr::Cursor(err) => write!(f, "Cursor error: {}", err),
+            InstructionErr::UnexpectedEof => write!(f, "Unexpected end of instruction stream"),
+        }
+    }
 }
 
 impl From<CursorError> for InstructionErr {
@@ -115,6 +186,39 @@ pub enum ClassFormatErr {
     InvalidMethodHandleKind(u8),
     Signature(SignatureErr),
     MethodDescriptor(MethodDescriptorErr),
+}
+
+impl Display for ClassFormatErr {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ClassFormatErr::Cursor(err) => write!(f, "Cursor error: {}", err),
+            ClassFormatErr::WrongMagic(magic) => write!(f, "Wrong magic number: {:#X}", magic),
+            ClassFormatErr::TrailingBytes => write!(f, "Trailing bytes after class file"),
+            ClassFormatErr::UnknownTag(tag) => write!(f, "Unknown constant pool tag: {}", tag),
+            ClassFormatErr::TypeError(index, expected, actual) => write!(
+                f,
+                "Type error at index {}: expected {}, got {}",
+                index, expected, actual
+            ),
+            ClassFormatErr::ConstantNotFound(index) => {
+                write!(f, "Constant not found at index {}", index)
+            }
+            ClassFormatErr::UnknownStackFrameType(frame_type) => {
+                write!(f, "Unknown stack frame type: {}", frame_type)
+            }
+            ClassFormatErr::UnknownAttribute(name) => write!(f, "Unknown attribute: {}", name),
+            ClassFormatErr::AttributeIsNotShared(name) => {
+                write!(f, "Attribute is not shared: {}", name)
+            }
+            ClassFormatErr::InvalidMethodHandleKind(kind) => {
+                write!(f, "Invalid method handle kind: {}", kind)
+            }
+            ClassFormatErr::Signature(err) => write!(f, "Signature error: {}", err),
+            ClassFormatErr::MethodDescriptor(err) => {
+                write!(f, "Method descriptor error: {}", err)
+            }
+        }
+    }
 }
 
 impl From<CursorError> for ClassFormatErr {

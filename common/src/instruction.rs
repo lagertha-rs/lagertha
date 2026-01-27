@@ -1098,6 +1098,12 @@ impl Instruction {
     }
 }
 
+impl std::fmt::Display for Instruction {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.get_name())
+    }
+}
+
 impl std::fmt::Display for ArrayType {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.write_str(self.as_str())
