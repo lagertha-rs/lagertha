@@ -376,7 +376,12 @@ impl<'a> SharedAttribute {
                 TargetInfo::LocalVar { localvar_table } => {
                     let entries = localvar_table
                         .iter()
-                        .map(|e| format!("start_pc={}, length={}, index={}", e.start_pc, e.length, e.index))
+                        .map(|e| {
+                            format!(
+                                "start_pc={}, length={}, index={}",
+                                e.start_pc, e.length, e.index
+                            )
+                        })
                         .join("; ");
                     format!("LOCAL_VARIABLE, {{{entries}}}")
                 }
@@ -387,7 +392,9 @@ impl<'a> SharedAttribute {
                 TargetInfo::TypeArgument {
                     offset,
                     type_argument_index,
-                } => format!("TYPE_ARGUMENT, offset={offset}, type_argument_index={type_argument_index}"),
+                } => format!(
+                    "TYPE_ARGUMENT, offset={offset}, type_argument_index={type_argument_index}"
+                ),
             };
 
             // Format element value pairs
