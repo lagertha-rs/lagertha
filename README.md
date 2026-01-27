@@ -6,11 +6,23 @@ simple but functional runtime for executing Java bytecode. I'm targeting fully f
 
 ## Status
 
-This project is currently in early development. It executes a very limited instruction set, ignoring many important
-aspects of the JVM specification.
+This project is in early development. Hello World works!
 
-The first milestone is to execute a "Hello, World!" program compiled with Java 25. It sounds easy, but it is actually
-not.
+**See [docs/STATUS.md](docs/STATUS.md) for detailed implementation status.**
+
+### Current Highlights
+- ~148/200 bytecode opcodes implemented
+- Integer/long/byte/short/char arithmetic with full tests
+- Arrays (primitive + object) with tests
+- Exception handling (try-catch-finally, stack traces) with tests
+- Basic class loading from JImage and classpath
+
+### Known Limitations
+- `invokedynamic` not implemented (blocks lambdas, modern string concat)
+- `checkcast` is a stub (always passes)
+- Module system not implemented (initPhase2 skipped)
+- Single-threaded only (monitors are no-op)
+- No garbage collection
 
 ## Project Structure
 
