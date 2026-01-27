@@ -83,9 +83,21 @@ impl MethodInfo {
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &ConstantPool,
+        descriptor: &either::Either<
+            common::signature::MethodSignature,
+            common::descriptor::MethodDescriptor,
+        >,
     ) -> std::fmt::Result {
         use common::pretty_class_name_try;
+        use either::Either;
         use std::fmt::Write as _;
+
+        if let Either::Left(sig) = descriptor
+            && !sig.throws.is_empty()
+        {
+            write!(ind, "{}", sig.fmt_throws())?;
+            return Ok(());
+        }
 
         let exceptions_attr_opt = self.attributes.iter().find_map(|attr| {
             if let MethodAttribute::Exceptions(exception_index_table) = attr {
@@ -206,7 +218,7 @@ impl MethodInfo {
         self.fmt_pretty_name_and_ret_type(ind, cp, this, &descriptor)?;
         if pretty_try!(ind, cp.get_utf8(&self.name_index)) != "<clinit>" {
             self.fmt_pretty_params(ind, &descriptor)?;
-            self.fmt_pretty_throws(ind, cp)?;
+            self.fmt_pretty_throws(ind, cp, &descriptor)?;
         }
         writeln!(ind, ";")?;
 

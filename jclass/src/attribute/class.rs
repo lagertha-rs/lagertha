@@ -1,6 +1,6 @@
-use crate::ClassFormatErr;
 use crate::attribute::{AttributeType, SharedAttribute};
 use crate::constant::pool::ConstantPool;
+use crate::ClassFormatErr;
 use common::utils::cursor::ByteCursor;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -167,10 +167,18 @@ impl<'a> ClassAttr {
 
                         // Truly anonymous class
                         if entry.outer_class_info_index == 0 && entry.inner_name_index == 0 {
+                            let inner_access_flags =
+                                InnerClassFlags::new(entry.inner_class_access_flags);
+                            let flags_str = inner_access_flags.pretty_java_like_prefix();
+                            let left_part = if flags_str.is_empty() {
+                                format!("#{};", entry.inner_class_info_index)
+                            } else {
+                                format!("{} #{};", flags_str, entry.inner_class_info_index)
+                            };
                             writeln!(
                                 ind,
                                 "{:<43} // {}",
-                                format!("#{};", entry.inner_class_info_index),
+                                left_part,
                                 pretty_try!(ind, inner_class.get_pretty_type_and_value(cp, &0)),
                             )?;
                         }

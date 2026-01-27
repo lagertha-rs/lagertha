@@ -227,17 +227,23 @@ impl fmt::Display for MethodSignature {
 
         write!(f, "{}", self.ret)?;
 
-        if !self.throws.is_empty() {
-            write!(f, " throws ")?;
-            for (i, t) in self.throws.iter().enumerate() {
-                if i > 0 {
-                    write!(f, ", ")?;
-                }
-                write!(f, "{t}")?;
-            }
-        }
-
         Ok(())
+    }
+}
+
+impl MethodSignature {
+    pub fn fmt_throws(&self) -> String {
+        if self.throws.is_empty() {
+            String::new()
+        } else {
+            let throws_str = self
+                .throws
+                .iter()
+                .map(|t| t.to_string())
+                .collect::<Vec<_>>()
+                .join(", ");
+            format!(" throws {throws_str}")
+        }
     }
 }
 

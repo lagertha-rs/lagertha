@@ -1,6 +1,6 @@
-use crate::ClassFormatErr;
 use crate::attribute::AttributeType;
 use crate::constant::pool::ConstantPool;
+use crate::ClassFormatErr;
 use common::utils::cursor::ByteCursor;
 use num_enum::TryFromPrimitive;
 
@@ -193,11 +193,7 @@ impl<'a> StackMapFrame {
                 offset_delta,
                 stack,
             } => {
-                writeln!(
-                    ind,
-                    "{} /* same_locals_1_stack_item_frame_extended */",
-                    offset_delta + 100
-                )?;
+                writeln!(ind, "247 /* same_locals_1_stack_item_frame_extended */")?;
                 ind.with_indent(|ind| {
                     writeln!(ind, "offset_delta = {offset_delta}")?;
                     writeln!(

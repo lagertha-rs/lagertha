@@ -459,6 +459,7 @@ impl<'a> ConstantInfo {
     ) -> Result<String, ClassFormatErr> {
         Ok(match self {
             ConstantInfo::Integer(i) => format!("{}", i),
+            ConstantInfo::Class(index) => cp.get_pretty_class_name_utf8(index)?.to_string(),
             _ => self.get_pretty_type_and_value(cp, this_class_name)?,
         })
     }

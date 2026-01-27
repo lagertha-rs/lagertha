@@ -102,6 +102,7 @@ fn get_instruction_value(instruction: &Instruction, pc: i32) -> Option<String> {
             Some(s)
         }
         Instruction::Lstore(val) => Some(val.to_string()),
+        Instruction::Multianewarray(index, dimensions) => Some(format!("{index},  {dimensions}")),
         Instruction::New(val) => Some(val.to_string()),
         Instruction::Newarray(val) => Some(val.to_string()),
         Instruction::Putfield(val) => Some(val.to_string()),
@@ -148,6 +149,7 @@ fn get_instruction_comment(
         Instruction::Ldc(val) => comment_value(val),
         Instruction::LdcW(val) => comment_value(val),
         Instruction::Ldc2W(val) => comment_value(val),
+        Instruction::Multianewarray(val, _) => comment_value(val),
         Instruction::New(val) => comment_value(val),
         Instruction::Putfield(val) => comment_value(val),
         Instruction::Putstatic(val) => comment_value(val),

@@ -1,7 +1,7 @@
-use crate::ClassFormatErr;
 use crate::attribute::method::code::CodeAttributeInfo;
 use crate::attribute::{Annotation, AttributeType, SharedAttribute};
 use crate::constant::pool::ConstantPool;
+use crate::ClassFormatErr;
 use common::utils::cursor::ByteCursor;
 
 pub mod code;
@@ -31,14 +31,20 @@ pub struct MethodParameterEntry {
     pub access_flags: u16,
 }
 
+/// Parameter annotations for a single parameter
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ParameterAnnotations {
+    pub annotations: Vec<Annotation>,
+}
+
 /// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MethodAttribute {
     Shared(SharedAttribute),
     Code(CodeAttribute),
     Exceptions(Vec<u16>),
-    RuntimeVisibleParameterAnnotations,
-    RuntimeInvisibleParameterAnnotations,
+    RuntimeVisibleParameterAnnotations(Vec<ParameterAnnotations>),
+    RuntimeInvisibleParameterAnnotations(Vec<ParameterAnnotations>),
     AnnotationsDefault,
     MethodParameters(Vec<MethodParameterEntry>),
 }
@@ -89,13 +95,33 @@ impl<'a> MethodAttribute {
             }
             AttributeType::RuntimeVisibleParameterAnnotations => {
                 let number_of_parameters = cursor.u8()?;
+                let mut parameter_annotations = Vec::with_capacity(number_of_parameters as usize);
                 for _ in 0..number_of_parameters {
                     let num_annotations = cursor.u16()?;
+                    let mut annotations = Vec::with_capacity(num_annotations as usize);
                     for _ in 0..num_annotations {
-                        let _annotation = Annotation::read(cursor)?;
+                        annotations.push(Annotation::read(cursor)?);
                     }
+                    parameter_annotations.push(ParameterAnnotations { annotations });
                 }
-                Ok(MethodAttribute::RuntimeVisibleParameterAnnotations)
+                Ok(MethodAttribute::RuntimeVisibleParameterAnnotations(
+                    parameter_annotations,
+                ))
+            }
+            AttributeType::RuntimeInvisibleParameterAnnotations => {
+                let number_of_parameters = cursor.u8()?;
+                let mut parameter_annotations = Vec::with_capacity(number_of_parameters as usize);
+                for _ in 0..number_of_parameters {
+                    let num_annotations = cursor.u16()?;
+                    let mut annotations = Vec::with_capacity(num_annotations as usize);
+                    for _ in 0..num_annotations {
+                        annotations.push(Annotation::read(cursor)?);
+                    }
+                    parameter_annotations.push(ParameterAnnotations { annotations });
+                }
+                Ok(MethodAttribute::RuntimeInvisibleParameterAnnotations(
+                    parameter_annotations,
+                ))
             }
             other => unimplemented!("Method attribute {:?} not implemented", other),
         }
@@ -134,8 +160,22 @@ impl<'a> MethodAttribute {
                     Ok(())
                 })?
             }
-            MethodAttribute::RuntimeVisibleParameterAnnotations => unimplemented!(),
-            MethodAttribute::RuntimeInvisibleParameterAnnotations => unimplemented!(),
+            MethodAttribute::RuntimeVisibleParameterAnnotations(param_annotations) => {
+                Self::fmt_parameter_annotations(
+                    ind,
+                    cp,
+                    "RuntimeVisibleParameterAnnotations:",
+                    param_annotations,
+                )?
+            }
+            MethodAttribute::RuntimeInvisibleParameterAnnotations(param_annotations) => {
+                Self::fmt_parameter_annotations(
+                    ind,
+                    cp,
+                    "RuntimeInvisibleParameterAnnotations:",
+                    param_annotations,
+                )?
+            }
             MethodAttribute::AnnotationsDefault => unimplemented!(),
             MethodAttribute::MethodParameters(params) => {
                 const W_NAME: usize = 32;
@@ -157,6 +197,53 @@ impl<'a> MethodAttribute {
             }
         }
 
+        Ok(())
+    }
+
+    #[cfg(feature = "pretty_print")]
+    fn fmt_parameter_annotations(
+        ind: &mut common::utils::indent_write::Indented<'_>,
+        cp: &ConstantPool,
+        header: &str,
+        param_annotations: &[ParameterAnnotations],
+    ) -> std::fmt::Result {
+        use common::pretty_class_name_try;
+        use itertools::Itertools;
+        use std::fmt::Write as _;
+
+        writeln!(ind, "{header}")?;
+        ind.with_indent(|ind| {
+            for (param_idx, param) in param_annotations.iter().enumerate() {
+                writeln!(ind, "parameter {param_idx}:")?;
+                ind.with_indent(|ind| {
+                    for (ann_idx, annotation) in param.annotations.iter().enumerate() {
+                        writeln!(
+                            ind,
+                            "{}: #{}({})",
+                            ann_idx,
+                            annotation.type_index,
+                            annotation
+                                .element_value_pairs
+                                .iter()
+                                .map(|pair| format!(
+                                    "#{}={}",
+                                    pair.element_name_index,
+                                    pair.value.get_pretty_descriptor()
+                                ))
+                                .join(",")
+                        )?;
+                        ind.with_indent(|ind| {
+                            let type_name =
+                                pretty_class_name_try!(ind, cp.get_utf8(&annotation.type_index));
+                            writeln!(ind, "{type_name}")?;
+                            Ok(())
+                        })?;
+                    }
+                    Ok(())
+                })?;
+            }
+            Ok(())
+        })?;
         Ok(())
     }
 }

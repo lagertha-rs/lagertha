@@ -193,8 +193,8 @@ pub enum SharedAttribute {
     Signature(u16),
     RuntimeVisibleAnnotations(Vec<Annotation>),
     RuntimeInvisibleAnnotations(Vec<Annotation>),
-    RuntimeVisibleTypeAnnotations,
-    RuntimeInvisibleTypeAnnotations,
+    RuntimeVisibleTypeAnnotations(Vec<TypeAnnotation>),
+    RuntimeInvisibleTypeAnnotations(Vec<TypeAnnotation>),
 }
 
 impl<'a> SharedAttribute {
@@ -227,17 +227,21 @@ impl<'a> SharedAttribute {
             }
             AttributeType::RuntimeInvisibleTypeAnnotations => {
                 let num_annotations = cursor.u16()?;
+                let mut annotations = Vec::with_capacity(num_annotations as usize);
                 for _ in 0..num_annotations {
-                    TypeAnnotation::read(cursor)?;
+                    annotations.push(TypeAnnotation::read(cursor)?);
                 }
-                Ok(SharedAttribute::RuntimeInvisibleTypeAnnotations)
+                Ok(SharedAttribute::RuntimeInvisibleTypeAnnotations(
+                    annotations,
+                ))
             }
             AttributeType::RuntimeVisibleTypeAnnotations => {
                 let num_annotations = cursor.u16()?;
+                let mut annotations = Vec::with_capacity(num_annotations as usize);
                 for _ in 0..num_annotations {
-                    TypeAnnotation::read(cursor)?;
+                    annotations.push(TypeAnnotation::read(cursor)?);
                 }
-                Ok(SharedAttribute::RuntimeVisibleTypeAnnotations)
+                Ok(SharedAttribute::RuntimeVisibleTypeAnnotations(annotations))
             }
             _ => Err(ClassFormatErr::AttributeIsNotShared(attr_type.to_string())),
         }
@@ -324,10 +328,96 @@ impl<'a> SharedAttribute {
                 writeln!(ind, "RuntimeInvisibleAnnotations:")?;
                 ind.with_indent(|ind| Self::fmt_annotations(ind, cp, annotations))?
             }
-            SharedAttribute::RuntimeVisibleTypeAnnotations => unimplemented!(),
-            SharedAttribute::RuntimeInvisibleTypeAnnotations => unimplemented!(),
+            SharedAttribute::RuntimeVisibleTypeAnnotations(annotations) => {
+                writeln!(ind, "RuntimeVisibleTypeAnnotations:")?;
+                ind.with_indent(|ind| Self::fmt_type_annotations(ind, cp, annotations))?
+            }
+            SharedAttribute::RuntimeInvisibleTypeAnnotations(annotations) => {
+                writeln!(ind, "RuntimeInvisibleTypeAnnotations:")?;
+                ind.with_indent(|ind| Self::fmt_type_annotations(ind, cp, annotations))?
+            }
         }
 
+        Ok(())
+    }
+
+    #[cfg(feature = "pretty_print")]
+    fn fmt_type_annotations(
+        ind: &mut common::utils::indent_write::Indented<'_>,
+        cp: &crate::constant::pool::ConstantPool,
+        annotations: &[TypeAnnotation],
+    ) -> fmt::Result {
+        use common::pretty_class_name_try;
+        use itertools::Itertools;
+        use std::fmt::Write as _;
+
+        for (i, annotation) in annotations.iter().enumerate() {
+            // Format target info
+            let target_str = match &annotation.target_info {
+                TargetInfo::TypeParameter {
+                    type_parameter_index,
+                } => format!("CLASS_TYPE_PARAMETER, param_index={type_parameter_index}"),
+                TargetInfo::Supertype { supertype_index } => {
+                    format!("CLASS_EXTENDS, type_index={supertype_index}")
+                }
+                TargetInfo::TypeParameterBound {
+                    type_parameter_index,
+                    bound_index,
+                } => format!(
+                    "CLASS_TYPE_PARAMETER_BOUND, param_index={type_parameter_index}, bound_index={bound_index}"
+                ),
+                TargetInfo::Empty => "EMPTY".to_string(),
+                TargetInfo::MethodFormalParameter {
+                    formal_parameter_index,
+                } => format!("METHOD_FORMAL_PARAMETER, param_index={formal_parameter_index}"),
+                TargetInfo::Throws { throws_type_index } => {
+                    format!("THROWS, type_index={throws_type_index}")
+                }
+                TargetInfo::LocalVar { localvar_table } => {
+                    let entries = localvar_table
+                        .iter()
+                        .map(|e| format!("start_pc={}, length={}, index={}", e.start_pc, e.length, e.index))
+                        .join("; ");
+                    format!("LOCAL_VARIABLE, {{{entries}}}")
+                }
+                TargetInfo::Catch {
+                    exception_table_index,
+                } => format!("EXCEPTION_PARAMETER, exception_index={exception_table_index}"),
+                TargetInfo::Offset { offset } => format!("OFFSET, offset={offset}"),
+                TargetInfo::TypeArgument {
+                    offset,
+                    type_argument_index,
+                } => format!("TYPE_ARGUMENT, offset={offset}, type_argument_index={type_argument_index}"),
+            };
+
+            // Format element value pairs
+            let pairs_str = if annotation.element_value_pairs.is_empty() {
+                String::new()
+            } else {
+                annotation
+                    .element_value_pairs
+                    .iter()
+                    .map(|pair| {
+                        format!(
+                            "#{}={}",
+                            pair.element_name_index,
+                            pair.value.get_pretty_descriptor()
+                        )
+                    })
+                    .join(",")
+            };
+
+            writeln!(
+                ind,
+                "{i}: #{}({pairs_str}): {target_str}",
+                annotation.type_index
+            )?;
+            ind.with_indent(|ind| {
+                let type_name = pretty_class_name_try!(ind, cp.get_utf8(&annotation.type_index));
+                writeln!(ind, "{type_name}")?;
+                Ok(())
+            })?;
+        }
         Ok(())
     }
 }
