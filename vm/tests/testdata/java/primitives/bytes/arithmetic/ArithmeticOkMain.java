@@ -42,6 +42,21 @@ public class ArithmeticOkMain {
         assert (BMIN <= BMAX) : "cmp.signed.ge";
         assert (BMAX == 127) : "cmp.eq";
 
+        // Increment & decrement
+        byte val;
+
+        val = 1;
+        assert val++ == 1 : "post.inc";
+
+        val = 1;
+        assert val-- == 1 : "post.dec";
+
+        val = 1;
+        assert ++val == 2 : "pre.inc";
+
+        val = 1;
+        assert --val == 0 : "pre.dec";
+
         System.out.println("All byte assertions passed.");
     }
 }

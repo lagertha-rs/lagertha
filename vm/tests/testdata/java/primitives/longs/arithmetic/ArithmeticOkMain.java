@@ -51,6 +51,20 @@ public class ArithmeticOkMain {
         p += LMAX;
         assert p == LMIN : "compound.wrap";
 
+        // Increment & decrement
+        long val;
+        val = 1L;
+        assert val++ == 1L : "post.inc";
+
+        val = 1L;
+        assert val-- == 1L : "post.dec";
+
+        val = 1L;
+        assert ++val == 2L : "pre.inc";
+
+        val = 1L;
+        assert --val == 0L : "pre.dec";
+
         System.out.println("All long assertions passed.");
     }
 }

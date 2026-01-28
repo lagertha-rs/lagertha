@@ -35,7 +35,10 @@ impl Interpreter {
             Instruction::Aaload => handle_aaload(thread, vm)?,
             Instruction::Aastore => handle_aastore(thread, vm)?,
             Instruction::Bastore => handle_bastore(thread, vm)?,
+            Instruction::Faload => handle_faload(thread, vm)?,
+            Instruction::Daload => handle_daload(thread, vm)?,
             Instruction::Iaload => handle_iaload(thread, vm)?,
+            Instruction::Laload => handle_laload(thread, vm)?,
             Instruction::Caload => handle_caload(thread, vm)?,
             Instruction::Baload => handle_baload(thread, vm)?,
             Instruction::Checkcast(_idx) => handle_checkcast(thread)?,
@@ -54,6 +57,8 @@ impl Interpreter {
             Instruction::Astore(pos) => handle_astore(thread, pos)?,
             Instruction::Bipush(value) => handle_bipush(thread, value)?,
             Instruction::Castore => handle_castore(thread, vm)?,
+            Instruction::Fastore => handle_fastore(thread, vm)?,
+            Instruction::Dastore => handle_dastore(thread, vm)?,
             Instruction::Dadd => handle_dadd(thread)?,
             Instruction::Ddiv => handle_ddiv(thread)?,
             Instruction::Dcmpl => handle_dcmpl(thread)?,
@@ -67,13 +72,17 @@ impl Interpreter {
             Instruction::Dload(n) => handle_dload(thread, n)?,
             Instruction::Dmul => handle_dmul(thread)?,
             Instruction::Dstore(n) => handle_dstore(thread, n)?,
+            Instruction::Dstore0 => handle_dstore0(thread)?,
             Instruction::Dup => handle_dup(thread)?,
             Instruction::Dup2 => handle_dup2(thread)?,
             Instruction::DupX1 => handle_dup_x1(thread)?,
+            Instruction::DupX2 => handle_dup_x2(thread)?,
+            Instruction::Fadd => handle_fadd(thread)?,
             Instruction::Fcmpl => handle_fcmpl(thread)?,
             Instruction::Fcmpg => handle_fcmpg(thread)?,
             Instruction::Fconst0 => handle_fconst0(thread)?,
             Instruction::Fconst1 => handle_fconst1(thread)?,
+            Instruction::Fconst2 => handle_fconst2(thread)?,
             Instruction::Fload0 => handle_fload0(thread)?,
             Instruction::Fload1 => handle_fload1(thread)?,
             Instruction::Fload2 => handle_fload2(thread)?,
@@ -187,6 +196,7 @@ impl Interpreter {
             Instruction::Lstore(idx) => handle_lstore(thread, idx)?,
             Instruction::Lsub => handle_lsub(thread)?,
             Instruction::Iastore => handle_iastore(thread, vm)?,
+            Instruction::Lastore => handle_lastore(thread, vm)?,
             Instruction::Ishl => handle_ishl(thread)?,
             Instruction::Ishr => handle_ishr(thread)?,
             Instruction::Saload => handle_saload(thread, vm)?,
@@ -195,6 +205,9 @@ impl Interpreter {
             Instruction::TableSwitch(switch) => handle_tableswitch(thread, switch)?,
             Instruction::Monitorenter => handle_monitorenter(thread)?,
             Instruction::Monitorexit => handle_monitorexit(thread)?,
+            Instruction::Multianewarray(idx, dimensions) => {
+                handle_multianewarray(thread, vm, idx, dimensions)?
+            }
             Instruction::Return => {
                 return Ok(ControlFlow::Break(None));
             }

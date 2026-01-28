@@ -10,6 +10,12 @@ public class ArithmeticOkMain {
         assert ((char) (CMIN - 1)) == CMAX : "sub.wrap";
         assert ((char) (256 * 256)) == 0 : "mul.wrap"; // 65536 wraps to 0
         
+        // Negation (char is promoted to int, result is int, not char)
+        char c100 = 100;
+        assert (-c100) == -100 : "neg.basic";
+        assert (-(int) CMAX) == -65535 : "neg.max";
+        assert (-(int) CMIN) == 0 : "neg.min"; // -0 == 0
+        
         // Char is always non-negative (unsigned)
         assert ((int) CMIN) == 0 : "min.unsigned";
         assert ((int) CMAX) == 65535 : "max.unsigned";
@@ -73,6 +79,21 @@ public class ArithmeticOkMain {
         char p = 1;
         p += CMAX;
         assert p == CMIN : "compound.wrap";
+
+        // Increment & decrement
+        char val;
+
+        val = 1;
+        assert val++ == 1 : "post.inc";
+
+        val = 1;
+        assert val-- == 1 : "post.dec";
+
+        val = 1;
+        assert ++val == 2 : "pre.inc";
+
+        val = 1;
+        assert --val == 0 : "pre.dec";
 
         System.out.println("All char assertions passed.");
     }

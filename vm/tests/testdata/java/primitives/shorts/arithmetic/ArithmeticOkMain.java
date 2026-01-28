@@ -42,6 +42,21 @@ public class ArithmeticOkMain {
         assert (SMIN <= SMAX) : "cmp.signed.ge";
         assert (SMAX == 32767) : "cmp.eq";
 
+        // Increment & decrement
+        short val;
+
+        val = 1;
+        assert val++ == 1 : "post.inc";
+
+        val = 1;
+        assert val-- == 1 : "post.dec";
+
+        val = 1;
+        assert ++val == 2 : "pre.inc";
+
+        val = 1;
+        assert --val == 0 : "pre.dec";
+
         System.out.println("All short assertions passed.");
     }
 }

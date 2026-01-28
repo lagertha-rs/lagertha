@@ -1,0 +1,9 @@
+---
+source: vm/tests/integration_test.rs
+expression: "&combined"
+---
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.NullPointerException
+	at variables.instance.null_field_access.NullFieldAccessErrMain.main(NullFieldAccessErrMain.java:10)

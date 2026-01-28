@@ -63,14 +63,35 @@ pub(super) fn handle_bastore(
 }
 
 #[inline]
+pub(super) fn handle_faload(
+    thread: &mut JavaThreadState,
+    vm: &VirtualMachine,
+) -> Result<(), JvmError> {
+    handle_ref_load(thread, vm)
+}
+
+#[inline]
+pub(super) fn handle_daload(
+    thread: &mut JavaThreadState,
+    vm: &VirtualMachine,
+) -> Result<(), JvmError> {
+    handle_ref_load(thread, vm)
+}
+
+#[inline]
 pub(super) fn handle_iaload(
     thread: &mut JavaThreadState,
     vm: &VirtualMachine,
 ) -> Result<(), JvmError> {
-    let index = thread.stack.pop_int_val()?;
-    let array_addr = thread.stack.pop_obj_val()?;
-    let value = vm.heap_read().read_array_element(array_addr, index)?;
-    thread.stack.push_operand(value)
+    handle_ref_load(thread, vm)
+}
+
+#[inline]
+pub(super) fn handle_laload(
+    thread: &mut JavaThreadState,
+    vm: &VirtualMachine,
+) -> Result<(), JvmError> {
+    handle_ref_load(thread, vm)
 }
 
 #[inline]
@@ -78,10 +99,7 @@ pub(super) fn handle_caload(
     thread: &mut JavaThreadState,
     vm: &VirtualMachine,
 ) -> Result<(), JvmError> {
-    let index = thread.stack.pop_int_val()?;
-    let array_addr = thread.stack.pop_obj_val()?;
-    let value = vm.heap_read().read_array_element(array_addr, index)?;
-    thread.stack.push_operand(value)
+    handle_ref_load(thread, vm)
 }
 
 #[inline]
@@ -89,6 +107,10 @@ pub(super) fn handle_baload(
     thread: &mut JavaThreadState,
     vm: &VirtualMachine,
 ) -> Result<(), JvmError> {
+    handle_ref_load(thread, vm)
+}
+
+fn handle_ref_load(thread: &mut JavaThreadState, vm: &VirtualMachine) -> Result<(), JvmError> {
     let index = thread.stack.pop_int_val()?;
     let array_addr = thread.stack.pop_obj_val()?;
     let value = vm.heap_read().read_array_element(array_addr, index)?;
@@ -219,6 +241,30 @@ pub(super) fn handle_castore(
 }
 
 #[inline]
+pub(super) fn handle_dastore(
+    thread: &mut JavaThreadState,
+    vm: &VirtualMachine,
+) -> Result<(), JvmError> {
+    let value = thread.stack.pop_double_val()?;
+    let index = thread.stack.pop_int_val()?;
+    let array_ref = thread.stack.pop_obj_val()?;
+    vm.heap_write()
+        .write_array_element(array_ref, index, Value::Double(value))
+}
+
+#[inline]
+pub(super) fn handle_fastore(
+    thread: &mut JavaThreadState,
+    vm: &VirtualMachine,
+) -> Result<(), JvmError> {
+    let value = thread.stack.pop_float_val()?;
+    let index = thread.stack.pop_int_val()?;
+    let array_ref = thread.stack.pop_obj_val()?;
+    vm.heap_write()
+        .write_array_element(array_ref, index, Value::Float(value))
+}
+
+#[inline]
 pub(super) fn handle_dadd(thread: &mut JavaThreadState) -> Result<(), JvmError> {
     let v2 = thread.stack.pop_double_val()?;
     let v1 = thread.stack.pop_double_val()?;
@@ -311,6 +357,12 @@ pub(super) fn handle_dstore(thread: &mut JavaThreadState, n: u8) -> Result<(), J
 }
 
 #[inline]
+pub(super) fn handle_dstore0(thread: &mut JavaThreadState) -> Result<(), JvmError> {
+    let value = thread.stack.pop_double()?;
+    thread.stack.set_local(0, value)
+}
+
+#[inline]
 pub(super) fn handle_dup(thread: &mut JavaThreadState) -> Result<(), JvmError> {
     thread.stack.dup_top()
 }
@@ -338,6 +390,24 @@ pub(super) fn handle_dup_x1(thread: &mut JavaThreadState) -> Result<(), JvmError
     thread.stack.push_operand(value1)?;
     thread.stack.push_operand(value2)?;
     thread.stack.push_operand(value1)
+}
+
+#[inline]
+pub(super) fn handle_dup_x2(thread: &mut JavaThreadState) -> Result<(), JvmError> {
+    let value1 = thread.stack.pop_operand()?;
+    let value2 = thread.stack.pop_operand()?;
+    let value3 = thread.stack.pop_operand()?;
+    thread.stack.push_operand(value1)?;
+    thread.stack.push_operand(value3)?;
+    thread.stack.push_operand(value2)?;
+    thread.stack.push_operand(value1)
+}
+
+#[inline]
+pub(super) fn handle_fadd(thread: &mut JavaThreadState) -> Result<(), JvmError> {
+    let v2 = thread.stack.pop_float_val()?;
+    let v1 = thread.stack.pop_float_val()?;
+    thread.stack.push_operand(Value::Float(v1 + v2))
 }
 
 #[inline]
@@ -372,6 +442,11 @@ pub(super) fn handle_fconst0(thread: &mut JavaThreadState) -> Result<(), JvmErro
 #[inline]
 pub(super) fn handle_fconst1(thread: &mut JavaThreadState) -> Result<(), JvmError> {
     thread.stack.push_operand(Value::Float(1.0))
+}
+
+#[inline]
+pub(super) fn handle_fconst2(thread: &mut JavaThreadState) -> Result<(), JvmError> {
+    thread.stack.push_operand(Value::Float(2.0))
 }
 
 #[inline]
@@ -1550,6 +1625,18 @@ pub(super) fn handle_iastore(
 }
 
 #[inline]
+pub(super) fn handle_lastore(
+    thread: &mut JavaThreadState,
+    vm: &VirtualMachine,
+) -> Result<(), JvmError> {
+    let value = thread.stack.pop_long_val()?;
+    let index = thread.stack.pop_int_val()?;
+    let array_ref = thread.stack.pop_obj_val()?;
+    vm.heap_write()
+        .write_array_element(array_ref, index, Value::Long(value))
+}
+
+#[inline]
 pub(super) fn handle_ishl(thread: &mut JavaThreadState) -> Result<(), JvmError> {
     let v2 = thread.stack.pop_int_val()?;
     let v1 = thread.stack.pop_int_val()?;
@@ -1622,5 +1709,31 @@ pub(super) fn handle_monitorenter(thread: &mut JavaThreadState) -> Result<(), Jv
 #[inline]
 pub(super) fn handle_monitorexit(thread: &mut JavaThreadState) -> Result<(), JvmError> {
     let _obj = thread.stack.pop_obj_val()?;
+    Ok(())
+}
+#[inline]
+pub(super) fn handle_multianewarray(
+    thread: &mut JavaThreadState,
+    vm: &VirtualMachine,
+    idx: u16,
+    dimensions: u8,
+) -> Result<(), JvmError> {
+    let mirror_id = {
+        // TODO: helper method/macro? I guess I repeat this pattern quite often
+        let cur_frame_method_id = thread.stack.cur_java_frame()?.method_id();
+        let class_name_sym = vm
+            .method_area_read()
+            .get_cp_by_method_id(&cur_frame_method_id)?
+            .get_class_sym(&idx, vm.interner())?;
+        vm.method_area_write()
+            .get_class_id_or_load(class_name_sym, thread.id)?
+    };
+    let class = vm.method_area_read().get_class(&mirror_id);
+    let mut dimensions = (0..dimensions)
+        .map(|_| thread.stack.pop_int_val())
+        .collect::<Result<Vec<_>, _>>()?;
+    dimensions.reverse();
+
+    todo!();
     Ok(())
 }

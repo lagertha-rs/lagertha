@@ -57,6 +57,21 @@ public class ArithmeticOkMain {
         assert (123456789 == 123456789) : "cmp.eq";
         assert (123456789 != -123456789) : "cmp.ne";
 
+        // Increment & decrement
+        int val;
+
+        val = 1;
+        assert val++ == 1 : "post.inc";
+
+        val = 1;
+        assert val-- == 1 : "post.dec";
+
+        val = 1;
+        assert ++val == 2 : "pre.inc";
+
+        val = 1;
+        assert --val == 0 : "pre.dec";
+
         System.out.println("All assertions passed.");
     }
 }

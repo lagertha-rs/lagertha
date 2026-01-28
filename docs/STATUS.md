@@ -23,21 +23,21 @@
 | Status | Feature                    | Tests | Notes                                   |
 |--------|----------------------------|-------|-----------------------------------------|
 | ✅      | Load initial class         | ✅     |                                         |
-| ✅      | Invoke main method         | ✅     |                                         |
-| ✅      | initPhase1 bootstrap       | ✅     |                                         |
+| ✅      | Invoke main method         | 🚧    | Main without class isn't tested         |
+| ✅      | initPhase1 bootstrap       | 🚧    | Implicit tests                          |
 | ❌      | initPhase2 (module system) | ❌     | Blocked: module natives not implemented |
 | ❌      | initPhase3 (security)      | ❌     |                                         |
 
 ### 1.2 Class Loading
 
-| Status | Feature                  | Tests | Notes              |
-|--------|--------------------------|-------|--------------------|
-| ✅      | Load from JImage         | 🚧    | Tested indirectly  |
-| ✅      | Load from classpath      | 🚧    | Tested indirectly  |
-| ❌      | Load from JAR            | ❌     |                    |
-| ✅      | Bootstrap class loader   | 🚧    | Tested indirectly  |
-| ❌      | Application class loader | ❌     |                    |
-| ❌      | Custom class loaders     | ❌     |                    |
+| Status | Feature                  | Tests | Notes             |
+|--------|--------------------------|-------|-------------------|
+| ✅      | Load from JImage         | 🚧    | Tested implicitly |
+| ✅      | Load from classpath      | 🚧    | Tested implicitly |
+| ❌      | Load from JAR            | ❌     |                   |
+| ✅      | Bootstrap class loader   | 🚧    | Tested implicitly |
+| ❌      | Application class loader | ❌     |                   |
+| ❌      | Custom class loaders     | ❌     |                   |
 
 ### 1.3 Linking
 
@@ -56,12 +56,12 @@
 
 ### 1.5 Program Exit
 
-| Status | Feature                     | Tests | Notes                                                |
-|--------|-----------------------------|-------|------------------------------------------------------|
-| ✅      | Normal termination          | ✅     |                                                      |
-| 🚧     | Exit code                   | 🚧    | Works for unhandled exceptions, `System.exit` untested |
-| ❌      | Shutdown hooks              | ❌     | `Runtime.addShutdownHook()` not implemented          |
-| ❌      | Finalization before exit    | ❌     | `runFinalizersOnExit` not implemented                |
+| Status | Feature                  | Tests | Notes                                                      |
+|--------|--------------------------|-------|------------------------------------------------------------|
+| ✅      | Normal termination       | ✅     |                                                            |
+| 🚧     | Exit code                | 🚧    | Works for unhandled exceptions, `System.exit` doesn't work |
+| ❌      | Shutdown hooks           | ❌     | `Runtime.addShutdownHook()` not implemented                |
+| ❌      | Finalization before exit | ❌     | `runFinalizersOnExit` not implemented                      |
 
 ---
 
@@ -141,16 +141,18 @@
 
 ### 2.3 Variables
 
-| Status | Feature                         | Tests | Notes            |
-|--------|---------------------------------|-------|------------------|
-| ✅      | Local variables                 | 🚧    | Needs more tests |
-| ✅      | Instance variables (fields)     | 🚧    | Needs more tests |
-| ✅      | Static variables (class fields) | 🚧    | Needs more tests |
-| ✅      | Array components                | 🚧    | Needs more tests |
-| ✅      | Method parameters               | 🚧    | Needs more tests |
-| ✅      | Default field values            | 🚧    | 0/null/false     |
-| ❌      | `final` variable semantics      | ❌     |                  |
-| ❌      | `volatile` variable semantics   | ❌     |                  |
+> Tests: `vm/tests/testdata/java/variables/`
+
+| Status | Feature                         | Tests | Notes                                    |
+|--------|---------------------------------|-------|------------------------------------------|
+| ✅      | Local variables                 | ✅     | `variables/local/`                       |
+| ✅      | Instance variables (fields)     | ✅     | `variables/instance/`                    |
+| ✅      | Static variables (class fields) | ✅     | `variables/static_fields/`               |
+| ✅      | Array components                | ✅     | `variables/array_components/`            |
+| ✅      | Method parameters               | ✅     | `variables/parameters/`                  |
+| ✅      | Default field values            | ✅     | `variables/defaults/` (0/null/false)     |
+| ❌      | `final` variable semantics      | ❌     |                                          |
+| ❌      | `volatile` variable semantics   | ❌     |                                          |
 
 ---
 
@@ -158,13 +160,13 @@
 
 ### 3.1 Primitive Conversions
 
-| Status | Feature                               | Tests | Notes                    |
-|--------|---------------------------------------|-------|--------------------------|
-| ✅      | Widening primitive (`int` to `long`)  | ✅     |                          |
-| ✅      | Narrowing primitive (`long` to `int`) | ✅     |                          |
-| ✅      | Overflow/underflow behavior           | 🚧    | Java wrapping semantics  |
-| ❌      | Widening with float/double            | ❌     |                          |
-| ❌      | Narrowing with float/double           | ❌     |                          |
+| Status | Feature                               | Tests | Notes                   |
+|--------|---------------------------------------|-------|-------------------------|
+| ✅      | Widening primitive (`int` to `long`)  | ✅     |                         |
+| ✅      | Narrowing primitive (`long` to `int`) | ✅     |                         |
+| ✅      | Overflow/underflow behavior           | 🚧    | Java wrapping semantics |
+| ❌      | Widening with float/double            | ❌     |                         |
+| ❌      | Narrowing with float/double           | ❌     |                         |
 
 ### 3.2 Reference Conversions
 
@@ -259,7 +261,7 @@
 | ❌      | Dynamic invocation (`invokedynamic`)     | ❌     | Has `todo!()`  |
 | ❌      | `abstract` methods                       | ❌     |                |
 | ❌      | `final` methods                          | ❌     |                |
-| 🚧     | `native` methods (JVM internal)          | 🚧     | ~50 registered |
+| 🚧     | `native` methods (JVM internal)          | 🚧    | ~50 registered |
 | ❌      | `native` methods (user JNI)              | ❌     |                |
 | ❌      | `synchronized` methods                   | ❌     |                |
 | ❌      | `strictfp` methods                       | ❌     |                |
