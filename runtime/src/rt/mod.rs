@@ -417,18 +417,21 @@ impl JvmClass {
         }
     }
 
-    pub fn get_array_element_class_id(&self) -> Option<Either<ClassId, (PrimitiveType, ClassId)>> {
+    pub fn get_array_element_class_id(&self) -> Option<ClassId> {
         match self {
-            JvmClass::InstanceArray(arr) => Some(Either::Left(arr.element_class_id)),
-            JvmClass::PrimitiveArray(prim) => Some(Either::Right((
-                prim.element_type,
-                *prim.element_class_id.get().unwrap(),
-            ))),
+            JvmClass::InstanceArray(arr) => Some(arr.element_class_id),
             _ => None,
         }
     }
     pub fn is_primitive_array(&self) -> bool {
         matches!(self, JvmClass::PrimitiveArray(_))
+    }
+
+    pub fn get_array_primitive_type(&self) -> Option<PrimitiveType> {
+        match self {
+            JvmClass::PrimitiveArray(pa) => Some(pa.element_type),
+            _ => None,
+        }
     }
 
     pub fn get_primitive_type(&self) -> Option<PrimitiveType> {

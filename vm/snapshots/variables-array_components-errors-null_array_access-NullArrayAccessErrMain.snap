@@ -1,0 +1,9 @@
+---
+source: vm/tests/integration_test.rs
+expression: "&combined"
+---
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.NullPointerException
+	at variables.array_components.errors.null_array_access.NullArrayAccessErrMain.main(NullArrayAccessErrMain.java:7)

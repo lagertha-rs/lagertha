@@ -3,5 +3,5 @@ source: vm/tests/integration_test.rs
 expression: combined
 ---
 ----- STDOUT -----
-Jagged arrays test passed.
+Long array test passed.
 ----- STDERR -----

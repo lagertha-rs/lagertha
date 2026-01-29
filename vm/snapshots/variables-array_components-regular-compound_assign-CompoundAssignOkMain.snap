@@ -3,5 +3,5 @@ source: vm/tests/integration_test.rs
 expression: combined
 ---
 ----- STDOUT -----
-All string encoding tests passed
+Compound assignment test passed.
 ----- STDERR -----

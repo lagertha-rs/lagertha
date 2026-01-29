@@ -6,4 +6,4 @@ expression: "&combined"
 
 ----- STDERR -----
 Exception in thread "main" java.lang.NegativeArraySizeException: -1
-	at arrays.primitives.bounds.negative_size.NegativeSizeErrMain.main(NegativeSizeErrMain.java:5)
+	at variables.array_components.errors.negative_size_object.NegativeSizeObjectErrMain.main(NegativeSizeObjectErrMain.java:6)

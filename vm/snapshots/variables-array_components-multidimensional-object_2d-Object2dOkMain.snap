@@ -3,5 +3,5 @@ source: vm/tests/integration_test.rs
 expression: combined
 ---
 ----- STDOUT -----
-All byte array tests passed
+2D object array test passed.
 ----- STDERR -----

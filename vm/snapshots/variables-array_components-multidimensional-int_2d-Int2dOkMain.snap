@@ -1,0 +1,7 @@
+---
+source: vm/tests/integration_test.rs
+expression: combined
+---
+----- STDOUT -----
+2D int array test passed.
+----- STDERR -----

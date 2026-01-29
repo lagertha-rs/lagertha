@@ -3,5 +3,5 @@ source: vm/tests/integration_test.rs
 expression: combined
 ---
 ----- STDOUT -----
-All char array tests passed
+Jagged basic test passed.
 ----- STDERR -----

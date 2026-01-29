@@ -3,5 +3,5 @@ source: vm/tests/integration_test.rs
 expression: combined
 ---
 ----- STDOUT -----
-Array assignment test passed.
+Jagged 3D test passed.
 ----- STDERR -----

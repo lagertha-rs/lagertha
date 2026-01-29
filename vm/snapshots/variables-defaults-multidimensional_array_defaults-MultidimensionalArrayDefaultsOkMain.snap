@@ -3,5 +3,5 @@ source: vm/tests/integration_test.rs
 expression: combined
 ---
 ----- STDOUT -----
-Compound assignments test passed.
+Multidimensional array defaults test passed.
 ----- STDERR -----

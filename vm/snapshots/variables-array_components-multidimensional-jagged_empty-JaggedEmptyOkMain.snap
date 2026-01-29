@@ -3,5 +3,5 @@ source: vm/tests/integration_test.rs
 expression: combined
 ---
 ----- STDOUT -----
-Increment/decrement test passed.
+Jagged empty test passed.
 ----- STDERR -----

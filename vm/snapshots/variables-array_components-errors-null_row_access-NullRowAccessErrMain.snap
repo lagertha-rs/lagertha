@@ -6,4 +6,4 @@ expression: "&combined"
 
 ----- STDERR -----
 Exception in thread "main" java.lang.NullPointerException
-	at variables.array_components.null_array_access.NullArrayAccessErrMain.main(NullArrayAccessErrMain.java:8)
+	at variables.array_components.errors.null_row_access.NullRowAccessErrMain.main(NullRowAccessErrMain.java:8)

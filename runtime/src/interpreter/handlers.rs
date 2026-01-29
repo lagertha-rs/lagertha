@@ -1741,9 +1741,7 @@ pub(super) fn handle_multianewarray(
     let array_ref = {
         let mut heap = vm.heap_write();
         let ma = vm.method_area_read();
-
-        let c56 = ma.get_class(&ClassId::new(NonZero::new(56).unwrap()));
-        alloc_multi_array(&mut heap, &ma, &dimensions, Either::Left(outer_class_id))?
+        alloc_multi_array(&mut heap, &ma, &dimensions, outer_class_id)?
     };
 
     thread.stack.push_operand(Value::Ref(array_ref))?;
@@ -1755,55 +1753,27 @@ fn alloc_multi_array(
     heap: &mut Heap,
     method_area: &MethodArea,
     dimensions: &[i32],
-    array_type: Either<ClassId, (PrimitiveType, ClassId)>,
+    class_id: ClassId,
 ) -> Result<HeapRef, JvmError> {
     if dimensions.len() == 1 {
         let size = dimensions[0];
-        return match array_type {
-            Either::Left(class_id) => heap.alloc_object_array(class_id, size),
-            Either::Right((prim, class_id)) => {
-                heap.alloc_primitive_array_from_prim_type(class_id, prim, size)
-            }
+        let class = method_area.get_class(&class_id);
+        return if let Some(prim_type) = class.get_array_primitive_type() {
+            heap.alloc_primitive_array_from_prim_type(class_id, prim_type, size)
+        } else {
+            heap.alloc_object_array(class_id, size)
         };
     }
 
     let size = dimensions[0];
-    // if dimension not last, array_type must be reference type
-    if let Either::Left(class_id) = array_type {
-        let next_array_type = {
-            let class = method_area.get_class(&class_id);
-            class.get_array_element_class_id().unwrap()
-        };
-        let array_ref = heap.alloc_object_array(class_id, size)?;
-        for i in 0..size {
-            let element_ref =
-                alloc_multi_array(heap, method_area, &dimensions[1..], next_array_type)?;
-            heap.write_array_element(array_ref, i, Value::Ref(element_ref))?;
-        }
-        Ok(array_ref)
-    } else {
-        Err(JvmError::Todo(
-            "Multi-dimensional primitive array allocation".to_string(),
-        ))
+    let next_array_type = {
+        let class = method_area.get_class(&class_id);
+        class.get_array_element_class_id().unwrap()
+    };
+    let array_ref = heap.alloc_object_array(class_id, size)?;
+    for i in 0..size {
+        let element_ref = alloc_multi_array(heap, method_area, &dimensions[1..], next_array_type)?;
+        heap.write_array_element(array_ref, i, Value::Ref(element_ref))?;
     }
+    Ok(array_ref)
 }
-
-/*
-fn prebuild_class_ids(
-    vm: &VirtualMachine,
-    dims: Vec<i32>,
-    mut cur_lvl_class_id: ClassId,
-) -> Vec<(i32, ClassId)> {
-    dims.into_iter()
-        .map(|v| {
-            let class_id = cur_lvl_class_id;
-            cur_lvl_class_id = vm
-                .method_area_read()
-                .get_class(&class_id)
-                .get_array_element_class_id()
-                .unwrap();
-            (v, class_id)
-        })
-        .collect()
-}
- */

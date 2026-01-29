@@ -3,5 +3,5 @@ source: vm/tests/integration_test.rs
 expression: combined
 ---
 ----- STDOUT -----
-Index expressions test passed.
+4D int array test passed.
 ----- STDERR -----
