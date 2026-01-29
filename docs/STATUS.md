@@ -131,28 +131,28 @@
 
 ### 2.2 Reference Types
 
-| Status | Feature                           | Tests | Notes            |
-|--------|-----------------------------------|-------|------------------|
-| ✅      | Class types                       | 🚧    | Needs more tests |
-| ✅      | Interface types                   | 🚧    | Needs more tests |
-| ✅      | Array types                       | 🚧    | Needs more tests |
-| ❌      | Type variables (generics runtime) | ❌     |                  |
-| ✅      | Null type                         | 🚧    | Needs more tests |
+| Status | Feature                           | Tests | Notes               |
+|--------|-----------------------------------|-------|---------------------|
+| ✅      | Class types                       | ✅     | Basic tests added   |
+| ✅      | Interface types                   | ✅     | Basic tests added   |
+| ✅      | Array types                       | ✅     | Comprehensive tests |
+| ❌      | Type variables (generics runtime) | ❌     |                     |
+| ✅      | Null type                         | ✅     | Basic tests added   |
 
 ### 2.3 Variables
 
 > Tests: `vm/tests/testdata/java/variables/`
 
-| Status | Feature                         | Tests | Notes                                    |
-|--------|---------------------------------|-------|------------------------------------------|
-| ✅      | Local variables                 | ✅     | `variables/local/`                       |
-| ✅      | Instance variables (fields)     | ✅     | `variables/instance/`                    |
-| ✅      | Static variables (class fields) | ✅     | `variables/static_fields/`               |
-| ✅      | Array components                | ✅     | `variables/array_components/`            |
-| ✅      | Method parameters               | ✅     | `variables/parameters/`                  |
-| ✅      | Default field values            | ✅     | `variables/defaults/` (0/null/false)     |
-| ❌      | `final` variable semantics      | ❌     |                                          |
-| ❌      | `volatile` variable semantics   | ❌     |                                          |
+| Status | Feature                         | Tests | Notes                                |
+|--------|---------------------------------|-------|--------------------------------------|
+| ✅      | Local variables                 | ✅     | `variables/local/`                   |
+| ✅      | Instance variables (fields)     | ✅     | `variables/instance/`                |
+| ✅      | Static variables (class fields) | ✅     | `variables/static_fields/`           |
+| ✅      | Array components                | ✅     | `variables/array_components/`        |
+| ✅      | Method parameters               | ✅     | `variables/parameters/`              |
+| ✅      | Default field values            | ✅     | `variables/defaults/` (0/null/false) |
+| ❌      | `final` variable semantics      | ❌     |                                      |
+| ❌      | `volatile` variable semantics   | ❌     |                                      |
 
 ---
 
@@ -227,7 +227,7 @@
 |--------|---------------------------|-------|-------------------------------------------------|
 | ✅      | Class declaration parsing | ✅     |                                                 |
 | ✅      | `public` class            | ✅     |                                                 |
-| 🚧     | `abstract` class          | 🚧    | Needs tests                                     |
+| ✅      | `abstract` class          | ✅     | Basic tests added                               |
 | ❌      | `final` class             | ❌     |                                                 |
 | ❌      | `sealed` class            | ❌     |                                                 |
 | ❌      | `non-sealed` class        | ❌     |                                                 |
@@ -281,15 +281,15 @@
 
 ### 5.3 Inheritance
 
-| Status | Feature                        | Tests | Notes            |
-|--------|--------------------------------|-------|------------------|
-| ✅      | Single inheritance (`extends`) | 🚧    | Needs more tests |
-| ✅      | Method inheritance             | 🚧    |                  |
-| ❌      | Method overriding              | ❌     |                  |
-| ❌      | Method hiding (static)         | ❌     |                  |
-| ❌      | Field hiding                   | ❌     |                  |
-| ❌      | `super` method calls           | ❌     |                  |
-| ❌      | Covariant return types         | ❌     |                  |
+| Status | Feature                        | Tests | Notes             |
+|--------|--------------------------------|-------|-------------------|
+| ✅      | Single inheritance (`extends`) | ✅     | Basic tests added |
+| ✅      | Method inheritance             | ✅     | Basic tests added |
+| ❌      | Method overriding              | ❌     |                   |
+| ❌      | Method hiding (static)         | ❌     |                   |
+| ❌      | Field hiding                   | ❌     |                   |
+| ❌      | `super` method calls           | ❌     |                   |
+| ❌      | Covariant return types         | ❌     |                   |
 
 ### 5.4 Enum Classes
 
@@ -369,21 +369,21 @@
 
 ### 7.1 Array Types
 
-| Status | Feature                              | Tests | Notes                            |
-|--------|--------------------------------------|-------|----------------------------------|
-| ✅      | Primitive arrays (`int[]`, etc.)     | ✅     |                                  |
-| ✅      | Object arrays (`Object[]`, etc.)     | ✅     |                                  |
-| ❌      | Multi-dimensional arrays (`int[][]`) | ❌     | `multianewarray` not implemented |
+| Status | Feature                              | Tests | Notes                        |
+|--------|--------------------------------------|-------|------------------------------|
+| ✅      | Primitive arrays (`int[]`, etc.)     | ✅     |                              |
+| ✅      | Object arrays (`Object[]`, etc.)     | ✅     |                              |
+| ✅      | Multi-dimensional arrays (`int[][]`) | ✅     | `multianewarray` implemented |
 
 ### 7.2 Array Creation
 
-| Status | Feature                         | Tests | Notes |
-|--------|---------------------------------|-------|-------|
-| ✅      | `newarray` (primitive)          | ✅     |       |
-| ✅      | `anewarray` (reference)         | ✅     |       |
-| ❌      | `multianewarray`                | ❌     |       |
-| ✅      | Array with size expression      | ✅     |       |
-| ❌      | Array initializer (`{1, 2, 3}`) | ❌     |       |
+| Status | Feature                         | Tests | Notes  |
+|--------|---------------------------------|-------|--------|
+| ✅      | `newarray` (primitive)          | ✅     |        |
+| ✅      | `anewarray` (reference)         | ✅     |        |
+| ✅      | `multianewarray`                | ✅     |        |
+| ✅      | Array with size expression      | ✅     |        |
+| ✅      | Array initializer (`{1, 2, 3}`) | ✅     | Tested |
 
 ### 7.3 Array Access
 
@@ -493,22 +493,22 @@
 
 | Status | Feature                        | Tests | Notes                                |
 |--------|--------------------------------|-------|--------------------------------------|
-| 🚧     | `while` loop                   | 🚧    | Likely works, untested               |
-| 🚧     | `do-while` loop                | 🚧    | Likely works, untested               |
-| 🚧     | `for` loop (basic)             | 🚧    | Likely works, untested               |
+| ✅      | `while` loop                   | ✅     | Tests added                          |
+| ✅      | `do-while` loop                | ✅     | Tests added                          |
+| ✅      | `for` loop (basic)             | ✅     | Tests added                          |
 | ❌      | Enhanced `for` loop (for-each) | ❌     | Blocked: invokedynamic for iterators |
 | ❌      | Nested loops                   | ❌     |                                      |
 
 ### 9.5 Jump Statements
 
-| Status | Feature              | Tests | Notes    |
-|--------|----------------------|-------|----------|
-| ✅      | `return` statement   | ✅     |          |
-| ✅      | `return` with value  | ✅     |          |
-| 🚧     | `break` statement    | 🚧    | Untested |
-| 🚧     | `continue` statement | 🚧    | Untested |
-| ❌      | Labeled `break`      | ❌     |          |
-| ❌      | Labeled `continue`   | ❌     |          |
+| Status | Feature              | Tests | Notes       |
+|--------|----------------------|-------|-------------|
+| ✅      | `return` statement   | ✅     |             |
+| ✅      | `return` with value  | ✅     |             |
+| ✅      | `break` statement    | ✅     | Tests added |
+| 🚧     | `continue` statement | 🚧    | Untested    |
+| ❌      | Labeled `break`      | ❌     |             |
+| ❌      | Labeled `continue`   | ❌     |             |
 
 ### 9.6 Assert Statement
 
@@ -586,10 +586,10 @@
 
 ### 10.7 Cast Expressions
 
-| Status | Feature        | Tests | Notes                               |
-|--------|----------------|-------|-------------------------------------|
-| ✅      | Primitive cast | ✅     |                                     |
-| 🚧     | Reference cast | 🚧    | `checkcast` is stub (always passes) |
+| Status | Feature        | Tests | Notes                                       |
+|--------|----------------|-------|---------------------------------------------|
+| ✅      | Primitive cast | ✅     |                                             |
+| 🚧     | Reference cast | ✅     | `checkcast` is stub (always passes); tested |
 
 ### 10.8 Multiplicative Operators
 
@@ -617,14 +617,14 @@
 
 ### 10.11 Relational Operators
 
-| Status | Feature                       | Tests | Notes              |
-|--------|-------------------------------|-------|--------------------|
-| ✅      | Less than (`<`)               | ✅     |                    |
-| ✅      | Greater than (`>`)            | ✅     |                    |
-| ✅      | Less than or equal (`<=`)     | ✅     |                    |
-| ✅      | Greater than or equal (`>=`)  | ✅     |                    |
-| 🚧     | `instanceof`                  | 🚧    | Needs verification |
-| ❌      | Pattern matching `instanceof` | ❌     |                    |
+| Status | Feature                       | Tests | Notes                                                       |
+|--------|-------------------------------|-------|-------------------------------------------------------------|
+| ✅      | Less than (`<`)               | ✅     |                                                             |
+| ✅      | Greater than (`>`)            | ✅     |                                                             |
+| ✅      | Less than or equal (`<=`)     | ✅     |                                                             |
+| ✅      | Greater than or equal (`>=`)  | ✅     |                                                             |
+| 🚧     | `instanceof`                  | ❌     | Basic class/interface hierarchy works; arrays not supported |
+| ❌      | Pattern matching `instanceof` | ❌     |                                                             |
 
 ### 10.12 Equality Operators
 
@@ -723,23 +723,23 @@
 
 ### 12.1 Cast Operations
 
-| Status | Feature                                  | Tests | Notes               |
-|--------|------------------------------------------|-------|---------------------|
-| 🚧     | `checkcast` instruction                  | ❌     | Stub: always passes |
-| ❌      | Successful cast (subclass to superclass) | ❌     |                     |
-| ❌      | Failed cast throws `ClassCastException`  | ❌     |                     |
-| ❌      | Array cast                               | ❌     |                     |
-| ❌      | Interface cast                           | ❌     |                     |
+| Status | Feature                                  | Tests | Notes |
+|--------|------------------------------------------|-------|-------|
+| 🚧     | `checkcast` instruction                  | ❌     |       |
+| ❌      | Successful cast (subclass to superclass) | ❌     |       |
+| ❌      | Failed cast throws `ClassCastException`  | ❌     |       |
+| ❌      | Array cast                               | ❌     |       |
+| ❌      | Interface cast                           | ❌     |       |
 
 ### 12.2 Instance Testing
 
-| Status | Feature                       | Tests | Notes              |
-|--------|-------------------------------|-------|--------------------|
-| 🚧     | `instanceof` instruction      | 🚧    | Needs verification |
-| ❌      | `instanceof` with class       | ❌     |                    |
-| ❌      | `instanceof` with interface   | ❌     |                    |
-| ❌      | `instanceof` with array       | ❌     |                    |
-| ❌      | Pattern matching `instanceof` | ❌     |                    |
+| Status | Feature                       | Tests | Notes                                                       |
+|--------|-------------------------------|-------|-------------------------------------------------------------|
+| 🚧     | `instanceof` instruction      | 🚧    | Basic class/interface hierarchy works; arrays not supported |
+| ✅      | `instanceof` with class       | ✅     | Tested                                                      |
+| ✅      | `instanceof` with interface   | ✅     | Tested                                                      |
+| ❌      | `instanceof` with array       | ❌     | Not implemented                                             |
+| ❌      | Pattern matching `instanceof` | ❌     |                                                             |
 
 ---
 
@@ -994,7 +994,7 @@
 | Modules           | 1           | 0       | 10              |
 | Classes           | 15          | 5       | 25              |
 | Interfaces        | 1           | 2       | 15              |
-| Arrays            | 10          | 0       | 8               |
+| Arrays            | 11          | 0       | 7               |
 | Exceptions        | 13          | 0       | 5               |
 | Statements        | 12          | 6       | 15              |
 | Expressions       | 35          | 3       | 20              |
