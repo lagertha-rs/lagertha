@@ -3,7 +3,7 @@ use crate::keys::ClassId;
 use crate::vm::Value;
 use crate::{Symbol, debug_error_log, throw_exception};
 use common::instruction::ArrayType;
-use common::jtype::AllocationType;
+use common::jtype::{AllocationType, PrimitiveType};
 use lasso::ThreadedRodeo;
 use std::collections::HashMap;
 use std::num::NonZeroU32;
@@ -184,6 +184,27 @@ impl Heap {
             *(data_ptr.add(Self::ARRAY_TYPE_OFFSET)) = allocation_type as u8;
         }
 
+        Ok(heap_ref)
+    }
+
+    pub fn alloc_primitive_array_from_prim_type(
+        &mut self,
+        class_id: ClassId,
+        prim_type: PrimitiveType,
+        length: i32,
+    ) -> Result<HeapRef, JvmError> {
+        // TODO: looks like duplicated enum, merge them
+        let allocation_type = match prim_type {
+            PrimitiveType::Boolean => AllocationType::Boolean,
+            PrimitiveType::Byte => AllocationType::Byte,
+            PrimitiveType::Short => AllocationType::Short,
+            PrimitiveType::Char => AllocationType::Char,
+            PrimitiveType::Int => AllocationType::Int,
+            PrimitiveType::Long => AllocationType::Long,
+            PrimitiveType::Float => AllocationType::Float,
+            PrimitiveType::Double => AllocationType::Double,
+        };
+        let heap_ref = self.alloc_array_internal(class_id, length, allocation_type)?;
         Ok(heap_ref)
     }
 

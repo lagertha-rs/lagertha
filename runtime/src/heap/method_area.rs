@@ -365,7 +365,9 @@ impl MethodArea {
             return Ok(*class_id);
         }
         let type_descriptor_id = self.get_or_new_field_descriptor_id(name_sym)?;
-        let type_descriptor = self.get_field_descriptor(&type_descriptor_id);
+        //TODO: avoid clone?
+        let type_descriptor = self.get_field_descriptor(&type_descriptor_id).clone();
+        let name_str = self.interner.resolve(&name_sym);
         let obj_class_id = self.br().get_java_lang_object_id()?;
         let vtable = self
             .get_instance_class(&obj_class_id)?
@@ -376,33 +378,56 @@ impl MethodArea {
             .get_vtable_index()?
             .clone();
 
-        let class = if let Some(primitive_type) = type_descriptor.get_primitive_array_element_type()
-        {
-            JvmClass::PrimitiveArray(PrimitiveArrayClass {
-                name: name_sym,
-                super_id: self.br().get_java_lang_object_id()?,
-                element_type: primitive_type,
-                vtable,
-                vtable_index,
-                mirror_ref: OnceCell::new(),
-            })
-        } else if let Some(instance_type) = type_descriptor.get_instance_array_element_type() {
-            JvmClass::InstanceArray(ObjectArrayClass {
-                name: name_sym,
-                super_id: self.br().get_java_lang_object_id()?,
-                element_class_id: self
-                    .get_class_id_or_load(self.interner.get_or_intern(instance_type), thread_id)?,
-                vtable,
-                vtable_index,
-                mirror_ref: OnceCell::new(),
-            })
-        } else {
-            Err(JvmError::Todo(
-                "Array class with non-array or non-primitive type descriptor".to_string(),
-            ))?
+        let class = {
+            let inner_type = type_descriptor.get_array_element_type().unwrap();
+            match inner_type {
+                JavaType::Primitive(prim) => {
+                    // TODO: there a 2 lazy fields, can use default to skip init here
+                    JvmClass::PrimitiveArray(PrimitiveArrayClass {
+                        name: name_sym,
+                        super_id: self.br().get_java_lang_object_id()?,
+                        element_class_id: OnceCell::new(),
+                        element_type: *prim,
+                        vtable,
+                        vtable_index,
+                        mirror_ref: OnceCell::new(),
+                    })
+                }
+                JavaType::Instance(inst) => JvmClass::InstanceArray(ObjectArrayClass {
+                    name: name_sym,
+                    super_id: self.br().get_java_lang_object_id()?,
+                    element_class_id: self
+                        .get_class_id_or_load(self.interner.get_or_intern(inst), thread_id)?,
+                    vtable,
+                    vtable_index,
+                    mirror_ref: OnceCell::new(),
+                }),
+                JavaType::Array(_) => {
+                    let elem_desc = inner_type.as_descriptor();
+                    let elem_sym = self.interner.get_or_intern(elem_desc);
+                    let element_class_id = self.get_class_id_or_load(elem_sym, thread_id)?;
+                    JvmClass::InstanceArray(ObjectArrayClass {
+                        name: name_sym,
+                        super_id: self.br().get_java_lang_object_id()?,
+                        element_class_id,
+                        vtable,
+                        vtable_index,
+                        mirror_ref: OnceCell::new(),
+                    })
+                }
+                _ => Err(JvmError::Todo(
+                    "Array class with non-array or non-primitive type descriptor".to_string(),
+                ))?,
+            }
         };
+
         let class_id = self.push_class(class);
         self.class_name_to_index.insert(name_sym, class_id);
+
+        if let JvmClass::PrimitiveArray(prim_array) = self.get_class(&class_id) {
+            prim_array.set_element_class_id(class_id)?;
+        }
+
         Ok(class_id)
     }
 

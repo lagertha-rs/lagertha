@@ -1,12 +1,17 @@
 use crate::error::JvmError;
+use crate::heap::method_area::MethodArea;
+use crate::heap::{Heap, HeapRef};
 use crate::interpreter::Interpreter;
-use crate::keys::{FieldKey, MethodKey};
+use crate::keys::{ClassId, FieldKey, MethodKey};
 use crate::rt::constant_pool::RuntimeConstant;
 use crate::thread::JavaThreadState;
 use crate::vm::Value;
 use crate::{VirtualMachine, throw_exception};
 use common::instruction::{ArrayType, LookupSwitchData, TableSwitchData};
+use common::jtype::{AllocationType, PrimitiveType};
+use itertools::Either;
 use std::cmp::Ordering;
+use std::num::NonZero;
 use tracing_log::log::warn;
 
 fn branch16(bci: usize, off: i16) -> usize {
@@ -1718,7 +1723,7 @@ pub(super) fn handle_multianewarray(
     idx: u16,
     dimensions: u8,
 ) -> Result<(), JvmError> {
-    let mirror_id = {
+    let outer_class_id = {
         // TODO: helper method/macro? I guess I repeat this pattern quite often
         let cur_frame_method_id = thread.stack.cur_java_frame()?.method_id();
         let class_name_sym = vm
@@ -1728,12 +1733,77 @@ pub(super) fn handle_multianewarray(
         vm.method_area_write()
             .get_class_id_or_load(class_name_sym, thread.id)?
     };
-    let class = vm.method_area_read().get_class(&mirror_id);
     let mut dimensions = (0..dimensions)
         .map(|_| thread.stack.pop_int_val())
         .collect::<Result<Vec<_>, _>>()?;
     dimensions.reverse();
 
-    todo!();
+    let array_ref = {
+        let mut heap = vm.heap_write();
+        let ma = vm.method_area_read();
+
+        let c56 = ma.get_class(&ClassId::new(NonZero::new(56).unwrap()));
+        alloc_multi_array(&mut heap, &ma, &dimensions, Either::Left(outer_class_id))?
+    };
+
+    thread.stack.push_operand(Value::Ref(array_ref))?;
     Ok(())
 }
+
+// TODO: Idk, I don't see the obvious value to have it as a method of Heap
+fn alloc_multi_array(
+    heap: &mut Heap,
+    method_area: &MethodArea,
+    dimensions: &[i32],
+    array_type: Either<ClassId, (PrimitiveType, ClassId)>,
+) -> Result<HeapRef, JvmError> {
+    if dimensions.len() == 1 {
+        let size = dimensions[0];
+        return match array_type {
+            Either::Left(class_id) => heap.alloc_object_array(class_id, size),
+            Either::Right((prim, class_id)) => {
+                heap.alloc_primitive_array_from_prim_type(class_id, prim, size)
+            }
+        };
+    }
+
+    let size = dimensions[0];
+    // if dimension not last, array_type must be reference type
+    if let Either::Left(class_id) = array_type {
+        let next_array_type = {
+            let class = method_area.get_class(&class_id);
+            class.get_array_element_class_id().unwrap()
+        };
+        let array_ref = heap.alloc_object_array(class_id, size)?;
+        for i in 0..size {
+            let element_ref =
+                alloc_multi_array(heap, method_area, &dimensions[1..], next_array_type)?;
+            heap.write_array_element(array_ref, i, Value::Ref(element_ref))?;
+        }
+        Ok(array_ref)
+    } else {
+        Err(JvmError::Todo(
+            "Multi-dimensional primitive array allocation".to_string(),
+        ))
+    }
+}
+
+/*
+fn prebuild_class_ids(
+    vm: &VirtualMachine,
+    dims: Vec<i32>,
+    mut cur_lvl_class_id: ClassId,
+) -> Vec<(i32, ClassId)> {
+    dims.into_iter()
+        .map(|v| {
+            let class_id = cur_lvl_class_id;
+            cur_lvl_class_id = vm
+                .method_area_read()
+                .get_class(&class_id)
+                .get_array_element_class_id()
+                .unwrap();
+            (v, class_id)
+        })
+        .collect()
+}
+ */

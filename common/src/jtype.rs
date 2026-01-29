@@ -155,22 +155,86 @@ impl JavaType {
         }
     }
 
-    // TODO: work only for one-dimensional arrays for now
-    pub fn get_primitive_array_element_type(&self) -> Option<PrimitiveType> {
+    //TODO: cache? precompute?
+    pub fn get_array_dimension(&self) -> usize {
         match self {
-            JavaType::Array(elem) => match **elem {
-                JavaType::Primitive(prim) => Some(prim),
-                _ => None,
-            },
-            _ => None,
+            JavaType::Array(elem) => 1 + elem.get_array_dimension(),
+            _ => 0,
         }
     }
 
-    // TODO: work only for one-dimensional arrays for now
-    pub fn get_instance_array_element_type(&self) -> Option<&str> {
+    //TODO: bad, can be optimized. for example when parsing we can store the interned descriptor
+    pub fn as_descriptor(&self) -> String {
         match self {
-            JavaType::Array(elem) => match **elem {
-                JavaType::Instance(ref name) => Some(name.as_str()),
+            JavaType::Primitive(prim) => match prim {
+                PrimitiveType::Byte => "B".to_string(),
+                PrimitiveType::Char => "C".to_string(),
+                PrimitiveType::Double => "D".to_string(),
+                PrimitiveType::Float => "F".to_string(),
+                PrimitiveType::Int => "I".to_string(),
+                PrimitiveType::Long => "J".to_string(),
+                PrimitiveType::Short => "S".to_string(),
+                PrimitiveType::Boolean => "Z".to_string(),
+            },
+            JavaType::Instance(name) => format!("L{};", name),
+            JavaType::GenericInstance(sig) => {
+                let mut desc = format!("L{}", sig.first.name);
+                if !sig.first.args.is_empty() {
+                    desc.push('<');
+                    for arg in &sig.first.args {
+                        match arg {
+                            TypeArg::Any => desc.push('*'),
+                            TypeArg::Extends(t) => {
+                                desc.push('+');
+                                desc.push_str(&t.as_descriptor());
+                            }
+                            TypeArg::Super(t) => {
+                                desc.push('-');
+                                desc.push_str(&t.as_descriptor());
+                            }
+                            TypeArg::Exact(t) => {
+                                desc.push_str(&t.as_descriptor());
+                            }
+                        }
+                    }
+                    desc.push('>');
+                }
+                for seg in &sig.suffix {
+                    desc.push('.');
+                    desc.push_str(&seg.name);
+                    if !seg.args.is_empty() {
+                        desc.push('<');
+                        for arg in &seg.args {
+                            match arg {
+                                TypeArg::Any => desc.push('*'),
+                                TypeArg::Extends(t) => {
+                                    desc.push('+');
+                                    desc.push_str(&t.as_descriptor());
+                                }
+                                TypeArg::Super(t) => {
+                                    desc.push('-');
+                                    desc.push_str(&t.as_descriptor());
+                                }
+                                TypeArg::Exact(t) => {
+                                    desc.push_str(&t.as_descriptor());
+                                }
+                            }
+                        }
+                        desc.push('>');
+                    }
+                }
+                desc.push(';');
+                desc
+            }
+            JavaType::TypeVar(name) => format!("T{};", name),
+            JavaType::Array(elem) => format!("[{}", elem.as_descriptor()),
+        }
+    }
+
+    pub fn get_array_element_type(&self) -> Option<&JavaType> {
+        match self {
+            JavaType::Array(elem) => match elem.as_ref() {
+                JavaType::Primitive(_) | JavaType::Instance(_) | JavaType::Array(_) => Some(elem),
                 _ => None,
             },
             _ => None,
@@ -545,6 +609,31 @@ mod tests {
     }
 
     #[test]
+    fn as_descriptor_tests() {
+        let jt = JavaType::Primitive(PrimitiveType::Int);
+        assert_eq!(jt.as_descriptor(), "I");
+
+        let jt = JavaType::Instance("java/lang/String".to_string());
+        assert_eq!(jt.as_descriptor(), "Ljava/lang/String;");
+
+        let jt = JavaType::Array(Box::new(JavaType::Primitive(PrimitiveType::Boolean)));
+        assert_eq!(jt.as_descriptor(), "[Z");
+
+        let jt = JavaType::Array(Box::new(JavaType::Instance("java/util/List".to_string())));
+        assert_eq!(jt.as_descriptor(), "[Ljava/util/List;");
+
+        let jt = JavaType::Array(Box::new(JavaType::Array(Box::new(JavaType::Primitive(
+            PrimitiveType::Int,
+        )))));
+        assert_eq!(jt.as_descriptor(), "[[I");
+
+        let jt = JavaType::Array(Box::new(JavaType::Array(Box::new(JavaType::Array(
+            Box::new(JavaType::Primitive(PrimitiveType::Int)),
+        )))));
+        assert_eq!(jt.as_descriptor(), "[[[I");
+    }
+
+    #[test]
     fn parse_multi_dimensional_array() {
         assert_eq!(
             parse_one_descriptor("[[I").unwrap(),
@@ -556,6 +645,12 @@ mod tests {
             parse_one_java("[[I").unwrap(),
             JavaType::Array(Box::new(JavaType::Array(Box::new(JavaType::Primitive(
                 PrimitiveType::Int
+            )))))
+        );
+        assert_eq!(
+            parse_one_java("[[[I").unwrap(),
+            JavaType::Array(Box::new(JavaType::Array(Box::new(JavaType::Array(
+                Box::new(JavaType::Primitive(PrimitiveType::Int))
             )))))
         );
         assert_eq!(

@@ -9,6 +9,7 @@ use crate::rt::interface::InterfaceClass;
 use crate::vm::Value;
 use crate::{MethodId, Symbol};
 use common::jtype::PrimitiveType;
+use itertools::Either;
 use jclass::flags::ClassFlags;
 use once_cell::sync::OnceCell;
 use std::collections::{HashMap, HashSet};
@@ -413,6 +414,28 @@ impl JvmClass {
             JvmClass::Instance(ic) => ic.flags().get_raw_i32(),
             JvmClass::Interface(i) => i.flags().get_raw_i32(),
             _ => Self::BUILTIN_CLASS_FLAGS,
+        }
+    }
+
+    pub fn get_array_element_class_id(&self) -> Option<Either<ClassId, (PrimitiveType, ClassId)>> {
+        match self {
+            JvmClass::InstanceArray(arr) => Some(Either::Left(arr.element_class_id)),
+            JvmClass::PrimitiveArray(prim) => Some(Either::Right((
+                prim.element_type,
+                *prim.element_class_id.get().unwrap(),
+            ))),
+            _ => None,
+        }
+    }
+    pub fn is_primitive_array(&self) -> bool {
+        matches!(self, JvmClass::PrimitiveArray(_))
+    }
+
+    pub fn get_primitive_type(&self) -> Option<PrimitiveType> {
+        match self {
+            JvmClass::Primitive(pc) => Some(pc.primitive_type),
+            JvmClass::PrimitiveArray(pa) => Some(pa.element_type),
+            _ => None,
         }
     }
 }

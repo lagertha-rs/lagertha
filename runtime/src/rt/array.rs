@@ -8,8 +8,9 @@ use std::collections::HashMap;
 
 pub struct PrimitiveArrayClass {
     pub name: Symbol,
-    pub super_id: ClassId,
+    pub super_id: ClassId, //TODO: always java/lang/Object but need id
     pub element_type: PrimitiveType,
+    pub element_class_id: OnceCell<ClassId>,
     pub vtable: Vec<MethodId>,
     pub vtable_index: HashMap<MethodKey, u16>,
     pub(crate) mirror_ref: OnceCell<HeapRef>,
@@ -32,6 +33,12 @@ impl PrimitiveArrayClass {
                 build_exception!(NoSuchMethodError, method_key: *key, class_sym: self.name),
             )?;
         Ok(self.vtable[pos as usize])
+    }
+
+    pub fn set_element_class_id(&self, class_id: ClassId) -> Result<(), JvmError> {
+        self.element_class_id.set(class_id).map_err(|_| {
+            JvmError::Todo("PrimitiveArrayClass element_class_id already set".to_string())
+        })
     }
 }
 
