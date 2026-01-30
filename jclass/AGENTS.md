@@ -1,4 +1,5 @@
 <!-- OPENSPEC:START -->
+
 # OpenSpec Instructions
 
 These instructions are for AI assistants working in this project.
@@ -13,7 +14,8 @@ These instructions are for AI assistants working in this project.
 
 ## jclass Crate Summary
 
-Complete Java 25 `.class` file parser implementing JVM Specification SE 25 Chapter 4. Provides structured representation of class files with validation, constant pool resolution, and pretty-printing capabilities.
+Complete Java 25 `.class` file parser implementing JVM Specification SE 25 Chapter 4. Provides structured representation
+of class files with validation, constant pool resolution, and javap-printing capabilities.
 
 For detailed conventions, module structure, and constraints, see `@/openspec/project.md`.
 

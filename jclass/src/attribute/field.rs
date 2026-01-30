@@ -31,23 +31,23 @@ impl<'a> FieldAttribute {
         }
     }
 
-    #[cfg(feature = "pretty_print")]
-    pub(crate) fn fmt_pretty(
+    #[cfg(feature = "javap_print")]
+    pub(crate) fn javap_fmt(
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &ConstantPool,
     ) -> std::fmt::Result {
-        use common::pretty_try;
+        use common::try_javap_print;
         use std::fmt::Write as _;
 
         match self {
-            FieldAttribute::Shared(shared) => shared.fmt_pretty(ind, cp)?,
+            FieldAttribute::Shared(shared) => shared.javap_fmt(ind, cp)?,
             FieldAttribute::ConstantValue(val) => {
-                let constant = pretty_try!(ind, cp.get_raw(val));
+                let constant = try_javap_print!(ind, cp.get_raw(val));
                 writeln!(
                     ind,
                     "ConstantValue: {}",
-                    pretty_try!(ind, constant.get_pretty_type_and_value(cp, &0))
+                    try_javap_print!(ind, constant.get_javap_type_and_value(cp, &0))
                 )?;
             }
         }

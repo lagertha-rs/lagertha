@@ -35,7 +35,7 @@ impl<'a> MethodInfo {
     }
 }
 
-#[cfg(feature = "pretty_print")]
+#[cfg(feature = "javap_print")]
 impl MethodInfo {
     fn get_descriptor(
         &self,
@@ -68,7 +68,7 @@ impl MethodInfo {
         })
     }
 
-    fn fmt_pretty_javap_flags(
+    fn javap_fmt_flags(
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
     ) -> std::fmt::Result {
@@ -79,7 +79,7 @@ impl MethodInfo {
         writeln!(ind)
     }
 
-    fn fmt_pretty_throws(
+    fn javap_fmt_throws(
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &ConstantPool,
@@ -88,7 +88,7 @@ impl MethodInfo {
             common::descriptor::MethodDescriptor,
         >,
     ) -> std::fmt::Result {
-        use common::pretty_class_name_try;
+        use common::try_javap_print_class_name;
         use either::Either;
         use std::fmt::Write as _;
 
@@ -112,14 +112,14 @@ impl MethodInfo {
                 if i > 0 {
                     write!(ind, ", ")?;
                 }
-                let ex_name = pretty_class_name_try!(ind, cp.get_class_name(ex_index));
+                let ex_name = try_javap_print_class_name!(ind, cp.get_class_name(ex_index));
                 write!(ind, "{ex_name}")?;
             }
         }
         Ok(())
     }
 
-    fn fmt_pretty_name_and_ret_type(
+    fn javap_fmt_name_and_ret_type(
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &ConstantPool,
@@ -129,16 +129,16 @@ impl MethodInfo {
             common::descriptor::MethodDescriptor,
         >,
     ) -> std::fmt::Result {
-        use common::pretty_class_name_try;
+        use common::try_javap_print_class_name;
         use either::Either;
         use std::fmt::Write as _;
 
-        let method_name = pretty_class_name_try!(ind, cp.get_utf8(&self.name_index));
+        let method_name = try_javap_print_class_name!(ind, cp.get_utf8(&self.name_index));
         if method_name == "<init>" {
             write!(
                 ind,
                 "{}",
-                pretty_class_name_try!(ind, cp.get_class_name(this))
+                try_javap_print_class_name!(ind, cp.get_class_name(this))
             )
         } else if method_name == "<clinit>" {
             write!(ind, "{{}}")
@@ -152,7 +152,7 @@ impl MethodInfo {
         }
     }
 
-    fn fmt_pretty_params(
+    fn javap_fmt_params(
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
         descriptor: &either::Either<
@@ -190,7 +190,7 @@ impl MethodInfo {
         ind.write_char(')')
     }
 
-    pub(crate) fn fmt_pretty(
+    pub(crate) fn javap_fmt(
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &ConstantPool,
@@ -198,11 +198,11 @@ impl MethodInfo {
         class_flags: &crate::flags::ClassFlags,
     ) -> std::fmt::Result {
         use common::descriptor::MethodDescriptor;
-        use common::pretty_try;
+        use common::try_javap_print;
         use std::fmt::Write as _;
 
-        let raw_descriptor = pretty_try!(ind, cp.get_utf8(&self.descriptor_index));
-        let descriptor = pretty_try!(ind, self.get_descriptor(cp, raw_descriptor));
+        let raw_descriptor = try_javap_print!(ind, cp.get_utf8(&self.descriptor_index));
+        let descriptor = try_javap_print!(ind, self.get_descriptor(cp, raw_descriptor));
         let is_default = class_flags.is_interface()
             && !self.access_flags.is_abstract()
             && !self.access_flags.is_static()
@@ -211,26 +211,26 @@ impl MethodInfo {
                 .attributes
                 .iter()
                 .any(|attr| matches!(attr, MethodAttribute::Code { .. }));
-        self.access_flags.fmt_pretty_java_like_prefix(ind)?;
+        self.access_flags.javap_fmt_java_like_prefix(ind)?;
         if is_default {
             write!(ind, "default ")?;
         }
-        self.fmt_pretty_name_and_ret_type(ind, cp, this, &descriptor)?;
-        if pretty_try!(ind, cp.get_utf8(&self.name_index)) != "<clinit>" {
-            self.fmt_pretty_params(ind, &descriptor)?;
-            self.fmt_pretty_throws(ind, cp, &descriptor)?;
+        self.javap_fmt_name_and_ret_type(ind, cp, this, &descriptor)?;
+        if try_javap_print!(ind, cp.get_utf8(&self.name_index)) != "<clinit>" {
+            self.javap_fmt_params(ind, &descriptor)?;
+            self.javap_fmt_throws(ind, cp, &descriptor)?;
         }
         writeln!(ind, ";")?;
 
         ind.with_indent(|ind| {
             writeln!(ind, "descriptor: {}", raw_descriptor)?;
-            self.fmt_pretty_javap_flags(ind)?;
+            self.javap_fmt_flags(ind)?;
             for attr in &self.attributes {
-                attr.fmt_pretty(
+                attr.javap_fmt(
                     ind,
                     cp,
                     //TODO: avoid double conversion, not sure that method signature is needed here
-                    &pretty_try!(ind, MethodDescriptor::try_from(raw_descriptor)),
+                    &try_javap_print!(ind, MethodDescriptor::try_from(raw_descriptor)),
                     this,
                     self.access_flags.is_static(),
                 )?;

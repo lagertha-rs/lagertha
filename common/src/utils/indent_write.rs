@@ -1,9 +1,9 @@
 use std::fmt::{self};
 
-/// Allows to avoid boilerplate error handling when pretty printing and
+/// Allows to avoid boilerplate error handling when javap printing and
 /// printing errors to the given indented writer.
 #[macro_export]
-macro_rules! pretty_try {
+macro_rules! try_javap_print {
     ($ind:expr, $expr:expr) => {
         match $expr {
             Ok(v) => v,
@@ -27,7 +27,7 @@ macro_rules! pretty_try {
 
 #[doc(hidden)]
 #[macro_export]
-macro_rules! pretty_class_name_try {
+macro_rules! try_javap_print_class_name {
     ($ind:expr, $expr:expr) => {
         match $expr {
             Ok(class) => class
@@ -52,7 +52,7 @@ macro_rules! pretty_class_name_try {
 
 #[doc(hidden)]
 #[macro_export]
-macro_rules! pretty_method_name_try {
+macro_rules! try_javap_print_method_name {
     ($ind:expr, $expr:expr) => {
         match $expr {
             Ok(method_name) => match method_name {

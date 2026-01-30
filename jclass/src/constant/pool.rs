@@ -42,8 +42,8 @@ impl ConstantPool {
     }
 }
 
-#[cfg(feature = "pretty_print")]
-/// Getters that are useful only for pretty printing
+#[cfg(feature = "javap_print")]
+/// Getters that are useful only for javap printing
 impl ConstantPool {
     pub fn get_printable_utf8(&self, idx: &u16) -> Result<String, ClassFormatErr> {
         self.get_utf8(idx).map(|raw| raw.escape_debug().to_string())
@@ -70,12 +70,12 @@ impl ConstantPool {
     }
 
     //TODO: There is a macro to do that? replace?
-    pub fn get_pretty_class_name(&self, idx: &u16) -> Result<String, ClassFormatErr> {
+    pub fn get_javap_class_name(&self, idx: &u16) -> Result<String, ClassFormatErr> {
         let name_index = self.get_class(idx)?;
         self.get_utf8(&name_index).map(|raw| raw.replace('/', "."))
     }
 
-    pub fn get_pretty_class_name_utf8(&self, idx: &u16) -> Result<String, ClassFormatErr> {
+    pub fn get_javap_class_name_utf8(&self, idx: &u16) -> Result<String, ClassFormatErr> {
         self.get_utf8(idx).map(|raw| {
             if raw.starts_with('[') {
                 format!("\"{raw}\"")
@@ -85,9 +85,9 @@ impl ConstantPool {
         })
     }
 
-    pub fn get_pretty_class_name_for_cp_print(&self, idx: &u16) -> Result<String, ClassFormatErr> {
+    pub fn get_javap_class_name_for_cp_print(&self, idx: &u16) -> Result<String, ClassFormatErr> {
         let name_index = self.get_class(idx)?;
-        self.get_pretty_class_name_utf8(&name_index)
+        self.get_javap_class_name_utf8(&name_index)
     }
 
     pub fn get_methodref(
@@ -159,7 +159,7 @@ impl ConstantPool {
         &self,
         method_ref: &crate::constant::ReferenceInfo,
     ) -> Result<String, ClassFormatErr> {
-        self.get_pretty_class_name_for_cp_print(&method_ref.class_index)
+        self.get_javap_class_name_for_cp_print(&method_ref.class_index)
     }
 
     pub fn get_method_or_field_name(

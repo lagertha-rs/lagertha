@@ -4,13 +4,12 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-jclass = { path = "../jclass", features = ["pretty_print"] }
+jclass = { path = "../jclass", features = ["javap_print"] }
 sha2 = "0.10.9"
 chrono = "0.4"
 
 [dev-dependencies]
 assert_cmd = "2"
-insta = { version = "1.42.2", features = ["yaml"] }
 rstest = "0.26.1"
 
 [build-dependencies]

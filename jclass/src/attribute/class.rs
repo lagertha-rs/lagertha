@@ -139,23 +139,23 @@ impl<'a> ClassAttr {
         }
     }
 
-    #[cfg(feature = "pretty_print")]
-    pub(crate) fn fmt_pretty(
+    #[cfg(feature = "javap_print")]
+    pub(crate) fn javap_fmt(
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &ConstantPool,
     ) -> std::fmt::Result {
         use crate::flags::InnerClassFlags;
-        use common::pretty_try;
+        use common::try_javap_print;
         use std::fmt::Write as _;
 
         match self {
-            ClassAttr::Shared(shared) => shared.fmt_pretty(ind, cp)?,
+            ClassAttr::Shared(shared) => shared.javap_fmt(ind, cp)?,
             ClassAttr::SourceFile(idx) => {
                 writeln!(
                     ind,
                     "SourceFile: \"{}\"",
-                    pretty_try!(ind, cp.get_utf8(idx))
+                    try_javap_print!(ind, cp.get_utf8(idx))
                 )?;
             }
             ClassAttr::InnerClasses(inner) => {
@@ -163,13 +163,13 @@ impl<'a> ClassAttr {
                 ind.with_indent(|ind| {
                     for entry in inner {
                         let inner_class =
-                            pretty_try!(ind, cp.get_raw(&entry.inner_class_info_index));
+                            try_javap_print!(ind, cp.get_raw(&entry.inner_class_info_index));
 
                         // Truly anonymous class
                         if entry.outer_class_info_index == 0 && entry.inner_name_index == 0 {
                             let inner_access_flags =
                                 InnerClassFlags::new(entry.inner_class_access_flags);
-                            let flags_str = inner_access_flags.pretty_java_like_prefix();
+                            let flags_str = inner_access_flags.javap_java_like_prefix();
                             let left_part = if flags_str.is_empty() {
                                 format!("#{};", entry.inner_class_info_index)
                             } else {
@@ -179,7 +179,7 @@ impl<'a> ClassAttr {
                                 ind,
                                 "{:<43} // {}",
                                 left_part,
-                                pretty_try!(ind, inner_class.get_pretty_type_and_value(cp, &0)),
+                                try_javap_print!(ind, inner_class.get_javap_type_and_value(cp, &0)),
                             )?;
                         }
                         // Local/member class
@@ -191,8 +191,8 @@ impl<'a> ClassAttr {
                                     "#{}= #{};",
                                     entry.inner_name_index, entry.inner_class_info_index
                                 ),
-                                pretty_try!(ind, cp.get_utf8(&entry.inner_name_index)),
-                                pretty_try!(ind, inner_class.get_pretty_type_and_value(cp, &0)),
+                                try_javap_print!(ind, cp.get_utf8(&entry.inner_name_index)),
+                                try_javap_print!(ind, inner_class.get_javap_type_and_value(cp, &0)),
                             )?;
                         }
                         // Regular inner class
@@ -200,20 +200,20 @@ impl<'a> ClassAttr {
                             let inner_access_flags =
                                 InnerClassFlags::new(entry.inner_class_access_flags);
                             let outer_class =
-                                pretty_try!(ind, cp.get_raw(&entry.outer_class_info_index));
+                                try_javap_print!(ind, cp.get_raw(&entry.outer_class_info_index));
                             writeln!(
                                 ind,
                                 "{:<43} // {}={} of {}",
                                 format!(
                                     "{} #{}= #{} of #{};",
-                                    inner_access_flags.pretty_java_like_prefix(),
+                                    inner_access_flags.javap_java_like_prefix(),
                                     entry.inner_name_index,
                                     entry.inner_class_info_index,
                                     entry.outer_class_info_index
                                 ),
-                                pretty_try!(ind, cp.get_utf8(&entry.inner_name_index)),
-                                pretty_try!(ind, inner_class.get_pretty_type_and_value(cp, &0)),
-                                pretty_try!(ind, outer_class.get_pretty_type_and_value(cp, &0))
+                                try_javap_print!(ind, cp.get_utf8(&entry.inner_name_index)),
+                                try_javap_print!(ind, inner_class.get_javap_type_and_value(cp, &0)),
+                                try_javap_print!(ind, outer_class.get_javap_type_and_value(cp, &0))
                             )?;
                         }
                     }
@@ -224,13 +224,13 @@ impl<'a> ClassAttr {
                 let method = if *method_idx == 0 {
                     ""
                 } else {
-                    pretty_try!(ind, cp.get_method_or_field_name_by_nat_idx(method_idx))
+                    try_javap_print!(ind, cp.get_method_or_field_name_by_nat_idx(method_idx))
                 };
                 writeln!(
                     ind,
                     "{:<24} // {}{}{}",
                     format!("EnclosingMethod: #{}.#{}", class_idx, method_idx),
-                    pretty_try!(ind, cp.get_pretty_class_name(class_idx)),
+                    try_javap_print!(ind, cp.get_javap_class_name(class_idx)),
                     if method.is_empty() { "" } else { "." },
                     method
                 )?;
@@ -241,24 +241,24 @@ impl<'a> ClassAttr {
                 ind.with_indent(|ind| {
                     for (i, method) in bootstrap_methods.iter().enumerate() {
                         let method_handle =
-                            pretty_try!(ind, cp.get_raw(&method.bootstrap_method_idx));
+                            try_javap_print!(ind, cp.get_raw(&method.bootstrap_method_idx));
                         writeln!(
                             ind,
                             "{}: #{} {}",
                             i,
                             method.bootstrap_method_idx,
-                            pretty_try!(ind, method_handle.get_pretty_type_and_value(cp, &0))
+                            try_javap_print!(ind, method_handle.get_javap_type_and_value(cp, &0))
                         )?;
                         ind.with_indent(|ind| {
                             writeln!(ind, "Method arguments:")?;
                             ind.with_indent(|ind| {
                                 for arg in &method.bootstrap_arguments {
-                                    let argument = pretty_try!(ind, cp.get_raw(arg));
+                                    let argument = try_javap_print!(ind, cp.get_raw(arg));
                                     writeln!(
                                         ind,
                                         "#{} {}",
                                         arg,
-                                        pretty_try!(ind, argument.get_pretty_value(cp, &0))
+                                        try_javap_print!(ind, argument.get_javap_value(cp, &0))
                                     )?;
                                 }
                                 Ok(())
@@ -273,18 +273,18 @@ impl<'a> ClassAttr {
             ClassAttr::ModulePackages => unimplemented!(),
             ClassAttr::ModuleMainClass => unimplemented!(),
             ClassAttr::NestHost(idx) => {
-                let constant = pretty_try!(ind, cp.get_raw(idx));
+                let constant = try_javap_print!(ind, cp.get_raw(idx));
                 writeln!(
                     ind,
                     "NestHost: {}",
-                    pretty_try!(ind, constant.get_pretty_type_and_value(cp, &0))
+                    try_javap_print!(ind, constant.get_javap_type_and_value(cp, &0))
                 )?;
             }
             ClassAttr::NestMembers(members) => {
                 writeln!(ind, "NestMembers:")?;
                 ind.with_indent(|ind| {
                     for member in members {
-                        writeln!(ind, "{}", pretty_try!(ind, cp.get_class_name(member)))?;
+                        writeln!(ind, "{}", try_javap_print!(ind, cp.get_class_name(member)))?;
                     }
                     Ok(())
                 })?;
@@ -294,7 +294,7 @@ impl<'a> ClassAttr {
                 writeln!(ind, "PermittedSubclasses:")?;
                 ind.with_indent(|ind| {
                     for class in classes {
-                        writeln!(ind, "{}", pretty_try!(ind, cp.get_class_name(class)))?;
+                        writeln!(ind, "{}", try_javap_print!(ind, cp.get_class_name(class)))?;
                     }
                     Ok(())
                 })?;

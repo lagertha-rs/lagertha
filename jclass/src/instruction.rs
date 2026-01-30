@@ -1,5 +1,6 @@
-use crate::error::InstructionErr;
-use crate::utils::cursor::ByteCursor;
+use crate::constant::pool::ConstantPool;
+use common::error::{ClassFormatErr, InstructionErr};
+use common::utils::cursor::ByteCursor;
 use num_enum::TryFromPrimitive;
 use std::fmt::Formatter;
 
@@ -888,6 +889,7 @@ impl Instruction {
         Ok(instruction)
     }
 
+    //TODO: I don't remember why it is not just Display trait
     pub fn get_name(&self) -> &'static str {
         match self {
             Self::Aaload => "aaload",
@@ -1095,6 +1097,168 @@ impl Instruction {
             Self::Impdep2 => "impdep2",
             Self::TableSwitch(_) => "tableswitch",
         }
+    }
+
+    /// Returns true if the instruction's operand is a position (like for `goto` or `if` instructions)
+    /// needs to decide whether to print `#` before the operand
+    #[cfg(feature = "javap_print")]
+    fn is_position(&self) -> bool {
+        self.is_branch()
+            || matches!(
+                self,
+                Instruction::Aload(_)
+                    | Instruction::Astore(_)
+                    | Instruction::Bipush(_)
+                    | Instruction::Dload(_)
+                    | Instruction::Dstore(_)
+                    | Instruction::Fload(_)
+                    | Instruction::Fstore(_)
+                    | Instruction::Iinc(_, _)
+                    | Instruction::Iload(_)
+                    | Instruction::Istore(_)
+                    | Instruction::Lload(_)
+                    | Instruction::Lstore(_)
+                    | Instruction::Newarray(_)
+                    | Instruction::Sipush(_)
+            )
+    }
+
+    #[cfg(feature = "javap_print")]
+    fn get_value(&self, pc: i32) -> Option<String> {
+        match self {
+            Instruction::Aload(val) => Some(val.to_string()),
+            Instruction::Anewarray(val) => Some(val.to_string()),
+            Instruction::Astore(val) => Some(val.to_string()),
+            Instruction::Bipush(val) => Some(val.to_string()),
+            Instruction::Checkcast(val) => Some(val.to_string()),
+            Instruction::Getfield(val) => Some(val.to_string()),
+            Instruction::Getstatic(val) => Some(val.to_string()),
+            Instruction::Goto(val) => Some(((*val as i32) + pc).to_string()),
+            Instruction::Dload(val) => Some(val.to_string()),
+            Instruction::Dstore(val) => Some(val.to_string()),
+            Instruction::Fload(val) => Some(val.to_string()),
+            Instruction::Fstore(val) => Some(val.to_string()),
+            Instruction::Instanceof(val) => Some(val.to_string()),
+            Instruction::IfAcmpEq(val) => Some(((*val as i32) + pc).to_string()),
+            Instruction::IfAcmpNe(val) => Some(((*val as i32) + pc).to_string()),
+            Instruction::IfEq(val) => Some(((*val as i32) + pc).to_string()),
+            Instruction::IfNe(val) => Some(((*val as i32) + pc).to_string()),
+            Instruction::Ifnull(val) => Some(((*val as i32) + pc).to_string()),
+            Instruction::IfLt(val) => Some(((*val as i32) + pc).to_string()),
+            Instruction::IfGe(val) => Some(((*val as i32) + pc).to_string()),
+            Instruction::IfGt(val) => Some(((*val as i32) + pc).to_string()),
+            Instruction::IfLe(val) => Some(((*val as i32) + pc).to_string()),
+            Instruction::IfIcmpeq(val) => Some(((*val as i32) + pc).to_string()),
+            Instruction::IfIcmpne(val) => Some(((*val as i32) + pc).to_string()),
+            Instruction::IfIcmplt(val) => Some(((*val as i32) + pc).to_string()),
+            Instruction::IfIcmpge(val) => Some(((*val as i32) + pc).to_string()),
+            Instruction::IfIcmpgt(val) => Some(((*val as i32) + pc).to_string()),
+            Instruction::IfIcmple(val) => Some(((*val as i32) + pc).to_string()),
+            Instruction::Iinc(val1, val2) => Some(format!("{}, {}", val1, val2)),
+            Instruction::Iload(val) => Some(val.to_string()),
+            Instruction::Ifnonnull(val) => Some(((*val as i32) + pc).to_string()),
+            Instruction::InvokeDynamic(val) => Some(format!("{val}, 0")),
+            Instruction::InvokeInterface(val1, val2) => Some(format!("{val1}, {val2}")),
+            Instruction::InvokeSpecial(val) => Some(val.to_string()),
+            Instruction::InvokeStatic(val) => Some(val.to_string()),
+            Instruction::InvokeVirtual(val) => Some(val.to_string()),
+            Instruction::Istore(val) => Some(val.to_string()),
+            Instruction::Ldc(val) => Some(val.to_string()),
+            Instruction::LdcW(val) => Some(val.to_string()),
+            Instruction::Ldc2W(val) => Some(val.to_string()),
+            Instruction::Lload(val) => Some(val.to_string()),
+            Instruction::Lookupswitch(data) => {
+                let mut s = String::new();
+                s.push_str(&format!("{{ // {}\n", data.pairs.len()));
+                for (k, v) in &data.pairs {
+                    s.push_str(&format!("{:>20}: {}\n", k, v + pc));
+                }
+                s.push_str(&format!(
+                    "{:>20}: {}\n",
+                    "default",
+                    data.default_offset + pc
+                ));
+                s.push_str(&format!("{:>7}", "}"));
+                Some(s)
+            }
+            Instruction::Lstore(val) => Some(val.to_string()),
+            Instruction::Multianewarray(index, dimensions) => {
+                Some(format!("{index},  {dimensions}"))
+            }
+            Instruction::New(val) => Some(val.to_string()),
+            Instruction::Newarray(val) => Some(val.to_string()),
+            Instruction::Putfield(val) => Some(val.to_string()),
+            Instruction::Putstatic(val) => Some(val.to_string()),
+            Instruction::Sipush(val) => Some(val.to_string()),
+            Instruction::TableSwitch(data) => {
+                let mut s = String::new();
+                s.push_str(&format!("{{ // {} to {}\n", data.low, data.high));
+                for (i, v) in data.offsets.iter().enumerate() {
+                    s.push_str(&format!("{:>20}: {}\n", i as i32 + data.low, v + pc));
+                }
+                s.push_str(&format!(
+                    "{:>20}: {}\n",
+                    "default",
+                    data.default_offset + pc
+                ));
+                s.push_str(&format!("{:>7}", "}"));
+                Some(s)
+            }
+            _ => None,
+        }
+    }
+
+    #[cfg(feature = "javap_print")]
+    fn get_comment(&self, cp: &ConstantPool, this: &u16) -> Result<Option<String>, ClassFormatErr> {
+        let comment_value = |index: &u16| -> Result<Option<String>, ClassFormatErr> {
+            let constant = cp.get_raw(index)?;
+            Ok(Some(constant.get_javap_type_and_value(cp, this)?))
+        };
+        match self {
+            Instruction::Anewarray(val) => comment_value(val),
+            Instruction::Checkcast(val) => comment_value(val),
+            Instruction::Getfield(val) => comment_value(val),
+            Instruction::Getstatic(val) => comment_value(val),
+            Instruction::Instanceof(val) => comment_value(val),
+            Instruction::InvokeDynamic(val) => comment_value(val),
+            Instruction::InvokeInterface(val, _) => comment_value(val),
+            Instruction::InvokeSpecial(val) => comment_value(val),
+            Instruction::InvokeStatic(val) => comment_value(val),
+            Instruction::InvokeVirtual(val) => comment_value(val),
+            Instruction::Ldc(val) => comment_value(val),
+            Instruction::LdcW(val) => comment_value(val),
+            Instruction::Ldc2W(val) => comment_value(val),
+            Instruction::Multianewarray(val, _) => comment_value(val),
+            Instruction::New(val) => comment_value(val),
+            Instruction::Putfield(val) => comment_value(val),
+            Instruction::Putstatic(val) => comment_value(val),
+            _ => Ok(None),
+        }
+    }
+
+    #[cfg(feature = "javap_print")]
+    pub fn get_javap_instruction_string(
+        &self,
+        cp: &ConstantPool,
+        pc: i32,
+        this: &u16,
+    ) -> Result<String, ClassFormatErr> {
+        use std::fmt::Write;
+
+        let val = self.get_value(pc);
+        let comment = self.get_comment(cp, this)?;
+        let is_position = self.is_position();
+
+        let mut out = String::with_capacity(32);
+        write!(&mut out, "{:<13}", self.get_name()).unwrap();
+        if let Some(v) = val {
+            write!(&mut out, " {}{v:<18}", if !is_position { "#" } else { "" }).unwrap();
+            if let Some(c) = comment {
+                out.push_str(" // ");
+                out.push_str(&c);
+            }
+        }
+        Ok(out)
     }
 }
 

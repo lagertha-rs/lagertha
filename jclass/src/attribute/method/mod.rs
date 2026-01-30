@@ -127,8 +127,8 @@ impl<'a> MethodAttribute {
         }
     }
 
-    #[cfg(feature = "pretty_print")]
-    pub(crate) fn fmt_pretty(
+    #[cfg(feature = "javap_print")]
+    pub(crate) fn javap_fmt(
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &ConstantPool,
@@ -137,22 +137,22 @@ impl<'a> MethodAttribute {
         is_static: bool,
     ) -> std::fmt::Result {
         use crate::flags::MethodParamFlags;
-        use common::pretty_try;
+        use common::try_javap_print;
         use std::fmt::Write as _;
 
         match self {
-            MethodAttribute::Shared(shared) => shared.fmt_pretty(ind, cp)?,
-            MethodAttribute::Code(code) => code.fmt_pretty(ind, cp, descriptor, this, is_static)?,
+            MethodAttribute::Shared(shared) => shared.javap_fmt(ind, cp)?,
+            MethodAttribute::Code(code) => code.javap_fmt(ind, cp, descriptor, this, is_static)?,
             MethodAttribute::Exceptions(exc) => {
                 writeln!(ind, "Exceptions:")?;
                 ind.with_indent(|ind| {
                     writeln!(
                         ind,
                         "throws {}",
-                        pretty_try!(
+                        try_javap_print!(
                             ind,
                             exc.iter()
-                                .map(|index| cp.get_pretty_class_name(index))
+                                .map(|index| cp.get_javap_class_name(index))
                                 .collect::<Result<Vec<_>, _>>()
                         )
                         .join(", ")
@@ -186,10 +186,10 @@ impl<'a> MethodAttribute {
                         let name = if param.name_index == 0 {
                             "<no name>".to_string()
                         } else {
-                            pretty_try!(ind, cp.get_utf8(&param.name_index)).to_string()
+                            try_javap_print!(ind, cp.get_utf8(&param.name_index)).to_string()
                         };
                         write!(ind, "{:<W_NAME$} ", name)?;
-                        MethodParamFlags::new(param.access_flags).fmt_pretty(ind)?;
+                        MethodParamFlags::new(param.access_flags).javap_fmt(ind)?;
                         writeln!(ind)?;
                     }
                     Ok(())
@@ -200,14 +200,14 @@ impl<'a> MethodAttribute {
         Ok(())
     }
 
-    #[cfg(feature = "pretty_print")]
+    #[cfg(feature = "javap_print")]
     fn fmt_parameter_annotations(
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &ConstantPool,
         header: &str,
         param_annotations: &[ParameterAnnotations],
     ) -> std::fmt::Result {
-        use common::pretty_class_name_try;
+        use common::try_javap_print_class_name;
         use itertools::Itertools;
         use std::fmt::Write as _;
 
@@ -228,13 +228,15 @@ impl<'a> MethodAttribute {
                                 .map(|pair| format!(
                                     "#{}={}",
                                     pair.element_name_index,
-                                    pair.value.get_pretty_descriptor()
+                                    pair.value.get_javap_descriptor()
                                 ))
                                 .join(",")
                         )?;
                         ind.with_indent(|ind| {
-                            let type_name =
-                                pretty_class_name_try!(ind, cp.get_utf8(&annotation.type_index));
+                            let type_name = try_javap_print_class_name!(
+                                ind,
+                                cp.get_utf8(&annotation.type_index)
+                            );
                             writeln!(ind, "{type_name}")?;
                             Ok(())
                         })?;
@@ -286,8 +288,8 @@ impl<'a> CodeAttribute {
         })
     }
 
-    #[cfg(feature = "pretty_print")]
-    pub(crate) fn fmt_pretty(
+    #[cfg(feature = "javap_print")]
+    pub(crate) fn javap_fmt(
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &ConstantPool,
@@ -295,9 +297,8 @@ impl<'a> CodeAttribute {
         this: &u16,
         is_static: bool,
     ) -> std::fmt::Result {
-        use crate::print::get_pretty_instruction;
-        use common::instruction::Instruction;
-        use common::pretty_try;
+        use crate::instruction::Instruction;
+        use common::try_javap_print;
         use std::fmt::Write as _;
 
         writeln!(ind, "Code: ")?;
@@ -315,7 +316,7 @@ impl<'a> CodeAttribute {
             let mut pc = 0;
             let code_len = self.code.len();
             while pc < code_len {
-                let inst = pretty_try!(ind, Instruction::new_at(&self.code, pc));
+                let inst = try_javap_print!(ind, Instruction::new_at(&self.code, pc));
                 pc += inst.byte_size() as usize;
                 instructions.push(inst);
             }
@@ -324,9 +325,9 @@ impl<'a> CodeAttribute {
                 writeln!(
                     ind,
                     "{byte_pos:4}: {:<24}",
-                    pretty_try!(
+                    try_javap_print!(
                         ind,
-                        get_pretty_instruction(&instruction, cp, byte_pos as i32, this)
+                        instruction.get_javap_instruction_string(cp, byte_pos as i32, this)
                     )
                 )?;
                 byte_pos += instruction.byte_size();
@@ -346,7 +347,7 @@ impl<'a> CodeAttribute {
                         let catch_type = if entry.catch_type == 0 {
                             "any"
                         } else {
-                            pretty_try!(ind, cp.get_class_name(&entry.catch_type))
+                            try_javap_print!(ind, cp.get_class_name(&entry.catch_type))
                         };
                         writeln!(
                             ind,
@@ -362,7 +363,7 @@ impl<'a> CodeAttribute {
                 })?;
             }
             for attr in &self.attributes {
-                attr.fmt_pretty(ind, cp, this)?;
+                attr.javap_fmt(ind, cp, this)?;
             }
             Ok(())
         })?;

@@ -213,7 +213,7 @@ impl<'a> ConstantInfo {
     }
 
     //TODO: check, don't want to spend too much time here, it is AI generated
-    #[cfg(feature = "pretty_print")]
+    #[cfg(feature = "javap_print")]
     fn format_double_minimal_javap(x: f64) -> String {
         let bits = x.to_bits();
         if bits == 0x0000_0000_0000_0001 {
@@ -301,8 +301,8 @@ impl<'a> ConstantInfo {
     }
 
     //TODO: check, don't want to spend too much time here, it is AI generated
-    #[cfg(feature = "pretty_print")]
-    #[cfg(feature = "pretty_print")]
+    #[cfg(feature = "javap_print")]
+    #[cfg(feature = "javap_print")]
     pub fn format_float_minimal_javap(x: f32) -> String {
         use std::f32;
 
@@ -346,13 +346,13 @@ impl<'a> ConstantInfo {
         format!("{}f", s)
     }
 
-    #[cfg(feature = "pretty_print")]
-    pub(crate) fn fmt_pretty(
+    #[cfg(feature = "javap_print")]
+    pub(crate) fn javap_fmt(
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &pool::ConstantPool,
     ) -> std::fmt::Result {
-        use common::{pretty_method_name_try, pretty_try};
+        use common::{try_javap_print, try_javap_print_method_name};
         use std::fmt::Write as _;
         let op_w = 16;
         match self {
@@ -365,14 +365,14 @@ impl<'a> ConstantInfo {
                 ind,
                 "{:<op_w$} // {}",
                 format!("#{index}"),
-                pretty_try!(ind, cp.get_printable_utf8(index)),
+                try_javap_print!(ind, cp.get_printable_utf8(index)),
                 op_w = op_w
             ),
             ConstantInfo::Class(index) => writeln!(
                 ind,
                 "{:<op_w$} // {}",
                 format!("#{index}"),
-                pretty_try!(ind, cp.get_pretty_class_name_utf8(index)),
+                try_javap_print!(ind, cp.get_javap_class_name_utf8(index)),
                 op_w = op_w
             ),
             ConstantInfo::MethodRef(ref_info) | ConstantInfo::InterfaceMethodRef(ref_info) => {
@@ -383,9 +383,9 @@ impl<'a> ConstantInfo {
                         "#{}.#{}",
                         ref_info.class_index, ref_info.name_and_type_index
                     ),
-                    pretty_try!(ind, cp.get_method_or_field_class_name(ref_info)),
-                    pretty_method_name_try!(ind, cp.get_method_or_field_name(ref_info)),
-                    pretty_try!(ind, cp.get_method_or_field_descriptor(ref_info)),
+                    try_javap_print!(ind, cp.get_method_or_field_class_name(ref_info)),
+                    try_javap_print_method_name!(ind, cp.get_method_or_field_name(ref_info)),
+                    try_javap_print!(ind, cp.get_method_or_field_descriptor(ref_info)),
                     op_w = op_w
                 )
             }
@@ -393,8 +393,8 @@ impl<'a> ConstantInfo {
                 ind,
                 "{:<op_w$} // {}:{}",
                 format!("#{}:#{}", nat.name_index, nat.descriptor_index),
-                pretty_method_name_try!(ind, cp.get_nat_name(nat)),
-                pretty_try!(ind, cp.get_nat_descriptor(nat)),
+                try_javap_print_method_name!(ind, cp.get_nat_name(nat)),
+                try_javap_print!(ind, cp.get_nat_descriptor(nat)),
                 op_w = op_w
             ),
             ConstantInfo::FieldRef(ref_info) => writeln!(
@@ -404,9 +404,9 @@ impl<'a> ConstantInfo {
                     "#{}.#{}",
                     ref_info.class_index, ref_info.name_and_type_index
                 ),
-                pretty_try!(ind, cp.get_class_name(&ref_info.class_index)),
-                pretty_try!(ind, cp.get_method_or_field_name(ref_info)),
-                pretty_try!(ind, cp.get_method_or_field_descriptor(ref_info)),
+                try_javap_print!(ind, cp.get_class_name(&ref_info.class_index)),
+                try_javap_print!(ind, cp.get_method_or_field_name(ref_info)),
+                try_javap_print!(ind, cp.get_method_or_field_descriptor(ref_info)),
                 op_w = op_w
             ),
             ConstantInfo::Dynamic(dyn_info) | ConstantInfo::InvokeDynamic(dyn_info) => {
@@ -418,8 +418,8 @@ impl<'a> ConstantInfo {
                         dyn_info.bootstrap_method_attr_index, dyn_info.name_and_type_index
                     ),
                     dyn_info.bootstrap_method_attr_index,
-                    pretty_try!(ind, cp.get_dyn_info_name(dyn_info)),
-                    pretty_try!(ind, cp.get_dyn_info_descriptor(dyn_info)),
+                    try_javap_print!(ind, cp.get_dyn_info_name(dyn_info)),
+                    try_javap_print!(ind, cp.get_dyn_info_descriptor(dyn_info)),
                     op_w = op_w
                 )
             }
@@ -427,12 +427,13 @@ impl<'a> ConstantInfo {
                 ind,
                 "{:<op_w$} // {}",
                 format!("#{}", idx),
-                pretty_try!(ind, cp.get_utf8(idx)),
+                try_javap_print!(ind, cp.get_utf8(idx)),
                 op_w = op_w
             ),
             ConstantInfo::MethodHandle(handle_info) => {
-                let handle_kind = pretty_try!(ind, handle_info.get_kind());
-                let method_ref = pretty_try!(ind, cp.get_methodref(&handle_info.reference_index));
+                let handle_kind = try_javap_print!(ind, handle_info.get_kind());
+                let method_ref =
+                    try_javap_print!(ind, cp.get_methodref(&handle_info.reference_index));
                 writeln!(
                     ind,
                     "{:<op_w$} // {} {}.{}:{}",
@@ -440,10 +441,10 @@ impl<'a> ConstantInfo {
                         "{}:#{}",
                         handle_info.reference_kind, handle_info.reference_index
                     ),
-                    pretty_try!(ind, handle_kind.get_pretty_value()),
-                    pretty_try!(ind, cp.get_method_or_field_class_name(method_ref)),
-                    pretty_method_name_try!(ind, cp.get_method_or_field_name(method_ref)),
-                    pretty_try!(ind, cp.get_method_or_field_descriptor(method_ref)),
+                    try_javap_print!(ind, handle_kind.get_javap_value()),
+                    try_javap_print!(ind, cp.get_method_or_field_class_name(method_ref)),
+                    try_javap_print_method_name!(ind, cp.get_method_or_field_name(method_ref)),
+                    try_javap_print!(ind, cp.get_method_or_field_descriptor(method_ref)),
                     op_w = op_w
                 )
             }
@@ -451,21 +452,21 @@ impl<'a> ConstantInfo {
         }
     }
 
-    #[cfg(feature = "pretty_print")]
-    pub(crate) fn get_pretty_value(
+    #[cfg(feature = "javap_print")]
+    pub(crate) fn get_javap_value(
         &self,
         cp: &pool::ConstantPool,
         this_class_name: &u16,
     ) -> Result<String, ClassFormatErr> {
         Ok(match self {
             ConstantInfo::Integer(i) => format!("{}", i),
-            ConstantInfo::Class(index) => cp.get_pretty_class_name_utf8(index)?.to_string(),
-            _ => self.get_pretty_type_and_value(cp, this_class_name)?,
+            ConstantInfo::Class(index) => cp.get_javap_class_name_utf8(index)?.to_string(),
+            _ => self.get_javap_type_and_value(cp, this_class_name)?,
         })
     }
 
-    #[cfg(feature = "pretty_print")]
-    pub(crate) fn get_pretty_type_and_value(
+    #[cfg(feature = "javap_print")]
+    pub(crate) fn get_javap_type_and_value(
         &self,
         cp: &pool::ConstantPool,
         this_class_name: &u16,
@@ -477,7 +478,7 @@ impl<'a> ConstantInfo {
             ConstantInfo::Long(l) => format!("long {}l", l),
             ConstantInfo::Double(d) => format!("double {}", Self::format_double_minimal_javap(*d)),
             ConstantInfo::Class(index) => {
-                format!("class {}", cp.get_pretty_class_name_utf8(index)?)
+                format!("class {}", cp.get_javap_class_name_utf8(index)?)
             }
             ConstantInfo::String(index) => format!("String {}", cp.get_printable_utf8(index)?),
             ConstantInfo::MethodRef(ref_info) => {
@@ -549,7 +550,7 @@ impl<'a> ConstantInfo {
                 };
                 format!(
                     "{} {}.{}:{}",
-                    handle_kind.get_pretty_value()?,
+                    handle_kind.get_javap_value()?,
                     cp.get_method_or_field_class_name(method_ref)?,
                     method_name,
                     cp.get_method_or_field_descriptor(method_ref)?,
@@ -563,8 +564,8 @@ impl<'a> ConstantInfo {
 }
 
 impl MethodHandleKind {
-    #[cfg(feature = "pretty_print")]
-    pub(crate) fn get_pretty_value(&self) -> Result<&str, ClassFormatErr> {
+    #[cfg(feature = "javap_print")]
+    pub(crate) fn get_javap_value(&self) -> Result<&str, ClassFormatErr> {
         Ok(match self {
             MethodHandleKind::GetField => "REF_getField",
             MethodHandleKind::GetStatic => "REF_getStatic",

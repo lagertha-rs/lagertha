@@ -11,10 +11,9 @@ pub mod attribute;
 pub mod constant;
 pub mod field;
 pub mod flags;
+pub mod instruction;
 pub mod method;
 
-#[cfg(feature = "pretty_print")]
-pub mod print;
 // TODO: review all access levels in the crate (methods, fields, modules, structs, etc.)
 // TODO: align enums that end with "Info"/"Ref" and "Type"/"Kind" suffixes
 
@@ -22,7 +21,7 @@ pub mod print;
 /// A rust representation of a Java .class file. All structures in the crates have public only public
 /// fields for easier access, because anyway it will be remapped to runtime structures.
 ///
-/// All print related code is behind the `pretty_print` feature flag.
+/// All print related code is behind the `javap_print` feature flag.
 #[derive(Debug)]
 pub struct ClassFile {
     pub minor_version: u16,
@@ -129,7 +128,7 @@ impl TryFrom<Vec<u8>> for ClassFile {
     }
 }
 
-#[cfg(feature = "pretty_print")]
+#[cfg(feature = "javap_print")]
 impl ClassFile {
     const COMMENT_WIDTH: usize = 24;
     const CONSTANT_KIND_WIDTH: usize = 18;
@@ -139,15 +138,16 @@ impl ClassFile {
         ind: &mut common::utils::indent_write::Indented<'_>,
     ) -> std::fmt::Result {
         use crate::attribute::SharedAttribute;
-        use common::pretty_try;
         use common::signature::ClassSignature;
+        use common::try_javap_print;
         use std::fmt::Write as _;
 
         // for java.lang.Object
         if self.super_class == 0 {
             return Ok(());
         }
-        let super_class_name = pretty_try!(ind, self.cp.get_pretty_class_name(&self.super_class));
+        let super_class_name =
+            try_javap_print!(ind, self.cp.get_javap_class_name(&self.super_class));
         let super_is_object = super_class_name == "java.lang.Object";
         if let Some(sig_index) = self.attributes.iter().find_map(|attr| {
             if let ClassAttr::Shared(shared) = attr {
@@ -159,18 +159,18 @@ impl ClassFile {
                 None
             }
         }) {
-            let raw_sig = pretty_try!(ind, self.cp.get_utf8(sig_index));
-            let sig = pretty_try!(
+            let raw_sig = try_javap_print!(ind, self.cp.get_utf8(sig_index));
+            let sig = try_javap_print!(
                 ind,
                 ClassSignature::new(raw_sig, self.access_flags.is_interface())
             );
             write!(ind, "{}", sig)
         } else if !super_is_object || !self.interfaces.is_empty() {
-            let interfaces_names = pretty_try!(
+            let interfaces_names = try_javap_print!(
                 ind,
                 self.interfaces
                     .iter()
-                    .map(|i| self.cp.get_pretty_class_name(i))
+                    .map(|i| self.cp.get_javap_class_name(i))
                     .collect::<Result<Vec<_>, _>>()
             );
 
@@ -198,24 +198,24 @@ impl ClassFile {
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
     ) -> std::fmt::Result {
-        use common::pretty_class_name_try;
+        use common::try_javap_print_class_name;
         use std::fmt::Write as _;
 
-        self.access_flags.fmt_pretty_java_like_prefix(ind)?;
+        self.access_flags.javap_fmt_java_like_prefix(ind)?;
         write!(
             ind,
             "{} ",
-            pretty_class_name_try!(ind, self.cp.get_class_name(&self.this_class))
+            try_javap_print_class_name!(ind, self.cp.get_class_name(&self.this_class))
         )?;
         self.fmt_generic_signature(ind)?;
         writeln!(ind)
     }
 }
 
-#[cfg(feature = "pretty_print")]
+#[cfg(feature = "javap_print")]
 impl std::fmt::Display for ClassFile {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        use common::pretty_try;
+        use common::try_javap_print;
         use common::utils::indent_write::Indented;
         use std::fmt::Write as _;
 
@@ -235,7 +235,7 @@ impl std::fmt::Display for ClassFile {
                 ind,
                 "this_class: {:<w$} //{}",
                 format!("#{}", self.this_class),
-                pretty_try!(ind, self.cp.get_class_name(&self.this_class)),
+                try_javap_print!(ind, self.cp.get_class_name(&self.this_class)),
                 w = Self::COMMENT_WIDTH
             )?;
             write!(
@@ -248,7 +248,7 @@ impl std::fmt::Display for ClassFile {
                 write!(
                     ind,
                     "//{}",
-                    pretty_try!(ind, self.cp.get_class_name(&self.super_class))
+                    try_javap_print!(ind, self.cp.get_class_name(&self.super_class))
                 )?;
             }
             writeln!(ind)?;
@@ -277,14 +277,14 @@ impl std::fmt::Display for ClassFile {
                 }
                 let tag = format_args!("{:<kw$}", c.get_tag(), kw = Self::CONSTANT_KIND_WIDTH);
                 write!(ind, "{:>w$} = {} ", format!("#{i}"), tag, w = counter_width)?;
-                c.fmt_pretty(ind, &self.cp)?;
+                c.javap_fmt(ind, &self.cp)?;
             }
             Ok(())
         })?;
         writeln!(ind, "{{")?;
         ind.with_indent(|ind| {
             for (i, field) in self.fields.iter().enumerate() {
-                field.fmt_pretty(ind, &self.cp)?;
+                field.javap_fmt(ind, &self.cp)?;
                 if i + 1 < self.fields.len() {
                     writeln!(ind)?;
                 }
@@ -294,7 +294,7 @@ impl std::fmt::Display for ClassFile {
             }
 
             for (i, method) in self.methods.iter().enumerate() {
-                method.fmt_pretty(ind, &self.cp, &self.this_class, &self.access_flags)?;
+                method.javap_fmt(ind, &self.cp, &self.this_class, &self.access_flags)?;
                 if i + 1 < self.methods.len() {
                     writeln!(ind)?;
                 }
@@ -303,7 +303,7 @@ impl std::fmt::Display for ClassFile {
         })?;
         writeln!(ind, "}}")?;
         for attribute in &self.attributes {
-            attribute.fmt_pretty(&mut ind, &self.cp)?;
+            attribute.javap_fmt(&mut ind, &self.cp)?;
         }
         Ok(())
     }

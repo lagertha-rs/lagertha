@@ -36,9 +36,9 @@ impl<'a> FieldInfo {
     }
 }
 
-#[cfg(feature = "pretty_print")]
+#[cfg(feature = "javap_print")]
 impl FieldInfo {
-    fn fmt_pretty_type(
+    fn javap_fmt_type(
         &self,
         ind: &mut common::utils::indent_write::Indented,
         cp: &ConstantPool,
@@ -46,7 +46,7 @@ impl FieldInfo {
     ) -> std::fmt::Result {
         use crate::attribute::SharedAttribute;
         use common::jtype::JavaType;
-        use common::pretty_try;
+        use common::try_javap_print;
         use std::fmt::Write as _;
 
         let field_type = {
@@ -61,28 +61,32 @@ impl FieldInfo {
                 }
             });
             if let Some(sig_index) = generic_signature_opt {
-                let raw_sig = pretty_try!(ind, cp.get_utf8(sig_index));
-                pretty_try!(ind, JavaType::try_from(raw_sig))
+                let raw_sig = try_javap_print!(ind, cp.get_utf8(sig_index));
+                try_javap_print!(ind, JavaType::try_from(raw_sig))
             } else {
-                pretty_try!(ind, JavaType::try_from(raw_descriptor))
+                try_javap_print!(ind, JavaType::try_from(raw_descriptor))
             }
         };
         write!(ind, "{field_type} ")
     }
 
-    pub(crate) fn fmt_pretty(
+    pub(crate) fn javap_fmt(
         &self,
         ind: &mut common::utils::indent_write::Indented,
         cp: &ConstantPool,
     ) -> std::fmt::Result {
-        use common::pretty_try;
+        use common::try_javap_print;
         use std::fmt::Write as _;
 
-        let raw_descriptor = pretty_try!(ind, cp.get_utf8(&self.descriptor_index));
+        let raw_descriptor = try_javap_print!(ind, cp.get_utf8(&self.descriptor_index));
 
-        self.access_flags.fmt_field_pretty_java_like_prefix(ind)?;
-        self.fmt_pretty_type(ind, cp, raw_descriptor)?;
-        writeln!(ind, "{};", pretty_try!(ind, cp.get_utf8(&self.name_index)))?;
+        self.access_flags.fmt_field_javap_java_like_prefix(ind)?;
+        self.javap_fmt_type(ind, cp, raw_descriptor)?;
+        writeln!(
+            ind,
+            "{};",
+            try_javap_print!(ind, cp.get_utf8(&self.name_index))
+        )?;
         ind.with_indent(|ind| {
             writeln!(ind, "descriptor: {raw_descriptor}")?;
 
@@ -91,7 +95,7 @@ impl FieldInfo {
             writeln!(ind)?;
 
             for attr in &self.attributes {
-                attr.fmt_pretty(ind, cp)?;
+                attr.javap_fmt(ind, cp)?;
             }
             Ok(())
         })

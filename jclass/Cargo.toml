@@ -5,13 +5,14 @@ edition = "2024"
 
 [features]
 default = []
-pretty_print = []
+javap_print = []
+jasm_assemble = []
 
 [dependencies]
 num_enum = "0.7.4"
 itertools = "0.14.0"
 
-either = "1.15.0" # TODO: add only under pretty_print feature
+either = "1.15.0" # TODO: add only under javap_print feature
 
 common = { path = "../common" }
 

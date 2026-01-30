@@ -247,14 +247,14 @@ impl<'a> SharedAttribute {
         }
     }
 
-    #[cfg(feature = "pretty_print")]
+    #[cfg(feature = "javap_print")]
     fn fmt_annotations(
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &crate::constant::pool::ConstantPool,
         annotations: &[Annotation],
     ) -> fmt::Result {
-        use common::pretty_class_name_try;
-        use common::pretty_try;
+        use common::try_javap_print;
+        use common::try_javap_print_class_name;
         use itertools::Itertools;
         use std::fmt::Write as _;
 
@@ -269,7 +269,7 @@ impl<'a> SharedAttribute {
                     .map(|pair| format!(
                         "#{}={}",
                         pair.element_name_index,
-                        pair.value.get_pretty_descriptor()
+                        pair.value.get_javap_descriptor()
                     ))
                     .join(",")
             )?;
@@ -277,7 +277,7 @@ impl<'a> SharedAttribute {
                 write!(
                     ind,
                     "{}",
-                    pretty_class_name_try!(ind, cp.get_utf8(&annotation.type_index))
+                    try_javap_print_class_name!(ind, cp.get_utf8(&annotation.type_index))
                 )?;
                 if !annotation.element_value_pairs.is_empty() {
                     writeln!(ind, "(")?;
@@ -286,8 +286,8 @@ impl<'a> SharedAttribute {
                             writeln!(
                                 ind,
                                 "{}={}",
-                                pretty_try!(ind, cp.get_utf8(&param.element_name_index)),
-                                pretty_try!(ind, param.value.get_pretty_value(cp))
+                                try_javap_print!(ind, cp.get_utf8(&param.element_name_index)),
+                                try_javap_print!(ind, param.value.get_javap_value(cp))
                             )?;
                             Ok(())
                         })?;
@@ -302,13 +302,13 @@ impl<'a> SharedAttribute {
         Ok(())
     }
 
-    #[cfg(feature = "pretty_print")]
-    pub(crate) fn fmt_pretty(
+    #[cfg(feature = "javap_print")]
+    pub(crate) fn javap_fmt(
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &crate::constant::pool::ConstantPool,
     ) -> fmt::Result {
-        use common::pretty_try;
+        use common::try_javap_print;
         use std::fmt::Write as _;
 
         match self {
@@ -318,7 +318,7 @@ impl<'a> SharedAttribute {
                 ind,
                 "Signature: #{:<26} // {}",
                 index,
-                pretty_try!(ind, cp.get_utf8(index)),
+                try_javap_print!(ind, cp.get_utf8(index)),
             )?,
             SharedAttribute::RuntimeVisibleAnnotations(annotations) => {
                 writeln!(ind, "RuntimeVisibleAnnotations:")?;
@@ -341,13 +341,13 @@ impl<'a> SharedAttribute {
         Ok(())
     }
 
-    #[cfg(feature = "pretty_print")]
+    #[cfg(feature = "javap_print")]
     fn fmt_type_annotations(
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &crate::constant::pool::ConstantPool,
         annotations: &[TypeAnnotation],
     ) -> fmt::Result {
-        use common::pretty_class_name_try;
+        use common::try_javap_print_class_name;
         use itertools::Itertools;
         use std::fmt::Write as _;
 
@@ -408,7 +408,7 @@ impl<'a> SharedAttribute {
                         format!(
                             "#{}={}",
                             pair.element_name_index,
-                            pair.value.get_pretty_descriptor()
+                            pair.value.get_javap_descriptor()
                         )
                     })
                     .join(",")
@@ -420,7 +420,8 @@ impl<'a> SharedAttribute {
                 annotation.type_index
             )?;
             ind.with_indent(|ind| {
-                let type_name = pretty_class_name_try!(ind, cp.get_utf8(&annotation.type_index));
+                let type_name =
+                    try_javap_print_class_name!(ind, cp.get_utf8(&annotation.type_index));
                 writeln!(ind, "{type_name}")?;
                 Ok(())
             })?;
@@ -544,8 +545,8 @@ impl<'a> ElementValue {
         Ok(ev)
     }
 
-    #[cfg(feature = "pretty_print")]
-    pub fn get_pretty_descriptor(&self) -> String {
+    #[cfg(feature = "javap_print")]
+    pub fn get_javap_descriptor(&self) -> String {
         match self {
             ElementValue::Boolean(v) => format!("Z#{}", v),
             ElementValue::String(v) => format!("s#{}", v),
@@ -553,8 +554,8 @@ impl<'a> ElementValue {
         }
     }
 
-    #[cfg(feature = "pretty_print")]
-    pub(crate) fn get_pretty_value(
+    #[cfg(feature = "javap_print")]
+    pub(crate) fn get_javap_value(
         &self,
         cp: &crate::constant::pool::ConstantPool,
     ) -> Result<String, ClassFormatErr> {

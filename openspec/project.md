@@ -2,14 +2,18 @@
 
 ## Purpose
 
-Educational and fun Rust implementation of a Java Virtual Machine (JVM) targeting **Java 25** specification. This project explores JVM internals through pure Rust implementation, serving as both a learning resource and experimental platform for understanding Java runtime mechanics.
+Educational and fun Rust implementation of a Java Virtual Machine (JVM) targeting **Java 25** specification. This
+project explores JVM internals through pure Rust implementation, serving as both a learning resource and experimental
+platform for understanding Java runtime mechanics.
 
 ## Tech Stack
 
 - **Language**: Rust 2024 edition
 - **Build System**: Cargo workspace with 6 member crates
-- **Logging**: Tracing ecosystem (`tracing`, `tracing-subscriber`, `tracing-log`) - used for structured logging only, not telemetry
-- **Performance Profiling**: `hotpath` for experimental performance instrumentation (not heavily used, not fully configured)
+- **Logging**: Tracing ecosystem (`tracing`, `tracing-subscriber`, `tracing-log`) - used for structured logging only,
+  not telemetry
+- **Performance Profiling**: `hotpath` for experimental performance instrumentation (not heavily used, not fully
+  configured)
 - **Async Runtime**: Tokio for JDWP debugging agent (early stage, not functional yet)
 - **Testing**: Insta (snapshot testing), rstest (parameterized testing), assert_cmd
 - **Parsing Utilities**: `num_enum`, `itertools`, `memmap2` (jimage)
@@ -19,10 +23,13 @@ Educational and fun Rust implementation of a Java Virtual Machine (JVM) targetin
 
 ### Code Style
 
-- **Error Handling**: Hierarchical error enums with extensive `From<T>` trait implementations for seamless error conversion. **Note**: All error types are provisional and will be refactored in the near future as the project evolves.
+- **Error Handling**: Hierarchical error enums with extensive `From<T>` trait implementations for seamless error
+  conversion. **Note**: All error types are provisional and will be refactored in the near future as the project
+  evolves.
 - **Parsing Patterns**: `TryFrom<&str>` for text parsing, `ByteCursor` for binary parsing with endianness support
 - **Immutable Core**: Class file data structures are immutable after parsing
-- **Feature Flags**: `pretty_print` for disassembly output, `hotpath-*` for profiling (experimental), `log-runtime-traces` for debugging
+- **Feature Flags**: `javap_print` for disassembly output, `hotpath-*` for profiling (experimental),
+  `log-runtime-traces` for debugging
 - **Naming Conventions**: `Err` suffix for error types, `Info` for data structures, `Ref` for reference types
 
 ### Architecture Patterns
@@ -39,7 +46,7 @@ Educational and fun Rust implementation of a Java Virtual Machine (JVM) targetin
 - **CI Pipeline**: GitHub Actions with matrix testing (Rust stable + JDK 25.0.1)
 - **Feature Matrix**: `cargo hack` for comprehensive feature combination testing
 - **Snapshot Verification**: Output comparison against stored snapshots for regression testing
-- **Test Fixtures**: `prepare_fixtures.py` script compiles Java test classes and extracts JDK classes
+- **Test Fixtures**: `build.rs` scripts in each crate automatically compile Java test classes during build
 
 ### Git Workflow
 
@@ -60,7 +67,8 @@ Educational and fun Rust implementation of a Java Virtual Machine (JVM) targetin
 ### Java Runtime Concepts
 
 - **Class Loading**: Binary parsing, verification, preparation, resolution, initialization
-- **Memory Management**: Heap (objects), method area (metadata), string pool (interned strings). **No garbage collection yet.**
+- **Memory Management**: Heap (objects), method area (metadata), string pool (interned strings). **No garbage collection
+  yet.**
 - **Bytecode Semantics**: 200+ opcodes with specific stack and local variable effects
 - **Native Integration**: JNI-like interface for native method invocation
 
@@ -68,7 +76,8 @@ Educational and fun Rust implementation of a Java Virtual Machine (JVM) targetin
 
 - **Current**: Complete class file parsing, basic bytecode execution, JDWP framework (early stage, not functional)
 - **Gaps**: Garbage collection, full JDK compatibility, JIT compilation, complete concurrency
-- **Threading**: Only 2 threads - Rust main thread mapped to Java main thread, and tokio async runtime for JDWP agent. Monitor opcodes are currently no-op.
+- **Threading**: Only 2 threads - Rust main thread mapped to Java main thread, and tokio async runtime for JDWP agent.
+  Monitor opcodes are currently no-op.
 - **Milestone**: "Hello World" execution as primary goal
 - **API Stability**: The API changes frequently (almost each commit) as the project evolves
 
@@ -106,7 +115,7 @@ See each crate section below for detailed dependency information and purpose.
 ```
 workspace (lagertha-vm)
 ├── common (foundation: error types, parsing utilities, logging)
-│   ├── jclass (Java .class file parser with pretty_print feature)
+│   ├── jclass (Java .class file parser with javap_print feature)
 │   ├── jimage (Java module system jimage reader)
 │   ├── runtime (core JVM: interpreter, memory, debugging)
 │   ├── vm (CLI interface and VM launcher)
@@ -125,7 +134,7 @@ workspace (lagertha-vm)
 ### Development Workflow
 
 1. **Local Testing**: `cargo test` in individual crates or root for workspace testing
-2. **Fixture Preparation**: Run `prepare_fixtures.py` to compile test Java classes
+2. **Fixture Preparation**: Handled automatically by `build.rs` during `cargo build`/`cargo test`
 3. **Snapshot Updates**: `cargo insta review` to update snapshots after intentional changes
 4. **Feature Testing**: `cargo hack` for comprehensive feature combination validation
 5. **CI Validation**: GitHub Actions runs full matrix on push/PR
@@ -138,7 +147,8 @@ workspace (lagertha-vm)
 
 ### Purpose
 
-Foundation crate providing shared utilities, error types, parsing helpers, and logging infrastructure for the Rust Java VM workspace. This crate establishes common patterns and types used by all other crates in the workspace.
+Foundation crate providing shared utilities, error types, parsing helpers, and logging infrastructure for the Rust Java
+VM workspace. This crate establishes common patterns and types used by all other crates in the workspace.
 
 ### Tech Stack
 
@@ -160,10 +170,10 @@ Foundation crate providing shared utilities, error types, parsing helpers, and l
 - **Hierarchical Error Enums**: Structured error types in `error.rs` with clear categorization
 - **From<T> Implementations**: Extensive trait implementations for seamless error conversion between layers
 - **Error Categories**:
-  - `SignatureErr`, `TypeDescriptorErr`, `MethodDescriptorErr` - parsing errors
-  - `InstructionErr` - bytecode instruction errors
-  - `LinkageError`, `RuntimePoolError` - runtime linking errors
-  - `ClassFormatErr` - class file validation errors
+    - `SignatureErr`, `TypeDescriptorErr`, `MethodDescriptorErr` - parsing errors
+    - `InstructionErr` - bytecode instruction errors
+    - `LinkageError`, `RuntimePoolError` - runtime linking errors
+    - `ClassFormatErr` - class file validation errors
 
 **Note**: All error types are provisional and will be refactored in the near future as the project evolves.
 
@@ -180,10 +190,10 @@ Foundation crate providing shared utilities, error types, parsing helpers, and l
 - **Instruction Definitions**: Complete JVM opcode set with metadata (byte size, branching behavior)
 - **Allocation Information**: Memory layout details for runtime allocation planning
 
-#### Pretty Printing
+#### Javap Printing
 
 - **IndentWriter**: Utilities for formatted output with consistent indentation
-- **Macro Support**: `pretty_try!` and `pretty_class_name_try!` macros for error-handling during display
+- **Macro Support**: `try_javap_print!` and other macros for error-handling during display
 - **Logging Integration**: `init_tracing()` for structured logging setup
 
 ### Testing Approach
@@ -205,7 +215,7 @@ src/
 ├── signature.rs (generic signature parsing)
 └── utils/
     ├── cursor.rs (binary parsing)
-    ├── indent_write.rs (pretty printing)
+    ├── indent_write.rs (javap printing)
     └── logging.rs (tracing setup)
 ```
 
@@ -222,14 +232,16 @@ src/
 
 ### Purpose
 
-Complete **Java 25** `.class` file parser implementing JVM Specification SE 25 Chapter 4. Provides structured representation of class files with validation, constant pool resolution, and pretty-printing capabilities similar to `javap -v -p`.
+Complete **Java 25** `.class` file parser implementing JVM Specification SE 25 Chapter 4. Provides structured
+representation of class files with validation, constant pool resolution, and javap-printing capabilities similar to
+`javap -v -p`.
 
 ### Tech Stack
 
 - **Core Dependencies**: `num_enum` (0.7.4), `itertools` (0.14.0)
-- **Optional Dependency**: `either` (1.15.0) only under `pretty_print` feature
+- **Optional Dependency**: `either` (1.15.0) only under `javap_print` feature
 - **Internal Dependency**: `common` (path) for error types and parsing utilities
-- **Feature Flags**: `pretty_print` enables formatted Display implementation
+- **Feature Flags**: `javap_print` enables formatted Display implementation
 
 ### Workspace Context
 
@@ -254,10 +266,11 @@ Complete **Java 25** `.class` file parser implementing JVM Specification SE 25 C
 - **Constant Pool Handling**: Properly skips double-width entries (Long/Double)
 - **Trailing Byte Detection**: Validates no extra bytes after parsing completes
 
-#### Pretty Printing System
+#### javap Printing System
 
-- **Feature-Gated**: `pretty_print` feature enables comprehensive Display implementations
-- **Internal javap Tool Compatibility**: Output designed to match Oracle's `javap -v -p` format for comparison with the internal `javap` crate
+- **Feature-Gated**: `javap_print` feature enables comprehensive Display implementations
+- **Internal javap Tool Compatibility**: Output designed to match Oracle's `javap -v -p` format for comparison with the
+  internal `javap` crate
 - **Structured Formatting**: Consistent column widths, comments, and indentation
 - **Generic Support**: Displays generic signatures when Signature attribute present
 
@@ -270,8 +283,10 @@ Complete **Java 25** `.class` file parser implementing JVM Specification SE 25 C
 ### Testing Approach
 
 - **Minimal Unit Tests**: Basic parsing tests for individual structures
-- **Integration Validation**: Primary validation through comparison with Oracle's `javap -v -p` output via the internal `javap` crate
-- **No Dedicated Unit Test Suite**: The `jclass` crate currently has minimal unit tests and is primarily validated through the `javap` crate's integration tests
+- **Integration Validation**: Primary validation through comparison with Oracle's `javap -v -p` output via the internal
+  `javap` crate
+- **No Dedicated Unit Test Suite**: The `jclass` crate currently has minimal unit tests and is primarily validated
+  through the `javap` crate's integration tests
 - **Java 25 Focus**: Currently targets Java 25 class file format
 
 ### Module Structure
@@ -279,7 +294,7 @@ Complete **Java 25** `.class` file parser implementing JVM Specification SE 25 C
 ```
 src/
 ├── lib.rs (ClassFile definition and parsing)
-├── flags.rs (access flag definitions and pretty printing)
+├── flags.rs (access flag definitions and javap printing)
 ├── constant/
 │   ├── mod.rs (ConstantInfo enum)
 │   └── pool.rs (ConstantPool struct)
@@ -290,7 +305,6 @@ src/
 │   ├── class.rs (class-level attributes)
 │   ├── field.rs (field attributes)
 │   └── method.rs (method attributes)
-└── print.rs (pretty printing, under pretty_print feature)
 ```
 
 ### Important Constraints
@@ -299,7 +313,7 @@ src/
 - **Error Recovery**: Should fail gracefully with helpful error messages for invalid input
 - **Performance**: Efficient parsing suitable for runtime class loading
 - **Memory Usage**: Avoid excessive copying; use references to original data where possible
-- **Feature Isolation**: `pretty_print` should not affect parsing performance or memory layout
+- **Feature Isolation**: `javap_print` should not affect parsing performance or memory layout
 
 ---
 
@@ -307,9 +321,12 @@ src/
 
 ### Purpose
 
-Java module system `jimage` file reader for Java 9+ runtime images. Provides memory-mapped access to Java runtime modules (like `/java.base`) for efficient class loading without filesystem extraction. Implements the jimage format specification for locating and extracting resources from Java runtime images.
+Java module system `jimage` file reader for Java 9+ runtime images. Provides memory-mapped access to Java runtime
+modules (like `/java.base`) for efficient class loading without filesystem extraction. Implements the jimage format
+specification for locating and extracting resources from Java runtime images.
 
-**Note**: The jimage format is not officially documented by Oracle. This implementation is based on publicly available sources and AI-assisted analysis.
+**Note**: The jimage format is not officially documented by Oracle. This implementation is based on publicly available
+sources and AI-assisted analysis.
 
 ### Tech Stack
 
@@ -376,14 +393,17 @@ src/
 
 ### Purpose
 
-Core JVM implementation providing class loading, memory management, bytecode interpretation, native method registration, and JDWP debugging support. This crate is the heart of the Java Virtual Machine where bytecode execution happens.
+Core JVM implementation providing class loading, memory management, bytecode interpretation, native method registration,
+and JDWP debugging support. This crate is the heart of the Java Virtual Machine where bytecode execution happens.
 
 **Note**: JDWP debugging is in early stage and does not work yet.
 
 ### Tech Stack
 
-- **Core Dependencies**: `once_cell`, `libc`, `lasso`, `dashmap`, `tokio` (sync/net/rt), `byteorder`, `num_enum`, `smallvec`, `itertools`, `walkdir`
-- **Workspace Dependencies**: `hotpath` (experimental performance profiling, not heavily used or properly configured), `tracing-log` (structured logging)
+- **Core Dependencies**: `once_cell`, `libc`, `lasso`, `dashmap`, `tokio` (sync/net/rt), `byteorder`, `num_enum`,
+  `smallvec`, `itertools`, `walkdir`
+- **Workspace Dependencies**: `hotpath` (experimental performance profiling, not heavily used or properly configured),
+  `tracing-log` (structured logging)
 - **Internal Dependencies**: `jclass`, `jimage`, `common` (all workspace crates)
 
 ### Workspace Context
@@ -401,10 +421,11 @@ Core JVM implementation providing class loading, memory management, bytecode int
 - **VmConfig**: Configuration for heap size, classpath, JDWP port, Java version validation
 - **Memory Management**: Heap using `mmap`, object allocation with headers, string interning via `lasso`
 - **Threading Model**: Only 2 threads currently:
-  1. Rust main thread mapped to Java main thread
-  2. Tokio async runtime for JDWP agent
-  - `dashmap` for concurrent data structures
-  - **Monitor opcodes are currently no-op** - only the Rust main thread is mapped to Java main thread
+    1. Rust main thread mapped to Java main thread
+    2. Tokio async runtime for JDWP agent
+
+    - `dashmap` for concurrent data structures
+    - **Monitor opcodes are currently no-op** - only the Rust main thread is mapped to Java main thread
 
 #### Module Organization
 
@@ -441,7 +462,8 @@ src/
 #### Feature Flags
 
 - **`log-runtime-traces`**: Enables detailed execution tracing via `debug_log!` macros
-- **`hotpath`**: Experimental performance measurement for interpreter hot paths (not heavily used, not properly configured)
+- **`hotpath`**: Experimental performance measurement for interpreter hot paths (not heavily used, not properly
+  configured)
 - **`hotpath-alloc`**: Experimental performance measurement for allocation paths (not heavily used)
 - **`hotpath-off`**: Disables all hotpath instrumentation
 
@@ -485,12 +507,14 @@ src/
 
 ### Purpose
 
-Command-line interface that parses arguments, configures the runtime environment, and launches the JVM. Acts as the main entry point for running Java programs, providing integration testing for the entire Java VM workspace.
+Command-line interface that parses arguments, configures the runtime environment, and launches the JVM. Acts as the main
+entry point for running Java programs, providing integration testing for the entire Java VM workspace.
 
 ### Tech Stack
 
 - **Core Dependencies**: `clap` (with derive feature) for command-line argument parsing
-- **Workspace Dependencies**: `hotpath` (experimental performance profiling, not heavily used), `tracing-log` (structured logging)
+- **Workspace Dependencies**: `hotpath` (experimental performance profiling, not heavily used), `tracing-log` (
+  structured logging)
 - **Internal Dependencies**: `runtime` (core JVM), `common` (shared utilities)
 - **Testing Dependencies**: `assert_cmd`, `insta`, `rstest` for integration testing
 
@@ -536,14 +560,14 @@ Command-line interface that parses arguments, configures the runtime environment
 #### Test Categories
 
 1. **Non-Error Cases** (`non_error_cases`): Tests successful program execution
-   - Matches files named `*OkMain.class` in compiled test fixtures
-   - Compares stdout/stderr against snapshots
-   - Verifies exit code 0
+    - Matches files named `*OkMain.class` in compiled test fixtures
+    - Compares stdout/stderr against snapshots
+    - Verifies exit code 0
 
 2. **Error Cases** (`error_cases`): Tests error handling and failure modes
-   - Matches files named `*ErrMain.class` in compiled test fixtures
-   - Verifies non-zero exit codes
-   - Tests error message formatting
+    - Matches files named `*ErrMain.class` in compiled test fixtures
+    - Verifies non-zero exit codes
+    - Tests error message formatting
 
 #### Testing Structure
 
@@ -570,18 +594,21 @@ tests/
 
 ### Purpose
 
-Java class file disassembler tool that prints the structure of `.class` files (equivalent to `javap -v -p`). Demonstrates and tests the `jclass` crate's parsing capabilities while providing a useful standalone utility for examining Java bytecode. Targets **Java 25** class file format.
+Java class file disassembler tool that prints the structure of `.class` files (equivalent to `javap -v -p`).
+Demonstrates and tests the `jclass` crate's parsing capabilities while providing a useful standalone utility for
+examining Java bytecode. Targets **Java 25** class file format.
 
 ### Tech Stack
 
-- **Core Dependencies**: `jclass` (with `pretty_print` feature), `sha2` (SHA-256 checksums), `chrono` (timestamp formatting)
+- **Core Dependencies**: `jclass` (with `javap_print` feature), `sha2` (SHA-256 checksums), `chrono` (timestamp
+  formatting)
 - **Build Dependencies**: `serde`, `toml`, `tempfile` (fixture configuration parsing)
 - **Dev Dependencies**: `assert_cmd`, `insta`, `rstest` (integration testing)
 
 ### Workspace Context
 
 - **This Crate Role**: Tool and test harness - validates `jclass` crate against Oracle's javap
-- **Internal Dependencies**: `jclass` (class file parsing with `pretty_print` feature)
+- **Internal Dependencies**: `jclass` (class file parsing with `javap_print` feature)
 - **Internal Dependents**: None (standalone tool)
 - **Navigation**: References `jclass::` namespace for class file parsing and display
 
@@ -591,13 +618,15 @@ Java class file disassembler tool that prints the structure of `.class` files (e
 
 - **Class File Processing**: Reads `.class` files, computes SHA-256 checksum, extracts metadata
 - **Path Resolution**: Handles both dotted (`java.lang.Object`) and slash-separated (`java/lang/Object`) class names
-- **Pretty Printing**: Uses `jclass` crate's `Display` implementation for formatted output
+- **Javap Printing**: Uses `jclass` crate's `Display` implementation for formatted output
 - **Metadata Display**: Shows file size, modification timestamp, SHA-256 checksum, source file attribute
 
 #### Build System Integration
 
-- **Test Fixture Preparation**: `build.rs` (located in `tests/` folder) extracts JDK module class files from `.jmod` archives based on `fixtures.toml` manifest **solely for test purposes**
-- **Fixture Manifest**: `tests/testdata/fixtures.toml` defines which classes to extract from JDK modules (located in the integration tests folder)
+- **Test Fixture Preparation**: `build.rs` (located in `tests/` folder) extracts JDK module class files from `.jmod`
+  archives based on `fixtures.toml` manifest **solely for test purposes**
+- **Fixture Manifest**: `tests/testdata/fixtures.toml` defines which classes to extract from JDK modules (located in the
+  integration tests folder)
 - **JMOD Extraction**: Uses `jmod` tool to extract classes from JDK module archives
 
 ### Testing Approach
@@ -606,7 +635,8 @@ Java class file disassembler tool that prints the structure of `.class` files (e
 
 - **Oracle Comparison**: Compares output line-by-line with Oracle's `javap -v -p` (whitespace normalized)
 - **Comprehensive Coverage**: Tests all class files defined in `fixtures.toml` manifest
-- **No Snapshot Storage**: Uses direct comparison with Oracle javap output instead of snapshot files. Oracle's `javap` is expected to be deterministic, so snapshots are not needed.
+- **No Snapshot Storage**: Uses direct comparison with Oracle javap output instead of snapshot files. Oracle's `javap`
+  is expected to be deterministic, so snapshots are not needed.
 - **Parameterized Testing**: Uses `rstest` to test all `.class` files in compiled fixtures directory
 
 #### Test Execution

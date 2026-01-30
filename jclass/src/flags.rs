@@ -250,10 +250,10 @@ impl FieldFlags {
     }
 }
 
-#[cfg(feature = "pretty_print")]
+#[cfg(feature = "javap_print")]
 impl InnerClassFlags {
     ///  prints java like class prefix: "public abstract class", "public interface"...
-    pub fn pretty_java_like_prefix(&self) -> String {
+    pub fn javap_java_like_prefix(&self) -> String {
         let mut flags = vec![];
 
         if self.is_public() {
@@ -284,10 +284,10 @@ impl InnerClassFlags {
     }
 }
 
-#[cfg(feature = "pretty_print")]
+#[cfg(feature = "javap_print")]
 impl ClassFlags {
     ///  prints java like class prefix: "public abstract class", "public interface"...
-    pub fn fmt_pretty_java_like_prefix(
+    pub fn javap_fmt_java_like_prefix(
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
     ) -> std::fmt::Result {
@@ -350,10 +350,10 @@ impl ClassFlags {
     }
 }
 
-#[cfg(feature = "pretty_print")]
+#[cfg(feature = "javap_print")]
 impl MethodFlags {
     ///  prints java like class prefix: "public static final"...
-    pub fn fmt_pretty_java_like_prefix(
+    pub fn javap_fmt_java_like_prefix(
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
     ) -> std::fmt::Result {
@@ -425,9 +425,9 @@ impl MethodFlags {
     }
 }
 
-#[cfg(feature = "pretty_print")]
+#[cfg(feature = "javap_print")]
 impl MethodParamFlags {
-    pub fn fmt_pretty(
+    pub fn javap_fmt(
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
     ) -> std::fmt::Result {
@@ -447,10 +447,10 @@ impl MethodParamFlags {
     }
 }
 
-#[cfg(feature = "pretty_print")]
+#[cfg(feature = "javap_print")]
 impl FieldFlags {
     /// Java-like modifier prefix for a field header
-    pub fn fmt_field_pretty_java_like_prefix(
+    pub fn fmt_field_javap_java_like_prefix(
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
     ) -> std::fmt::Result {

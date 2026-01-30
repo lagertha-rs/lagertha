@@ -153,21 +153,21 @@ impl<'a> StackMapFrame {
         }
     }
 
-    #[cfg(feature = "pretty_print")]
-    pub(crate) fn fmt_pretty(
+    #[cfg(feature = "javap_print")]
+    pub(crate) fn javap_fmt(
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &ConstantPool,
         this: &u16,
     ) -> std::fmt::Result {
-        use common::pretty_try;
+        use common::try_javap_print;
         use std::fmt::Write as _;
 
-        let get_pretty_verif_type =
+        let get_javap_verif_type =
             |locals: &Vec<VerificationTypeInfo>| -> Result<String, ClassFormatErr> {
                 locals
                     .iter()
-                    .map(|v| v.get_pretty_value(cp, this))
+                    .map(|v| v.get_javap_value(cp, this))
                     .collect::<Result<Vec<_>, _>>()
                     .map(|v| v.join(", "))
             };
@@ -184,7 +184,7 @@ impl<'a> StackMapFrame {
                     writeln!(
                         ind,
                         "stack = [ {} ]",
-                        pretty_try!(ind, stack.get_pretty_value(cp, this))
+                        try_javap_print!(ind, stack.get_javap_value(cp, this))
                     )?;
                     Ok(())
                 })?;
@@ -199,7 +199,7 @@ impl<'a> StackMapFrame {
                     writeln!(
                         ind,
                         "stack = [ {} ]",
-                        pretty_try!(ind, stack.get_pretty_value(cp, this))
+                        try_javap_print!(ind, stack.get_javap_value(cp, this))
                     )?;
                     Ok(())
                 })?;
@@ -229,7 +229,7 @@ impl<'a> StackMapFrame {
                     writeln!(
                         ind,
                         "locals = [{}]",
-                        pretty_try!(ind, get_pretty_verif_type(locals))
+                        try_javap_print!(ind, get_javap_verif_type(locals))
                     )?;
                     Ok(())
                 })?;
@@ -245,12 +245,12 @@ impl<'a> StackMapFrame {
                     writeln!(
                         ind,
                         "locals = [{}]",
-                        pretty_try!(ind, get_pretty_verif_type(locals))
+                        try_javap_print!(ind, get_javap_verif_type(locals))
                     )?;
                     writeln!(
                         ind,
                         "stack = [{}]",
-                        pretty_try!(ind, get_pretty_verif_type(stack))
+                        try_javap_print!(ind, get_javap_verif_type(stack))
                     )?;
                     Ok(())
                 })?;
@@ -278,8 +278,8 @@ impl<'a> VerificationTypeInfo {
         })
     }
 
-    #[cfg(feature = "pretty_print")]
-    pub(crate) fn get_pretty_value(
+    #[cfg(feature = "javap_print")]
+    pub(crate) fn get_javap_value(
         &self,
         cp: &ConstantPool,
         this: &u16,
@@ -293,7 +293,7 @@ impl<'a> VerificationTypeInfo {
             VerificationTypeInfo::Null => "null".to_string(),
             VerificationTypeInfo::UninitializedThis => "this".to_string(),
             VerificationTypeInfo::Object(cp_index) => {
-                cp.get_raw(cp_index)?.get_pretty_type_and_value(cp, this)?
+                cp.get_raw(cp_index)?.get_javap_type_and_value(cp, this)?
             }
             VerificationTypeInfo::Uninitialized(idx) => format!("uninitialized {idx}"),
         })
@@ -365,14 +365,14 @@ impl<'a> CodeAttributeInfo {
         }
     }
 
-    #[cfg(feature = "pretty_print")]
-    pub(crate) fn fmt_pretty(
+    #[cfg(feature = "javap_print")]
+    pub(crate) fn javap_fmt(
         &self,
         ind: &mut common::utils::indent_write::Indented<'_>,
         cp: &ConstantPool,
         this: &u16,
     ) -> std::fmt::Result {
-        use common::pretty_try;
+        use common::try_javap_print;
         use std::fmt::Write as _;
 
         match self {
@@ -397,8 +397,8 @@ impl<'a> CodeAttributeInfo {
                     "Start", "Length", "Slot", "Name",
                 )?;
                 for lv in table {
-                    let name = pretty_try!(ind, cp.get_utf8(&lv.name_index));
-                    let descriptor = pretty_try!(ind, cp.get_utf8(&lv.descriptor_index));
+                    let name = try_javap_print!(ind, cp.get_utf8(&lv.name_index));
+                    let descriptor = try_javap_print!(ind, cp.get_utf8(&lv.descriptor_index));
                     writeln!(
                         ind,
                         "{:>W_START$} {:>W_LENGTH$} {:>W_SLOT$}  {:<W_NAME$} {}",
@@ -410,7 +410,7 @@ impl<'a> CodeAttributeInfo {
                 writeln!(ind, "StackMapTable: number_of_entries = {}", table.len())?;
                 ind.with_indent(|ind| {
                     for frame in table {
-                        frame.fmt_pretty(ind, cp, this)?;
+                        frame.javap_fmt(ind, cp, this)?;
                     }
                     Ok(())
                 })?;
@@ -428,8 +428,8 @@ impl<'a> CodeAttributeInfo {
                         "Start", "Length", "Slot", "Name"
                     )?;
                     for lv in table {
-                        let name = pretty_try!(ind, cp.get_utf8(&lv.name_index));
-                        let signature = pretty_try!(ind, cp.get_utf8(&lv.signature_index));
+                        let name = try_javap_print!(ind, cp.get_utf8(&lv.name_index));
+                        let signature = try_javap_print!(ind, cp.get_utf8(&lv.signature_index));
                         writeln!(
                             ind,
                             "{:>W_START$} {:>W_LENGTH$} {:>W_SLOT$}  {:<W_NAME$}   {}",
