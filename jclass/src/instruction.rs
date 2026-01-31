@@ -1,5 +1,4 @@
-use crate::constant::pool::ConstantPool;
-use common::error::{ClassFormatErr, InstructionErr};
+use common::error::InstructionErr;
 use common::utils::cursor::ByteCursor;
 use num_enum::TryFromPrimitive;
 use std::fmt::Formatter;
@@ -1209,7 +1208,13 @@ impl Instruction {
     }
 
     #[cfg(feature = "javap_print")]
-    fn get_comment(&self, cp: &ConstantPool, this: &u16) -> Result<Option<String>, ClassFormatErr> {
+    fn get_comment(
+        &self,
+        cp: &crate::constant::pool::ConstantPool,
+        this: &u16,
+    ) -> Result<Option<String>, common::error::ClassFormatErr> {
+        use common::error::ClassFormatErr;
+
         let comment_value = |index: &u16| -> Result<Option<String>, ClassFormatErr> {
             let constant = cp.get_raw(index)?;
             Ok(Some(constant.get_javap_type_and_value(cp, this)?))
@@ -1239,10 +1244,10 @@ impl Instruction {
     #[cfg(feature = "javap_print")]
     pub fn get_javap_instruction_string(
         &self,
-        cp: &ConstantPool,
+        cp: &crate::constant::pool::ConstantPool,
         pc: i32,
         this: &u16,
-    ) -> Result<String, ClassFormatErr> {
+    ) -> Result<String, common::error::ClassFormatErr> {
         use std::fmt::Write;
 
         let val = self.get_value(pc);
