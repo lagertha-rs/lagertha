@@ -302,7 +302,6 @@ impl<'a> ConstantInfo {
 
     //TODO: check, don't want to spend too much time here, it is AI generated
     #[cfg(feature = "javap_print")]
-    #[cfg(feature = "javap_print")]
     pub fn format_float_minimal_javap(x: f32) -> String {
         use std::f32;
 
