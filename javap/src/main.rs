@@ -27,7 +27,7 @@ fn main() {
     let m = file.metadata().expect("Metadata err");
     let modified_time = m.modified().expect("Error getting modified time");
     let datetime: DateTime<Local> = modified_time.into();
-    let formatted_date = datetime.format("%b %d, %Y").to_string();
+    let formatted_date = datetime.format("%b %-d, %Y").to_string();
     let file_size = m.len();
 
     let mut buf = Vec::with_capacity(m.len() as usize);
