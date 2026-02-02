@@ -7,3 +7,4 @@ vm/tests/testdata/compiled
 javap/tests/testdata/compiled
 
 test.ja
+.run*
