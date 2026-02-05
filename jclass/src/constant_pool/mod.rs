@@ -6,8 +6,8 @@
 
 use common::error::ClassFormatErr;
 
-pub mod entry;
-pub mod types;
+mod entry;
+mod types;
 
 // Re-export commonly used types at the module level
 pub use entry::{ConstantEntry, ConstantKind};
