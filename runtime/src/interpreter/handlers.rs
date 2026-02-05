@@ -7,11 +7,8 @@ use crate::rt::constant_pool::RuntimeConstant;
 use crate::thread::JavaThreadState;
 use crate::vm::Value;
 use crate::{VirtualMachine, throw_exception};
-use common::jtype::{AllocationType, PrimitiveType};
-use itertools::Either;
-use jclass::instruction::{ArrayType, LookupSwitchData, TableSwitchData};
+use jclass::prelude::{ArrayType, LookupSwitchData, TableSwitchData};
 use std::cmp::Ordering;
-use std::num::NonZero;
 use tracing_log::log::warn;
 
 fn branch16(bci: usize, off: i16) -> usize {

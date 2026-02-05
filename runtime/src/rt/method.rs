@@ -7,7 +7,7 @@ use jclass::attribute::method::code::{
 };
 use jclass::attribute::method::{CodeAttribute, ExceptionTableEntry, MethodAttribute};
 use jclass::flags::MethodFlags;
-use jclass::method::MethodInfo;
+use jclass::prelude::MethodInfo;
 use std::cell::OnceCell;
 
 pub struct CodeBody {
