@@ -1,25 +1,57 @@
-use crate::attribute::class::ClassAttr;
-use crate::constant::pool::ConstantPool;
+//! Complete Java 25 `.class` file parser.
+//!
+//! This crate provides structured representation of Java class files with parsing,
+//! validation, and javap-style printing capabilities.
+
+use crate::attribute::ClassAttribute;
+use crate::constant_pool::{ConstantEntry, ConstantPool};
 use crate::flags::ClassFlags;
+use crate::member::{FieldInfo, MethodInfo};
 use common::error::ClassFormatErr;
 use common::utils::cursor::ByteCursor;
-use constant::ConstantInfo;
-use field::FieldInfo;
-use method::MethodInfo;
 
 pub mod attribute;
-pub mod constant;
-pub mod field;
+pub mod bytecode;
+pub mod constant_pool;
 pub mod flags;
-pub mod instruction;
-pub mod method;
+pub mod member;
+pub mod prelude;
+
+// Keep old modules for backwards compatibility during transition
+// TODO: Remove after updating all dependent crates
+#[doc(hidden)]
+#[deprecated(note = "Use constant_pool module instead")]
+pub mod constant {
+    pub use crate::constant_pool as pool;
+    pub use crate::constant_pool::ConstantEntry as ConstantInfo;
+}
+
+#[doc(hidden)]
+#[deprecated(note = "Use member::FieldInfo instead")]
+pub mod field {
+    pub use crate::member::FieldInfo;
+}
+
+#[doc(hidden)]
+#[deprecated(note = "Use member::MethodInfo instead")]
+pub mod method {
+    pub use crate::member::MethodInfo;
+}
+
+#[doc(hidden)]
+#[deprecated(note = "Use bytecode module instead")]
+pub mod instruction {
+    pub use crate::bytecode::{ArrayType, Instruction, LookupSwitchData, Opcode, TableSwitchData};
+}
 
 // TODO: review all access levels in the crate (methods, fields, modules, structs, etc.)
-// TODO: align enums that end with "Info"/"Ref" and "Type"/"Kind" suffixes
 
+/// A Rust representation of a Java `.class` file.
+///
 /// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html
-/// A rust representation of a Java .class file. All structures in the crates have public only public
-/// fields for easier access, because anyway it will be remapped to runtime structures.
+///
+/// All structures in the crate have public fields for easier access,
+/// because they will be remapped to runtime structures.
 ///
 /// All print related code is behind the `javap_print` feature flag.
 #[derive(Debug)]
@@ -33,7 +65,7 @@ pub struct ClassFile {
     pub interfaces: Vec<u16>,
     pub fields: Vec<FieldInfo>,
     pub methods: Vec<MethodInfo>,
-    pub attributes: Vec<ClassAttr>,
+    pub attributes: Vec<ClassAttribute>,
 }
 
 impl ClassFile {
@@ -64,16 +96,16 @@ impl TryFrom<Vec<u8>> for ClassFile {
         let major_version = cursor.u16()?;
         let constant_pool_count = cursor.u16()?;
         let mut constant_pool = Vec::with_capacity((constant_pool_count + 1) as usize);
-        constant_pool.push(ConstantInfo::Unused);
+        constant_pool.push(ConstantEntry::Unused);
         let mut i = 1;
         while i < constant_pool_count {
-            let constant = ConstantInfo::read(&mut cursor)?;
+            let constant = ConstantEntry::read(&mut cursor)?;
             constant_pool.push(constant.clone());
             match constant {
                 // described in JVM spec that Long and Double take two entries in the constant pool
                 // https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.4.5
-                ConstantInfo::Long(_) | ConstantInfo::Double(_) => {
-                    constant_pool.push(ConstantInfo::Unused);
+                ConstantEntry::Long(_) | ConstantEntry::Double(_) => {
+                    constant_pool.push(ConstantEntry::Unused);
                     i += 2;
                 }
                 _ => {
@@ -106,7 +138,7 @@ impl TryFrom<Vec<u8>> for ClassFile {
         let attributes_count = cursor.u16()?;
         let mut attributes = Vec::with_capacity(attributes_count as usize);
         for _ in 0..attributes_count {
-            attributes.push(ClassAttr::read(&constant_pool, &mut cursor)?);
+            attributes.push(ClassAttribute::read(&constant_pool, &mut cursor)?);
         }
 
         if cursor.u8().is_ok() {
@@ -150,7 +182,7 @@ impl ClassFile {
             try_javap_print!(ind, self.cp.get_javap_class_name(&self.super_class));
         let super_is_object = super_class_name == "java.lang.Object";
         if let Some(sig_index) = self.attributes.iter().find_map(|attr| {
-            if let ClassAttr::Shared(shared) = attr {
+            if let ClassAttribute::Shared(shared) = attr {
                 match shared {
                     SharedAttribute::Signature(sig_index) => Some(sig_index),
                     _ => None,
@@ -272,10 +304,10 @@ impl std::fmt::Display for ClassFile {
                 .map_or(0, |d| d as usize)
                 + 2;
             for (i, c) in self.cp.inner.iter().enumerate() {
-                if matches!(c, ConstantInfo::Unused) {
+                if matches!(c, ConstantEntry::Unused) {
                     continue;
                 }
-                let tag = format_args!("{:<kw$}", c.get_tag(), kw = Self::CONSTANT_KIND_WIDTH);
+                let tag = format_args!("{:<kw$}", c.get_kind(), kw = Self::CONSTANT_KIND_WIDTH);
                 write!(ind, "{:>w$} = {} ", format!("#{i}"), tag, w = counter_width)?;
                 c.javap_fmt(ind, &self.cp)?;
             }

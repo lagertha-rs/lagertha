@@ -1,7 +1,7 @@
-use crate::ClassFormatErr;
 use crate::attribute::method::code::CodeAttributeInfo;
-use crate::attribute::{Annotation, AttributeType, SharedAttribute};
-use crate::constant::pool::ConstantPool;
+use crate::attribute::{Annotation, AttributeKind, SharedAttribute};
+use crate::constant_pool::ConstantPool;
+use crate::ClassFormatErr;
 use common::utils::cursor::ByteCursor;
 
 pub mod code;
@@ -66,18 +66,18 @@ impl<'a> MethodAttribute {
         let attribute_name_index = cursor.u16()?;
         let _attribute_length = cursor.u32()? as usize;
 
-        let attribute_type = AttributeType::try_from(pool.get_utf8(&attribute_name_index)?)?;
-        match attribute_type {
-            AttributeType::Code => Ok(MethodAttribute::Code(CodeAttribute::read(pool, cursor)?)),
-            AttributeType::RuntimeVisibleAnnotations
-            | AttributeType::Synthetic
-            | AttributeType::Deprecated
-            | AttributeType::RuntimeInvisibleAnnotations
-            | AttributeType::Signature => Ok(MethodAttribute::Shared(SharedAttribute::read(
-                attribute_type,
+        let attribute_kind = AttributeKind::try_from(pool.get_utf8(&attribute_name_index)?)?;
+        match attribute_kind {
+            AttributeKind::Code => Ok(MethodAttribute::Code(CodeAttribute::read(pool, cursor)?)),
+            AttributeKind::RuntimeVisibleAnnotations
+            | AttributeKind::Synthetic
+            | AttributeKind::Deprecated
+            | AttributeKind::RuntimeInvisibleAnnotations
+            | AttributeKind::Signature => Ok(MethodAttribute::Shared(SharedAttribute::read(
+                attribute_kind,
                 cursor,
             )?)),
-            AttributeType::MethodParameters => {
+            AttributeKind::MethodParameters => {
                 let parameters_count = cursor.u8()? as usize;
                 let mut parameters = Vec::with_capacity(parameters_count);
                 for _ in 0..parameters_count {
@@ -85,7 +85,7 @@ impl<'a> MethodAttribute {
                 }
                 Ok(MethodAttribute::MethodParameters(parameters))
             }
-            AttributeType::Exceptions => {
+            AttributeKind::Exceptions => {
                 let number_of_exceptions = cursor.u16()?;
                 let mut exception_index_table = Vec::with_capacity(number_of_exceptions as usize);
                 for _ in 0..number_of_exceptions {
@@ -93,7 +93,7 @@ impl<'a> MethodAttribute {
                 }
                 Ok(MethodAttribute::Exceptions(exception_index_table))
             }
-            AttributeType::RuntimeVisibleParameterAnnotations => {
+            AttributeKind::RuntimeVisibleParameterAnnotations => {
                 let number_of_parameters = cursor.u8()?;
                 let mut parameter_annotations = Vec::with_capacity(number_of_parameters as usize);
                 for _ in 0..number_of_parameters {
@@ -108,7 +108,7 @@ impl<'a> MethodAttribute {
                     parameter_annotations,
                 ))
             }
-            AttributeType::RuntimeInvisibleParameterAnnotations => {
+            AttributeKind::RuntimeInvisibleParameterAnnotations => {
                 let number_of_parameters = cursor.u8()?;
                 let mut parameter_annotations = Vec::with_capacity(number_of_parameters as usize);
                 for _ in 0..number_of_parameters {
@@ -297,7 +297,7 @@ impl<'a> CodeAttribute {
         this: &u16,
         is_static: bool,
     ) -> std::fmt::Result {
-        use crate::instruction::Instruction;
+        use crate::bytecode::Instruction;
         use common::try_javap_print;
         use std::fmt::Write as _;
 

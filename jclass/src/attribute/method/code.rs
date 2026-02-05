@@ -1,6 +1,6 @@
+use crate::attribute::AttributeKind;
+use crate::constant_pool::ConstantPool;
 use crate::ClassFormatErr;
-use crate::attribute::AttributeType;
-use crate::constant::pool::ConstantPool;
 use common::utils::cursor::ByteCursor;
 use num_enum::TryFromPrimitive;
 
@@ -308,9 +308,9 @@ impl<'a> CodeAttributeInfo {
         let attribute_name_index = cursor.u16()?;
         let _attribute_length = cursor.u32()? as usize;
 
-        let attribute_type = AttributeType::try_from(pool.get_utf8(&attribute_name_index)?)?;
-        match attribute_type {
-            AttributeType::LineNumberTable => {
+        let attribute_kind = AttributeKind::try_from(pool.get_utf8(&attribute_name_index)?)?;
+        match attribute_kind {
+            AttributeKind::LineNumberTable => {
                 let line_number_table_length = cursor.u16()? as usize;
                 let mut line_number_table = Vec::with_capacity(line_number_table_length);
                 for _ in 0..line_number_table_length {
@@ -321,7 +321,7 @@ impl<'a> CodeAttributeInfo {
                 }
                 Ok(CodeAttributeInfo::LineNumberTable(line_number_table))
             }
-            AttributeType::LocalVariableTable => {
+            AttributeKind::LocalVariableTable => {
                 let local_variable_table_length = cursor.u16()?;
                 let mut local_variable_table =
                     Vec::with_capacity(local_variable_table_length as usize);
@@ -336,7 +336,7 @@ impl<'a> CodeAttributeInfo {
                 }
                 Ok(CodeAttributeInfo::LocalVariableTable(local_variable_table))
             }
-            AttributeType::LocalVariableTypeTable => {
+            AttributeKind::LocalVariableTypeTable => {
                 let local_variable_table_type_length = cursor.u16()?;
                 let mut local_variable_type_table =
                     Vec::with_capacity(local_variable_table_type_length as usize);
@@ -353,7 +353,7 @@ impl<'a> CodeAttributeInfo {
                     local_variable_type_table,
                 ))
             }
-            AttributeType::StackMapTable => {
+            AttributeKind::StackMapTable => {
                 let frames_count = cursor.u16()?;
                 let mut frames = Vec::with_capacity(frames_count as usize);
                 for _ in 0..frames_count {

@@ -1,9 +1,11 @@
-use crate::ClassFormatErr;
 use crate::attribute::field::FieldAttribute;
-use crate::constant::pool::ConstantPool;
+use crate::constant_pool::ConstantPool;
 use crate::flags::FieldFlags;
+use common::error::ClassFormatErr;
 use common::utils::cursor::ByteCursor;
 
+/// A field in a class file.
+///
 /// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.5
 #[derive(Debug)]
 pub struct FieldInfo {

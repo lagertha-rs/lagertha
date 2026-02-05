@@ -1,9 +1,11 @@
-use crate::ClassFormatErr;
 use crate::attribute::method::MethodAttribute;
-use crate::constant::pool::ConstantPool;
+use crate::constant_pool::ConstantPool;
 use crate::flags::MethodFlags;
+use common::error::ClassFormatErr;
 use common::utils::cursor::ByteCursor;
 
+/// A method in a class file.
+///
 /// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.6
 #[derive(Debug)]
 pub struct MethodInfo {
