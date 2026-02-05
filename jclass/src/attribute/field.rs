@@ -1,5 +1,5 @@
-use crate::attribute::{AttributeType, SharedAttribute};
-use crate::constant::pool::ConstantPool;
+use crate::attribute::{AttributeKind, SharedAttribute};
+use crate::constant_pool::ConstantPool;
 use common::error::ClassFormatErr;
 use common::utils::cursor::ByteCursor;
 
@@ -17,14 +17,14 @@ impl<'a> FieldAttribute {
         let attribute_name_index = cursor.u16()?;
         let _attribute_length = cursor.u32()? as usize;
 
-        let attribute_type = AttributeType::try_from(pool.get_utf8(&attribute_name_index)?)?;
-        match attribute_type {
-            AttributeType::ConstantValue => Ok(FieldAttribute::ConstantValue(cursor.u16()?)),
-            AttributeType::RuntimeVisibleAnnotations
-            | AttributeType::Synthetic
-            | AttributeType::Deprecated
-            | AttributeType::Signature => Ok(FieldAttribute::Shared(SharedAttribute::read(
-                attribute_type,
+        let attribute_kind = AttributeKind::try_from(pool.get_utf8(&attribute_name_index)?)?;
+        match attribute_kind {
+            AttributeKind::ConstantValue => Ok(FieldAttribute::ConstantValue(cursor.u16()?)),
+            AttributeKind::RuntimeVisibleAnnotations
+            | AttributeKind::Synthetic
+            | AttributeKind::Deprecated
+            | AttributeKind::Signature => Ok(FieldAttribute::Shared(SharedAttribute::read(
+                attribute_kind,
                 cursor,
             )?)),
             _ => unimplemented!(),

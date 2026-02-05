@@ -1,4 +1,3 @@
-use crate::MethodId;
 use crate::error::JvmError;
 use crate::heap::method_area::MethodArea;
 use crate::keys::{ClassId, FieldKey, MethodKey, ThreadId};
@@ -6,12 +5,13 @@ use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::field::StaticField;
 use crate::rt::method::Method;
 use crate::rt::{BaseClass, ClassLike, JvmClass};
-use jclass::ClassFile;
-use jclass::attribute::class::ClassAttr;
-use jclass::constant::pool::ConstantPool;
-use jclass::field::FieldInfo;
+use crate::MethodId;
+use jclass::attribute::ClassAttribute;
+use jclass::constant_pool::ConstantPool;
 use jclass::flags::ClassFlags;
-use jclass::method::MethodInfo;
+use jclass::member::FieldInfo;
+use jclass::member::MethodInfo;
+use jclass::ClassFile;
 use once_cell::sync::OnceCell;
 use std::collections::{HashMap, HashSet};
 use std::sync::RwLock;
@@ -153,12 +153,12 @@ impl InterfaceClass {
         Ok(())
     }
 
-    fn prepare_cp(cp: ConstantPool, attr: &mut Vec<ClassAttr>) -> RuntimeConstantPool {
+    fn prepare_cp(cp: ConstantPool, attr: &mut Vec<ClassAttribute>) -> RuntimeConstantPool {
         let methods = attr
             .iter()
-            .position(|a| matches!(a, ClassAttr::BootstrapMethods(_)))
+            .position(|a| matches!(a, ClassAttribute::BootstrapMethods(_)))
             .map(|pos| match attr.remove(pos) {
-                ClassAttr::BootstrapMethods(m) => m,
+                ClassAttribute::BootstrapMethods(m) => m,
                 _ => unreachable!(),
             })
             .unwrap_or_default();

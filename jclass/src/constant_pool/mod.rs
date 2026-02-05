@@ -1,10 +1,24 @@
-use crate::constant::{ConstantInfo, ConstantTag};
+//! Constant pool types and structures.
+//!
+//! The constant pool is a table of structures representing various string constants,
+//! class and interface names, field names, and other constants that are referred to
+//! within the ClassFile structure and its substructures.
+
 use common::error::ClassFormatErr;
 
+pub mod entry;
+pub mod types;
+
+// Re-export commonly used types at the module level
+pub use entry::{ConstantEntry, ConstantKind};
+pub use types::{Dynamic, MethodHandle, MethodHandleKind, NameAndType, Reference};
+
+/// The constant pool of a class file.
+///
 /// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.4
 #[derive(Debug, Clone, PartialEq)]
 pub struct ConstantPool {
-    pub inner: Vec<ConstantInfo>,
+    pub inner: Vec<ConstantEntry>,
 }
 
 impl ConstantPool {
@@ -13,11 +27,11 @@ impl ConstantPool {
             .get(*idx as usize)
             .ok_or(ClassFormatErr::ConstantNotFound(*idx))
             .and_then(|entry| match entry {
-                ConstantInfo::Utf8(value) => Ok(value.as_str()),
+                ConstantEntry::Utf8(value) => Ok(value.as_str()),
                 e => Err(ClassFormatErr::TypeError(
                     *idx,
-                    ConstantTag::Utf8.to_string(),
-                    e.get_tag().to_string(),
+                    ConstantKind::Utf8.to_string(),
+                    e.get_kind().to_string(),
                 )),
             })
     }
@@ -32,11 +46,11 @@ impl ConstantPool {
             .get(*idx as usize)
             .ok_or(ClassFormatErr::ConstantNotFound(*idx))
             .and_then(|entry| match entry {
-                ConstantInfo::Class(name_index) => Ok(*name_index),
+                ConstantEntry::Class(name_index) => Ok(*name_index),
                 e => Err(ClassFormatErr::TypeError(
                     *idx,
-                    ConstantTag::Class.to_string(),
-                    e.get_tag().to_string(),
+                    ConstantKind::Class.to_string(),
+                    e.get_kind().to_string(),
                 )),
             })
     }
@@ -49,7 +63,7 @@ impl ConstantPool {
         self.get_utf8(idx).map(|raw| raw.escape_debug().to_string())
     }
 
-    pub fn get_raw(&self, idx: &u16) -> Result<&ConstantInfo, ClassFormatErr> {
+    pub fn get_raw(&self, idx: &u16) -> Result<&ConstantEntry, ClassFormatErr> {
         self.inner
             .get(*idx as usize)
             .ok_or(ClassFormatErr::ConstantNotFound(*idx))
@@ -60,11 +74,11 @@ impl ConstantPool {
             .get(*idx as usize)
             .ok_or(ClassFormatErr::ConstantNotFound(*idx))
             .and_then(|entry| match entry {
-                ConstantInfo::Integer(value) => Ok(value),
+                ConstantEntry::Integer(value) => Ok(value),
                 e => Err(ClassFormatErr::TypeError(
                     *idx,
-                    ConstantTag::Integer.to_string(),
-                    e.get_tag().to_string(),
+                    ConstantKind::Integer.to_string(),
+                    e.get_kind().to_string(),
                 )),
             })
     }
@@ -90,82 +104,61 @@ impl ConstantPool {
         self.get_javap_class_name_utf8(&name_index)
     }
 
-    pub fn get_methodref(
-        &self,
-        idx: &u16,
-    ) -> Result<&crate::constant::ReferenceInfo, ClassFormatErr> {
+    pub fn get_methodref(&self, idx: &u16) -> Result<&Reference, ClassFormatErr> {
         self.inner
             .get(*idx as usize)
             .ok_or(ClassFormatErr::ConstantNotFound(*idx))
             .and_then(|entry| match entry {
-                ConstantInfo::MethodRef(ref_info) => Ok(ref_info),
-                ConstantInfo::InterfaceMethodRef(ref_info) => Ok(ref_info),
+                ConstantEntry::MethodRef(ref_info) => Ok(ref_info),
+                ConstantEntry::InterfaceMethodRef(ref_info) => Ok(ref_info),
                 e => Err(ClassFormatErr::TypeError(
                     *idx,
-                    ConstantTag::MethodRef.to_string(),
-                    e.get_tag().to_string(),
+                    ConstantKind::MethodRef.to_string(),
+                    e.get_kind().to_string(),
                 )),
             })
     }
 
-    pub fn get_name_and_type(
-        &self,
-        idx: &u16,
-    ) -> Result<&crate::constant::NameAndTypeInfo, ClassFormatErr> {
+    pub fn get_name_and_type(&self, idx: &u16) -> Result<&NameAndType, ClassFormatErr> {
         self.inner
             .get(*idx as usize)
             .ok_or(ClassFormatErr::ConstantNotFound(*idx))
             .and_then(|entry| match entry {
-                ConstantInfo::NameAndType(ref_info) => Ok(ref_info),
+                ConstantEntry::NameAndType(ref_info) => Ok(ref_info),
                 e => Err(ClassFormatErr::TypeError(
                     *idx,
-                    ConstantTag::NameAndType.to_string(),
-                    e.get_tag().to_string(),
+                    ConstantKind::NameAndType.to_string(),
+                    e.get_kind().to_string(),
                 )),
             })
     }
 
-    pub fn get_nat_name(
-        &self,
-        nat: &crate::constant::NameAndTypeInfo,
-    ) -> Result<&str, ClassFormatErr> {
+    pub fn get_nat_name(&self, nat: &NameAndType) -> Result<&str, ClassFormatErr> {
         self.get_utf8(&nat.name_index)
     }
 
-    pub fn get_nat_descriptor(
-        &self,
-        nat: &crate::constant::NameAndTypeInfo,
-    ) -> Result<&str, ClassFormatErr> {
+    pub fn get_nat_descriptor(&self, nat: &NameAndType) -> Result<&str, ClassFormatErr> {
         self.get_utf8(&nat.descriptor_index)
     }
 
-    pub fn get_dyn_info_name(
-        &self,
-        dyn_info: &crate::constant::DynamicInfo,
-    ) -> Result<&str, ClassFormatErr> {
+    pub fn get_dyn_info_name(&self, dyn_info: &Dynamic) -> Result<&str, ClassFormatErr> {
         let nat = self.get_name_and_type(&dyn_info.name_and_type_index)?;
         self.get_nat_name(nat)
     }
 
-    pub fn get_dyn_info_descriptor(
-        &self,
-        dyn_info: &crate::constant::DynamicInfo,
-    ) -> Result<&str, ClassFormatErr> {
+    pub fn get_dyn_info_descriptor(&self, dyn_info: &Dynamic) -> Result<&str, ClassFormatErr> {
         let nat = self.get_name_and_type(&dyn_info.name_and_type_index)?;
         self.get_nat_descriptor(nat)
     }
 
     pub fn get_method_or_field_class_name(
         &self,
-        method_ref: &crate::constant::ReferenceInfo,
+        method_ref: &Reference,
     ) -> Result<String, ClassFormatErr> {
         self.get_javap_class_name_for_cp_print(&method_ref.class_index)
     }
 
-    pub fn get_method_or_field_name(
-        &self,
-        method_ref: &crate::constant::ReferenceInfo,
-    ) -> Result<&str, ClassFormatErr> {
+    pub fn get_method_or_field_name(&self, method_ref: &Reference) -> Result<&str, ClassFormatErr> {
         let nat_index = method_ref.name_and_type_index;
         let nat = self.get_name_and_type(&nat_index)?;
         self.get_nat_name(nat)
@@ -181,7 +174,7 @@ impl ConstantPool {
 
     pub fn get_method_or_field_descriptor(
         &self,
-        ref_info: &crate::constant::ReferenceInfo,
+        ref_info: &Reference,
     ) -> Result<&str, ClassFormatErr> {
         let nat_index = ref_info.name_and_type_index;
         let desc_index = self.get_name_and_type(&nat_index)?;

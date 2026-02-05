@@ -5,13 +5,13 @@ use crate::rt::constant_pool::RuntimeConstantPool;
 use crate::rt::field::{InstanceField, StaticField};
 use crate::rt::method::Method;
 use crate::rt::{BaseClass, ClassLike, JvmClass};
-use crate::{MethodId, Symbol, build_exception, throw_exception};
-use jclass::ClassFile;
-use jclass::attribute::class::ClassAttr;
-use jclass::constant::pool::ConstantPool;
-use jclass::field::FieldInfo;
+use crate::{build_exception, throw_exception, MethodId, Symbol};
+use jclass::attribute::ClassAttribute;
+use jclass::constant_pool::ConstantPool;
 use jclass::flags::ClassFlags;
-use jclass::method::MethodInfo;
+use jclass::member::FieldInfo;
+use jclass::member::MethodInfo;
+use jclass::ClassFile;
 use once_cell::sync::OnceCell;
 use std::collections::{HashMap, HashSet};
 use std::sync::RwLock;
@@ -41,14 +41,14 @@ impl InstanceClass {
         flags: ClassFlags,
         cp: RuntimeConstantPool,
         this_class: u16,
-        attributes: Vec<ClassAttr>,
+        attributes: Vec<ClassAttribute>,
     ) -> Result<ClassId, JvmError> {
         let name = cp.get_class_sym(&this_class, method_area.interner())?;
 
         //TODO: clean up
         let mut source_file = None;
         for attr in &attributes {
-            if let ClassAttr::SourceFile(sourcefile_index) = attr {
+            if let ClassAttribute::SourceFile(sourcefile_index) = attr {
                 source_file = Some(cp.get_utf8_sym(sourcefile_index, method_area.interner())?);
                 break;
             }
@@ -320,12 +320,12 @@ impl InstanceClass {
         Ok(())
     }
 
-    fn prepare_cp(cp: ConstantPool, attr: &mut Vec<ClassAttr>) -> RuntimeConstantPool {
+    fn prepare_cp(cp: ConstantPool, attr: &mut Vec<ClassAttribute>) -> RuntimeConstantPool {
         let methods = attr
             .iter()
-            .position(|a| matches!(a, ClassAttr::BootstrapMethods(_)))
+            .position(|a| matches!(a, ClassAttribute::BootstrapMethods(_)))
             .map(|pos| match attr.remove(pos) {
-                ClassAttr::BootstrapMethods(m) => m,
+                ClassAttribute::BootstrapMethods(m) => m,
                 _ => unreachable!(),
             })
             .unwrap_or_default();

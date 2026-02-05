@@ -1,158 +1,30 @@
+//! Attribute types for class files.
+//!
+//! https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7
+
 use crate::ClassFormatErr;
-use common::utils::cursor::ByteCursor;
 use core::fmt;
-use num_enum::TryFromPrimitive;
 use std::fmt::Formatter;
 
+pub mod annotation;
 pub mod class;
 pub mod field;
 pub mod method;
+pub mod shared;
+pub mod type_annotation;
 
-// TODO: this block is AI, I want to sleep and don't want to write it. need to rewrite
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum TargetInfo {
-    TypeParameter {
-        type_parameter_index: u8,
-    },
-    Supertype {
-        supertype_index: u16,
-    },
-    TypeParameterBound {
-        type_parameter_index: u8,
-        bound_index: u8,
-    },
-    Empty,
-    MethodFormalParameter {
-        formal_parameter_index: u8,
-    },
-    Throws {
-        throws_type_index: u16,
-    },
-    LocalVar {
-        localvar_table: Vec<LocalVarEntry>,
-    },
-    Catch {
-        exception_table_index: u16,
-    },
-    Offset {
-        offset: u16,
-    },
-    TypeArgument {
-        offset: u16,
-        type_argument_index: u8,
-    },
-}
+pub use annotation::{Annotation, ElementKind, ElementValue, ElementValuePair};
+pub use class::ClassAttribute;
+pub use field::FieldAttribute;
+pub use method::MethodAttribute;
+pub use shared::SharedAttribute;
+pub use type_annotation::{LocalVarEntry, TargetInfo, TypeAnnotation, TypePath, TypePathEntry};
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct LocalVarEntry {
-    pub start_pc: u16,
-    pub length: u16,
-    pub index: u16,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct TypePath {
-    pub path: Vec<TypePathEntry>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct TypePathEntry {
-    pub type_path_kind: u8,
-    pub type_argument_index: u8,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct TypeAnnotation {
-    pub target_info: TargetInfo,
-    pub target_path: TypePath,
-    pub type_index: u16,
-    pub element_value_pairs: Vec<ElementValuePair>,
-}
-
-impl<'a> TypeAnnotation {
-    pub(crate) fn read(cursor: &mut ByteCursor<'a>) -> Result<Self, ClassFormatErr> {
-        let target_type = cursor.u8()?;
-
-        let target_info = match target_type {
-            0x00 => TargetInfo::TypeParameter {
-                type_parameter_index: cursor.u8()?,
-            },
-            0x01 => TargetInfo::Supertype {
-                supertype_index: cursor.u16()?,
-            },
-            0x10 => TargetInfo::TypeParameterBound {
-                type_parameter_index: cursor.u8()?,
-                bound_index: cursor.u8()?,
-            },
-            0x11 => TargetInfo::Empty,
-            0x12 => TargetInfo::MethodFormalParameter {
-                formal_parameter_index: cursor.u8()?,
-            },
-            0x13 => TargetInfo::Throws {
-                throws_type_index: cursor.u16()?,
-            },
-            0x14 => {
-                let table_length = cursor.u16()?;
-                let mut localvar_table = Vec::with_capacity(table_length as usize);
-                for _ in 0..table_length {
-                    localvar_table.push(LocalVarEntry {
-                        start_pc: cursor.u16()?,
-                        length: cursor.u16()?,
-                        index: cursor.u16()?,
-                    });
-                }
-                TargetInfo::LocalVar { localvar_table }
-            }
-            0x15 => TargetInfo::Catch {
-                exception_table_index: cursor.u16()?,
-            },
-            0x16 => TargetInfo::Offset {
-                offset: cursor.u16()?,
-            },
-            0x17 => TargetInfo::TypeArgument {
-                offset: cursor.u16()?,
-                type_argument_index: cursor.u8()?,
-            },
-            _ => unimplemented!(),
-        };
-
-        // Read type_path
-        let path_length = cursor.u8()?;
-        let mut path = Vec::with_capacity(path_length as usize);
-        for _ in 0..path_length {
-            path.push(TypePathEntry {
-                type_path_kind: cursor.u8()?,
-                type_argument_index: cursor.u8()?,
-            });
-        }
-        let target_path = TypePath { path };
-
-        // Read annotation data
-        let type_index = cursor.u16()?;
-        let num_element_value_pairs = cursor.u16()?;
-        let mut element_value_pairs = Vec::with_capacity(num_element_value_pairs as usize);
-        for _ in 0..num_element_value_pairs {
-            element_value_pairs.push(ElementValuePair::read(cursor)?);
-        }
-
-        Ok(Self {
-            target_info,
-            target_path,
-            type_index,
-            element_value_pairs,
-        })
-    }
-}
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
+/// Discriminant for attribute types defined in the JVM specification.
+///
 /// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum AttributeType {
+pub enum AttributeKind {
     ConstantValue,
     Code,
     Exceptions,
@@ -185,393 +57,7 @@ pub enum AttributeType {
     PermittedSubclasses,
 }
 
-/// Common attribute payloads that appear at multiple locations
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum SharedAttribute {
-    Synthetic,
-    Deprecated,
-    Signature(u16),
-    RuntimeVisibleAnnotations(Vec<Annotation>),
-    RuntimeInvisibleAnnotations(Vec<Annotation>),
-    RuntimeVisibleTypeAnnotations(Vec<TypeAnnotation>),
-    RuntimeInvisibleTypeAnnotations(Vec<TypeAnnotation>),
-}
-
-impl<'a> SharedAttribute {
-    pub(crate) fn read(
-        attr_type: AttributeType,
-        cursor: &mut ByteCursor<'a>,
-    ) -> Result<Self, ClassFormatErr> {
-        match attr_type {
-            AttributeType::Synthetic => Ok(SharedAttribute::Synthetic),
-            AttributeType::Deprecated => Ok(SharedAttribute::Deprecated),
-            AttributeType::Signature => {
-                let signature_index = cursor.u16()?;
-                Ok(SharedAttribute::Signature(signature_index))
-            }
-            AttributeType::RuntimeVisibleAnnotations => {
-                let num_annotations = cursor.u16()?;
-                let mut annotations = Vec::with_capacity(num_annotations as usize);
-                for _ in 0..num_annotations {
-                    annotations.push(Annotation::read(cursor)?);
-                }
-                Ok(SharedAttribute::RuntimeVisibleAnnotations(annotations))
-            }
-            AttributeType::RuntimeInvisibleAnnotations => {
-                let num_annotations = cursor.u16()?;
-                let mut annotations = Vec::with_capacity(num_annotations as usize);
-                for _ in 0..num_annotations {
-                    annotations.push(Annotation::read(cursor)?);
-                }
-                Ok(SharedAttribute::RuntimeInvisibleAnnotations(annotations))
-            }
-            AttributeType::RuntimeInvisibleTypeAnnotations => {
-                let num_annotations = cursor.u16()?;
-                let mut annotations = Vec::with_capacity(num_annotations as usize);
-                for _ in 0..num_annotations {
-                    annotations.push(TypeAnnotation::read(cursor)?);
-                }
-                Ok(SharedAttribute::RuntimeInvisibleTypeAnnotations(
-                    annotations,
-                ))
-            }
-            AttributeType::RuntimeVisibleTypeAnnotations => {
-                let num_annotations = cursor.u16()?;
-                let mut annotations = Vec::with_capacity(num_annotations as usize);
-                for _ in 0..num_annotations {
-                    annotations.push(TypeAnnotation::read(cursor)?);
-                }
-                Ok(SharedAttribute::RuntimeVisibleTypeAnnotations(annotations))
-            }
-            _ => Err(ClassFormatErr::AttributeIsNotShared(attr_type.to_string())),
-        }
-    }
-
-    #[cfg(feature = "javap_print")]
-    fn fmt_annotations(
-        ind: &mut common::utils::indent_write::Indented<'_>,
-        cp: &crate::constant::pool::ConstantPool,
-        annotations: &[Annotation],
-    ) -> fmt::Result {
-        use common::try_javap_print;
-        use common::try_javap_print_class_name;
-        use itertools::Itertools;
-        use std::fmt::Write as _;
-
-        for (i, annotation) in annotations.iter().enumerate() {
-            writeln!(
-                ind,
-                "{i}: #{}({})",
-                annotation.type_index,
-                annotation
-                    .element_value_pairs
-                    .iter()
-                    .map(|pair| format!(
-                        "#{}={}",
-                        pair.element_name_index,
-                        pair.value.get_javap_descriptor()
-                    ))
-                    .join(",")
-            )?;
-            ind.with_indent(|ind| {
-                write!(
-                    ind,
-                    "{}",
-                    try_javap_print_class_name!(ind, cp.get_utf8(&annotation.type_index))
-                )?;
-                if !annotation.element_value_pairs.is_empty() {
-                    writeln!(ind, "(")?;
-                    for param in &annotation.element_value_pairs {
-                        ind.with_indent(|ind| {
-                            writeln!(
-                                ind,
-                                "{}={}",
-                                try_javap_print!(ind, cp.get_utf8(&param.element_name_index)),
-                                try_javap_print!(ind, param.value.get_javap_value(cp))
-                            )?;
-                            Ok(())
-                        })?;
-                    }
-                    writeln!(ind, ")")?;
-                } else {
-                    writeln!(ind)?;
-                }
-                Ok(())
-            })?;
-        }
-        Ok(())
-    }
-
-    #[cfg(feature = "javap_print")]
-    pub(crate) fn javap_fmt(
-        &self,
-        ind: &mut common::utils::indent_write::Indented<'_>,
-        cp: &crate::constant::pool::ConstantPool,
-    ) -> fmt::Result {
-        use common::try_javap_print;
-        use std::fmt::Write as _;
-
-        match self {
-            SharedAttribute::Synthetic => unimplemented!(),
-            SharedAttribute::Deprecated => writeln!(ind, "Deprecated: true")?,
-            SharedAttribute::Signature(index) => writeln!(
-                ind,
-                "Signature: #{:<26} // {}",
-                index,
-                try_javap_print!(ind, cp.get_utf8(index)),
-            )?,
-            SharedAttribute::RuntimeVisibleAnnotations(annotations) => {
-                writeln!(ind, "RuntimeVisibleAnnotations:")?;
-                ind.with_indent(|ind| Self::fmt_annotations(ind, cp, annotations))?
-            }
-            SharedAttribute::RuntimeInvisibleAnnotations(annotations) => {
-                writeln!(ind, "RuntimeInvisibleAnnotations:")?;
-                ind.with_indent(|ind| Self::fmt_annotations(ind, cp, annotations))?
-            }
-            SharedAttribute::RuntimeVisibleTypeAnnotations(annotations) => {
-                writeln!(ind, "RuntimeVisibleTypeAnnotations:")?;
-                ind.with_indent(|ind| Self::fmt_type_annotations(ind, cp, annotations))?
-            }
-            SharedAttribute::RuntimeInvisibleTypeAnnotations(annotations) => {
-                writeln!(ind, "RuntimeInvisibleTypeAnnotations:")?;
-                ind.with_indent(|ind| Self::fmt_type_annotations(ind, cp, annotations))?
-            }
-        }
-
-        Ok(())
-    }
-
-    #[cfg(feature = "javap_print")]
-    fn fmt_type_annotations(
-        ind: &mut common::utils::indent_write::Indented<'_>,
-        cp: &crate::constant::pool::ConstantPool,
-        annotations: &[TypeAnnotation],
-    ) -> fmt::Result {
-        use common::try_javap_print_class_name;
-        use itertools::Itertools;
-        use std::fmt::Write as _;
-
-        for (i, annotation) in annotations.iter().enumerate() {
-            // Format target info
-            let target_str = match &annotation.target_info {
-                TargetInfo::TypeParameter {
-                    type_parameter_index,
-                } => format!("CLASS_TYPE_PARAMETER, param_index={type_parameter_index}"),
-                TargetInfo::Supertype { supertype_index } => {
-                    format!("CLASS_EXTENDS, type_index={supertype_index}")
-                }
-                TargetInfo::TypeParameterBound {
-                    type_parameter_index,
-                    bound_index,
-                } => format!(
-                    "CLASS_TYPE_PARAMETER_BOUND, param_index={type_parameter_index}, bound_index={bound_index}"
-                ),
-                TargetInfo::Empty => "EMPTY".to_string(),
-                TargetInfo::MethodFormalParameter {
-                    formal_parameter_index,
-                } => format!("METHOD_FORMAL_PARAMETER, param_index={formal_parameter_index}"),
-                TargetInfo::Throws { throws_type_index } => {
-                    format!("THROWS, type_index={throws_type_index}")
-                }
-                TargetInfo::LocalVar { localvar_table } => {
-                    let entries = localvar_table
-                        .iter()
-                        .map(|e| {
-                            format!(
-                                "start_pc={}, length={}, index={}",
-                                e.start_pc, e.length, e.index
-                            )
-                        })
-                        .join("; ");
-                    format!("LOCAL_VARIABLE, {{{entries}}}")
-                }
-                TargetInfo::Catch {
-                    exception_table_index,
-                } => format!("EXCEPTION_PARAMETER, exception_index={exception_table_index}"),
-                TargetInfo::Offset { offset } => format!("OFFSET, offset={offset}"),
-                TargetInfo::TypeArgument {
-                    offset,
-                    type_argument_index,
-                } => format!(
-                    "TYPE_ARGUMENT, offset={offset}, type_argument_index={type_argument_index}"
-                ),
-            };
-
-            // Format element value pairs
-            let pairs_str = if annotation.element_value_pairs.is_empty() {
-                String::new()
-            } else {
-                annotation
-                    .element_value_pairs
-                    .iter()
-                    .map(|pair| {
-                        format!(
-                            "#{}={}",
-                            pair.element_name_index,
-                            pair.value.get_javap_descriptor()
-                        )
-                    })
-                    .join(",")
-            };
-
-            writeln!(
-                ind,
-                "{i}: #{}({pairs_str}): {target_str}",
-                annotation.type_index
-            )?;
-            ind.with_indent(|ind| {
-                let type_name =
-                    try_javap_print_class_name!(ind, cp.get_utf8(&annotation.type_index));
-                writeln!(ind, "{type_name}")?;
-                Ok(())
-            })?;
-        }
-        Ok(())
-    }
-}
-
-/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7.16
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Annotation {
-    pub type_index: u16,
-    pub element_value_pairs: Vec<ElementValuePair>,
-}
-
-impl<'a> Annotation {
-    pub(crate) fn read(cursor: &mut ByteCursor<'a>) -> Result<Self, ClassFormatErr> {
-        let type_index = cursor.u16()?;
-        let num_element_value_pairs = cursor.u16()?;
-        let mut element_value_pairs = Vec::with_capacity(num_element_value_pairs as usize);
-
-        for _ in 0..num_element_value_pairs {
-            element_value_pairs.push(ElementValuePair::read(cursor)?)
-        }
-
-        Ok(Self {
-            type_index,
-            element_value_pairs,
-        })
-    }
-}
-
-/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7.16
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ElementValuePair {
-    pub element_name_index: u16,
-    pub value: ElementValue,
-}
-
-impl<'a> ElementValuePair {
-    pub(crate) fn read(cursor: &mut ByteCursor<'a>) -> Result<Self, ClassFormatErr> {
-        Ok(Self {
-            element_name_index: cursor.u16()?,
-            value: ElementValue::read(cursor)?,
-        })
-    }
-}
-
-/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7.16.1
-#[derive(Debug, Clone, PartialEq, Eq, TryFromPrimitive)]
-#[repr(u8)]
-pub enum ElementTag {
-    Byte = b'B',
-    Char = b'C',
-    Double = b'D',
-    Float = b'F',
-    Int = b'I',
-    Long = b'J',
-    Short = b'S',
-    Boolean = b'Z',
-    String = b's',
-    EnumClass = b'e',
-    Class = b'c',
-    AnnotationInterface = b'@',
-    ArrayType = b'[',
-}
-
-/// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7.16.1
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ElementValue {
-    Byte(u16),
-    Char(u16),
-    Double(u16),
-    Float(u16),
-    Int(u16),
-    Long(u16),
-    Short(u16),
-    Boolean(u16),
-    String(u16),
-    EnumConstValue {
-        type_name_index: u16,
-        const_name_index: u16,
-    },
-    Class(u16),
-    AnnotationValue(Annotation),
-    Array(Vec<ElementValue>),
-}
-
-impl<'a> ElementValue {
-    pub(crate) fn read(cursor: &mut ByteCursor<'a>) -> Result<Self, ClassFormatErr> {
-        let raw_tag = cursor.u8()?;
-        let tag = ElementTag::try_from_primitive(raw_tag)
-            .map_err(|_| ClassFormatErr::UnknownTag(raw_tag))?;
-
-        let ev = match tag {
-            ElementTag::Byte => Self::Byte(cursor.u16()?),
-            ElementTag::Char => Self::Char(cursor.u16()?),
-            ElementTag::Double => Self::Double(cursor.u16()?),
-            ElementTag::Float => Self::Float(cursor.u16()?),
-            ElementTag::Int => Self::Int(cursor.u16()?),
-            ElementTag::Long => Self::Long(cursor.u16()?),
-            ElementTag::Short => Self::Short(cursor.u16()?),
-            ElementTag::Boolean => Self::Boolean(cursor.u16()?),
-            ElementTag::String => Self::String(cursor.u16()?),
-            ElementTag::EnumClass => Self::EnumConstValue {
-                type_name_index: cursor.u16()?,
-                const_name_index: cursor.u16()?,
-            },
-            ElementTag::Class => Self::Class(cursor.u16()?),
-            ElementTag::AnnotationInterface => Self::AnnotationValue(Annotation::read(cursor)?),
-            ElementTag::ArrayType => {
-                let element_types = cursor.u16()?;
-                let mut elements = Vec::with_capacity(element_types as usize);
-                for _ in 0..element_types {
-                    elements.push(Self::read(cursor)?)
-                }
-                ElementValue::Array(elements)
-            }
-        };
-
-        Ok(ev)
-    }
-
-    #[cfg(feature = "javap_print")]
-    pub fn get_javap_descriptor(&self) -> String {
-        match self {
-            ElementValue::Boolean(v) => format!("Z#{}", v),
-            ElementValue::String(v) => format!("s#{}", v),
-            _ => unimplemented!(),
-        }
-    }
-
-    #[cfg(feature = "javap_print")]
-    pub(crate) fn get_javap_value(
-        &self,
-        cp: &crate::constant::pool::ConstantPool,
-    ) -> Result<String, ClassFormatErr> {
-        Ok(match self {
-            ElementValue::Boolean(idx) => match cp.get_integer(idx)? {
-                0 => "false".to_string(),
-                1 => "true".to_string(),
-                _ => unimplemented!(),
-            },
-            ElementValue::String(idx) => format!("\"{}\"", cp.get_utf8(idx)?),
-            _ => unimplemented!(),
-        })
-    }
-}
-
-impl AttributeType {
+impl AttributeKind {
     const ATTR_CONSTANT_VALUE: &'static str = "ConstantValue";
     const ATTR_CODE: &'static str = "Code";
     const ATTR_EXCEPTIONS: &'static str = "Exceptions";
@@ -646,7 +132,7 @@ impl AttributeType {
     }
 }
 
-impl TryFrom<&str> for AttributeType {
+impl TryFrom<&str> for AttributeKind {
     type Error = ClassFormatErr;
 
     fn try_from(s: &str) -> Result<Self, Self::Error> {
@@ -690,9 +176,14 @@ impl TryFrom<&str> for AttributeType {
     }
 }
 
-impl fmt::Display for AttributeType {
+impl fmt::Display for AttributeKind {
     #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.write_str(self.as_str())
     }
 }
+
+// Re-export the old name for backwards compatibility during transition
+#[doc(hidden)]
+#[deprecated(note = "Use AttributeKind instead")]
+pub type AttributeType = AttributeKind;
