@@ -5,7 +5,7 @@ use crate::rt::constant_pool::entry::{
     StringEntry, Utf8Entry,
 };
 use crate::{Symbol, build_exception, throw_exception};
-use jclass::attribute::class::BootstrapMethodEntry;
+use jclass::attribute::BootstrapMethodEntry;
 use jclass::prelude::ConstantEntry;
 use lasso::ThreadedRodeo;
 use std::fmt::Display;

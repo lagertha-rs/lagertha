@@ -1,10 +1,14 @@
 use crate::ClassFormatErr;
-use crate::attribute::method::code::CodeAttributeInfo;
 use crate::attribute::{Annotation, AttributeKind, SharedAttribute};
 use crate::constant_pool::ConstantPool;
 use common::utils::cursor::ByteCursor;
 
 pub mod code;
+
+pub use code::{
+    CodeAttributeInfo, LineNumberEntry, LocalVariableEntry, LocalVariableTypeEntry, StackMapFrame,
+    VerificationTypeInfo, VerificationTypeTag,
+};
 
 /// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7.3
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -50,7 +54,7 @@ pub enum MethodAttribute {
 }
 
 impl MethodParameterEntry {
-    pub fn new(name_index: u16, access_flags: u16) -> Self {
+    pub(crate) fn new(name_index: u16, access_flags: u16) -> Self {
         Self {
             name_index,
             access_flags,

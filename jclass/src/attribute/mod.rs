@@ -6,17 +6,19 @@ use crate::ClassFormatErr;
 use core::fmt;
 use std::fmt::Formatter;
 
-pub mod annotation;
-pub mod class;
-pub mod field;
+mod annotation;
+mod class;
+mod field;
 pub mod method;
-pub mod shared;
-pub mod type_annotation;
+mod shared;
+mod type_annotation;
 
 pub use annotation::{Annotation, ElementKind, ElementValue, ElementValuePair};
-pub use class::ClassAttribute;
+pub use class::{BootstrapMethodEntry, ClassAttribute, InnerClassEntry};
 pub use field::FieldAttribute;
-pub use method::MethodAttribute;
+pub use method::{
+    CodeAttribute, ExceptionTableEntry, MethodAttribute, MethodParameterEntry, ParameterAnnotations,
+};
 pub use shared::SharedAttribute;
 pub use type_annotation::{LocalVarEntry, TargetInfo, TypeAnnotation, TypePath, TypePathEntry};
 

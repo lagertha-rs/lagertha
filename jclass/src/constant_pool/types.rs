@@ -11,7 +11,7 @@ pub struct Reference {
 }
 
 impl Reference {
-    pub fn new(class_index: u16, name_and_type_index: u16) -> Self {
+    pub(crate) fn new(class_index: u16, name_and_type_index: u16) -> Self {
         Self {
             class_index,
             name_and_type_index,
@@ -29,7 +29,7 @@ pub struct NameAndType {
 }
 
 impl NameAndType {
-    pub fn new(name_index: u16, descriptor_index: u16) -> Self {
+    pub(crate) fn new(name_index: u16, descriptor_index: u16) -> Self {
         Self {
             name_index,
             descriptor_index,
@@ -47,7 +47,7 @@ pub struct Dynamic {
 }
 
 impl Dynamic {
-    pub fn new(bootstrap_method_attr_index: u16, name_and_type_index: u16) -> Self {
+    pub(crate) fn new(bootstrap_method_attr_index: u16, name_and_type_index: u16) -> Self {
         Self {
             bootstrap_method_attr_index,
             name_and_type_index,
@@ -65,7 +65,7 @@ pub struct MethodHandle {
 }
 
 impl MethodHandle {
-    pub fn new(reference_kind: u8, reference_index: u16) -> Self {
+    pub(crate) fn new(reference_kind: u8, reference_index: u16) -> Self {
         Self {
             reference_kind,
             reference_index,
