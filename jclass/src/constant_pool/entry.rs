@@ -1,6 +1,6 @@
-use crate::constant_pool::types::{Dynamic, MethodHandle, NameAndType, Reference};
 #[cfg(feature = "javap_print")]
 use crate::constant_pool::ConstantPool;
+use crate::constant_pool::types::{Dynamic, MethodHandle, NameAndType, Reference};
 use common::error::ClassFormatErr;
 use common::utils::cursor::ByteCursor;
 use num_enum::TryFromPrimitive;

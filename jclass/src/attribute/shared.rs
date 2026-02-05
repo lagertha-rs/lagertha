@@ -2,9 +2,9 @@
 //!
 //! These attributes can be attached to classes, fields, methods, and record components.
 
+use super::AttributeKind;
 use super::annotation::Annotation;
 use super::type_annotation::TypeAnnotation;
-use super::AttributeKind;
 use crate::ClassFormatErr;
 use common::utils::cursor::ByteCursor;
 

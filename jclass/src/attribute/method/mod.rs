@@ -1,7 +1,7 @@
+use crate::ClassFormatErr;
 use crate::attribute::method::code::CodeAttributeInfo;
 use crate::attribute::{Annotation, AttributeKind, SharedAttribute};
 use crate::constant_pool::ConstantPool;
-use crate::ClassFormatErr;
 use common::utils::cursor::ByteCursor;
 
 pub mod code;
