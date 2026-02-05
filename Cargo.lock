@@ -935,6 +935,7 @@ dependencies = [
  "assert_cmd",
  "insta",
  "itertools",
+ "jclass",
  "rstest",
  "tabwriter",
 ]

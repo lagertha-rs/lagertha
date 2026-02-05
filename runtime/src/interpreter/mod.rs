@@ -9,7 +9,7 @@ use crate::vm::Value;
 use crate::vm::stack::{FrameType, JavaFrame, NativeFrame};
 use crate::{MethodId, VirtualMachine, build_exception, debug_log_instruction, error_log_method};
 use jclass::attribute::method::ExceptionTableEntry;
-use jclass::instruction::Instruction;
+use jclass::prelude::Instruction;
 use std::ops::ControlFlow;
 use tracing_log::log::warn;
 

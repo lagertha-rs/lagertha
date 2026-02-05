@@ -6,7 +6,7 @@ use crate::rt::constant_pool::entry::{
 };
 use crate::{Symbol, build_exception, throw_exception};
 use jclass::attribute::class::BootstrapMethodEntry;
-use jclass::constant::ConstantInfo;
+use jclass::prelude::ConstantEntry;
 use lasso::ThreadedRodeo;
 use std::fmt::Display;
 
@@ -116,41 +116,41 @@ pub struct RuntimeConstantPool {
 }
 
 impl RuntimeConstantPool {
-    pub fn new(entries: Vec<ConstantInfo>, bootstrap_methods: Vec<BootstrapMethodEntry>) -> Self {
+    pub fn new(entries: Vec<ConstantEntry>, bootstrap_methods: Vec<BootstrapMethodEntry>) -> Self {
         let mut rt_entries = Vec::with_capacity(entries.len());
         for entry in entries {
             let rt_entry = match entry {
-                ConstantInfo::Unused => RuntimeConstant::Unused,
-                ConstantInfo::Utf8(utf8) => RuntimeConstant::Utf8(Utf8Entry::new(utf8)),
-                ConstantInfo::Integer(v) => RuntimeConstant::Integer(v),
-                ConstantInfo::Float(v) => RuntimeConstant::Float(v),
-                ConstantInfo::Long(v) => RuntimeConstant::Long(v),
-                ConstantInfo::Double(v) => RuntimeConstant::Double(v),
-                ConstantInfo::Class(idx) => RuntimeConstant::Class(ClassEntry::new(idx)),
-                ConstantInfo::String(idx) => RuntimeConstant::String(StringEntry::new(idx)),
-                ConstantInfo::MethodRef(ref_info) => RuntimeConstant::Method(MethodEntry::new(
+                ConstantEntry::Unused => RuntimeConstant::Unused,
+                ConstantEntry::Utf8(utf8) => RuntimeConstant::Utf8(Utf8Entry::new(utf8)),
+                ConstantEntry::Integer(v) => RuntimeConstant::Integer(v),
+                ConstantEntry::Float(v) => RuntimeConstant::Float(v),
+                ConstantEntry::Long(v) => RuntimeConstant::Long(v),
+                ConstantEntry::Double(v) => RuntimeConstant::Double(v),
+                ConstantEntry::Class(idx) => RuntimeConstant::Class(ClassEntry::new(idx)),
+                ConstantEntry::String(idx) => RuntimeConstant::String(StringEntry::new(idx)),
+                ConstantEntry::MethodRef(ref_info) => RuntimeConstant::Method(MethodEntry::new(
                     ref_info.class_index,
                     ref_info.name_and_type_index,
                 )),
-                ConstantInfo::FieldRef(ref_info) => RuntimeConstant::Field(FieldEntry::new(
+                ConstantEntry::FieldRef(ref_info) => RuntimeConstant::Field(FieldEntry::new(
                     ref_info.class_index,
                     ref_info.name_and_type_index,
                 )),
-                ConstantInfo::NameAndType(nat_info) => RuntimeConstant::NameAndType(
+                ConstantEntry::NameAndType(nat_info) => RuntimeConstant::NameAndType(
                     NameAndTypeEntry::new(nat_info.name_index, nat_info.descriptor_index),
                 ),
-                ConstantInfo::InterfaceMethodRef(ref_info) => RuntimeConstant::InterfaceMethod(
+                ConstantEntry::InterfaceMethodRef(ref_info) => RuntimeConstant::InterfaceMethod(
                     MethodEntry::new(ref_info.class_index, ref_info.name_and_type_index),
                 ),
-                ConstantInfo::InvokeDynamic(dynamic_info) => {
+                ConstantEntry::InvokeDynamic(dynamic_info) => {
                     RuntimeConstant::InvokeDynamic(InvokeDynamicEntry::new(
                         dynamic_info.bootstrap_method_attr_index,
                         dynamic_info.name_and_type_index,
                     ))
                 }
-                ConstantInfo::MethodType(_) => RuntimeConstant::MethodType,
+                ConstantEntry::MethodType(_) => RuntimeConstant::MethodType,
                 // TODO: handle could have already mapped MethodHandleKind enum instead of u8
-                ConstantInfo::MethodHandle(handle) => {
+                ConstantEntry::MethodHandle(handle) => {
                     let method_handle_type = match handle.reference_kind {
                         1 => MethodHandleType::GetField(handle.reference_index),
                         2 => MethodHandleType::GetStatic(handle.reference_index),
