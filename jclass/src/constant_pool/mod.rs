@@ -6,6 +6,8 @@
 
 use common::error::ClassFormatErr;
 
+#[cfg(feature = "jasm_assemble")]
+mod builder;
 mod entry;
 mod types;
 
