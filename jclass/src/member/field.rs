@@ -1,4 +1,4 @@
-use crate::attribute::field::FieldAttribute;
+use crate::attribute::FieldAttribute;
 use crate::constant_pool::ConstantPool;
 use crate::flags::FieldFlags;
 use common::error::ClassFormatErr;

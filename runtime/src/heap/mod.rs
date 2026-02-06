@@ -3,7 +3,7 @@ use crate::keys::ClassId;
 use crate::vm::Value;
 use crate::{Symbol, debug_error_log, throw_exception};
 use common::jtype::{AllocationType, PrimitiveType};
-use jclass::instruction::ArrayType;
+use jclass::prelude::ArrayType;
 use lasso::ThreadedRodeo;
 use std::collections::HashMap;
 use std::num::NonZeroU32;

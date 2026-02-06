@@ -17,33 +17,6 @@ pub mod flags;
 pub mod member;
 pub mod prelude;
 
-// Keep old modules for backwards compatibility during transition
-// TODO: Remove after updating all dependent crates
-#[doc(hidden)]
-#[deprecated(note = "Use constant_pool module instead")]
-pub mod constant {
-    pub use crate::constant_pool as pool;
-    pub use crate::constant_pool::ConstantEntry as ConstantInfo;
-}
-
-#[doc(hidden)]
-#[deprecated(note = "Use member::FieldInfo instead")]
-pub mod field {
-    pub use crate::member::FieldInfo;
-}
-
-#[doc(hidden)]
-#[deprecated(note = "Use member::MethodInfo instead")]
-pub mod method {
-    pub use crate::member::MethodInfo;
-}
-
-#[doc(hidden)]
-#[deprecated(note = "Use bytecode module instead")]
-pub mod instruction {
-    pub use crate::bytecode::{ArrayType, Instruction, LookupSwitchData, Opcode, TableSwitchData};
-}
-
 // TODO: review all access levels in the crate (methods, fields, modules, structs, etc.)
 
 /// A Rust representation of a Java `.class` file.

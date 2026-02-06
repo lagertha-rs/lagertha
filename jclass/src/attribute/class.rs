@@ -27,7 +27,7 @@ pub struct BootstrapMethodEntry {
 }
 
 impl BootstrapMethodEntry {
-    pub fn new(bootstrap_method_ref: u16, bootstrap_arguments: Vec<u16>) -> Self {
+    pub(crate) fn new(bootstrap_method_ref: u16, bootstrap_arguments: Vec<u16>) -> Self {
         Self {
             bootstrap_method_idx: bootstrap_method_ref,
             bootstrap_arguments,
@@ -44,7 +44,7 @@ pub struct InnerClassEntry {
 }
 
 impl InnerClassEntry {
-    pub fn new(
+    pub(crate) fn new(
         inner_class_info_index: u16,
         outer_class_info_index: u16,
         inner_name_index: u16,
