@@ -13,6 +13,8 @@
 pub use crate::ClassFile;
 
 // Constant pool
+#[cfg(feature = "jasm_assemble")]
+pub use crate::constant_pool::builder::ConstantPoolBuilder;
 pub use crate::constant_pool::{ConstantEntry, ConstantKind, ConstantPool};
 pub use crate::constant_pool::{Dynamic, MethodHandle, MethodHandleKind, NameAndType, Reference};
 
