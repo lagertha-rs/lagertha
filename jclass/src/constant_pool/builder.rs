@@ -23,6 +23,7 @@ impl ConstantPoolBuilder {
         }
     }
 
+    // TODO: constant pool limits?
     fn add_entry(&mut self, entry: ConstantEntry) -> u16 {
         let idx = self.entries.len() as u16;
         let is_wide = matches!(entry, ConstantEntry::Long(_) | ConstantEntry::Double(_));
