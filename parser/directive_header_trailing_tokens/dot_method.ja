@@ -1,0 +1,4 @@
+   .class    HelloWorld    .method public <init>()V .end method
+.super java/lang/Object
+
+.end method

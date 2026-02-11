@@ -1,0 +1,4 @@
+; some comment
+; another comment
+static
+.class public HelloWorld

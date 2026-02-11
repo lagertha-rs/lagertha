@@ -1,0 +1,2 @@
+.end method ; trailing comment
+.class public HelloWorld
