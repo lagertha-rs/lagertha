@@ -1,0 +1,2 @@
+.class public HelloWorld .end method
+.super java/lang/Object

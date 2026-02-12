@@ -1,0 +1,2 @@
+.class  static   ; class name should be here, but is missing
+.super java/lang/Object
