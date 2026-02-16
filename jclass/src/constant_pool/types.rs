@@ -19,6 +19,14 @@ impl Reference {
     }
 }
 
+#[cfg(feature = "jasm_assemble")]
+impl Reference {
+    pub fn write_to(&self, buf: &mut Vec<u8>) {
+        buf.extend_from_slice(&self.class_index.to_be_bytes());
+        buf.extend_from_slice(&self.name_and_type_index.to_be_bytes());
+    }
+}
+
 /// Name and type descriptor pair in the constant pool.
 ///
 /// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.4.6
@@ -34,6 +42,14 @@ impl NameAndType {
             name_index,
             descriptor_index,
         }
+    }
+}
+
+#[cfg(feature = "jasm_assemble")]
+impl NameAndType {
+    pub fn write_to(&self, buf: &mut Vec<u8>) {
+        buf.extend_from_slice(&self.name_index.to_be_bytes());
+        buf.extend_from_slice(&self.descriptor_index.to_be_bytes());
     }
 }
 

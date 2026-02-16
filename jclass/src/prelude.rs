@@ -25,10 +25,12 @@ pub use crate::member::{FieldInfo, MethodInfo};
 pub use crate::bytecode::{ArrayType, Instruction, LookupSwitchData, Opcode, TableSwitchData};
 
 // Attributes
+#[cfg(feature = "jasm_assemble")]
+pub use crate::attribute::AttributeNameMap;
 pub use crate::attribute::{
-    Annotation, AttributeKind, ClassAttribute, ElementKind, ElementValue, ElementValuePair,
-    FieldAttribute, LocalVarEntry, MethodAttribute, SharedAttribute, TargetInfo, TypeAnnotation,
-    TypePath, TypePathEntry,
+    Annotation, AttributeKind, ClassAttribute, CodeAttribute, ElementKind, ElementValue,
+    ElementValuePair, FieldAttribute, LocalVarEntry, MethodAttribute, SharedAttribute, TargetInfo,
+    TypeAnnotation, TypePath, TypePathEntry,
 };
 
 // Flags

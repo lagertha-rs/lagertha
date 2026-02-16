@@ -25,7 +25,7 @@ pub use type_annotation::{LocalVarEntry, TargetInfo, TypeAnnotation, TypePath, T
 /// Discriminant for attribute types defined in the JVM specification.
 ///
 /// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum AttributeKind {
     ConstantValue,
     Code,
@@ -185,7 +185,5 @@ impl fmt::Display for AttributeKind {
     }
 }
 
-// Re-export the old name for backwards compatibility during transition
-#[doc(hidden)]
-#[deprecated(note = "Use AttributeKind instead")]
-pub type AttributeType = AttributeKind;
+#[cfg(feature = "jasm_assemble")]
+pub type AttributeNameMap = std::collections::HashMap<AttributeKind, u16>;

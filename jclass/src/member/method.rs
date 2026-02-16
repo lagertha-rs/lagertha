@@ -7,7 +7,7 @@ use common::utils::cursor::ByteCursor;
 /// A method in a class file.
 ///
 /// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.6
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MethodInfo {
     pub access_flags: MethodFlags,
     pub name_index: u16,
@@ -34,6 +34,19 @@ impl<'a> MethodInfo {
             descriptor_index,
             attributes,
         })
+    }
+}
+
+#[cfg(feature = "jasm_assemble")]
+impl MethodInfo {
+    pub fn write_to(&self, buf: &mut Vec<u8>, attr_names: &crate::attribute::AttributeNameMap) {
+        buf.extend_from_slice(&self.access_flags.get_raw().to_be_bytes());
+        buf.extend_from_slice(&self.name_index.to_be_bytes());
+        buf.extend_from_slice(&self.descriptor_index.to_be_bytes());
+        buf.extend_from_slice(&(self.attributes.len() as u16).to_be_bytes());
+        for attr in &self.attributes {
+            attr.write_to(buf, attr_names);
+        }
     }
 }
 
