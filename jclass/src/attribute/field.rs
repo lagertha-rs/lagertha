@@ -30,28 +30,4 @@ impl<'a> FieldAttribute {
             _ => unimplemented!(),
         }
     }
-
-    #[cfg(feature = "javap_print")]
-    pub(crate) fn javap_fmt(
-        &self,
-        ind: &mut common::utils::indent_write::Indented<'_>,
-        cp: &ConstantPool,
-    ) -> std::fmt::Result {
-        use common::try_javap_print;
-        use std::fmt::Write as _;
-
-        match self {
-            FieldAttribute::Shared(shared) => shared.javap_fmt(ind, cp)?,
-            FieldAttribute::ConstantValue(val) => {
-                let constant = try_javap_print!(ind, cp.get_raw(val));
-                writeln!(
-                    ind,
-                    "ConstantValue: {}",
-                    try_javap_print!(ind, constant.get_javap_type_and_value(cp, &0))
-                )?;
-            }
-        }
-
-        Ok(())
-    }
 }

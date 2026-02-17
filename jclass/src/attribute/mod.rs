@@ -184,6 +184,3 @@ impl fmt::Display for AttributeKind {
         f.write_str(self.as_str())
     }
 }
-
-#[cfg(feature = "jasm_assemble")]
-pub type AttributeNameMap = std::collections::HashMap<AttributeKind, u16>;

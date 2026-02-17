@@ -19,14 +19,6 @@ impl Reference {
     }
 }
 
-#[cfg(feature = "jasm_assemble")]
-impl Reference {
-    pub fn write_to(&self, buf: &mut Vec<u8>) {
-        buf.extend_from_slice(&self.class_index.to_be_bytes());
-        buf.extend_from_slice(&self.name_and_type_index.to_be_bytes());
-    }
-}
-
 /// Name and type descriptor pair in the constant pool.
 ///
 /// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.4.6
@@ -42,14 +34,6 @@ impl NameAndType {
             name_index,
             descriptor_index,
         }
-    }
-}
-
-#[cfg(feature = "jasm_assemble")]
-impl NameAndType {
-    pub fn write_to(&self, buf: &mut Vec<u8>) {
-        buf.extend_from_slice(&self.name_index.to_be_bytes());
-        buf.extend_from_slice(&self.descriptor_index.to_be_bytes());
     }
 }
 
@@ -109,21 +93,4 @@ pub enum MethodHandleKind {
     InvokeSpecial = 7,
     NewInvokeSpecial = 8,
     InvokeInterface = 9,
-}
-
-#[cfg(feature = "javap_print")]
-impl MethodHandleKind {
-    pub(crate) fn get_javap_value(&self) -> Result<&str, ClassFormatErr> {
-        Ok(match self {
-            MethodHandleKind::GetField => "REF_getField",
-            MethodHandleKind::GetStatic => "REF_getStatic",
-            MethodHandleKind::PutField => "REF_putField",
-            MethodHandleKind::PutStatic => "REF_putStatic",
-            MethodHandleKind::InvokeVirtual => "REF_invokeVirtual",
-            MethodHandleKind::InvokeStatic => "REF_invokeStatic",
-            MethodHandleKind::InvokeSpecial => "REF_invokeSpecial",
-            MethodHandleKind::NewInvokeSpecial => "REF_newInvokeSpecial",
-            MethodHandleKind::InvokeInterface => "REF_invokeInterface",
-        })
-    }
 }

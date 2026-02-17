@@ -933,7 +933,7 @@ version = "0.1.0"
 dependencies = [
  "ariadne",
  "assert_cmd",
- "common",
+ "clap",
  "insta",
  "itertools",
  "jclass",

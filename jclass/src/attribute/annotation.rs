@@ -128,29 +128,4 @@ impl<'a> ElementValue {
 
         Ok(ev)
     }
-
-    #[cfg(feature = "javap_print")]
-    pub fn get_javap_descriptor(&self) -> String {
-        match self {
-            ElementValue::Boolean(v) => format!("Z#{}", v),
-            ElementValue::String(v) => format!("s#{}", v),
-            _ => unimplemented!(),
-        }
-    }
-
-    #[cfg(feature = "javap_print")]
-    pub(crate) fn get_javap_value(
-        &self,
-        cp: &crate::constant_pool::ConstantPool,
-    ) -> Result<String, ClassFormatErr> {
-        Ok(match self {
-            ElementValue::Boolean(idx) => match cp.get_integer(idx)? {
-                0 => "false".to_string(),
-                1 => "true".to_string(),
-                _ => unimplemented!(),
-            },
-            ElementValue::String(idx) => format!("\"{}\"", cp.get_utf8(idx)?),
-            _ => unimplemented!(),
-        })
-    }
 }
