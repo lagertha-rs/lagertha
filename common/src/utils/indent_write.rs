@@ -1,79 +1,5 @@
+use crate::error::ClassFormatErr;
 use std::fmt::{self};
-
-/// Allows to avoid boilerplate error handling when javap printing and
-/// printing errors to the given indented writer.
-#[macro_export]
-macro_rules! try_javap_print {
-    ($ind:expr, $expr:expr) => {
-        match $expr {
-            Ok(v) => v,
-            Err(e) => {
-                let _ = $ind.with_specific_indent(0, |ind| {
-                    ::std::writeln!(ind, "\n****************************************")?;
-                    let err_str = format!("{}", e);
-                    if err_str.is_empty() {
-                        ::std::writeln!(ind, "print error (no message): debug {e:?}")
-                    } else {
-                        ::std::writeln!(ind, "print error: {}", err_str)
-                    }
-                });
-                return Err(::std::fmt::Error);
-            }
-        }
-    };
-}
-
-// TODO: next 2 macros are specific to class files, move them to jclass crate?
-
-#[doc(hidden)]
-#[macro_export]
-macro_rules! try_javap_print_class_name {
-    ($ind:expr, $expr:expr) => {
-        match $expr {
-            Ok(class) => class
-                .trim_start_matches('L')
-                .trim_end_matches(';')
-                .replace('/', "."),
-            Err(e) => {
-                let _ = $ind.with_specific_indent(0, |ind| {
-                    ::std::writeln!(ind, "\n****************************************")?;
-                    let err_str = format!("{}", e);
-                    if err_str.is_empty() {
-                        ::std::writeln!(ind, "print error (no message): debug {e:?}")
-                    } else {
-                        ::std::writeln!(ind, "print error: {}", err_str)
-                    }
-                });
-                return Err(::std::fmt::Error);
-            }
-        }
-    };
-}
-
-#[doc(hidden)]
-#[macro_export]
-macro_rules! try_javap_print_method_name {
-    ($ind:expr, $expr:expr) => {
-        match $expr {
-            Ok(method_name) => match method_name {
-                "<init>" => format!("\"{}\"", method_name),
-                _ => method_name.to_string(),
-            },
-            Err(e) => {
-                let _ = $ind.with_specific_indent(0, |ind| {
-                    ::std::writeln!(ind, "\n****************************************")?;
-                    let err_str = format!("{}", e);
-                    if err_str.is_empty() {
-                        ::std::writeln!(ind, "print error (no message): debug {e:?}")
-                    } else {
-                        ::std::writeln!(ind, "print error: {}", err_str)
-                    }
-                });
-                return Err(::std::fmt::Error);
-            }
-        }
-    };
-}
 
 pub struct Indented<'a> {
     inner: &'a mut dyn fmt::Write,
@@ -92,9 +18,9 @@ impl<'a> Indented<'a> {
         }
     }
 
-    pub fn with_indent<F>(&mut self, f: F) -> fmt::Result
+    pub fn with_indent<F>(&mut self, f: F) -> Result<(), ClassFormatErr>
     where
-        F: FnOnce(&mut Self) -> fmt::Result,
+        F: FnOnce(&mut Self) -> Result<(), ClassFormatErr>,
     {
         self.level += 1;
         let res = f(self);
@@ -102,9 +28,9 @@ impl<'a> Indented<'a> {
         res
     }
 
-    pub fn with_specific_indent<F>(&mut self, level: usize, f: F) -> fmt::Result
+    pub fn with_specific_indent<F>(&mut self, level: usize, f: F) -> Result<(), ClassFormatErr>
     where
-        F: FnOnce(&mut Self) -> fmt::Result,
+        F: FnOnce(&mut Self) -> Result<(), ClassFormatErr>,
     {
         let prev_level = self.level;
         self.level = level;

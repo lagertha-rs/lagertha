@@ -1,23 +1,22 @@
 use crate::ClassFile;
 use crate::attribute::SharedAttribute;
 use crate::constant_pool::ConstantEntry;
+use crate::javap_fmt::fmt_class_name;
+use common::error::ClassFormatErr;
 use common::signature::ClassSignature;
 use common::utils::indent_write::Indented;
-use common::{try_javap_print, try_javap_print_class_name};
-use std::fmt;
 use std::fmt::Write as _;
 
 impl ClassFile {
     const COMMENT_WIDTH: usize = 24;
     const CONSTANT_KIND_WIDTH: usize = 18;
 
-    fn fmt_generic_signature(&self, ind: &mut Indented) -> fmt::Result {
+    fn fmt_generic_signature(&self, ind: &mut Indented) -> Result<(), ClassFormatErr> {
         // for java.lang.Object
         if self.super_class == 0 {
             return Ok(());
         }
-        let super_class_name =
-            try_javap_print!(ind, self.cp.get_javap_class_name(&self.super_class));
+        let super_class_name = self.cp.get_javap_class_name(&self.super_class)?;
         let super_is_object = super_class_name == "java.lang.Object";
         if let Some(sig_index) = self.attributes.iter().find_map(|attr| {
             if let crate::attribute::ClassAttribute::Shared(shared) = attr {
@@ -29,20 +28,15 @@ impl ClassFile {
                 None
             }
         }) {
-            let raw_sig = try_javap_print!(ind, self.cp.get_utf8(sig_index));
-            let sig = try_javap_print!(
-                ind,
-                ClassSignature::new(raw_sig, self.access_flags.is_interface())
-            );
-            write!(ind, "{}", sig)
+            let raw_sig = self.cp.get_utf8(sig_index)?;
+            let sig = ClassSignature::new(raw_sig, self.access_flags.is_interface())?;
+            write!(ind, "{}", sig)?;
         } else if !super_is_object || !self.interfaces.is_empty() {
-            let interfaces_names = try_javap_print!(
-                ind,
-                self.interfaces
-                    .iter()
-                    .map(|i| self.cp.get_javap_class_name(i))
-                    .collect::<Result<Vec<_>, _>>()
-            );
+            let interfaces_names = self
+                .interfaces
+                .iter()
+                .map(|i| self.cp.get_javap_class_name(i))
+                .collect::<Result<Vec<_>, _>>()?;
 
             if !super_is_object && !self.access_flags.is_interface() {
                 write!(ind, "extends {}", super_class_name)?;
@@ -58,27 +52,26 @@ impl ClassFile {
                 }
                 write!(ind, "{}", interfaces_names.join(", "))?;
             }
-            Ok(())
-        } else {
-            Ok(())
         }
+        Ok(())
     }
 
-    fn fmt_java_like_signature(&self, ind: &mut Indented) -> fmt::Result {
+    fn fmt_java_like_signature(&self, ind: &mut Indented) -> Result<(), ClassFormatErr> {
         self.access_flags.javap_fmt_java_like_prefix(ind)?;
         write!(
             ind,
             "{} ",
-            try_javap_print_class_name!(ind, self.cp.get_class_name(&self.this_class))
+            fmt_class_name(self.cp.get_class_name(&self.this_class)?)
         )?;
         self.fmt_generic_signature(ind)?;
-        writeln!(ind)
+        writeln!(ind)?;
+        Ok(())
     }
-}
 
-impl fmt::Display for ClassFile {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut ind = Indented::new(f);
+    /// Formats the class file in javap-like output.
+    pub fn javap_fmt(&self) -> Result<String, ClassFormatErr> {
+        let mut out = String::new();
+        let mut ind = Indented::new(&mut out);
 
         self.fmt_java_like_signature(&mut ind)?;
 
@@ -86,7 +79,7 @@ impl fmt::Display for ClassFile {
             writeln!(ind, "minor version: {}", self.minor_version)?;
             writeln!(ind, "major version: {}", self.major_version)?;
 
-            write!(ind, "flags: (0x{:04X}) ", self.access_flags.get_raw(),)?;
+            write!(ind, "flags: (0x{:04X}) ", self.access_flags.get_raw())?;
             self.access_flags.fmt_class_javap_like_list(ind)?;
             writeln!(ind)?;
 
@@ -94,7 +87,7 @@ impl fmt::Display for ClassFile {
                 ind,
                 "this_class: {:<w$} //{}",
                 format!("#{}", self.this_class),
-                try_javap_print!(ind, self.cp.get_class_name(&self.this_class)),
+                self.cp.get_class_name(&self.this_class)?,
                 w = Self::COMMENT_WIDTH
             )?;
             write!(
@@ -104,11 +97,7 @@ impl fmt::Display for ClassFile {
                 w = Self::COMMENT_WIDTH
             )?;
             if self.super_class != 0 {
-                write!(
-                    ind,
-                    "//{}",
-                    try_javap_print!(ind, self.cp.get_class_name(&self.super_class))
-                )?;
+                write!(ind, "//{}", self.cp.get_class_name(&self.super_class)?)?;
             }
             writeln!(ind)?;
             writeln!(
@@ -164,6 +153,6 @@ impl fmt::Display for ClassFile {
         for attribute in &self.attributes {
             attribute.javap_fmt(&mut ind, &self.cp)?;
         }
-        Ok(())
+        Ok(out)
     }
 }

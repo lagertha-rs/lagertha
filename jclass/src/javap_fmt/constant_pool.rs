@@ -1,9 +1,8 @@
 use crate::constant_pool::{ConstantEntry, ConstantKind, ConstantPool};
 use crate::constant_pool::{Dynamic, MethodHandleKind, NameAndType, Reference};
+use crate::javap_fmt::fmt_method_name;
 use common::error::ClassFormatErr;
 use common::utils::indent_write::Indented;
-use common::{try_javap_print, try_javap_print_method_name};
-use std::fmt;
 use std::fmt::Write as _;
 
 impl ConstantPool {
@@ -262,28 +261,32 @@ impl ConstantEntry {
         format!("{}f", s)
     }
 
-    pub(crate) fn javap_fmt(&self, ind: &mut Indented, cp: &ConstantPool) -> fmt::Result {
+    pub(crate) fn javap_fmt(
+        &self,
+        ind: &mut Indented,
+        cp: &ConstantPool,
+    ) -> Result<(), ClassFormatErr> {
         let op_w = 16;
         match self {
-            ConstantEntry::Utf8(s) => writeln!(ind, "{}", s.escape_debug()),
-            ConstantEntry::Integer(i) => writeln!(ind, "{i}"),
-            ConstantEntry::Float(fl) => writeln!(ind, "{}", Self::format_float_minimal_javap(*fl)),
-            ConstantEntry::Long(l) => writeln!(ind, "{l}l"),
-            ConstantEntry::Double(d) => writeln!(ind, "{}", Self::format_double_minimal_javap(*d)),
+            ConstantEntry::Utf8(s) => writeln!(ind, "{}", s.escape_debug())?,
+            ConstantEntry::Integer(i) => writeln!(ind, "{i}")?,
+            ConstantEntry::Float(fl) => writeln!(ind, "{}", Self::format_float_minimal_javap(*fl))?,
+            ConstantEntry::Long(l) => writeln!(ind, "{l}l")?,
+            ConstantEntry::Double(d) => writeln!(ind, "{}", Self::format_double_minimal_javap(*d))?,
             ConstantEntry::String(index) => writeln!(
                 ind,
                 "{:<op_w$} // {}",
                 format!("#{index}"),
-                try_javap_print!(ind, cp.get_printable_utf8(index)),
+                cp.get_printable_utf8(index)?,
                 op_w = op_w
-            ),
+            )?,
             ConstantEntry::Class(index) => writeln!(
                 ind,
                 "{:<op_w$} // {}",
                 format!("#{index}"),
-                try_javap_print!(ind, cp.get_javap_class_name_utf8(index)),
+                cp.get_javap_class_name_utf8(index)?,
                 op_w = op_w
-            ),
+            )?,
             ConstantEntry::MethodRef(ref_info) | ConstantEntry::InterfaceMethodRef(ref_info) => {
                 writeln!(
                     ind,
@@ -292,20 +295,20 @@ impl ConstantEntry {
                         "#{}.#{}",
                         ref_info.class_index, ref_info.name_and_type_index
                     ),
-                    try_javap_print!(ind, cp.get_method_or_field_class_name(ref_info)),
-                    try_javap_print_method_name!(ind, cp.get_method_or_field_name(ref_info)),
-                    try_javap_print!(ind, cp.get_method_or_field_descriptor(ref_info)),
+                    cp.get_method_or_field_class_name(ref_info)?,
+                    fmt_method_name(cp.get_method_or_field_name(ref_info)?),
+                    cp.get_method_or_field_descriptor(ref_info)?,
                     op_w = op_w
-                )
+                )?
             }
             ConstantEntry::NameAndType(nat) => writeln!(
                 ind,
                 "{:<op_w$} // {}:{}",
                 format!("#{}:#{}", nat.name_index, nat.descriptor_index),
-                try_javap_print_method_name!(ind, cp.get_nat_name(nat)),
-                try_javap_print!(ind, cp.get_nat_descriptor(nat)),
+                fmt_method_name(cp.get_nat_name(nat)?),
+                cp.get_nat_descriptor(nat)?,
                 op_w = op_w
-            ),
+            )?,
             ConstantEntry::FieldRef(ref_info) => writeln!(
                 ind,
                 "{:<op_w$} // {}.{}:{}",
@@ -313,36 +316,33 @@ impl ConstantEntry {
                     "#{}.#{}",
                     ref_info.class_index, ref_info.name_and_type_index
                 ),
-                try_javap_print!(ind, cp.get_class_name(&ref_info.class_index)),
-                try_javap_print!(ind, cp.get_method_or_field_name(ref_info)),
-                try_javap_print!(ind, cp.get_method_or_field_descriptor(ref_info)),
+                cp.get_class_name(&ref_info.class_index)?,
+                cp.get_method_or_field_name(ref_info)?,
+                cp.get_method_or_field_descriptor(ref_info)?,
                 op_w = op_w
-            ),
-            ConstantEntry::Dynamic(dyn_info) | ConstantEntry::InvokeDynamic(dyn_info) => {
-                writeln!(
-                    ind,
-                    "{:<op_w$} // #{}:{}:{}",
-                    format!(
-                        "#{}:#{}",
-                        dyn_info.bootstrap_method_attr_index, dyn_info.name_and_type_index
-                    ),
-                    dyn_info.bootstrap_method_attr_index,
-                    try_javap_print!(ind, cp.get_dyn_info_name(dyn_info)),
-                    try_javap_print!(ind, cp.get_dyn_info_descriptor(dyn_info)),
-                    op_w = op_w
-                )
-            }
+            )?,
+            ConstantEntry::Dynamic(dyn_info) | ConstantEntry::InvokeDynamic(dyn_info) => writeln!(
+                ind,
+                "{:<op_w$} // #{}:{}:{}",
+                format!(
+                    "#{}:#{}",
+                    dyn_info.bootstrap_method_attr_index, dyn_info.name_and_type_index
+                ),
+                dyn_info.bootstrap_method_attr_index,
+                cp.get_dyn_info_name(dyn_info)?,
+                cp.get_dyn_info_descriptor(dyn_info)?,
+                op_w = op_w
+            )?,
             ConstantEntry::MethodType(idx) => writeln!(
                 ind,
                 "{:<op_w$} // {}",
                 format!("#{}", idx),
-                try_javap_print!(ind, cp.get_utf8(idx)),
+                cp.get_utf8(idx)?,
                 op_w = op_w
-            ),
+            )?,
             ConstantEntry::MethodHandle(handle_info) => {
-                let handle_kind = try_javap_print!(ind, handle_info.get_kind());
-                let method_ref =
-                    try_javap_print!(ind, cp.get_methodref(&handle_info.reference_index));
+                let handle_kind = handle_info.get_kind()?;
+                let method_ref = cp.get_methodref(&handle_info.reference_index)?;
                 writeln!(
                     ind,
                     "{:<op_w$} // {} {}.{}:{}",
@@ -350,15 +350,16 @@ impl ConstantEntry {
                         "{}:#{}",
                         handle_info.reference_kind, handle_info.reference_index
                     ),
-                    try_javap_print!(ind, handle_kind.get_javap_value()),
-                    try_javap_print!(ind, cp.get_method_or_field_class_name(method_ref)),
-                    try_javap_print_method_name!(ind, cp.get_method_or_field_name(method_ref)),
-                    try_javap_print!(ind, cp.get_method_or_field_descriptor(method_ref)),
+                    handle_kind.get_javap_value()?,
+                    cp.get_method_or_field_class_name(method_ref)?,
+                    fmt_method_name(cp.get_method_or_field_name(method_ref)?),
+                    cp.get_method_or_field_descriptor(method_ref)?,
                     op_w = op_w
-                )
+                )?
             }
             e => todo!("Pretty print not implemented for {e:?}"),
         }
+        Ok(())
     }
 
     pub(crate) fn get_javap_value(

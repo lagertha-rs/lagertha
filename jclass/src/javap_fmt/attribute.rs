@@ -7,13 +7,11 @@ use crate::attribute::{
 use crate::bytecode::Instruction;
 use crate::constant_pool::ConstantPool;
 use crate::flags::{InnerClassFlags, MethodParamFlags};
+use crate::javap_fmt::fmt_class_name;
 use common::descriptor::MethodDescriptor;
 use common::error::ClassFormatErr;
-use common::try_javap_print;
-use common::try_javap_print_class_name;
 use common::utils::indent_write::Indented;
 use itertools::Itertools;
-use std::fmt;
 use std::fmt::Write as _;
 
 impl MethodAttribute {
@@ -24,7 +22,7 @@ impl MethodAttribute {
         descriptor: &MethodDescriptor,
         this: &u16,
         is_static: bool,
-    ) -> fmt::Result {
+    ) -> Result<(), ClassFormatErr> {
         match self {
             MethodAttribute::Shared(shared) => shared.javap_fmt(ind, cp)?,
             MethodAttribute::Code(code) => code.javap_fmt(ind, cp, descriptor, this, is_static)?,
@@ -34,13 +32,10 @@ impl MethodAttribute {
                     writeln!(
                         ind,
                         "throws {}",
-                        try_javap_print!(
-                            ind,
-                            exc.iter()
-                                .map(|index| cp.get_javap_class_name(index))
-                                .collect::<Result<Vec<_>, _>>()
-                        )
-                        .join(", ")
+                        exc.iter()
+                            .map(|index| cp.get_javap_class_name(index))
+                            .collect::<Result<Vec<_>, _>>()?
+                            .join(", ")
                     )?;
                     Ok(())
                 })?
@@ -71,7 +66,7 @@ impl MethodAttribute {
                         let name = if param.name_index == 0 {
                             "<no name>".to_string()
                         } else {
-                            try_javap_print!(ind, cp.get_utf8(&param.name_index)).to_string()
+                            cp.get_utf8(&param.name_index)?.to_string()
                         };
                         write!(ind, "{:<W_NAME$} ", name)?;
                         MethodParamFlags::new(param.access_flags).javap_fmt(ind)?;
@@ -90,7 +85,7 @@ impl MethodAttribute {
         cp: &ConstantPool,
         header: &str,
         param_annotations: &[ParameterAnnotations],
-    ) -> fmt::Result {
+    ) -> Result<(), ClassFormatErr> {
         writeln!(ind, "{header}")?;
         ind.with_indent(|ind| {
             for (param_idx, param) in param_annotations.iter().enumerate() {
@@ -113,10 +108,7 @@ impl MethodAttribute {
                                 .join(",")
                         )?;
                         ind.with_indent(|ind| {
-                            let type_name = try_javap_print_class_name!(
-                                ind,
-                                cp.get_utf8(&annotation.type_index)
-                            );
+                            let type_name = fmt_class_name(cp.get_utf8(&annotation.type_index)?);
                             writeln!(ind, "{type_name}")?;
                             Ok(())
                         })?;
@@ -138,7 +130,7 @@ impl CodeAttribute {
         method_descriptor: &MethodDescriptor,
         this: &u16,
         is_static: bool,
-    ) -> fmt::Result {
+    ) -> Result<(), ClassFormatErr> {
         writeln!(ind, "Code: ")?;
         ind.with_indent(|ind| {
             writeln!(
@@ -154,7 +146,7 @@ impl CodeAttribute {
             let mut pc = 0;
             let code_len = self.code.len();
             while pc < code_len {
-                let inst = try_javap_print!(ind, Instruction::new_at(&self.code, pc));
+                let inst = Instruction::new_at(&self.code, pc)?;
                 pc += inst.byte_size() as usize;
                 instructions.push(inst);
             }
@@ -163,10 +155,7 @@ impl CodeAttribute {
                 writeln!(
                     ind,
                     "{byte_pos:4}: {:<24}",
-                    try_javap_print!(
-                        ind,
-                        instruction.get_javap_instruction_string(cp, byte_pos as i32, this)
-                    )
+                    instruction.get_javap_instruction_string(cp, byte_pos as i32, this)?
                 )?;
                 byte_pos += instruction.byte_size();
             }
@@ -185,7 +174,7 @@ impl CodeAttribute {
                         let catch_type = if entry.catch_type == 0 {
                             "any"
                         } else {
-                            try_javap_print!(ind, cp.get_class_name(&entry.catch_type))
+                            cp.get_class_name(&entry.catch_type)?
                         };
                         writeln!(
                             ind,
@@ -216,7 +205,7 @@ impl StackMapFrame {
         ind: &mut Indented,
         cp: &ConstantPool,
         this: &u16,
-    ) -> fmt::Result {
+    ) -> Result<(), ClassFormatErr> {
         let get_javap_verif_type =
             |locals: &Vec<VerificationTypeInfo>| -> Result<String, ClassFormatErr> {
                 locals
@@ -235,11 +224,7 @@ impl StackMapFrame {
             } => {
                 writeln!(ind, "{} /* same_locals_1_stack_item */", offset_delta + 64)?;
                 ind.with_indent(|ind| {
-                    writeln!(
-                        ind,
-                        "stack = [ {} ]",
-                        try_javap_print!(ind, stack.get_javap_value(cp, this))
-                    )?;
+                    writeln!(ind, "stack = [ {} ]", stack.get_javap_value(cp, this)?)?;
                     Ok(())
                 })?;
             }
@@ -250,11 +235,7 @@ impl StackMapFrame {
                 writeln!(ind, "247 /* same_locals_1_stack_item_frame_extended */")?;
                 ind.with_indent(|ind| {
                     writeln!(ind, "offset_delta = {offset_delta}")?;
-                    writeln!(
-                        ind,
-                        "stack = [ {} ]",
-                        try_javap_print!(ind, stack.get_javap_value(cp, this))
-                    )?;
+                    writeln!(ind, "stack = [ {} ]", stack.get_javap_value(cp, this)?)?;
                     Ok(())
                 })?;
             }
@@ -280,11 +261,7 @@ impl StackMapFrame {
                 writeln!(ind, "{} /* append */", 251 + k)?;
                 ind.with_indent(|ind| {
                     writeln!(ind, "offset_delta = {offset_delta}")?;
-                    writeln!(
-                        ind,
-                        "locals = [{}]",
-                        try_javap_print!(ind, get_javap_verif_type(locals))
-                    )?;
+                    writeln!(ind, "locals = [{}]", get_javap_verif_type(locals)?)?;
                     Ok(())
                 })?;
             }
@@ -296,16 +273,8 @@ impl StackMapFrame {
                 writeln!(ind, "255 /* full_frame */")?;
                 ind.with_indent(|ind| {
                     writeln!(ind, "offset_delta = {offset_delta}")?;
-                    writeln!(
-                        ind,
-                        "locals = [{}]",
-                        try_javap_print!(ind, get_javap_verif_type(locals))
-                    )?;
-                    writeln!(
-                        ind,
-                        "stack = [{}]",
-                        try_javap_print!(ind, get_javap_verif_type(stack))
-                    )?;
+                    writeln!(ind, "locals = [{}]", get_javap_verif_type(locals)?)?;
+                    writeln!(ind, "stack = [{}]", get_javap_verif_type(stack)?)?;
                     Ok(())
                 })?;
             }
@@ -342,7 +311,7 @@ impl CodeAttributeInfo {
         ind: &mut Indented,
         cp: &ConstantPool,
         this: &u16,
-    ) -> fmt::Result {
+    ) -> Result<(), ClassFormatErr> {
         match self {
             CodeAttributeInfo::LineNumberTable(table) => {
                 writeln!(ind, "LineNumberTable:")?;
@@ -365,8 +334,8 @@ impl CodeAttributeInfo {
                     "Start", "Length", "Slot", "Name",
                 )?;
                 for lv in table {
-                    let name = try_javap_print!(ind, cp.get_utf8(&lv.name_index));
-                    let descriptor = try_javap_print!(ind, cp.get_utf8(&lv.descriptor_index));
+                    let name = cp.get_utf8(&lv.name_index)?;
+                    let descriptor = cp.get_utf8(&lv.descriptor_index)?;
                     writeln!(
                         ind,
                         "{:>W_START$} {:>W_LENGTH$} {:>W_SLOT$}  {:<W_NAME$} {}",
@@ -396,8 +365,8 @@ impl CodeAttributeInfo {
                         "Start", "Length", "Slot", "Name"
                     )?;
                     for lv in table {
-                        let name = try_javap_print!(ind, cp.get_utf8(&lv.name_index));
-                        let signature = try_javap_print!(ind, cp.get_utf8(&lv.signature_index));
+                        let name = cp.get_utf8(&lv.name_index)?;
+                        let signature = cp.get_utf8(&lv.signature_index)?;
                         writeln!(
                             ind,
                             "{:>W_START$} {:>W_LENGTH$} {:>W_SLOT$}  {:<W_NAME$}   {}",
@@ -419,7 +388,7 @@ impl SharedAttribute {
         ind: &mut Indented,
         cp: &ConstantPool,
         annotations: &[Annotation],
-    ) -> fmt::Result {
+    ) -> Result<(), ClassFormatErr> {
         for (i, annotation) in annotations.iter().enumerate() {
             writeln!(
                 ind,
@@ -439,7 +408,7 @@ impl SharedAttribute {
                 write!(
                     ind,
                     "{}",
-                    try_javap_print_class_name!(ind, cp.get_utf8(&annotation.type_index))
+                    fmt_class_name(cp.get_utf8(&annotation.type_index)?)
                 )?;
                 if !annotation.element_value_pairs.is_empty() {
                     writeln!(ind, "(")?;
@@ -448,8 +417,8 @@ impl SharedAttribute {
                             writeln!(
                                 ind,
                                 "{}={}",
-                                try_javap_print!(ind, cp.get_utf8(&param.element_name_index)),
-                                try_javap_print!(ind, param.value.get_javap_value(cp))
+                                cp.get_utf8(&param.element_name_index)?,
+                                param.value.get_javap_value(cp)?
                             )?;
                             Ok(())
                         })?;
@@ -464,16 +433,17 @@ impl SharedAttribute {
         Ok(())
     }
 
-    pub(crate) fn javap_fmt(&self, ind: &mut Indented, cp: &ConstantPool) -> fmt::Result {
+    pub(crate) fn javap_fmt(
+        &self,
+        ind: &mut Indented,
+        cp: &ConstantPool,
+    ) -> Result<(), ClassFormatErr> {
         match self {
             SharedAttribute::Synthetic => unimplemented!(),
             SharedAttribute::Deprecated => writeln!(ind, "Deprecated: true")?,
-            SharedAttribute::Signature(index) => writeln!(
-                ind,
-                "Signature: #{:<26} // {}",
-                index,
-                try_javap_print!(ind, cp.get_utf8(index)),
-            )?,
+            SharedAttribute::Signature(index) => {
+                writeln!(ind, "Signature: #{:<26} // {}", index, cp.get_utf8(index)?)?
+            }
             SharedAttribute::RuntimeVisibleAnnotations(annotations) => {
                 writeln!(ind, "RuntimeVisibleAnnotations:")?;
                 ind.with_indent(|ind| Self::fmt_annotations(ind, cp, annotations))?
@@ -499,7 +469,7 @@ impl SharedAttribute {
         ind: &mut Indented,
         cp: &ConstantPool,
         annotations: &[TypeAnnotation],
-    ) -> fmt::Result {
+    ) -> Result<(), ClassFormatErr> {
         for (i, annotation) in annotations.iter().enumerate() {
             // Format target info
             let target_str = match &annotation.target_info {
@@ -569,8 +539,7 @@ impl SharedAttribute {
                 annotation.type_index
             )?;
             ind.with_indent(|ind| {
-                let type_name =
-                    try_javap_print_class_name!(ind, cp.get_utf8(&annotation.type_index));
+                let type_name = fmt_class_name(cp.get_utf8(&annotation.type_index)?);
                 writeln!(ind, "{type_name}")?;
                 Ok(())
             })?;
@@ -580,22 +549,21 @@ impl SharedAttribute {
 }
 
 impl ClassAttribute {
-    pub(crate) fn javap_fmt(&self, ind: &mut Indented, cp: &ConstantPool) -> fmt::Result {
+    pub(crate) fn javap_fmt(
+        &self,
+        ind: &mut Indented,
+        cp: &ConstantPool,
+    ) -> Result<(), ClassFormatErr> {
         match self {
             ClassAttribute::Shared(shared) => shared.javap_fmt(ind, cp)?,
             ClassAttribute::SourceFile(idx) => {
-                writeln!(
-                    ind,
-                    "SourceFile: \"{}\"",
-                    try_javap_print!(ind, cp.get_utf8(idx))
-                )?;
+                writeln!(ind, "SourceFile: \"{}\"", cp.get_utf8(idx)?)?;
             }
             ClassAttribute::InnerClasses(inner) => {
                 writeln!(ind, "InnerClasses:")?;
                 ind.with_indent(|ind| {
                     for entry in inner {
-                        let inner_class =
-                            try_javap_print!(ind, cp.get_raw(&entry.inner_class_info_index));
+                        let inner_class = cp.get_raw(&entry.inner_class_info_index)?;
 
                         // Truly anonymous class
                         if entry.outer_class_info_index == 0 && entry.inner_name_index == 0 {
@@ -611,7 +579,7 @@ impl ClassAttribute {
                                 ind,
                                 "{:<43} // {}",
                                 left_part,
-                                try_javap_print!(ind, inner_class.get_javap_type_and_value(cp, &0)),
+                                inner_class.get_javap_type_and_value(cp, &0)?,
                             )?;
                         }
                         // Local/member class
@@ -623,16 +591,15 @@ impl ClassAttribute {
                                     "#{}= #{};",
                                     entry.inner_name_index, entry.inner_class_info_index
                                 ),
-                                try_javap_print!(ind, cp.get_utf8(&entry.inner_name_index)),
-                                try_javap_print!(ind, inner_class.get_javap_type_and_value(cp, &0)),
+                                cp.get_utf8(&entry.inner_name_index)?,
+                                inner_class.get_javap_type_and_value(cp, &0)?,
                             )?;
                         }
                         // Regular inner class
                         else {
                             let inner_access_flags =
                                 InnerClassFlags::new(entry.inner_class_access_flags);
-                            let outer_class =
-                                try_javap_print!(ind, cp.get_raw(&entry.outer_class_info_index));
+                            let outer_class = cp.get_raw(&entry.outer_class_info_index)?;
                             writeln!(
                                 ind,
                                 "{:<43} // {}={} of {}",
@@ -643,9 +610,9 @@ impl ClassAttribute {
                                     entry.inner_class_info_index,
                                     entry.outer_class_info_index
                                 ),
-                                try_javap_print!(ind, cp.get_utf8(&entry.inner_name_index)),
-                                try_javap_print!(ind, inner_class.get_javap_type_and_value(cp, &0)),
-                                try_javap_print!(ind, outer_class.get_javap_type_and_value(cp, &0))
+                                cp.get_utf8(&entry.inner_name_index)?,
+                                inner_class.get_javap_type_and_value(cp, &0)?,
+                                outer_class.get_javap_type_and_value(cp, &0)?
                             )?;
                         }
                     }
@@ -656,13 +623,13 @@ impl ClassAttribute {
                 let method = if *method_idx == 0 {
                     ""
                 } else {
-                    try_javap_print!(ind, cp.get_method_or_field_name_by_nat_idx(method_idx))
+                    cp.get_method_or_field_name_by_nat_idx(method_idx)?
                 };
                 writeln!(
                     ind,
                     "{:<24} // {}{}{}",
                     format!("EnclosingMethod: #{}.#{}", class_idx, method_idx),
-                    try_javap_print!(ind, cp.get_javap_class_name(class_idx)),
+                    cp.get_javap_class_name(class_idx)?,
                     if method.is_empty() { "" } else { "." },
                     method
                 )?;
@@ -672,25 +639,24 @@ impl ClassAttribute {
                 writeln!(ind, "BootstrapMethods:")?;
                 ind.with_indent(|ind| {
                     for (i, method) in bootstrap_methods.iter().enumerate() {
-                        let method_handle =
-                            try_javap_print!(ind, cp.get_raw(&method.bootstrap_method_idx));
+                        let method_handle = cp.get_raw(&method.bootstrap_method_idx)?;
                         writeln!(
                             ind,
                             "{}: #{} {}",
                             i,
                             method.bootstrap_method_idx,
-                            try_javap_print!(ind, method_handle.get_javap_type_and_value(cp, &0))
+                            method_handle.get_javap_type_and_value(cp, &0)?
                         )?;
                         ind.with_indent(|ind| {
                             writeln!(ind, "Method arguments:")?;
                             ind.with_indent(|ind| {
                                 for arg in &method.bootstrap_arguments {
-                                    let argument = try_javap_print!(ind, cp.get_raw(arg));
+                                    let argument = cp.get_raw(arg)?;
                                     writeln!(
                                         ind,
                                         "#{} {}",
                                         arg,
-                                        try_javap_print!(ind, argument.get_javap_value(cp, &0))
+                                        argument.get_javap_value(cp, &0)?
                                     )?;
                                 }
                                 Ok(())
@@ -705,18 +671,18 @@ impl ClassAttribute {
             ClassAttribute::ModulePackages => unimplemented!(),
             ClassAttribute::ModuleMainClass => unimplemented!(),
             ClassAttribute::NestHost(idx) => {
-                let constant = try_javap_print!(ind, cp.get_raw(idx));
+                let constant = cp.get_raw(idx)?;
                 writeln!(
                     ind,
                     "NestHost: {}",
-                    try_javap_print!(ind, constant.get_javap_type_and_value(cp, &0))
+                    constant.get_javap_type_and_value(cp, &0)?
                 )?;
             }
             ClassAttribute::NestMembers(members) => {
                 writeln!(ind, "NestMembers:")?;
                 ind.with_indent(|ind| {
                     for member in members {
-                        writeln!(ind, "{}", try_javap_print!(ind, cp.get_class_name(member)))?;
+                        writeln!(ind, "{}", cp.get_class_name(member)?)?;
                     }
                     Ok(())
                 })?;
@@ -726,7 +692,7 @@ impl ClassAttribute {
                 writeln!(ind, "PermittedSubclasses:")?;
                 ind.with_indent(|ind| {
                     for class in classes {
-                        writeln!(ind, "{}", try_javap_print!(ind, cp.get_class_name(class)))?;
+                        writeln!(ind, "{}", cp.get_class_name(class)?)?;
                     }
                     Ok(())
                 })?;
@@ -738,15 +704,19 @@ impl ClassAttribute {
 }
 
 impl FieldAttribute {
-    pub(crate) fn javap_fmt(&self, ind: &mut Indented, cp: &ConstantPool) -> fmt::Result {
+    pub(crate) fn javap_fmt(
+        &self,
+        ind: &mut Indented,
+        cp: &ConstantPool,
+    ) -> Result<(), ClassFormatErr> {
         match self {
             FieldAttribute::Shared(shared) => shared.javap_fmt(ind, cp)?,
             FieldAttribute::ConstantValue(val) => {
-                let constant = try_javap_print!(ind, cp.get_raw(val));
+                let constant = cp.get_raw(val)?;
                 writeln!(
                     ind,
                     "ConstantValue: {}",
-                    try_javap_print!(ind, constant.get_javap_type_and_value(cp, &0))
+                    constant.get_javap_type_and_value(cp, &0)?
                 )?;
             }
         }

@@ -186,6 +186,9 @@ pub enum ClassFormatErr {
     InvalidMethodHandleKind(u8),
     Signature(SignatureErr),
     MethodDescriptor(MethodDescriptorErr),
+    Instruction(InstructionErr),
+    TypeDescriptor(TypeDescriptorErr),
+    Format(std::fmt::Error),
 }
 
 impl Display for ClassFormatErr {
@@ -217,6 +220,11 @@ impl Display for ClassFormatErr {
             ClassFormatErr::MethodDescriptor(err) => {
                 write!(f, "Method descriptor error: {}", err)
             }
+            ClassFormatErr::Instruction(err) => write!(f, "Instruction error: {}", err),
+            ClassFormatErr::TypeDescriptor(err) => {
+                write!(f, "Type descriptor error: {}", err)
+            }
+            ClassFormatErr::Format(err) => write!(f, "Format error: {}", err),
         }
     }
 }
@@ -236,5 +244,23 @@ impl From<SignatureErr> for ClassFormatErr {
 impl From<MethodDescriptorErr> for ClassFormatErr {
     fn from(value: MethodDescriptorErr) -> Self {
         ClassFormatErr::MethodDescriptor(value)
+    }
+}
+
+impl From<InstructionErr> for ClassFormatErr {
+    fn from(value: InstructionErr) -> Self {
+        ClassFormatErr::Instruction(value)
+    }
+}
+
+impl From<TypeDescriptorErr> for ClassFormatErr {
+    fn from(value: TypeDescriptorErr) -> Self {
+        ClassFormatErr::TypeDescriptor(value)
+    }
+}
+
+impl From<std::fmt::Error> for ClassFormatErr {
+    fn from(value: std::fmt::Error) -> Self {
+        ClassFormatErr::Format(value)
     }
 }

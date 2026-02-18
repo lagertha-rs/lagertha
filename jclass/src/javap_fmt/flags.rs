@@ -1,6 +1,6 @@
 use crate::flags::{ClassFlags, FieldFlags, InnerClassFlags, MethodFlags, MethodParamFlags};
+use common::error::ClassFormatErr;
 use common::utils::indent_write::Indented;
-use std::fmt;
 use std::fmt::Write as _;
 
 impl InnerClassFlags {
@@ -38,7 +38,7 @@ impl InnerClassFlags {
 
 impl ClassFlags {
     /// java like class prefix: "public abstract class", "public interface"...
-    pub fn javap_fmt_java_like_prefix(&self, ind: &mut Indented) -> fmt::Result {
+    pub fn javap_fmt_java_like_prefix(&self, ind: &mut Indented) -> Result<(), ClassFormatErr> {
         if self.is_public() {
             write!(ind, "public ")?;
         }
@@ -53,18 +53,19 @@ impl ClassFlags {
         }
 
         if self.is_module() {
-            write!(ind, "module ")
+            write!(ind, "module ")?;
         } else if self.is_annotation() {
-            write!(ind, "@interface ")
+            write!(ind, "@interface ")?;
         } else if self.is_interface() {
-            write!(ind, "interface ")
+            write!(ind, "interface ")?;
         } else {
-            write!(ind, "class ")
+            write!(ind, "class ")?;
         }
+        Ok(())
     }
 
     /// Prints javap-like list of flags like "ACC_PUBLIC, ACC_FINAL, ACC_SUPER"
-    pub fn fmt_class_javap_like_list(&self, ind: &mut Indented) -> fmt::Result {
+    pub fn fmt_class_javap_like_list(&self, ind: &mut Indented) -> Result<(), ClassFormatErr> {
         let flags = [
             (self.is_public(), "ACC_PUBLIC"),
             (self.is_final(), "ACC_FINAL"),
@@ -93,7 +94,7 @@ impl ClassFlags {
 
 impl MethodFlags {
     /// Prints java like class prefix: "public static final"...
-    pub fn javap_fmt_java_like_prefix(&self, ind: &mut Indented) -> fmt::Result {
+    pub fn javap_fmt_java_like_prefix(&self, ind: &mut Indented) -> Result<(), ClassFormatErr> {
         if self.is_public() {
             write!(ind, "public ")?;
         } else if self.is_protected() {
@@ -125,7 +126,7 @@ impl MethodFlags {
     }
 
     /// Prints javap-like list of flags like "ACC_PUBLIC, ACC_FINAL, ACC_SUPER"
-    pub fn fmt_class_javap_like_list(&self, ind: &mut Indented) -> fmt::Result {
+    pub fn fmt_class_javap_like_list(&self, ind: &mut Indented) -> Result<(), ClassFormatErr> {
         let flags = [
             (self.is_public(), "ACC_PUBLIC"),
             (self.is_private(), "ACC_PRIVATE"),
@@ -156,7 +157,7 @@ impl MethodFlags {
 }
 
 impl MethodParamFlags {
-    pub fn javap_fmt(&self, ind: &mut Indented) -> fmt::Result {
+    pub fn javap_fmt(&self, ind: &mut Indented) -> Result<(), ClassFormatErr> {
         if self.is_final() {
             write!(ind, "final ")?;
         }
@@ -173,7 +174,10 @@ impl MethodParamFlags {
 
 impl FieldFlags {
     /// Java-like modifier prefix for a field header
-    pub fn fmt_field_javap_java_like_prefix(&self, ind: &mut Indented) -> fmt::Result {
+    pub fn fmt_field_javap_java_like_prefix(
+        &self,
+        ind: &mut Indented,
+    ) -> Result<(), ClassFormatErr> {
         if self.is_public() {
             write!(ind, "public ")?;
         } else if self.is_protected() {
@@ -199,7 +203,7 @@ impl FieldFlags {
     }
 
     /// Prints javap-like list of flags like "ACC_PUBLIC, ACC_FINAL, ACC_SUPER"
-    pub fn fmt_class_javap_like_list(&self, ind: &mut Indented) -> fmt::Result {
+    pub fn fmt_class_javap_like_list(&self, ind: &mut Indented) -> Result<(), ClassFormatErr> {
         let flags = [
             (self.is_public(), "ACC_PUBLIC"),
             (self.is_private(), "ACC_PRIVATE"),

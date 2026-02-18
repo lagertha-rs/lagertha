@@ -53,5 +53,5 @@ fn main() {
         let source_file_name = class.cp.get_utf8(sourcefile_index).unwrap();
         println!("  Compiled from \"{}\"", source_file_name);
     }
-    print!("{class}");
+    print!("{}", class.javap_fmt().unwrap());
 }

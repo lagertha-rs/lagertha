@@ -2,15 +2,14 @@ use crate::attribute::SharedAttribute;
 use crate::attribute::method::MethodAttribute;
 use crate::constant_pool::ConstantPool;
 use crate::flags::ClassFlags;
+use crate::javap_fmt::fmt_class_name;
 use crate::member::MethodInfo;
 use common::descriptor::MethodDescriptor;
 use common::error::ClassFormatErr;
 use common::jtype::JavaType;
 use common::signature::MethodSignature;
 use common::utils::indent_write::Indented;
-use common::{try_javap_print, try_javap_print_class_name};
 use either::Either;
-use std::fmt;
 use std::fmt::Write as _;
 
 impl MethodInfo {
@@ -37,10 +36,11 @@ impl MethodInfo {
         })
     }
 
-    fn javap_fmt_flags(&self, ind: &mut Indented) -> fmt::Result {
-        write!(ind, "flags: (0x{:04x}) ", self.access_flags.get_raw(),)?;
+    fn javap_fmt_flags(&self, ind: &mut Indented) -> Result<(), ClassFormatErr> {
+        write!(ind, "flags: (0x{:04x}) ", self.access_flags.get_raw())?;
         self.access_flags.fmt_class_javap_like_list(ind)?;
-        writeln!(ind)
+        writeln!(ind)?;
+        Ok(())
     }
 
     fn javap_fmt_throws(
@@ -48,7 +48,7 @@ impl MethodInfo {
         ind: &mut Indented,
         cp: &ConstantPool,
         descriptor: &Either<MethodSignature, MethodDescriptor>,
-    ) -> fmt::Result {
+    ) -> Result<(), ClassFormatErr> {
         if let Either::Left(sig) = descriptor
             && !sig.throws.is_empty()
         {
@@ -69,7 +69,7 @@ impl MethodInfo {
                 if i > 0 {
                     write!(ind, ", ")?;
                 }
-                let ex_name = try_javap_print_class_name!(ind, cp.get_class_name(ex_index));
+                let ex_name = fmt_class_name(cp.get_class_name(ex_index)?);
                 write!(ind, "{ex_name}")?;
             }
         }
@@ -82,31 +82,30 @@ impl MethodInfo {
         cp: &ConstantPool,
         this: &u16,
         descriptor: &Either<MethodSignature, MethodDescriptor>,
-    ) -> fmt::Result {
-        let method_name = try_javap_print_class_name!(ind, cp.get_utf8(&self.name_index));
+    ) -> Result<(), ClassFormatErr> {
+        let method_name = fmt_class_name(cp.get_utf8(&self.name_index)?);
         if method_name == "<init>" {
-            write!(
-                ind,
-                "{}",
-                try_javap_print_class_name!(ind, cp.get_class_name(this))
-            )
+            write!(ind, "{}", fmt_class_name(cp.get_class_name(this)?))?;
         } else if method_name == "<clinit>" {
-            write!(ind, "{{}}")
+            write!(ind, "{{}}")?;
         } else {
             match descriptor {
                 Either::Left(signature) => {
-                    write!(ind, "{signature} {method_name}")
+                    write!(ind, "{signature} {method_name}")?;
                 }
-                Either::Right(descriptor) => write!(ind, "{} {}", &descriptor.ret, method_name),
+                Either::Right(descriptor) => {
+                    write!(ind, "{} {}", &descriptor.ret, method_name)?;
+                }
             }
         }
+        Ok(())
     }
 
     fn javap_fmt_params(
         &self,
         ind: &mut Indented,
         descriptor: &Either<MethodSignature, MethodDescriptor>,
-    ) -> fmt::Result {
+    ) -> Result<(), ClassFormatErr> {
         let params: &[JavaType] = match descriptor {
             Either::Left(sig) => &sig.params,
             Either::Right(desc) => &desc.params,
@@ -130,7 +129,8 @@ impl MethodInfo {
 
             write!(ind, "{ty}")?;
         }
-        ind.write_char(')')
+        ind.write_char(')')?;
+        Ok(())
     }
 
     pub(crate) fn javap_fmt(
@@ -139,9 +139,9 @@ impl MethodInfo {
         cp: &ConstantPool,
         this: &u16,
         class_flags: &ClassFlags,
-    ) -> fmt::Result {
-        let raw_descriptor = try_javap_print!(ind, cp.get_utf8(&self.descriptor_index));
-        let descriptor = try_javap_print!(ind, self.get_descriptor(cp, raw_descriptor));
+    ) -> Result<(), ClassFormatErr> {
+        let raw_descriptor = cp.get_utf8(&self.descriptor_index)?;
+        let descriptor = self.get_descriptor(cp, raw_descriptor)?;
         let is_default = class_flags.is_interface()
             && !self.access_flags.is_abstract()
             && !self.access_flags.is_static()
@@ -155,7 +155,7 @@ impl MethodInfo {
             write!(ind, "default ")?;
         }
         self.javap_fmt_name_and_ret_type(ind, cp, this, &descriptor)?;
-        if try_javap_print!(ind, cp.get_utf8(&self.name_index)) != "<clinit>" {
+        if cp.get_utf8(&self.name_index)? != "<clinit>" {
             self.javap_fmt_params(ind, &descriptor)?;
             self.javap_fmt_throws(ind, cp, &descriptor)?;
         }
@@ -168,8 +168,7 @@ impl MethodInfo {
                 attr.javap_fmt(
                     ind,
                     cp,
-                    //TODO: avoid double conversion, not sure that method signature is needed here
-                    &try_javap_print!(ind, MethodDescriptor::try_from(raw_descriptor)),
+                    &MethodDescriptor::try_from(raw_descriptor)?,
                     this,
                     self.access_flags.is_static(),
                 )?;
