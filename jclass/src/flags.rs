@@ -3,7 +3,7 @@
 /// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.1-200-E.1
 /// Table 4.1-B. Class access and property modifiers
 #[derive(Debug, Clone, Copy)]
-pub struct ClassFlags(u16);
+pub struct ClassFlags(pub(crate) u16);
 
 /// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7.6-300-D.1-D.1
 /// Table 4.7.6-A. Nested class access and property flags

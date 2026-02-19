@@ -36,7 +36,7 @@ impl FieldInfo {
         Ok(())
     }
 
-    pub(crate) fn javap_fmt(
+    pub(crate) fn fmt_javap(
         &self,
         ind: &mut Indented,
         cp: &ConstantPool,
@@ -54,7 +54,7 @@ impl FieldInfo {
             writeln!(ind)?;
 
             for attr in &self.attributes {
-                attr.javap_fmt(ind, cp)?;
+                attr.fmt_javap(ind, cp)?;
             }
             Ok(())
         })

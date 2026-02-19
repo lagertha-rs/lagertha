@@ -15,7 +15,7 @@ use itertools::Itertools;
 use std::fmt::Write as _;
 
 impl MethodAttribute {
-    pub(crate) fn javap_fmt(
+    pub(crate) fn fmt_javap(
         &self,
         ind: &mut Indented,
         cp: &ConstantPool,
@@ -24,8 +24,8 @@ impl MethodAttribute {
         is_static: bool,
     ) -> Result<(), ClassFormatErr> {
         match self {
-            MethodAttribute::Shared(shared) => shared.javap_fmt(ind, cp)?,
-            MethodAttribute::Code(code) => code.javap_fmt(ind, cp, descriptor, this, is_static)?,
+            MethodAttribute::Shared(shared) => shared.fmt_javap(ind, cp)?,
+            MethodAttribute::Code(code) => code.fmt_javap(ind, cp, descriptor, this, is_static)?,
             MethodAttribute::Exceptions(exc) => {
                 writeln!(ind, "Exceptions:")?;
                 ind.with_indent(|ind| {
@@ -69,7 +69,7 @@ impl MethodAttribute {
                             cp.get_utf8(&param.name_index)?.to_string()
                         };
                         write!(ind, "{:<W_NAME$} ", name)?;
-                        MethodParamFlags::new(param.access_flags).javap_fmt(ind)?;
+                        MethodParamFlags::new(param.access_flags).fmt_javap(ind)?;
                         writeln!(ind)?;
                     }
                     Ok(())
@@ -123,7 +123,7 @@ impl MethodAttribute {
 }
 
 impl CodeAttribute {
-    pub(crate) fn javap_fmt(
+    pub(crate) fn fmt_javap(
         &self,
         ind: &mut Indented,
         cp: &ConstantPool,
@@ -190,7 +190,7 @@ impl CodeAttribute {
                 })?;
             }
             for attr in &self.attributes {
-                attr.javap_fmt(ind, cp, this)?;
+                attr.fmt_javap(ind, cp, this)?;
             }
             Ok(())
         })?;
@@ -200,7 +200,7 @@ impl CodeAttribute {
 }
 
 impl StackMapFrame {
-    pub(crate) fn javap_fmt(
+    pub(crate) fn fmt_javap(
         &self,
         ind: &mut Indented,
         cp: &ConstantPool,
@@ -306,7 +306,7 @@ impl VerificationTypeInfo {
 }
 
 impl CodeAttributeInfo {
-    pub(crate) fn javap_fmt(
+    pub(crate) fn fmt_javap(
         &self,
         ind: &mut Indented,
         cp: &ConstantPool,
@@ -347,7 +347,7 @@ impl CodeAttributeInfo {
                 writeln!(ind, "StackMapTable: number_of_entries = {}", table.len())?;
                 ind.with_indent(|ind| {
                     for frame in table {
-                        frame.javap_fmt(ind, cp, this)?;
+                        frame.fmt_javap(ind, cp, this)?;
                     }
                     Ok(())
                 })?;
@@ -433,7 +433,7 @@ impl SharedAttribute {
         Ok(())
     }
 
-    pub(crate) fn javap_fmt(
+    pub(crate) fn fmt_javap(
         &self,
         ind: &mut Indented,
         cp: &ConstantPool,
@@ -549,13 +549,13 @@ impl SharedAttribute {
 }
 
 impl ClassAttribute {
-    pub(crate) fn javap_fmt(
+    pub(crate) fn fmt_javap(
         &self,
         ind: &mut Indented,
         cp: &ConstantPool,
     ) -> Result<(), ClassFormatErr> {
         match self {
-            ClassAttribute::Shared(shared) => shared.javap_fmt(ind, cp)?,
+            ClassAttribute::Shared(shared) => shared.fmt_javap(ind, cp)?,
             ClassAttribute::SourceFile(idx) => {
                 writeln!(ind, "SourceFile: \"{}\"", cp.get_utf8(idx)?)?;
             }
@@ -704,13 +704,13 @@ impl ClassAttribute {
 }
 
 impl FieldAttribute {
-    pub(crate) fn javap_fmt(
+    pub(crate) fn fmt_javap(
         &self,
         ind: &mut Indented,
         cp: &ConstantPool,
     ) -> Result<(), ClassFormatErr> {
         match self {
-            FieldAttribute::Shared(shared) => shared.javap_fmt(ind, cp)?,
+            FieldAttribute::Shared(shared) => shared.fmt_javap(ind, cp)?,
             FieldAttribute::ConstantValue(val) => {
                 let constant = cp.get_raw(val)?;
                 writeln!(

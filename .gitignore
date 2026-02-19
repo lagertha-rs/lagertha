@@ -6,5 +6,5 @@ target
 vm/tests/testdata/compiled
 javap/tests/testdata/compiled
 
-*.ja
 .run*
+/*.ja

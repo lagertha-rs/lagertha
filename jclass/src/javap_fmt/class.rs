@@ -69,7 +69,8 @@ impl ClassFile {
     }
 
     /// Formats the class file in javap-like output.
-    pub fn javap_fmt(&self) -> Result<String, ClassFormatErr> {
+    // TODO: rename to fmt_javap everywhere
+    pub fn fmt_javap(&self) -> Result<String, ClassFormatErr> {
         let mut out = String::new();
         let mut ind = Indented::new(&mut out);
 
@@ -125,14 +126,14 @@ impl ClassFile {
                 }
                 let tag = format_args!("{:<kw$}", c.get_kind(), kw = Self::CONSTANT_KIND_WIDTH);
                 write!(ind, "{:>w$} = {} ", format!("#{i}"), tag, w = counter_width)?;
-                c.javap_fmt(ind, &self.cp)?;
+                c.fmt_javap(ind, &self.cp)?;
             }
             Ok(())
         })?;
         writeln!(ind, "{{")?;
         ind.with_indent(|ind| {
             for (i, field) in self.fields.iter().enumerate() {
-                field.javap_fmt(ind, &self.cp)?;
+                field.fmt_javap(ind, &self.cp)?;
                 if i + 1 < self.fields.len() {
                     writeln!(ind)?;
                 }
@@ -142,7 +143,7 @@ impl ClassFile {
             }
 
             for (i, method) in self.methods.iter().enumerate() {
-                method.javap_fmt(ind, &self.cp, &self.this_class, &self.access_flags)?;
+                method.fmt_javap(ind, &self.cp, &self.this_class, &self.access_flags)?;
                 if i + 1 < self.methods.len() {
                     writeln!(ind)?;
                 }
@@ -151,7 +152,7 @@ impl ClassFile {
         })?;
         writeln!(ind, "}}")?;
         for attribute in &self.attributes {
-            attribute.javap_fmt(&mut ind, &self.cp)?;
+            attribute.fmt_javap(&mut ind, &self.cp)?;
         }
         Ok(out)
     }

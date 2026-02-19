@@ -17,7 +17,7 @@ pub mod flags;
 #[cfg(feature = "jasm_assemble")]
 pub mod jasm_asm;
 #[cfg(feature = "jasm_disassemble")]
-pub mod jasm_disas;
+pub mod jasm_dis;
 #[cfg(feature = "javap_print")]
 pub mod javap_fmt;
 pub mod member;

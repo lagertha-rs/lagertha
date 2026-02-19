@@ -157,7 +157,7 @@ impl MethodFlags {
 }
 
 impl MethodParamFlags {
-    pub fn javap_fmt(&self, ind: &mut Indented) -> Result<(), ClassFormatErr> {
+    pub fn fmt_javap(&self, ind: &mut Indented) -> Result<(), ClassFormatErr> {
         if self.is_final() {
             write!(ind, "final ")?;
         }

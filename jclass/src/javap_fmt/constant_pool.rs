@@ -261,7 +261,7 @@ impl ConstantEntry {
         format!("{}f", s)
     }
 
-    pub(crate) fn javap_fmt(
+    pub(crate) fn fmt_javap(
         &self,
         ind: &mut Indented,
         cp: &ConstantPool,

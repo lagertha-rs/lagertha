@@ -5,6 +5,7 @@
 mod attribute;
 pub mod builder;
 mod constant_pool;
+mod flags;
 mod method;
 
 pub type AttributeNameMap = std::collections::HashMap<crate::attribute::AttributeKind, u16>;

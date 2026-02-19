@@ -133,7 +133,7 @@ impl MethodInfo {
         Ok(())
     }
 
-    pub(crate) fn javap_fmt(
+    pub(crate) fn fmt_javap(
         &self,
         ind: &mut Indented,
         cp: &ConstantPool,
@@ -165,7 +165,7 @@ impl MethodInfo {
             writeln!(ind, "descriptor: {}", raw_descriptor)?;
             self.javap_fmt_flags(ind)?;
             for attr in &self.attributes {
-                attr.javap_fmt(
+                attr.fmt_javap(
                     ind,
                     cp,
                     &MethodDescriptor::try_from(raw_descriptor)?,
