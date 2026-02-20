@@ -13,7 +13,7 @@ impl MethodAttribute {
     ) -> Result<(), ClassFormatErr> {
         ind.with_indent(|ind| match self {
             MethodAttribute::Code(code) => code.fmt_jasm(ind, cp),
-            _ => unimplemented!("Only Code attribute is supported for writing right now"),
+            other => unimplemented!("{:?} is not supported for writing right now", other),
         })
     }
 }

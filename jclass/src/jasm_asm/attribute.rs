@@ -1,12 +1,12 @@
 use super::AttributeNameMap;
-use crate::attribute::AttributeKind;
 use crate::attribute::method::{CodeAttribute, MethodAttribute};
+use crate::attribute::AttributeKind;
 
 impl MethodAttribute {
     pub fn write_to(&self, buf: &mut Vec<u8>, attr_names: &AttributeNameMap) {
         let kind = match self {
             MethodAttribute::Code(_) => AttributeKind::Code,
-            _ => unimplemented!("Only Code attribute is supported for writing right now"),
+            other => unimplemented!("Method attribute {:?} not implemented for writing", other),
         };
 
         let name_index = attr_names[&kind];
