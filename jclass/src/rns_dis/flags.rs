@@ -4,7 +4,7 @@ use common::utils::indent_write::Indented;
 use std::fmt::Write as _;
 
 impl ClassFlags {
-    pub(super) fn fmt_jasm(&self, ind: &mut Indented) -> Result<(), ClassFormatErr> {
+    pub(super) fn fmt_rns(&self, ind: &mut Indented) -> Result<(), ClassFormatErr> {
         if self.is_module() {
             unimplemented!();
             //write!(ind, "module ")?;
@@ -36,7 +36,7 @@ impl ClassFlags {
 }
 
 impl MethodFlags {
-    pub(super) fn fmt_jasm(&self, ind: &mut Indented) -> Result<(), ClassFormatErr> {
+    pub(super) fn fmt_rns(&self, ind: &mut Indented) -> Result<(), ClassFormatErr> {
         if self.is_public() {
             write!(ind, "public ")?;
         } else if self.is_protected() {

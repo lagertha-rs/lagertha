@@ -6,13 +6,13 @@ use common::utils::indent_write::Indented;
 use std::fmt::Write as _;
 
 impl MethodAttribute {
-    pub(crate) fn fmt_jasm(
+    pub(crate) fn fmt_rns(
         &self,
         ind: &mut Indented,
         cp: &ConstantPool,
     ) -> Result<(), ClassFormatErr> {
         ind.with_indent(|ind| match self {
-            MethodAttribute::Code(code) => code.fmt_jasm(ind, cp),
+            MethodAttribute::Code(code) => code.fmt_rns(ind, cp),
             other => unimplemented!("{:?} is not supported for writing right now", other),
         })
     }
@@ -33,7 +33,7 @@ impl CodeAttribute {
         }
          */
 
-    pub(super) fn fmt_jasm(
+    pub(super) fn fmt_rns(
         &self,
         ind: &mut Indented,
         cp: &ConstantPool,
@@ -48,7 +48,7 @@ impl CodeAttribute {
             let code_len = self.code.len();
             while pc < code_len {
                 let inst = Instruction::new_at(&self.code, pc)?;
-                inst.fmt_jasm(ind, cp)?;
+                inst.fmt_rns(ind, cp)?;
                 pc += inst.byte_size() as usize;
             }
             Ok(())

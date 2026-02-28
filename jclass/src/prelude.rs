@@ -15,8 +15,8 @@ pub use crate::ClassFile;
 // Constant pool
 pub use crate::constant_pool::{ConstantEntry, ConstantKind, ConstantPool};
 pub use crate::constant_pool::{Dynamic, MethodHandle, MethodHandleKind, NameAndType, Reference};
-#[cfg(feature = "jasm_assemble")]
-pub use crate::jasm_asm::builder::ConstantPoolBuilder;
+#[cfg(feature = "rns_assemble")]
+pub use crate::rns_asm::builder::ConstantPoolBuilder;
 
 // Members
 pub use crate::member::{FieldInfo, MethodInfo};
@@ -30,8 +30,8 @@ pub use crate::attribute::{
     ElementValuePair, FieldAttribute, LocalVarEntry, MethodAttribute, SharedAttribute, TargetInfo,
     TypeAnnotation, TypePath, TypePathEntry,
 };
-#[cfg(feature = "jasm_assemble")]
-pub use crate::jasm_asm::AttributeNameMap;
+#[cfg(feature = "rns_assemble")]
+pub use crate::rns_asm::AttributeNameMap;
 
 // Flags
 pub use crate::flags::{ClassFlags, FieldFlags, InnerClassFlags, MethodFlags, MethodParamFlags};

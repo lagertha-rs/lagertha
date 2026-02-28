@@ -14,14 +14,14 @@ pub mod attribute;
 pub mod bytecode;
 pub mod constant_pool;
 pub mod flags;
-#[cfg(feature = "jasm_assemble")]
-pub mod jasm_asm;
-#[cfg(feature = "jasm_disassemble")]
-pub mod jasm_dis;
 #[cfg(feature = "javap_print")]
 pub mod javap_fmt;
 pub mod member;
 pub mod prelude;
+#[cfg(feature = "rns_assemble")]
+pub mod rns_asm;
+#[cfg(feature = "rns_disassemble")]
+pub mod rns_dis;
 
 // TODO: review all access levels in the crate (methods, fields, modules, structs, etc.)
 
@@ -45,8 +45,8 @@ pub struct ClassFile {
     pub fields: Vec<FieldInfo>,
     pub methods: Vec<MethodInfo>,
     pub attributes: Vec<ClassAttribute>,
-    #[cfg(feature = "jasm_assemble")]
-    pub attribute_names: jasm_asm::AttributeNameMap,
+    #[cfg(feature = "rns_assemble")]
+    pub attribute_names: rns_asm::AttributeNameMap,
 }
 
 impl ClassFile {
@@ -136,8 +136,8 @@ impl TryFrom<Vec<u8>> for ClassFile {
                 fields,
                 methods,
                 attributes,
-                #[cfg(feature = "jasm_assemble")]
-                attribute_names: jasm_asm::AttributeNameMap::new(),
+                #[cfg(feature = "rns_assemble")]
+                attribute_names: rns_asm::AttributeNameMap::new(),
             })
         }
     }

@@ -928,24 +928,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4a5f13b858c8d314ee3e8f639011f7ccefe71f97f96e50151fb991f267928e2c"
 
 [[package]]
-name = "jasm"
-version = "0.1.0"
-dependencies = [
- "ariadne",
- "assert_cmd",
- "clap",
- "insta",
- "itertools",
- "jclass",
- "phf",
- "rand",
- "rstest",
- "sha2",
- "strum",
- "tabwriter",
-]
-
-[[package]]
 name = "javap"
 version = "0.1.0"
 dependencies = [
@@ -1452,6 +1434,24 @@ dependencies = [
  "libc",
  "untrusted",
  "windows-sys 0.52.0",
+]
+
+[[package]]
+name = "rns"
+version = "0.1.0"
+dependencies = [
+ "ariadne",
+ "assert_cmd",
+ "clap",
+ "insta",
+ "itertools",
+ "jclass",
+ "phf",
+ "rand",
+ "rstest",
+ "sha2",
+ "strum",
+ "tabwriter",
 ]
 
 [[package]]
