@@ -1,6 +1,6 @@
 use super::AttributeNameMap;
-use crate::attribute::method::{CodeAttribute, MethodAttribute};
 use crate::attribute::AttributeKind;
+use crate::attribute::method::{CodeAttribute, MethodAttribute};
 
 impl MethodAttribute {
     pub fn write_to(&self, buf: &mut Vec<u8>, attr_names: &AttributeNameMap) {
