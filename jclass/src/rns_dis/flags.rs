@@ -5,30 +5,34 @@ use std::fmt::Write as _;
 
 impl ClassFlags {
     pub(super) fn fmt_rns(&self, ind: &mut Indented) -> Result<(), ClassFormatErr> {
-        if self.is_module() {
-            unimplemented!();
-            //write!(ind, "module ")?;
-        } else if self.is_annotation() {
-            unimplemented!();
-            //write!(ind, "@interface ")?;
-        } else if self.is_interface() {
-            unimplemented!();
-            //write!(ind, "interface ")?;
-        } else {
-            write!(ind, ".class ")?;
-        }
-
+        // TODO: the order is random here. make it right
+        write!(ind, ".class ")?;
         if self.is_public() {
             write!(ind, "public ")?;
         }
-
-        let is_iface_like = self.is_interface() || self.is_annotation() || self.is_module();
-
-        if self.is_abstract() && !is_iface_like {
+        if self.is_module() {
+            write!(ind, "module ")?;
+        }
+        if self.is_annotation() {
+            write!(ind, "annotation ")?;
+        }
+        if self.is_interface() {
+            write!(ind, "interface ")?;
+        }
+        if self.is_abstract() {
             write!(ind, "abstract ")?;
         }
-        if self.is_final() && !is_iface_like {
+        if self.is_final() {
             write!(ind, "final ")?;
+        }
+        if self.is_enum() {
+            write!(ind, "enum ")?;
+        }
+        if self.is_module() {
+            write!(ind, "module ")?;
+        }
+        if self.is_super() {
+            write!(ind, "super ")?;
         }
 
         Ok(())
