@@ -7,4 +7,4 @@ vm/tests/testdata/compiled
 javap/tests/testdata/compiled
 
 .run*
-/*.ja
+/*.rns
