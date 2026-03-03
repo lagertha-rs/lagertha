@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 
-members = ["jclass", "common", "vm", "javap", "runtime", "jimage", "rns"]
+members = ["jclass", "common", "vm", "javap", "runtime", "jimage", "rns", "rns-asm", "rns-lsp"]
 
 [workspace.dependencies]
 tracing = { version = "0.1", features = [
