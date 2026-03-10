@@ -17,6 +17,8 @@ pub use crate::constant_pool::{ConstantEntry, ConstantKind, ConstantPool};
 pub use crate::constant_pool::{Dynamic, MethodHandle, MethodHandleKind, NameAndType, Reference};
 #[cfg(feature = "rns_assemble")]
 pub use crate::rns_asm::builder::ConstantPoolBuilder;
+#[cfg(feature = "rns_assemble")]
+pub use crate::rns_asm::class_file::ClassFileBuilder;
 
 // Members
 pub use crate::member::{FieldInfo, MethodInfo};
