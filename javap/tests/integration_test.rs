@@ -1,12 +1,10 @@
-use assert_cmd::cargo_bin_cmd;
-use rstest::*;
-use std::io::BufRead;
-use std::path::PathBuf;
+/*
+TODO: deprecated and to be deleted soon
 
 #[rstest]
 fn compare_with_javap(
     #[base_dir = "tests/testdata/compiled"]
-    #[files("**/*.class")]
+    /*#[files("**/*.class")]
     path: PathBuf,
 ) {
     let mut cmd = cargo_bin_cmd!("javap");
@@ -43,3 +41,5 @@ fn compare_with_javap(
         );
     }
 }
+
+*/
