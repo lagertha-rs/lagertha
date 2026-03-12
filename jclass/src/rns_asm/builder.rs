@@ -8,6 +8,7 @@ pub struct ConstantPoolBuilder {
     entries: Vec<ConstantEntry>,
 
     utf8_map: HashMap<String, u16>,
+    int_map: HashMap<i32, u16>,
     class_map: HashMap<u16, u16>,
     string_map: HashMap<u16, u16>,
     nat_map: HashMap<(u16, u16), u16>,
@@ -20,6 +21,7 @@ impl ConstantPoolBuilder {
         Self {
             entries: vec![ConstantEntry::Unused],
             utf8_map: HashMap::new(),
+            int_map: HashMap::new(),
             class_map: HashMap::new(),
             string_map: HashMap::new(),
             nat_map: HashMap::new(),
@@ -90,6 +92,15 @@ impl ConstantPoolBuilder {
         self.fill_entry(string_idx, ConstantEntry::String(utf8_idx));
         self.string_map.insert(utf8_idx, string_idx);
         string_idx
+    }
+
+    pub fn add_integer(&mut self, value: i32) -> u16 {
+        if let Some(&idx) = self.int_map.get(&value) {
+            return idx;
+        }
+        let idx = self.add_entry(ConstantEntry::Integer(value));
+        self.int_map.insert(value, idx);
+        idx
     }
 
     pub fn add_methodref(&mut self, class: &str, name: &str, descriptor: &str) -> u16 {
