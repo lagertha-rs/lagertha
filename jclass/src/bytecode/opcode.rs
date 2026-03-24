@@ -419,6 +419,72 @@ impl Opcode {
     }
 }
 
+impl Opcode {
+    pub const fn operand_size(self) -> u8 {
+        match self {
+            // 4-byte operand
+            Self::GotoW | Self::JsrW | Self::InvokeDynamic | Self::InvokeInterface => 4,
+
+            // 3-byte operand
+            Self::Multianewarray => 3,
+
+            // 2-byte operand
+            Self::Anewarray
+            | Self::Checkcast
+            | Self::Getfield
+            | Self::Getstatic
+            | Self::Goto
+            | Self::IfAcmpEq
+            | Self::IfAcmpNe
+            | Self::IfEq
+            | Self::IfGe
+            | Self::IfGt
+            | Self::IfLe
+            | Self::IfLt
+            | Self::IfNe
+            | Self::Ifnonnull
+            | Self::Ifnull
+            | Self::IfIcmpeq
+            | Self::IfIcmpge
+            | Self::IfIcmpgt
+            | Self::IfIcmple
+            | Self::IfIcmplt
+            | Self::IfIcmpne
+            | Self::Iinc
+            | Self::Instanceof
+            | Self::InvokeSpecial
+            | Self::InvokeStatic
+            | Self::InvokeVirtual
+            | Self::Ldc2W
+            | Self::LdcW
+            | Self::New
+            | Self::Putfield
+            | Self::Putstatic
+            | Self::Sipush
+            | Self::Jsr => 2,
+
+            // 1-byte operand
+            Self::Aload
+            | Self::Astore
+            | Self::Bipush
+            | Self::Dload
+            | Self::Dstore
+            | Self::Fload
+            | Self::Fstore
+            | Self::Iload
+            | Self::Istore
+            | Self::Ldc
+            | Self::Lload
+            | Self::Lstore
+            | Self::Newarray
+            | Self::Ret => 1,
+
+            // No operand (everything else, including variable-size lookupswitch/tableswitch)
+            _ => 0,
+        }
+    }
+}
+
 impl std::fmt::Display for Opcode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(self.as_str())

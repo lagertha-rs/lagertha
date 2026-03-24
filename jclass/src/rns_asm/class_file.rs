@@ -52,6 +52,16 @@ impl ClassFileBuilder {
         self
     }
 
+    pub fn methods(mut self, methods: Vec<MethodInfo>) -> Self {
+        self.methods = methods;
+        self
+    }
+
+    pub fn attribute_names(mut self, attribute_names: AttributeNameMap) -> Self {
+        self.attribute_names = attribute_names;
+        self
+    }
+
     pub fn build(self) -> Option<ClassFile> {
         Some(ClassFile {
             minor_version: self.minor_version,
