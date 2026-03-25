@@ -483,6 +483,13 @@ impl Opcode {
             _ => 0,
         }
     }
+
+    pub const fn pc_size(self) -> Option<u8> {
+        match self {
+            Self::Lookupswitch | Self::TableSwitch => None,
+            _ => Some(1 + self.operand_size()),
+        }
+    }
 }
 
 impl std::fmt::Display for Opcode {
