@@ -13,7 +13,7 @@ hotpath-off = ["hotpath/hotpath-off"]
 clap = { version = "4.5.47", features = ["derive"] }
 
 hotpath = { workspace = true }
-common = { path = "../common" }
+common = { package = "lvm-common", version = "0.1.0" }
 runtime = { path = "../runtime" }
 
 tracing-log = { workspace = true }
