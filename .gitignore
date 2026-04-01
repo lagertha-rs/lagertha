@@ -8,3 +8,6 @@ javap/tests/testdata/compiled
 
 .run*
 /*.rns
+
+# Local cargo config (patch overrides)
+.cargo/
