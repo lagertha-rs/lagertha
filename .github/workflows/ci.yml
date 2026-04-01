@@ -8,6 +8,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  CLIPPY_ENABLED: false  # Set to true once clippy warnings are resolved
 
 jobs:
   test:
@@ -45,15 +46,15 @@ jobs:
           path: target/test-classes
           key: >
             ${{ runner.os }}-jdk-${{ matrix.jdk }}-${{ matrix.jdk_distribution }}-fixtures-
-            ${{ hashFiles('javap/tests', 'javap/build.rs', 'vm/tests', 'vm/build.rs')}}
+            ${{ hashFiles('vm/tests', 'vm/build.rs')}}
 
       - name: Check formatting
         run: cargo fmt --all -- --check
 
-      # TODO: re-enable clippy once warnings are resolved
-      # - name: Clippy
-      #   env: { RUSTFLAGS: -Dwarnings }
-      #   run: cargo clippy --all-targets --all-features -- -D warnings
+      - name: Clippy
+        if: env.CLIPPY_ENABLED == 'true'
+        env: { RUSTFLAGS: -Dwarnings }
+        run: cargo clippy --all-targets --all-features -- -D warnings
 
       - name: Build
         run: cargo build --verbose --locked
