@@ -13,3 +13,5 @@ tracing = { version = "0.1", features = [
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 tracing-log = "0.2"
 hotpath = "0.8.0"
+common = { package = "lvm-common", git = "https://github.com/lagertha-rs/lvm-common", branch = "main" }
+jclass = { package = "lvm-class", git = "https://github.com/lagertha-rs/lvm-class", branch = "main" }
