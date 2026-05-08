@@ -1021,7 +1021,6 @@ checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
 [[package]]
 name = "lvm-class"
 version = "0.1.0"
-source = "git+https://github.com/lagertha-rs/lvm-class?branch=main#ed78fe6447af73edabd78f9625a60191009b0eae"
 dependencies = [
  "either",
  "itertools",
@@ -1032,7 +1031,6 @@ dependencies = [
 [[package]]
 name = "lvm-common"
 version = "0.1.0"
-source = "git+https://github.com/lagertha-rs/lvm-common?branch=main#dc9655cb01384936f417599fd2a3368c77d5b502"
 dependencies = [
  "num_enum",
  "tracing-subscriber",
@@ -2567,3 +2565,7 @@ name = "zmij"
 version = "1.0.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b8848ee67ecc8aedbaf3e4122217aff892639231befc6a1b58d29fff4c2cabaa"
+
+[[patch.unused]]
+name = "rns-lang"
+version = "0.1.0"
