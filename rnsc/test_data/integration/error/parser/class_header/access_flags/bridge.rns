@@ -1,0 +1,3 @@
+.class bridge HelloWorld
+.super java/lang/Object
+.class_end

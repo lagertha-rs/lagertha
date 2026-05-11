@@ -1,0 +1,24 @@
+---
+source: rns-asm/tests/rns_test.rs
+assertion_line: 210
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+; only a comment, no class at all
+----- STDERR -----
+[E-006] Error: file contains no class definition
+   ╭─[ test_data/integration/error/parser/outside_class_directive/before_class_dir/only_comment.rns:1:34 ]
+   │
+ 1 │ ; only a comment, no class at all
+   │ │ 
+   │ ╰─ expected a '.class' directive
+   │ 
+   │ Help: Make sure the file contains a valid class definition.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-006
+───╯
+----- HASH -----
+not generated

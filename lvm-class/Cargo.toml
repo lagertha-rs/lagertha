@@ -1,0 +1,27 @@
+[package]
+name = "lvm-class"
+version = "0.1.0"
+edition = "2024"
+description = "JVM class file parser and writer for the Lagertha VM project"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/lagertha-rs/lagertha"
+homepage = "https://github.com/lagertha-rs"
+authors = ["Obito-git"]
+keywords = ["jvm", "java", "bytecode", "class-file", "parser"]
+categories = ["parser-implementations", "development-tools"]
+
+[features]
+default = []
+javap_print = []
+rns_assemble = []
+rns_disassemble = []
+
+[dependencies]
+num_enum = "0.7.4"
+itertools = "0.14.0"
+
+either = "1.15.0" # TODO: add only under javap_print feature
+
+common = { workspace = true }
+
+[dev-dependencies]

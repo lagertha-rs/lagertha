@@ -1,0 +1,38 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.method shouldn't be here
+.class 42
+.super java/lang/Object
+unexpected
+----- STDERR -----
+[E-008] Error: unexpected directive before class definition
+   ╭─[ test_data/integration/error/parser/class_body/err_before_dot_class_recovers.rns:1:1 ]
+   │
+ 1 │ .method shouldn't be here
+   │ ───┬───  
+   │    ╰───── valid context for .method directive is: 'class body'.
+   │ 
+   │ Help: Ensure all code is declared inside a '.class' directive.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-008
+───╯
+[E-007] Error: unexpected identifier class body
+   ╭─[ test_data/integration/error/parser/class_body/err_before_dot_class_recovers.rns:4:1 ]
+   │
+ 4 │ unexpected
+   │ ─────┬────  
+   │      ╰────── unexpected token
+   │ 
+   │ Help: Check the syntax of the class body and ensure all tokens are valid.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-007
+───╯
+----- HASH -----
+not generated

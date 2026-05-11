@@ -1,0 +1,3 @@
+.class public native final bridge HelloWorld
+.super java/lang/Object
+.class_end

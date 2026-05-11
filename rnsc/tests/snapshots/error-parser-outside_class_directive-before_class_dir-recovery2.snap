@@ -1,0 +1,47 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+should print 3 diagnostics, first is "should" .class MyClass ExtraToken ; <- ExtraToken is second
+; missing .super directive is third warning
+----- STDERR -----
+[E-008] Error: unexpected identifier before class definition
+   ╭─[ test_data/integration/error/parser/outside_class_directive/before_class_dir/recovery2.rns:1:1 ]
+   │
+ 1 │ should print 3 diagnostics, first is "should" .class MyClass ExtraToken ; <- ExtraToken is second
+   │ ───┬──  
+   │    ╰──── valid context for should identifier is: 'operand'.
+   │ 
+   │ Help: Ensure all code is declared inside a '.class' directive.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-008
+───╯
+[E-010] Error: unexpected trailing tokens after class definition
+   ╭─[ test_data/integration/error/parser/outside_class_directive/before_class_dir/recovery2.rns:1:62 ]
+   │
+ 1 │ should print 3 diagnostics, first is "should" .class MyClass ExtraToken ; <- ExtraToken is second
+   │                                                             │─────┬────  
+   │                                                             ╰──────────── expected end of class definition here
+   │                                                                   │      
+   │                                                                   ╰────── but found 1 trailing token
+   │ 
+   │ Help: Remove the trailing tokens or move them to a valid context.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-010
+───╯
+[W-001] Warning: missing super directive
+   ╭─[ test_data/integration/error/parser/outside_class_directive/before_class_dir/recovery2.rns:1:47 ]
+   │
+ 1 │ should print 3 diagnostics, first is "should" .class MyClass ExtraToken ; <- ExtraToken is second
+   │                                               ───┬──  
+   │                                                  ╰──── class 'Some(Class(None, Spanned { value: "MyClass", span: Span { byte_start: 53, byte_end: 60, line: 0, col_start: 53, col_end: 60 } }))' is missing a '.super' directive
+   │ 
+   │ Note: The .super directive is required to specify the superclass. Defaulting to 'java/lang/Object'.
+───╯
+----- HASH -----
+not generated

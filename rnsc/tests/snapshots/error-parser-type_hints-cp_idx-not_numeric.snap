@@ -1,0 +1,27 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class public MainClass
+.super @cp_idx not_a_number ; explicit constant pool index
+----- STDERR -----
+[E-003] Error: '@cp_idx' expects a constant pool index, but 'not_a_number' is not an integer
+   ╭─[ test_data/integration/error/parser/type_hints/cp_idx/not_numeric.rns:2:8 ]
+   │
+ 2 │ .super @cp_idx not_a_number ; explicit constant pool index
+   │        ───┬─── ──────┬─────  
+   │           ╰────────────────── forces explicit constant pool index
+   │                      │       
+   │                      ╰─────── but 'not_a_number' is not an integer
+   │ 
+   │ Help: Use a decimal constant pool index here, for example:
+   │       @cp_idx 12
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-003
+───╯
+----- HASH -----
+not generated

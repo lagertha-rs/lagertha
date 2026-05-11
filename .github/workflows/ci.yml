@@ -57,7 +57,7 @@ jobs:
         run: cargo clippy --all-targets --all-features -- -D warnings
 
       - name: Build
-        run: cargo build --verbose --locked
+        run: cargo build --workspace --verbose --locked
 
       - name: Run tests
-        run: cargo test --verbose --locked
+        run: cargo test --workspace --verbose --locked

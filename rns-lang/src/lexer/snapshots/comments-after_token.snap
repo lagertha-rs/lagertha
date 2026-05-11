@@ -1,0 +1,11 @@
+---
+source: rns/src/lexer/snapshot_tests.rs
+expression: formatted
+---
+----- SOURCE -----
+.class ; this is a comment
+----- TOKENS -----
+KIND      | SPAN    | LSP       | TEXT
+----      | ----    | ---       | ----
+DotClass  | 0..6    | 0:0..6    | .class
+Newline   | 26..27  | 0:26..27  | \n

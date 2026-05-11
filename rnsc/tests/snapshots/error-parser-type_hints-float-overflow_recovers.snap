@@ -1,0 +1,39 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class @float 9999999999999999999999999999999999999999
+unexpected_token ; <- this error should be reported as well
+----- STDERR -----
+[E-003] Error: '@float' requires a 32-bit float, but '9999999999999999999999999999999999999999' is out of range
+   ╭─[ test_data/integration/error/parser/type_hints/float/overflow_recovers.rns:1:8 ]
+   │
+ 1 │ .class @float 9999999999999999999999999999999999999999
+   │        ───┬── ────────────────────┬───────────────────  
+   │           ╰───────────────────────────────────────────── forces explicit float constant pool type
+   │                                   │                     
+   │                                   ╰───────────────────── but '9999999999999999999999999999999999999999' is out of range
+   │ 
+   │ Help: If you need a larger float, use @double instead:
+   │       @double 9999999999999999999999999999999999999999
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-003
+───╯
+[E-007] Error: unexpected identifier class body
+   ╭─[ test_data/integration/error/parser/type_hints/float/overflow_recovers.rns:2:1 ]
+   │
+ 2 │ unexpected_token ; <- this error should be reported as well
+   │ ────────┬───────  
+   │         ╰───────── unexpected token
+   │ 
+   │ Help: Check the syntax of the class body and ensure all tokens are valid.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-007
+───╯
+----- HASH -----
+not generated

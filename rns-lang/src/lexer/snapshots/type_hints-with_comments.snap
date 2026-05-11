@@ -1,0 +1,16 @@
+---
+source: rns/src/lexer/snapshot_tests.rs
+expression: formatted
+---
+----- SOURCE -----
+@utf8 hello ; this is a utf8 constant
+@int 42 ; this is an integer constant
+----- TOKENS -----
+KIND                 | SPAN    | LSP       | TEXT
+----                 | ----    | ---       | ----
+TypeHint(@utf8)      | 0..5    | 0:0..5    | @utf8
+Identifier("hello")  | 6..11   | 0:6..11   | hello
+Newline              | 37..38  | 0:37..38  | \n
+TypeHint(@int)       | 38..42  | 1:0..4    | @int
+Identifier("42")     | 43..45  | 1:5..7    | 42
+Newline              | 75..76  | 1:37..38  | \n

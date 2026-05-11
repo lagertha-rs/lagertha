@@ -1,0 +1,22 @@
+---
+source: rns-asm/tests/rns_test.rs
+assertion_line: 210
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.method (I)V .([Z)Ljava/lang/String;
+----- STDERR -----
+[E-002] Error: unknown directive
+   ╭─[ test_data/integration/error/lexer/directives/dot_method_descriptor.rns:1:14 ]
+   │
+ 1 │ .method (I)V .([Z)Ljava/lang/String;
+   │              ───────────┬───────────  
+   │                         ╰───────────── '.([Z)Ljava/lang/String;' is not a recognized directive
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-002
+───╯
+----- HASH -----
+not generated

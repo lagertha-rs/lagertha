@@ -1,0 +1,32 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class @int identifier
+.super java/lang/Object
+----- STDERR -----
+[E-003] Error: '@int' requires a 32-bit integer, but 'identifier' is not a number
+   ╭─[ test_data/integration/error/parser/type_hints/int/not_i32.rns:1:8 ]
+   │
+ 1 │ .class @int identifier
+   │        ──┬─ ─────┬────  
+   │          ╰────────────── forces explicit integer constant pool type
+   │                  │      
+   │                  ╰────── but 'identifier' is not a number
+   │ 
+   │ Help: 'identifier' is not a valid integer literal.
+   │       
+   │       Syntax:
+   │       @int <integer>
+   │       
+   │       For example:
+   │       @int 42
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-003
+───╯
+----- HASH -----
+not generated

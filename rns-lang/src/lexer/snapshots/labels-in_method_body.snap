@@ -1,0 +1,35 @@
+---
+source: rns/src/lexer/snapshot_tests.rs
+expression: formatted
+---
+----- SOURCE -----
+.method public static main ([Ljava/lang/String;)V
+  .code
+    loop:
+    aload_0
+    goto_label:
+    return
+  .code_end
+.method_end
+----- TOKENS -----
+KIND                                  | SPAN      | LSP       | TEXT
+----                                  | ----      | ---       | ----
+DotMethod                             | 0..7      | 0:0..7    | .method
+AccessFlag(public)                    | 8..14     | 0:8..14   | public
+AccessFlag(static)                    | 15..21    | 0:15..21  | static
+Identifier("main")                    | 22..26    | 0:22..26  | main
+Identifier("([Ljava/lang/String;)V")  | 27..49    | 0:27..49  | ([Ljava/lang/String;)V
+Newline                               | 49..50    | 0:49..50  | \n
+DotCode                               | 52..57    | 1:2..7    | .code
+Newline                               | 57..58    | 1:7..8    | \n
+Label("loop")                         | 62..67    | 2:4..9    | loop:
+Newline                               | 67..68    | 2:9..10   | \n
+Identifier("aload_0")                 | 72..79    | 3:4..11   | aload_0
+Newline                               | 79..80    | 3:11..12  | \n
+Label("goto_label")                   | 84..95    | 4:4..15   | goto_label:
+Newline                               | 95..96    | 4:15..16  | \n
+Identifier("return")                  | 100..106  | 5:4..10   | return
+Newline                               | 106..107  | 5:10..11  | \n
+DotCodeEnd                            | 109..118  | 6:2..11   | .code_end
+Newline                               | 118..119  | 6:11..12  | \n
+DotMethodEnd                          | 119..130  | 7:0..11   | .method_end

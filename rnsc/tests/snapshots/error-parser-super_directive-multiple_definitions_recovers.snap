@@ -1,0 +1,43 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class MyClass
+
+.super firstClass
+.super secondClass
+
+kooba ; <- still reported
+----- STDERR -----
+[E-007] Error: unexpected identifier class body
+   ╭─[ test_data/integration/error/parser/super_directive/multiple_definitions_recovers.rns:6:1 ]
+   │
+ 6 │ kooba ; <- still reported
+   │ ──┬──  
+   │   ╰──── unexpected token
+   │ 
+   │ Help: Check the syntax of the class body and ensure all tokens are valid.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-007
+───╯
+[E-011] Error: multiple .super directives
+   ╭─[ test_data/integration/error/parser/super_directive/multiple_definitions_recovers.rns:4:1 ]
+   │
+ 3 │ .super firstClass
+   │ ───┬──  
+   │    ╰──── first .super directive defined here with super class 'firstClass'
+ 4 │ .super secondClass
+   │ ───┬──  
+   │    ╰──── but another .super directive defined here with super class 'secondClass'
+   │ 
+   │ Help: A class can only have one .super directive. Remove the duplicates.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-011
+───╯
+----- HASH -----
+not generated

@@ -1,0 +1,25 @@
+---
+source: tests/rns_test.rs
+assertion_line: 210
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class public MainClass
+.super @cp_index 42 ; explicit constant pool index
+----- STDERR -----
+[E-005] Error: unknown type hint
+   ╭─[ test_data/integration/error/lexer/type_hints/cp_index_alias_in_super.rns:2:8 ]
+   │
+ 2 │ .super @cp_index 42 ; explicit constant pool index
+   │        ────┬────  
+   │            ╰────── '@cp_index' is not a recognized type hint
+   │ 
+   │ Help: Did you mean '@cp_idx'?
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-005
+───╯
+----- HASH -----
+not generated

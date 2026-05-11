@@ -1,0 +1,32 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class @float "not a float" ; <- has space and should be quoted in help
+.super java/lang/Object
+----- STDERR -----
+[E-003] Error: '@float' requires a 32-bit float, but 'not a float' is not a number
+   ╭─[ test_data/integration/error/parser/type_hints/float/not_f32_with_space.rns:1:8 ]
+   │
+ 1 │ .class @float "not a float" ; <- has space and should be quoted in help
+   │        ───┬── ──────┬──────  
+   │           ╰────────────────── forces explicit float constant pool type
+   │                     │        
+   │                     ╰──────── but 'not a float' is not a number
+   │ 
+   │ Help: 'not a float' is not a valid float literal.
+   │       
+   │       Syntax:
+   │       @float <float>
+   │       
+   │       For example:
+   │       @float 3.14
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-003
+───╯
+----- HASH -----
+not generated

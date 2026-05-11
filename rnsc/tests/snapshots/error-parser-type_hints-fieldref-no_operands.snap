@@ -1,0 +1,31 @@
+---
+source: rns-asm/tests/rns_test.rs
+assertion_line: 210
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class   @fieldref ; no operand provided
+.super java/lang/Object
+----- STDERR -----
+[E-014] Error: '@fieldref' type hint is missing its class name
+   ╭─[ test_data/integration/error/parser/type_hints/fieldref/no_operands.rns:1:10 ]
+   │
+ 1 │ .class   @fieldref ; no operand provided
+   │          ────┬────│ 
+   │              ╰────── forces explicit field reference constant pool type
+   │                   │ 
+   │                   ╰─ but class name is missing
+   │ 
+   │ Help: Provide the value immediately after the hint:
+   │       @fieldref <class_name> <field_name> <field_descriptor>
+   │       
+   │       For example:
+   │       @fieldref java/lang/System out Ljava/io/PrintStream;
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-014
+───╯
+----- HASH -----
+not generated

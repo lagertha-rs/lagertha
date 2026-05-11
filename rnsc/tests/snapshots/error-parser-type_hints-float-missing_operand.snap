@@ -1,0 +1,31 @@
+---
+source: rns-asm/tests/rns_test.rs
+assertion_line: 210
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class @float
+.super java/lang/Object
+----- STDERR -----
+[E-014] Error: '@float' type hint is missing its 32-bit float
+   ╭─[ test_data/integration/error/parser/type_hints/float/missing_operand.rns:1:8 ]
+   │
+ 1 │ .class @float
+   │        ───┬──│ 
+   │           ╰──── forces explicit float constant pool type
+   │              │ 
+   │              ╰─ but 32-bit float is missing
+   │ 
+   │ Help: Provide the value immediately after the hint:
+   │       @float <float>
+   │       
+   │       For example:
+   │       @float 3.14
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-014
+───╯
+----- HASH -----
+not generated

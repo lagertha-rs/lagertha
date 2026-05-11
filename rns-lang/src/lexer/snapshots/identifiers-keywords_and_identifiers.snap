@@ -1,0 +1,14 @@
+---
+source: rns/src/lexer/snapshot_tests.rs
+expression: formatted
+---
+----- SOURCE -----
+public myVariable static someMethod final
+----- TOKENS -----
+KIND                      | SPAN    | LSP       | TEXT
+----                      | ----    | ---       | ----
+AccessFlag(public)        | 0..6    | 0:0..6    | public
+Identifier("myVariable")  | 7..17   | 0:7..17   | myVariable
+AccessFlag(static)        | 18..24  | 0:18..24  | static
+Identifier("someMethod")  | 25..35  | 0:25..35  | someMethod
+AccessFlag(final)         | 36..41  | 0:36..41  | final

@@ -1,0 +1,23 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+. class
+----- STDERR -----
+[E-008] Error: unexpected identifier before class definition
+   ╭─[ test_data/integration/error/parser/outside_class_directive/before_class_dir/dot_space_class.rns:1:1 ]
+   │
+ 1 │ . class
+   │ ┬  
+   │ ╰── valid context for . identifier is: 'operand'.
+   │ 
+   │ Help: Ensure all code is declared inside a '.class' directive.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-008
+───╯
+----- HASH -----
+not generated

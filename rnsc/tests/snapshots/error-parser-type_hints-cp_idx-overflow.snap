@@ -1,0 +1,32 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class public MainClass
+.super @cp_idx 65536 ; explicit constant pool index
+----- STDERR -----
+[E-003] Error: '@cp_idx' requires a 16-bit integer, but '65536' is out of range
+   ╭─[ test_data/integration/error/parser/type_hints/cp_idx/overflow.rns:2:8 ]
+   │
+ 2 │ .super @cp_idx 65536 ; explicit constant pool index
+   │        ───┬─── ──┬──  
+   │           ╰─────────── forces explicit constant pool index
+   │                  │    
+   │                  ╰──── but '65536' is out of range
+   │ 
+   │ Help: Use a constant pool index in the range 0 to 65535.
+   │       
+   │       Syntax:
+   │       @cp_idx <unsigned_short>
+   │       
+   │       For example:
+   │       @cp_idx 12
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-003
+───╯
+----- HASH -----
+not generated

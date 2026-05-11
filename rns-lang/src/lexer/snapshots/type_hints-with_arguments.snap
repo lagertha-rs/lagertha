@@ -1,0 +1,30 @@
+---
+source: rns/src/lexer/snapshot_tests.rs
+expression: formatted
+---
+----- SOURCE -----
+@utf8 hello
+@int 42
+@string "foo"
+@class MyClass
+@methodref MyClass myMethod ()V
+----- TOKENS -----
+KIND                    | SPAN    | LSP       | TEXT
+----                    | ----    | ---       | ----
+TypeHint(@utf8)         | 0..5    | 0:0..5    | @utf8
+Identifier("hello")     | 6..11   | 0:6..11   | hello
+Newline                 | 11..12  | 0:11..12  | \n
+TypeHint(@int)          | 12..16  | 1:0..4    | @int
+Identifier("42")        | 17..19  | 1:5..7    | 42
+Newline                 | 19..20  | 1:7..8    | \n
+TypeHint(@string)       | 20..27  | 2:0..7    | @string
+Identifier("foo")       | 28..33  | 2:8..13   | "foo"
+Newline                 | 33..34  | 2:13..14  | \n
+TypeHint(@class)        | 34..40  | 3:0..6    | @class
+Identifier("MyClass")   | 41..48  | 3:7..14   | MyClass
+Newline                 | 48..49  | 3:14..15  | \n
+TypeHint(@methodref)    | 49..59  | 4:0..10   | @methodref
+Identifier("MyClass")   | 60..67  | 4:11..18  | MyClass
+Identifier("myMethod")  | 68..76  | 4:19..27  | myMethod
+Identifier("()V")       | 77..80  | 4:28..31  | ()V
+Newline                 | 80..81  | 4:31..32  | \n

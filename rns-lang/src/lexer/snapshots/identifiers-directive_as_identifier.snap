@@ -1,0 +1,11 @@
+---
+source: rns/src/lexer/snapshot_tests.rs
+expression: formatted
+---
+----- SOURCE -----
+.super ".super"
+----- TOKENS -----
+KIND                  | SPAN   | LSP      | TEXT
+----                  | ----   | ---      | ----
+DotSuper              | 0..6   | 0:0..6   | .super
+Identifier(".super")  | 7..15  | 0:7..15  | ".super"

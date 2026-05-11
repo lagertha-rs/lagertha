@@ -1,0 +1,31 @@
+---
+source: rns-asm/tests/rns_test.rs
+assertion_line: 210
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class   @string ; no operand provided
+.super java/lang/Object
+----- STDERR -----
+[E-014] Error: '@string' type hint is missing its string literal
+   ╭─[ test_data/integration/error/parser/type_hints/string/no_operand.rns:1:10 ]
+   │
+ 1 │ .class   @string ; no operand provided
+   │          ───┬───│ 
+   │             ╰───── forces explicit string constant pool type
+   │                 │ 
+   │                 ╰─ but string literal is missing
+   │ 
+   │ Help: Provide the value immediately after the hint:
+   │       @string "<string>"
+   │       
+   │       For example:
+   │       @string "Hello, World!"
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-014
+───╯
+----- HASH -----
+not generated

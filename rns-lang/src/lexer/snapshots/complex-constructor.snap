@@ -1,0 +1,43 @@
+---
+source: rns/src/lexer/snapshot_tests.rs
+expression: formatted
+---
+----- SOURCE -----
+.class public Example
+.super java/lang/Object
+
+.method public <init> ()V
+.code
+    aload_0
+    invokespecial java/lang/Object <init> ()V
+    return
+.method_end
+----- TOKENS -----
+KIND                            | SPAN      | LSP       | TEXT
+----                            | ----      | ---       | ----
+DotClass                        | 0..6      | 0:0..6    | .class
+AccessFlag(public)              | 7..13     | 0:7..13   | public
+Identifier("Example")           | 14..21    | 0:14..21  | Example
+Newline                         | 21..22    | 0:21..22  | \n
+DotSuper                        | 22..28    | 1:0..6    | .super
+Identifier("java/lang/Object")  | 29..45    | 1:7..23   | java/lang/Object
+Newline                         | 45..46    | 1:23..24  | \n
+Newline                         | 46..47    | 2:0..1    | \n
+DotMethod                       | 47..54    | 3:0..7    | .method
+AccessFlag(public)              | 55..61    | 3:8..14   | public
+Identifier("<init>")            | 62..68    | 3:15..21  | <init>
+Identifier("()V")               | 69..72    | 3:22..25  | ()V
+Newline                         | 72..73    | 3:25..26  | \n
+DotCode                         | 73..78    | 4:0..5    | .code
+Newline                         | 78..79    | 4:5..6    | \n
+Identifier("aload_0")           | 83..90    | 5:4..11   | aload_0
+Newline                         | 90..91    | 5:11..12  | \n
+Identifier("invokespecial")     | 95..108   | 6:4..17   | invokespecial
+Identifier("java/lang/Object")  | 109..125  | 6:18..34  | java/lang/Object
+Identifier("<init>")            | 126..132  | 6:35..41  | <init>
+Identifier("()V")               | 133..136  | 6:42..45  | ()V
+Newline                         | 136..137  | 6:45..46  | \n
+Identifier("return")            | 141..147  | 7:4..10   | return
+Newline                         | 147..148  | 7:10..11  | \n
+DotMethodEnd                    | 148..159  | 8:0..11   | .method_end
+Newline                         | 159..160  | 8:11..12  | \n

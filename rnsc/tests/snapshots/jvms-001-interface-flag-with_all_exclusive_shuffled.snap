@@ -1,0 +1,38 @@
+---
+source: rns-asm/tests/rns_test.rs
+assertion_line: 210
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+.class module interface abstract final enum module super EmptyClass
+.super java/lang/Object
+
+.end class
+----- INPUT -----
+.class  final abstract   super  interface   enum    module EmptyClass
+.super java/lang/Object
+
+.class_end
+----- STDERR -----
+[JVMS-001] Warning: interface cannot be declared with mutually exclusive flags
+   ╭─[ test_data/integration/jvms/001-interface-flag/with_all_exclusive_shuffled.rns:1:33 ]
+   │
+ 1 │ .class  final abstract   super  interface   enum    module EmptyClass
+   │         ──┬──            ──┬──  ────┬────   ──┬─    ───┬──  
+   │           ╰───────────────────────────────────────────────── 'ACC_FINAL' is exclusive
+   │                            │        │         │        │    
+   │                            ╰──────────────────────────────── 'ACC_SUPER' is exclusive
+   │                                     │         │        │    
+   │                                     ╰─────────────────────── 'ACC_INTERFACE' is declared here
+   │                                               │        │    
+   │                                               ╰───────────── 'ACC_ENUM' is exclusive
+   │                                                        │    
+   │                                                        ╰──── 'ACC_MODULE' is exclusive
+   │ 
+   │ Help: Consider removing: 'ACC_FINAL', 'ACC_SUPER', 'ACC_ENUM', 'ACC_MODULE'.
+   │ 
+   │ Note: If this violation isn't intentional, see details at:
+   │       https://rune.lagertha-vm.com/errors/JVMS-001
+───╯
+----- HASH -----
+3a9c58b308f2789e0f209505ce1b07d019d9f07b480342dc3bf54b531d500453

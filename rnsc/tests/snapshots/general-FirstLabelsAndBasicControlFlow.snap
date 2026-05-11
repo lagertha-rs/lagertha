@@ -1,0 +1,85 @@
+---
+source: rns-asm/tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+.class public FirstLabelsAndBasicControlFlow
+.super java/lang/Object
+
+.method public <init> ()V
+    .code stack 10 locals 10
+      aload_0
+      invokespecial java/lang/Object <init> ()V
+      return
+    .end code
+.end method
+
+.method static basicIfElse (I)V
+    .code stack 2 locals 1
+      iload_0
+      bipush
+      if_icmpeq
+      getstatic java/lang/System out Ljava/io/PrintStream;
+      ldc "Branch 1"
+      invokevirtual java/io/PrintStream println (Ljava/lang/String;)V
+      goto
+      getstatic java/lang/System out Ljava/io/PrintStream;
+      ldc "Branch 2"
+      invokevirtual java/io/PrintStream println (Ljava/lang/String;)V
+      return
+    .end code
+.end method
+
+.method static main ([Ljava/lang/String;)V
+    .code stack 1 locals 1
+      bipush
+      invokestatic
+      iconst_0
+      invokestatic
+      return
+    .end code
+.end method
+.end class
+----- INPUT -----
+.class public FirstLabelsAndBasicControlFlow
+.super java/lang/Object
+
+.method public <init> ()V
+    .code stack 10 locals 10
+      aload_0
+      invokespecial java/lang/Object <init> ()V
+      return
+    .code_end
+.method_end
+
+.method static basicIfElse (I)V
+    .code stack 2 locals 1
+      iload_0
+      bipush 42
+      if_icmpeq branch2
+      getstatic java/lang/System out Ljava/io/PrintStream;
+      ldc @string "Branch 1"
+      invokevirtual java/io/PrintStream println (Ljava/lang/String;)V
+      goto end
+branch2:
+      getstatic java/lang/System out Ljava/io/PrintStream;
+      ldc @string "Branch 2"
+      invokevirtual java/io/PrintStream println (Ljava/lang/String;)V
+end:
+      return
+    .code_end
+.method_end
+
+.method static main ([Ljava/lang/String;)V
+    .code stack 1 locals 1
+      bipush 42
+      invokestatic HelloWorld basicIfElse (I)V
+      iconst_0
+      invokestatic HelloWorld basicIfElse (I)V
+      return
+    .code_end
+.method_end
+----- STDERR -----
+
+----- HASH -----
+6fe6feee3af0ed1f93cf156380838dcfc945d243e445a00d86f619fe59da6ba7

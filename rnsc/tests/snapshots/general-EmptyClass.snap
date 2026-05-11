@@ -1,0 +1,18 @@
+---
+source: rns-asm/tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+.class public EmptyClass
+.super java/lang/Object
+
+.end class
+----- INPUT -----
+.class public EmptyClass
+.super java/lang/Object
+
+.class_end
+----- STDERR -----
+
+----- HASH -----
+9ff5bc486d7ff6eb3ea2e96b73c9e840d97e2b2caaa22b9e4e830d059ebfd9cd

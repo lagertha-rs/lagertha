@@ -1,0 +1,20 @@
+[package]
+name = "rns-lsp"
+version = "0.1.0"
+edition = "2024"
+description = "Language Server Protocol implementation for the RNS language"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/lagertha-rs/lagertha"
+homepage = "https://github.com/lagertha-rs"
+authors = ["Obito-git"]
+keywords = ["lsp", "language-server", "rns", "jvm", "bytecode"]
+categories = ["development-tools", "command-line-utilities"]
+
+[[bin]]
+name = "rns-lsp"
+path = "src/main.rs"
+
+[dependencies]
+rns = { workspace = true }
+tower-lsp-server = "0.23.0"
+tokio = { version = "1", features = ["full"] }

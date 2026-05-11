@@ -1,0 +1,4 @@
+42 ; the answer
+.class public HelloWorld
+
+.super java/lang/Object

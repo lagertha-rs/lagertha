@@ -1,0 +1,4 @@
+.class public Test
+"String that breaks
+across lines"
+.class_end

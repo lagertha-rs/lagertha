@@ -1,0 +1,2 @@
+.class   @fieldref MyClass fieldName ; no descriptor provided
+.super java/lang/Object

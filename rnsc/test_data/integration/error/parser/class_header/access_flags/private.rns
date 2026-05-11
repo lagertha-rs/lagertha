@@ -1,0 +1,3 @@
+.class private HelloWorld
+.super java/lang/Object
+.class_end

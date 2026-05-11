@@ -1,0 +1,4 @@
+.class @int not_a_number
+unexpected
+.super java/lang/Object
+

@@ -1,0 +1,8 @@
+.class public HelloWorld
+.super java/lang/Object
+
+.method public <init> ()V
+    .code stack 1 locals 1
+        invokespecial
+    .code_end
+.method_end

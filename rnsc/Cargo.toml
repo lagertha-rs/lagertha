@@ -1,0 +1,27 @@
+[package]
+name = "rnsc"
+version = "0.1.0"
+edition = "2024"
+description = "RNS assembler/compiler CLI for the Lagertha VM project"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/lagertha-rs/lagertha"
+homepage = "https://github.com/lagertha-rs"
+authors = ["Obito-git"]
+keywords = ["jvm", "java", "bytecode", "assembler", "rns"]
+categories = ["compilers", "command-line-utilities"]
+
+[[bin]]
+name = "rnsc"
+path = "src/main.rs"
+
+[dependencies]
+rns = { workspace = true }
+jclass = { workspace = true, features = ["rns_assemble", "rns_disassemble"] }
+clap = { version = "4", features = ["derive"] }
+
+[dev-dependencies]
+rstest = "0.26.1"
+insta = "1.46.2"
+assert_cmd = "2"
+sha2 = "0.10"
+rand = "0.8"

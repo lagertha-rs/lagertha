@@ -1,0 +1,27 @@
+---
+source: rns-asm/tests/rns_test.rs
+assertion_line: 210
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class @int 42 unexpected_second_operand
+.super java/lang/Object
+----- STDERR -----
+[E-013] Error: unexpected trailing tokens after type hint '@int'
+   ╭─[ test_data/integration/error/parser/type_hints/int/trailing_tokens.rns:1:16 ]
+   │
+ 1 │ .class @int 42 unexpected_second_operand
+   │        ──┬─    ────────────┬────────────  
+   │          ╰──────────────────────────────── '@int' type hint takes 1 operand
+   │                            │              
+   │                            ╰────────────── but found 1 trailing token
+   │ 
+   │ Help: Remove the trailing tokens or move them to a valid context.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-013
+───╯
+----- HASH -----
+not generated

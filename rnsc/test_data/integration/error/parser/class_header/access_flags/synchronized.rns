@@ -1,0 +1,3 @@
+.class synchronized HelloWorld
+.super java/lang/Object
+.class_end

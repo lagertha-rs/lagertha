@@ -1,0 +1,11 @@
+---
+source: rns/src/lexer/snapshot_tests.rs
+expression: formatted
+---
+----- SOURCE -----
+publicStatic staticPublic
+----- TOKENS -----
+KIND                        | SPAN    | LSP       | TEXT
+----                        | ----    | ---       | ----
+Identifier("publicStatic")  | 0..12   | 0:0..12   | publicStatic
+Identifier("staticPublic")  | 13..25  | 0:13..25  | staticPublic

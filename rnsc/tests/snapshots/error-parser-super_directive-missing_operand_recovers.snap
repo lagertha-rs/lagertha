@@ -1,0 +1,40 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class MyClass
+.super ; <- first error
+unknown tokens ; <- should be reported as well
+----- STDERR -----
+[E-020] Error: missing class name after '.super'
+   ╭─[ test_data/integration/error/parser/super_directive/missing_operand_recovers.rns:2:1 ]
+   │
+ 2 │ .super ; <- first error
+   │ ───┬──│ 
+   │    ╰──── the '.super' directive requires a super class name as operand
+   │       │ 
+   │       ╰─ but class name is missing
+   │ 
+   │ Help: Provide a super class name after the '.super' directive, e.g.:
+   │       .super <class_name>
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-020
+───╯
+[E-007] Error: unexpected identifier class body
+   ╭─[ test_data/integration/error/parser/super_directive/missing_operand_recovers.rns:3:1 ]
+   │
+ 3 │ unknown tokens ; <- should be reported as well
+   │ ───┬───  
+   │    ╰───── unexpected token
+   │ 
+   │ Help: Check the syntax of the class body and ensure all tokens are valid.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-007
+───╯
+----- HASH -----
+not generated

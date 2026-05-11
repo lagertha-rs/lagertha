@@ -1,0 +1,15 @@
+---
+source: rns/src/lexer/snapshot_tests.rs
+expression: formatted
+---
+----- SOURCE -----
+loop_start: aload_0
+end: return
+----- TOKENS -----
+KIND                   | SPAN    | LSP       | TEXT
+----                   | ----    | ---       | ----
+Label("loop_start")    | 0..11   | 0:0..11   | loop_start:
+Identifier("aload_0")  | 12..19  | 0:12..19  | aload_0
+Newline                | 19..20  | 0:19..20  | \n
+Label("end")           | 20..24  | 1:0..4    | end:
+Identifier("return")   | 25..31  | 1:5..11   | return

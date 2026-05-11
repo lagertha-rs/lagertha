@@ -1,0 +1,32 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class @long identifier
+.super java/lang/Object
+----- STDERR -----
+[E-003] Error: '@long' requires a 64-bit integer, but 'identifier' is not a number
+   ╭─[ test_data/integration/error/parser/type_hints/long/not_i64.rns:1:8 ]
+   │
+ 1 │ .class @long identifier
+   │        ──┬── ─────┬────  
+   │          ╰─────────────── forces explicit long constant pool type
+   │                   │      
+   │                   ╰────── but 'identifier' is not a number
+   │ 
+   │ Help: 'identifier' is not a valid integer literal.
+   │       
+   │       Syntax:
+   │       @long <long>
+   │       
+   │       For example:
+   │       @long 100000
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-003
+───╯
+----- HASH -----
+not generated

@@ -1,0 +1,27 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class @int 99999999999
+.super java/lang/Object
+----- STDERR -----
+[E-003] Error: '@int' requires a 32-bit integer, but '99999999999' is out of range
+   ╭─[ test_data/integration/error/parser/type_hints/int/overflow.rns:1:8 ]
+   │
+ 1 │ .class @int 99999999999
+   │        ──┬─ ─────┬─────  
+   │          ╰─────────────── forces explicit integer constant pool type
+   │                  │       
+   │                  ╰─────── but '99999999999' is out of range
+   │ 
+   │ Help: If you need a larger integer, use @long instead:
+   │       @long 99999999999
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-003
+───╯
+----- HASH -----
+not generated

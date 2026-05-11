@@ -1,0 +1,14 @@
+---
+source: rns/src/lexer/snapshot_tests.rs
+expression: formatted
+---
+----- SOURCE -----
+token1
+token2
+----- TOKENS -----
+KIND                  | SPAN    | LSP     | TEXT
+----                  | ----    | ---     | ----
+Identifier("token1")  | 0..6    | 0:0..6  | token1
+Newline               | 6..7    | 0:6..7  | \n
+Identifier("token2")  | 7..13   | 1:0..6  | token2
+Newline               | 13..14  | 1:6..7  | \n

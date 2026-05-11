@@ -1,0 +1,25 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.annotation actually can't be here
+.class public HelloWorld
+.super java/lang/Object
+----- STDERR -----
+[E-008] Error: unexpected directive before class definition
+   ╭─[ test_data/integration/error/parser/outside_class_directive/before_class_dir/dot_annotation.rns:1:1 ]
+   │
+ 1 │ .annotation actually can't be here
+   │ ─────┬─────  
+   │      ╰─────── valid contexts for .annotation directive are: 'class body', 'method body'.
+   │ 
+   │ Help: Ensure all code is declared inside a '.class' directive.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-008
+───╯
+----- HASH -----
+not generated

@@ -1,0 +1,7 @@
+.class public EmptyClass
+.super java/lang/Object
+
+.class_end
+; some comment
+; another comment
+super

@@ -1,0 +1,5 @@
+; some comment
+; another comment
+synthetic
+.class public HelloWorld
+.super java/lang/Object

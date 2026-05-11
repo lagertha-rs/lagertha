@@ -1,0 +1,31 @@
+---
+source: rns-asm/tests/rns_test.rs
+assertion_line: 210
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class @double
+.super java/lang/Object
+----- STDERR -----
+[E-014] Error: '@double' type hint is missing its 64-bit float
+   ╭─[ test_data/integration/error/parser/type_hints/double/missing_operand.rns:1:8 ]
+   │
+ 1 │ .class @double
+   │        ───┬───│ 
+   │           ╰───── forces explicit double constant pool type
+   │               │ 
+   │               ╰─ but 64-bit float is missing
+   │ 
+   │ Help: Provide the value immediately after the hint:
+   │       @double <double>
+   │       
+   │       For example:
+   │       @double 3.14
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-014
+───╯
+----- HASH -----
+not generated

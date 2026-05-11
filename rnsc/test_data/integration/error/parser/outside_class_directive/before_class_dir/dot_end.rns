@@ -1,0 +1,3 @@
+.method_end ; trailing comment
+.class public HelloWorld
+.super java/lang/Object

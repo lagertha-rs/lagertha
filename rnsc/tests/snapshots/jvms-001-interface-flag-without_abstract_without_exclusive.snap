@@ -1,0 +1,30 @@
+---
+source: rns-asm/tests/rns_test.rs
+assertion_line: 210
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+.class interface EmptyClass
+.super java/lang/Object
+
+.end class
+----- INPUT -----
+.class interface EmptyClass
+.super java/lang/Object
+
+.class_end
+----- STDERR -----
+[JVMS-001] Warning: interface must also be declared as 'abstract'
+   ╭─[ test_data/integration/jvms/001-interface-flag/without_abstract_without_exclusive.rns:1:8 ]
+   │
+ 1 │ .class interface EmptyClass
+   │        ────┬────  
+   │            ╰────── 'ACC_INTERFACE' requires 'ACC_ABSTRACT'
+   │ 
+   │ Help: Add the 'abstract' access flag to the class definition.
+   │ 
+   │ Note: If this violation isn't intentional, see details at:
+   │       https://rune.lagertha-vm.com/errors/JVMS-001
+───╯
+----- HASH -----
+107688e673ac0be096e57665ff6e3b6477c7b66f54b8122e46e86c86984f5446

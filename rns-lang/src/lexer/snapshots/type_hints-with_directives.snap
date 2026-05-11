@@ -1,0 +1,37 @@
+---
+source: rns/src/lexer/snapshot_tests.rs
+expression: formatted
+---
+----- SOURCE -----
+.class public MyClass
+.super java/lang/Object
+.method public main ()V
+.code
+@utf8 hello
+@int 42
+.code_end
+----- TOKENS -----
+KIND                            | SPAN      | LSP       | TEXT
+----                            | ----      | ---       | ----
+DotClass                        | 0..6      | 0:0..6    | .class
+AccessFlag(public)              | 7..13     | 0:7..13   | public
+Identifier("MyClass")           | 14..21    | 0:14..21  | MyClass
+Newline                         | 21..22    | 0:21..22  | \n
+DotSuper                        | 22..28    | 1:0..6    | .super
+Identifier("java/lang/Object")  | 29..45    | 1:7..23   | java/lang/Object
+Newline                         | 45..46    | 1:23..24  | \n
+DotMethod                       | 46..53    | 2:0..7    | .method
+AccessFlag(public)              | 54..60    | 2:8..14   | public
+Identifier("main")              | 61..65    | 2:15..19  | main
+Identifier("()V")               | 66..69    | 2:20..23  | ()V
+Newline                         | 69..70    | 2:23..24  | \n
+DotCode                         | 70..75    | 3:0..5    | .code
+Newline                         | 75..76    | 3:5..6    | \n
+TypeHint(@utf8)                 | 76..81    | 4:0..5    | @utf8
+Identifier("hello")             | 82..87    | 4:6..11   | hello
+Newline                         | 87..88    | 4:11..12  | \n
+TypeHint(@int)                  | 88..92    | 5:0..4    | @int
+Identifier("42")                | 93..95    | 5:5..7    | 42
+Newline                         | 95..96    | 5:7..8    | \n
+DotCodeEnd                      | 96..105   | 6:0..9    | .code_end
+Newline                         | 105..106  | 6:9..10   | \n

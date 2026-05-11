@@ -1,0 +1,14 @@
+---
+source: rns/src/lexer/snapshot_tests.rs
+expression: formatted
+---
+----- SOURCE -----
+.method public <init> ()V
+----- TOKENS -----
+KIND                  | SPAN    | LSP       | TEXT
+----                  | ----    | ---       | ----
+DotMethod             | 0..7    | 0:0..7    | .method
+AccessFlag(public)    | 8..14   | 0:8..14   | public
+Identifier("<init>")  | 15..21  | 0:15..21  | <init>
+Identifier("()V")     | 22..25  | 0:22..25  | ()V
+Newline               | 25..26  | 0:25..26  | \n

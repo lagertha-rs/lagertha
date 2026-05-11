@@ -1,0 +1,3 @@
+.class ; class name is missing
+
+unknown_token ; <- still reported

@@ -1,0 +1,6 @@
+.class MyClass
+
+.super firstClass
+.super secondClass
+
+kooba ; <- still reported

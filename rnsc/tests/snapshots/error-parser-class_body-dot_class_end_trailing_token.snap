@@ -1,0 +1,28 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class public EmptyClass
+.super java/lang/Object
+
+.class_end   trailing ; <- err
+----- STDERR -----
+[E-023] Error: unexpected trailing tokens after class definition end
+   ╭─[ test_data/integration/error/parser/class_body/dot_class_end_trailing_token.rns:4:14 ]
+   │
+ 4 │ .class_end   trailing ; <- err
+   │           │  ────┬───  
+   │           ╰──────────── expected end of class definition end here
+   │                  │     
+   │                  ╰───── but found 1 trailing token
+   │ 
+   │ Help: Remove the trailing tokens or move them to a valid context.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-023
+───╯
+----- HASH -----
+not generated

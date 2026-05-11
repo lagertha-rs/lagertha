@@ -1,0 +1,42 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class @long
+unexpected_token ; <- this error should be reported as well
+----- STDERR -----
+[E-014] Error: '@long' type hint is missing its 64-bit signed integer
+   ╭─[ test_data/integration/error/parser/type_hints/long/missing_operand_recovers.rns:1:8 ]
+   │
+ 1 │ .class @long
+   │        ──┬──│ 
+   │          ╰──── forces explicit long constant pool type
+   │             │ 
+   │             ╰─ but 64-bit signed integer is missing
+   │ 
+   │ Help: Provide the value immediately after the hint:
+   │       @long <long>
+   │       
+   │       For example:
+   │       @long 100000
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-014
+───╯
+[E-007] Error: unexpected identifier class body
+   ╭─[ test_data/integration/error/parser/type_hints/long/missing_operand_recovers.rns:2:1 ]
+   │
+ 2 │ unexpected_token ; <- this error should be reported as well
+   │ ────────┬───────  
+   │         ╰───────── unexpected token
+   │ 
+   │ Help: Check the syntax of the class body and ensure all tokens are valid.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-007
+───╯
+----- HASH -----
+not generated

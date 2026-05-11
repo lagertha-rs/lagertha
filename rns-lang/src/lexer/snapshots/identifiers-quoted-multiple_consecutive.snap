@@ -1,0 +1,12 @@
+---
+source: rns/src/lexer/snapshot_tests.rs
+expression: formatted
+---
+----- SOURCE -----
+"first" "second" "third"
+----- TOKENS -----
+KIND                  | SPAN    | LSP       | TEXT
+----                  | ----    | ---       | ----
+Identifier("first")   | 0..7    | 0:0..7    | "first"
+Identifier("second")  | 8..16   | 0:8..16   | "second"
+Identifier("third")   | 17..24  | 0:17..24  | "third"

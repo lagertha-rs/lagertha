@@ -1,0 +1,42 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class @int
+unexpected_token ; <- this error should be reported as well
+----- STDERR -----
+[E-014] Error: '@int' type hint is missing its 32-bit signed integer
+   ╭─[ test_data/integration/error/parser/type_hints/int/missing_operand_recovers.rns:1:8 ]
+   │
+ 1 │ .class @int
+   │        ──┬─│ 
+   │          ╰─── forces explicit integer constant pool type
+   │            │ 
+   │            ╰─ but 32-bit signed integer is missing
+   │ 
+   │ Help: Provide the value immediately after the hint:
+   │       @int <integer>
+   │       
+   │       For example:
+   │       @int 42
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-014
+───╯
+[E-007] Error: unexpected identifier class body
+   ╭─[ test_data/integration/error/parser/type_hints/int/missing_operand_recovers.rns:2:1 ]
+   │
+ 2 │ unexpected_token ; <- this error should be reported as well
+   │ ────────┬───────  
+   │         ╰───────── unexpected token
+   │ 
+   │ Help: Check the syntax of the class body and ensure all tokens are valid.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-007
+───╯
+----- HASH -----
+not generated

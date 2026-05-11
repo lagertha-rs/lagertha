@@ -1,0 +1,14 @@
+---
+source: rns/src/lexer/snapshot_tests.rs
+expression: formatted
+---
+----- SOURCE -----
+.method public static main ([Ljava/lang/String;)V
+----- TOKENS -----
+KIND                                  | SPAN    | LSP       | TEXT
+----                                  | ----    | ---       | ----
+DotMethod                             | 0..7    | 0:0..7    | .method
+AccessFlag(public)                    | 8..14   | 0:8..14   | public
+AccessFlag(static)                    | 15..21  | 0:15..21  | static
+Identifier("main")                    | 22..26  | 0:22..26  | main
+Identifier("([Ljava/lang/String;)V")  | 27..49  | 0:27..49  | ([Ljava/lang/String;)V

@@ -1,0 +1,23 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class protected HelloWorld
+.super java/lang/Object
+.class_end
+----- STDERR -----
+[E-015] Error: invalid class access flag 'protected'
+   ╭─[ test_data/integration/error/parser/class_header/access_flags/protected.rns:1:8 ]
+   │
+ 1 │ .class protected HelloWorld
+   │        ────┬────  
+   │            ╰────── 'protected' is not a valid class access flag
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-015
+───╯
+----- HASH -----
+not generated

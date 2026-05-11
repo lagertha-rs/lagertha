@@ -1,0 +1,35 @@
+---
+source: rns-asm/tests/rns_test.rs
+assertion_line: 210
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class @class value unexpected_second_operand ; <- this error shouldn't block no superclass warn
+----- STDERR -----
+[E-013] Error: unexpected trailing tokens after type hint '@class'
+   ╭─[ test_data/integration/error/parser/type_hints/class/trailing_token_recovers.rns:1:21 ]
+   │
+ 1 │ .class @class value unexpected_second_operand ; <- this error shouldn't block no superclass warn
+   │        ───┬──       ────────────┬────────────  
+   │           ╰──────────────────────────────────── '@class' type hint takes 1 operand
+   │                                 │              
+   │                                 ╰────────────── but found 1 trailing token
+   │ 
+   │ Help: Remove the trailing tokens or move them to a valid context.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-013
+───╯
+[W-001] Warning: missing super directive
+   ╭─[ test_data/integration/error/parser/type_hints/class/trailing_token_recovers.rns:1:1 ]
+   │
+ 1 │ .class @class value unexpected_second_operand ; <- this error shouldn't block no superclass warn
+   │ ───┬──  
+   │    ╰──── class 'Some(Class(Some(Span { byte_start: 7, byte_end: 13, line: 0, col_start: 7, col_end: 13 }), Spanned { value: "value", span: Span { byte_start: 14, byte_end: 19, line: 0, col_start: 14, col_end: 19 } }))' is missing a '.super' directive
+   │ 
+   │ Note: The .super directive is required to specify the superclass. Defaulting to 'java/lang/Object'.
+───╯
+----- HASH -----
+not generated

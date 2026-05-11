@@ -1,0 +1,31 @@
+---
+source: rns-asm/tests/rns_test.rs
+assertion_line: 210
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class   @methodref ; no operand provided
+.super java/lang/Object
+----- STDERR -----
+[E-014] Error: '@methodref' type hint is missing its class name
+   ╭─[ test_data/integration/error/parser/type_hints/methodref/no_operands.rns:1:10 ]
+   │
+ 1 │ .class   @methodref ; no operand provided
+   │          ─────┬────│ 
+   │               ╰────── forces explicit method reference constant pool type
+   │                    │ 
+   │                    ╰─ but class name is missing
+   │ 
+   │ Help: Provide the value immediately after the hint:
+   │       @methodref <class_name> <method_name> <method_descriptor>
+   │       
+   │       For example:
+   │       @methodref java/io/PrintStream println (Ljava/lang/String;)V
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-014
+───╯
+----- HASH -----
+not generated

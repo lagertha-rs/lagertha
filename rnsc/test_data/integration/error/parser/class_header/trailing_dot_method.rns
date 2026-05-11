@@ -1,0 +1,4 @@
+; .method isn't expected there. but as it is a directive, error should suggest to put it on a new line.
+.class Class .method kababoom
+.super java/lang/Object
+.class_end

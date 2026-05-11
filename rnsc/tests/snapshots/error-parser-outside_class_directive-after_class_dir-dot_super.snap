@@ -1,0 +1,28 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class public EmptyClass
+.super java/lang/Object
+
+.class_end
+; comment before the directive
+.super java/lang/Object
+----- STDERR -----
+[E-008] Error: unexpected directive outside class definition
+   ╭─[ test_data/integration/error/parser/outside_class_directive/after_class_dir/dot_super.rns:6:1 ]
+   │
+ 6 │ .super java/lang/Object
+   │ ───┬──  
+   │    ╰──── valid context for .super directive is: 'class body'.
+   │ 
+   │ Help: Ensure all code is declared inside a '.class' directive.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-008
+───╯
+----- HASH -----
+not generated

@@ -1,0 +1,32 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class @double identifier
+.super java/lang/Object
+----- STDERR -----
+[E-003] Error: '@double' requires a 64-bit float, but 'identifier' is not a number
+   ╭─[ test_data/integration/error/parser/type_hints/double/not_f64.rns:1:8 ]
+   │
+ 1 │ .class @double identifier
+   │        ───┬─── ─────┬────  
+   │           ╰──────────────── forces explicit double constant pool type
+   │                     │      
+   │                     ╰────── but 'identifier' is not a number
+   │ 
+   │ Help: 'identifier' is not a valid float literal.
+   │       
+   │       Syntax:
+   │       @double <double>
+   │       
+   │       For example:
+   │       @double 3.14
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-003
+───╯
+----- HASH -----
+not generated

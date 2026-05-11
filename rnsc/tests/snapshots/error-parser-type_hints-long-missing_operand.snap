@@ -1,0 +1,31 @@
+---
+source: rns-asm/tests/rns_test.rs
+assertion_line: 210
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class @long
+.super java/lang/Object
+----- STDERR -----
+[E-014] Error: '@long' type hint is missing its 64-bit signed integer
+   ╭─[ test_data/integration/error/parser/type_hints/long/missing_operand.rns:1:8 ]
+   │
+ 1 │ .class @long
+   │        ──┬──│ 
+   │          ╰──── forces explicit long constant pool type
+   │             │ 
+   │             ╰─ but 64-bit signed integer is missing
+   │ 
+   │ Help: Provide the value immediately after the hint:
+   │       @long <long>
+   │       
+   │       For example:
+   │       @long 100000
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-014
+───╯
+----- HASH -----
+not generated

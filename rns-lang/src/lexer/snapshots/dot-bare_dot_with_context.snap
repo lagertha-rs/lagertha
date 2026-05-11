@@ -1,0 +1,13 @@
+---
+source: rns/src/lexer/snapshot_tests.rs
+expression: formatted
+---
+----- SOURCE -----
+.class . MyClass
+----- TOKENS -----
+KIND                   | SPAN    | LSP       | TEXT
+----                   | ----    | ---       | ----
+DotClass               | 0..6    | 0:0..6    | .class
+Identifier(".")        | 7..8    | 0:7..8    | .
+Identifier("MyClass")  | 9..16   | 0:9..16   | MyClass
+Newline                | 16..17  | 0:16..17  | \n

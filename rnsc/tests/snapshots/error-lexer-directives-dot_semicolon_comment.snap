@@ -1,0 +1,25 @@
+---
+source: rns-asm/tests/rns_test.rs
+assertion_line: 210
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.method
+    ; real comment
+    .;not_comment ;this is also a comment
+.method_end
+----- STDERR -----
+[E-002] Error: unknown directive
+   ╭─[ test_data/integration/error/lexer/directives/dot_semicolon_comment.rns:3:5 ]
+   │
+ 3 │     .;not_comment ;this is also a comment
+   │     ──────┬──────  
+   │           ╰──────── '.;not_comment' is not a recognized directive
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-002
+───╯
+----- HASH -----
+not generated

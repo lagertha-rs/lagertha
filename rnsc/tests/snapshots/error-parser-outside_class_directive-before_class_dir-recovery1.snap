@@ -1,0 +1,43 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+only <- this token is error
+whatever we meet here is actually ignored
+until we find first ".class", then continue parsing as normal
+to give more feedback and not fail fast
+
+.class MyClass ExtraToken ; <- ExtraToken should be reported as error
+.super java/lang/Object
+----- STDERR -----
+[E-008] Error: unexpected identifier before class definition
+   ╭─[ test_data/integration/error/parser/outside_class_directive/before_class_dir/recovery1.rns:1:1 ]
+   │
+ 1 │ only <- this token is error
+   │ ──┬─  
+   │   ╰─── valid context for only identifier is: 'operand'.
+   │ 
+   │ Help: Ensure all code is declared inside a '.class' directive.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-008
+───╯
+[E-010] Error: unexpected trailing tokens after class definition
+   ╭─[ test_data/integration/error/parser/outside_class_directive/before_class_dir/recovery1.rns:6:16 ]
+   │
+ 6 │ .class MyClass ExtraToken ; <- ExtraToken should be reported as error
+   │               │─────┬────  
+   │               ╰──────────── expected end of class definition here
+   │                     │      
+   │                     ╰────── but found 1 trailing token
+   │ 
+   │ Help: Remove the trailing tokens or move them to a valid context.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-010
+───╯
+----- HASH -----
+not generated

@@ -1,0 +1,2 @@
+.class @long 100000 unexpected_second_operand
+.super java/lang/Object

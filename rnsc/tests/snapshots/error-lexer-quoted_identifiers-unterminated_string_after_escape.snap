@@ -1,0 +1,25 @@
+---
+source: rns-asm/tests/rns_test.rs
+assertion_line: 210
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class public Test
+"String ending with backslash\
+----- STDERR -----
+[E-001] Error: unterminated quoted identifier
+   ╭─[ test_data/integration/error/lexer/quoted_identifiers/unterminated_string_after_escape.rns:2:1 ]
+   │
+ 2 │ "String ending with backslash\
+   │ ┬  
+   │ ╰── this identifier is not terminated
+   │ 
+   │ Help: Close the identifier with a '"' on the same line.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-001
+───╯
+----- HASH -----
+not generated

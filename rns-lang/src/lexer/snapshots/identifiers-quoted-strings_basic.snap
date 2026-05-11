@@ -1,0 +1,17 @@
+---
+source: rns/src/lexer/snapshot_tests.rs
+expression: formatted
+---
+----- SOURCE -----
+"hello world"
+"with\tescape\nchars"
+""
+----- TOKENS -----
+KIND                               | SPAN    | LSP       | TEXT
+----                               | ----    | ---       | ----
+Identifier("hello world")          | 0..13   | 0:0..13   | "hello world"
+Newline                            | 13..14  | 0:13..14  | \n
+Identifier("with\tescape\nchars")  | 14..35  | 1:0..21   | "with\tescape\nchars"
+Newline                            | 35..36  | 1:21..22  | \n
+Identifier("")                     | 36..38  | 2:0..2    | ""
+Newline                            | 38..39  | 2:2..3    | \n

@@ -1,0 +1,2 @@
+.class   @utf8 ; no operand provided
+blabla ; <- should be still reported as an error

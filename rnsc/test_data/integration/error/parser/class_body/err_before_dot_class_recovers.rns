@@ -1,0 +1,4 @@
+.method shouldn't be here
+.class 42
+.super java/lang/Object
+unexpected

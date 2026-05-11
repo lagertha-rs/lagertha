@@ -1,0 +1,17 @@
+---
+source: rns/src/lexer/snapshot_tests.rs
+expression: formatted
+---
+----- SOURCE -----
+.class .super .method .class_end .method_end .code_end .code
+----- TOKENS -----
+KIND          | SPAN    | LSP       | TEXT
+----          | ----    | ---       | ----
+DotClass      | 0..6    | 0:0..6    | .class
+DotSuper      | 7..13   | 0:7..13   | .super
+DotMethod     | 14..21  | 0:14..21  | .method
+DotClassEnd   | 22..32  | 0:22..32  | .class_end
+DotMethodEnd  | 33..44  | 0:33..44  | .method_end
+DotCodeEnd    | 45..54  | 0:45..54  | .code_end
+DotCode       | 55..60  | 0:55..60  | .code
+Newline       | 60..61  | 0:60..61  | \n

@@ -1,0 +1,41 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class 42 with trailing tokens
+
+.super java/lang/Object
+
+unexpected
+----- STDERR -----
+[E-010] Error: unexpected trailing tokens after class definition
+   ╭─[ test_data/integration/error/parser/class_body/dot_class_trailing_token_recovers.rns:1:11 ]
+   │
+ 1 │ .class 42 with trailing tokens
+   │          │──────────┬─────────  
+   │          ╰────────────────────── expected end of class definition here
+   │                     │           
+   │                     ╰─────────── but found 3 trailing tokens
+   │ 
+   │ Help: Remove the trailing tokens or move them to a valid context.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-010
+───╯
+[E-007] Error: unexpected identifier class body
+   ╭─[ test_data/integration/error/parser/class_body/dot_class_trailing_token_recovers.rns:5:1 ]
+   │
+ 5 │ unexpected
+   │ ─────┬────  
+   │      ╰────── unexpected token
+   │ 
+   │ Help: Check the syntax of the class body and ensure all tokens are valid.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-007
+───╯
+----- HASH -----
+not generated

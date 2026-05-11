@@ -1,0 +1,23 @@
+---
+source: rns-asm/tests/rns_test.rs
+assertion_line: 210
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.abstract static HelloWorl
+ggg
+----- STDERR -----
+[E-002] Error: unknown directive
+   ╭─[ test_data/integration/error/lexer/directives/dot_abstract.rns:1:1 ]
+   │
+ 1 │ .abstract static HelloWorl
+   │ ────┬────  
+   │     ╰────── '.abstract' is not a recognized directive
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-002
+───╯
+----- HASH -----
+not generated

@@ -1,0 +1,19 @@
+---
+source: rns/src/lexer/snapshot_tests.rs
+expression: formatted
+---
+----- SOURCE -----
+"line1\nline2"
+"tab\there"
+"quote\"inside"
+"backslash\\"
+----- TOKENS -----
+KIND                         | SPAN    | LSP       | TEXT
+----                         | ----    | ---       | ----
+Identifier("line1\nline2")   | 0..14   | 0:0..14   | "line1\nline2"
+Newline                      | 14..15  | 0:14..15  | \n
+Identifier("tab\there")      | 15..26  | 1:0..11   | "tab\there"
+Newline                      | 26..27  | 1:11..12  | \n
+Identifier("quote\"inside")  | 27..42  | 2:0..15   | "quote\"inside"
+Newline                      | 42..43  | 2:15..16  | \n
+Identifier("backslash\\")    | 43..56  | 3:0..13   | "backslash\\"

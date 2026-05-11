@@ -1,0 +1,23 @@
+---
+source: rns-asm/tests/rns_test.rs
+assertion_line: 210
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class public Test
+.code "\u"
+----- STDERR -----
+[E-004] Error: invalid escape sequence
+   ╭─[ test_data/integration/error/lexer/quoted_identifiers/unknown_escape_sequence.rns:2:8 ]
+   │
+ 2 │ .code "\u"
+   │        ─┬  
+   │         ╰── '\u' is not a valid escape sequence
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-004
+───╯
+----- HASH -----
+not generated

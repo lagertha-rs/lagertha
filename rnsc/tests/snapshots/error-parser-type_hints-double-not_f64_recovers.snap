@@ -1,0 +1,44 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class @double "not a double"
+unexpected_token ; <- this error should be reported as well
+----- STDERR -----
+[E-003] Error: '@double' requires a 64-bit float, but 'not a double' is not a number
+   ╭─[ test_data/integration/error/parser/type_hints/double/not_f64_recovers.rns:1:8 ]
+   │
+ 1 │ .class @double "not a double"
+   │        ───┬─── ───────┬──────  
+   │           ╰──────────────────── forces explicit double constant pool type
+   │                       │        
+   │                       ╰──────── but 'not a double' is not a number
+   │ 
+   │ Help: 'not a double' is not a valid float literal.
+   │       
+   │       Syntax:
+   │       @double <double>
+   │       
+   │       For example:
+   │       @double 3.14
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-003
+───╯
+[E-007] Error: unexpected identifier class body
+   ╭─[ test_data/integration/error/parser/type_hints/double/not_f64_recovers.rns:2:1 ]
+   │
+ 2 │ unexpected_token ; <- this error should be reported as well
+   │ ────────┬───────  
+   │         ╰───────── unexpected token
+   │ 
+   │ Help: Check the syntax of the class body and ensure all tokens are valid.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-007
+───╯
+----- HASH -----
+not generated

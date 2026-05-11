@@ -1,0 +1,7 @@
+only <- this token is error
+whatever we meet here is actually ignored
+until we find first ".class", then continue parsing as normal
+to give more feedback and not fail fast
+
+.class MyClass ExtraToken ; <- ExtraToken should be reported as error
+.super java/lang/Object

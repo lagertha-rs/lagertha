@@ -1,0 +1,3 @@
+.class public Test
+"String with backslash escape followed by newline \
+.class_end

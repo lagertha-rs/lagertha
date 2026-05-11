@@ -1,0 +1,32 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class @float identifier
+.super java/lang/Object
+----- STDERR -----
+[E-003] Error: '@float' requires a 32-bit float, but 'identifier' is not a number
+   ╭─[ test_data/integration/error/parser/type_hints/float/not_f32.rns:1:8 ]
+   │
+ 1 │ .class @float identifier
+   │        ───┬── ─────┬────  
+   │           ╰─────────────── forces explicit float constant pool type
+   │                    │      
+   │                    ╰────── but 'identifier' is not a number
+   │ 
+   │ Help: 'identifier' is not a valid float literal.
+   │       
+   │       Syntax:
+   │       @float <float>
+   │       
+   │       For example:
+   │       @float 3.14
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-003
+───╯
+----- HASH -----
+not generated

@@ -1,0 +1,4 @@
+.class abstract interface final super enum module EmptyClass
+.super java/lang/Object
+
+.class_end

@@ -1,0 +1,16 @@
+---
+source: rns/src/lexer/snapshot_tests.rs
+expression: formatted
+---
+----- SOURCE -----
+L0:
+L100:
+123abc:
+----- TOKENS -----
+KIND             | SPAN    | LSP     | TEXT
+----             | ----    | ---     | ----
+Label("L0")      | 0..3    | 0:0..3  | L0:
+Newline          | 3..4    | 0:3..4  | \n
+Label("L100")    | 4..9    | 1:0..5  | L100:
+Newline          | 9..10   | 1:5..6  | \n
+Label("123abc")  | 10..17  | 2:0..7  | 123abc:

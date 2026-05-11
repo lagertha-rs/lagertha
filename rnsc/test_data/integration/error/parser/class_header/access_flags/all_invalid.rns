@@ -1,0 +1,3 @@
+.class private protected synchronized bridge varargs native strict HelloWorld
+.super java/lang/Object
+.class_end

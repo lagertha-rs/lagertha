@@ -1,0 +1,23 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class native HelloWorld
+.super java/lang/Object
+.class_end
+----- STDERR -----
+[E-015] Error: invalid class access flag 'native'
+   ╭─[ test_data/integration/error/parser/class_header/access_flags/native.rns:1:8 ]
+   │
+ 1 │ .class native HelloWorld
+   │        ───┬──  
+   │           ╰──── 'native' is not a valid class access flag
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-015
+───╯
+----- HASH -----
+not generated

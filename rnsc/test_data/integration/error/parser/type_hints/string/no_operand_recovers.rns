@@ -1,0 +1,2 @@
+.class   @string ; no operand provided
+blabla ; <- should be still reported as an error

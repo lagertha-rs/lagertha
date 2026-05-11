@@ -1,0 +1,42 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class   @methodref MyClass methodName
+blabla ; <- should be still reported as an error
+----- STDERR -----
+[E-014] Error: '@methodref' type hint is missing its method descriptor
+   ╭─[ test_data/integration/error/parser/type_hints/methodref/no_operand_3_recovers.rns:1:10 ]
+   │
+ 1 │ .class   @methodref MyClass methodName
+   │          ─────┬────                   │ 
+   │               ╰───────────────────────── forces explicit method reference constant pool type
+   │                                       │ 
+   │                                       ╰─ but method descriptor is missing
+   │ 
+   │ Help: Provide the value immediately after the hint:
+   │       @methodref <class_name> <method_name> <method_descriptor>
+   │       
+   │       For example:
+   │       @methodref java/io/PrintStream println (Ljava/lang/String;)V
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-014
+───╯
+[E-007] Error: unexpected identifier class body
+   ╭─[ test_data/integration/error/parser/type_hints/methodref/no_operand_3_recovers.rns:2:1 ]
+   │
+ 2 │ blabla ; <- should be still reported as an error
+   │ ───┬──  
+   │    ╰──── unexpected token
+   │ 
+   │ Help: Check the syntax of the class body and ensure all tokens are valid.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-007
+───╯
+----- HASH -----
+not generated

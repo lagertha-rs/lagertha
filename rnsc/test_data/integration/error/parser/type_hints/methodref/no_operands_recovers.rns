@@ -1,0 +1,2 @@
+.class   @methodref
+blabla ; <- should be still reported as an error

@@ -1,0 +1,39 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class @int 3.14
+unexpected_token ; <- this error should be reported as well
+----- STDERR -----
+[E-003] Error: '@int' requires a whole number, but '3.14' has a decimal point
+   ╭─[ test_data/integration/error/parser/type_hints/int/float_recovers.rns:1:8 ]
+   │
+ 1 │ .class @int 3.14
+   │        ──┬─ ──┬─  
+   │          ╰──────── forces explicit integer constant pool type
+   │               │   
+   │               ╰─── but '3.14' must be a whole number without a decimal point
+   │ 
+   │ Help: If you need a fractional value, use @float instead:
+   │       @float 3.14
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-003
+───╯
+[E-007] Error: unexpected identifier class body
+   ╭─[ test_data/integration/error/parser/type_hints/int/float_recovers.rns:2:1 ]
+   │
+ 2 │ unexpected_token ; <- this error should be reported as well
+   │ ────────┬───────  
+   │         ╰───────── unexpected token
+   │ 
+   │ Help: Check the syntax of the class body and ensure all tokens are valid.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-007
+───╯
+----- HASH -----
+not generated

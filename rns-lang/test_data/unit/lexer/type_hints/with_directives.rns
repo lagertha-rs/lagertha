@@ -1,0 +1,7 @@
+.class public MyClass
+.super java/lang/Object
+.method public main ()V
+.code
+@utf8 hello
+@int 42
+.code_end

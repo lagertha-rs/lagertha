@@ -1,0 +1,2 @@
+should print 3 diagnostics, first is "should" .class MyClass ExtraToken ; <- ExtraToken is second
+; missing .super directive is third warning

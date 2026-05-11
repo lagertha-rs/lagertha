@@ -1,0 +1,11 @@
+---
+source: rns/src/lexer/snapshot_tests.rs
+expression: formatted
+---
+----- SOURCE -----
+"string with ; semicolon inside"
+----- TOKENS -----
+KIND                                          | SPAN    | LSP       | TEXT
+----                                          | ----    | ---       | ----
+Identifier("string with ; semicolon inside")  | 0..32   | 0:0..32   | "string with ; semicolon inside"
+Newline                                       | 32..33  | 0:32..33  | \n

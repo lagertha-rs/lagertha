@@ -1,0 +1,45 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class @int not_a_number
+unexpected
+.super java/lang/Object
+----- STDERR -----
+[E-003] Error: '@int' requires a 32-bit integer, but 'not_a_number' is not a number
+   ╭─[ test_data/integration/error/parser/class_body/err_in_class_name_recovers.rns:1:8 ]
+   │
+ 1 │ .class @int not_a_number
+   │        ──┬─ ──────┬─────  
+   │          ╰──────────────── forces explicit integer constant pool type
+   │                   │       
+   │                   ╰─────── but 'not_a_number' is not a number
+   │ 
+   │ Help: 'not_a_number' is not a valid integer literal.
+   │       
+   │       Syntax:
+   │       @int <integer>
+   │       
+   │       For example:
+   │       @int 42
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-003
+───╯
+[E-007] Error: unexpected identifier class body
+   ╭─[ test_data/integration/error/parser/class_body/err_in_class_name_recovers.rns:2:1 ]
+   │
+ 2 │ unexpected
+   │ ─────┬────  
+   │      ╰────── unexpected token
+   │ 
+   │ Help: Check the syntax of the class body and ensure all tokens are valid.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-007
+───╯
+----- HASH -----
+not generated

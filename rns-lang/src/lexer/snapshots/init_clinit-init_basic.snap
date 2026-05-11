@@ -1,0 +1,11 @@
+---
+source: rns/src/lexer/snapshot_tests.rs
+expression: formatted
+---
+----- SOURCE -----
+<init>
+----- TOKENS -----
+KIND                  | SPAN  | LSP     | TEXT
+----                  | ----  | ---     | ----
+Identifier("<init>")  | 0..6  | 0:0..6  | <init>
+Newline               | 6..7  | 0:6..7  | \n

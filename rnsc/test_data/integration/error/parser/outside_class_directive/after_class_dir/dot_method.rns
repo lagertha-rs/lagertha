@@ -1,0 +1,6 @@
+.class public EmptyClass
+.super java/lang/Object
+
+.class_end
+
+.method public static main ([Ljava/lang/String;)V

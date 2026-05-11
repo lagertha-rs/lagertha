@@ -1,0 +1,38 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class @long 99999999999999999999
+unexpected_token ; <- this error should be reported as well
+----- STDERR -----
+[E-003] Error: '@long' requires a 64-bit integer, but '99999999999999999999' is out of range
+   ╭─[ test_data/integration/error/parser/type_hints/long/overflow_recovers.rns:1:8 ]
+   │
+ 1 │ .class @long 99999999999999999999
+   │        ──┬── ──────────┬─────────  
+   │          ╰───────────────────────── forces explicit long constant pool type
+   │                        │           
+   │                        ╰─────────── but '99999999999999999999' is out of range
+   │ 
+   │ Help: The value '99999999999999999999' exceeds the 64-bit integer range is -9223372036854775808 to 9223372036854775807.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-003
+───╯
+[E-007] Error: unexpected identifier class body
+   ╭─[ test_data/integration/error/parser/type_hints/long/overflow_recovers.rns:2:1 ]
+   │
+ 2 │ unexpected_token ; <- this error should be reported as well
+   │ ────────┬───────  
+   │         ╰───────── unexpected token
+   │ 
+   │ Help: Check the syntax of the class body and ensure all tokens are valid.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-007
+───╯
+----- HASH -----
+not generated

@@ -1,0 +1,12 @@
+.class public HelloWorld
+.super java/lang/Object
+
+.method public <init> ()V
+   .code stack 10 locals 10
+     aload_0
+     invokespecial java/lang/Object <init> ()V
+     return
+   .code_end
+.method_end
+
+.super java/lang/Object

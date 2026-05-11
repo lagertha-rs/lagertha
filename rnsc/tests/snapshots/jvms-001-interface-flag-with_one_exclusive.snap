@@ -1,0 +1,32 @@
+---
+source: rns-asm/tests/rns_test.rs
+assertion_line: 210
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+.class interface abstract final EmptyClass
+.super java/lang/Object
+
+.end class
+----- INPUT -----
+.class abstract final interface EmptyClass
+.super java/lang/Object
+
+.class_end
+----- STDERR -----
+[JVMS-001] Warning: interface cannot be declared with mutually exclusive flags
+   ╭─[ test_data/integration/jvms/001-interface-flag/with_one_exclusive.rns:1:23 ]
+   │
+ 1 │ .class abstract final interface EmptyClass
+   │                 ──┬── ────┬────  
+   │                   ╰────────────── 'ACC_FINAL' is exclusive
+   │                           │      
+   │                           ╰────── 'ACC_INTERFACE' is declared here
+   │ 
+   │ Help: Consider removing: 'ACC_FINAL'.
+   │ 
+   │ Note: If this violation isn't intentional, see details at:
+   │       https://rune.lagertha-vm.com/errors/JVMS-001
+───╯
+----- HASH -----
+572f666bc2fe61383369237952aa12bf1eb15e07e42f01dc2e46dead8513bdf7

@@ -1,0 +1,27 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+; some comment
+; another comment
+module
+.class public HelloWorld
+.super java/lang/Object
+----- STDERR -----
+[E-008] Error: unexpected access flag before class definition
+   ╭─[ test_data/integration/error/parser/outside_class_directive/before_class_dir/module_keyword.rns:3:1 ]
+   │
+ 3 │ module
+   │ ───┬──  
+   │    ╰──── valid contexts for module access flag are: 'class definition', 'method definition'.
+   │ 
+   │ Help: Ensure all code is declared inside a '.class' directive.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-008
+───╯
+----- HASH -----
+not generated

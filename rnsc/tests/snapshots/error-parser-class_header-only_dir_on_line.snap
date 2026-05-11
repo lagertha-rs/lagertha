@@ -1,0 +1,27 @@
+---
+source: rns-asm/tests/rns_test.rs
+assertion_line: 210
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class
+----- STDERR -----
+[E-020] Error: missing class name after '.class'
+   ╭─[ test_data/integration/error/parser/class_header/only_dir_on_line.rns:1:1 ]
+   │
+ 1 │ .class
+   │ ───┬──│ 
+   │    ╰──── the '.class' directive requires a class name as operand
+   │       │ 
+   │       ╰─ but class name is missing
+   │ 
+   │ Help: Provide a class name after the '.class' directive, e.g.:
+   │       .class <class_name>
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-020
+───╯
+----- HASH -----
+not generated

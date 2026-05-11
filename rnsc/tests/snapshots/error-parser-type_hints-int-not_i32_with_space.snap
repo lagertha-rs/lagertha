@@ -1,0 +1,32 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class @int "not an int" ; <- has space and should be quoted in help
+.super java/lang/Object
+----- STDERR -----
+[E-003] Error: '@int' requires a 32-bit integer, but 'not an int' is not a number
+   ╭─[ test_data/integration/error/parser/type_hints/int/not_i32_with_space.rns:1:8 ]
+   │
+ 1 │ .class @int "not an int" ; <- has space and should be quoted in help
+   │        ──┬─ ──────┬─────  
+   │          ╰──────────────── forces explicit integer constant pool type
+   │                   │       
+   │                   ╰─────── but 'not an int' is not a number
+   │ 
+   │ Help: 'not an int' is not a valid integer literal.
+   │       
+   │       Syntax:
+   │       @int <integer>
+   │       
+   │       For example:
+   │       @int 42
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-003
+───╯
+----- HASH -----
+not generated

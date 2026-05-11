@@ -1,0 +1,2 @@
+.class @float 9999999999999999999999999999999999999999
+unexpected_token ; <- this error should be reported as well

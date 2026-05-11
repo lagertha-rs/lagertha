@@ -1,0 +1,41 @@
+---
+source: rns-asm/tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+.class public final EmptyClass
+.super java/lang/Object
+
+.end class
+----- INPUT -----
+.class public public final public final EmptyClass
+.super java/lang/Object
+
+.class_end
+----- STDERR -----
+[TODO] Warning: duplicate access flag 'public' in class definition
+   ╭─[ test_data/integration/rns_warn/class_directive/double_multiple_access_flags.rns:1:15 ]
+   │
+ 1 │ .class public public final public final EmptyClass
+   │        ───┬── ───┬──       ───┬──  
+   │           ╰──────────────────────── first defined here
+   │                  │            │    
+   │                  ╰───────────────── duplicate flag ignored here
+   │                               │    
+   │                               ╰──── duplicate flag ignored here
+   │ 
+   │ Note: The `public` flag was already specified. You only need to declare it once.
+───╯
+[TODO] Warning: duplicate access flag 'final' in class definition
+   ╭─[ test_data/integration/rns_warn/class_directive/double_multiple_access_flags.rns:1:35 ]
+   │
+ 1 │ .class public public final public final EmptyClass
+   │                      ──┬──        ──┬──  
+   │                        ╰───────────────── first defined here
+   │                                     │    
+   │                                     ╰──── duplicate flag ignored here
+   │ 
+   │ Note: The `final` flag was already specified. You only need to declare it once.
+───╯
+----- HASH -----
+1f813e6fabc70c8352ecdd42eb52df6a8cc7f1053420b65e8bc559650994ed18

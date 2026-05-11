@@ -1,0 +1,5 @@
+.class 42 with trailing tokens
+
+.super java/lang/Object
+
+unexpected

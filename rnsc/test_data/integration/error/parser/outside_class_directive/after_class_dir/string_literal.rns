@@ -1,0 +1,5 @@
+.class public EmptyClass
+.super java/lang/Object
+
+.class_end
+"Hello World"

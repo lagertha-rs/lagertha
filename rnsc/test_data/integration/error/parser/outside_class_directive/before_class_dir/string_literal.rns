@@ -1,0 +1,3 @@
+"Hello World"
+.class public HelloWorld
+.super java/lang/Object

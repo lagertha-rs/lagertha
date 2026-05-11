@@ -1,0 +1,8 @@
+.method public static main ([Ljava/lang/String;)V
+  .code
+    loop:
+    aload_0
+    goto_label:
+    return
+  .code_end
+.method_end

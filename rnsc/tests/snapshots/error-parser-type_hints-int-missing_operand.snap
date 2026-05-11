@@ -1,0 +1,31 @@
+---
+source: rns-asm/tests/rns_test.rs
+assertion_line: 210
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class @int
+.super java/lang/Object
+----- STDERR -----
+[E-014] Error: '@int' type hint is missing its 32-bit signed integer
+   ╭─[ test_data/integration/error/parser/type_hints/int/missing_operand.rns:1:8 ]
+   │
+ 1 │ .class @int
+   │        ──┬─│ 
+   │          ╰─── forces explicit integer constant pool type
+   │            │ 
+   │            ╰─ but 32-bit signed integer is missing
+   │ 
+   │ Help: Provide the value immediately after the hint:
+   │       @int <integer>
+   │       
+   │       For example:
+   │       @int 42
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-014
+───╯
+----- HASH -----
+not generated

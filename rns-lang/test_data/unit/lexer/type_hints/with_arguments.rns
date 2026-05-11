@@ -1,0 +1,5 @@
+@utf8 hello
+@int 42
+@string "foo"
+@class MyClass
+@methodref MyClass myMethod ()V

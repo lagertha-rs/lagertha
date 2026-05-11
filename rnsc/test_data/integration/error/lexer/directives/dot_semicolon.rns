@@ -1,0 +1,3 @@
+.method
+    .;comment after semicolon
+.method_end

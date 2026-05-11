@@ -1,0 +1,6 @@
+.class public EmptyClass
+.super java/lang/Object
+
+.class_end
+@string "Hello, World!"
+@int 42 ; This one is not error, because after finding the first error, the parser will stop and try to find .class

@@ -1,0 +1,27 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class @int 3.14
+.super java/lang/Object
+----- STDERR -----
+[E-003] Error: '@int' requires a whole number, but '3.14' has a decimal point
+   ╭─[ test_data/integration/error/parser/type_hints/int/float.rns:1:8 ]
+   │
+ 1 │ .class @int 3.14
+   │        ──┬─ ──┬─  
+   │          ╰──────── forces explicit integer constant pool type
+   │               │   
+   │               ╰─── but '3.14' must be a whole number without a decimal point
+   │ 
+   │ Help: If you need a fractional value, use @float instead:
+   │       @float 3.14
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-003
+───╯
+----- HASH -----
+not generated

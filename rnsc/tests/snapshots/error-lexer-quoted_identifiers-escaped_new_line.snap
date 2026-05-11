@@ -1,0 +1,26 @@
+---
+source: rns-asm/tests/rns_test.rs
+assertion_line: 210
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class public Test
+"String with backslash escape followed by newline \
+.class_end
+----- STDERR -----
+[E-004] Error: invalid escape sequence
+   ╭─[ test_data/integration/error/lexer/quoted_identifiers/escaped_new_line.rns:2:51 ]
+   │
+ 2 │ "String with backslash escape followed by newline \
+   │                                                   ─┬  
+   │                                                    ╰── newline characters cannot be escaped
+   │ 
+   │ Help: Multiline identifiers are not supported yet, but are planned for the future.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-004
+───╯
+----- HASH -----
+not generated

@@ -1,0 +1,5 @@
+; some comment
+; another comment
+static
+.class public HelloWorld
+.super java/lang/Object

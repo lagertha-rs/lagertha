@@ -1,0 +1,2 @@
+.class public MainClass
+.super @cp_index 42 ; explicit constant pool index

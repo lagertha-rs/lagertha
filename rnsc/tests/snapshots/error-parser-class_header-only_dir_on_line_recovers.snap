@@ -1,0 +1,40 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class
+unknown_token ; <- still reported
+.class_end
+----- STDERR -----
+[E-020] Error: missing class name after '.class'
+   ╭─[ test_data/integration/error/parser/class_header/only_dir_on_line_recovers.rns:1:1 ]
+   │
+ 1 │ .class
+   │ ───┬──│ 
+   │    ╰──── the '.class' directive requires a class name as operand
+   │       │ 
+   │       ╰─ but class name is missing
+   │ 
+   │ Help: Provide a class name after the '.class' directive, e.g.:
+   │       .class <class_name>
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-020
+───╯
+[E-007] Error: unexpected identifier class body
+   ╭─[ test_data/integration/error/parser/class_header/only_dir_on_line_recovers.rns:2:1 ]
+   │
+ 2 │ unknown_token ; <- still reported
+   │ ──────┬──────  
+   │       ╰──────── unexpected token
+   │ 
+   │ Help: Check the syntax of the class body and ensure all tokens are valid.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-007
+───╯
+----- HASH -----
+not generated

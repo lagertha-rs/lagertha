@@ -1,0 +1,22 @@
+---
+source: rns-asm/tests/rns_test.rs
+assertion_line: 210
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+@foobar
+----- STDERR -----
+[E-005] Error: unknown type hint
+   ╭─[ test_data/integration/error/lexer/type_hints/at_foobar.rns:1:1 ]
+   │
+ 1 │ @foobar
+   │ ───┬───  
+   │    ╰───── '@foobar' is not a recognized type hint
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-005
+───╯
+----- HASH -----
+not generated

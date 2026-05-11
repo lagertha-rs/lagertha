@@ -1,0 +1,27 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class @long 3.14
+.super java/lang/Object
+----- STDERR -----
+[E-003] Error: '@long' requires a whole number, but '3.14' has a decimal point
+   ╭─[ test_data/integration/error/parser/type_hints/long/float.rns:1:8 ]
+   │
+ 1 │ .class @long 3.14
+   │        ──┬── ──┬─  
+   │          ╰───────── forces explicit long constant pool type
+   │                │   
+   │                ╰─── but '3.14' must be a whole number without a decimal point
+   │ 
+   │ Help: If you need a fractional value, use @double instead:
+   │       @double 3.14
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-003
+───╯
+----- HASH -----
+not generated

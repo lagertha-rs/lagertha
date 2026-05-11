@@ -1,0 +1,3 @@
+.class @long 100000 unexpected_second_operand ; <- this error shouldn't block next error
+.super java/lang/Object
+unknown_token ; <- this error should be reported as well

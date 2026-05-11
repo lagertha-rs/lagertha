@@ -1,0 +1,24 @@
+---
+source: rns-asm/tests/rns_test.rs
+assertion_line: 210
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.method      ..code
+----- STDERR -----
+[E-002] Error: unknown directive
+   ╭─[ test_data/integration/error/lexer/directives/dot_dot_code.rns:1:14 ]
+   │
+ 1 │ .method      ..code
+   │              ───┬──  
+   │                 ╰──── '..code' is not a recognized directive
+   │ 
+   │ Help: Did you mean '.code'?
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-002
+───╯
+----- HASH -----
+not generated

@@ -1,0 +1,39 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class @int 42 unexpected_second_operand ; <- this error shouldn't block next error
+.super java/lang/Object
+unknown_token ; <- this error should be reported as well
+----- STDERR -----
+[E-013] Error: unexpected trailing tokens after type hint '@int'
+   ╭─[ test_data/integration/error/parser/type_hints/int/trailing_token_recovers.rns:1:16 ]
+   │
+ 1 │ .class @int 42 unexpected_second_operand ; <- this error shouldn't block next error
+   │        ──┬─    ────────────┬────────────  
+   │          ╰──────────────────────────────── '@int' type hint takes 1 operand
+   │                            │              
+   │                            ╰────────────── but found 1 trailing token
+   │ 
+   │ Help: Remove the trailing tokens or move them to a valid context.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-013
+───╯
+[E-007] Error: unexpected identifier class body
+   ╭─[ test_data/integration/error/parser/type_hints/int/trailing_token_recovers.rns:3:1 ]
+   │
+ 3 │ unknown_token ; <- this error should be reported as well
+   │ ──────┬──────  
+   │       ╰──────── unexpected token
+   │ 
+   │ Help: Check the syntax of the class body and ensure all tokens are valid.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-007
+───╯
+----- HASH -----
+not generated

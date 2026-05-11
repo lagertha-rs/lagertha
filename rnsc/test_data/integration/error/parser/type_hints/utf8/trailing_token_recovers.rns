@@ -1,0 +1,1 @@
+.class @utf8 value unexpected_second_operand ; <- this error shouldn't block no superclass warn

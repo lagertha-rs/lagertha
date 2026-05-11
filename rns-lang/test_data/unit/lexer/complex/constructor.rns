@@ -1,0 +1,9 @@
+.class public Example
+.super java/lang/Object
+
+.method public <init> ()V
+.code
+    aload_0
+    invokespecial java/lang/Object <init> ()V
+    return
+.method_end

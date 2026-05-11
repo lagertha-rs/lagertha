@@ -1,0 +1,2 @@
+.class public MainClass
+.super @cp_idx not_a_number ; explicit constant pool index

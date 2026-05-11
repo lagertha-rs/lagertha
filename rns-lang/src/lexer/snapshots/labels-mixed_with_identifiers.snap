@@ -1,0 +1,13 @@
+---
+source: rns/src/lexer/snapshot_tests.rs
+expression: formatted
+---
+----- SOURCE -----
+start: identifier1 label2: identifier2
+----- TOKENS -----
+KIND                       | SPAN    | LSP       | TEXT
+----                       | ----    | ---       | ----
+Label("start")             | 0..6    | 0:0..6    | start:
+Identifier("identifier1")  | 7..18   | 0:7..18   | identifier1
+Label("label2")            | 19..26  | 0:19..26  | label2:
+Identifier("identifier2")  | 27..38  | 0:27..38  | identifier2

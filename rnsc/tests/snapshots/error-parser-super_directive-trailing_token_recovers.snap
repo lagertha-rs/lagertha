@@ -1,0 +1,42 @@
+---
+source: tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+
+.class MyClass
+
+.super java/lang/String java/lang/Other
+
+     unknown_token ; <- still reported
+----- STDERR -----
+[E-012] Error: unexpected trailing tokens after super class definition
+   ╭─[ test_data/integration/error/parser/super_directive/trailing_token_recovers.rns:4:25 ]
+   │
+ 4 │ .super java/lang/String java/lang/Other
+   │                        │───────┬───────  
+   │                        ╰───────────────── expected end of super class definition here
+   │                                │         
+   │                                ╰───────── but found 1 trailing token
+   │ 
+   │ Help: Remove the trailing tokens or move them to a valid context.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-012
+───╯
+[E-007] Error: unexpected identifier class body
+   ╭─[ test_data/integration/error/parser/super_directive/trailing_token_recovers.rns:6:6 ]
+   │
+ 6 │      unknown_token ; <- still reported
+   │      ──────┬──────  
+   │            ╰──────── unexpected token
+   │ 
+   │ Help: Check the syntax of the class body and ensure all tokens are valid.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-007
+───╯
+----- HASH -----
+not generated

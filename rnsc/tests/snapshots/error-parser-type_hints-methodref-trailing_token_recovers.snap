@@ -1,0 +1,34 @@
+---
+source: rns-asm/tests/rns_test.rs
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class @methodref MyClass methodName (I)V trailing
+----- STDERR -----
+[E-013] Error: unexpected trailing tokens after type hint '@methodref'
+   ╭─[ test_data/integration/error/parser/type_hints/methodref/trailing_token_recovers.rns:1:43 ]
+   │
+ 1 │ .class @methodref MyClass methodName (I)V trailing
+   │        ─────┬────                         ────┬───  
+   │             ╰─────────────────────────────────────── '@methodref' type hint takes 3 operands
+   │                                               │     
+   │                                               ╰───── but found 1 trailing token
+   │ 
+   │ Help: Remove the trailing tokens or move them to a valid context.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-013
+───╯
+[W-001] Warning: missing super directive
+   ╭─[ test_data/integration/error/parser/type_hints/methodref/trailing_token_recovers.rns:1:1 ]
+   │
+ 1 │ .class @methodref MyClass methodName (I)V trailing
+   │ ───┬──  
+   │    ╰──── class 'Some(Methodref(RefTypeHint { hint_span: Some(Span { byte_start: 7, byte_end: 17, line: 0, col_start: 7, col_end: 17 }), class: Spanned { value: "MyClass", span: Span { byte_start: 18, byte_end: 25, line: 0, col_start: 18, col_end: 25 } }, name: Spanned { value: "methodName", span: Span { byte_start: 26, byte_end: 36, line: 0, col_start: 26, col_end: 36 } }, descriptor: Spanned { value: "(I)V", span: Span { byte_start: 37, byte_end: 41, line: 0, col_start: 37, col_end: 41 } } }))' is missing a '.super' directive
+   │ 
+   │ Note: The .super directive is required to specify the superclass. Defaulting to 'java/lang/Object'.
+───╯
+----- HASH -----
+not generated

@@ -1,0 +1,3 @@
+.class MyClass
+.super ; <- first error
+unknown tokens ; <- should be reported as well

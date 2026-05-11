@@ -1,0 +1,27 @@
+---
+source: rns-asm/tests/rns_test.rs
+assertion_line: 210
+expression: "&snapshot_content"
+---
+----- DISASSEMBLED -----
+not generated
+----- INPUT -----
+.class @class value unexpected_second_operand
+.super java/lang/Object
+----- STDERR -----
+[E-013] Error: unexpected trailing tokens after type hint '@class'
+   ╭─[ test_data/integration/error/parser/type_hints/class/trailing_tokens.rns:1:21 ]
+   │
+ 1 │ .class @class value unexpected_second_operand
+   │        ───┬──       ────────────┬────────────  
+   │           ╰──────────────────────────────────── '@class' type hint takes 1 operand
+   │                                 │              
+   │                                 ╰────────────── but found 1 trailing token
+   │ 
+   │ Help: Remove the trailing tokens or move them to a valid context.
+   │ 
+   │ Note: For more details see:
+   │       https://rune.lagertha-vm.com/errors/E-013
+───╯
+----- HASH -----
+not generated

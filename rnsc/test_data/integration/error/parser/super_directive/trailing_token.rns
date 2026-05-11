@@ -1,0 +1,4 @@
+
+.class MyClass
+
+.super java/lang/String java/lang/Other ; trailing tokens, but should note about multiple inheritance as well

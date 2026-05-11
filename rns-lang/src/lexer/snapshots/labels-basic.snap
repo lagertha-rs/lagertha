@@ -1,0 +1,16 @@
+---
+source: rns/src/lexer/snapshot_tests.rs
+expression: formatted
+---
+----- SOURCE -----
+loop_start:
+end:
+my_label:
+----- TOKENS -----
+KIND                 | SPAN    | LSP       | TEXT
+----                 | ----    | ---       | ----
+Label("loop_start")  | 0..11   | 0:0..11   | loop_start:
+Newline              | 11..12  | 0:11..12  | \n
+Label("end")         | 12..16  | 1:0..4    | end:
+Newline              | 16..17  | 1:4..5    | \n
+Label("my_label")    | 17..26  | 2:0..9    | my_label:

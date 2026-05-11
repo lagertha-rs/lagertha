@@ -1,0 +1,11 @@
+---
+source: rns/src/lexer/snapshot_tests.rs
+expression: formatted
+---
+----- SOURCE -----
+"hello world with spaces"
+----- TOKENS -----
+KIND                                   | SPAN    | LSP       | TEXT
+----                                   | ----    | ---       | ----
+Identifier("hello world with spaces")  | 0..25   | 0:0..25   | "hello world with spaces"
+Newline                                | 25..26  | 0:25..26  | \n

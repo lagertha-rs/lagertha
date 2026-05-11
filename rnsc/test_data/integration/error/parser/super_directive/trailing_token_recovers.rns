@@ -1,0 +1,6 @@
+
+.class MyClass
+
+.super java/lang/String java/lang/Other
+
+     unknown_token ; <- still reported
