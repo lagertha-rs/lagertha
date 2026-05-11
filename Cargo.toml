@@ -1,7 +1,17 @@
 [workspace]
 resolver = "2"
 
-members = ["vm", "javap", "runtime", "jimage"]
+members = [
+    "lvm-common",
+    "lvm-class",
+    "vm",
+    "javap",
+    "runtime",
+    "jimage",
+    "rns-lang",
+    "rnsc",
+    "rns-lsp",
+]
 
 [workspace.dependencies]
 tracing = { version = "0.1", features = [
@@ -13,5 +23,6 @@ tracing = { version = "0.1", features = [
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 tracing-log = "0.2"
 hotpath = "0.8.0"
-common = { package = "lvm-common", git = "https://github.com/lagertha-rs/lvm-common", branch = "main" }
-jclass = { package = "lvm-class", git = "https://github.com/lagertha-rs/lvm-class", branch = "main" }
+common = { path = "lvm-common", package = "lvm-common" }
+jclass = { path = "lvm-class", package = "lvm-class" }
+rns = { path = "rns-lang", package = "rns-lang" }
