@@ -1,7 +1,6 @@
 //! Complete Java 25 `.class` file parser.
 //!
-//! This crate provides structured representation of Java class files with parsing,
-//! validation, and javap-style printing capabilities.
+//! This crate provides structured representation of Java class files with parsing, validation.
 
 use crate::attribute::ClassAttribute;
 use crate::constant_pool::{ConstantEntry, ConstantPool};
@@ -14,14 +13,10 @@ pub mod attribute;
 pub mod bytecode;
 pub mod constant_pool;
 pub mod flags;
-#[cfg(feature = "javap_print")]
-pub mod javap_fmt;
 pub mod member;
 pub mod prelude;
 #[cfg(feature = "rns_assemble")]
 pub mod rns_asm;
-#[cfg(feature = "rns_disassemble")]
-pub mod rns_dis;
 
 // TODO: review all access levels in the crate (methods, fields, modules, structs, etc.)
 
@@ -31,8 +26,6 @@ pub mod rns_dis;
 ///
 /// All structures in the crate have public fields for easier access,
 /// because they will be remapped to runtime structures.
-///
-/// All print related code is behind the `javap_print` feature flag.
 #[derive(Debug)]
 pub struct ClassFile {
     pub minor_version: u16,

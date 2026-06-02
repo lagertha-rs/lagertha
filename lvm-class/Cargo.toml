@@ -12,15 +12,10 @@ categories = ["parser-implementations", "development-tools"]
 
 [features]
 default = []
-javap_print = []
 rns_assemble = []
-rns_disassemble = []
 
 [dependencies]
 num_enum = "0.7.4"
-itertools = "0.14.0"
-
-either = "1.15.0" # TODO: add only under javap_print feature
 
 common = { workspace = true }
 

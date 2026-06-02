@@ -1056,8 +1056,6 @@ dependencies = [
 name = "lvm-class"
 version = "0.1.0"
 dependencies = [
- "either",
- "itertools",
  "lvm-common",
  "num_enum",
 ]
