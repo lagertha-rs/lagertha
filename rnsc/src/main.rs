@@ -127,6 +127,6 @@ fn disassemble(path: &PathBuf) {
         std::process::exit(1);
     });
 
-    let ja_text = class_file.fmt_rns();
-    print!("{}", ja_text.unwrap());
+    let rns_text = rns::disassemble(&class_file);
+    print!("{}", rns_text);
 }

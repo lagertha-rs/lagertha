@@ -1,5 +1,8 @@
-use crate::error::ClassFormatErr;
 use std::fmt::{self};
+
+pub enum TodoTmpError {
+
+}
 
 pub struct Indented<'a> {
     inner: &'a mut dyn fmt::Write,
@@ -18,9 +21,9 @@ impl<'a> Indented<'a> {
         }
     }
 
-    pub fn with_indent<F>(&mut self, f: F) -> Result<(), ClassFormatErr>
+    pub fn with_indent<F>(&mut self, f: F) -> Result<(), std::fmt::Error>
     where
-        F: FnOnce(&mut Self) -> Result<(), ClassFormatErr>,
+        F: FnOnce(&mut Self) -> Result<(), std::fmt::Error>,
     {
         self.level += 1;
         let res = f(self);
@@ -28,9 +31,9 @@ impl<'a> Indented<'a> {
         res
     }
 
-    pub fn with_specific_indent<F>(&mut self, level: usize, f: F) -> Result<(), ClassFormatErr>
+    pub fn with_specific_indent<F>(&mut self, level: usize, f: F) -> Result<(), std::fmt::Error>
     where
-        F: FnOnce(&mut Self) -> Result<(), ClassFormatErr>,
+        F: FnOnce(&mut Self) -> Result<(), std::fmt::Error>,
     {
         let prev_level = self.level;
         self.level = level;

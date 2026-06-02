@@ -1,7 +1,7 @@
 use crate::attribute::{CodeAttribute, MethodAttribute};
 use crate::bytecode::Instruction;
 use crate::constant_pool::ConstantPool;
-use common::error::ClassFormatErr;
+use common::error::std::fmt::Error;
 use common::utils::indent_write::Indented;
 use std::fmt::Write as _;
 
@@ -10,7 +10,7 @@ impl MethodAttribute {
         &self,
         ind: &mut Indented,
         cp: &ConstantPool,
-    ) -> Result<(), ClassFormatErr> {
+    ) -> Result<(), std::fmt::Error> {
         ind.with_indent(|ind| match self {
             MethodAttribute::Code(code) => code.fmt_rns(ind, cp),
             other => unimplemented!("{:?} is not supported for writing right now", other),
@@ -23,7 +23,7 @@ impl CodeAttribute {
     fn fmt_instructions_vec(
         ind: &mut Indented,
         instructions: Vec<(usize, String)>,
-    ) -> Result<(), ClassFormatErr> {
+    ) -> Result<(), std::fmt::Error> {
         let max_width = instructions.iter().map(|s| s.1.len()).max().unwrap_or(0) + 2;
         writeln!(ind, "{:>width$}  ; PC", "", width = max_width)?;
         for (pc, instr) in instructions {
@@ -37,7 +37,7 @@ impl CodeAttribute {
         &self,
         ind: &mut Indented,
         cp: &ConstantPool,
-    ) -> Result<(), ClassFormatErr> {
+    ) -> Result<(), std::fmt::Error> {
         writeln!(
             ind,
             ".code stack {} locals {}",

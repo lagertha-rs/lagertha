@@ -1,10 +1,10 @@
 use crate::flags::{ClassFlags, MethodFlags};
-use common::error::ClassFormatErr;
+use common::error::std::fmt::Error;
 use common::utils::indent_write::Indented;
 use std::fmt::Write as _;
 
 impl ClassFlags {
-    pub(super) fn fmt_rns(&self, ind: &mut Indented) -> Result<(), ClassFormatErr> {
+    pub(super) fn fmt_rns(&self, ind: &mut Indented) -> Result<(), std::fmt::Error> {
         // TODO: the order is random here. make it right
         write!(ind, ".class ")?;
         if self.is_public() {
@@ -40,7 +40,7 @@ impl ClassFlags {
 }
 
 impl MethodFlags {
-    pub(super) fn fmt_rns(&self, ind: &mut Indented) -> Result<(), ClassFormatErr> {
+    pub(super) fn fmt_rns(&self, ind: &mut Indented) -> Result<(), std::fmt::Error> {
         if self.is_public() {
             write!(ind, "public ")?;
         } else if self.is_protected() {

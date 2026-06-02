@@ -1,13 +1,13 @@
 use crate::constant_pool::{ConstantEntry, ConstantPool};
-use common::error::ClassFormatErr;
+use common::error::std::fmt::Error;
 use common::utils::indent_write::Indented;
 use std::fmt::Write as _;
 
 impl ConstantPool {
-    pub(super) fn get_raw_entry(&self, idx: u16) -> Result<&ConstantEntry, ClassFormatErr> {
+    pub(super) fn get_raw_entry(&self, idx: u16) -> Result<&ConstantEntry, std::fmt::Error> {
         self.inner
             .get(idx as usize)
-            .ok_or(ClassFormatErr::ConstantNotFound(idx))
+            .ok_or(std::fmt::Error::ConstantNotFound(idx))
     }
 }
 
@@ -16,7 +16,7 @@ impl ConstantEntry {
         &self,
         ind: &mut Indented,
         cp: &ConstantPool,
-    ) -> Result<(), ClassFormatErr> {
+    ) -> Result<(), std::fmt::Error> {
         match self {
             ConstantEntry::Utf8(s) => write!(ind, "{}", s)?,
             ConstantEntry::Class(class_idx) => cp.get_raw_entry(*class_idx)?.fmt_rns(ind, cp)?,

@@ -1,6 +1,6 @@
 use crate::bytecode::Instruction;
 use crate::constant_pool::ConstantPool;
-use common::error::ClassFormatErr;
+use common::error::std::fmt::Error;
 use common::utils::indent_write::Indented;
 use std::fmt::Write as _;
 
@@ -9,7 +9,7 @@ impl Instruction {
         &self,
         ind: &mut Indented,
         cp: &ConstantPool,
-    ) -> Result<(), ClassFormatErr> {
+    ) -> Result<(), std::fmt::Error> {
         match self {
             Instruction::InvokeSpecial(idx)
             | Instruction::InvokeVirtual(idx)
