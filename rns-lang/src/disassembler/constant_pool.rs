@@ -1,51 +1,43 @@
-use crate::constant_pool::{ConstantEntry, ConstantPool};
-use common::error::std::fmt::Error;
-use common::utils::indent_write::Indented;
+use crate::disassembler::indent_write::Indented;
+use crate::disassembler::{DisasmError, DisasmResult};
+use jclass::constant_pool::{ConstantEntry, ConstantPool};
 use std::fmt::Write as _;
 
-impl ConstantPool {
-    pub(super) fn get_raw_entry(&self, idx: u16) -> Result<&ConstantEntry, std::fmt::Error> {
-        self.inner
-            .get(idx as usize)
-            .ok_or(std::fmt::Error::ConstantNotFound(idx))
-    }
+fn get_raw_entry(cp: &ConstantPool, idx: u16) -> DisasmResult<&ConstantEntry> {
+    cp.inner.get(idx as usize).ok_or(DisasmError::ConstantNotFound(idx))
 }
 
-impl ConstantEntry {
-    pub(super) fn fmt_rns(
-        &self,
-        ind: &mut Indented,
-        cp: &ConstantPool,
-    ) -> Result<(), std::fmt::Error> {
-        match self {
-            ConstantEntry::Utf8(s) => write!(ind, "{}", s)?,
-            ConstantEntry::Class(class_idx) => cp.get_raw_entry(*class_idx)?.fmt_rns(ind, cp)?,
-            ConstantEntry::NameAndType(name_and_type_idx) => {
-                cp.get_raw_entry(name_and_type_idx.name_index)?
-                    .fmt_rns(ind, cp)?;
-                write!(ind, " ")?;
-                cp.get_raw_entry(name_and_type_idx.descriptor_index)?
-                    .fmt_rns(ind, cp)?;
-            }
-            ConstantEntry::MethodRef(method_ref) => {
-                cp.get_raw_entry(method_ref.class_index)?.fmt_rns(ind, cp)?;
-                write!(ind, " ")?;
-                cp.get_raw_entry(method_ref.name_and_type_index)?
-                    .fmt_rns(ind, cp)?;
-            }
-            ConstantEntry::FieldRef(field_ref) => {
-                cp.get_raw_entry(field_ref.class_index)?.fmt_rns(ind, cp)?;
-                write!(ind, " ")?;
-                cp.get_raw_entry(field_ref.name_and_type_index)?
-                    .fmt_rns(ind, cp)?;
-            }
-            ConstantEntry::String(idx) => {
-                write!(ind, "\"")?;
-                cp.get_raw_entry(*idx)?.fmt_rns(ind, cp)?;
-                write!(ind, "\"")?;
-            }
-            un => unimplemented!("{:?} is not supported for writing right now", un),
-        };
-        Ok(())
+pub(crate) fn fmt_cp_entry_rns(ind: &mut Indented, cp: &ConstantPool, idx: u16) -> DisasmResult<()> {
+    let entry = get_raw_entry(cp, idx)?;
+    fmt_entry_rns(entry, ind, cp)
+}
+
+pub(crate) fn fmt_entry_rns(entry: &ConstantEntry, ind: &mut Indented, cp: &ConstantPool) -> DisasmResult<()> {
+    match entry {
+        ConstantEntry::Utf8(s) => write!(ind, "{s}")?,
+        ConstantEntry::Class(class_idx) => fmt_cp_entry_rns(ind, cp, *class_idx)?,
+        ConstantEntry::NameAndType(name_and_type) => {
+            fmt_cp_entry_rns(ind, cp, name_and_type.name_index)?;
+            write!(ind, " ")?;
+            fmt_cp_entry_rns(ind, cp, name_and_type.descriptor_index)?;
+        }
+        ConstantEntry::MethodRef(method_ref) => {
+            fmt_cp_entry_rns(ind, cp, method_ref.class_index)?;
+            write!(ind, " ")?;
+            fmt_cp_entry_rns(ind, cp, method_ref.name_and_type_index)?;
+        }
+        ConstantEntry::FieldRef(field_ref) => {
+            fmt_cp_entry_rns(ind, cp, field_ref.class_index)?;
+            write!(ind, " ")?;
+            fmt_cp_entry_rns(ind, cp, field_ref.name_and_type_index)?;
+        }
+        ConstantEntry::String(idx) => {
+            write!(ind, "\"")?;
+            fmt_cp_entry_rns(ind, cp, *idx)?;
+            write!(ind, "\"")?;
+        }
+        other => return Err(DisasmError::UnsupportedConstant(format!("{other:?}"))),
     }
+
+    Ok(())
 }

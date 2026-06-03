@@ -1,59 +1,50 @@
-use crate::attribute::{CodeAttribute, MethodAttribute};
-use crate::bytecode::Instruction;
-use crate::constant_pool::ConstantPool;
-use common::error::std::fmt::Error;
-use common::utils::indent_write::Indented;
+use crate::disassembler::indent_write::Indented;
+use crate::disassembler::instruction::fmt_instruction_rns;
+use crate::disassembler::{DisasmError, DisasmResult};
+use jclass::attribute::{CodeAttribute, MethodAttribute};
+use jclass::bytecode::Instruction;
+use jclass::constant_pool::ConstantPool;
 use std::fmt::Write as _;
 
-impl MethodAttribute {
-    pub(crate) fn fmt_rns(
-        &self,
-        ind: &mut Indented,
-        cp: &ConstantPool,
-    ) -> Result<(), std::fmt::Error> {
-        ind.with_indent(|ind| match self {
-            MethodAttribute::Code(code) => code.fmt_rns(ind, cp),
-            other => unimplemented!("{:?} is not supported for writing right now", other),
-        })
-    }
+pub(crate) fn fmt_method_attribute_rns(
+    attribute: &MethodAttribute,
+    ind: &mut Indented,
+    cp: &ConstantPool,
+) -> DisasmResult<()> {
+    ind.with_indent(|ind| match attribute {
+        MethodAttribute::Code(code) => fmt_code_attribute_rns(code, ind, cp),
+        other => Err(DisasmError::UnsupportedMethodAttribute(format!("{other:?}"))),
+    })
 }
 
-impl CodeAttribute {
-    /* TODO: it adds PC as comment, can have also more info but should be under verbose flag
-    fn fmt_instructions_vec(
-        ind: &mut Indented,
-        instructions: Vec<(usize, String)>,
-    ) -> Result<(), std::fmt::Error> {
-        let max_width = instructions.iter().map(|s| s.1.len()).max().unwrap_or(0) + 2;
-        writeln!(ind, "{:>width$}  ; PC", "", width = max_width)?;
-        for (pc, instr) in instructions {
-            writeln!(ind, "{:<width$}  ; {}", instr, pc, width = max_width)?;
+fn fmt_code_attribute_rns(
+    code: &CodeAttribute,
+    ind: &mut Indented,
+    cp: &ConstantPool,
+) -> DisasmResult<()> {
+    writeln!(ind, ".code stack {} locals {}", code.max_stack, code.max_locals)?;
+    ind.with_indent(|ind| {
+        let mut pc = 0;
+        while pc < code.code.len() {
+            let inst = Instruction::new_at(&code.code, pc)?;
+            fmt_instruction_rns(&inst, ind, cp)?;
+            pc += inst.byte_size() as usize;
         }
-            Ok(())
-        }
-         */
-
-    pub(super) fn fmt_rns(
-        &self,
-        ind: &mut Indented,
-        cp: &ConstantPool,
-    ) -> Result<(), std::fmt::Error> {
-        writeln!(
-            ind,
-            ".code stack {} locals {}",
-            self.max_stack, self.max_locals
-        )?;
-        ind.with_indent(|ind| {
-            let mut pc = 0;
-            let code_len = self.code.len();
-            while pc < code_len {
-                let inst = Instruction::new_at(&self.code, pc)?;
-                inst.fmt_rns(ind, cp)?;
-                pc += inst.byte_size() as usize;
-            }
-            Ok(())
-        })?;
-        writeln!(ind, ".end code")?;
         Ok(())
+    })?;
+
+    if !code.exception_table.is_empty() {
+        return Err(DisasmError::UnsupportedCodeAttribute(
+            "exception table".to_string(),
+        ));
     }
+
+    if !code.attributes.is_empty() {
+        return Err(DisasmError::UnsupportedCodeAttribute(
+            "nested code attributes".to_string(),
+        ));
+    }
+
+    writeln!(ind, ".end code")?;
+    Ok(())
 }

@@ -127,6 +127,9 @@ fn disassemble(path: &PathBuf) {
         std::process::exit(1);
     });
 
-    let rns_text = rns::disassemble(&class_file);
+    let rns_text = rns::disassemble(&class_file).unwrap_or_else(|err| {
+        eprintln!("Error disassembling class file {}: {}", path.display(), err);
+        std::process::exit(1);
+    });
     print!("{}", rns_text);
 }

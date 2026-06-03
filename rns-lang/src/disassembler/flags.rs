@@ -1,73 +1,66 @@
-use crate::flags::{ClassFlags, MethodFlags};
-use common::error::std::fmt::Error;
-use common::utils::indent_write::Indented;
+use crate::disassembler::indent_write::Indented;
+use crate::disassembler::DisasmResult;
+use jclass::flags::{ClassFlags, MethodFlags};
 use std::fmt::Write as _;
 
-impl ClassFlags {
-    pub(super) fn fmt_rns(&self, ind: &mut Indented) -> Result<(), std::fmt::Error> {
-        // TODO: the order is random here. make it right
-        write!(ind, ".class ")?;
-        if self.is_public() {
-            write!(ind, "public ")?;
-        }
-        if self.is_module() {
-            write!(ind, "module ")?;
-        }
-        if self.is_annotation() {
-            write!(ind, "annotation ")?;
-        }
-        if self.is_interface() {
-            write!(ind, "interface ")?;
-        }
-        if self.is_abstract() {
-            write!(ind, "abstract ")?;
-        }
-        if self.is_final() {
-            write!(ind, "final ")?;
-        }
-        if self.is_enum() {
-            write!(ind, "enum ")?;
-        }
-        if self.is_module() {
-            write!(ind, "module ")?;
-        }
-        if self.is_super() {
-            write!(ind, "super ")?;
-        }
-
-        Ok(())
+pub(crate) fn fmt_class_flags_rns(flags: &ClassFlags, ind: &mut Indented) -> DisasmResult<()> {
+    write!(ind, ".class ")?;
+    if flags.is_public() {
+        write!(ind, "public ")?;
     }
+    if flags.is_module() {
+        write!(ind, "module ")?;
+    }
+    if flags.is_annotation() {
+        write!(ind, "annotation ")?;
+    }
+    if flags.is_interface() {
+        write!(ind, "interface ")?;
+    }
+    if flags.is_abstract() {
+        write!(ind, "abstract ")?;
+    }
+    if flags.is_final() {
+        write!(ind, "final ")?;
+    }
+    if flags.is_enum() {
+        write!(ind, "enum ")?;
+    }
+    if flags.is_module() {
+        write!(ind, "module ")?;
+    }
+    if flags.is_super() {
+        write!(ind, "super ")?;
+    }
+    Ok(())
 }
 
-impl MethodFlags {
-    pub(super) fn fmt_rns(&self, ind: &mut Indented) -> Result<(), std::fmt::Error> {
-        if self.is_public() {
-            write!(ind, "public ")?;
-        } else if self.is_protected() {
-            write!(ind, "protected ")?;
-        } else if self.is_private() {
-            write!(ind, "private ")?;
-        }
-
-        if self.is_static() {
-            write!(ind, "static ")?;
-        }
-        if self.is_final() {
-            write!(ind, "final ")?;
-        }
-        if self.is_synchronized() {
-            write!(ind, "synchronized ")?;
-        }
-        if self.is_native() {
-            write!(ind, "native ")?;
-        }
-        if self.is_abstract() {
-            write!(ind, "abstract ")?;
-        }
-        if self.is_strict() {
-            write!(ind, "strictfp ")?;
-        }
-
-        Ok(())
+pub(crate) fn fmt_method_flags_rns(flags: &MethodFlags, ind: &mut Indented) -> DisasmResult<()> {
+    if flags.is_public() {
+        write!(ind, "public ")?;
+    } else if flags.is_protected() {
+        write!(ind, "protected ")?;
+    } else if flags.is_private() {
+        write!(ind, "private ")?;
     }
+
+    if flags.is_static() {
+        write!(ind, "static ")?;
+    }
+    if flags.is_final() {
+        write!(ind, "final ")?;
+    }
+    if flags.is_synchronized() {
+        write!(ind, "synchronized ")?;
+    }
+    if flags.is_native() {
+        write!(ind, "native ")?;
+    }
+    if flags.is_abstract() {
+        write!(ind, "abstract ")?;
+    }
+    if flags.is_strict() {
+        write!(ind, "strictfp ")?;
+    }
+    Ok(())
 }

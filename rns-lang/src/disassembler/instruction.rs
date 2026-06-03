@@ -1,26 +1,25 @@
-use crate::bytecode::Instruction;
-use crate::constant_pool::ConstantPool;
-use common::error::std::fmt::Error;
-use common::utils::indent_write::Indented;
+use crate::disassembler::constant_pool::fmt_cp_entry_rns;
+use crate::disassembler::indent_write::Indented;
+use crate::disassembler::DisasmResult;
+use jclass::bytecode::Instruction;
+use jclass::constant_pool::ConstantPool;
 use std::fmt::Write as _;
 
-impl Instruction {
-    pub(super) fn fmt_rns(
-        &self,
-        ind: &mut Indented,
-        cp: &ConstantPool,
-    ) -> Result<(), std::fmt::Error> {
-        match self {
-            Instruction::InvokeSpecial(idx)
-            | Instruction::InvokeVirtual(idx)
-            | Instruction::Getstatic(idx)
-            | Instruction::Ldc(idx) => {
-                write!(ind, "{self} ")?;
-                cp.get_raw_entry(*idx)?.fmt_rns(ind, cp)?;
-                writeln!(ind)?;
-            }
-            _ => writeln!(ind, "{}", self)?,
+pub(crate) fn fmt_instruction_rns(
+    instruction: &Instruction,
+    ind: &mut Indented,
+    cp: &ConstantPool,
+) -> DisasmResult<()> {
+    match instruction {
+        Instruction::InvokeSpecial(idx)
+        | Instruction::InvokeVirtual(idx)
+        | Instruction::Getstatic(idx)
+        | Instruction::Ldc(idx) => {
+            write!(ind, "{instruction} ")?;
+            fmt_cp_entry_rns(ind, cp, *idx)?;
+            writeln!(ind)?;
         }
-        Ok(())
+        _ => writeln!(ind, "{instruction}")?,
     }
+    Ok(())
 }

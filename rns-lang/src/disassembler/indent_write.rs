@@ -1,8 +1,5 @@
-use std::fmt::{self};
-
-pub enum TodoTmpError {
-
-}
+use crate::disassembler::DisasmResult;
+use std::fmt;
 
 pub struct Indented<'a> {
     inner: &'a mut dyn fmt::Write,
@@ -21,25 +18,14 @@ impl<'a> Indented<'a> {
         }
     }
 
-    pub fn with_indent<F>(&mut self, f: F) -> Result<(), std::fmt::Error>
+    pub fn with_indent<F>(&mut self, f: F) -> DisasmResult<()>
     where
-        F: FnOnce(&mut Self) -> Result<(), std::fmt::Error>,
+        F: FnOnce(&mut Self) -> DisasmResult<()>,
     {
         self.level += 1;
-        let res = f(self);
+        let result = f(self);
         self.level -= 1;
-        res
-    }
-
-    pub fn with_specific_indent<F>(&mut self, level: usize, f: F) -> Result<(), std::fmt::Error>
-    where
-        F: FnOnce(&mut Self) -> Result<(), std::fmt::Error>,
-    {
-        let prev_level = self.level;
-        self.level = level;
-        let res = f(self);
-        self.level = prev_level;
-        res
+        result
     }
 }
 
