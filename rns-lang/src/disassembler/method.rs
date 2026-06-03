@@ -17,15 +17,20 @@ fn fmt_signature(method: &MethodInfo, ind: &mut Indented, cp: &ConstantPool) -> 
     Ok(())
 }
 
+fn method_name(method: &MethodInfo, cp: &ConstantPool) -> DisasmResult<String> {
+    Ok(cp.get_utf8(&method.name_index)?.to_string())
+}
+
 pub(crate) fn fmt_method_rns(
     method: &MethodInfo,
     ind: &mut Indented,
     cp: &ConstantPool,
 ) -> DisasmResult<()> {
+    let method_name = method_name(method, cp)?;
     fmt_signature(method, ind, cp)?;
     ind.with_indent(|ind| {
         for attr in &method.attributes {
-            fmt_method_attribute_rns(attr, ind, cp)?;
+            fmt_method_attribute_rns(attr, &method_name, ind, cp)?;
         }
         Ok(())
     })?;

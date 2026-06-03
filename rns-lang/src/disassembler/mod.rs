@@ -17,8 +17,9 @@ pub enum DisasmError {
     Instruction(InstructionErr),
     ConstantNotFound(u16),
     UnsupportedConstant(String),
-    UnsupportedMethodAttribute(String),
-    UnsupportedCodeAttribute(String),
+    UnsupportedMethodAttribute { method: String, attribute: String },
+    UnsupportedCodeAttribute { method: String, attribute: &'static str },
+    UnsupportedExceptionTable { method: String, handlers: usize },
 }
 
 pub type DisasmResult<T> = Result<T, DisasmError>;
@@ -31,8 +32,15 @@ impl fmt::Display for DisasmError {
             Self::Instruction(err) => write!(f, "instruction error: {err}"),
             Self::ConstantNotFound(idx) => write!(f, "constant not found at index {idx}"),
             Self::UnsupportedConstant(kind) => write!(f, "unsupported constant pool entry {kind}"),
-            Self::UnsupportedMethodAttribute(kind) => write!(f, "unsupported method attribute {kind}"),
-            Self::UnsupportedCodeAttribute(kind) => write!(f, "unsupported code attribute {kind}"),
+            Self::UnsupportedMethodAttribute { method, attribute } => {
+                write!(f, "method {method}: unsupported attribute {attribute}")
+            }
+            Self::UnsupportedCodeAttribute { method, attribute } => {
+                write!(f, "method {method}: unsupported code attribute {attribute}")
+            }
+            Self::UnsupportedExceptionTable { method, handlers } => {
+                write!(f, "method {method}: unsupported exception table ({handlers} handlers)")
+            }
         }
     }
 }
