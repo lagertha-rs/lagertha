@@ -27,7 +27,11 @@ fn fmt_code_attribute_rns(
     ind: &mut Indented,
     cp: &ConstantPool,
 ) -> DisasmResult<()> {
-    writeln!(ind, ".code stack {} locals {}", code.max_stack, code.max_locals)?;
+    writeln!(
+        ind,
+        ".code stack {} locals {}",
+        code.max_stack, code.max_locals
+    )?;
     ind.with_indent(|ind| {
         let mut pc = 0;
         while pc < code.code.len() {
@@ -65,9 +69,7 @@ fn fmt_code_attribute_rns(
 fn code_attribute_name(attribute: &jclass::attribute::method::CodeAttributeInfo) -> &'static str {
     match attribute {
         jclass::attribute::method::CodeAttributeInfo::LineNumberTable(_) => "LineNumberTable",
-        jclass::attribute::method::CodeAttributeInfo::LocalVariableTable(_) => {
-            "LocalVariableTable"
-        }
+        jclass::attribute::method::CodeAttributeInfo::LocalVariableTable(_) => "LocalVariableTable",
         jclass::attribute::method::CodeAttributeInfo::StackMapTable(_) => "StackMapTable",
         jclass::attribute::method::CodeAttributeInfo::LocalVariableTypeTable(_) => {
             "LocalVariableTypeTable"

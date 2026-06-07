@@ -1,12 +1,12 @@
 pub mod assembler;
 pub mod ast;
 pub mod diagnostic;
+mod disassembler;
 pub mod instruction;
 pub mod lexer;
 pub mod parser;
 pub mod suggestion;
 pub mod token;
-mod disassembler;
 
 pub use disassembler::disassemble;
 

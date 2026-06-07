@@ -1,5 +1,5 @@
-use crate::disassembler::indent_write::Indented;
 use crate::disassembler::DisasmResult;
+use crate::disassembler::indent_write::Indented;
 use jclass::flags::{ClassFlags, MethodFlags};
 use std::fmt::Write as _;
 

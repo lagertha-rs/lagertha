@@ -1,8 +1,8 @@
+use crate::disassembler::DisasmResult;
 use crate::disassembler::constant_pool::fmt_cp_entry_rns;
 use crate::disassembler::flags::fmt_class_flags_rns;
 use crate::disassembler::indent_write::Indented;
 use crate::disassembler::method::fmt_method_rns;
-use crate::disassembler::DisasmResult;
 use jclass::ClassFile;
 use std::fmt::Write as _;
 

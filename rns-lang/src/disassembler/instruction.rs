@@ -1,6 +1,6 @@
+use crate::disassembler::DisasmResult;
 use crate::disassembler::constant_pool::fmt_cp_entry_rns;
 use crate::disassembler::indent_write::Indented;
-use crate::disassembler::DisasmResult;
 use jclass::bytecode::Instruction;
 use jclass::constant_pool::ConstantPool;
 use std::fmt::Write as _;
