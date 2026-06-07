@@ -32,7 +32,6 @@ This workspace consists of several crates:
 
 - **lvm-class** - Library that parses and maps the binary representation of `.class` files to Rust structures
 - **lvm-common** - Utility library with shared functionality used across the workspace
-- **javap** - Binary tool similar to `javap -v -p` for inspecting class files
 - **runtime** - Library implementing the virtual machine that executes Java bytecode
 - **vm** - Binary application that launches the runtime
 - **rns-lang** - Library for parsing, compiling and assembling Java bytecode from the RNS language
@@ -91,10 +90,7 @@ that I don't break anything.
   source files during the build process. This is integrated into Cargo's build system, so fixtures are prepared
   automatically when running `cargo build` or `cargo test`.
 - `lvm-class` tests reads all `.class` complied from all classes from `fixtures.toml`, all classes used in `runtime`
-  tests, and all classes from `vm/tests`. It checks that it is parsed correctly. Right now it uses both snapshots
-  and compare against `javap -v -p` output. In the future I want to remove one of them, because testing the same thing
-  twice looks redundant, on the one hand snapshots are more predictable, on the other hand comparing against `javap` is
-  more sure that the parsing is correct.
+  tests, and all classes from `vm/tests`. It checks that it is parsed correctly.
 - `lvm-class/fixtures.toml`: A configuration file defining test fixtures from java standard libraries. Used only by
   `lvm-class` to test parsing of real-world class files. There is an assertion somewhere in `runtime` crate, whenever
   a jdk class is loaded, it is checked if it is present in this file. This is to ensure that the class file is correctly
