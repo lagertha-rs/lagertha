@@ -16,7 +16,7 @@ path = "src/main.rs"
 
 [dependencies]
 rns = { workspace = true }
-jclass = { workspace = true, features = ["rns_assemble"] }
+jclass = { workspace = true, features = ["write"] }
 clap = { version = "4", features = ["derive"] }
 
 [dev-dependencies]

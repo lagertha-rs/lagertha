@@ -1,6 +1,6 @@
-//! Assembly serialization module: converts `ClassFile` structures into `.class` bytecode.
+//! Class file serialization module: converts `ClassFile` structures into `.class` bytecode.
 //!
-//! Gated behind the `rns_assemble` feature flag.
+//! Gated behind the `write` feature flag.
 
 mod attribute;
 pub mod builder;

@@ -3,7 +3,7 @@ use crate::attribute::ClassAttribute;
 use crate::constant_pool::ConstantPool;
 use crate::flags::ClassFlags;
 use crate::member::{FieldInfo, MethodInfo};
-use crate::rns_asm::AttributeNameMap;
+use crate::write::AttributeNameMap;
 
 #[derive(Debug)]
 pub struct ClassFileBuilder {
