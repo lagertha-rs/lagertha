@@ -9,8 +9,6 @@ mod constant_pool;
 mod flags;
 mod method;
 
-pub type AttributeNameMap = std::collections::HashMap<crate::attribute::AttributeKind, u16>;
-
 use crate::ClassFile;
 
 impl ClassFile {
@@ -36,7 +34,7 @@ impl ClassFile {
         }
         bytes.extend(&(self.methods.len() as u16).to_be_bytes());
         for method in &self.methods {
-            method.write_to(&mut bytes, &self.attribute_names);
+            method.write_to(&mut bytes, &self.cp);
         }
         bytes.extend(&(self.attributes.len() as u16).to_be_bytes());
         if !self.attributes.is_empty() {

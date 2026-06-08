@@ -6,8 +6,7 @@ use crate::token::type_hint::TypeHint;
 use jclass::ClassFile;
 use jclass::flags::ClassFlags;
 use jclass::prelude::{
-    AttributeKind, AttributeNameMap, ClassFileBuilder, CodeAttribute, ConstantPoolBuilder,
-    MethodAttribute, MethodFlags, MethodInfo,
+    ClassFileBuilder, CodeAttribute, ConstantPoolBuilder, MethodAttribute, MethodFlags, MethodInfo,
 };
 
 mod jvm_warning;
@@ -182,17 +181,14 @@ impl RnsModule {
             .map(|method_dir| self.build_method_directive(&mut cp_builder, method_dir))
             .collect();
 
-        let mut attribute_names = AttributeNameMap::new();
         // TODO: only when at least one code is actually present
-        let code_name_idx = cp_builder.add_utf8(AttributeKind::Code.as_str());
-        attribute_names.insert(AttributeKind::Code, code_name_idx);
+        cp_builder.add_utf8("Code");
 
         let class_file = ClassFileBuilder::new(0, 69, cp_builder.build()) // TODO: allow specifying version in jasm
             .access_flags(class_flags) // TODO: set access flags based on parsed flags
             .this_class(this_cp_id)
             .super_class(super_cp_id)
             .methods(methods)
-            .attribute_names(attribute_names)
             .build();
 
         (class_file, self.diagnostics)

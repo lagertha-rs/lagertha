@@ -1,15 +1,16 @@
-use super::AttributeNameMap;
-use crate::attribute::AttributeKind;
 use crate::attribute::method::{CodeAttribute, MethodAttribute};
+use crate::constant_pool::ConstantPool;
 
 impl MethodAttribute {
-    pub fn write_to(&self, buf: &mut Vec<u8>, attr_names: &AttributeNameMap) {
-        let kind = match self {
-            MethodAttribute::Code(_) => AttributeKind::Code,
+    pub fn write_to(&self, buf: &mut Vec<u8>, cp: &ConstantPool) {
+        let name = match self {
+            MethodAttribute::Code(_) => "Code",
             other => unimplemented!("Method attribute {:?} not implemented for writing", other),
         };
 
-        let name_index = attr_names[&kind];
+        let name_index = cp
+            .find_utf8(name)
+            .expect("attribute name not found in constant pool");
         buf.extend_from_slice(&name_index.to_be_bytes());
 
         // TODO: avoid having a buffer, I can know the size before without it.

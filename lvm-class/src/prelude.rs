@@ -32,8 +32,5 @@ pub use crate::attribute::{
     ElementValuePair, FieldAttribute, LocalVarEntry, MethodAttribute, SharedAttribute, TargetInfo,
     TypeAnnotation, TypePath, TypePathEntry,
 };
-#[cfg(feature = "write")]
-pub use crate::write::AttributeNameMap;
-
 // Flags
 pub use crate::flags::{ClassFlags, FieldFlags, InnerClassFlags, MethodFlags, MethodParamFlags};
