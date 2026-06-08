@@ -91,7 +91,7 @@ fn assemble(path: &PathBuf, output: Option<&PathBuf>) {
         module
     };
 
-    let (class, diagnostics) = rns_module.into_class_file();
+    let (bytes, diagnostics) = rns_module.into_bytes();
 
     let mut has_error = false;
     for diag in diagnostics {
@@ -105,8 +105,7 @@ fn assemble(path: &PathBuf, output: Option<&PathBuf>) {
         std::process::exit(1);
     }
 
-    if let Some(class) = class {
-        let bytes = class.to_bytes();
+    if let Some(bytes) = bytes {
         let output_path = output
             .map(|p| p.to_string_lossy().to_string())
             .unwrap_or_else(|| filename.replace(".rns", ".class"));
@@ -122,12 +121,7 @@ fn disassemble(path: &PathBuf) {
         std::process::exit(1);
     });
 
-    let class_file = jclass::ClassFile::try_from(bytes).unwrap_or_else(|err| {
-        eprintln!("Error parsing class file {}: {}", path.display(), err);
-        std::process::exit(1);
-    });
-
-    let rns_text = rns::disassemble(&class_file).unwrap_or_else(|err| {
+    let rns_text = rns::disassemble_bytes(bytes).unwrap_or_else(|err| {
         eprintln!("Error disassembling class file {}: {}", path.display(), err);
         std::process::exit(1);
     });

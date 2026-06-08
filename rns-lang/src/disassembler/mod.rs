@@ -77,6 +77,7 @@ impl From<InstructionErr> for DisasmError {
 
 impl std::error::Error for DisasmError {}
 
-pub fn disassemble(class: &ClassFile) -> DisasmResult<String> {
-    class::fmt_rns(class)
+pub fn disassemble_bytes(bytes: Vec<u8>) -> DisasmResult<String> {
+    let class_file = ClassFile::try_from(bytes)?;
+    class::fmt_rns(&class_file)
 }

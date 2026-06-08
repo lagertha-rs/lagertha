@@ -8,6 +8,6 @@ pub mod parser;
 pub mod suggestion;
 pub mod token;
 
-pub use disassembler::disassemble;
+pub use disassembler::{DisasmError, disassemble_bytes};
 
 pub const ERROR_DOCS_BASE_URL: &str = "https://rune.lagertha-vm.com/errors/";

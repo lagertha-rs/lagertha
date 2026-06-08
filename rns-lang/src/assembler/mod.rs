@@ -163,7 +163,13 @@ impl RnsModule {
         }
     }
 
-    // TODO: need to test that I build exactly same CP as javac, or not?
+    pub fn into_bytes(self) -> (Option<Vec<u8>>, Vec<Diagnostic>) {
+        let (class_file, diagnostics) = self.into_class_file();
+        let bytes = class_file.map(|cf| cf.to_bytes());
+        (bytes, diagnostics)
+    }
+
+    // TODO: why tuple but not Result?
     pub fn into_class_file(mut self) -> (Option<ClassFile>, Vec<Diagnostic>) {
         let mut cp_builder = ConstantPoolBuilder::new();
         let super_cp_id = self.build_super_class(&mut cp_builder);
