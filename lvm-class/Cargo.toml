@@ -12,7 +12,7 @@ categories = ["parser-implementations", "development-tools"]
 
 [features]
 default = []
-rns_assemble = []
+write = []
 
 [dependencies]
 num_enum = "0.7.4"
