@@ -38,8 +38,6 @@ pub struct ClassFile {
     pub fields: Vec<FieldInfo>,
     pub methods: Vec<MethodInfo>,
     pub attributes: Vec<ClassAttribute>,
-    #[cfg(feature = "write")]
-    pub attribute_names: write::AttributeNameMap,
 }
 
 impl ClassFile {
@@ -129,8 +127,6 @@ impl TryFrom<Vec<u8>> for ClassFile {
                 fields,
                 methods,
                 attributes,
-                #[cfg(feature = "write")]
-                attribute_names: write::AttributeNameMap::new(),
             })
         }
     }

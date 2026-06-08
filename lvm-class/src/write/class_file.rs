@@ -3,7 +3,6 @@ use crate::attribute::ClassAttribute;
 use crate::constant_pool::ConstantPool;
 use crate::flags::ClassFlags;
 use crate::member::{FieldInfo, MethodInfo};
-use crate::write::AttributeNameMap;
 
 #[derive(Debug)]
 pub struct ClassFileBuilder {
@@ -17,7 +16,6 @@ pub struct ClassFileBuilder {
     fields: Vec<FieldInfo>,
     methods: Vec<MethodInfo>,
     attributes: Vec<ClassAttribute>,
-    attribute_names: AttributeNameMap,
 }
 
 impl ClassFileBuilder {
@@ -33,7 +31,6 @@ impl ClassFileBuilder {
             fields: Vec::new(),
             methods: Vec::new(),
             attributes: Vec::new(),
-            attribute_names: AttributeNameMap::new(),
         }
     }
 
@@ -57,11 +54,6 @@ impl ClassFileBuilder {
         self
     }
 
-    pub fn attribute_names(mut self, attribute_names: AttributeNameMap) -> Self {
-        self.attribute_names = attribute_names;
-        self
-    }
-
     pub fn build(self) -> Option<ClassFile> {
         Some(ClassFile {
             minor_version: self.minor_version,
@@ -74,7 +66,6 @@ impl ClassFileBuilder {
             fields: self.fields,
             methods: self.methods,
             attributes: self.attributes,
-            attribute_names: self.attribute_names,
         })
     }
 }
