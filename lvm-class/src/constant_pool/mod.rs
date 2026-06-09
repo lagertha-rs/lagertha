@@ -36,6 +36,16 @@ impl ConstantPool {
             })
     }
 
+    pub fn find_utf8(&self, s: &str) -> Option<u16> {
+        self.inner
+            .iter()
+            .enumerate()
+            .find_map(|(idx, entry)| match entry {
+                ConstantEntry::Utf8(value) if value == s => Some(idx as u16),
+                _ => None,
+            })
+    }
+
     pub fn get_class_name(&self, idx: &u16) -> Result<&str, ClassFormatErr> {
         let name_index = self.get_class(idx)?;
         self.get_utf8(&name_index)

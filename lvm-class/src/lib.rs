@@ -15,8 +15,8 @@ pub mod constant_pool;
 pub mod flags;
 pub mod member;
 pub mod prelude;
-#[cfg(feature = "rns_assemble")]
-pub mod rns_asm;
+#[cfg(feature = "write")]
+pub mod write;
 
 // TODO: review all access levels in the crate (methods, fields, modules, structs, etc.)
 
@@ -38,8 +38,6 @@ pub struct ClassFile {
     pub fields: Vec<FieldInfo>,
     pub methods: Vec<MethodInfo>,
     pub attributes: Vec<ClassAttribute>,
-    #[cfg(feature = "rns_assemble")]
-    pub attribute_names: rns_asm::AttributeNameMap,
 }
 
 impl ClassFile {
@@ -129,8 +127,6 @@ impl TryFrom<Vec<u8>> for ClassFile {
                 fields,
                 methods,
                 attributes,
-                #[cfg(feature = "rns_assemble")]
-                attribute_names: rns_asm::AttributeNameMap::new(),
             })
         }
     }

@@ -1510,7 +1510,6 @@ version = "0.1.0"
 dependencies = [
  "ariadne",
  "insta",
- "itertools",
  "lvm-class",
  "lvm-common",
  "phf",
@@ -1534,7 +1533,6 @@ dependencies = [
  "assert_cmd",
  "clap",
  "insta",
- "lvm-class",
  "rand",
  "rns-lang",
  "rstest",
