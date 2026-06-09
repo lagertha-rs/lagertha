@@ -7,9 +7,6 @@ members = [
     "vm",
     "runtime",
     "jimage",
-    "rns-lang",
-    "rnsc",
-    "rns-lsp",
 ]
 
 [workspace.dependencies]
@@ -24,4 +21,3 @@ tracing-log = "0.2"
 hotpath = "0.8.0"
 common = { path = "lvm-common", package = "lvm-common" }
 jclass = { path = "lvm-class", package = "lvm-class" }
-rns = { path = "rns-lang", package = "rns-lang" }
