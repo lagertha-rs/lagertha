@@ -17,7 +17,7 @@ pub mod member;
 pub mod prelude;
 #[cfg(feature = "write")]
 pub mod write;
-
+pub mod verify;
 // TODO: review all access levels in the crate (methods, fields, modules, structs, etc.)
 
 /// A Rust representation of a Java `.class` file.
