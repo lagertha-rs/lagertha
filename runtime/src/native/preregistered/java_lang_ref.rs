@@ -3,7 +3,7 @@ use crate::keys::FullyQualifiedMethodKey;
 use crate::native::{NativeRegistry, NativeRet};
 use crate::thread::JavaThreadState;
 use crate::vm::Value;
-use common::jtype::AllocationType;
+use lvm_common::jtype::AllocationType;
 
 pub(super) fn do_register_java_lang_ref_preregistered_natives(
     native_registry: &mut NativeRegistry,

@@ -111,7 +111,7 @@ macro_rules! debug_log_instruction {
             crate::log_traces::debug::with_vm(|vm| {
                 let mut msg_chunks = vec![format!("{:?}", $instruction)];
                 match $instruction {
-                    common::instruction::Instruction::Getstatic(idx) => {
+                    lvm_common::instruction::Instruction::Getstatic(idx) => {
                         let cur_frame_method_id = vm
                             .get_stack($thread_id)
                             .unwrap()
@@ -133,7 +133,7 @@ macro_rules! debug_log_instruction {
                             vm.interner().resolve(&target_field_view.class_sym),
                         ));
                     }
-                    common::instruction::Instruction::InvokeSpecial(idx) => {
+                    lvm_common::instruction::Instruction::InvokeSpecial(idx) => {
                         let cur_frame_method_id = vm
                             .get_stack($thread_id)
                             .unwrap()
@@ -155,7 +155,7 @@ macro_rules! debug_log_instruction {
                             vm.interner().resolve(&target_method_view.class_sym),
                         ));
                     }
-                    common::instruction::Instruction::InvokeVirtual(idx) => {
+                    lvm_common::instruction::Instruction::InvokeVirtual(idx) => {
                         let cur_frame_method_id = vm
                             .get_stack($thread_id)
                             .unwrap()
@@ -177,7 +177,7 @@ macro_rules! debug_log_instruction {
                             vm.interner().resolve(&target_method_view.class_sym),
                         ));
                     }
-                    common::instruction::Instruction::InvokeStatic(idx) => {
+                    lvm_common::instruction::Instruction::InvokeStatic(idx) => {
                         let cur_frame_method_id = vm
                             .get_stack($thread_id)
                             .unwrap()
@@ -199,7 +199,7 @@ macro_rules! debug_log_instruction {
                             vm.interner().resolve(&target_method_view.class_sym),
                         ));
                     }
-                    common::instruction::Instruction::InvokeInterface(idx, count) => {
+                    lvm_common::instruction::Instruction::InvokeInterface(idx, count) => {
                         let cur_frame_method_id = vm
                             .get_stack($thread_id)
                             .unwrap()

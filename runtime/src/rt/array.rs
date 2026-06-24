@@ -2,7 +2,7 @@ use crate::error::JvmError;
 use crate::heap::HeapRef;
 use crate::keys::{ClassId, MethodKey};
 use crate::{MethodId, Symbol, build_exception};
-use common::jtype::PrimitiveType;
+use lvm_common::jtype::PrimitiveType;
 use once_cell::sync::OnceCell;
 use std::collections::HashMap;
 

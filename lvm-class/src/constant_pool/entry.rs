@@ -1,6 +1,6 @@
 use crate::constant_pool::types::{Dynamic, MethodHandle, NameAndType, Reference};
-use common::error::ClassFormatErr;
-use common::utils::cursor::ByteCursor;
+use lvm_common::error::ClassFormatErr;
+use lvm_common::utils::cursor::ByteCursor;
 use num_enum::TryFromPrimitive;
 use std::fmt::{Display, Formatter};
 

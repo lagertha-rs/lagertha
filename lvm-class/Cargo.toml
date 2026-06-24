@@ -17,6 +17,6 @@ write = []
 [dependencies]
 num_enum = "0.7.4"
 
-common = { workspace = true }
+lvm-common = { workspace = true }
 
 [dev-dependencies]

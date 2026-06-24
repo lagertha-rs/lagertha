@@ -7,7 +7,7 @@ use crate::rt::constant_pool::RuntimeConstant;
 use crate::thread::JavaThreadState;
 use crate::vm::Value;
 use crate::{VirtualMachine, throw_exception};
-use jclass::prelude::{ArrayType, LookupSwitchData, TableSwitchData};
+use lvm_class::prelude::{ArrayType, LookupSwitchData, TableSwitchData};
 use std::cmp::Ordering;
 use tracing_log::log::warn;
 

@@ -60,7 +60,7 @@ fn create_vm_configuration(mut args: Args, main_class: String) -> Result<VmConfi
 #[hotpath::main]
 fn main() {
     #[cfg(feature = "log-runtime-traces")]
-    common::utils::telemetry::init_tracing();
+    lvm_common::utils::telemetry::init_tracing();
     let args = Args::parse();
     debug!("Provided command line arguments: {:?}", args);
 

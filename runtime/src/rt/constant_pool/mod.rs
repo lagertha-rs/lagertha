@@ -5,9 +5,9 @@ use crate::rt::constant_pool::entry::{
     StringEntry, Utf8Entry,
 };
 use crate::{Symbol, build_exception, throw_exception};
-use jclass::attribute::BootstrapMethodEntry;
-use jclass::prelude::ConstantEntry;
 use lasso::ThreadedRodeo;
+use lvm_class::attribute::BootstrapMethodEntry;
+use lvm_class::prelude::ConstantEntry;
 use std::fmt::Display;
 
 pub mod entry;

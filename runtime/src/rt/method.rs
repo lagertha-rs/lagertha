@@ -1,13 +1,13 @@
 use crate::error::JvmError;
 use crate::keys::{ClassId, MethodDescriptorId};
 use crate::{Symbol, throw_exception};
-use common::error::LinkageError;
-use jclass::attribute::method::code::{
+use lvm_class::attribute::method::code::{
     CodeAttributeInfo, LineNumberEntry, LocalVariableEntry, LocalVariableTypeEntry, StackMapFrame,
 };
-use jclass::attribute::method::{CodeAttribute, ExceptionTableEntry, MethodAttribute};
-use jclass::flags::MethodFlags;
-use jclass::prelude::MethodInfo;
+use lvm_class::attribute::method::{CodeAttribute, ExceptionTableEntry, MethodAttribute};
+use lvm_class::flags::MethodFlags;
+use lvm_class::prelude::MethodInfo;
+use lvm_common::error::LinkageError;
 use std::cell::OnceCell;
 
 pub struct CodeBody {

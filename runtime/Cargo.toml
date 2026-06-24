@@ -25,9 +25,9 @@ tokio = { version = "1.48.0", features = ["sync", "net", "rt", "io-util", "macro
 hotpath = { workspace = true }
 tracing-log = { workspace = true }
 
-jclass = { workspace = true }
+lvm-class = { workspace = true }
 jimage = { path = "../jimage" }
-common = { workspace = true }
+lvm-common = { workspace = true }
 
 # TODO to be deleted
 toml = "0.8"

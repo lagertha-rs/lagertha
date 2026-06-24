@@ -4,7 +4,7 @@
 
 use super::annotation::ElementValuePair;
 use crate::ClassFormatErr;
-use common::utils::cursor::ByteCursor;
+use lvm_common::utils::cursor::ByteCursor;
 
 /// Target information for a type annotation, identifying where the type is used.
 #[derive(Debug, Clone, PartialEq, Eq)]

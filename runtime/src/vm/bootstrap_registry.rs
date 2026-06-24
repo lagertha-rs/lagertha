@@ -1,7 +1,7 @@
 use crate::error::JvmError;
 use crate::keys::{ClassId, FieldKey, MethodKey, Symbol};
-use common::jtype::PrimitiveType;
 use lasso::ThreadedRodeo;
+use lvm_common::jtype::PrimitiveType;
 use once_cell::sync::OnceCell;
 
 pub struct BootstrapRegistry {

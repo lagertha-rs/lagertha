@@ -1,4 +1,4 @@
-use common::utils::cursor::{ByteCursor, ByteOrder};
+use lvm_common::utils::cursor::{ByteCursor, ByteOrder};
 use memmap2::Mmap;
 use std::fs::File;
 use std::path::Path;

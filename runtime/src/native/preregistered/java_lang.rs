@@ -4,8 +4,8 @@ use crate::thread::JavaThreadState;
 use crate::vm::Value;
 use crate::vm::stack::FrameType;
 use crate::{MethodId, VirtualMachine, throw_exception};
-use common::jtype::AllocationType;
-use jclass::prelude::ArrayType;
+use lvm_class::prelude::ArrayType;
+use lvm_common::jtype::AllocationType;
 use tracing_log::log::debug;
 
 pub(super) fn do_register_java_lang_preregistered_natives(native_registry: &mut NativeRegistry) {

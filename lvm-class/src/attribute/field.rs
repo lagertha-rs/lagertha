@@ -1,7 +1,7 @@
 use crate::attribute::{AttributeKind, SharedAttribute};
 use crate::constant_pool::ConstantPool;
-use common::error::ClassFormatErr;
-use common::utils::cursor::ByteCursor;
+use lvm_common::error::ClassFormatErr;
+use lvm_common::utils::cursor::ByteCursor;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum FieldAttribute {
