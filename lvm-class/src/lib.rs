@@ -6,8 +6,9 @@ use crate::attribute::ClassAttribute;
 use crate::constant_pool::{ConstantEntry, ConstantPool};
 use crate::flags::ClassFlags;
 use crate::member::{FieldInfo, MethodInfo};
-use common::error::ClassFormatErr;
 use common::utils::cursor::ByteCursor;
+
+pub use common::error::{ClassFormatErr, InstructionErr};
 
 pub mod attribute;
 pub mod bytecode;
@@ -15,9 +16,9 @@ pub mod constant_pool;
 pub mod flags;
 pub mod member;
 pub mod prelude;
+pub mod verify;
 #[cfg(feature = "write")]
 pub mod write;
-
 // TODO: review all access levels in the crate (methods, fields, modules, structs, etc.)
 
 /// A Rust representation of a Java `.class` file.
