@@ -6,9 +6,9 @@ use crate::attribute::ClassAttribute;
 use crate::constant_pool::{ConstantEntry, ConstantPool};
 use crate::flags::ClassFlags;
 use crate::member::{FieldInfo, MethodInfo};
-use common::utils::cursor::ByteCursor;
+use lvm_common::utils::cursor::ByteCursor;
 
-pub use common::error::{ClassFormatErr, InstructionErr};
+pub use lvm_common::error::{ClassFormatErr, InstructionErr};
 
 pub mod attribute;
 pub mod bytecode;

@@ -1,6 +1,6 @@
 use crate::keys::{ClassId, FieldDescriptorId};
 use crate::vm::Value;
-use jclass::flags::FieldFlags;
+use lvm_class::flags::FieldFlags;
 use std::sync::RwLock;
 
 #[derive(Debug, Copy, Clone)]

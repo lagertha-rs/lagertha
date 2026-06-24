@@ -1,7 +1,7 @@
 use crate::ClassFormatErr;
 use crate::attribute::{AttributeKind, SharedAttribute};
 use crate::constant_pool::ConstantPool;
-use common::utils::cursor::ByteCursor;
+use lvm_common::utils::cursor::ByteCursor;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ClassAttribute {

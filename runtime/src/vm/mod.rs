@@ -1,7 +1,7 @@
 use crate::error::JvmError;
 use crate::heap::HeapRef;
 use crate::throw_exception;
-use common::jtype::{JavaType, PrimitiveType};
+use lvm_common::jtype::{JavaType, PrimitiveType};
 
 pub mod bootstrap_registry;
 pub mod stack;

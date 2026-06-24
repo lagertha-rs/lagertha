@@ -1,10 +1,10 @@
 use crate::heap::HeapRef;
 use crate::keys::{MethodKey, Symbol};
 use crate::rt::constant_pool::RuntimeConstantType;
-use common::descriptor::MethodDescriptor;
-use common::error::{InstructionErr, LinkageError, RuntimePoolError, TypeDescriptorErr};
-use common::utils::cursor::CursorError;
 use lasso::ThreadedRodeo;
+use lvm_common::descriptor::MethodDescriptor;
+use lvm_common::error::{InstructionErr, LinkageError, RuntimePoolError, TypeDescriptorErr};
+use lvm_common::utils::cursor::CursorError;
 use std::fmt::Display;
 
 #[derive(Debug)]

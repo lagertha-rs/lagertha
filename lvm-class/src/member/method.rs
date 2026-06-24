@@ -1,8 +1,8 @@
 use crate::attribute::method::MethodAttribute;
 use crate::constant_pool::ConstantPool;
 use crate::flags::MethodFlags;
-use common::error::ClassFormatErr;
-use common::utils::cursor::ByteCursor;
+use lvm_common::error::ClassFormatErr;
+use lvm_common::utils::cursor::ByteCursor;
 
 /// A method in a class file.
 ///

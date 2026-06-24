@@ -3,7 +3,7 @@
 //! https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7.16
 
 use crate::ClassFormatErr;
-use common::utils::cursor::ByteCursor;
+use lvm_common::utils::cursor::ByteCursor;
 use num_enum::TryFromPrimitive;
 
 /// A runtime annotation on a class, field, method, or record component.

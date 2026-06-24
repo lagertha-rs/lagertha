@@ -6,7 +6,7 @@ use super::AttributeKind;
 use super::annotation::Annotation;
 use super::type_annotation::TypeAnnotation;
 use crate::ClassFormatErr;
-use common::utils::cursor::ByteCursor;
+use lvm_common::utils::cursor::ByteCursor;
 
 /// Attribute payloads that can appear at multiple locations (class, field, method, record).
 #[derive(Debug, Clone, PartialEq, Eq)]
