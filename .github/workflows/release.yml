@@ -1,0 +1,120 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release (e.g. 0.2.1)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    env:
+      CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+      RELEASE_VERSION: ${{ inputs.version }}
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: oracle
+          java-version: "25.0.1"
+
+      - name: Bump workspace versions
+        run: |
+          v="$RELEASE_VERSION"
+          for c in lvm-common lvm-class vm runtime jimage; do
+            sed -i -E "s/^version = \"[^\"]+\"/version = \"$v\"/" "$c/Cargo.toml"
+          done
+          sed -i -E "s/^(lvm-common = \{ version = \")[^\"]+/\\1$v/" Cargo.toml
+          sed -i -E "s/^(lvm-class = \{ version = \")[^\"]+/\\1$v/" Cargo.toml
+
+      - name: Refresh Cargo.lock
+        run: cargo build --workspace
+
+      - name: Verify version
+        run: |
+          a=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name=="lvm-common") | .version')
+          [ "$a" = "$RELEASE_VERSION" ] || { echo "lvm-common=$a != $RELEASE_VERSION"; exit 1; }
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Build
+        run: cargo build --workspace --verbose --locked
+
+      - name: Test
+        run: cargo test --workspace --verbose --locked
+
+      - name: Check lvm-common published
+        id: c
+        run: |
+          code=$(curl -sf -o /dev/null -w "%{http_code}" "https://crates.io/api/v1/crates/lvm-common/$RELEASE_VERSION")
+          [ "$code" = 200 ] && echo "exists=true" >> "$GITHUB_OUTPUT" || echo "exists=false" >> "$GITHUB_OUTPUT"
+
+      - name: Publish lvm-common
+        if: steps.c.outputs.exists != 'true'
+        run: cargo publish -p lvm-common
+
+      - name: Check lvm-class published
+        id: cl
+        run: |
+          code=$(curl -sf -o /dev/null -w "%{http_code}" "https://crates.io/api/v1/crates/lvm-class/$RELEASE_VERSION")
+          [ "$code" = 200 ] && echo "exists=true" >> "$GITHUB_OUTPUT" || echo "exists=false" >> "$GITHUB_OUTPUT"
+
+      - name: Publish lvm-class
+        if: steps.cl.outputs.exists != 'true'
+        run: cargo publish -p lvm-class
+
+      - name: Create bump branch + commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          b="release/$RELEASE_VERSION"
+          git checkout -B "$b"
+          git add -A
+          git commit -m "release: bump to $RELEASE_VERSION"
+          git push --force origin "$b"
+
+      - name: Tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          tag="v$RELEASE_VERSION"
+          if git rev-parse "$tag" >/dev/null 2>&1; then
+            echo "tag $tag already exists"
+          else
+            git tag "$tag"
+            git push origin "$tag"
+          fi
+
+      - name: Open PR to main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          b="release/$RELEASE_VERSION"
+          if gh pr list --head "$b" --base main --state open --json number --jq '.[0].number' | grep -q .; then
+            echo "PR from $b already open"
+          else
+            gh pr create --base main --head "$b" \
+              --title "Release v$RELEASE_VERSION" \
+              --body "Automated release. Publishes lvm-common + lvm-class v$RELEASE_VERSION to crates.io. Tag v$RELEASE_VERSION created. Merge to land bump on main. Branch auto-deletes on merge."
+          fi
