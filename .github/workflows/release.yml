@@ -72,7 +72,7 @@ jobs:
 
       - name: Publish lvm-common
         if: steps.c.outputs.exists != 'true'
-        run: cargo publish -p lvm-common
+        run: cargo publish -p lvm-common --allow-dirty
 
       - name: Check lvm-class published
         id: cl
@@ -82,7 +82,7 @@ jobs:
 
       - name: Publish lvm-class
         if: steps.cl.outputs.exists != 'true'
-        run: cargo publish -p lvm-class
+        run: cargo publish -p lvm-class --allow-dirty
 
       - name: Create bump branch + commit
         run: |
