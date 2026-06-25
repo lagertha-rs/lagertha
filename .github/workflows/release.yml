@@ -67,7 +67,7 @@ jobs:
       - name: Check lvm-common published
         id: c
         run: |
-          code=$(curl -sf -o /dev/null -w "%{http_code}" "https://crates.io/api/v1/crates/lvm-common/$RELEASE_VERSION")
+          code=$(curl -s -A "lagertha-release-bot" -o /dev/null -w "%{http_code}" "https://crates.io/api/v1/crates/lvm-common/$RELEASE_VERSION")
           [ "$code" = 200 ] && echo "exists=true" >> "$GITHUB_OUTPUT" || echo "exists=false" >> "$GITHUB_OUTPUT"
 
       - name: Publish lvm-common
@@ -77,7 +77,7 @@ jobs:
       - name: Check lvm-class published
         id: cl
         run: |
-          code=$(curl -sf -o /dev/null -w "%{http_code}" "https://crates.io/api/v1/crates/lvm-class/$RELEASE_VERSION")
+          code=$(curl -s -A "lagertha-release-bot" -o /dev/null -w "%{http_code}" "https://crates.io/api/v1/crates/lvm-class/$RELEASE_VERSION")
           [ "$code" = 200 ] && echo "exists=true" >> "$GITHUB_OUTPUT" || echo "exists=false" >> "$GITHUB_OUTPUT"
 
       - name: Publish lvm-class
