@@ -2,6 +2,17 @@
 source: vm/tests/integration_test.rs
 expression: "&combined"
 ---
+===== Lagertha VM =====
+----- exit: Some(1) -----
+----- STDOUT -----
+In try
+----- STDERR -----
+Exception in thread "main" java.lang.NullPointerException: Exception outside try
+	at exceptions.propagation.uncaught.UncaughtErrMain.throwException(UncaughtErrMain.java:5)
+	at exceptions.propagation.uncaught.UncaughtErrMain.main(UncaughtErrMain.java:14)
+
+===== Real JVM =====
+----- exit: Some(1) -----
 ----- STDOUT -----
 In try
 ----- STDERR -----

@@ -2,6 +2,16 @@
 source: vm/tests/integration_test.rs
 expression: "&combined"
 ---
+===== Lagertha VM =====
+----- exit: Some(1) -----
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.ArithmeticException: / by zero
+	at primitives.shorts.errors.modulo_by_zero.ModuloByZeroErrMain.main(ModuloByZeroErrMain.java:6)
+
+===== Real JVM =====
+----- exit: Some(1) -----
 ----- STDOUT -----
 
 ----- STDERR -----

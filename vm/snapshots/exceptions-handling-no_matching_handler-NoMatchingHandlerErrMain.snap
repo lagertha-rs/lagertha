@@ -2,6 +2,16 @@
 source: vm/tests/integration_test.rs
 expression: "&combined"
 ---
+===== Lagertha VM =====
+----- exit: Some(1) -----
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.RuntimeException: Runtime error
+	at exceptions.handling.no_matching_handler.NoMatchingHandlerErrMain.main(NoMatchingHandlerErrMain.java:6)
+
+===== Real JVM =====
+----- exit: Some(1) -----
 ----- STDOUT -----
 
 ----- STDERR -----
