@@ -45,3 +45,9 @@ cargo run --bin vm -- -cp . com/example/HelloWorldMain.class
 ```bash
 cargo run --bin vm --features=log-runtime-traces -- -cp . com/example/HelloWorldMain.class
 ```
+
+---
+
+## TODO
+- Populate NPE details. e.g. variables-array_components-errors-null_row_access-NullRowAccessErrMain.snap test
+- I don't print java.base/* in some stack traces e.g. natives-system-arraycopy-null_src-NullSrcErrMain.snap

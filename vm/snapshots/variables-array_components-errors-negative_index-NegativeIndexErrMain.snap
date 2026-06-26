@@ -2,6 +2,16 @@
 source: vm/tests/integration_test.rs
 expression: "&combined"
 ---
+===== Lagertha VM =====
+----- exit: Some(1) -----
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: Index -1 out of bounds for length 5
+	at variables.array_components.errors.negative_index.NegativeIndexErrMain.main(NegativeIndexErrMain.java:7)
+
+===== Real JVM =====
+----- exit: Some(1) -----
 ----- STDOUT -----
 
 ----- STDERR -----

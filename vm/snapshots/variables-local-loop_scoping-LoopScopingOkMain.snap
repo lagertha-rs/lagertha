@@ -2,6 +2,15 @@
 source: vm/tests/integration_test.rs
 expression: combined
 ---
+===== Lagertha VM =====
+----- exit: Some(0) -----
+----- STDOUT -----
+All loop scoping tests passed.
+----- STDERR -----
+
+
+===== Real JVM =====
+----- exit: Some(0) -----
 ----- STDOUT -----
 All loop scoping tests passed.
 ----- STDERR -----
