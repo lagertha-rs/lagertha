@@ -8,11 +8,12 @@ use crate::flags::ClassFlags;
 use crate::member::{FieldInfo, MethodInfo};
 use lvm_common::utils::cursor::ByteCursor;
 
-pub use lvm_common::error::{ClassFormatErr, InstructionErr};
+pub use crate::error::{ClassFormatErr, InstructionErr};
 
 pub mod attribute;
 pub mod bytecode;
 pub mod constant_pool;
+pub mod error;
 pub mod flags;
 pub mod member;
 pub mod prelude;

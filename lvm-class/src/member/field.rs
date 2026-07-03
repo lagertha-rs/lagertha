@@ -1,7 +1,7 @@
 use crate::attribute::FieldAttribute;
 use crate::constant_pool::ConstantPool;
+use crate::error::ClassFormatErr;
 use crate::flags::FieldFlags;
-use lvm_common::error::ClassFormatErr;
 use lvm_common::utils::cursor::ByteCursor;
 
 /// A field in a class file.

@@ -2,8 +2,9 @@ use crate::heap::HeapRef;
 use crate::keys::{MethodKey, Symbol};
 use crate::rt::constant_pool::RuntimeConstantType;
 use lasso::ThreadedRodeo;
+use lvm_class::{ClassFormatErr, InstructionErr};
 use lvm_common::descriptor::MethodDescriptor;
-use lvm_common::error::{InstructionErr, LinkageError, RuntimePoolError, TypeDescriptorErr};
+use lvm_common::error::{MethodDescriptorErr, TypeDescriptorErr};
 use lvm_common::utils::cursor::CursorError;
 use std::fmt::Display;
 
@@ -254,4 +255,55 @@ impl JavaExceptionFromJvm {
             },
         }
     }
+}
+
+#[derive(Debug)]
+pub enum LinkageError {
+    Instruction(InstructionErr),
+    UnsupportedOpCode(u8),
+    DuplicatedCodeAttr,
+    //TODO: confused 4.7.13. The LocalVariableTable Attribute
+    //DuplicatedLocalVariableTableAttr,
+    DuplicatedSignatureAttr,
+    DuplicatedStackMapTable,
+    DuplicatedExceptionAttribute,
+    DuplicatedRuntimeVisibleAnnotationsAttr,
+    DuplicatedRuntimeInvisibleAnnotationsAttr,
+    CodeAttrIsAmbiguousForNative,
+    RuntimeConstantPool(RuntimePoolError),
+    Cursor(CursorError),
+    ClassFile(ClassFormatErr),
+    DuplicatedClassInMethod,
+    MethodClassIsNotSet,
+}
+
+impl From<InstructionErr> for LinkageError {
+    fn from(value: InstructionErr) -> Self {
+        LinkageError::Instruction(value)
+    }
+}
+
+impl From<CursorError> for LinkageError {
+    fn from(value: CursorError) -> Self {
+        LinkageError::Cursor(value)
+    }
+}
+
+impl From<RuntimePoolError> for LinkageError {
+    fn from(value: RuntimePoolError) -> Self {
+        LinkageError::RuntimeConstantPool(value)
+    }
+}
+
+impl From<ClassFormatErr> for LinkageError {
+    fn from(value: ClassFormatErr) -> Self {
+        LinkageError::ClassFile(value)
+    }
+}
+
+#[derive(Debug)]
+pub enum RuntimePoolError {
+    MethodDescriptor(MethodDescriptorErr),
+    TypeDescriptor(TypeDescriptorErr),
+    TryingToAccessUnresolved(u16, String),
 }
