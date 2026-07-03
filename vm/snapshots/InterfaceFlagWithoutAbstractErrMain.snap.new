@@ -1,0 +1,22 @@
+---
+source: vm/tests/integration_test.rs
+assertion_line: 194
+expression: "&combined"
+---
+===== Lagertha VM =====
+----- exit: Some(101) -----
+----- STDOUT -----
+
+----- STDERR -----
+
+thread 'main' (35868) panicked at runtime/src/lib.rs:444:10:
+called `Result::unwrap()` on an `Err` value: NotAJavaInstanceTodo("Not an instance class")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+===== Real JVM =====
+----- exit: Some(1) -----
+----- STDOUT -----
+
+----- STDERR -----
+Error: LinkageError occurred while loading main class InterfaceFlagWithoutAbstractErrMain
+	java.lang.ClassFormatError: Illegal class modifiers in class InterfaceFlagWithoutAbstractErrMain: 0x200
