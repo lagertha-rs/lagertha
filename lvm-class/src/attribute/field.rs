@@ -1,6 +1,6 @@
 use crate::attribute::{AttributeKind, SharedAttribute};
 use crate::constant_pool::ConstantPool;
-use lvm_common::error::ClassFormatErr;
+use crate::error::ClassFormatErr;
 use lvm_common::utils::cursor::ByteCursor;
 
 #[derive(Debug, Clone, PartialEq, Eq)]

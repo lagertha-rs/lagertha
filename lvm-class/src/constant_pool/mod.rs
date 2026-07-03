@@ -4,7 +4,7 @@
 //! class and interface names, field names, and other constants that are referred to
 //! within the ClassFile structure and its substructures.
 
-use lvm_common::error::ClassFormatErr;
+use crate::error::ClassFormatErr;
 
 mod entry;
 mod types;
