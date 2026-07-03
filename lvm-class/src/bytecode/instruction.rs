@@ -4,7 +4,7 @@
 
 use super::opcode::Opcode;
 use super::operand::{ArrayType, LookupSwitchData, TableSwitchData};
-use lvm_common::error::InstructionErr;
+use crate::error::InstructionErr;
 use lvm_common::utils::cursor::ByteCursor;
 use num_enum::TryFromPrimitive;
 use std::fmt::Formatter;

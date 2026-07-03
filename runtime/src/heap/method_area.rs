@@ -1,5 +1,6 @@
 use crate::class_loader::ClassLoader;
 use crate::error::JvmError;
+use crate::error::LinkageError;
 use crate::heap::{Heap, HeapRef};
 use crate::jdwp::{ClassPrepareInfo, ClassStatus, DebugEvent, DebugState, TypeTag};
 use crate::keys::{
@@ -19,7 +20,7 @@ use crate::{MethodId, Symbol, VmConfig, debug_log, throw_exception};
 use lasso::{Spur, ThreadedRodeo};
 use lvm_class::ClassFile;
 use lvm_common::descriptor::MethodDescriptor;
-use lvm_common::error::{LinkageError, MethodDescriptorErr};
+use lvm_common::error::MethodDescriptorErr;
 use lvm_common::jtype::{AllocationType, JavaType, PrimitiveType};
 use once_cell::sync::OnceCell;
 use std::collections::HashMap;

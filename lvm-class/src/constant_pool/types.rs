@@ -1,4 +1,4 @@
-use lvm_common::error::ClassFormatErr;
+use crate::error::ClassFormatErr;
 use num_enum::TryFromPrimitive;
 
 /// Reference to a method, field, or interface method in the constant pool.
