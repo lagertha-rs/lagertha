@@ -1,3 +1,4 @@
+use crate::flags::ClassFlags;
 use lvm_common::error::{MethodDescriptorErr, SignatureErr, TypeDescriptorErr};
 use lvm_common::utils::cursor::CursorError;
 use std::fmt::{Display, Formatter};
@@ -33,6 +34,8 @@ impl From<CursorError> for InstructionErr {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ClassFormatErr {
+    IllegalClassFlags(ClassFlags),
+    // TODO: custom errors, not tested and not compared with the oracle's jvm
     Cursor(CursorError),
     WrongMagic(u32),
     TrailingBytes,
@@ -53,7 +56,11 @@ pub enum ClassFormatErr {
 
 impl Display for ClassFormatErr {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "java.lang.ClassFormatError: ")?;
         match self {
+            ClassFormatErr::IllegalClassFlags(flags) => {
+                write!(f, "Illegal class modifiers: {:x}", flags.get_raw())
+            }
             ClassFormatErr::Cursor(err) => write!(f, "Cursor error: {}", err),
             ClassFormatErr::WrongMagic(magic) => write!(f, "Wrong magic number: {:#X}", magic),
             ClassFormatErr::TrailingBytes => write!(f, "Trailing bytes after class file"),

@@ -18,7 +18,8 @@ use crate::vm::Value;
 use crate::vm::bootstrap_registry::BootstrapRegistry;
 use crate::{MethodId, Symbol, VmConfig, debug_log, throw_exception};
 use lasso::{Spur, ThreadedRodeo};
-use lvm_class::ClassFile;
+use lvm_class::verify::Finding;
+use lvm_class::{ClassFile, ClassFormatErr};
 use lvm_common::descriptor::MethodDescriptor;
 use lvm_common::error::MethodDescriptorErr;
 use lvm_common::jtype::{AllocationType, JavaType, PrimitiveType};
@@ -489,6 +490,19 @@ impl MethodArea {
         }
     }
 
+    fn verify_class_or_err(&self, name_sym: Symbol, cf: &ClassFile) -> Result<(), LinkageError> {
+        let findings = cf.verify();
+        for f in findings {
+            return match f {
+                Finding::ClassFlag(flag_finding) => Err(LinkageError::ClassFormat(
+                    ClassFormatErr::IllegalClassFlags(flag_finding.get_flags()),
+                    self.interner.resolve(&name_sym).to_string(),
+                )),
+            };
+        }
+        Ok(())
+    }
+
     #[hotpath::measure]
     fn load_class(&mut self, name_sym: Symbol, thread_id: ThreadId) -> Result<ClassId, JvmError> {
         let data = {
@@ -502,8 +516,13 @@ impl MethodArea {
         };
         let cf = hotpath::measure_block!(
             "load_class::parse_class_file",
-            ClassFile::try_from(data).map_err(LinkageError::from)?
-        );
+            ClassFile::try_from(data).map_err(|e| {
+                let class_name = self.interner.resolve(&name_sym).to_string();
+                LinkageError::ClassFormat(e, class_name)
+            })
+        )?;
+        self.verify_class_or_err(name_sym, &cf)
+            .map_err(LinkageError::from)?;
         let super_id = match cf.get_super_class_name() {
             Some(super_name) => {
                 let super_name = super_name.unwrap();
