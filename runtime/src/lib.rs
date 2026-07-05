@@ -11,6 +11,7 @@ use crate::vm::Value;
 use crate::vm::bootstrap_registry::BootstrapRegistry;
 use crate::vm::stack::FrameStack;
 use lasso::ThreadedRodeo;
+use once_cell::sync::OnceCell;
 use std::path::PathBuf;
 use std::sync::{Arc, RwLock};
 use tokio::sync::mpsc::unbounded_channel;
@@ -26,6 +27,8 @@ mod native;
 pub mod rt;
 mod thread;
 mod vm;
+
+static VM: OnceCell<Arc<VirtualMachine>> = OnceCell::new();
 
 #[derive(Debug, Clone)]
 pub struct VmConfig {
@@ -62,6 +65,14 @@ pub struct VirtualMachine {
 }
 
 impl VirtualMachine {
+    pub fn set_global(vm: Arc<VirtualMachine>) {
+        VM.set(vm).ok().expect("VM already initialized");
+    }
+
+    pub fn global() -> &'static Arc<VirtualMachine> {
+        VM.get().expect("VM not initialized")
+    }
+
     pub fn new(
         config: VmConfig,
         string_interner: Arc<ThreadedRodeo>,
@@ -93,11 +104,13 @@ impl VirtualMachine {
             debug_state: debug_state.clone(),
         });
 
+        Self::set_global(vm.clone());
+
         #[cfg(feature = "log-runtime-traces")]
         log_traces::debug::init(&vm);
 
         if let Some(jdwp_port) = vm.config.jdwp_port {
-            start_jdwp_agent(vm.clone(), debug_state.clone(), event_rx, jdwp_port);
+            start_jdwp_agent(debug_state.clone(), event_rx, jdwp_port);
             debug_state.send_event(DebugEvent::VMStart);
             debug_state.suspend_all(); //TODO: I assume always suspended at start (suspend=y)
 
@@ -168,7 +181,6 @@ impl VirtualMachine {
         Interpreter::invoke_instance_method(
             main_thread,
             thread_constructor_id,
-            self,
             vec![
                 Value::Ref(main_thread.thread_obj),
                 Value::Ref(main_thread_group_ref),
@@ -219,7 +231,6 @@ impl VirtualMachine {
         Interpreter::invoke_instance_method(
             main_thread,
             thread_group_no_arg_constructor_id,
-            self,
             vec![Value::Ref(system_thread_group_ref)],
         )?;
 
@@ -251,7 +262,6 @@ impl VirtualMachine {
         Interpreter::invoke_instance_method(
             main_thread,
             thread_group_constructor_id,
-            self,
             vec![
                 Value::Ref(main_thread_group_ref),
                 Value::Ref(system_thread_group_ref),
@@ -275,7 +285,7 @@ impl VirtualMachine {
             .get_instance_class(&system_class_id)?
             .get_special_method_id(&init_phase1_method_key)?;
 
-        Interpreter::invoke_static_method(thread, init_phase1_method_id, self, vec![])?;
+        Interpreter::invoke_static_method(thread, init_phase1_method_id, vec![])?;
 
         // Run initPhase2
         /*
@@ -335,7 +345,7 @@ impl VirtualMachine {
         } else {
             vec![Value::Ref(instance)]
         };
-        Interpreter::invoke_instance_method(thread, method_id, self, params)?;
+        Interpreter::invoke_instance_method(thread, method_id, params)?;
         Ok(instance)
     }
 
@@ -351,7 +361,6 @@ impl VirtualMachine {
             let thread_group_ref = Interpreter::invoke_instance_method(
                 thread,
                 get_thread_group_method_id,
-                self,
                 vec![Value::Ref(thread.thread_obj)],
             )
             .unwrap()
@@ -366,7 +375,6 @@ impl VirtualMachine {
             Interpreter::invoke_instance_method(
                 thread,
                 uncaught_exception_method_id,
-                self,
                 vec![
                     Value::Ref(thread_group_ref),
                     Value::Ref(thread.thread_obj),
@@ -448,7 +456,7 @@ pub fn start(config: VmConfig) -> Result<(), ()> {
     debug_log_method!(&main_method_id, "Main method found");
 
     // TODO: it works more or less correctly, but should be improved
-    let res = Interpreter::invoke_static_method(&mut main_thread, main_method_id, &mut vm, vec![]);
+    let res = Interpreter::invoke_static_method(&mut main_thread, main_method_id, vec![]);
     vm.debug_state.send_event(DebugEvent::VMDeath);
     if let Err(e) = res {
         vm.unhandled_exception(&mut main_thread, e);

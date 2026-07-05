@@ -140,11 +140,8 @@ pub(super) fn do_register_java_lang_preregistered_natives(native_registry: &mut 
     )
 }
 
-fn java_lang_system_arraycopy(
-    vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    args: &[Value],
-) -> NativeRet {
+fn java_lang_system_arraycopy(_thread: &mut JavaThreadState, args: &[Value]) -> NativeRet {
+    let vm = VirtualMachine::global();
     let src_addr = args[0].as_obj_ref()?;
     let src_pos = args[1].as_int()?;
     let dest_addr = args[2].as_obj_ref()?;
@@ -178,17 +175,12 @@ fn java_lang_system_arraycopy(
     Ok(None)
 }
 
-fn java_lang_object_get_class(
-    vm: &VirtualMachine,
-    thread: &mut JavaThreadState,
-    args: &[Value],
-) -> NativeRet {
+fn java_lang_object_get_class(thread: &mut JavaThreadState, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.getClass");
+    let vm = VirtualMachine::global();
     let object_ref = args[0].as_obj_ref()?;
     let target_class_id = {
         let class_id = vm.heap_read().get_class_id(object_ref)?;
-        //TODO: refactor and rethink how I handle array classes and their mirrors
-        //right now I put on heap for arrays the class id of the element type, but the mirror has to be of the array type
         if vm.heap_read().is_array(object_ref)? {
             let class_name_sym = vm.method_area_read().get_class(&class_id).get_name();
             let raw_name = vm.interner().resolve(&class_name_sym);
@@ -206,11 +198,7 @@ fn java_lang_object_get_class(
     Ok(Some(Value::Ref(res)))
 }
 
-fn java_lang_object_hash_code(
-    _vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    args: &[Value],
-) -> NativeRet {
+fn java_lang_object_hash_code(_thread: &mut JavaThreadState, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Object.hashCode");
     if let Value::Ref(h) = &args[0] {
         Ok(Some(Value::Integer(*h as i32)))
@@ -226,11 +214,11 @@ fn java_lang_object_hash_code(
 /// - an int array with the name indexes of the methods in the stack frames
 /// - an int array with the line pc of the methods in the stack frames
 fn java_lang_throwable_fill_in_stack_trace(
-    vm: &VirtualMachine,
     thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.Throwable.fillInStackTrace");
+    let vm = VirtualMachine::global();
     let mut frames: Vec<_> = thread
         .stack
         .frames()
@@ -331,7 +319,6 @@ fn java_lang_throwable_fill_in_stack_trace(
 }
 
 fn java_lang_float_float_to_raw_int_bits(
-    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -344,7 +331,6 @@ fn java_lang_float_float_to_raw_int_bits(
 }
 
 fn java_lang_double_double_to_raw_long_bits(
-    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
@@ -356,17 +342,13 @@ fn java_lang_double_double_to_raw_long_bits(
     }
 }
 
-fn java_lang_runtime_max_memory(
-    vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    _args: &[Value],
-) -> NativeRet {
+fn java_lang_runtime_max_memory(_thread: &mut JavaThreadState, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Runtime.maxMemory");
+    let vm = VirtualMachine::global();
     Ok(Some(Value::Long(vm.config.max_heap_size as i64)))
 }
 
 fn java_lang_runtime_available_processors(
-    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -375,11 +357,11 @@ fn java_lang_runtime_available_processors(
 }
 
 fn java_lang_stack_trace_element_init_stack_trace_elements(
-    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: java.lang.StackTraceElement.initStackTraceElements");
+    let vm = VirtualMachine::global();
     let elements_array = match &_args[0] {
         Value::Ref(h) => *h,
         _ => panic!("java.lang.StackTraceElement.initStackTraceElements: expected array"),
@@ -501,20 +483,12 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
     Ok(None)
 }
 
-fn java_lang_object_notify_all(
-    _vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    _args: &[Value],
-) -> NativeRet {
+fn java_lang_object_notify_all(_thread: &mut JavaThreadState, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Object.notifyAll");
     Ok(None)
 }
 
-fn java_lang_float_int_bits_to_float(
-    _vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    args: &[Value],
-) -> NativeRet {
+fn java_lang_float_int_bits_to_float(_thread: &mut JavaThreadState, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Float.intBitsToFloat");
     if let Value::Integer(i) = args[0] {
         Ok(Some(Value::Float(f32::from_bits(i as u32))))
@@ -524,7 +498,6 @@ fn java_lang_float_int_bits_to_float(
 }
 
 fn java_lang_null_pointer_exception_get_extended_npe_message(
-    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -534,12 +507,9 @@ fn java_lang_null_pointer_exception_get_extended_npe_message(
     Ok(Some(Value::Null))
 }
 
-fn java_lang_string_intern(
-    vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    args: &[Value],
-) -> NativeRet {
+fn java_lang_string_intern(_thread: &mut JavaThreadState, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.String.intern");
+    let vm = VirtualMachine::global();
     let string_addr = match &args[0] {
         Value::Ref(h) => *h,
         _ => panic!("java.lang.String.intern: expected object"),
@@ -553,7 +523,6 @@ fn java_lang_string_intern(
 }
 
 fn java_lang_double_long_bits_to_double(
-    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {

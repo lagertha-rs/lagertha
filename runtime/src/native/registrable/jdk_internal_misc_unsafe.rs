@@ -10,11 +10,11 @@ use lvm_common::jtype::AllocationType;
 use tracing_log::log::debug;
 
 pub(super) fn jdk_internal_misc_unsafe_register_natives(
-    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.registerNatives");
+    let vm = VirtualMachine::global();
 
     vm.native_registry.register(
         FullyQualifiedMethodKey::new_with_str(
@@ -148,7 +148,6 @@ pub(super) fn jdk_internal_misc_unsafe_register_natives(
 }
 
 fn jdk_internal_loader_boot_loader_set_boot_loader_unnamed_module_0(
-    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -160,22 +159,22 @@ fn jdk_internal_loader_boot_loader_set_boot_loader_unnamed_module_0(
 }
 
 fn jdk_internal_misc_unsafe_ensure_class_initialized_0(
-    vm: &VirtualMachine,
     thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
+    let vm = VirtualMachine::global();
     let mirror_ref = args[1].as_obj_ref()?;
     let class_id = vm.method_area_read().get_class_id_by_mirror(&mirror_ref)?;
-    Interpreter::ensure_initialized(thread, Some(class_id), vm)?;
+    Interpreter::ensure_initialized(thread, Some(class_id))?;
     Ok(None)
 }
 
 fn jdk_internal_misc_unsafe_get_int_volatile(
-    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.getIntVolatile");
+    let vm = VirtualMachine::global();
     let base = args[1].as_obj_ref()?;
     let off = args[2].as_long()?;
     let value = vm
@@ -185,11 +184,8 @@ fn jdk_internal_misc_unsafe_get_int_volatile(
     Ok(Some(Value::Integer(value)))
 }
 
-fn jdk_internal_misc_unsafe_get_long(
-    vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    args: &[Value],
-) -> NativeRet {
+fn jdk_internal_misc_unsafe_get_long(_thread: &mut JavaThreadState, args: &[Value]) -> NativeRet {
+    let vm = VirtualMachine::global();
     let base = args[1].as_obj_ref()?;
     let off = args[2].as_long()?;
     let value = vm
@@ -199,11 +195,8 @@ fn jdk_internal_misc_unsafe_get_long(
     Ok(Some(Value::Long(value)))
 }
 
-fn jdk_internal_misc_unsafe_get_int(
-    vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    args: &[Value],
-) -> NativeRet {
+fn jdk_internal_misc_unsafe_get_int(_thread: &mut JavaThreadState, args: &[Value]) -> NativeRet {
+    let vm = VirtualMachine::global();
     let base = args[1].as_obj_ref()?;
     let off = args[2].as_long()?;
     let value = vm
@@ -214,7 +207,6 @@ fn jdk_internal_misc_unsafe_get_int(
 }
 
 fn jdk_internal_misc_unsafe_array_base_offset_0(
-    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -223,10 +215,10 @@ fn jdk_internal_misc_unsafe_array_base_offset_0(
 }
 
 fn jdk_internal_misc_unsafe_compare_and_set_int(
-    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
+    let vm = VirtualMachine::global();
     let object = match args[1] {
         Value::Ref(h) => h,
         _ => panic!("compareAndSetInt: expected object"),
@@ -261,11 +253,11 @@ fn jdk_internal_misc_unsafe_compare_and_set_int(
 }
 
 fn jdk_internal_misc_unsafe_compare_and_set_long(
-    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.compareAndSetLong");
+    let vm = VirtualMachine::global();
     let object = match args[1] {
         Value::Ref(h) => h,
         _ => panic!("jdk.internal.misc.Unsafe.compareAndSetLong: expected object"),
@@ -303,11 +295,11 @@ fn jdk_internal_misc_unsafe_compare_and_set_long(
 }
 
 fn jdk_internal_misc_unsafe_get_reference_volatile(
-    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.getReferenceVolatile");
+    let vm = VirtualMachine::global();
     let base = match &args[1] {
         Value::Ref(h) => *h,
         Value::Null => panic!("Unsafe.getReferenceVolatile base is null"),
@@ -326,11 +318,11 @@ fn jdk_internal_misc_unsafe_get_reference_volatile(
 }
 
 fn jdk_internal_misc_unsafe_object_field_offset_1(
-    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.objectFieldOffset1");
+    let vm = VirtualMachine::global();
     let class_addr = match &args[1] {
         Value::Ref(h) => h,
         _ => panic!("jdk.internal.misc.Unsafe.objectFieldOffset: expected class object"),
@@ -351,11 +343,11 @@ fn jdk_internal_misc_unsafe_object_field_offset_1(
 }
 
 fn jdk_internal_misc_unsafe_array_index_scale_0(
-    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Unsafe.arrayIndexScale0");
+    let vm = VirtualMachine::global();
     let class_addr = match &args[1] {
         Value::Ref(h) => h,
         _ => panic!("arrayIndexScale0: expected class"),
@@ -382,7 +374,6 @@ fn jdk_internal_misc_unsafe_array_index_scale_0(
 }
 
 fn jdk_internal_misc_unsafe_full_fence(
-    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -391,10 +382,10 @@ fn jdk_internal_misc_unsafe_full_fence(
 }
 
 fn jdk_internal_misc_unsafe_compare_and_set_reference(
-    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
+    let vm = VirtualMachine::global();
     let object = match args[1] {
         Value::Ref(h) => h,
         _ => panic!("compareAndSetReference: expected object"),
@@ -428,11 +419,8 @@ fn jdk_internal_misc_unsafe_compare_and_set_reference(
     }
 }
 
-fn jdk_internal_misc_unsafe_put_byte(
-    vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    args: &[Value],
-) -> NativeRet {
+fn jdk_internal_misc_unsafe_put_byte(_thread: &mut JavaThreadState, args: &[Value]) -> NativeRet {
+    let vm = VirtualMachine::global();
     let object = args
         .get(1)
         .ok_or(JvmError::Todo("putByte: missing 1 argument".to_string()))?

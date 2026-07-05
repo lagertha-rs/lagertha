@@ -25,12 +25,10 @@ pub(super) fn handle_athrow(thread: &mut JavaThreadState) -> Result<(), JvmError
 }
 
 #[inline]
-pub(super) fn handle_aaload(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-) -> Result<(), JvmError> {
+pub(super) fn handle_aaload(thread: &mut JavaThreadState) -> Result<(), JvmError> {
     let index = thread.stack.pop_int_val()?;
     let array_addr = thread.stack.pop_obj_val()?;
+    let vm = VirtualMachine::global();
     let value = vm
         .heap_read()
         .read_array_element(array_addr, index)?
@@ -41,80 +39,59 @@ pub(super) fn handle_aaload(
 }
 
 #[inline]
-pub(super) fn handle_aastore(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-) -> Result<(), JvmError> {
+pub(super) fn handle_aastore(thread: &mut JavaThreadState) -> Result<(), JvmError> {
     let value = thread.stack.pop_nullable_ref()?;
     let index = thread.stack.pop_int_val()?;
     let array_addr = thread.stack.pop_obj_val()?;
+    let vm = VirtualMachine::global();
     vm.heap_write()
         .write_array_element(array_addr, index, value)
 }
 
 #[inline]
-pub(super) fn handle_bastore(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-) -> Result<(), JvmError> {
+pub(super) fn handle_bastore(thread: &mut JavaThreadState) -> Result<(), JvmError> {
     let value = thread.stack.pop_int()?;
     let index = thread.stack.pop_int_val()?;
     let array_addr = thread.stack.pop_obj_val()?;
+    let vm = VirtualMachine::global();
     vm.heap_write()
         .write_array_element(array_addr, index, value)
 }
 
 #[inline]
-pub(super) fn handle_faload(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-) -> Result<(), JvmError> {
-    handle_ref_load(thread, vm)
+pub(super) fn handle_faload(thread: &mut JavaThreadState) -> Result<(), JvmError> {
+    handle_ref_load(thread)
 }
 
 #[inline]
-pub(super) fn handle_daload(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-) -> Result<(), JvmError> {
-    handle_ref_load(thread, vm)
+pub(super) fn handle_daload(thread: &mut JavaThreadState) -> Result<(), JvmError> {
+    handle_ref_load(thread)
 }
 
 #[inline]
-pub(super) fn handle_iaload(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-) -> Result<(), JvmError> {
-    handle_ref_load(thread, vm)
+pub(super) fn handle_iaload(thread: &mut JavaThreadState) -> Result<(), JvmError> {
+    handle_ref_load(thread)
 }
 
 #[inline]
-pub(super) fn handle_laload(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-) -> Result<(), JvmError> {
-    handle_ref_load(thread, vm)
+pub(super) fn handle_laload(thread: &mut JavaThreadState) -> Result<(), JvmError> {
+    handle_ref_load(thread)
 }
 
 #[inline]
-pub(super) fn handle_caload(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-) -> Result<(), JvmError> {
-    handle_ref_load(thread, vm)
+pub(super) fn handle_caload(thread: &mut JavaThreadState) -> Result<(), JvmError> {
+    handle_ref_load(thread)
 }
 
 #[inline]
-pub(super) fn handle_baload(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-) -> Result<(), JvmError> {
-    handle_ref_load(thread, vm)
+pub(super) fn handle_baload(thread: &mut JavaThreadState) -> Result<(), JvmError> {
+    handle_ref_load(thread)
 }
 
-fn handle_ref_load(thread: &mut JavaThreadState, vm: &VirtualMachine) -> Result<(), JvmError> {
+fn handle_ref_load(thread: &mut JavaThreadState) -> Result<(), JvmError> {
     let index = thread.stack.pop_int_val()?;
     let array_addr = thread.stack.pop_obj_val()?;
+    let vm = VirtualMachine::global();
     let value = vm.heap_read().read_array_element(array_addr, index)?;
     thread.stack.push_operand(value)
 }
@@ -162,16 +139,13 @@ pub(super) fn handle_aload(thread: &mut JavaThreadState, pos: u8) -> Result<(), 
 }
 
 #[inline]
-pub(super) fn handle_anewarray(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-    idx: u16,
-) -> Result<(), JvmError> {
+pub(super) fn handle_anewarray(thread: &mut JavaThreadState, idx: u16) -> Result<(), JvmError> {
     let size = thread.stack.pop_int_val()?;
     if size < 0 {
         throw_exception!(NegativeArraySizeException, size.to_string())?
     }
     let cur_frame_method_id = thread.stack.cur_java_frame()?.method_id();
+    let vm = VirtualMachine::global();
     let target_array_sym = vm
         .method_area_read()
         .get_cp_by_method_id(&cur_frame_method_id)?
@@ -186,11 +160,9 @@ pub(super) fn handle_anewarray(
 }
 
 #[inline]
-pub(super) fn handle_arraylength(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-) -> Result<(), JvmError> {
+pub(super) fn handle_arraylength(thread: &mut JavaThreadState) -> Result<(), JvmError> {
     let array_ref = thread.stack.pop_obj_val()?;
+    let vm = VirtualMachine::global();
     let length = vm.heap_read().get_array_length(array_ref)?;
     thread.stack.push_operand(Value::Integer(length))
 }
@@ -231,37 +203,31 @@ pub(super) fn handle_bipush(thread: &mut JavaThreadState, val: i8) -> Result<(),
 }
 
 #[inline]
-pub(super) fn handle_castore(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-) -> Result<(), JvmError> {
+pub(super) fn handle_castore(thread: &mut JavaThreadState) -> Result<(), JvmError> {
     let value = thread.stack.pop_int_val()?;
     let index = thread.stack.pop_int_val()?;
     let array_ref = thread.stack.pop_obj_val()?;
+    let vm = VirtualMachine::global();
     vm.heap_write()
         .write_array_element(array_ref, index, Value::Integer(value))
 }
 
 #[inline]
-pub(super) fn handle_dastore(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-) -> Result<(), JvmError> {
+pub(super) fn handle_dastore(thread: &mut JavaThreadState) -> Result<(), JvmError> {
     let value = thread.stack.pop_double_val()?;
     let index = thread.stack.pop_int_val()?;
     let array_ref = thread.stack.pop_obj_val()?;
+    let vm = VirtualMachine::global();
     vm.heap_write()
         .write_array_element(array_ref, index, Value::Double(value))
 }
 
 #[inline]
-pub(super) fn handle_fastore(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-) -> Result<(), JvmError> {
+pub(super) fn handle_fastore(thread: &mut JavaThreadState) -> Result<(), JvmError> {
     let value = thread.stack.pop_float_val()?;
     let index = thread.stack.pop_int_val()?;
     let array_ref = thread.stack.pop_obj_val()?;
+    let vm = VirtualMachine::global();
     vm.heap_write()
         .write_array_element(array_ref, index, Value::Float(value))
 }
@@ -512,13 +478,10 @@ pub(super) fn handle_fstore(thread: &mut JavaThreadState, n: u8) -> Result<(), J
 }
 
 #[inline]
-pub(super) fn handle_getfield(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-    idx: u16,
-) -> Result<(), JvmError> {
+pub(super) fn handle_getfield(thread: &mut JavaThreadState, idx: u16) -> Result<(), JvmError> {
     let target_obj_ref = thread.stack.pop_obj_val()?;
     let cur_frame_method_id = thread.stack.cur_java_frame()?.method_id();
+    let vm = VirtualMachine::global();
     let field_view = vm
         .method_area_read()
         .get_cp_by_method_id(&cur_frame_method_id)?
@@ -543,12 +506,9 @@ pub(super) fn handle_getfield(
 }
 
 #[inline]
-pub(super) fn handle_getstatic(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-    idx: u16,
-) -> Result<(), JvmError> {
+pub(super) fn handle_getstatic(thread: &mut JavaThreadState, idx: u16) -> Result<(), JvmError> {
     let cur_frame_method_id = thread.stack.cur_java_frame()?.method_id();
+    let vm = VirtualMachine::global();
     let target_field_view = vm
         .method_area_read()
         .get_cp_by_method_id(&cur_frame_method_id)?
@@ -556,7 +516,7 @@ pub(super) fn handle_getstatic(
     let target_class_id = vm
         .method_area_write()
         .get_class_id_or_load(target_field_view.class_sym, thread.id)?;
-    Interpreter::ensure_initialized(thread, Some(target_class_id), vm)?;
+    Interpreter::ensure_initialized(thread, Some(target_class_id))?;
     let field_key: FieldKey = target_field_view.name_and_type.into();
     let actual_static_field_class_id = vm
         .method_area_read()
@@ -976,12 +936,9 @@ pub(super) fn handle_iload(thread: &mut JavaThreadState, pos: u8) -> Result<(), 
 }
 
 #[inline]
-pub(super) fn handle_invokevirtual(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-    idx: u16,
-) -> Result<(), JvmError> {
+pub(super) fn handle_invokevirtual(thread: &mut JavaThreadState, idx: u16) -> Result<(), JvmError> {
     let cur_frame_method_id = thread.stack.cur_java_frame()?.method_id();
+    let vm = VirtualMachine::global();
     let target_method_view = vm
         .method_area_read()
         .get_cp_by_method_id(&cur_frame_method_id)?
@@ -1006,17 +963,14 @@ pub(super) fn handle_invokevirtual(
         .method_area_read()
         .get_class(&actual_class_id)
         .get_vtable_method_id(&method_key)?;
-    let args = Interpreter::prepare_method_args(thread, target_method_id, vm)?;
-    Interpreter::invoke_method_internal(thread, target_method_id, args, vm)
+    let args = Interpreter::prepare_method_args(thread, target_method_id)?;
+    Interpreter::invoke_method_internal(thread, target_method_id, args)
 }
 
 #[inline]
-pub(super) fn handle_instanceof(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-    idx: u16,
-) -> Result<(), JvmError> {
+pub(super) fn handle_instanceof(thread: &mut JavaThreadState, idx: u16) -> Result<(), JvmError> {
     let cur_frame_method_id = thread.stack.cur_java_frame()?.method_id();
+    let vm = VirtualMachine::global();
     let class_name_sym = vm
         .method_area_read()
         .get_cp_by_method_id(&cur_frame_method_id)?
@@ -1274,11 +1228,11 @@ pub(super) fn handle_iinc(
 #[inline]
 pub(super) fn handle_ldc_ldcw_ldc2w(
     thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
     idx: u16,
 ) -> Result<(), JvmError> {
     let cur_method_id = thread.stack.cur_java_frame()?.method_id();
     let ldc_operand = {
+        let vm = VirtualMachine::global();
         let ma = vm.method_area_read();
         let cp = ma.get_cp_by_method_id(&cur_method_id)?;
         match cp.get_constant(&idx, vm.interner())? {
@@ -1309,12 +1263,9 @@ pub(super) fn handle_ldc_ldcw_ldc2w(
 }
 
 #[inline]
-pub(super) fn handle_new(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-    idx: u16,
-) -> Result<(), JvmError> {
+pub(super) fn handle_new(thread: &mut JavaThreadState, idx: u16) -> Result<(), JvmError> {
     let cur_frame_method_id = thread.stack.cur_java_frame()?.method_id();
+    let vm = VirtualMachine::global();
     let target_class_name = vm
         .method_area_read()
         .get_cp_by_method_id(&cur_frame_method_id)?
@@ -1322,7 +1273,7 @@ pub(super) fn handle_new(
     let target_class_id = vm
         .method_area_write()
         .get_class_id_or_load(target_class_name, thread.id)?;
-    Interpreter::ensure_initialized(thread, Some(target_class_id), vm)?;
+    Interpreter::ensure_initialized(thread, Some(target_class_id))?;
     let instance_ref = vm.heap_write().alloc_instance(
         vm.method_area_read()
             .get_instance_class(&target_class_id)?
@@ -1335,13 +1286,13 @@ pub(super) fn handle_new(
 #[inline]
 pub(super) fn handle_newarray(
     thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
     array_type: ArrayType,
 ) -> Result<(), JvmError> {
     let size = thread.stack.pop_int_val()?;
     if size < 0 {
         throw_exception!(NegativeArraySizeException, size.to_string())?
     }
+    let vm = VirtualMachine::global();
     let class_id = vm.method_area_write().load_array_class(
         vm.interner().get_or_intern(array_type.descriptor()),
         thread.id,
@@ -1359,14 +1310,11 @@ pub(super) fn handle_pop(thread: &mut JavaThreadState) -> Result<(), JvmError> {
 }
 
 #[inline]
-pub(super) fn handle_putfield(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-    idx: u16,
-) -> Result<(), JvmError> {
+pub(super) fn handle_putfield(thread: &mut JavaThreadState, idx: u16) -> Result<(), JvmError> {
     let value = thread.stack.pop_operand()?;
     let target_obj_ref = thread.stack.pop_obj_val()?;
     let cur_frame_method_id = thread.stack.cur_java_frame()?.method_id();
+    let vm = VirtualMachine::global();
     let field_view = vm
         .method_area_read()
         .get_cp_by_method_id(&cur_frame_method_id)?
@@ -1391,13 +1339,10 @@ pub(super) fn handle_putfield(
 }
 
 #[inline]
-pub(super) fn handle_putstatic(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-    idx: u16,
-) -> Result<(), JvmError> {
+pub(super) fn handle_putstatic(thread: &mut JavaThreadState, idx: u16) -> Result<(), JvmError> {
     let value = thread.stack.pop_operand()?;
     let cur_frame_method_id = thread.stack.cur_java_frame()?.method_id();
+    let vm = VirtualMachine::global();
     let target_field_view = vm
         .method_area_read()
         .get_cp_by_method_id(&cur_frame_method_id)?
@@ -1405,7 +1350,7 @@ pub(super) fn handle_putstatic(
     let target_class_id = vm
         .method_area_write()
         .get_class_id_or_load(target_field_view.class_sym, thread.id)?;
-    Interpreter::ensure_initialized(thread, Some(target_class_id), vm)?;
+    Interpreter::ensure_initialized(thread, Some(target_class_id))?;
     let field_key: FieldKey = target_field_view.name_and_type.into();
     let actual_static_field_class_id = vm
         .method_area_read()
@@ -1418,11 +1363,11 @@ pub(super) fn handle_putstatic(
 #[inline]
 pub(super) fn handle_invokeinterface(
     thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
     idx: u16,
     count: u8,
 ) -> Result<(), JvmError> {
     let cur_frame_method_id = thread.stack.cur_java_frame()?.method_id();
+    let vm = VirtualMachine::global();
     let target_method_view = vm
         .method_area_read()
         .get_cp_by_method_id(&cur_frame_method_id)?
@@ -1447,19 +1392,16 @@ pub(super) fn handle_invokeinterface(
             .method_area_read()
             .get_instance_class(&target_class_id)?
             .get_interface_method_id(&target_method_view.name_and_type.into())?;
-        let args = Interpreter::prepare_method_args(thread, target_method_id, vm)?;
-        Interpreter::invoke_method_internal(thread, target_method_id, args, vm)?;
+        let args = Interpreter::prepare_method_args(thread, target_method_id)?;
+        Interpreter::invoke_method_internal(thread, target_method_id, args)?;
     };
     Ok(())
 }
 
 #[inline]
-pub(super) fn handle_invokespecial(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-    idx: u16,
-) -> Result<(), JvmError> {
+pub(super) fn handle_invokespecial(thread: &mut JavaThreadState, idx: u16) -> Result<(), JvmError> {
     let cur_frame_method_id = thread.stack.cur_java_frame()?.method_id();
+    let vm = VirtualMachine::global();
     let target_method_view = vm
         .method_area_read()
         .get_cp_by_method_id(&cur_frame_method_id)?
@@ -1471,17 +1413,14 @@ pub(super) fn handle_invokespecial(
         .method_area_read()
         .get_instance_class(&target_class_id)?
         .get_special_method_id(&target_method_view.name_and_type.into())?;
-    let args = Interpreter::prepare_method_args(thread, target_method_id, vm)?;
-    Interpreter::invoke_method_internal(thread, target_method_id, args, vm)
+    let args = Interpreter::prepare_method_args(thread, target_method_id)?;
+    Interpreter::invoke_method_internal(thread, target_method_id, args)
 }
 
 #[inline]
-pub(super) fn handle_invokestatic(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-    idx: u16,
-) -> Result<(), JvmError> {
+pub(super) fn handle_invokestatic(thread: &mut JavaThreadState, idx: u16) -> Result<(), JvmError> {
     let cur_frame_method_id = thread.stack.cur_java_frame()?.method_id();
+    let vm = VirtualMachine::global();
     let target_method_view = vm
         .method_area_read()
         .get_cp_by_method_id(&cur_frame_method_id)?
@@ -1489,21 +1428,18 @@ pub(super) fn handle_invokestatic(
     let target_class_id = vm
         .method_area_write()
         .get_class_id_or_load(target_method_view.class_sym, thread.id)?;
-    Interpreter::ensure_initialized(thread, Some(target_class_id), vm)?;
+    Interpreter::ensure_initialized(thread, Some(target_class_id))?;
     let target_method_id = vm
         .method_area_read()
         .get_static_method_id(&target_class_id, target_method_view.name_and_type.into())?;
-    let args = Interpreter::prepare_method_args(thread, target_method_id, vm)?;
-    Interpreter::invoke_static_method(thread, target_method_id, vm, args)
+    let args = Interpreter::prepare_method_args(thread, target_method_id)?;
+    Interpreter::invoke_static_method(thread, target_method_id, args)
 }
 
 #[inline]
-pub(super) fn handle_invokedynamic(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-    idx: u16,
-) -> Result<(), JvmError> {
+pub(super) fn handle_invokedynamic(thread: &mut JavaThreadState, idx: u16) -> Result<(), JvmError> {
     let cur_frame_method_id = thread.stack.cur_java_frame()?.method_id();
+    let vm = VirtualMachine::global();
     let bootstrap_method = vm
         .method_area_read()
         .get_cp_by_method_id(&cur_frame_method_id)?
@@ -1615,25 +1551,21 @@ pub(super) fn handle_lsub(thread: &mut JavaThreadState) -> Result<(), JvmError> 
 }
 
 #[inline]
-pub(super) fn handle_iastore(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-) -> Result<(), JvmError> {
+pub(super) fn handle_iastore(thread: &mut JavaThreadState) -> Result<(), JvmError> {
     let value = thread.stack.pop_int_val()?;
     let index = thread.stack.pop_int_val()?;
     let array_ref = thread.stack.pop_obj_val()?;
+    let vm = VirtualMachine::global();
     vm.heap_write()
         .write_array_element(array_ref, index, Value::Integer(value))
 }
 
 #[inline]
-pub(super) fn handle_lastore(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-) -> Result<(), JvmError> {
+pub(super) fn handle_lastore(thread: &mut JavaThreadState) -> Result<(), JvmError> {
     let value = thread.stack.pop_long_val()?;
     let index = thread.stack.pop_int_val()?;
     let array_ref = thread.stack.pop_obj_val()?;
+    let vm = VirtualMachine::global();
     vm.heap_write()
         .write_array_element(array_ref, index, Value::Long(value))
 }
@@ -1657,24 +1589,20 @@ pub(super) fn handle_ishr(thread: &mut JavaThreadState) -> Result<(), JvmError> 
 }
 
 #[inline]
-pub(super) fn handle_saload(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-) -> Result<(), JvmError> {
+pub(super) fn handle_saload(thread: &mut JavaThreadState) -> Result<(), JvmError> {
     let index = thread.stack.pop_int_val()?;
     let array_ref = thread.stack.pop_obj_val()?;
+    let vm = VirtualMachine::global();
     let value = vm.heap_read().read_array_element(array_ref, index)?;
     thread.stack.push_operand(value)
 }
 
 #[inline]
-pub(super) fn handle_sastore(
-    thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
-) -> Result<(), JvmError> {
+pub(super) fn handle_sastore(thread: &mut JavaThreadState) -> Result<(), JvmError> {
     let value = thread.stack.pop_int_val()?;
     let index = thread.stack.pop_int_val()?;
     let array_ref = thread.stack.pop_obj_val()?;
+    let vm = VirtualMachine::global();
     vm.heap_write()
         .write_array_element(array_ref, index, Value::Integer(value))
 }
@@ -1716,12 +1644,11 @@ pub(super) fn handle_monitorexit(thread: &mut JavaThreadState) -> Result<(), Jvm
 #[inline]
 pub(super) fn handle_multianewarray(
     thread: &mut JavaThreadState,
-    vm: &VirtualMachine,
     idx: u16,
     dimensions: u8,
 ) -> Result<(), JvmError> {
     let outer_class_id = {
-        // TODO: helper method/macro? I guess I repeat this pattern quite often
+        let vm = VirtualMachine::global();
         let cur_frame_method_id = thread.stack.cur_java_frame()?.method_id();
         let class_name_sym = vm
             .method_area_read()
@@ -1736,6 +1663,7 @@ pub(super) fn handle_multianewarray(
     dimensions.reverse();
 
     let array_ref = {
+        let vm = VirtualMachine::global();
         let mut heap = vm.heap_write();
         let ma = vm.method_area_read();
         alloc_multi_array(&mut heap, &ma, &dimensions, outer_class_id)?

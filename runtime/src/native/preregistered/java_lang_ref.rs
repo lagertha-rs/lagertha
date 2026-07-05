@@ -19,11 +19,8 @@ pub(super) fn do_register_java_lang_ref_preregistered_natives(
     )
 }
 
-fn java_lang_ref_reference_refers_to_0(
-    vm: &VirtualMachine,
-    thread: &mut JavaThreadState,
-    args: &[Value],
-) -> NativeRet {
+fn java_lang_ref_reference_refers_to_0(thread: &mut JavaThreadState, args: &[Value]) -> NativeRet {
+    let vm = VirtualMachine::global();
     let referent_ref = args[0].as_obj_ref()?;
     let referent_fk = vm.br.reference_referent_fk;
     let reference_class_id = vm

@@ -8,10 +8,10 @@ use lvm_common::jtype::AllocationType;
 use tracing_log::log::debug;
 
 pub(super) fn java_lang_class_register_natives(
-    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
+    let vm = VirtualMachine::global();
     vm.native_registry.register(
         FullyQualifiedMethodKey::new_with_str(
             "java/lang/Class",
@@ -93,12 +93,9 @@ pub(super) fn java_lang_class_register_natives(
     Ok(None)
 }
 
-fn java_lang_class_is_assignable_from(
-    vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    args: &[Value],
-) -> NativeRet {
+fn java_lang_class_is_assignable_from(_thread: &mut JavaThreadState, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.Class.isAssignableFrom");
+    let vm = VirtualMachine::global();
     let this_class_mirror = args[0].as_obj_ref()?;
     let other_class_mirror = args[1].as_obj_ref()?;
 
@@ -116,7 +113,6 @@ fn java_lang_class_is_assignable_from(
 }
 
 fn java_lang_class_desired_assertion_status_0(
-    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -124,11 +120,8 @@ fn java_lang_class_desired_assertion_status_0(
     Ok(Some(Value::Integer(1)))
 }
 
-fn java_lang_class_is_interface(
-    vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    args: &[Value],
-) -> NativeRet {
+fn java_lang_class_is_interface(_thread: &mut JavaThreadState, args: &[Value]) -> NativeRet {
+    let vm = VirtualMachine::global();
     let mirror_ref = args
         .first()
         .ok_or(JvmError::Todo(
@@ -143,11 +136,8 @@ fn java_lang_class_is_interface(
     Ok(Some(Value::Integer(if is_interface { 1 } else { 0 })))
 }
 
-fn java_lang_class_is_array(
-    vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    args: &[Value],
-) -> NativeRet {
+fn java_lang_class_is_array(_thread: &mut JavaThreadState, args: &[Value]) -> NativeRet {
+    let vm = VirtualMachine::global();
     let mirror_ref = args
         .first()
         .ok_or(JvmError::Todo(
@@ -159,11 +149,8 @@ fn java_lang_class_is_array(
     Ok(Some(Value::Integer(if is_array { 1 } else { 0 })))
 }
 
-fn java_lang_class_get_modifiers(
-    vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    args: &[Value],
-) -> NativeRet {
+fn java_lang_class_get_modifiers(_thread: &mut JavaThreadState, args: &[Value]) -> NativeRet {
+    let vm = VirtualMachine::global();
     let mirror_ref = args
         .first()
         .ok_or(JvmError::Todo(
@@ -178,11 +165,8 @@ fn java_lang_class_get_modifiers(
     Ok(Some(Value::Integer(modifiers)))
 }
 
-fn java_lang_class_get_primitive_class(
-    vm: &VirtualMachine,
-    thread: &mut JavaThreadState,
-    args: &[Value],
-) -> NativeRet {
+fn java_lang_class_get_primitive_class(thread: &mut JavaThreadState, args: &[Value]) -> NativeRet {
+    let vm = VirtualMachine::global();
     let primitive_name_ref = args
         .first()
         .ok_or(JvmError::Todo(
@@ -201,11 +185,8 @@ fn java_lang_class_get_primitive_class(
     Ok(Some(Value::Ref(v)))
 }
 
-fn java_lang_class_init_class_name(
-    vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    args: &[Value],
-) -> NativeRet {
+fn java_lang_class_init_class_name(_thread: &mut JavaThreadState, args: &[Value]) -> NativeRet {
+    let vm = VirtualMachine::global();
     let mirror_ref = args
         .first()
         .ok_or(JvmError::Todo(
@@ -238,11 +219,8 @@ fn java_lang_class_init_class_name(
     Ok(Some(Value::Ref(name_ref)))
 }
 
-fn java_lang_class_get_superclass(
-    vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    args: &[Value],
-) -> NativeRet {
+fn java_lang_class_get_superclass(_thread: &mut JavaThreadState, args: &[Value]) -> NativeRet {
+    let vm = VirtualMachine::global();
     let mirror_ref = args
         .first()
         .ok_or(JvmError::Todo(

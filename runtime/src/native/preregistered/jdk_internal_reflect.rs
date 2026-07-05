@@ -29,12 +29,11 @@ pub(super) fn do_register_jdk_internal_reflect_preregistered_natives(
 }
 
 fn jdk_internal_reflect_reflection_get_caller_class(
-    vm: &VirtualMachine,
     thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("Stub: jdk/internal/reflect/Reflection.getCallerClass()");
-    // TODO: hardcoded. should use @CallerSensitive
+    let vm = VirtualMachine::global();
     let frame_minus_two = thread.stack.peek_frame_at(2)?;
     let method_id = frame_minus_two.method_id();
     let class_id = vm.method_area_read().get_method(&method_id).class_id();
@@ -45,11 +44,10 @@ fn jdk_internal_reflect_reflection_get_caller_class(
 }
 
 fn jdk_internal_reflect_reflection_get_class_access_flags(
-    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
-    // TODO: implement properly (there are comments in source)
+    let vm = VirtualMachine::global();
     let mirror_ref = args[0].as_obj_ref()?;
     let class_id = vm.method_area_read().get_class_id_by_mirror(&mirror_ref)?;
     let flags = vm.method_area_read().get_class(&class_id).get_raw_flags();

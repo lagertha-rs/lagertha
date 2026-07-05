@@ -15,7 +15,7 @@ use std::sync::Arc;
 use tracing_log::log::debug;
 
 pub type NativeRet = Result<Option<Value>, JvmError>;
-pub type NativeFn = fn(&VirtualMachine, thread: &mut JavaThreadState, &[Value]) -> NativeRet;
+pub type NativeFn = fn(thread: &mut JavaThreadState, &[Value]) -> NativeRet;
 
 pub struct NativeRegistry {
     map: DashMap<FullyQualifiedMethodKey, NativeFn>,

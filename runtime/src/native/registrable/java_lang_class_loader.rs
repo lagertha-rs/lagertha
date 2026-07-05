@@ -4,7 +4,6 @@ use crate::vm::Value;
 use crate::{ThreadId, VirtualMachine};
 
 pub(super) fn java_lang_class_loader_register_natives(
-    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {

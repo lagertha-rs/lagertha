@@ -22,7 +22,6 @@ impl Interpreter {
     fn interpret_instruction(
         thread: &mut JavaThreadState,
         instruction: Instruction,
-        vm: &VirtualMachine,
     ) -> Result<ControlFlow<Option<Value>>, JvmError> {
         let is_branch = instruction.is_branch();
         let instr_size = instruction.byte_size();
@@ -32,15 +31,15 @@ impl Interpreter {
 
         match instruction {
             Instruction::Athrow => handle_athrow(thread)?,
-            Instruction::Aaload => handle_aaload(thread, vm)?,
-            Instruction::Aastore => handle_aastore(thread, vm)?,
-            Instruction::Bastore => handle_bastore(thread, vm)?,
-            Instruction::Faload => handle_faload(thread, vm)?,
-            Instruction::Daload => handle_daload(thread, vm)?,
-            Instruction::Iaload => handle_iaload(thread, vm)?,
-            Instruction::Laload => handle_laload(thread, vm)?,
-            Instruction::Caload => handle_caload(thread, vm)?,
-            Instruction::Baload => handle_baload(thread, vm)?,
+            Instruction::Aaload => handle_aaload(thread)?,
+            Instruction::Aastore => handle_aastore(thread)?,
+            Instruction::Bastore => handle_bastore(thread)?,
+            Instruction::Faload => handle_faload(thread)?,
+            Instruction::Daload => handle_daload(thread)?,
+            Instruction::Iaload => handle_iaload(thread)?,
+            Instruction::Laload => handle_laload(thread)?,
+            Instruction::Caload => handle_caload(thread)?,
+            Instruction::Baload => handle_baload(thread)?,
             Instruction::Checkcast(_idx) => handle_checkcast(thread)?,
             Instruction::AconstNull => handle_aconst_null(thread)?,
             Instruction::Aload0 => handle_aload0(thread)?,
@@ -48,17 +47,17 @@ impl Interpreter {
             Instruction::Aload2 => handle_aload2(thread)?,
             Instruction::Aload3 => handle_aload3(thread)?,
             Instruction::Aload(pos) => handle_aload(thread, pos)?,
-            Instruction::Anewarray(idx) => handle_anewarray(thread, vm, idx)?,
-            Instruction::ArrayLength => handle_arraylength(thread, vm)?,
+            Instruction::Anewarray(idx) => handle_anewarray(thread, idx)?,
+            Instruction::ArrayLength => handle_arraylength(thread)?,
             Instruction::Astore0 => handle_astore0(thread)?,
             Instruction::Astore1 => handle_astore1(thread)?,
             Instruction::Astore2 => handle_astore2(thread)?,
             Instruction::Astore3 => handle_astore3(thread)?,
             Instruction::Astore(pos) => handle_astore(thread, pos)?,
             Instruction::Bipush(value) => handle_bipush(thread, value)?,
-            Instruction::Castore => handle_castore(thread, vm)?,
-            Instruction::Fastore => handle_fastore(thread, vm)?,
-            Instruction::Dastore => handle_dastore(thread, vm)?,
+            Instruction::Castore => handle_castore(thread)?,
+            Instruction::Fastore => handle_fastore(thread)?,
+            Instruction::Dastore => handle_dastore(thread)?,
             Instruction::Dadd => handle_dadd(thread)?,
             Instruction::Ddiv => handle_ddiv(thread)?,
             Instruction::Dcmpl => handle_dcmpl(thread)?,
@@ -93,8 +92,8 @@ impl Interpreter {
             Instruction::Fstore2 => handle_fstore2(thread)?,
             Instruction::Fstore3 => handle_fstore3(thread)?,
             Instruction::Fstore(n) => handle_fstore(thread, n)?,
-            Instruction::Getfield(idx) => handle_getfield(thread, vm, idx)?,
-            Instruction::Getstatic(idx) => handle_getstatic(thread, vm, idx)?,
+            Instruction::Getfield(idx) => handle_getfield(thread, idx)?,
+            Instruction::Getstatic(idx) => handle_getstatic(thread, idx)?,
             Instruction::Goto(offset) => handle_goto(thread, offset)?,
             Instruction::Iadd => handle_iadd(thread)?,
             Instruction::Iconst0 => handle_iconst0(thread)?,
@@ -130,8 +129,8 @@ impl Interpreter {
             Instruction::Iload2 => handle_iload2(thread)?,
             Instruction::Iload3 => handle_iload3(thread)?,
             Instruction::Iload(pos) => handle_iload(thread, pos)?,
-            Instruction::InvokeVirtual(idx) => handle_invokevirtual(thread, vm, idx)?,
-            Instruction::Instanceof(idx) => handle_instanceof(thread, vm, idx)?,
+            Instruction::InvokeVirtual(idx) => handle_invokevirtual(thread, idx)?,
+            Instruction::Instanceof(idx) => handle_instanceof(thread, idx)?,
             Instruction::Fmul => handle_fmul(thread)?,
             Instruction::Fdiv => handle_fdiv(thread)?,
             Instruction::Irem => handle_irem(thread)?,
@@ -167,19 +166,17 @@ impl Interpreter {
             Instruction::Imul => handle_imul(thread)?,
             Instruction::Iinc(index, const_val) => handle_iinc(thread, index, const_val)?,
             Instruction::Ldc(idx) | Instruction::LdcW(idx) | Instruction::Ldc2W(idx) => {
-                handle_ldc_ldcw_ldc2w(thread, vm, idx)?
+                handle_ldc_ldcw_ldc2w(thread, idx)?
             }
-            Instruction::New(idx) => handle_new(thread, vm, idx)?,
-            Instruction::Newarray(array_type) => handle_newarray(thread, vm, array_type)?,
+            Instruction::New(idx) => handle_new(thread, idx)?,
+            Instruction::Newarray(array_type) => handle_newarray(thread, array_type)?,
             Instruction::Pop => handle_pop(thread)?,
-            Instruction::Putfield(idx) => handle_putfield(thread, vm, idx)?,
-            Instruction::Putstatic(idx) => handle_putstatic(thread, vm, idx)?,
-            Instruction::InvokeInterface(idx, count) => {
-                handle_invokeinterface(thread, vm, idx, count)?
-            }
-            Instruction::InvokeSpecial(idx) => handle_invokespecial(thread, vm, idx)?,
-            Instruction::InvokeStatic(idx) => handle_invokestatic(thread, vm, idx)?,
-            Instruction::InvokeDynamic(idx) => handle_invokedynamic(thread, vm, idx)?,
+            Instruction::Putfield(idx) => handle_putfield(thread, idx)?,
+            Instruction::Putstatic(idx) => handle_putstatic(thread, idx)?,
+            Instruction::InvokeInterface(idx, count) => handle_invokeinterface(thread, idx, count)?,
+            Instruction::InvokeSpecial(idx) => handle_invokespecial(thread, idx)?,
+            Instruction::InvokeStatic(idx) => handle_invokestatic(thread, idx)?,
+            Instruction::InvokeDynamic(idx) => handle_invokedynamic(thread, idx)?,
             Instruction::Iushr => handle_iushr(thread)?,
             Instruction::Lload0 => handle_lload0(thread)?,
             Instruction::Lload1 => handle_lload1(thread)?,
@@ -195,18 +192,18 @@ impl Interpreter {
             Instruction::Lstore3 => handle_lstore3(thread)?,
             Instruction::Lstore(idx) => handle_lstore(thread, idx)?,
             Instruction::Lsub => handle_lsub(thread)?,
-            Instruction::Iastore => handle_iastore(thread, vm)?,
-            Instruction::Lastore => handle_lastore(thread, vm)?,
+            Instruction::Iastore => handle_iastore(thread)?,
+            Instruction::Lastore => handle_lastore(thread)?,
             Instruction::Ishl => handle_ishl(thread)?,
             Instruction::Ishr => handle_ishr(thread)?,
-            Instruction::Saload => handle_saload(thread, vm)?,
-            Instruction::Sastore => handle_sastore(thread, vm)?,
+            Instruction::Saload => handle_saload(thread)?,
+            Instruction::Sastore => handle_sastore(thread)?,
             Instruction::Sipush(value) => handle_sipush(thread, value)?,
             Instruction::TableSwitch(switch) => handle_tableswitch(thread, switch)?,
             Instruction::Monitorenter => handle_monitorenter(thread)?,
             Instruction::Monitorexit => handle_monitorexit(thread)?,
             Instruction::Multianewarray(idx, dimensions) => {
-                handle_multianewarray(thread, vm, idx, dimensions)?
+                handle_multianewarray(thread, idx, dimensions)?
             }
             Instruction::Return => {
                 return Ok(ControlFlow::Break(None));
@@ -245,8 +242,8 @@ impl Interpreter {
     fn prepare_method_args(
         thread: &mut JavaThreadState,
         method_id: MethodId,
-        vm: &VirtualMachine,
     ) -> Result<Vec<Value>, JvmError> {
+        let vm = VirtualMachine::global();
         let mut args_count = vm
             .method_area_read()
             .get_method_descriptor_by_method_id(&method_id)
@@ -269,11 +266,11 @@ impl Interpreter {
     }
 
     fn is_exception_caught(
-        vm: &VirtualMachine,
         entry: &ExceptionTableEntry,
         method_id: &MethodId,
         java_exception: HeapRef,
     ) -> Result<bool, JvmError> {
+        let vm = VirtualMachine::global();
         let catch_type = entry.catch_type;
 
         if catch_type == 0 {
@@ -292,11 +289,11 @@ impl Interpreter {
     }
 
     fn find_exception_handler(
-        vm: &VirtualMachine,
         method_id: &MethodId,
         java_exception: HeapRef,
         thread: &mut JavaThreadState,
     ) -> Result<bool, JvmError> {
+        let vm = VirtualMachine::global();
         let pc = thread.stack.pc()?;
         let ma = vm.method_area_read();
         let exception_table = ma.get_method(method_id).get_exception_table()?;
@@ -306,7 +303,7 @@ impl Interpreter {
                 continue;
             }
 
-            if Self::is_exception_caught(vm, entry, method_id, java_exception)? {
+            if Self::is_exception_caught(entry, method_id, java_exception)? {
                 let handler_pc = entry.handler_pc as usize;
                 let stack = &mut thread.stack;
                 stack.push_operand(Value::Ref(java_exception))?;
@@ -321,8 +318,8 @@ impl Interpreter {
     fn interpret_method(
         thread: &mut JavaThreadState,
         method_id: MethodId,
-        vm: &VirtualMachine,
     ) -> Result<Option<Value>, JvmError> {
+        let vm = VirtualMachine::global();
         let code_ptr = vm.method_area_read().get_method(&method_id).get_code()? as *const [u8];
         loop {
             // SAFETY: code_ptr is valid as long as method exists in method area (always)
@@ -331,7 +328,7 @@ impl Interpreter {
             let pc = thread.stack.pc()?;
             let instruction = Instruction::new_at(code, pc)?;
 
-            match Self::interpret_instruction(thread, instruction, vm) {
+            match Self::interpret_instruction(thread, instruction) {
                 Ok(flow) => {
                     if let ControlFlow::Break(res) = flow {
                         return Ok(res);
@@ -349,7 +346,7 @@ impl Interpreter {
                     if thread.stack.cur_frame()?.is_native() {
                         thread.stack.pop_native_frame()?;
                     }
-                    if !Self::find_exception_handler(vm, &method_id, java_exception, thread)? {
+                    if !Self::find_exception_handler(&method_id, java_exception, thread)? {
                         thread.stack.pop_java_frame()?;
                         return Err(JvmError::JavaExceptionThrown(java_exception));
                     }
@@ -362,8 +359,8 @@ impl Interpreter {
         thread: &mut JavaThreadState,
         method_id: MethodId,
         args: Vec<Value>,
-        vm: &VirtualMachine,
     ) -> Result<Option<Value>, JvmError> {
+        let vm = VirtualMachine::global();
         let is_static = {
             let ma = vm.method_area_read();
             ma.get_method(&method_id).is_static()
@@ -388,7 +385,7 @@ impl Interpreter {
             UnsatisfiedLinkError,
             vm.pretty_method_not_found_message(&method_id)
         ))?;
-        let native_res = match native(vm, thread, args.as_slice()) {
+        let native_res = match native(thread, args.as_slice()) {
             Ok(res) => res,
             Err(e) => {
                 error_log_method!(
@@ -407,15 +404,15 @@ impl Interpreter {
         thread: &mut JavaThreadState,
         method_id: MethodId,
         args: Vec<Value>,
-        vm: &VirtualMachine,
     ) -> Result<Option<Value>, JvmError> {
+        let vm = VirtualMachine::global();
         let (max_stack, max_locals) = vm
             .method_area_read()
             .get_method(&method_id)
             .get_frame_attributes()?;
         let frame = JavaFrame::new(method_id, max_stack, max_locals, args);
         thread.stack.push_frame(FrameType::JavaFrame(frame))?;
-        let method_ret = Self::interpret_method(thread, method_id, vm);
+        let method_ret = Self::interpret_method(thread, method_id);
         if let Err(e) = &method_ret {
             error_log_method!(
                 &method_id,
@@ -432,16 +429,16 @@ impl Interpreter {
         thread: &mut JavaThreadState,
         method_id: MethodId,
         args: Vec<Value>,
-        vm: &VirtualMachine,
     ) -> Result<Option<Value>, JvmError> {
+        let vm = VirtualMachine::global();
         let is_native = {
             let ma = vm.method_area_read();
             ma.get_method(&method_id).is_native()
         };
         if is_native {
-            Self::invoke_native_method(thread, method_id, args, vm)
+            Self::invoke_native_method(thread, method_id, args)
         } else {
-            Self::invoke_java_method(thread, method_id, args, vm)
+            Self::invoke_java_method(thread, method_id, args)
         }
     }
 
@@ -449,19 +446,16 @@ impl Interpreter {
         thread: &mut JavaThreadState,
         method_id: MethodId,
         args: Vec<Value>,
-        vm: &VirtualMachine,
     ) -> Result<(), JvmError> {
-        let method_ret = Self::invoke_method_core(thread, method_id, args, vm)?;
+        let method_ret = Self::invoke_method_core(thread, method_id, args)?;
         if let Some(ret) = method_ret {
             thread.stack.push_operand(ret)?;
         }
         Ok(())
     }
 
-    fn interface_needs_initialization(
-        interface_id: ClassId,
-        vm: &VirtualMachine,
-    ) -> Result<bool, JvmError> {
+    fn interface_needs_initialization(interface_id: ClassId) -> Result<bool, JvmError> {
+        let vm = VirtualMachine::global();
         let has_clinit = {
             let ma = vm.method_area_read();
             let interface = ma.get_interface_class(&interface_id)?;
@@ -474,12 +468,12 @@ impl Interpreter {
     fn run_clinit_if_exists(
         thread: &mut JavaThreadState,
         class_id: ClassId,
-        vm: &VirtualMachine,
     ) -> Result<(), JvmError> {
+        let vm = VirtualMachine::global();
         let ma = vm.method_area_read();
         if let Some(&clinit_method_id) = ma.get_class_like(&class_id)?.get_clinit_method_id() {
             drop(ma);
-            Self::invoke_method_internal(thread, clinit_method_id, vec![], vm)?;
+            Self::invoke_method_internal(thread, clinit_method_id, vec![])?;
         }
 
         Ok(())
@@ -488,8 +482,8 @@ impl Interpreter {
     pub fn ensure_initialized(
         thread: &mut JavaThreadState,
         class_id: Option<ClassId>,
-        vm: &VirtualMachine,
     ) -> Result<(), JvmError> {
+        let vm = VirtualMachine::global();
         let Some(class_id) = class_id else {
             return Ok(());
         };
@@ -522,7 +516,7 @@ impl Interpreter {
                 inst_class.get_super()
             };
             if let Some(super_id) = super_id {
-                Self::ensure_initialized(thread, Some(super_id), vm)?;
+                Self::ensure_initialized(thread, Some(super_id))?;
             }
             let interfaces = vm
                 .method_area_read()
@@ -530,12 +524,12 @@ impl Interpreter {
                 .get_interfaces()?
                 .clone(); // TODO: avoid clone?
             for interface_id in interfaces {
-                if Self::interface_needs_initialization(interface_id, vm)? {
-                    Self::ensure_initialized(thread, Some(interface_id), vm)?;
+                if Self::interface_needs_initialization(interface_id)? {
+                    Self::ensure_initialized(thread, Some(interface_id))?;
                 }
             }
 
-            Self::run_clinit_if_exists(thread, class_id, vm)?;
+            Self::run_clinit_if_exists(thread, class_id)?;
 
             let cur_class_name = vm.method_area_read().get_instance_class(&class_id)?.name();
 
@@ -561,12 +555,12 @@ impl Interpreter {
                 .get_interfaces()?
                 .clone(); // TODO: avoid clone?
             for super_interface_id in interfaces {
-                if Self::interface_needs_initialization(super_interface_id, vm)? {
-                    Self::ensure_initialized(thread, Some(super_interface_id), vm)?;
+                if Self::interface_needs_initialization(super_interface_id)? {
+                    Self::ensure_initialized(thread, Some(super_interface_id))?;
                 }
             }
 
-            Self::run_clinit_if_exists(thread, class_id, vm)?;
+            Self::run_clinit_if_exists(thread, class_id)?;
         }
 
         vm.method_area_read()
@@ -578,22 +572,21 @@ impl Interpreter {
     pub fn invoke_instance_method(
         thread: &mut JavaThreadState,
         method_id: MethodId,
-        vm: &VirtualMachine,
         args: Vec<Value>,
     ) -> Result<Option<Value>, JvmError> {
         //TODO: do I need to check that args[0] is not null?
-        Self::invoke_method_core(thread, method_id, args, vm)
+        Self::invoke_method_core(thread, method_id, args)
     }
 
     pub fn invoke_static_method(
         thread: &mut JavaThreadState,
         method_id: MethodId,
-        vm: &VirtualMachine,
         args: Vec<Value>,
     ) -> Result<(), JvmError> {
+        let vm = VirtualMachine::global();
         let class_id = vm.method_area_read().get_method(&method_id).class_id();
-        Self::ensure_initialized(thread, Some(class_id), vm)?;
-        Self::invoke_method_internal(thread, method_id, args, vm)?;
+        Self::ensure_initialized(thread, Some(class_id))?;
+        Self::invoke_method_internal(thread, method_id, args)?;
         Ok(())
     }
 }

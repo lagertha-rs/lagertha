@@ -91,11 +91,11 @@ pub(super) fn do_register_java_io_preregistered_natives(native_registry: &mut Na
 }
 
 fn java_io_file_output_stream_write_bytes(
-    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Partial implementation: java.io.FileOutputStream.writeBytes");
+    let vm = VirtualMachine::global();
     let output_stream_ref = match &args[0] {
         Value::Ref(h) => *h,
         _ => panic!("java.io.FileOutputStream.writeBytes: expected FileOutputStream object"),
@@ -166,44 +166,27 @@ fn java_io_file_output_stream_write_bytes(
     Ok(None)
 }
 
-fn java_io_file_input_stream_init_ids(
-    _vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    _args: &[Value],
-) -> NativeRet {
+fn java_io_file_input_stream_init_ids(_thread: &mut JavaThreadState, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.io.FileInputStream.initIDs");
     Ok(None)
 }
 
-fn java_io_file_descriptor_init_ids(
-    _vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    _args: &[Value],
-) -> NativeRet {
+fn java_io_file_descriptor_init_ids(_thread: &mut JavaThreadState, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.io.FileDescriptor.initIDs");
     Ok(None)
 }
 
-fn java_io_file_descriptor_get_handle(
-    _vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    _args: &[Value],
-) -> NativeRet {
+fn java_io_file_descriptor_get_handle(_thread: &mut JavaThreadState, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.io.FileDescriptor.getHandle");
     Ok(Some(Value::Long(0)))
 }
 
-fn java_io_file_descriptor_get_append(
-    _vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    _args: &[Value],
-) -> NativeRet {
+fn java_io_file_descriptor_get_append(_thread: &mut JavaThreadState, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.io.FileDescriptor.getAppend");
     Ok(Some(Value::Integer(0)))
 }
 
 fn java_io_file_output_stream_init_ids(
-    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -211,20 +194,16 @@ fn java_io_file_output_stream_init_ids(
     Ok(None)
 }
 
-fn java_io_unix_file_system_init_ids(
-    _vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    _args: &[Value],
-) -> NativeRet {
+fn java_io_unix_file_system_init_ids(_thread: &mut JavaThreadState, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.io.UnixFileSystem.initIDs");
     Ok(None)
 }
 
 fn java_io_unix_file_system_canonicalize_0(
-    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
+    let vm = VirtualMachine::global();
     let str_ref = args[1].as_obj_ref()?;
     let path = vm.heap_read().get_rust_string_from_java_string(str_ref)?;
     match std::fs::canonicalize(&path) {
@@ -240,10 +219,10 @@ fn java_io_unix_file_system_canonicalize_0(
 }
 
 fn java_io_unix_file_system_get_boolean_attributes_0(
-    vm: &VirtualMachine,
     thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
+    let vm = VirtualMachine::global();
     const BA_EXISTS: i32 = 0x01;
     const BA_REGULAR: i32 = 0x02;
     const BA_DIRECTORY: i32 = 0x04;

@@ -81,7 +81,6 @@ pub(super) fn do_register_jdk_internal_preregistered_natives(native_registry: &m
 }
 
 fn jdk_internal_misc_cds_get_random_seed_for_dumping(
-    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
@@ -90,11 +89,11 @@ fn jdk_internal_misc_cds_get_random_seed_for_dumping(
 }
 
 fn jdk_internal_util_system_props_raw_platform_properties(
-    vm: &VirtualMachine,
     thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.platformProperties");
+    let vm = VirtualMachine::global();
     let string_class_sym = vm.br().java_lang_string_sym;
     // TODO: create a registry for interned common strings
     let empty_string_sym = vm.interner().get_or_intern("");
@@ -133,11 +132,11 @@ fn jdk_internal_util_system_props_raw_platform_properties(
 }
 
 fn jdk_internal_util_system_props_raw_vm_properties(
-    vm: &VirtualMachine,
     thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.util.SystemProps$Raw.vmProperties");
+    let vm = VirtualMachine::global();
     let string_class_sym = vm.br().java_lang_string_sym;
     let string_class = vm
         .method_area_write()
@@ -168,21 +167,17 @@ fn jdk_internal_util_system_props_raw_vm_properties(
     Ok(Some(Value::Ref(h)))
 }
 
-fn jdk_internal_misc_vm_initialize(
-    _vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    _args: &[Value],
-) -> NativeRet {
+fn jdk_internal_misc_vm_initialize(_thread: &mut JavaThreadState, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.VM.initialize");
     Ok(None)
 }
 
 fn jdk_internal_misc_signal_find_signal_0(
-    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     args: &[Value],
 ) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Signal.findSignal0");
+    let vm = VirtualMachine::global();
     let signal_name = match args[0] {
         Value::Ref(h) => vm.heap_read().get_rust_string_from_java_string(h)?,
         _ => panic!("jdk.internal.misc.Signal.findSignal0: expected signal name string"),
@@ -212,17 +207,12 @@ fn jdk_internal_misc_signal_find_signal_0(
     Ok(Some(Value::Integer(signal_number)))
 }
 
-fn jdk_internal_misc_signal_handle_0(
-    _vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    _args: &[Value],
-) -> NativeRet {
+fn jdk_internal_misc_signal_handle_0(_thread: &mut JavaThreadState, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: jdk.internal.misc.Signal.handle0");
     Ok(Some(Value::Long(1)))
 }
 
 fn jdk_internal_misc_cds_get_cds_config_status(
-    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
 
     _args: &[Value],
@@ -232,7 +222,6 @@ fn jdk_internal_misc_cds_get_cds_config_status(
 }
 
 fn jdk_internal_misc_cds_initialize_from_archive(
-    _vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
 
     _args: &[Value],

@@ -6,10 +6,10 @@ use crate::{ThreadId, VirtualMachine};
 use tracing_log::log::debug;
 
 pub(super) fn java_lang_system_register_natives(
-    vm: &VirtualMachine,
     _thread: &mut JavaThreadState,
     _args: &[Value],
 ) -> NativeRet {
+    let vm = VirtualMachine::global();
     vm.native_registry.register(
         FullyQualifiedMethodKey::new_with_str(
             "java/lang/System",
@@ -58,21 +58,14 @@ pub(super) fn java_lang_system_register_natives(
     Ok(None)
 }
 
-fn java_lang_system_nano_time(
-    _vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    _args: &[Value],
-) -> NativeRet {
+fn java_lang_system_nano_time(_thread: &mut JavaThreadState, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.System.nanoTime");
     Ok(Some(Value::Long(0)))
 }
 
-fn java_lang_system_set_out_0(
-    vm: &VirtualMachine,
-    thread: &mut JavaThreadState,
-    args: &[Value],
-) -> NativeRet {
+fn java_lang_system_set_out_0(thread: &mut JavaThreadState, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.System.setIn0");
+    let vm = VirtualMachine::global();
     let val = match &args[0] {
         Value::Ref(h) => *h,
         _ => panic!("java.lang.System.setOut0: expected PrintStream object"),
@@ -86,12 +79,9 @@ fn java_lang_system_set_out_0(
     Ok(None)
 }
 
-fn java_lang_system_set_err_0(
-    vm: &VirtualMachine,
-    thread: &mut JavaThreadState,
-    args: &[Value],
-) -> NativeRet {
+fn java_lang_system_set_err_0(thread: &mut JavaThreadState, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.System.setIn0");
+    let vm = VirtualMachine::global();
     let val = match &args[0] {
         Value::Ref(h) => *h,
         _ => panic!("java.lang.System.setOut0: expected PrintStream object"),
@@ -105,11 +95,7 @@ fn java_lang_system_set_err_0(
     Ok(None)
 }
 
-fn java_lang_system_identity_hash_code(
-    _vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    args: &[Value],
-) -> NativeRet {
+fn java_lang_system_identity_hash_code(_thread: &mut JavaThreadState, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.System.identityHashCode");
     if let Value::Ref(h) = &args[0] {
         Ok(Some(Value::Integer(*h as i32)))
@@ -118,11 +104,7 @@ fn java_lang_system_identity_hash_code(
     }
 }
 
-fn java_lang_system_set_in_0(
-    _vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    _args: &[Value],
-) -> NativeRet {
+fn java_lang_system_set_in_0(_thread: &mut JavaThreadState, _args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: java.lang.System.setIn0");
     Ok(None)
 }
