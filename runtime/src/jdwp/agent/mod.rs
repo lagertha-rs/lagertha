@@ -20,7 +20,6 @@ pub mod reader;
 const HANDSHAKE: &[u8; 14] = b"JDWP-Handshake";
 
 pub fn start_jdwp_agent(
-    vm: Arc<VirtualMachine>,
     debug: Arc<DebugState>,
     event_rx: UnboundedReceiver<DebugEvent>,
     port: u16,
@@ -32,13 +31,12 @@ pub fn start_jdwp_agent(
             .unwrap();
 
         runtime.block_on(async {
-            jdwp_agent_routine(vm, debug, event_rx, port).await;
+            jdwp_agent_routine(debug, event_rx, port).await;
         })
     })
 }
 
 async fn jdwp_agent_routine(
-    vm: Arc<VirtualMachine>,
     debug: Arc<DebugState>,
     event_rx: UnboundedReceiver<DebugEvent>,
     port: u16,
@@ -61,7 +59,7 @@ async fn jdwp_agent_routine(
 
     debug.set_connected(true);
 
-    handle_connection(vm.clone(), debug.clone(), stream, event_rx).await;
+    handle_connection(debug.clone(), stream, event_rx).await;
 
     debug.set_connected(false);
     debug.resume_all();
@@ -146,7 +144,6 @@ async fn send_events(stream: &mut TcpStream, events: &[DebugEvent]) -> Result<()
 }
 
 async fn handle_connection(
-    vm: Arc<VirtualMachine>,
     debug: Arc<DebugState>,
     mut stream: TcpStream,
     mut event_rx: UnboundedReceiver<DebugEvent>,
@@ -162,7 +159,7 @@ async fn handle_connection(
             event_buffer.clear();
             }
             packet = Packet::read(&mut stream) => match packet {
-            Ok(Packet::Command(cmd_packet)) => match handle_command(&vm, debug.clone(), cmd_packet)
+            Ok(Packet::Command(cmd_packet)) => match handle_command(debug.clone(), cmd_packet)
             {
                 Ok(None) => {}
                 Ok(Some(reply_packet)) => {
@@ -188,10 +185,10 @@ async fn handle_connection(
 }
 
 fn handle_command(
-    vm: &VirtualMachine,
     debug: Arc<DebugState>,
     cmd_packet: CommandPacket,
 ) -> Result<Option<ReplyPacket>, JdwpError> {
+    let vm = VirtualMachine::global();
     let cmd = JdwpCommand::parse(
         cmd_packet.command_set,
         cmd_packet.command,
@@ -214,14 +211,12 @@ fn handle_command(
         }
         JdwpCommand::VmCapabilities => Ok(handle_vm_capabilities()),
         JdwpCommand::VmCapabilitiesNew => Ok(handle_vm_capabilities_new()),
-        JdwpCommand::VmAllClasses => Ok(handle_vm_all_classes(vm)),
+        JdwpCommand::VmAllClasses => Ok(handle_vm_all_classes()),
         JdwpCommand::VmTopLevelThreadGroups => Ok(handle_top_level_thread_groups()),
         JdwpCommand::VmVersion => Ok(handle_vm_version()),
-        JdwpCommand::ClassTypeSuperclass { class_id } => {
-            Ok(handle_class_type_superclass(vm, class_id))
-        }
+        JdwpCommand::ClassTypeSuperclass { class_id } => Ok(handle_class_type_superclass(class_id)),
         JdwpCommand::ReferenceTypeInterfaces { class_id } => {
-            Ok(handle_reference_type_interfaces(vm, class_id))
+            Ok(handle_reference_type_interfaces(class_id))
         }
         cmd => {
             eprintln!("Unhandled command: {:?}", cmd);
@@ -236,7 +231,8 @@ fn handle_command(
     }))
 }
 
-fn handle_reference_type_interfaces(vm: &VirtualMachine, class_id: u32) -> Vec<u8> {
+fn handle_reference_type_interfaces(class_id: u32) -> Vec<u8> {
+    let vm = VirtualMachine::global();
     let ma_read = vm.method_area_read();
     let class = ma_read.get_class(&ClassId::new(NonZeroU32::new(class_id).unwrap()));
     let interface = class.get_direct_interfaces().unwrap();
@@ -248,7 +244,8 @@ fn handle_reference_type_interfaces(vm: &VirtualMachine, class_id: u32) -> Vec<u
     buf
 }
 
-fn handle_class_type_superclass(vm: &VirtualMachine, class_id: u32) -> Vec<u8> {
+fn handle_class_type_superclass(class_id: u32) -> Vec<u8> {
+    let vm = VirtualMachine::global();
     let ma_read = vm.method_area_read();
     let class = ma_read.get_class(&ClassId::new(NonZeroU32::new(class_id).unwrap()));
     let super_class_id = if let Some(super_class) = class.get_super_id() {
@@ -259,7 +256,8 @@ fn handle_class_type_superclass(vm: &VirtualMachine, class_id: u32) -> Vec<u8> {
     super_class_id.to_be_bytes().to_vec()
 }
 
-fn handle_vm_all_classes(vm: &VirtualMachine) -> Vec<u8> {
+fn handle_vm_all_classes() -> Vec<u8> {
+    let vm = VirtualMachine::global();
     let one_class_approx_size = 1 + 4 + 4 + (20 * 8) + 4; // refTypeTag + typeId + signatureLen + signature + status
     let ma_read = vm.method_area_read();
     let classes = ma_read.classes();

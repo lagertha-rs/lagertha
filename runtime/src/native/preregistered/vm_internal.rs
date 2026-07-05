@@ -16,12 +16,9 @@ pub(super) fn do_register_vm_internal_preregistered_natives(native_registry: &mu
     );
 }
 
-fn vm_internal_clone(
-    vm: &VirtualMachine,
-    _thread: &mut JavaThreadState,
-    args: &[Value],
-) -> NativeRet {
+fn vm_internal_clone(_thread: &mut JavaThreadState, args: &[Value]) -> NativeRet {
     debug!("TODO: Stub: internal clone");
+    let vm = VirtualMachine::global();
     let obj = match args[0] {
         Value::Ref(h) => h,
         _ => panic!("internal clone: expected object"),
