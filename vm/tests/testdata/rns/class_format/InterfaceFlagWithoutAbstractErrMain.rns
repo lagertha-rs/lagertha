@@ -1,0 +1,4 @@
+.class interface class_format/InterfaceFlagWithoutAbstractErrMain
+.super java/lang/Object
+
+.class_end

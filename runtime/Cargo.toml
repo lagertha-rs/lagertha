@@ -18,7 +18,6 @@ walkdir = "2"
 byteorder = "1.5"
 dashmap = "6.1.0"
 num_enum = "0.7.4"
-smallvec = "1.15.1"
 itertools = "0.14.0"
 tokio = { version = "1.48.0", features = ["sync", "net", "rt", "io-util", "macros"] }
 
@@ -28,7 +27,3 @@ tracing-log = { workspace = true }
 lvm-class = { workspace = true }
 jimage = { path = "../jimage" }
 lvm-common = { workspace = true }
-
-# TODO to be deleted
-toml = "0.8"
-toml_edit = "0.22"

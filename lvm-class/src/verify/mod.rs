@@ -6,8 +6,17 @@ pub enum Finding {
 }
 
 pub enum ClassFlagsFinding {
-    InterfaceWithoutAbstract,
+    InterfaceWithoutAbstract(ClassFlags),
     InterfaceIncompatibleFlags(ClassFlags),
+}
+
+impl ClassFlagsFinding {
+    pub fn get_flags(&self) -> ClassFlags {
+        match self {
+            ClassFlagsFinding::InterfaceWithoutAbstract(flags)
+            | ClassFlagsFinding::InterfaceIncompatibleFlags(flags) => *flags,
+        }
+    }
 }
 
 impl ClassFile {
@@ -24,7 +33,7 @@ impl ClassFile {
         }
         if !f.is_abstract() {
             findings.push(Finding::ClassFlag(
-                ClassFlagsFinding::InterfaceWithoutAbstract,
+                ClassFlagsFinding::InterfaceWithoutAbstract(f),
             ));
         }
         if f.is_final() || f.is_super() || f.is_enum() || f.is_module() {

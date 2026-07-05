@@ -21,7 +21,7 @@ fn branch32(bci: usize, off: i32) -> usize {
 #[inline]
 pub(super) fn handle_athrow(thread: &mut JavaThreadState) -> Result<(), JvmError> {
     let exception_ref = thread.stack.pop_obj_val()?;
-    Err(JvmError::JavaExceptionThrown(exception_ref))
+    Err(JvmError::JavaException(exception_ref))
 }
 
 #[inline]

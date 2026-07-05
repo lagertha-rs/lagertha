@@ -9,6 +9,7 @@ on:
 env:
   CARGO_TERM_COLOR: always
   CLIPPY_ENABLED: false  # Set to true once clippy warnings are resolved
+  RNSC_VERSION: "0.2.1"  # keep in sync with vm/build.rs SUPPORTED_RNSC
 
 jobs:
   test:
@@ -32,6 +33,17 @@ jobs:
 
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
+
+      - name: Cache rnsc
+        id: cache-rnsc
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/rnsc
+          key: rnsc-${{ env.RNSC_VERSION }}-${{ runner.os }}
+
+      - name: Install rnsc
+        if: steps.cache-rnsc.outputs.cache-hit != 'true'
+        run: cargo install rnsc --version ${{ env.RNSC_VERSION }} --locked
 
       - name: Set up Java (${{ matrix.jdk_distribution }} ${{ matrix.jdk }})
         uses: actions/setup-java@v4

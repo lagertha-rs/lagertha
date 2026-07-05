@@ -336,10 +336,10 @@ impl Interpreter {
                 }
                 Err(e) => {
                     let java_exception = match e {
-                        JvmError::JavaException(exception) => {
-                            vm.map_rust_error_to_java_exception(thread, exception)
+                        JvmError::JavaExceptionDescriptor(descriptor) => {
+                            vm.map_rust_error_to_java_exception(thread, descriptor)
                         }
-                        JvmError::JavaExceptionThrown(exception_ref) => Ok(exception_ref),
+                        JvmError::JavaException(exception_ref) => Ok(exception_ref),
                         // TODO: this errors are not mapped yet or happened during mapping to java exception
                         e => Err(e),
                     }?;
@@ -348,7 +348,7 @@ impl Interpreter {
                     }
                     if !Self::find_exception_handler(&method_id, java_exception, thread)? {
                         thread.stack.pop_java_frame()?;
-                        return Err(JvmError::JavaExceptionThrown(java_exception));
+                        return Err(JvmError::JavaException(java_exception));
                     }
                 }
             }

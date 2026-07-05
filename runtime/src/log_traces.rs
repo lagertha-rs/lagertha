@@ -83,7 +83,7 @@ macro_rules! error_log_method {
                     .get_method_descriptor(&method.descriptor_id())
                     .to_java_signature(method_name, class_name);
 
-                let exp_class_name = if let JvmError::JavaExceptionThrown(hr) = $exception {
+                let exp_class_name = if let JvmError::JavaException(hr) = $exception {
                     let excp_id = vm.heap_read().get_class_id(*hr).unwrap();
                     let excp_class_name = ma.get_class(&excp_id).get_name();
                     vm.interner().resolve(&excp_class_name).to_string()
