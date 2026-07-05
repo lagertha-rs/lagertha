@@ -84,7 +84,7 @@ impl Display for JvmError {
 }
 
 impl JvmError {
-    pub fn into_pretty_string(self, interner: &ThreadedRodeo) -> String {
+    pub fn into_pretty_string(self) -> String {
         match self {
             JvmError::JavaExceptionDescriptor(desc) => {
                 let mut result = desc.kind.class_name_dot();
@@ -94,7 +94,16 @@ impl JvmError {
                 }
                 result
             }
-            _ => format!("{:?}", self),
+            JvmError::Linkage(linkage_err) => {
+                let desc = linkage_err.to_exception_descriptor();
+                let mut result = desc.kind.class_name_dot();
+                if let Some(message) = desc.message {
+                    result.push_str(": ");
+                    result.push_str(&message);
+                }
+                result
+            }
+            _ => todo!(),
         }
     }
 }
@@ -219,6 +228,46 @@ impl From<CursorError> for LinkageError {
 impl From<RuntimePoolError> for LinkageError {
     fn from(value: RuntimePoolError) -> Self {
         LinkageError::RuntimeConstantPool(value)
+    }
+}
+
+impl LinkageError {
+    pub fn to_exception_descriptor(&self) -> JavaExceptionDescriptor {
+        match self {
+            LinkageError::ClassFormat(err, class_name) => {
+                let message = match err {
+                    lvm_class::ClassFormatErr::IllegalClassFlags(flags) => {
+                        format!(
+                            "Illegal class modifiers in class {}: {:#x}",
+                            class_name,
+                            flags.get_raw()
+                        )
+                    }
+                    _ => format!("{} in class {}", err, class_name),
+                };
+                JavaExceptionDescriptor::with_message(JavaExceptionKind::ClassFormatError, message)
+            }
+            LinkageError::Instruction(err) => JavaExceptionDescriptor::with_message(
+                JavaExceptionKind::ClassFormatError,
+                format!("Instruction error: {}", err),
+            ),
+            LinkageError::UnsupportedOpCode(opcode) => JavaExceptionDescriptor::with_message(
+                JavaExceptionKind::ClassFormatError,
+                format!("Unsupported opcode: {:#X}", opcode),
+            ),
+            LinkageError::RuntimeConstantPool(err) => JavaExceptionDescriptor::with_message(
+                JavaExceptionKind::ClassFormatError,
+                format!("Runtime constant pool error: {:?}", err),
+            ),
+            LinkageError::Cursor(err) => JavaExceptionDescriptor::with_message(
+                JavaExceptionKind::ClassFormatError,
+                format!("Cursor error: {}", err),
+            ),
+            other => JavaExceptionDescriptor::with_message(
+                JavaExceptionKind::ClassFormatError,
+                format!("{:?}", other),
+            ),
+        }
     }
 }
 

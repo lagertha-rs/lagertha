@@ -56,10 +56,9 @@ pub enum ClassFormatErr {
 
 impl Display for ClassFormatErr {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "java.lang.ClassFormatError: ")?;
         match self {
             ClassFormatErr::IllegalClassFlags(flags) => {
-                write!(f, "Illegal class modifiers: {:x}", flags.get_raw())
+                write!(f, "Illegal class modifiers: {:#x}", flags.get_raw())
             }
             ClassFormatErr::Cursor(err) => write!(f, "Cursor error: {}", err),
             ClassFormatErr::WrongMagic(magic) => write!(f, "Wrong magic number: {:#X}", magic),

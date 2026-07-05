@@ -84,12 +84,12 @@ impl VirtualMachine {
             MethodArea::init(&config, string_interner.clone(), debug_state.clone()).map_err(
                 |e| {
                     eprintln!("Error: Could not initialize JVM.");
-                    eprintln!("Caused by: {}", e.into_pretty_string(&string_interner));
+                    eprintln!("Caused by: {}", e.into_pretty_string());
                 },
             )?;
         let heap = Self::create_heap(string_interner.clone(), &method_area).map_err(|e| {
             eprintln!("Error: Could not initialize JVM.");
-            eprintln!("Caused by: {}", e.into_pretty_string(&string_interner));
+            eprintln!("Caused by: {}", e.into_pretty_string());
         })?;
 
         let native_registry = NativeRegistry::new(string_interner.clone());
@@ -123,12 +123,12 @@ impl VirtualMachine {
 
         let mut main_thread = vm.create_main_thread().map_err(|e| {
             eprintln!("Error: Could not initialize JVM.");
-            eprintln!("Caused by: {}", e.into_pretty_string(&string_interner));
+            eprintln!("Caused by: {}", e.into_pretty_string());
         })?;
 
         vm.initialize_main_thread(&mut main_thread).map_err(|e| {
             eprintln!("Error: Could not initialize JVM.");
-            eprintln!("Caused by: {}", e.into_pretty_string(&string_interner));
+            eprintln!("Caused by: {}", e.into_pretty_string());
         })?;
 
         // TODO: need actually refactor error struct, because this is ugly
@@ -439,11 +439,17 @@ pub fn start(config: VmConfig) -> Result<(), ()> {
         .method_area_write()
         .get_class_id_or_load(main_class_sym, main_thread.id)
         .map_err(|e| {
-            eprintln!(
-                "Error: Could not find or load main class {}",
-                vm.config.main_class.replace('/', ".")
-            );
-            eprintln!("Caused by: {}", e.into_pretty_string(&string_interner));
+            eprint!("Error: ");
+            match &e {
+                JvmError::Linkage(_) => eprintln!(
+                    "LinkageError occurred while loading main class {}",
+                    vm.string_interner
+                        .resolve(&main_class_sym)
+                        .replace('/', ".")
+                ),
+                e => todo!("Unhandled error {e}"),
+            }
+            eprintln!("{}", e.into_pretty_string());
         })?;
     let main_method_id = vm
         .method_area_read()

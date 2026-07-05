@@ -1,0 +1,19 @@
+---
+source: vm/tests/integration_test.rs
+expression: "&combined"
+---
+===== Lagertha VM =====
+----- exit: Some(1) -----
+----- STDOUT -----
+
+----- STDERR -----
+Error: LinkageError occurred while loading main class class_format.InterfaceFlagWithoutAbstractErrMain
+java.lang.ClassFormatError: Illegal class modifiers in class class_format/InterfaceFlagWithoutAbstractErrMain: 0x200
+
+===== Real JVM =====
+----- exit: Some(1) -----
+----- STDOUT -----
+
+----- STDERR -----
+Error: LinkageError occurred while loading main class class_format.InterfaceFlagWithoutAbstractErrMain
+	java.lang.ClassFormatError: Illegal class modifiers in class class_format/InterfaceFlagWithoutAbstractErrMain: 0x200
