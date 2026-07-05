@@ -1,44 +1,51 @@
 #[macro_export]
 macro_rules! build_exception {
     ($kind:ident, $fmt:literal $(, $args:expr)* $(,)?) => {
-        crate::error::JvmError::JavaException(
-            crate::error::JavaExceptionFromJvm::with_message(
+        crate::error::JvmError::JavaExceptionDescriptor(
+            crate::error::JavaExceptionDescriptor::with_message(
                 crate::error::JavaExceptionKind::$kind,
                 format!($fmt $(, $args)*),
             )
         )
     };
     ($kind:ident, $msg:expr) => {
-        crate::error::JvmError::JavaException(
-            crate::error::JavaExceptionFromJvm::with_message(
+        crate::error::JvmError::JavaExceptionDescriptor(
+            crate::error::JavaExceptionDescriptor::with_message(
                 crate::error::JavaExceptionKind::$kind,
                 $msg,
             )
         )
     };
     ($kind:ident) => {
-        crate::error::JvmError::JavaException(
-            crate::error::JavaExceptionFromJvm::new(
+        crate::error::JvmError::JavaExceptionDescriptor(
+            crate::error::JavaExceptionDescriptor::new(
                 crate::error::JavaExceptionKind::$kind,
             )
         )
     };
-    ($kind:ident, method_key: $mk:expr, class_sym: $class_sym:expr) => {
-        crate::error::JvmError::JavaException(
-            crate::error::JavaExceptionFromJvm::with_method_not_found(
+    ($kind:ident, method_key: $mk:expr, class_sym: $class_sym:expr) => {{
+        let interner = $crate::VirtualMachine::global().interner();
+        let desc_str = interner.resolve(&$mk.desc);
+        let class_name = interner.resolve(&$class_sym);
+        let method_name = interner.resolve(&$mk.name);
+        let msg = lvm_common::descriptor::MethodDescriptor::try_from(desc_str)
+            .unwrap()
+            .to_java_signature(class_name, method_name);
+        crate::error::JvmError::JavaExceptionDescriptor(
+            crate::error::JavaExceptionDescriptor::with_message(
                 crate::error::JavaExceptionKind::$kind,
-                $mk,
-                $class_sym,
+                msg,
             )
         )
-    };
+    }};
     ($kind:ident, pool_idx: $pool_idx:expr, expected: $expected:expr, actual: $actual:expr) => {
-        crate::error::JvmError::JavaException(
-            crate::error::JavaExceptionFromJvm::with_runtime_pool_incompatible_class_change(
+        crate::error::JvmError::JavaExceptionDescriptor(
+            crate::error::JavaExceptionDescriptor::with_message(
                 crate::error::JavaExceptionKind::$kind,
-                $pool_idx,
-                $expected,
-                $actual,
+                format!(
+                    "Incompatible class change at runtime constant pool index {}: expected {}, found {}",
+                    $pool_idx, $expected, $actual
+                ),
             )
         )
     };

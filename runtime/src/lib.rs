@@ -1,4 +1,4 @@
-use crate::error::{JavaExceptionFromJvm, JvmError};
+use crate::error::{JavaExceptionDescriptor, JvmError};
 use crate::heap::method_area::MethodArea;
 use crate::heap::{Heap, HeapRef};
 use crate::interpreter::Interpreter;
@@ -135,11 +135,11 @@ impl VirtualMachine {
         vm.initialize_system_class(&mut main_thread).map_err(|e| {
             // actually somewhere in java this exception is already caught at this point
             /*
-            if let JvmError::JavaException(java_ex) = e {
+            if let JvmError::JavaExceptionDescriptor(java_ex) = e {
                 let mapped = vm
                     .map_rust_error_to_java_exception(main_thread_id, java_ex)
                     .unwrap();
-                vm.unhandled_exception(main_thread_id, JvmError::JavaExceptionThrown(mapped));
+                vm.unhandled_exception(main_thread_id, JvmError::JavaException(mapped));
             } else {
                 vm.unhandled_exception(main_thread_id, e);
             }
@@ -311,7 +311,7 @@ impl VirtualMachine {
     fn map_rust_error_to_java_exception(
         &self,
         thread: &mut JavaThreadState,
-        exception: JavaExceptionFromJvm,
+        exception: JavaExceptionDescriptor,
     ) -> Result<HeapRef, JvmError> {
         let exception_ref = exception.as_reference();
         let class_id = self
@@ -337,10 +337,9 @@ impl VirtualMachine {
         };
         let instance = self.heap_write().alloc_instance(instance_size, class_id)?;
         let params = if let Some(msg) = exception.message {
-            let resolved_msg = msg.into_resolved(self.interner());
             vec![
                 Value::Ref(instance),
-                Value::Ref(self.heap_write().alloc_string(&resolved_msg)?),
+                Value::Ref(self.heap_write().alloc_string(&msg)?),
             ]
         } else {
             vec![Value::Ref(instance)]
@@ -352,7 +351,7 @@ impl VirtualMachine {
     //TODO: exception should be allocated on java heap at this point, and be a reference
     //TODO: get rid of unwrap, need to understand how to handle errors here properly
     fn unhandled_exception(&self, thread: &mut JavaThreadState, exception: JvmError) {
-        if let JvmError::JavaExceptionThrown(exception_ref) = exception {
+        if let JvmError::JavaException(exception_ref) = exception {
             let get_thread_group_method_id = self
                 .method_area_read()
                 .get_class(&self.br().get_java_lang_thread_id().unwrap())
