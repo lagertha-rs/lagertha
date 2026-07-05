@@ -1,0 +1,20 @@
+---
+source: vm/tests/integration_test.rs
+assertion_line: 194
+expression: "&combined"
+---
+===== Lagertha VM =====
+----- exit: Some(1) -----
+----- STDOUT -----
+
+----- STDERR -----
+Error: Could not find or load main class InterfaceFlagWithoutAbstractErrMain
+Caused by: Linkage(ClassFormat(IllegalClassFlags(ClassFlags(512)), "InterfaceFlagWithoutAbstractErrMain"))
+
+===== Real JVM =====
+----- exit: Some(1) -----
+----- STDOUT -----
+
+----- STDERR -----
+Error: LinkageError occurred while loading main class InterfaceFlagWithoutAbstractErrMain
+	java.lang.ClassFormatError: Illegal class modifiers in class InterfaceFlagWithoutAbstractErrMain: 0x200

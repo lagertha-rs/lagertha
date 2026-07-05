@@ -199,7 +199,7 @@ pub enum LinkageError {
     CodeAttrIsAmbiguousForNative,
     RuntimeConstantPool(RuntimePoolError),
     Cursor(CursorError),
-    ClassFile(ClassFormatErr),
+    ClassFormat(ClassFormatErr, String),
     DuplicatedClassInMethod,
     MethodClassIsNotSet,
 }
@@ -219,12 +219,6 @@ impl From<CursorError> for LinkageError {
 impl From<RuntimePoolError> for LinkageError {
     fn from(value: RuntimePoolError) -> Self {
         LinkageError::RuntimeConstantPool(value)
-    }
-}
-
-impl From<ClassFormatErr> for LinkageError {
-    fn from(value: ClassFormatErr) -> Self {
-        LinkageError::ClassFile(value)
     }
 }
 
