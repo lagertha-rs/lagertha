@@ -52,7 +52,7 @@ impl Method {
                 .attributes
                 .iter()
                 .find_map(|e| match e {
-                    MethodAttribute::Code(code) => Some(code.to_owned()),
+                    MethodAttribute::Code { code_attr, .. } => Some(code_attr.to_owned()),
                     _ => None,
                 })
                 .unwrap();
@@ -152,29 +152,29 @@ impl TryFrom<CodeAttribute> for CodeBody {
 
         for code_attr in code_attr.attributes {
             match code_attr {
-                CodeAttributeInfo::LineNumberTable(v) => {
+                CodeAttributeInfo::LineNumberTable { table, .. } => {
                     if let Some(cur) = &mut all_line_numbers {
-                        cur.extend(v);
+                        cur.extend(table);
                     } else {
-                        all_line_numbers = Some(v);
+                        all_line_numbers = Some(table);
                     }
                 }
-                CodeAttributeInfo::LocalVariableTypeTable(v) => {
+                CodeAttributeInfo::LocalVariableTypeTable { table, .. } => {
                     if let Some(cur) = &mut all_local_types {
-                        cur.extend(v);
+                        cur.extend(table);
                     } else {
-                        all_local_types = Some(v);
+                        all_local_types = Some(table);
                     }
                 }
-                CodeAttributeInfo::LocalVariableTable(v) => {
+                CodeAttributeInfo::LocalVariableTable { table, .. } => {
                     if let Some(cur) = &mut all_local_vars {
-                        cur.extend(v);
+                        cur.extend(table);
                     } else {
-                        all_local_vars = Some(v);
+                        all_local_vars = Some(table);
                     }
                     // TODO: JVMS §4.7.13: ensure no more than one entry per *local variable* across tables.
                 }
-                CodeAttributeInfo::StackMapTable(table) => stack_map_table
+                CodeAttributeInfo::StackMapTable { table, .. } => stack_map_table
                     .set(table)
                     .map_err(|_| LinkageError::DuplicatedStackMapTable)?,
                 other => unimplemented!("Unknown code attr {:?}", other),

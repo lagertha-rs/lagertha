@@ -34,7 +34,7 @@ impl ClassFile {
         }
         bytes.extend(&(self.methods.len() as u16).to_be_bytes());
         for method in &self.methods {
-            method.write_to(&mut bytes, &self.cp);
+            method.write_to(&mut bytes);
         }
         bytes.extend(&(self.attributes.len() as u16).to_be_bytes());
         if !self.attributes.is_empty() {

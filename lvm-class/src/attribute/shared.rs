@@ -11,26 +11,49 @@ use lvm_common::utils::cursor::ByteCursor;
 /// Attribute payloads that can appear at multiple locations (class, field, method, record).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SharedAttribute {
-    Synthetic,
-    Deprecated,
-    Signature(u16),
-    RuntimeVisibleAnnotations(Vec<Annotation>),
-    RuntimeInvisibleAnnotations(Vec<Annotation>),
-    RuntimeVisibleTypeAnnotations(Vec<TypeAnnotation>),
-    RuntimeInvisibleTypeAnnotations(Vec<TypeAnnotation>),
+    Synthetic {
+        attr_name_idx: u16,
+    },
+    Deprecated {
+        attr_name_idx: u16,
+    },
+    Signature {
+        attr_name_idx: u16,
+        signature_idx: u16,
+    },
+    RuntimeVisibleAnnotations {
+        attr_name_idx: u16,
+        annotations: Vec<Annotation>,
+    },
+    RuntimeInvisibleAnnotations {
+        attr_name_idx: u16,
+        annotations: Vec<Annotation>,
+    },
+    RuntimeVisibleTypeAnnotations {
+        attr_name_idx: u16,
+        annotations: Vec<TypeAnnotation>,
+    },
+    RuntimeInvisibleTypeAnnotations {
+        attr_name_idx: u16,
+        annotations: Vec<TypeAnnotation>,
+    },
 }
 
 impl<'a> SharedAttribute {
     pub(crate) fn read(
+        attr_name_idx: u16,
         attr_type: AttributeKind,
         cursor: &mut ByteCursor<'a>,
     ) -> Result<Self, ClassFormatErr> {
         match attr_type {
-            AttributeKind::Synthetic => Ok(SharedAttribute::Synthetic),
-            AttributeKind::Deprecated => Ok(SharedAttribute::Deprecated),
+            AttributeKind::Synthetic => Ok(SharedAttribute::Synthetic { attr_name_idx }),
+            AttributeKind::Deprecated => Ok(SharedAttribute::Deprecated { attr_name_idx }),
             AttributeKind::Signature => {
-                let signature_index = cursor.u16()?;
-                Ok(SharedAttribute::Signature(signature_index))
+                let signature_idx = cursor.u16()?;
+                Ok(SharedAttribute::Signature {
+                    attr_name_idx,
+                    signature_idx,
+                })
             }
             AttributeKind::RuntimeVisibleAnnotations => {
                 let num_annotations = cursor.u16()?;
@@ -38,7 +61,10 @@ impl<'a> SharedAttribute {
                 for _ in 0..num_annotations {
                     annotations.push(Annotation::read(cursor)?);
                 }
-                Ok(SharedAttribute::RuntimeVisibleAnnotations(annotations))
+                Ok(SharedAttribute::RuntimeVisibleAnnotations {
+                    attr_name_idx,
+                    annotations,
+                })
             }
             AttributeKind::RuntimeInvisibleAnnotations => {
                 let num_annotations = cursor.u16()?;
@@ -46,7 +72,10 @@ impl<'a> SharedAttribute {
                 for _ in 0..num_annotations {
                     annotations.push(Annotation::read(cursor)?);
                 }
-                Ok(SharedAttribute::RuntimeInvisibleAnnotations(annotations))
+                Ok(SharedAttribute::RuntimeInvisibleAnnotations {
+                    attr_name_idx,
+                    annotations,
+                })
             }
             AttributeKind::RuntimeInvisibleTypeAnnotations => {
                 let num_annotations = cursor.u16()?;
@@ -54,9 +83,10 @@ impl<'a> SharedAttribute {
                 for _ in 0..num_annotations {
                     annotations.push(TypeAnnotation::read(cursor)?);
                 }
-                Ok(SharedAttribute::RuntimeInvisibleTypeAnnotations(
+                Ok(SharedAttribute::RuntimeInvisibleTypeAnnotations {
+                    attr_name_idx,
                     annotations,
-                ))
+                })
             }
             AttributeKind::RuntimeVisibleTypeAnnotations => {
                 let num_annotations = cursor.u16()?;
@@ -64,7 +94,10 @@ impl<'a> SharedAttribute {
                 for _ in 0..num_annotations {
                     annotations.push(TypeAnnotation::read(cursor)?);
                 }
-                Ok(SharedAttribute::RuntimeVisibleTypeAnnotations(annotations))
+                Ok(SharedAttribute::RuntimeVisibleTypeAnnotations {
+                    attr_name_idx,
+                    annotations,
+                })
             }
             _ => Err(ClassFormatErr::AttributeIsNotShared(attr_type.to_string())),
         }

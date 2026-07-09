@@ -1,27 +1,21 @@
 use crate::attribute::method::{CodeAttribute, MethodAttribute};
-use crate::constant_pool::ConstantPool;
 
 impl MethodAttribute {
-    pub fn write_to(&self, buf: &mut Vec<u8>, cp: &ConstantPool) {
-        let name = match self {
-            MethodAttribute::Code(_) => "Code",
-            other => unimplemented!("Method attribute {:?} not implemented for writing", other),
-        };
-
-        let name_index = cp
-            .find_utf8(name)
-            .expect("attribute name not found in constant pool");
-        buf.extend_from_slice(&name_index.to_be_bytes());
-
-        // TODO: avoid having a buffer, I can know the size before without it.
-        let mut body = Vec::new();
+    pub fn write_to(&self, buf: &mut Vec<u8>) {
         match self {
-            MethodAttribute::Code(code) => code.write_to(&mut body),
-            _ => unreachable!(),
+            MethodAttribute::Code {
+                attr_name_idx,
+                code_attr,
+            } => {
+                buf.extend_from_slice(&attr_name_idx.to_be_bytes());
+                // TODO: avoid having a buffer, I can know the size before without it.
+                let mut body = Vec::new();
+                code_attr.write_to(&mut body);
+                buf.extend_from_slice(&(body.len() as u32).to_be_bytes());
+                buf.extend_from_slice(&body);
+            }
+            e => unimplemented!("{e:?} attribute writing not implemented yet"),
         }
-
-        buf.extend_from_slice(&(body.len() as u32).to_be_bytes());
-        buf.extend_from_slice(&body);
     }
 }
 

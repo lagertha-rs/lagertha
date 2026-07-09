@@ -156,9 +156,11 @@ impl InterfaceClass {
     fn prepare_cp(cp: ConstantPool, attr: &mut Vec<ClassAttribute>) -> RuntimeConstantPool {
         let methods = attr
             .iter()
-            .position(|a| matches!(a, ClassAttribute::BootstrapMethods(_)))
+            .position(|a| matches!(a, ClassAttribute::BootstrapMethods { .. }))
             .map(|pos| match attr.remove(pos) {
-                ClassAttribute::BootstrapMethods(m) => m,
+                ClassAttribute::BootstrapMethods {
+                    bootstrap_methods, ..
+                } => bootstrap_methods,
                 _ => unreachable!(),
             })
             .unwrap_or_default();
