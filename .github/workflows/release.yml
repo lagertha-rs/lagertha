@@ -32,6 +32,17 @@ jobs:
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
 
+      - name: Cache rnsc
+        id: cache-rnsc
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/rnsc
+          key: rnsc-0.2.1-${{ runner.os }}
+
+      - name: Install rnsc
+        if: steps.cache-rnsc.outputs.cache-hit != 'true'
+        run: cargo install rnsc --version 0.2.1 --locked
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
