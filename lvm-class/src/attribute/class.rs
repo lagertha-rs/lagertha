@@ -91,6 +91,26 @@ impl InnerClassEntry {
     }
 }
 
+impl ClassAttribute {
+    pub fn kind(&self) -> AttributeKind {
+        match self {
+            Self::Shared(attr) => attr.kind(),
+            Self::SourceFile { .. } => AttributeKind::SourceFile,
+            Self::InnerClasses { .. } => AttributeKind::InnerClasses,
+            Self::EnclosingMethod { .. } => AttributeKind::EnclosingMethod,
+            Self::SourceDebugExtension { .. } => AttributeKind::SourceDebugExtension,
+            Self::BootstrapMethods { .. } => AttributeKind::BootstrapMethods,
+            Self::Module { .. } => AttributeKind::Module,
+            Self::ModulePackages { .. } => AttributeKind::ModulePackages,
+            Self::ModuleMainClass { .. } => AttributeKind::ModuleMainClass,
+            Self::NestHost { .. } => AttributeKind::NestHost,
+            Self::NestMembers { .. } => AttributeKind::NestMembers,
+            Self::Record { .. } => AttributeKind::Record,
+            Self::PermittedSubclasses { .. } => AttributeKind::PermittedSubclasses,
+        }
+    }
+}
+
 impl<'a> ClassAttribute {
     pub(crate) fn read(
         pool: &ConstantPool,

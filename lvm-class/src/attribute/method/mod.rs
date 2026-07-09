@@ -79,6 +79,24 @@ impl MethodParameterEntry {
     }
 }
 
+impl MethodAttribute {
+    pub fn kind(&self) -> AttributeKind {
+        match self {
+            Self::Shared(attr) => attr.kind(),
+            Self::Code { .. } => AttributeKind::Code,
+            Self::Exceptions { .. } => AttributeKind::Exceptions,
+            Self::RuntimeVisibleParameterAnnotations { .. } => {
+                AttributeKind::RuntimeVisibleParameterAnnotations
+            }
+            Self::RuntimeInvisibleParameterAnnotations { .. } => {
+                AttributeKind::RuntimeInvisibleParameterAnnotations
+            }
+            Self::AnnotationsDefault { .. } => AttributeKind::AnnotationDefault,
+            Self::MethodParameters { .. } => AttributeKind::MethodParameters,
+        }
+    }
+}
+
 impl<'a> MethodAttribute {
     pub(crate) fn read(
         pool: &ConstantPool,

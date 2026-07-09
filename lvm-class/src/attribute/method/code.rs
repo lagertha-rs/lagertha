@@ -189,6 +189,23 @@ impl<'a> VerificationTypeInfo {
     }
 }
 
+impl CodeAttributeInfo {
+    pub fn kind(&self) -> AttributeKind {
+        match self {
+            Self::LineNumberTable { .. } => AttributeKind::LineNumberTable,
+            Self::LocalVariableTable { .. } => AttributeKind::LocalVariableTable,
+            Self::StackMapTable { .. } => AttributeKind::StackMapTable,
+            Self::LocalVariableTypeTable { .. } => AttributeKind::LocalVariableTypeTable,
+            Self::RuntimeVisibleTypeAnnotations { .. } => {
+                AttributeKind::RuntimeVisibleTypeAnnotations
+            }
+            Self::RuntimeInvisibleTypeAnnotations { .. } => {
+                AttributeKind::RuntimeInvisibleTypeAnnotations
+            }
+        }
+    }
+}
+
 impl<'a> CodeAttributeInfo {
     pub(crate) fn read(
         pool: &ConstantPool,
