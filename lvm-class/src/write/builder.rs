@@ -1,3 +1,4 @@
+use crate::attribute::AttributeKind;
 use crate::constant_pool::{ConstantEntry, ConstantPool, NameAndType, Reference};
 use std::collections::HashMap;
 
@@ -14,6 +15,8 @@ pub struct ConstantPoolBuilder {
     nat_map: HashMap<(u16, u16), u16>,
     methodref_map: HashMap<(u16, u16), u16>,
     fieldref_map: HashMap<(u16, u16), u16>,
+
+    attribute_map: HashMap<AttributeKind, u16>,
 }
 
 impl ConstantPoolBuilder {
@@ -27,6 +30,7 @@ impl ConstantPoolBuilder {
             nat_map: HashMap::new(),
             methodref_map: HashMap::new(),
             fieldref_map: HashMap::new(),
+            attribute_map: HashMap::new(),
         }
     }
 
@@ -57,6 +61,16 @@ impl ConstantPoolBuilder {
             "bug in cp builder"
         );
         self.entries[idx as usize] = entry;
+    }
+
+    pub fn add_attribute_utf8(&mut self, attribute_kind: AttributeKind) -> u16 {
+        if let Some(&idx) = self.attribute_map.get(&attribute_kind) {
+            return idx;
+        }
+        let name = attribute_kind.as_str();
+        let idx = self.add_utf8(name);
+        self.attribute_map.insert(attribute_kind, idx);
+        idx
     }
 
     pub fn add_utf8(&mut self, s: &str) -> u16 {
