@@ -39,6 +39,24 @@ pub enum SharedAttribute {
     },
 }
 
+impl SharedAttribute {
+    pub fn kind(&self) -> AttributeKind {
+        match self {
+            Self::Synthetic { .. } => AttributeKind::Synthetic,
+            Self::Deprecated { .. } => AttributeKind::Deprecated,
+            Self::Signature { .. } => AttributeKind::Signature,
+            Self::RuntimeVisibleAnnotations { .. } => AttributeKind::RuntimeVisibleAnnotations,
+            Self::RuntimeInvisibleAnnotations { .. } => AttributeKind::RuntimeInvisibleAnnotations,
+            Self::RuntimeVisibleTypeAnnotations { .. } => {
+                AttributeKind::RuntimeVisibleTypeAnnotations
+            }
+            Self::RuntimeInvisibleTypeAnnotations { .. } => {
+                AttributeKind::RuntimeInvisibleTypeAnnotations
+            }
+        }
+    }
+}
+
 impl<'a> SharedAttribute {
     pub(crate) fn read(
         attr_name_idx: u16,

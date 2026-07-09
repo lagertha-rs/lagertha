@@ -9,6 +9,15 @@ pub enum FieldAttribute {
     ConstantValue { attr_name_idx: u16, value_idx: u16 },
 }
 
+impl FieldAttribute {
+    pub fn kind(&self) -> AttributeKind {
+        match self {
+            Self::Shared(attr) => attr.kind(),
+            Self::ConstantValue { .. } => AttributeKind::ConstantValue,
+        }
+    }
+}
+
 impl<'a> FieldAttribute {
     pub(crate) fn read(
         pool: &ConstantPool,
