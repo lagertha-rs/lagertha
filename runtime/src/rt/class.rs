@@ -48,8 +48,8 @@ impl InstanceClass {
         //TODO: clean up
         let mut source_file = None;
         for attr in &attributes {
-            if let ClassAttribute::SourceFile(sourcefile_index) = attr {
-                source_file = Some(cp.get_utf8_sym(sourcefile_index, method_area.interner())?);
+            if let ClassAttribute::SourceFile { sourcefile_idx, .. } = attr {
+                source_file = Some(cp.get_utf8_sym(sourcefile_idx, method_area.interner())?);
                 break;
             }
         }
@@ -323,9 +323,11 @@ impl InstanceClass {
     fn prepare_cp(cp: ConstantPool, attr: &mut Vec<ClassAttribute>) -> RuntimeConstantPool {
         let methods = attr
             .iter()
-            .position(|a| matches!(a, ClassAttribute::BootstrapMethods(_)))
+            .position(|a| matches!(a, ClassAttribute::BootstrapMethods { .. }))
             .map(|pos| match attr.remove(pos) {
-                ClassAttribute::BootstrapMethods(m) => m,
+                ClassAttribute::BootstrapMethods {
+                    bootstrap_methods, ..
+                } => bootstrap_methods,
                 _ => unreachable!(),
             })
             .unwrap_or_default();

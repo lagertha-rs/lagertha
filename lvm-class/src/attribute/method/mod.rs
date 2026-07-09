@@ -45,12 +45,29 @@ pub struct ParameterAnnotations {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MethodAttribute {
     Shared(SharedAttribute),
-    Code(CodeAttribute),
-    Exceptions(Vec<u16>),
-    RuntimeVisibleParameterAnnotations(Vec<ParameterAnnotations>),
-    RuntimeInvisibleParameterAnnotations(Vec<ParameterAnnotations>),
-    AnnotationsDefault,
-    MethodParameters(Vec<MethodParameterEntry>),
+    Code {
+        attr_name_idx: u16,
+        code_attr: CodeAttribute,
+    },
+    Exceptions {
+        attr_name_idx: u16,
+        exception_idx_table: Vec<u16>,
+    },
+    RuntimeVisibleParameterAnnotations {
+        attr_name_idx: u16,
+        annotations: Vec<ParameterAnnotations>,
+    },
+    RuntimeInvisibleParameterAnnotations {
+        attr_name_idx: u16,
+        annotations: Vec<ParameterAnnotations>,
+    },
+    AnnotationsDefault {
+        attr_name_idx: u16,
+    },
+    MethodParameters {
+        attr_name_idx: u16,
+        params: Vec<MethodParameterEntry>,
+    },
 }
 
 impl MethodParameterEntry {
@@ -67,35 +84,45 @@ impl<'a> MethodAttribute {
         pool: &ConstantPool,
         cursor: &mut ByteCursor<'a>,
     ) -> Result<Self, ClassFormatErr> {
-        let attribute_name_index = cursor.u16()?;
+        let attr_name_idx = cursor.u16()?;
         let _attribute_length = cursor.u32()? as usize;
 
-        let attribute_kind = AttributeKind::try_from(pool.get_utf8(&attribute_name_index)?)?;
+        let attribute_kind = AttributeKind::try_from(pool.get_utf8(&attr_name_idx)?)?;
         match attribute_kind {
-            AttributeKind::Code => Ok(MethodAttribute::Code(CodeAttribute::read(pool, cursor)?)),
+            AttributeKind::Code => Ok(MethodAttribute::Code {
+                attr_name_idx,
+                code_attr: CodeAttribute::read(pool, cursor)?,
+            }),
             AttributeKind::RuntimeVisibleAnnotations
             | AttributeKind::Synthetic
             | AttributeKind::Deprecated
             | AttributeKind::RuntimeInvisibleAnnotations
             | AttributeKind::Signature => Ok(MethodAttribute::Shared(SharedAttribute::read(
+                attr_name_idx,
                 attribute_kind,
                 cursor,
             )?)),
             AttributeKind::MethodParameters => {
                 let parameters_count = cursor.u8()? as usize;
-                let mut parameters = Vec::with_capacity(parameters_count);
+                let mut params = Vec::with_capacity(parameters_count);
                 for _ in 0..parameters_count {
-                    parameters.push(MethodParameterEntry::new(cursor.u16()?, cursor.u16()?));
+                    params.push(MethodParameterEntry::new(cursor.u16()?, cursor.u16()?));
                 }
-                Ok(MethodAttribute::MethodParameters(parameters))
+                Ok(MethodAttribute::MethodParameters {
+                    attr_name_idx,
+                    params,
+                })
             }
             AttributeKind::Exceptions => {
                 let number_of_exceptions = cursor.u16()?;
-                let mut exception_index_table = Vec::with_capacity(number_of_exceptions as usize);
+                let mut exception_idx_table = Vec::with_capacity(number_of_exceptions as usize);
                 for _ in 0..number_of_exceptions {
-                    exception_index_table.push(cursor.u16()?);
+                    exception_idx_table.push(cursor.u16()?);
                 }
-                Ok(MethodAttribute::Exceptions(exception_index_table))
+                Ok(MethodAttribute::Exceptions {
+                    attr_name_idx,
+                    exception_idx_table,
+                })
             }
             AttributeKind::RuntimeVisibleParameterAnnotations => {
                 let number_of_parameters = cursor.u8()?;
@@ -108,9 +135,10 @@ impl<'a> MethodAttribute {
                     }
                     parameter_annotations.push(ParameterAnnotations { annotations });
                 }
-                Ok(MethodAttribute::RuntimeVisibleParameterAnnotations(
-                    parameter_annotations,
-                ))
+                Ok(MethodAttribute::RuntimeVisibleParameterAnnotations {
+                    attr_name_idx,
+                    annotations: parameter_annotations,
+                })
             }
             AttributeKind::RuntimeInvisibleParameterAnnotations => {
                 let number_of_parameters = cursor.u8()?;
@@ -123,9 +151,10 @@ impl<'a> MethodAttribute {
                     }
                     parameter_annotations.push(ParameterAnnotations { annotations });
                 }
-                Ok(MethodAttribute::RuntimeInvisibleParameterAnnotations(
-                    parameter_annotations,
-                ))
+                Ok(MethodAttribute::RuntimeInvisibleParameterAnnotations {
+                    attr_name_idx,
+                    annotations: parameter_annotations,
+                })
             }
             other => unimplemented!("Method attribute {:?} not implemented", other),
         }

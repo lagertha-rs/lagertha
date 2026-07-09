@@ -7,12 +7,28 @@ use num_enum::TryFromPrimitive;
 /// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7.3
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CodeAttributeInfo {
-    LineNumberTable(Vec<LineNumberEntry>),
-    LocalVariableTable(Vec<LocalVariableEntry>),
-    StackMapTable(Vec<StackMapFrame>),
-    LocalVariableTypeTable(Vec<LocalVariableTypeEntry>),
-    RuntimeVisibleTypeAnnotations,
-    RuntimeInvisibleTypeAnnotations,
+    LineNumberTable {
+        attr_name_idx: u16,
+        table: Vec<LineNumberEntry>,
+    },
+    LocalVariableTable {
+        attr_name_idx: u16,
+        table: Vec<LocalVariableEntry>,
+    },
+    StackMapTable {
+        attr_name_idx: u16,
+        table: Vec<StackMapFrame>,
+    },
+    LocalVariableTypeTable {
+        attr_name_idx: u16,
+        table: Vec<LocalVariableTypeEntry>,
+    },
+    RuntimeVisibleTypeAnnotations {
+        attr_name_idx: u16,
+    },
+    RuntimeInvisibleTypeAnnotations {
+        attr_name_idx: u16,
+    },
 }
 
 /// https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.7.12
@@ -178,10 +194,10 @@ impl<'a> CodeAttributeInfo {
         pool: &ConstantPool,
         cursor: &mut ByteCursor<'a>,
     ) -> Result<Self, ClassFormatErr> {
-        let attribute_name_index = cursor.u16()?;
+        let attr_name_idx = cursor.u16()?;
         let _attribute_length = cursor.u32()? as usize;
 
-        let attribute_kind = AttributeKind::try_from(pool.get_utf8(&attribute_name_index)?)?;
+        let attribute_kind = AttributeKind::try_from(pool.get_utf8(&attr_name_idx)?)?;
         match attribute_kind {
             AttributeKind::LineNumberTable => {
                 let line_number_table_length = cursor.u16()? as usize;
@@ -192,7 +208,10 @@ impl<'a> CodeAttributeInfo {
                         line_number: cursor.u16()?,
                     });
                 }
-                Ok(CodeAttributeInfo::LineNumberTable(line_number_table))
+                Ok(CodeAttributeInfo::LineNumberTable {
+                    attr_name_idx,
+                    table: line_number_table,
+                })
             }
             AttributeKind::LocalVariableTable => {
                 let local_variable_table_length = cursor.u16()?;
@@ -207,7 +226,10 @@ impl<'a> CodeAttributeInfo {
                         index: cursor.u16()?,
                     });
                 }
-                Ok(CodeAttributeInfo::LocalVariableTable(local_variable_table))
+                Ok(CodeAttributeInfo::LocalVariableTable {
+                    attr_name_idx,
+                    table: local_variable_table,
+                })
             }
             AttributeKind::LocalVariableTypeTable => {
                 let local_variable_table_type_length = cursor.u16()?;
@@ -222,9 +244,10 @@ impl<'a> CodeAttributeInfo {
                         index: cursor.u16()?,
                     });
                 }
-                Ok(CodeAttributeInfo::LocalVariableTypeTable(
-                    local_variable_type_table,
-                ))
+                Ok(CodeAttributeInfo::LocalVariableTypeTable {
+                    attr_name_idx,
+                    table: local_variable_type_table,
+                })
             }
             AttributeKind::StackMapTable => {
                 let frames_count = cursor.u16()?;
@@ -232,7 +255,10 @@ impl<'a> CodeAttributeInfo {
                 for _ in 0..frames_count {
                     frames.push(StackMapFrame::read(cursor)?)
                 }
-                Ok(CodeAttributeInfo::StackMapTable(frames))
+                Ok(CodeAttributeInfo::StackMapTable {
+                    attr_name_idx,
+                    table: frames,
+                })
             }
             other => unimplemented!("{other:?}"),
         }
