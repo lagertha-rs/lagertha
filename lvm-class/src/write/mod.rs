@@ -37,8 +37,8 @@ impl ClassFile {
             method.write_to(&mut bytes);
         }
         bytes.extend(&(self.attributes.len() as u16).to_be_bytes());
-        if !self.attributes.is_empty() {
-            todo!("assembling class attributes is not implemented yet");
+        for attr in &self.attributes {
+            attr.write_to(&mut bytes);
         }
         bytes
     }
