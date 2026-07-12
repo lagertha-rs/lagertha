@@ -19,5 +19,5 @@ tracing = { version = "0.1", features = [
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 tracing-log = "0.2"
 hotpath = "0.8.0"
-lvm-common = { version = "0.4.3", path = "lvm-common" }
-lvm-class = { version = "0.4.3", path = "lvm-class" }
+lvm-common = { version = "0.5.0", path = "lvm-common" }
+lvm-class = { version = "0.5.0", path = "lvm-class" }
