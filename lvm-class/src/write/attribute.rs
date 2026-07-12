@@ -1,4 +1,58 @@
+use crate::ClassAttribute;
 use crate::attribute::method::{CodeAttribute, MethodAttribute};
+
+impl ClassAttribute {
+    pub fn write_to(&self, buf: &mut Vec<u8>) {
+        match self {
+            ClassAttribute::InnerClasses {
+                attr_name_idx,
+                classes,
+            } => {
+                buf.extend_from_slice(&attr_name_idx.to_be_bytes());
+                // attribute_length: 2 (number_of_classes) + 8 * classes.len()
+                let attr_len = 2 + (classes.len() * 8);
+                buf.extend_from_slice(&(attr_len as u32).to_be_bytes());
+                buf.extend_from_slice(&(classes.len() as u16).to_be_bytes());
+                for entry in classes {
+                    buf.extend_from_slice(&entry.inner_class_info_index.to_be_bytes());
+                    buf.extend_from_slice(&entry.outer_class_info_index.to_be_bytes());
+                    buf.extend_from_slice(&entry.inner_name_index.to_be_bytes());
+                    buf.extend_from_slice(&entry.inner_class_access_flags.to_be_bytes());
+                }
+            }
+            ClassAttribute::SourceFile {
+                attr_name_idx,
+                sourcefile_idx,
+            } => {
+                buf.extend_from_slice(&attr_name_idx.to_be_bytes());
+                buf.extend_from_slice(&2u32.to_be_bytes()); // attribute_length
+                buf.extend_from_slice(&sourcefile_idx.to_be_bytes());
+            }
+            ClassAttribute::NestMembers {
+                attr_name_idx,
+                classes,
+            } => {
+                buf.extend_from_slice(&attr_name_idx.to_be_bytes());
+                // attribute_length: 2 (number_of_classes) + 2 * classes.len()
+                let attr_len = 2 + (classes.len() * 2);
+                buf.extend_from_slice(&(attr_len as u32).to_be_bytes());
+                buf.extend_from_slice(&(classes.len() as u16).to_be_bytes());
+                for class_idx in classes {
+                    buf.extend_from_slice(&(*class_idx).to_be_bytes());
+                }
+            }
+            ClassAttribute::NestHost {
+                attr_name_idx,
+                host_class_idx,
+            } => {
+                buf.extend_from_slice(&attr_name_idx.to_be_bytes());
+                buf.extend_from_slice(&2u32.to_be_bytes()); // attribute_length
+                buf.extend_from_slice(&host_class_idx.to_be_bytes());
+            }
+            _ => unimplemented!("{:?} attribute writing not implemented yet", self.kind()),
+        }
+    }
+}
 
 impl MethodAttribute {
     pub fn write_to(&self, buf: &mut Vec<u8>) {
