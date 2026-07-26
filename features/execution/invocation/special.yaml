@@ -1,0 +1,8 @@
+name: Special method invocation
+description: Invokes a selected superclass implementation without virtual dispatch.
+status: implemented
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.invokespecial"
+
+criteria:
+  - Invokes a superclass method selected by a super call.
+  - Bypasses an overriding method on the current receiver class.

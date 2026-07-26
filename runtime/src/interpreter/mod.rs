@@ -151,6 +151,7 @@ impl Interpreter {
             Instruction::F2i => handle_f2i(thread)?,
             Instruction::F2d => handle_f2d(thread)?,
             Instruction::Ineg => handle_ineg(thread)?,
+            Instruction::Lneg => handle_lneg(thread)?,
             Instruction::I2s => handle_i2s(thread)?,
             Instruction::I2c => handle_i2c(thread)?,
             Instruction::I2l => handle_i2l(thread)?,

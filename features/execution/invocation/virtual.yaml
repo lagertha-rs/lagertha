@@ -1,0 +1,9 @@
+name: Virtual method invocation
+description: Selects and invokes instance methods through class hierarchies.
+status: implemented
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.invokevirtual"
+
+criteria:
+  - Selects an override from the runtime receiver class.
+  - Invokes concrete implementations of abstract superclass methods.
+  - Invokes inherited concrete methods.

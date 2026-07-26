@@ -1,0 +1,8 @@
+name: Long conversions
+description: Converts between integer and long computational values.
+status: implemented
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.11.5"
+
+criteria:
+  - Widens signed integer values to long without loss.
+  - Narrows long values to the low 32 integer bits.

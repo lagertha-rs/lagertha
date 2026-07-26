@@ -1,0 +1,10 @@
+name: Long arithmetic
+description: Executes long arithmetic with JVM-defined overflow and division semantics.
+status: implemented
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.11.3"
+
+criteria:
+  - Wraps addition, subtraction, multiplication, and negation on overflow.
+  - Implements signed division and remainder, including the minimum-value edge case.
+  - Throws ArithmeticException when a long divisor is zero.
+  - Implements compound arithmetic assignments and increment and decrement expressions.

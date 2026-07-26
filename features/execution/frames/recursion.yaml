@@ -1,0 +1,9 @@
+name: Recursive frames
+description: Creates isolated frames for recursive method invocation.
+status: implemented
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.6"
+
+criteria:
+  - Creates a fresh parameter local for each recursive invocation.
+  - Preserves pending return values across branching recursive calls.
+  - Returns composed results through nested frames.

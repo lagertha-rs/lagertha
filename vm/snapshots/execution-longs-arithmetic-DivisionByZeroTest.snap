@@ -1,0 +1,19 @@
+---
+source: vm/tests/integration_test.rs
+expression: combined
+---
+===== Lagertha VM =====
+----- exit: Some(1) -----
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.ArithmeticException: / by zero
+	at execution.longs.arithmetic.DivisionByZeroTest.main(DivisionByZeroTest.java:11)
+
+===== Real JVM =====
+----- exit: Some(1) -----
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.ArithmeticException: / by zero
+	at execution.longs.arithmetic.DivisionByZeroTest.main(DivisionByZeroTest.java:11)
