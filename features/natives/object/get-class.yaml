@@ -1,0 +1,15 @@
+name: Object runtime class
+description: Returns the canonical Class mirror representing an object's runtime class.
+status: partial
+spec: "https://docs.oracle.com/javase/specs/jls/se25/html/jls-4.html#jls-4.3.2"
+
+criteria:
+  - Returns the runtime implementation mirror independently of the reference's static class or interface type.
+  - Returns an array-class mirror when the receiver is an array.
+  - Reuses one Class object across getClass calls, distinct instances, and class literals.
+  - Distinguishes an implementation-class mirror from mirrors for its implemented interfaces.
+
+limitations:
+  - Primitive and multidimensional arrays produce incorrect mirrors because array descriptors are always reconstructed as one-dimensional reference arrays.
+  - Reference-array object headers commonly store component-class identity, so passing behavior depends on descriptor reconstruction.
+  - Runtime class identity does not include the defining class loader for same-named types.
