@@ -1,0 +1,10 @@
+name: Array default values
+description: Initializes newly allocated array components with JVM default values.
+status: implemented
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.11.5"
+
+criteria:
+  - Initializes boolean components to false and numeric components to zero.
+  - Initializes reference components to null.
+  - Initializes each newly allocated nested row independently.
+  - Leaves unallocated nested rows null.

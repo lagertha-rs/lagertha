@@ -1,0 +1,9 @@
+name: Array allocation exceptions
+description: Rejects negative one-dimensional primitive and reference array lengths.
+status: implemented
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.11.5"
+
+criteria:
+  - Throws NegativeArraySizeException for a negative primitive array length.
+  - Throws NegativeArraySizeException for a negative reference array length.
+  - Performs no array allocation when the requested length is negative.

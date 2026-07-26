@@ -1,0 +1,11 @@
+name: Array access exceptions
+description: Rejects null array references and indices outside array bounds.
+status: implemented
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.11.5"
+
+criteria:
+  - Throws ArrayIndexOutOfBoundsException for negative and length-equal load indices.
+  - Throws ArrayIndexOutOfBoundsException for negative and length-equal store indices.
+  - Throws NullPointerException for loads and stores through null array references.
+  - Throws NullPointerException for access through a null nested row.
+  - Leaves valid components unchanged after a failed store.

@@ -1,0 +1,10 @@
+name: Primitive array elements
+description: Allocates primitive arrays and loads and stores their component values.
+status: implemented
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.11.5"
+
+criteria:
+  - Allocates arrays for every primitive component type.
+  - Loads and stores boolean, byte, char, short, int, long, float, and double components.
+  - Preserves signed byte and short values and unsigned char values.
+  - Normalizes boolean array values to true or false.
