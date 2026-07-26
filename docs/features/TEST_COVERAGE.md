@@ -8,10 +8,10 @@ Coverage means passing integration snapshot evidence for a feature; it does not 
 
 | Metric | Count |
 |---|---:|
-| Features | 26 |
-| Snapshot tests | 40 |
-| Success tests | 35 |
-| Error tests | 5 |
+| Features | 30 |
+| Snapshot tests | 45 |
+| Success tests | 39 |
+| Error tests | 6 |
 
 ## Feature Coverage
 
@@ -23,6 +23,24 @@ Snapshot tests: 1
 | Category | Test | Description |
 |---|---|---|
 | Error | [`InterfaceFlagWithoutAbstractTest.rns`](../../vm/tests/testdata/rns/class_format/InterfaceFlagWithoutAbstractTest.rns) | Rejects an interface missing ACC_ABSTRACT. |
+
+### `class-loading.initialization`
+
+Implementation: **Partial**  
+Snapshot tests: 1
+
+| Category | Test | Description |
+|---|---|---|
+| Success | [`ClassInitializationTest.java`](../../vm/tests/testdata/class_loading/initialization/ClassInitializationTest.java) | Verifies active initialization triggers, superclass and textual order, interfaces, and one-time execution. |
+
+### `class-loading.preparation`
+
+Implementation: **Implemented**  
+Snapshot tests: 1
+
+| Category | Test | Description |
+|---|---|---|
+| Success | [`StaticFieldPreparationTest.java`](../../vm/tests/testdata/class_loading/preparation/StaticFieldPreparationTest.java) | Verifies class and interface static fields expose prepared defaults before explicit initializers. |
 
 ### `execution.arrays.access-exceptions`
 
@@ -110,11 +128,12 @@ Snapshot tests: 1
 ### `execution.fields.access`
 
 Implementation: **Implemented**  
-Snapshot tests: 1
+Snapshot tests: 2
 
 | Category | Test | Description |
 |---|---|---|
-| Success | [`FieldAccessTest.java`](../../vm/tests/testdata/execution/objects/fields/FieldAccessTest.java) | Verifies instance, static, initialized, default, and inherited field access. |
+| Success | [`FieldAccessTest.java`](../../vm/tests/testdata/execution/objects/fields/FieldAccessTest.java) | Verifies primitive and reference fields, receiver storage, shared statics, inheritance, hiding, and null writes. |
+| Error | [`NullFieldAccessTest.java`](../../vm/tests/testdata/execution/objects/fields/NullFieldAccessTest.java) | Verifies an instance field read through a null receiver throws NullPointerException. |
 
 ### `execution.frames.local-variables`
 
@@ -263,6 +282,24 @@ Snapshot tests: 1
 |---|---|---|
 | Success | [`LongConversionTest.java`](../../vm/tests/testdata/execution/long/conversions/LongConversionTest.java) | Verifies widening integers to long and narrowing long values to integers. |
 
+### `execution.objects.instance-default-values`
+
+Implementation: **Implemented**  
+Snapshot tests: 1
+
+| Category | Test | Description |
+|---|---|---|
+| Success | [`InstanceFieldDefaultValueTest.java`](../../vm/tests/testdata/execution/objects/fields/InstanceFieldDefaultValueTest.java) | Verifies primitive, reference, inherited, and per-object instance field defaults. |
+
+### `execution.references.casting`
+
+Implementation: **Partial**  
+Snapshot tests: 1
+
+| Category | Test | Description |
+|---|---|---|
+| Success | [`NullCastTest.java`](../../vm/tests/testdata/execution/references/casting/NullCastTest.java) | Verifies checkcast accepts null for class, interface, and array targets. |
+
 ## Features Without Integration Tests
 
 None.
@@ -273,5 +310,6 @@ None.
 
 ## Partial Features With Regression Tests
 
-None.
+- `class-loading.initialization`
+- `execution.references.casting`
 

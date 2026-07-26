@@ -8,8 +8,8 @@ Feature status describes declared JVM behavior. Test counts mean passing integra
 
 | Status | Features |
 |---|---:|
-| Implemented | 26 |
-| Partial | 0 |
+| Implemented | 28 |
+| Partial | 2 |
 | Missing | 0 |
 | Blocked | 0 |
 | Deferred | 0 |
@@ -21,6 +21,13 @@ Feature status describes declared JVM behavior. Test counts mean passing integra
 | Feature | Status | Tests | Description |
 |---|---|---:|---|
 | `class-format.interface-flags` | Implemented | 1 | Validates access flag combinations for interface class files. |
+
+### class-loading
+
+| Feature | Status | Tests | Description |
+|---|---|---:|---|
+| `class-loading.initialization` | Partial | 1 | Executes class and interface initialization methods after preparation. |
+| `class-loading.preparation` | Implemented | 1 | Creates static field storage and assigns JVM default values before initialization. |
 
 ### execution
 
@@ -35,7 +42,7 @@ Feature status describes declared JVM behavior. Test counts mean passing integra
 | `execution.arrays.reference-elements` | Implemented | 1 | Allocates reference arrays and loads and stores compatible references. |
 | `execution.control-flow.conditional-branches` | Implemented | 2 | Executes value-dependent conditional control flow. |
 | `execution.control-flow.unconditional-branches` | Implemented | 1 | Executes forward and backward unconditional control transfers. |
-| `execution.fields.access` | Implemented | 1 | Resolves and accesses instance and static fields. |
+| `execution.fields.access` | Implemented | 2 | Resolves and accesses instance and static fields. |
 | `execution.frames.local-variables` | Implemented | 1 | Stores and loads JVM computational values in local variable slots. |
 | `execution.frames.method-arguments` | Implemented | 2 | Transfers receiver and argument values into callee local variable slots. |
 | `execution.frames.recursion` | Implemented | 1 | Creates isolated frames for recursive method invocation. |
@@ -51,6 +58,8 @@ Feature status describes declared JVM behavior. Test counts mean passing integra
 | `execution.long.bitwise` | Implemented | 2 | Executes long shifts and bitwise operations with JVM-defined semantics. |
 | `execution.long.comparisons` | Implemented | 1 | Evaluates signed long comparison expressions. |
 | `execution.long.conversions` | Implemented | 1 | Converts between integer and long computational values. |
+| `execution.objects.instance-default-values` | Implemented | 1 | Initializes fields in newly allocated objects with JVM default values. |
+| `execution.references.casting` | Partial | 1 | Checks whether a reference can be cast to a target reference type. |
 
 ## Feature Details
 
@@ -66,6 +75,45 @@ Snapshot tests: 1
 
 - Requires ACC_ABSTRACT when ACC_INTERFACE is set.
 - Rejects ACC_FINAL, ACC_SUPER, ACC_ENUM, and ACC_MODULE on interfaces.
+
+### `class-loading.initialization`
+
+Executes class and interface initialization methods after preparation.
+
+Status: **Partial**  
+Specification: <https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-5.html#jvms-5.5>  
+Snapshot tests: 1
+
+#### Criteria
+
+- Triggers initialization on active static field access and object creation.
+- Initializes superclasses before subclasses.
+- Executes initialization expressions and blocks in class-file order exactly once.
+- Initializes an interface when its non-constant static field is actively used.
+- Initializes required superinterfaces that declare default methods in specification order.
+- Coordinates concurrent initialization and records initialization failures.
+
+#### Limitations
+
+- Superinterface selection and ordering do not yet implement the default-method rules.
+- Concurrent initialization does not track the initializing thread or wait for completion.
+- Failed initialization does not mark the class erroneous or produce the required later errors.
+- ConstantValue field attributes are not applied during initialization.
+
+### `class-loading.preparation`
+
+Creates static field storage and assigns JVM default values before initialization.
+
+Status: **Implemented**  
+Specification: <https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-5.html#jvms-5.4.2>  
+Snapshot tests: 1
+
+#### Criteria
+
+- Creates static storage for classes and interfaces.
+- Assigns false and numeric zero to primitive static fields before explicit initializers run.
+- Assigns null to reference static fields before explicit initializers run.
+- Makes prepared values observable to earlier expressions in the initialization method.
 
 ### `execution.arrays.access-exceptions`
 
@@ -207,14 +255,15 @@ Resolves and accesses instance and static fields.
 
 Status: **Implemented**  
 Specification: <https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-5.html#jvms-5.4.3.2>  
-Snapshot tests: 1
+Snapshot tests: 2
 
 #### Criteria
 
-- Reads and writes instance fields.
-- Reads default and initialized instance field values.
-- Reads and writes static fields.
-- Resolves inherited fields through a subclass instance.
+- Reads and writes primitive and reference instance fields.
+- Reads and writes primitive and reference static fields.
+- Keeps instance storage independent and static storage shared across objects.
+- Resolves inherited fields and keeps hidden same-name fields distinct by declaring class.
+- Throws NullPointerException for instance field reads and writes through a null receiver.
 
 ### `execution.frames.local-variables`
 
@@ -425,4 +474,37 @@ Snapshot tests: 1
 
 - Widens signed integer values to long without loss.
 - Narrows long values to the low 32 integer bits.
+
+### `execution.objects.instance-default-values`
+
+Initializes fields in newly allocated objects with JVM default values.
+
+Status: **Implemented**  
+Specification: <https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.new>  
+Snapshot tests: 1
+
+#### Criteria
+
+- Initializes boolean fields to false and numeric primitive fields to zero.
+- Initializes reference fields to null.
+- Initializes inherited fields in newly allocated subclass instances.
+- Gives each object independent default-initialized field storage.
+
+### `execution.references.casting`
+
+Checks whether a reference can be cast to a target reference type.
+
+Status: **Partial**  
+Specification: <https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.checkcast>  
+Snapshot tests: 1
+
+#### Criteria
+
+- Accepts null for class, interface, and array target types.
+- Accepts references assignment-compatible with the target type.
+- Throws ClassCastException for incompatible non-null references.
+
+#### Limitations
+
+- Current non-null casts are accepted without assignment-compatibility checks.
 

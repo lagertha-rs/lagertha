@@ -1,0 +1,12 @@
+name: Reference casting
+description: Checks whether a reference can be cast to a target reference type.
+status: partial
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.checkcast"
+
+criteria:
+  - Accepts null for class, interface, and array target types.
+  - Accepts references assignment-compatible with the target type.
+  - Throws ClassCastException for incompatible non-null references.
+
+limitations:
+  - Current non-null casts are accepted without assignment-compatibility checks.

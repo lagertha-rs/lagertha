@@ -1,0 +1,18 @@
+name: Class and interface initialization
+description: Executes class and interface initialization methods after preparation.
+status: partial
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-5.html#jvms-5.5"
+
+criteria:
+  - Triggers initialization on active static field access and object creation.
+  - Initializes superclasses before subclasses.
+  - Executes initialization expressions and blocks in class-file order exactly once.
+  - Initializes an interface when its non-constant static field is actively used.
+  - Initializes required superinterfaces that declare default methods in specification order.
+  - Coordinates concurrent initialization and records initialization failures.
+
+limitations:
+  - Superinterface selection and ordering do not yet implement the default-method rules.
+  - Concurrent initialization does not track the initializing thread or wait for completion.
+  - Failed initialization does not mark the class erroneous or produce the required later errors.
+  - ConstantValue field attributes are not applied during initialization.
