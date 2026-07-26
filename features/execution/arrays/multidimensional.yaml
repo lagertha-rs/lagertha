@@ -1,0 +1,10 @@
+name: Multidimensional arrays
+description: Allocates and accesses rectangular and nested array structures.
+status: implemented
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.multianewarray"
+
+criteria:
+  - Allocates all requested dimensions of rectangular primitive and reference arrays.
+  - Loads and stores values through nested array references.
+  - Supports partially allocated dimensions whose components start null.
+  - Supports independently sized, empty, reassigned, and aliased rows.

@@ -1,0 +1,10 @@
+name: Reference array elements
+description: Allocates reference arrays and loads and stores compatible references.
+status: implemented
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.11.5"
+
+criteria:
+  - Allocates arrays with object and narrower reference component types.
+  - Loads and stores compatible object references and null.
+  - Preserves object identity and aliases through array components.
+  - Preserves array identity when array references are copied and reassigned.

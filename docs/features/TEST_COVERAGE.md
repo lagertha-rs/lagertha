@@ -8,9 +8,9 @@ Coverage means passing integration snapshot evidence for a feature; it does not 
 
 | Metric | Count |
 |---|---:|
-| Features | 19 |
-| Snapshot tests | 32 |
-| Success tests | 27 |
+| Features | 26 |
+| Snapshot tests | 40 |
+| Success tests | 35 |
 | Error tests | 5 |
 
 ## Feature Coverage
@@ -23,6 +23,70 @@ Snapshot tests: 1
 | Category | Test | Description |
 |---|---|---|
 | Error | [`InterfaceFlagWithoutAbstractTest.rns`](../../vm/tests/testdata/rns/class_format/InterfaceFlagWithoutAbstractTest.rns) | Rejects an interface missing ACC_ABSTRACT. |
+
+### `execution.arrays.access-exceptions`
+
+Implementation: **Implemented**  
+Snapshot tests: 1
+
+| Category | Test | Description |
+|---|---|---|
+| Success | [`ArrayAccessExceptionTest.java`](../../vm/tests/testdata/execution/arrays/errors/ArrayAccessExceptionTest.java) | Verifies null and out-of-bounds array loads and stores leave valid components unchanged. |
+
+### `execution.arrays.allocation-exceptions`
+
+Implementation: **Implemented**  
+Snapshot tests: 1
+
+| Category | Test | Description |
+|---|---|---|
+| Success | [`NegativeArraySizeTest.java`](../../vm/tests/testdata/execution/arrays/errors/NegativeArraySizeTest.java) | Verifies negative primitive and reference array lengths throw NegativeArraySizeException. |
+
+### `execution.arrays.default-values`
+
+Implementation: **Implemented**  
+Snapshot tests: 1
+
+| Category | Test | Description |
+|---|---|---|
+| Success | [`ArrayDefaultValueTest.java`](../../vm/tests/testdata/execution/arrays/defaults/ArrayDefaultValueTest.java) | Verifies default values for primitive, reference, and nested array components. |
+
+### `execution.arrays.length`
+
+Implementation: **Implemented**  
+Snapshot tests: 1
+
+| Category | Test | Description |
+|---|---|---|
+| Success | [`ArrayLengthTest.java`](../../vm/tests/testdata/execution/arrays/length/ArrayLengthTest.java) | Verifies primitive, reference, nested, empty, and null array length behavior. |
+
+### `execution.arrays.multidimensional`
+
+Implementation: **Implemented**  
+Snapshot tests: 2
+
+| Category | Test | Description |
+|---|---|---|
+| Success | [`JaggedArrayTest.java`](../../vm/tests/testdata/execution/arrays/multidimensional/JaggedArrayTest.java) | Verifies independently allocated, empty, reassigned, aliased, and partial nested rows. |
+| Success | [`RectangularArrayTest.java`](../../vm/tests/testdata/execution/arrays/multidimensional/RectangularArrayTest.java) | Verifies rectangular primitive and reference arrays across multiple ranks. |
+
+### `execution.arrays.primitive-elements`
+
+Implementation: **Implemented**  
+Snapshot tests: 1
+
+| Category | Test | Description |
+|---|---|---|
+| Success | [`PrimitiveArrayTest.java`](../../vm/tests/testdata/execution/arrays/elements/PrimitiveArrayTest.java) | Verifies loads and stores for every primitive array component kind. |
+
+### `execution.arrays.reference-elements`
+
+Implementation: **Implemented**  
+Snapshot tests: 1
+
+| Category | Test | Description |
+|---|---|---|
+| Success | [`ReferenceArrayTest.java`](../../vm/tests/testdata/execution/arrays/elements/ReferenceArrayTest.java) | Verifies compatible references, null, identity, aliases, and array-reference reassignment. |
 
 ### `execution.control-flow.conditional-branches`
 

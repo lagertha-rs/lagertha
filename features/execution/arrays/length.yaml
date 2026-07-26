@@ -1,0 +1,10 @@
+name: Array length
+description: Returns the fixed component count of an array.
+status: implemented
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.arraylength"
+
+criteria:
+  - Returns zero for an empty array.
+  - Returns the allocated length for primitive and reference arrays.
+  - Returns each independently allocated nested row length.
+  - Throws NullPointerException for a null array reference.

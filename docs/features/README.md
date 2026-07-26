@@ -8,7 +8,7 @@ Feature status describes declared JVM behavior. Test counts mean passing integra
 
 | Status | Features |
 |---|---:|
-| Implemented | 19 |
+| Implemented | 26 |
 | Partial | 0 |
 | Missing | 0 |
 | Blocked | 0 |
@@ -26,6 +26,13 @@ Feature status describes declared JVM behavior. Test counts mean passing integra
 
 | Feature | Status | Tests | Description |
 |---|---|---:|---|
+| `execution.arrays.access-exceptions` | Implemented | 1 | Rejects null array references and indices outside array bounds. |
+| `execution.arrays.allocation-exceptions` | Implemented | 1 | Rejects negative one-dimensional primitive and reference array lengths. |
+| `execution.arrays.default-values` | Implemented | 1 | Initializes newly allocated array components with JVM default values. |
+| `execution.arrays.length` | Implemented | 1 | Returns the fixed component count of an array. |
+| `execution.arrays.multidimensional` | Implemented | 2 | Allocates and accesses rectangular and nested array structures. |
+| `execution.arrays.primitive-elements` | Implemented | 1 | Allocates primitive arrays and loads and stores their component values. |
+| `execution.arrays.reference-elements` | Implemented | 1 | Allocates reference arrays and loads and stores compatible references. |
 | `execution.control-flow.conditional-branches` | Implemented | 2 | Executes value-dependent conditional control flow. |
 | `execution.control-flow.unconditional-branches` | Implemented | 1 | Executes forward and backward unconditional control transfers. |
 | `execution.fields.access` | Implemented | 1 | Resolves and accesses instance and static fields. |
@@ -59,6 +66,111 @@ Snapshot tests: 1
 
 - Requires ACC_ABSTRACT when ACC_INTERFACE is set.
 - Rejects ACC_FINAL, ACC_SUPER, ACC_ENUM, and ACC_MODULE on interfaces.
+
+### `execution.arrays.access-exceptions`
+
+Rejects null array references and indices outside array bounds.
+
+Status: **Implemented**  
+Specification: <https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.11.5>  
+Snapshot tests: 1
+
+#### Criteria
+
+- Throws ArrayIndexOutOfBoundsException for negative and length-equal load indices.
+- Throws ArrayIndexOutOfBoundsException for negative and length-equal store indices.
+- Throws NullPointerException for loads and stores through null array references.
+- Throws NullPointerException for access through a null nested row.
+- Leaves valid components unchanged after a failed store.
+
+### `execution.arrays.allocation-exceptions`
+
+Rejects negative one-dimensional primitive and reference array lengths.
+
+Status: **Implemented**  
+Specification: <https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.11.5>  
+Snapshot tests: 1
+
+#### Criteria
+
+- Throws NegativeArraySizeException for a negative primitive array length.
+- Throws NegativeArraySizeException for a negative reference array length.
+- Performs no array allocation when the requested length is negative.
+
+### `execution.arrays.default-values`
+
+Initializes newly allocated array components with JVM default values.
+
+Status: **Implemented**  
+Specification: <https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.11.5>  
+Snapshot tests: 1
+
+#### Criteria
+
+- Initializes boolean components to false and numeric components to zero.
+- Initializes reference components to null.
+- Initializes each newly allocated nested row independently.
+- Leaves unallocated nested rows null.
+
+### `execution.arrays.length`
+
+Returns the fixed component count of an array.
+
+Status: **Implemented**  
+Specification: <https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.arraylength>  
+Snapshot tests: 1
+
+#### Criteria
+
+- Returns zero for an empty array.
+- Returns the allocated length for primitive and reference arrays.
+- Returns each independently allocated nested row length.
+- Throws NullPointerException for a null array reference.
+
+### `execution.arrays.multidimensional`
+
+Allocates and accesses rectangular and nested array structures.
+
+Status: **Implemented**  
+Specification: <https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.multianewarray>  
+Snapshot tests: 2
+
+#### Criteria
+
+- Allocates all requested dimensions of rectangular primitive and reference arrays.
+- Loads and stores values through nested array references.
+- Supports partially allocated dimensions whose components start null.
+- Supports independently sized, empty, reassigned, and aliased rows.
+
+### `execution.arrays.primitive-elements`
+
+Allocates primitive arrays and loads and stores their component values.
+
+Status: **Implemented**  
+Specification: <https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.11.5>  
+Snapshot tests: 1
+
+#### Criteria
+
+- Allocates arrays for every primitive component type.
+- Loads and stores boolean, byte, char, short, int, long, float, and double components.
+- Preserves signed byte and short values and unsigned char values.
+- Normalizes boolean array values to true or false.
+
+### `execution.arrays.reference-elements`
+
+Allocates reference arrays and loads and stores compatible references.
+
+Status: **Implemented**  
+Specification: <https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.11.5>  
+Snapshot tests: 1
+
+#### Criteria
+
+- Allocates arrays with object and narrower reference component types.
+- Loads and stores compatible object references and null.
+- Preserves object identity and aliases through array components.
+- Preserves array identity when array references are copied and reassigned.
 
 ### `execution.control-flow.conditional-branches`
 
