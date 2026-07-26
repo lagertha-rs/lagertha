@@ -5,12 +5,12 @@ expression: combined
 ===== Lagertha VM =====
 ----- exit: Some(0) -----
 ----- STDOUT -----
-All assertions passed.
+
 ----- STDERR -----
 
 
 ===== Real JVM =====
 ----- exit: Some(0) -----
 ----- STDOUT -----
-All assertions passed.
+
 ----- STDERR -----

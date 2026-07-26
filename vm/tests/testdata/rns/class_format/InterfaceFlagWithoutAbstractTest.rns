@@ -2,7 +2,7 @@
 ; @test description = "Rejects an interface missing ACC_ABSTRACT."
 ; @test category = "error"
 
-.class interface class_format/InterfaceFlagWithoutAbstractErrMain
+.class interface class_format/InterfaceFlagWithoutAbstractTest
 .super java/lang/Object
 
 .class_end

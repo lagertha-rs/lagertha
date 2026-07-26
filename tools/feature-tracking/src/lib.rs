@@ -924,7 +924,7 @@ fn is_named_entry_source(path: &Path) -> bool {
         })
 }
 
-fn fixture_identity(fixtures_root: &Path, path: &Path, source: &str) -> Result<String, String> {
+pub fn fixture_identity(fixtures_root: &Path, path: &Path, source: &str) -> Result<String, String> {
     match path.extension().and_then(|extension| extension.to_str()) {
         Some("java") => java_fixture_identity(path, source),
         Some("rns") => rns_fixture_identity(fixtures_root, path, source),

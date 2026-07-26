@@ -3,8 +3,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use walkdir::WalkDir;
 
-const JAVA_FIXTURES_ROOT: &str = "tests/testdata/java";
-const RNS_FIXTURES_ROOT: &str = "tests/testdata/rns";
+const FIXTURES_ROOT: &str = "tests/testdata";
 const COMPILED_FIXTURES_ROOT: &str = "tests/testdata/compiled";
 
 const SUPPORTED_JAVAC: &str = "25.0.1";
@@ -12,8 +11,7 @@ const SUPPORTED_RNSC: &str = "0.2.1";
 
 fn set_rebuild_when_changed() {
     println!("cargo:rerun-if-changed=build.rs");
-    println!("cargo:rerun-if-changed={}", JAVA_FIXTURES_ROOT);
-    println!("cargo:rerun-if-changed={}", RNS_FIXTURES_ROOT);
+    println!("cargo:rerun-if-changed={}", FIXTURES_ROOT);
     println!("cargo:rerun-if-env-changed=JAVA_HOME");
 }
 
@@ -72,7 +70,7 @@ fn remove_compiled_dir_if_exists() {
 }
 
 fn compile_test_fixtures() {
-    let java_files = collect_vm_java_fixtures();
+    let java_files = collect_fixtures("java");
     if java_files.is_empty() {
         panic!("No Java files found in fixtures.");
     }
@@ -104,17 +102,15 @@ fn compile_test_fixtures() {
 }
 
 fn compile_rns_fixtures() {
-    let rns_files = collect_rns_fixtures();
+    let rns_files = collect_fixtures("rns");
     if rns_files.is_empty() {
         return;
     }
 
     for file in &rns_files {
-        let rel = file
-            .strip_prefix(RNS_FIXTURES_ROOT)
-            .expect("RNS file not under fixtures root");
+        let rel = fixture_output_path(file, "rns");
         let mut out = PathBuf::from(COMPILED_FIXTURES_ROOT);
-        out.push(rel);
+        out.push(&rel);
         out.set_extension("class");
 
         if let Some(parent) = out.parent() {
@@ -139,24 +135,28 @@ fn compile_rns_fixtures() {
     }
 }
 
-fn collect_vm_java_fixtures() -> Vec<PathBuf> {
-    let mut java_files: Vec<PathBuf> = WalkDir::new(JAVA_FIXTURES_ROOT)
+fn collect_fixtures(extension: &str) -> Vec<PathBuf> {
+    let mut files: Vec<PathBuf> = WalkDir::new(FIXTURES_ROOT)
         .into_iter()
         .filter_map(Result::ok)
         .map(|e| e.into_path())
-        .filter(|p| p.is_file() && p.extension().map(|e| e == "java").unwrap_or(false))
+        .filter(|path| {
+            path.is_file()
+                && path
+                    .extension()
+                    .is_some_and(|candidate| candidate == extension)
+        })
         .collect();
-    java_files.sort();
-    java_files
+    files.sort();
+    files
 }
 
-fn collect_rns_fixtures() -> Vec<PathBuf> {
-    let mut rns_files: Vec<PathBuf> = WalkDir::new(RNS_FIXTURES_ROOT)
-        .into_iter()
-        .filter_map(Result::ok)
-        .map(|e| e.into_path())
-        .filter(|p| p.is_file() && p.extension().map(|e| e == "rns").unwrap_or(false))
-        .collect();
-    rns_files.sort();
-    rns_files
+fn fixture_output_path(path: &Path, legacy_root: &str) -> PathBuf {
+    let relative = path
+        .strip_prefix(FIXTURES_ROOT)
+        .expect("fixture not under fixtures root");
+    relative
+        .strip_prefix(legacy_root)
+        .unwrap_or(relative)
+        .to_path_buf()
 }

@@ -1,0 +1,9 @@
+name: Integer bitwise operations
+description: Executes integer shifts and bitwise operations with JVM-defined semantics.
+status: implemented
+spec: JVMS 2.11.3
+
+criteria:
+  - Masks integer shift distances to five bits.
+  - Distinguishes arithmetic and logical right shifts.
+  - Implements integer complement, conjunction, disjunction, and exclusive-or operations.

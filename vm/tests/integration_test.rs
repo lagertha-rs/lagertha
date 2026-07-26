@@ -1,6 +1,9 @@
 use assert_cmd::cargo::cargo_bin_cmd;
+use feature_tracking::fixture_identity;
 use insta::with_settings;
+use lvm_common::test_metadata::{TestCategory, parse_test_metadata};
 use rstest::rstest;
+use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -85,6 +88,99 @@ fn render_combined(
          ----- STDOUT -----\n{jvm_stdout}\n\
          ----- STDERR -----\n{jvm_stderr}"
     )
+}
+
+fn run_metadata_case(source_path: &Path) {
+    let source = fs::read_to_string(source_path).expect("Cannot read test source");
+    let metadata = parse_test_metadata(source_path, &source).expect("Invalid test metadata");
+    let current_dir = std::env::current_dir().expect("Cannot get current dir");
+    let fixtures_root = current_dir.join("tests/testdata");
+    let class_path = fixtures_root.join("compiled");
+    let main_class = PathBuf::from(
+        fixture_identity(&fixtures_root, source_path, &source)
+            .expect("Cannot derive compiled fixture identity"),
+    );
+    let mut cmd = cargo_bin_cmd!("vm");
+    cmd.arg("-c").arg(&class_path).arg(&main_class);
+
+    let output = cmd.output().expect("Cannot run Lagertha VM");
+    match metadata.category {
+        TestCategory::Success => assert!(
+            output.status.success(),
+            "Lagertha should succeed for {}: {}",
+            source_path.display(),
+            String::from_utf8_lossy(&output.stderr)
+        ),
+        TestCategory::Error => assert!(
+            !output.status.success(),
+            "Lagertha should fail for {}",
+            source_path.display()
+        ),
+    }
+    let lvm_stdout = String::from_utf8_lossy(&output.stdout)
+        .trim_end()
+        .to_string();
+    let lvm_stderr = String::from_utf8_lossy(&output.stderr)
+        .trim_end()
+        .to_string();
+    let lvm_status = output.status.code();
+
+    let (jvm_stdout, jvm_stderr, jvm_status) = run_real_jvm(&class_path, &main_class);
+    let jvm_stdout = jvm_stdout.trim_end().to_string();
+    let jvm_stderr = jvm_stderr.trim_end().to_string();
+    match metadata.category {
+        TestCategory::Success => assert_eq!(
+            jvm_status,
+            Some(0),
+            "real JVM should succeed for {}: {:?}",
+            source_path.display(),
+            jvm_stderr
+        ),
+        TestCategory::Error => assert_ne!(
+            jvm_status,
+            Some(0),
+            "real JVM should fail for {}",
+            source_path.display()
+        ),
+    }
+
+    let combined = render_combined(
+        &lvm_stdout,
+        &lvm_stderr,
+        lvm_status,
+        &jvm_stdout,
+        &jvm_stderr,
+        jvm_status,
+    );
+    with_settings!(
+        {
+            snapshot_path => DISPLAY_SNAPSHOT_PATH,
+            prepend_module_to_snapshot => false,
+        },
+        {
+            insta::assert_snapshot!(to_snapshot_name(&main_class), combined);
+        }
+    );
+}
+
+#[rstest]
+#[trace]
+fn metadata_java_cases(
+    #[base_dir = "tests/testdata"]
+    #[files("**/*Test.java")]
+    path: PathBuf,
+) {
+    run_metadata_case(&path);
+}
+
+#[rstest]
+#[trace]
+fn metadata_rns_cases(
+    #[base_dir = "tests/testdata"]
+    #[files("**/*Test.rns")]
+    path: PathBuf,
+) {
+    run_metadata_case(&path);
 }
 
 #[rstest]

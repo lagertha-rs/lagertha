@@ -1,0 +1,10 @@
+name: Integer narrowing conversions
+description: Narrows integer values to byte, short, and char values.
+status: implemented
+spec: JVMS 2.11.5
+
+criteria:
+  - Narrows integers to signed byte values.
+  - Narrows integers to signed short values.
+  - Narrows integers to unsigned char values.
+  - Promotes narrowed char values back to integers without sign extension.
