@@ -1,0 +1,16 @@
+name: Main method startup
+description: Selects an initial class and invokes its main method to drive VM execution.
+status: partial
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-5.html#jvms-5.2"
+
+criteria:
+  - Loads, links, and initializes the selected initial class or interface.
+  - Selects a Java SE 25 candidate main method.
+  - Supplies the required string argument array when applicable.
+  - Invokes the selected main method and lets it drive further execution.
+
+limitations:
+  - Startup only looks up a main method with descriptor ([Ljava/lang/String;)V.
+  - No-argument, instance, inherited, and non-public Java SE 25 candidate main methods are not selected.
+  - Program arguments are not exposed by the launcher or supplied as a String array.
+  - Missing or unsupported main methods do not consistently produce specified launcher failure behavior.

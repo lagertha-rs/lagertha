@@ -39,7 +39,6 @@ in [`BUILDING.md`](BUILDING.md).
 
 - `.java` sources anywhere under `vm/tests/testdata` compile with `javac`.
 - `.rns` sources anywhere under `vm/tests/testdata` compile with `rnsc`.
-- Existing `java/` and `rns/` roots remain supported during migration.
 - Generated classes go under ignored `vm/tests/testdata/compiled`.
 - The build script deletes and recreates compiled fixture output.
 
@@ -51,20 +50,15 @@ inputs `javac` cannot produce.
 
 ## Integration-Test Discovery
 
-`vm/tests/integration_test.rs` currently supports two discovery paths during
-migration.
-
-New metadata-driven fixtures are discovered from source:
+`vm/tests/integration_test.rs` discovers integration entries from source:
 
 - `*Test.java` and `*Test.rns` are integration entries.
+- Every entry starts with exactly three metadata comments.
 - The metadata `category` determines whether both VMs should succeed or fail.
 - Entry names do not encode expected outcome.
 
-Unmigrated successful compiled fixtures retain `*OkMain.class` discovery. The
-legacy error path has been removed because every failing entry now uses metadata.
-
-Other source names are helpers and do not become integration entries. Remove
-legacy suffix discovery after every entry has metadata and a `*Test` name.
+Other source names are helpers and do not become integration entries. Helpers
+must not end in `Test` and must not contain entry metadata.
 
 The harness runs each fixture twice:
 
@@ -75,7 +69,7 @@ It snapshots combined stdout, stderr, and exit codes under `vm/snapshots`.
 
 Keep fixtures focused enough that their intended capability and expected result
 are clear. Follow [`FEATURE_TRACKING.md`](FEATURE_TRACKING.md) for fixture
-metadata and feature-coverage ownership as that system is introduced.
+metadata and feature-coverage ownership.
 
 ## Snapshot Review
 
@@ -106,29 +100,22 @@ does not itself assert that their outputs are equivalent.
 6. Review and accept the new snapshot semantically.
 7. Run broader tests required by the affected subsystem.
 
-## Feature Tracking Migration
+## Feature Tracking
 
-Feature tracking is being introduced incrementally. The target architecture,
-strictness rules, unresolved fixture layout, and implementation sequence live
-in [`TEST_MIGRATION.md`](TEST_MIGRATION.md).
-
-During migration, the existing fixture compiler and integration harness remain
-authoritative:
-
-- Java and RNS sources may remain under their existing language roots.
-- `OkMain` suffixes still control discovery for the remaining successful legacy
-  entries.
-- The current tool only includes fixtures whose first line starts with `@test`
-  metadata in validation and coverage reports. This temporary behavior must be
-  replaced by strict validation before bulk migration.
-
-Validate the registry, migrated metadata, and snapshot mappings with:
+Validate the registry, fixture metadata, and direct snapshot mappings with:
 
 ```bash
 cargo run -p feature-tracking -- features
 ```
 
-Generate the migration reports with an honest `unreleased` label:
+Validate reverse mappings, orphan and pending snapshots, and entry identity
+collisions with:
+
+```bash
+cargo run -p feature-tracking -- inventory
+```
+
+Generate development reports with the `unreleased` label:
 
 ```bash
 cargo run -p feature-tracking -- coverage unreleased \
@@ -138,10 +125,5 @@ cargo run -p feature-tracking -- feature-report unreleased \
 ```
 
 Report writes are atomic. Omitting `--output` prints either report to stdout.
-
-Do not bulk-migrate fixtures until the entry-source layout is selected and the
-shared metadata parser and strict validator are ready. Do not copy the current
-fixture hierarchy into the feature registry. Metadata inserted before Java
-source shifts stack-trace line numbers even when runtime behavior is unchanged.
 See [`FEATURE_TRACKING.md`](FEATURE_TRACKING.md) for schemas and permanent
 coverage rules.

@@ -8,12 +8,21 @@ Coverage means passing integration snapshot evidence for a feature; it does not 
 
 | Metric | Count |
 |---|---:|
-| Features | 39 |
-| Snapshot tests | 58 |
-| Success tests | 50 |
+| Features | 40 |
+| Snapshot tests | 59 |
+| Success tests | 51 |
 | Error tests | 8 |
 
 ## Feature Coverage
+
+### `bootstrap.main-method`
+
+Implementation: **Partial**  
+Snapshot tests: 1
+
+| Category | Test | Description |
+|---|---|---|
+| Success | [`HelloWorldTest.java`](../../vm/tests/testdata/bootstrap/main/HelloWorldTest.java) | Verifies startup invokes a conventional public static main method and completes successfully. |
 
 ### `class-format.interface-flags`
 
@@ -22,7 +31,7 @@ Snapshot tests: 1
 
 | Category | Test | Description |
 |---|---|---|
-| Error | [`InterfaceFlagWithoutAbstractTest.rns`](../../vm/tests/testdata/rns/class_format/InterfaceFlagWithoutAbstractTest.rns) | Rejects an interface missing ACC_ABSTRACT. |
+| Error | [`InterfaceFlagWithoutAbstractTest.rns`](../../vm/tests/testdata/class_format/InterfaceFlagWithoutAbstractTest.rns) | Rejects an interface missing ACC_ABSTRACT. |
 
 ### `class-loading.initialization`
 
@@ -395,6 +404,7 @@ None.
 
 ## Partial Features With Regression Tests
 
+- `bootstrap.main-method`
 - `class-loading.initialization`
 - `exceptions.propagation`
 - `exceptions.stack-traces`
