@@ -1,0 +1,19 @@
+---
+source: vm/tests/integration_test.rs
+expression: combined
+---
+===== Lagertha VM =====
+----- exit: Some(1) -----
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.NullPointerException
+	at execution.objects.fields.NullFieldAccessTest.main(NullFieldAccessTest.java:10)
+
+===== Real JVM =====
+----- exit: Some(1) -----
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.NullPointerException: Cannot read field "value" because "receiver" is null
+	at execution.objects.fields.NullFieldAccessTest.main(NullFieldAccessTest.java:10)

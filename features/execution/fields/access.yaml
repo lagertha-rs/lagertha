@@ -4,7 +4,8 @@ status: implemented
 spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-5.html#jvms-5.4.3.2"
 
 criteria:
-  - Reads and writes instance fields.
-  - Reads default and initialized instance field values.
-  - Reads and writes static fields.
-  - Resolves inherited fields through a subclass instance.
+  - Reads and writes primitive and reference instance fields.
+  - Reads and writes primitive and reference static fields.
+  - Keeps instance storage independent and static storage shared across objects.
+  - Resolves inherited fields and keeps hidden same-name fields distinct by declaring class.
+  - Throws NullPointerException for instance field reads and writes through a null receiver.

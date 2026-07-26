@@ -1,0 +1,10 @@
+name: Class and interface preparation
+description: Creates static field storage and assigns JVM default values before initialization.
+status: implemented
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-5.html#jvms-5.4.2"
+
+criteria:
+  - Creates static storage for classes and interfaces.
+  - Assigns false and numeric zero to primitive static fields before explicit initializers run.
+  - Assigns null to reference static fields before explicit initializers run.
+  - Makes prepared values observable to earlier expressions in the initialization method.

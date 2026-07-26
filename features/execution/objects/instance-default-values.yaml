@@ -1,0 +1,10 @@
+name: Instance field default values
+description: Initializes fields in newly allocated objects with JVM default values.
+status: implemented
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.new"
+
+criteria:
+  - Initializes boolean fields to false and numeric primitive fields to zero.
+  - Initializes reference fields to null.
+  - Initializes inherited fields in newly allocated subclass instances.
+  - Gives each object independent default-initialized field storage.
