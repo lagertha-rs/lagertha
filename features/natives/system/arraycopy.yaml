@@ -1,0 +1,20 @@
+name: System array copying
+description: Copies array subsequences with Java type, bounds, overlap, and exception semantics.
+status: partial
+
+criteria:
+  - Copies primitive and reference subsequences while preserving untouched components.
+  - Handles overlapping copies as if the source subsequence were copied through a temporary array.
+  - Validates null references, array kinds, component compatibility, and bounds even for zero-length copies.
+  - Throws NullPointerException for null source or destination arguments before array-kind validation.
+  - Throws ArrayStoreException for non-array arguments and incompatible primitive or reference components.
+  - Throws IndexOutOfBoundsException for invalid positions or lengths without modifying the destination.
+  - Copies only the compatible reference prefix before throwing ArrayStoreException for an incompatible element.
+
+limitations:
+  - Zero-length copies bypass component-type and bounds validation.
+  - Primitive component mismatches and primitive/reference mismatches are copied without ArrayStoreException.
+  - Reference components are copied without assignment-compatibility checks or required partial-copy behavior.
+  - Destination null validation occurs after source array-kind validation.
+  - Bounds checks use overflow-prone signed addition.
+  - Reference-array object headers do not consistently contain array-class identity.
