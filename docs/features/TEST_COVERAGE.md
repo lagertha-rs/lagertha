@@ -8,9 +8,9 @@ Coverage means passing integration snapshot evidence for a feature; it does not 
 
 | Metric | Count |
 |---|---:|
-| Features | 37 |
-| Snapshot tests | 53 |
-| Success tests | 45 |
+| Features | 38 |
+| Snapshot tests | 56 |
+| Success tests | 48 |
 | Error tests | 8 |
 
 ## Feature Coverage
@@ -364,6 +364,17 @@ Snapshot tests: 1
 |---|---|---|
 | Success | [`AssertionStatusTest.java`](../../vm/tests/testdata/natives/class/AssertionStatusTest.java) | Verifies assertions are enabled, true conditions complete, and false details construct AssertionError. |
 
+### `natives.system.arraycopy`
+
+Implementation: **Partial**  
+Snapshot tests: 3
+
+| Category | Test | Description |
+|---|---|---|
+| Success | [`CopySemanticsTest.java`](../../vm/tests/testdata/natives/system/arraycopy/CopySemanticsTest.java) | Verifies full, partial, zero-length, overlapping, primitive, and reference array copies. |
+| Success | [`NonArrayArgumentTest.java`](../../vm/tests/testdata/natives/system/arraycopy/NonArrayArgumentTest.java) | Verifies non-array source and destination arguments throw ArrayStoreException at zero length. |
+| Success | [`NullArgumentTest.java`](../../vm/tests/testdata/natives/system/arraycopy/NullArgumentTest.java) | Verifies null source and destination arguments throw NullPointerException without copying. |
+
 ## Features Without Integration Tests
 
 None.
@@ -382,4 +393,5 @@ None.
 - `execution.references.casting`
 - `natives.binding`
 - `natives.class.assertion-status`
+- `natives.system.arraycopy`
 

@@ -9,7 +9,7 @@ Feature status describes declared JVM behavior. Test counts mean passing integra
 | Status | Features |
 |---|---:|
 | Implemented | 29 |
-| Partial | 8 |
+| Partial | 9 |
 | Missing | 0 |
 | Blocked | 0 |
 | Deferred | 0 |
@@ -77,6 +77,7 @@ Feature status describes declared JVM behavior. Test counts mean passing integra
 |---|---|---:|---|
 | `natives.binding` | Partial | 1 | Binds native methods to registered VM implementations. |
 | `natives.class.assertion-status` | Partial | 1 | Supplies assertion enablement used by compiled assert statements. |
+| `natives.system.arraycopy` | Partial | 3 | Copies array subsequences with Java type, bounds, overlap, and exception semantics. |
 
 ## Feature Details
 
@@ -657,4 +658,31 @@ Snapshot tests: 1
 #### Limitations
 
 - Assertion status is hardcoded enabled and ignores enablement and disablement configuration.
+
+### `natives.system.arraycopy`
+
+Copies array subsequences with Java type, bounds, overlap, and exception semantics.
+
+Status: **Partial**  
+Specification: Not specified  
+Snapshot tests: 3
+
+#### Criteria
+
+- Copies primitive and reference subsequences while preserving untouched components.
+- Handles overlapping copies as if the source subsequence were copied through a temporary array.
+- Validates null references, array kinds, component compatibility, and bounds even for zero-length copies.
+- Throws NullPointerException for null source or destination arguments before array-kind validation.
+- Throws ArrayStoreException for non-array arguments and incompatible primitive or reference components.
+- Throws IndexOutOfBoundsException for invalid positions or lengths without modifying the destination.
+- Copies only the compatible reference prefix before throwing ArrayStoreException for an incompatible element.
+
+#### Limitations
+
+- Zero-length copies bypass component-type and bounds validation.
+- Primitive component mismatches and primitive/reference mismatches are copied without ArrayStoreException.
+- Reference components are copied without assignment-compatibility checks or required partial-copy behavior.
+- Destination null validation occurs after source array-kind validation.
+- Bounds checks use overflow-prone signed addition.
+- Reference-array object headers do not consistently contain array-class identity.
 

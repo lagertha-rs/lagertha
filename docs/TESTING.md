@@ -60,10 +60,8 @@ New metadata-driven fixtures are discovered from source:
 - The metadata `category` determines whether both VMs should succeed or fail.
 - Entry names do not encode expected outcome.
 
-Unmigrated compiled fixtures retain legacy suffix discovery:
-
-- `*OkMain.class` must exit successfully.
-- `*ErrMain.class` must exit unsuccessfully.
+Unmigrated successful compiled fixtures retain `*OkMain.class` discovery. The
+legacy error path has been removed because every failing entry now uses metadata.
 
 Other source names are helpers and do not become integration entries. Remove
 legacy suffix discovery after every entry has metadata and a `*Test` name.
@@ -118,8 +116,8 @@ During migration, the existing fixture compiler and integration harness remain
 authoritative:
 
 - Java and RNS sources may remain under their existing language roots.
-- `OkMain` and `ErrMain` suffixes still control discovery and expected exit
-  behavior.
+- `OkMain` suffixes still control discovery for the remaining successful legacy
+  entries.
 - The current tool only includes fixtures whose first line starts with `@test`
   metadata in validation and coverage reports. This temporary behavior must be
   replaced by strict validation before bulk migration.
