@@ -1,3 +1,7 @@
+pub use lvm_common::test_metadata::{TestCategory, TestMetadata};
+use lvm_common::test_metadata::{
+    parse_test_metadata as parse_shared_test_metadata, validate_feature_id,
+};
 use serde::Deserialize;
 use std::collections::{BTreeMap, HashMap};
 use std::fmt::Write as _;
@@ -91,33 +95,290 @@ impl FeatureRegistry {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
-pub struct TestMetadata {
-    pub feature: String,
-    pub description: String,
-    pub category: TestCategory,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum TestCategory {
-    Success,
-    Error,
-}
-
-impl Display for TestCategory {
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
-        formatter.write_str(match self {
-            Self::Success => "Success",
-            Self::Error => "Error",
-        })
-    }
-}
-
 #[derive(Debug)]
 pub struct TrackedFixture {
     pub source_path: PathBuf,
     pub snapshot_path: PathBuf,
     pub metadata: TestMetadata,
+}
+
+#[derive(Debug)]
+pub struct MigrationInventory {
+    pub source_count: usize,
+    pub entry_count: usize,
+    pub tracked_entries: Vec<PathBuf>,
+    pub untracked_entries: Vec<PathBuf>,
+    pub invalid_entries: Vec<String>,
+    pub missing_snapshots: Vec<PathBuf>,
+    pub orphan_snapshots: Vec<PathBuf>,
+    pub pending_snapshots: Vec<PathBuf>,
+    pub identity_collisions: Vec<String>,
+    pub entries_by_language: BTreeMap<String, usize>,
+    pub tracked_by_category: BTreeMap<String, usize>,
+}
+
+impl MigrationInventory {
+    pub fn is_clean(&self) -> bool {
+        self.untracked_entries.is_empty()
+            && self.invalid_entries.is_empty()
+            && self.missing_snapshots.is_empty()
+            && self.orphan_snapshots.is_empty()
+            && self.pending_snapshots.is_empty()
+            && self.identity_collisions.is_empty()
+    }
+}
+
+pub fn build_migration_inventory(
+    fixtures_root: &Path,
+    snapshots_root: &Path,
+    registry: &FeatureRegistry,
+) -> Result<MigrationInventory, ValidationErrors> {
+    if !fixtures_root.is_dir() {
+        return Err(errors([format!(
+            "fixture root does not exist: {}",
+            fixtures_root.display()
+        )]));
+    }
+    if !snapshots_root.is_dir() {
+        return Err(errors([format!(
+            "snapshot root does not exist: {}",
+            snapshots_root.display()
+        )]));
+    }
+
+    let mut sources = Vec::new();
+    let mut walk_errors = Vec::new();
+    for entry in WalkDir::new(fixtures_root) {
+        match entry {
+            Ok(entry)
+                if entry.file_type().is_file()
+                    && matches!(
+                        entry.path().extension().and_then(|value| value.to_str()),
+                        Some("java" | "rns")
+                    ) =>
+            {
+                sources.push(entry.into_path());
+            }
+            Ok(_) => {}
+            Err(error) => walk_errors.push(format!(
+                "failed to walk {}: {error}",
+                fixtures_root.display()
+            )),
+        }
+    }
+    if !walk_errors.is_empty() {
+        return Err(ValidationErrors {
+            messages: walk_errors,
+        });
+    }
+    sources.sort();
+
+    let mut inventory = MigrationInventory {
+        source_count: sources.len(),
+        entry_count: 0,
+        tracked_entries: Vec::new(),
+        untracked_entries: Vec::new(),
+        invalid_entries: Vec::new(),
+        missing_snapshots: Vec::new(),
+        orphan_snapshots: Vec::new(),
+        pending_snapshots: Vec::new(),
+        identity_collisions: Vec::new(),
+        entries_by_language: BTreeMap::new(),
+        tracked_by_category: BTreeMap::new(),
+    };
+    let mut expected_snapshots = BTreeMap::<PathBuf, PathBuf>::new();
+
+    for path in sources {
+        let source = match fs::read_to_string(&path) {
+            Ok(source) => source,
+            Err(error) => {
+                inventory
+                    .invalid_entries
+                    .push(format!("failed to read {}: {error}", path.display()));
+                continue;
+            }
+        };
+        let has_metadata = has_metadata_header(&path, &source);
+        if !has_metadata && !is_named_entry_source(&path) {
+            continue;
+        }
+
+        inventory.entry_count += 1;
+        let language = path
+            .extension()
+            .and_then(|extension| extension.to_str())
+            .unwrap_or("unknown")
+            .to_string();
+        *inventory.entries_by_language.entry(language).or_default() += 1;
+
+        if has_metadata {
+            inventory.tracked_entries.push(path.clone());
+            match parse_test_metadata(&path, &source) {
+                Ok(metadata) => {
+                    if !registry.contains(&metadata.feature) {
+                        inventory.invalid_entries.push(format!(
+                            "{}: unknown feature {}",
+                            path.display(),
+                            metadata.feature
+                        ));
+                    }
+                    *inventory
+                        .tracked_by_category
+                        .entry(metadata.category.to_string())
+                        .or_default() += 1;
+                    validate_entry_name(&path, &metadata.category, &mut inventory.invalid_entries);
+                }
+                Err(errors) => inventory.invalid_entries.extend(errors.messages),
+            }
+        } else {
+            inventory.untracked_entries.push(path.clone());
+        }
+
+        let identity = match fixture_identity(fixtures_root, &path, &source) {
+            Ok(identity) => identity,
+            Err(error) => {
+                inventory.invalid_entries.push(error);
+                continue;
+            }
+        };
+        let snapshot = snapshots_root.join(format!("{}.snap", identity.replace('/', "-")));
+        if !snapshot.is_file() {
+            inventory.missing_snapshots.push(snapshot.clone());
+        }
+        if let Some(existing) = expected_snapshots.insert(snapshot.clone(), path.clone()) {
+            inventory.identity_collisions.push(format!(
+                "{} maps from {} and {}",
+                snapshot.display(),
+                existing.display(),
+                path.display()
+            ));
+        }
+    }
+
+    for entry in WalkDir::new(snapshots_root).min_depth(1).max_depth(1) {
+        match entry {
+            Ok(entry) if entry.file_type().is_file() => {
+                let path = entry.into_path();
+                let filename = path
+                    .file_name()
+                    .and_then(|name| name.to_str())
+                    .unwrap_or("");
+                if filename.ends_with(".snap.new") {
+                    inventory.pending_snapshots.push(path);
+                } else if path
+                    .extension()
+                    .is_some_and(|extension| extension == "snap")
+                    && !expected_snapshots.contains_key(&path)
+                {
+                    inventory.orphan_snapshots.push(path);
+                }
+            }
+            Ok(_) => {}
+            Err(error) => inventory.invalid_entries.push(format!(
+                "failed to walk {}: {error}",
+                snapshots_root.display()
+            )),
+        }
+    }
+
+    inventory.tracked_entries.sort();
+    inventory.untracked_entries.sort();
+    inventory.invalid_entries.sort();
+    inventory.missing_snapshots.sort();
+    inventory.orphan_snapshots.sort();
+    inventory.pending_snapshots.sort();
+    inventory.identity_collisions.sort();
+    Ok(inventory)
+}
+
+pub fn render_migration_inventory(
+    repository_root: &Path,
+    inventory: &MigrationInventory,
+) -> String {
+    let mut report = String::new();
+    writeln!(report, "# Integration Test Migration Inventory\n").unwrap();
+    writeln!(report, "| Metric | Count |").unwrap();
+    writeln!(report, "|---|---:|").unwrap();
+    writeln!(report, "| Source files | {} |", inventory.source_count).unwrap();
+    writeln!(report, "| Entry candidates | {} |", inventory.entry_count).unwrap();
+    writeln!(
+        report,
+        "| Tracked entries | {} |",
+        inventory.tracked_entries.len()
+    )
+    .unwrap();
+    writeln!(
+        report,
+        "| Untracked entries | {} |",
+        inventory.untracked_entries.len()
+    )
+    .unwrap();
+    writeln!(
+        report,
+        "| Invalid entries | {} |",
+        inventory.invalid_entries.len()
+    )
+    .unwrap();
+    writeln!(
+        report,
+        "| Missing snapshots | {} |",
+        inventory.missing_snapshots.len()
+    )
+    .unwrap();
+    writeln!(
+        report,
+        "| Orphan snapshots | {} |",
+        inventory.orphan_snapshots.len()
+    )
+    .unwrap();
+    writeln!(
+        report,
+        "| Pending snapshots | {} |\n",
+        inventory.pending_snapshots.len()
+    )
+    .unwrap();
+
+    render_count_section(
+        &mut report,
+        "Entries By Language",
+        &inventory.entries_by_language,
+    );
+    render_count_section(
+        &mut report,
+        "Tracked Entries By Category",
+        &inventory.tracked_by_category,
+    );
+    render_path_section(
+        &mut report,
+        "Untracked Entries",
+        repository_root,
+        &inventory.untracked_entries,
+    );
+    render_text_section(&mut report, "Invalid Entries", &inventory.invalid_entries);
+    render_path_section(
+        &mut report,
+        "Missing Snapshots",
+        repository_root,
+        &inventory.missing_snapshots,
+    );
+    render_path_section(
+        &mut report,
+        "Orphan Snapshots",
+        repository_root,
+        &inventory.orphan_snapshots,
+    );
+    render_path_section(
+        &mut report,
+        "Pending Snapshots",
+        repository_root,
+        &inventory.pending_snapshots,
+    );
+    render_text_section(
+        &mut report,
+        "Identity Collisions",
+        &inventory.identity_collisions,
+    );
+    report
 }
 
 pub fn render_test_coverage_report(
@@ -378,6 +639,44 @@ fn render_gap_section<'a>(report: &mut String, heading: &str, ids: impl Iterator
     }
 }
 
+fn render_count_section(report: &mut String, heading: &str, counts: &BTreeMap<String, usize>) {
+    writeln!(report, "## {heading}\n").unwrap();
+    if counts.is_empty() {
+        report.push_str("None.\n\n");
+        return;
+    }
+    writeln!(report, "| Value | Count |").unwrap();
+    writeln!(report, "|---|---:|").unwrap();
+    for (value, count) in counts {
+        writeln!(report, "| {} | {count} |", markdown_table_text(value)).unwrap();
+    }
+    report.push('\n');
+}
+
+fn render_path_section(report: &mut String, heading: &str, root: &Path, paths: &[PathBuf]) {
+    writeln!(report, "## {heading}\n").unwrap();
+    if paths.is_empty() {
+        report.push_str("None.\n\n");
+        return;
+    }
+    for path in paths {
+        writeln!(report, "- `{}`", repository_relative_path(root, path)).unwrap();
+    }
+    report.push('\n');
+}
+
+fn render_text_section(report: &mut String, heading: &str, values: &[String]) {
+    writeln!(report, "## {heading}\n").unwrap();
+    if values.is_empty() {
+        report.push_str("None.\n\n");
+        return;
+    }
+    for value in values {
+        writeln!(report, "- {}", value.replace(['\r', '\n'], " ")).unwrap();
+    }
+    report.push('\n');
+}
+
 fn repository_relative_path(repository_root: &Path, path: &Path) -> String {
     path.strip_prefix(repository_root)
         .unwrap_or(path)
@@ -460,61 +759,7 @@ pub fn validate_registry(root: &Path) -> Result<FeatureRegistry, ValidationError
 }
 
 pub fn parse_test_metadata(path: &Path, source: &str) -> Result<TestMetadata, ValidationErrors> {
-    let comment = metadata_comment(path)?;
-    let lines = source.lines().collect::<Vec<_>>();
-    if lines.len() < 3 {
-        return Err(errors([format!(
-            "{}: fixture must start with three metadata comments",
-            path.display()
-        )]));
-    }
-
-    let feature = metadata_value(path, lines[0], comment, "feature")?;
-    let description = metadata_value(path, lines[1], comment, "description")?;
-    let category = metadata_value(path, lines[2], comment, "category")?;
-    if lines
-        .get(3)
-        .is_some_and(|line| line.starts_with(&format!("{comment} @test ")))
-    {
-        return Err(errors([format!(
-            "{}: fixture must have exactly three metadata comments",
-            path.display()
-        )]));
-    }
-
-    let mut messages = Vec::new();
-    require_text(
-        &mut messages,
-        &path.display().to_string(),
-        "feature",
-        &feature,
-    );
-    require_text(
-        &mut messages,
-        &path.display().to_string(),
-        "description",
-        &description,
-    );
-    let category = match category.as_str() {
-        "success" => Some(TestCategory::Success),
-        "error" => Some(TestCategory::Error),
-        value => {
-            messages.push(format!(
-                "{}: unsupported test category {value:?}",
-                path.display()
-            ));
-            None
-        }
-    };
-
-    match (messages.is_empty(), category) {
-        (true, Some(category)) => Ok(TestMetadata {
-            feature,
-            description,
-            category,
-        }),
-        _ => Err(ValidationErrors { messages }),
-    }
+    parse_shared_test_metadata(path, source).map_err(|error| errors([error.to_string()]))
 }
 
 pub fn validate_test_fixture(
@@ -617,7 +862,7 @@ pub fn validate_tracked_fixtures(
                 continue;
             }
         };
-        validate_category_suffix(&path, &identity, &metadata.category, &mut messages);
+        validate_entry_name(&path, &metadata.category, &mut messages);
 
         let snapshot_path = snapshots_root.join(format!("{}.snap", identity.replace('/', "-")));
         if !snapshot_path.is_file() {
@@ -669,6 +914,14 @@ fn has_metadata_header(path: &Path, source: &str) -> bool {
         .lines()
         .next()
         .is_some_and(|line| line.starts_with(&format!("{comment} @test ")))
+}
+
+fn is_named_entry_source(path: &Path) -> bool {
+    path.file_stem()
+        .and_then(|stem| stem.to_str())
+        .is_some_and(|stem| {
+            stem.ends_with("Test") || stem.ends_with("OkMain") || stem.ends_with("ErrMain")
+        })
 }
 
 fn fixture_identity(fixtures_root: &Path, path: &Path, source: &str) -> Result<String, String> {
@@ -746,66 +999,21 @@ fn rns_fixture_identity(fixtures_root: &Path, path: &Path, source: &str) -> Resu
     Ok(output_identity)
 }
 
-fn validate_category_suffix(
-    path: &Path,
-    identity: &str,
-    category: &TestCategory,
-    messages: &mut Vec<String>,
-) {
-    let expected = match category {
-        TestCategory::Success => "OkMain",
-        TestCategory::Error => "ErrMain",
-    };
-    if !identity.ends_with(expected) {
+fn validate_entry_name(path: &Path, category: &TestCategory, messages: &mut Vec<String>) {
+    let stem = path
+        .file_stem()
+        .and_then(|stem| stem.to_str())
+        .unwrap_or_default();
+    let valid = stem.ends_with("Test")
+        || matches!(category, TestCategory::Success) && stem.ends_with("OkMain")
+        || matches!(category, TestCategory::Error) && stem.ends_with("ErrMain");
+    if !valid {
         messages.push(format!(
-            "{}: {:?} test identity must end with {expected}",
+            "{}: {:?} entry must end with Test or its legacy outcome suffix",
             path.display(),
             category
         ));
     }
-}
-
-fn metadata_value(
-    path: &Path,
-    line: &str,
-    comment: &str,
-    field: &str,
-) -> Result<String, ValidationErrors> {
-    let prefix = format!("{comment} @test {field} = \"");
-    let encoded = line
-        .strip_prefix(&prefix)
-        .and_then(|value| value.strip_suffix('"'))
-        .ok_or_else(|| {
-            errors([format!(
-                "{}: expected `{comment} @test {field} = \"...\"`",
-                path.display()
-            )])
-        })?;
-
-    let mut value = String::new();
-    let mut chars = encoded.chars();
-    while let Some(character) = chars.next() {
-        match character {
-            '\\' => match chars.next() {
-                Some('"') => value.push('"'),
-                Some('\\') => value.push('\\'),
-                _ => {
-                    return Err(errors([format!(
-                        "{}: {field} contains an invalid escape",
-                        path.display()
-                    )]));
-                }
-            },
-            '"' => {
-                return Err(errors([format!(
-                    "{}: {field} contains an unescaped quote",
-                    path.display()
-                )]));
-            }
-            character => value.push(character),
-        }
-    }
-    Ok(value)
 }
 
 fn feature_id(root: &Path, path: &Path) -> Result<String, String> {
@@ -822,7 +1030,14 @@ fn feature_id(root: &Path, path: &Path) -> Result<String, String> {
         .map(|segment| segment.to_str())
         .collect::<Option<Vec<_>>>()
         .ok_or_else(|| format!("feature path is not UTF-8: {}", path.display()))?;
-    Ok(segments.join("."))
+    let id = segments.join(".");
+    validate_feature_id(&id).map_err(|error| {
+        format!(
+            "feature path {} produces invalid ID {id:?}: {error}",
+            path.display()
+        )
+    })?;
+    Ok(id)
 }
 
 fn parse_feature_document(id: &str, path: &Path, source: &str) -> Result<Feature, Vec<String>> {
@@ -1050,18 +1265,36 @@ class AddOkMain {}
     }
 
     #[test]
-    fn category_must_match_harness_suffix() {
+    fn category_must_match_legacy_outcome_suffix() {
         let mut messages = Vec::new();
 
-        validate_category_suffix(
+        validate_entry_name(
             Path::new("FailureOkMain.java"),
-            "FailureOkMain",
             &TestCategory::Error,
             &mut messages,
         );
 
         assert_eq!(messages.len(), 1);
-        assert!(messages[0].contains("must end with ErrMain"));
+        assert!(messages[0].contains("legacy outcome suffix"));
+    }
+
+    #[test]
+    fn marked_entry_name_does_not_encode_category() {
+        for category in [TestCategory::Success, TestCategory::Error] {
+            let mut messages = Vec::new();
+
+            validate_entry_name(Path::new("ArithmeticTest.java"), &category, &mut messages);
+
+            assert!(messages.is_empty());
+        }
+    }
+
+    #[test]
+    fn discovers_marked_and_legacy_entry_names() {
+        assert!(is_named_entry_source(Path::new("ArithmeticTest.java")));
+        assert!(is_named_entry_source(Path::new("ArithmeticOkMain.java")));
+        assert!(is_named_entry_source(Path::new("ArithmeticErrMain.rns")));
+        assert!(!is_named_entry_source(Path::new("ArithmeticHelper.java")));
     }
 
     #[test]

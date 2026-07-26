@@ -100,16 +100,19 @@ does not itself assert that their outputs are equivalent.
 
 ## Feature Tracking Migration
 
-Feature tracking is being introduced incrementally. During migration, the
-existing fixture compiler and integration harness remain authoritative:
+Feature tracking is being introduced incrementally. The target architecture,
+strictness rules, unresolved fixture layout, and implementation sequence live
+in [`TEST_MIGRATION.md`](TEST_MIGRATION.md).
+
+During migration, the existing fixture compiler and integration harness remain
+authoritative:
 
 - Java and RNS sources may remain under their existing language roots.
 - `OkMain` and `ErrMain` suffixes still control discovery and expected exit
   behavior.
-- Only fixtures whose first line starts with `@test` metadata participate in
-  feature validation and coverage reports.
-- Fixtures without metadata continue to run, but do not count as feature
-  coverage.
+- The current tool only includes fixtures whose first line starts with `@test`
+  metadata in validation and coverage reports. This temporary behavior must be
+  replaced by strict validation before bulk migration.
 
 Validate the registry, migrated metadata, and snapshot mappings with:
 
@@ -128,23 +131,9 @@ cargo run -p feature-tracking -- feature-report unreleased \
 
 Report writes are atomic. Omitting `--output` prints either report to stdout.
 
-Migrate fixtures in small reviewed groups:
-
-1. Choose an existing feature or add one under `features/`.
-2. Model the feature ID around stable JVM behavior, not the fixture directory.
-3. Put variants and edge cases in feature criteria when they belong to the same
-   capability; multiple fixtures may reference one feature.
-4. Add exactly three metadata comments at the start of each main source.
-5. Run the feature-tracking validator and focused integration tests.
-6. Review snapshot changes semantically. Metadata inserted before Java source
-   shifts stack-trace line numbers even when runtime behavior is unchanged.
-
-Do not require metadata for every fixture until migration finishes. Do not copy
-the current fixture hierarchy into the feature registry one directory at a
-time. See [`FEATURE_TRACKING.md`](FEATURE_TRACKING.md) for schemas and permanent
+Do not bulk-migrate fixtures until the entry-source layout is selected and the
+shared metadata parser and strict validator are ready. Do not copy the current
+fixture hierarchy into the feature registry. Metadata inserted before Java
+source shifts stack-trace line numbers even when runtime behavior is unchanged.
+See [`FEATURE_TRACKING.md`](FEATURE_TRACKING.md) for schemas and permanent
 coverage rules.
-
-Release-workflow report generation remains deferred during migration. After all
-fixtures require metadata, wire both commands into the release workflow after
-the full integration suite passes and pass the release version instead of
-`unreleased`.

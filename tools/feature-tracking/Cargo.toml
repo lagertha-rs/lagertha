@@ -5,6 +5,7 @@ edition = "2024"
 publish = false
 
 [dependencies]
+lvm-common = { workspace = true, features = ["test-metadata"] }
 serde = { version = "1", features = ["derive"] }
 serde_yaml = "0.9"
 walkdir = "2.5.0"
