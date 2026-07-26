@@ -8,9 +8,9 @@ Coverage means passing integration snapshot evidence for a feature; it does not 
 
 | Metric | Count |
 |---|---:|
-| Features | 38 |
-| Snapshot tests | 56 |
-| Success tests | 48 |
+| Features | 39 |
+| Snapshot tests | 58 |
+| Success tests | 50 |
 | Error tests | 8 |
 
 ## Feature Coverage
@@ -364,6 +364,16 @@ Snapshot tests: 1
 |---|---|---|
 | Success | [`AssertionStatusTest.java`](../../vm/tests/testdata/natives/class/AssertionStatusTest.java) | Verifies assertions are enabled, true conditions complete, and false details construct AssertionError. |
 
+### `natives.object.get-class`
+
+Implementation: **Partial**  
+Snapshot tests: 2
+
+| Category | Test | Description |
+|---|---|---|
+| Success | [`ObjectGetClassTest.java`](../../vm/tests/testdata/natives/object/getclass/ObjectGetClassTest.java) | Verifies getClass returns and reuses the implementation mirror through concrete, Object, and interface references. |
+| Success | [`ReferenceArrayGetClassTest.java`](../../vm/tests/testdata/natives/object/getclass/ReferenceArrayGetClassTest.java) | Verifies one-dimensional reference arrays reuse one mirror across getClass calls, literals, and instances. |
+
 ### `natives.system.arraycopy`
 
 Implementation: **Partial**  
@@ -393,5 +403,6 @@ None.
 - `execution.references.casting`
 - `natives.binding`
 - `natives.class.assertion-status`
+- `natives.object.get-class`
 - `natives.system.arraycopy`
 

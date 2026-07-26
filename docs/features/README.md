@@ -9,7 +9,7 @@ Feature status describes declared JVM behavior. Test counts mean passing integra
 | Status | Features |
 |---|---:|
 | Implemented | 29 |
-| Partial | 9 |
+| Partial | 10 |
 | Missing | 0 |
 | Blocked | 0 |
 | Deferred | 0 |
@@ -77,6 +77,7 @@ Feature status describes declared JVM behavior. Test counts mean passing integra
 |---|---|---:|---|
 | `natives.binding` | Partial | 1 | Binds native methods to registered VM implementations. |
 | `natives.class.assertion-status` | Partial | 1 | Supplies assertion enablement used by compiled assert statements. |
+| `natives.object.get-class` | Partial | 2 | Returns the canonical Class mirror representing an object's runtime class. |
 | `natives.system.arraycopy` | Partial | 3 | Copies array subsequences with Java type, bounds, overlap, and exception semantics. |
 
 ## Feature Details
@@ -658,6 +659,27 @@ Snapshot tests: 1
 #### Limitations
 
 - Assertion status is hardcoded enabled and ignores enablement and disablement configuration.
+
+### `natives.object.get-class`
+
+Returns the canonical Class mirror representing an object's runtime class.
+
+Status: **Partial**  
+Specification: <https://docs.oracle.com/javase/specs/jls/se25/html/jls-4.html#jls-4.3.2>  
+Snapshot tests: 2
+
+#### Criteria
+
+- Returns the runtime implementation mirror independently of the reference's static class or interface type.
+- Returns an array-class mirror when the receiver is an array.
+- Reuses one Class object across getClass calls, distinct instances, and class literals.
+- Distinguishes an implementation-class mirror from mirrors for its implemented interfaces.
+
+#### Limitations
+
+- Primitive and multidimensional arrays produce incorrect mirrors because array descriptors are always reconstructed as one-dimensional reference arrays.
+- Reference-array object headers commonly store component-class identity, so passing behavior depends on descriptor reconstruction.
+- Runtime class identity does not include the defining class loader for same-named types.
 
 ### `natives.system.arraycopy`
 
