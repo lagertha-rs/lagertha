@@ -1,6 +1,6 @@
 use feature_tracking::{
-    TestCategory, render_feature_report, render_test_coverage_report, validate_registry,
-    validate_tracked_fixtures, write_report_atomic,
+    TestCategory, build_migration_inventory, render_feature_report, render_migration_inventory,
+    render_test_coverage_report, validate_registry, validate_tracked_fixtures, write_report_atomic,
 };
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -102,6 +102,27 @@ fn checked_in_migration_reports_are_current() {
         fs::read_to_string(repository_root.join("docs/features/README.md")).unwrap(),
         features
     );
+}
+
+#[test]
+fn migration_inventory_finds_untracked_legacy_entries() {
+    let repository_root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let registry = validate_registry(&repository_root.join("features"))
+        .expect("feature registry should be valid");
+
+    let inventory = build_migration_inventory(
+        &repository_root.join("vm/tests/testdata"),
+        &repository_root.join("vm/snapshots"),
+        &registry,
+    )
+    .expect("migration inventory should be built");
+    let report = render_migration_inventory(&repository_root, &inventory);
+
+    assert!(!inventory.is_clean());
+    assert!(!inventory.untracked_entries.is_empty());
+    assert!(inventory.entry_count > inventory.tracked_entries.len());
+    assert!(report.contains("## Untracked Entries"));
+    assert!(report.contains("ArithmeticOkMain.java"));
 }
 
 fn temporary_test_directory() -> PathBuf {

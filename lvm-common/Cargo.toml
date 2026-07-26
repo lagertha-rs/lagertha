@@ -10,6 +10,10 @@ authors = ["Obito-git"]
 keywords = ["jvm", "java", "bytecode", "lagertha"]
 categories = ["development-tools"]
 
+[features]
+default = []
+test-metadata = []
+
 [dependencies]
 num_enum = "0.7.4"
 tracing-subscriber = { workspace = true }
