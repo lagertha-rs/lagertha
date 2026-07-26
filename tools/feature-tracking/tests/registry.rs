@@ -30,7 +30,7 @@ fn tracked_fixture_metadata_and_snapshots_are_valid() {
         .find(|fixture| {
             fixture
                 .source_path
-                .ends_with("class_format/InterfaceFlagWithoutAbstractErrMain.rns")
+                .ends_with("class_format/InterfaceFlagWithoutAbstractTest.rns")
         })
         .expect("migrated fixture should be tracked");
 
@@ -74,7 +74,7 @@ fn repository_feature_report_contains_details_and_counts() {
     let report = render_feature_report("test", &registry, &fixtures);
 
     assert!(report.contains("### execution"));
-    assert!(report.contains("| `execution.integer.arithmetic` | Implemented | 2 |"));
+    assert!(report.contains("| `execution.integer.arithmetic` | Implemented | 4 |"));
     assert!(report.contains("- Throws ArithmeticException when an integer divisor is zero."));
     assert_eq!(report, render_feature_report("test", &registry, &fixtures));
 }
@@ -122,7 +122,7 @@ fn migration_inventory_finds_untracked_legacy_entries() {
     assert!(!inventory.untracked_entries.is_empty());
     assert!(inventory.entry_count > inventory.tracked_entries.len());
     assert!(report.contains("## Untracked Entries"));
-    assert!(report.contains("ArithmeticOkMain.java"));
+    assert!(report.contains("ClassDeclarationOkMain.java"));
 }
 
 fn temporary_test_directory() -> PathBuf {

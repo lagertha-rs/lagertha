@@ -8,7 +8,7 @@ Feature status describes declared JVM behavior. Test counts mean passing integra
 
 | Status | Features |
 |---|---:|
-| Implemented | 2 |
+| Implemented | 5 |
 | Partial | 0 |
 | Missing | 0 |
 | Blocked | 0 |
@@ -26,7 +26,10 @@ Feature status describes declared JVM behavior. Test counts mean passing integra
 
 | Feature | Status | Tests | Description |
 |---|---|---:|---|
-| `execution.integer.arithmetic` | Implemented | 2 | Executes integer arithmetic and related operations with JVM-defined semantics. |
+| `execution.integer.arithmetic` | Implemented | 4 | Executes integer arithmetic with JVM-defined overflow and division semantics. |
+| `execution.integer.bitwise` | Implemented | 2 | Executes integer shifts and bitwise operations with JVM-defined semantics. |
+| `execution.integer.comparisons` | Implemented | 1 | Evaluates signed integer comparison expressions. |
+| `execution.integer.conversions` | Implemented | 1 | Narrows integer values to byte, short, and char values. |
 
 ## Feature Details
 
@@ -45,7 +48,22 @@ Snapshot tests: 1
 
 ### `execution.integer.arithmetic`
 
-Executes integer arithmetic and related operations with JVM-defined semantics.
+Executes integer arithmetic with JVM-defined overflow and division semantics.
+
+Status: **Implemented**  
+Specification: JVMS 2.11.3  
+Snapshot tests: 4
+
+#### Criteria
+
+- Wraps addition, subtraction, multiplication, and negation on overflow.
+- Implements signed division and remainder, including the minimum-value edge case.
+- Throws ArithmeticException when an integer divisor is zero.
+- Implements compound arithmetic assignments and increment and decrement expressions.
+
+### `execution.integer.bitwise`
+
+Executes integer shifts and bitwise operations with JVM-defined semantics.
 
 Status: **Implemented**  
 Specification: JVMS 2.11.3  
@@ -53,11 +71,35 @@ Snapshot tests: 2
 
 #### Criteria
 
-- Wraps addition, subtraction, multiplication, and negation on overflow.
-- Implements signed division and remainder, including the minimum-value edge case.
-- Throws ArithmeticException when an integer divisor is zero.
-- Masks shift distances and distinguishes arithmetic from logical right shifts.
+- Masks integer shift distances to five bits.
+- Distinguishes arithmetic and logical right shifts.
 - Implements integer complement, conjunction, disjunction, and exclusive-or operations.
-- Narrows integers to byte, short, and char values.
-- Implements signed comparisons and increment and decrement expressions.
+
+### `execution.integer.comparisons`
+
+Evaluates signed integer comparison expressions.
+
+Status: **Implemented**  
+Specification: JVMS 2.11.7  
+Snapshot tests: 1
+
+#### Criteria
+
+- Compares signed integer values by order.
+- Evaluates integer equality and inequality.
+
+### `execution.integer.conversions`
+
+Narrows integer values to byte, short, and char values.
+
+Status: **Implemented**  
+Specification: JVMS 2.11.5  
+Snapshot tests: 1
+
+#### Criteria
+
+- Narrows integers to signed byte values.
+- Narrows integers to signed short values.
+- Narrows integers to unsigned char values.
+- Promotes narrowed char values back to integers without sign extension.
 

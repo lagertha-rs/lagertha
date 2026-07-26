@@ -1866,6 +1866,7 @@ version = "0.5.0"
 dependencies = [
  "assert_cmd",
  "clap",
+ "feature-tracking",
  "hotpath",
  "insta",
  "lvm-common",

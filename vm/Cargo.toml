@@ -20,7 +20,9 @@ tracing-log = { workspace = true }
 
 [dev-dependencies]
 assert_cmd = "2"
+feature-tracking = { path = "../tools/feature-tracking" }
 insta = { version = "1.42.2", features = ["yaml"] }
+lvm-common = { workspace = true, features = ["test-metadata"] }
 rstest = "0.26.1"
 
 [build-dependencies]

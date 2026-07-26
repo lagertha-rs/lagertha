@@ -1,0 +1,8 @@
+name: Integer comparisons
+description: Evaluates signed integer comparison expressions.
+status: implemented
+spec: JVMS 2.11.7
+
+criteria:
+  - Compares signed integer values by order.
+  - Evaluates integer equality and inequality.

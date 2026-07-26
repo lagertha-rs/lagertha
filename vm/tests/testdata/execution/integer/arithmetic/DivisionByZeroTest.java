@@ -2,10 +2,10 @@
 // @test description = "Verifies that integer division by zero throws ArithmeticException."
 // @test category = "error"
 
-package primitives.ints.errors.division_by_zero;
+package execution.integer.arithmetic;
 
-public class DivisionByZeroErrMain {
+public class DivisionByZeroTest {
     public static void main(String[] args) {
-        var a = 1 / 0;
+        var result = 1 / 0;
     }
 }

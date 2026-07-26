@@ -1010,7 +1010,9 @@ pub(super) fn handle_irem(thread: &mut JavaThreadState) -> Result<(), JvmError> 
     if v2 == 0 {
         throw_exception!(ArithmeticException, "/ by zero")?
     }
-    thread.stack.push_operand(Value::Integer(v1 % v2))
+    thread
+        .stack
+        .push_operand(Value::Integer(v1.wrapping_rem(v2)))
 }
 
 #[inline]
@@ -1128,7 +1130,7 @@ pub(super) fn handle_f2d(thread: &mut JavaThreadState) -> Result<(), JvmError> {
 #[inline]
 pub(super) fn handle_ineg(thread: &mut JavaThreadState) -> Result<(), JvmError> {
     let v = thread.stack.pop_int_val()?;
-    thread.stack.push_operand(Value::Integer(-v))
+    thread.stack.push_operand(Value::Integer(v.wrapping_neg()))
 }
 
 #[inline]
@@ -1201,7 +1203,9 @@ pub(super) fn handle_istore(thread: &mut JavaThreadState, idx: u8) -> Result<(),
 pub(super) fn handle_isub(thread: &mut JavaThreadState) -> Result<(), JvmError> {
     let v2 = thread.stack.pop_int_val()?;
     let v1 = thread.stack.pop_int_val()?;
-    thread.stack.push_operand(Value::Integer(v1 - v2))
+    thread
+        .stack
+        .push_operand(Value::Integer(v1.wrapping_sub(v2)))
 }
 
 #[inline]
@@ -1220,9 +1224,10 @@ pub(super) fn handle_iinc(
     const_val: i8,
 ) -> Result<(), JvmError> {
     let value = thread.stack.get_local_int_val(idx)?;
-    thread
-        .stack
-        .set_local(idx as usize, Value::Integer(value + (const_val as i32)))
+    thread.stack.set_local(
+        idx as usize,
+        Value::Integer(value.wrapping_add(const_val as i32)),
+    )
 }
 
 #[inline]

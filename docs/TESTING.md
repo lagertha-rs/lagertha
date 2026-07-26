@@ -37,8 +37,9 @@ in [`BUILDING.md`](BUILDING.md).
 
 `vm/build.rs` defines fixture compilation:
 
-- Java sources under `vm/tests/testdata/java` compile with `javac`.
-- RNS sources under `vm/tests/testdata/rns` compile with `rnsc`.
+- `.java` sources anywhere under `vm/tests/testdata` compile with `javac`.
+- `.rns` sources anywhere under `vm/tests/testdata` compile with `rnsc`.
+- Existing `java/` and `rns/` roots remain supported during migration.
 - Generated classes go under ignored `vm/tests/testdata/compiled`.
 - The build script deletes and recreates compiled fixture output.
 
@@ -50,14 +51,22 @@ inputs `javac` cannot produce.
 
 ## Integration-Test Discovery
 
-`vm/tests/integration_test.rs` discovers compiled entry classes by suffix:
+`vm/tests/integration_test.rs` currently supports two discovery paths during
+migration.
+
+New metadata-driven fixtures are discovered from source:
+
+- `*Test.java` and `*Test.rns` are integration entries.
+- The metadata `category` determines whether both VMs should succeed or fail.
+- Entry names do not encode expected outcome.
+
+Unmigrated compiled fixtures retain legacy suffix discovery:
 
 - `*OkMain.class` must exit successfully.
 - `*ErrMain.class` must exit unsuccessfully.
 
-A fixture without the appropriate suffix does not become an integration test.
-Helper classes may use other names because the harness only executes entry
-classes.
+Other source names are helpers and do not become integration entries. Remove
+legacy suffix discovery after every entry has metadata and a `*Test` name.
 
 The harness runs each fixture twice:
 
@@ -92,11 +101,12 @@ does not itself assert that their outputs are equivalent.
 ## Adding A Fixture
 
 1. Choose Java for source-level behavior or RNS for exact bytecode.
-2. Give the entry class an `OkMain` or `ErrMain` suffix.
-3. Keep the case focused on one primary feature.
-4. Run the focused integration test.
-5. Review and accept the new snapshot semantically.
-6. Run broader tests required by the affected subsystem.
+2. Give the entry source a `*Test.java` or `*Test.rns` name.
+3. Add exactly three metadata comments at the start of the entry source.
+4. Keep the case focused on one primary feature.
+5. Run the feature-tracking validator and focused integration test.
+6. Review and accept the new snapshot semantically.
+7. Run broader tests required by the affected subsystem.
 
 ## Feature Tracking Migration
 
