@@ -5,11 +5,24 @@ The long-term target is a functional, broadly compatible JVM for Java 25, not a
 generic bytecode interpreter or a JVM for an unspecified Java version. The
 project is early-stage and implements that target incrementally.
 
-Use the Java Virtual Machine Specification SE 25 as the primary behavioral and
-class-file reference. Use the Java Language Specification when source-language
-behavior helps define an integration test. Do not describe a feature as
-supported only because a parser enum, interpreter arm, native registration, or
-stub exists; support requires working behavior and appropriate evidence.
+The Java SE 25 specifications are Lagertha's source of truth:
+
+- Java Virtual Machine Specification:
+  https://docs.oracle.com/javase/specs/jvms/se25/html/index.html
+- Java Language Specification:
+  https://docs.oracle.com/javase/specs/jls/se25/html/index.html
+
+Use the JVMS as the primary behavioral and class-file reference. Use the JLS
+when source-language behavior helps define an integration test. Do not describe
+a feature as supported only because a parser enum, interpreter arm, native
+registration, or stub exists; support requires working behavior and appropriate
+evidence.
+
+Feature specification references must be direct links into these SE 25 sources,
+not plain article labels. Before adding or changing any specification link, use
+`curl --fail --silent --show-error --location` to verify the page exists. For a
+fragment link, also inspect the fetched HTML and verify its fragment ID exists;
+curl does not send URL fragments to the server. Never add an unverified link.
 
 ## Organization And Local Workspace
 

@@ -1,7 +1,7 @@
 name: Integer narrowing conversions
 description: Narrows integer values to byte, short, and char values.
 status: implemented
-spec: JVMS 2.11.5
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.11.5"
 
 criteria:
   - Narrows integers to signed byte values.

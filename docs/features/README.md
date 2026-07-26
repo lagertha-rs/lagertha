@@ -38,7 +38,7 @@ Feature status describes declared JVM behavior. Test counts mean passing integra
 Validates access flag combinations for interface class files.
 
 Status: **Implemented**  
-Specification: JVMS 4.1  
+Specification: <https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.1>  
 Snapshot tests: 1
 
 #### Criteria
@@ -51,7 +51,7 @@ Snapshot tests: 1
 Executes integer arithmetic with JVM-defined overflow and division semantics.
 
 Status: **Implemented**  
-Specification: JVMS 2.11.3  
+Specification: <https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.11.3>  
 Snapshot tests: 4
 
 #### Criteria
@@ -66,7 +66,7 @@ Snapshot tests: 4
 Executes integer shifts and bitwise operations with JVM-defined semantics.
 
 Status: **Implemented**  
-Specification: JVMS 2.11.3  
+Specification: <https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.11.3>  
 Snapshot tests: 2
 
 #### Criteria
@@ -80,7 +80,7 @@ Snapshot tests: 2
 Evaluates signed integer comparison expressions.
 
 Status: **Implemented**  
-Specification: JVMS 2.11.7  
+Specification: <https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.11.7>  
 Snapshot tests: 1
 
 #### Criteria
@@ -93,7 +93,7 @@ Snapshot tests: 1
 Narrows integer values to byte, short, and char values.
 
 Status: **Implemented**  
-Specification: JVMS 2.11.5  
+Specification: <https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.11.5>  
 Snapshot tests: 1
 
 #### Criteria
