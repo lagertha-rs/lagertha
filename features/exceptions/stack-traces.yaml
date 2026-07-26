@@ -1,0 +1,14 @@
+name: Exception stack traces
+description: Captures and renders Java call frames associated with a thrown exception.
+status: partial
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.10"
+
+criteria:
+  - Captures the throwing method followed by caller frames.
+  - Renders method names, source files, and source line numbers.
+  - Represents native methods as native frames.
+  - Supports explicit Throwable.printStackTrace output.
+
+limitations:
+  - Causes, suppressed exceptions, common-frame elision, modules, loaders, and unknown-source frames lack integration evidence.
+  - Stack-trace native implementations use an incomplete custom model.

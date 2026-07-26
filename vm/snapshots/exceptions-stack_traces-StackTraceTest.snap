@@ -1,0 +1,23 @@
+---
+source: vm/tests/integration_test.rs
+expression: combined
+---
+===== Lagertha VM =====
+----- exit: Some(0) -----
+----- STDOUT -----
+
+----- STDERR -----
+java.lang.IllegalStateException: stack-trace-test
+	at exceptions.stack_traces.StackTraceTest.second(StackTraceTest.java:21)
+	at exceptions.stack_traces.StackTraceTest.first(StackTraceTest.java:17)
+	at exceptions.stack_traces.StackTraceTest.main(StackTraceTest.java:10)
+
+===== Real JVM =====
+----- exit: Some(0) -----
+----- STDOUT -----
+
+----- STDERR -----
+java.lang.IllegalStateException: stack-trace-test
+	at exceptions.stack_traces.StackTraceTest.second(StackTraceTest.java:21)
+	at exceptions.stack_traces.StackTraceTest.first(StackTraceTest.java:17)
+	at exceptions.stack_traces.StackTraceTest.main(StackTraceTest.java:10)

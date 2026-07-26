@@ -1,0 +1,10 @@
+name: Exception handler selection
+description: Searches exception tables in order for a handler compatible with the thrown object.
+status: implemented
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.10"
+
+criteria:
+  - Selects handlers whose protected half-open range contains the throwing instruction.
+  - Chooses the first table entry whose catch type matches the thrown class or a superclass.
+  - Supports catch-all handlers and nested protected regions.
+  - Skips incompatible handlers and bypasses all handlers on normal completion.

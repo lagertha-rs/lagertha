@@ -8,8 +8,8 @@ Feature status describes declared JVM behavior. Test counts mean passing integra
 
 | Status | Features |
 |---|---:|
-| Implemented | 28 |
-| Partial | 2 |
+| Implemented | 29 |
+| Partial | 8 |
 | Missing | 0 |
 | Blocked | 0 |
 | Deferred | 0 |
@@ -28,6 +28,16 @@ Feature status describes declared JVM behavior. Test counts mean passing integra
 |---|---|---:|---|
 | `class-loading.initialization` | Partial | 1 | Executes class and interface initialization methods after preparation. |
 | `class-loading.preparation` | Implemented | 1 | Creates static field storage and assigns JVM default values before initialization. |
+
+### exceptions
+
+| Feature | Status | Tests | Description |
+|---|---|---:|---|
+| `exceptions.handler-selection` | Implemented | 1 | Searches exception tables in order for a handler compatible with the thrown object. |
+| `exceptions.propagation` | Partial | 2 | Abruptly completes frames until a caller provides a matching handler. |
+| `exceptions.stack-traces` | Partial | 1 | Captures and renders Java call frames associated with a thrown exception. |
+| `exceptions.throwing` | Partial | 1 | Throws exception references with the athrow instruction. |
+| `exceptions.uncaught-reporting` | Partial | 1 | Reports an uncaught main-thread exception and terminates unsuccessfully. |
 
 ### execution
 
@@ -60,6 +70,13 @@ Feature status describes declared JVM behavior. Test counts mean passing integra
 | `execution.long.conversions` | Implemented | 1 | Converts between integer and long computational values. |
 | `execution.objects.instance-default-values` | Implemented | 1 | Initializes fields in newly allocated objects with JVM default values. |
 | `execution.references.casting` | Partial | 1 | Checks whether a reference can be cast to a target reference type. |
+
+### natives
+
+| Feature | Status | Tests | Description |
+|---|---|---:|---|
+| `natives.binding` | Partial | 1 | Binds native methods to registered VM implementations. |
+| `natives.class.assertion-status` | Partial | 1 | Supplies assertion enablement used by compiled assert statements. |
 
 ## Feature Details
 
@@ -114,6 +131,101 @@ Snapshot tests: 1
 - Assigns false and numeric zero to primitive static fields before explicit initializers run.
 - Assigns null to reference static fields before explicit initializers run.
 - Makes prepared values observable to earlier expressions in the initialization method.
+
+### `exceptions.handler-selection`
+
+Searches exception tables in order for a handler compatible with the thrown object.
+
+Status: **Implemented**  
+Specification: <https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.10>  
+Snapshot tests: 1
+
+#### Criteria
+
+- Selects handlers whose protected half-open range contains the throwing instruction.
+- Chooses the first table entry whose catch type matches the thrown class or a superclass.
+- Supports catch-all handlers and nested protected regions.
+- Skips incompatible handlers and bypasses all handlers on normal completion.
+
+### `exceptions.propagation`
+
+Abruptly completes frames until a caller provides a matching handler.
+
+Status: **Partial**  
+Specification: <https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.6.5>  
+Snapshot tests: 2
+
+#### Criteria
+
+- Discards intervening Java frames while preserving the thrown exception object.
+- Propagates exceptions from constructors and exception handlers.
+- Skips instructions following an abruptly completed invocation.
+- Executes compiler-generated catch-all and rethrow paths for finally blocks.
+- Releases monitors held by synchronized methods during abrupt completion.
+
+#### Limitations
+
+- Synchronized-method monitor acquisition and release are not implemented.
+- Internal failures during handler lookup can replace Java propagation with a VM error.
+
+### `exceptions.stack-traces`
+
+Captures and renders Java call frames associated with a thrown exception.
+
+Status: **Partial**  
+Specification: <https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.10>  
+Snapshot tests: 1
+
+#### Criteria
+
+- Captures the throwing method followed by caller frames.
+- Renders method names, source files, and source line numbers.
+- Represents native methods as native frames.
+- Supports explicit Throwable.printStackTrace output.
+
+#### Limitations
+
+- Causes, suppressed exceptions, common-frame elision, modules, loaders, and unknown-source frames lack integration evidence.
+- Stack-trace native implementations use an incomplete custom model.
+
+### `exceptions.throwing`
+
+Throws exception references with the athrow instruction.
+
+Status: **Partial**  
+Specification: <https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.11.9>  
+Snapshot tests: 1
+
+#### Criteria
+
+- Throws a non-null exception object and preserves its identity.
+- Throws NullPointerException when the athrow operand is null.
+- Supplies the thrown reference to a matching exception handler.
+- Clears the operand stack before entering a matching handler.
+
+#### Limitations
+
+- Handler entry pushes the exception onto the existing operand stack instead of clearing it first.
+- Abrupt synchronized-method completion does not release the method monitor.
+
+### `exceptions.uncaught-reporting`
+
+Reports an uncaught main-thread exception and terminates unsuccessfully.
+
+Status: **Partial**  
+Specification: <https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-5.html#jvms-5.7>  
+Snapshot tests: 1
+
+#### Criteria
+
+- Terminates the VM unsuccessfully when an exception escapes the main method.
+- Reports the thread name, exception type, message, and Java frames.
+- Dispatches the exception through the main thread group.
+
+#### Limitations
+
+- Only main-thread reporting has integration evidence.
+- Custom handlers, secondary threads, and failures during reporting are not supported or tested.
 
 ### `execution.arrays.access-exceptions`
 
@@ -507,4 +619,42 @@ Snapshot tests: 1
 #### Limitations
 
 - Current non-null casts are accepted without assignment-compatibility checks.
+
+### `natives.binding`
+
+Binds native methods to registered VM implementations.
+
+Status: **Partial**  
+Specification: <https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-5.html#jvms-5.6>  
+Snapshot tests: 1
+
+#### Criteria
+
+- Resolves registered native methods by declaring class, name, and descriptor.
+- Throws UnsatisfiedLinkError when no implementation is bound.
+- Preserves the missing native call as a native stack frame.
+
+#### Limitations
+
+- Binding is limited to the internal registry and does not load general native libraries.
+- UnsatisfiedLinkError message punctuation differs from the reference JVM.
+
+### `natives.class.assertion-status`
+
+Supplies assertion enablement used by compiled assert statements.
+
+Status: **Partial**  
+Specification: <https://docs.oracle.com/javase/specs/jls/se25/html/jls-14.html#jls-14.10>  
+Snapshot tests: 1
+
+#### Criteria
+
+- Enables assertion condition evaluation before class initialization completes.
+- Allows a true assertion to complete normally.
+- Constructs AssertionError with the detail expression when a condition is false.
+- Honors launcher, class, package, and class-loader assertion configuration.
+
+#### Limitations
+
+- Assertion status is hardcoded enabled and ignores enablement and disablement configuration.
 

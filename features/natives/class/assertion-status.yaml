@@ -1,0 +1,13 @@
+name: Class assertion status
+description: Supplies assertion enablement used by compiled assert statements.
+status: partial
+spec: "https://docs.oracle.com/javase/specs/jls/se25/html/jls-14.html#jls-14.10"
+
+criteria:
+  - Enables assertion condition evaluation before class initialization completes.
+  - Allows a true assertion to complete normally.
+  - Constructs AssertionError with the detail expression when a condition is false.
+  - Honors launcher, class, package, and class-loader assertion configuration.
+
+limitations:
+  - Assertion status is hardcoded enabled and ignores enablement and disablement configuration.

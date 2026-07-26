@@ -1,0 +1,13 @@
+name: Native method binding
+description: Binds native methods to registered VM implementations.
+status: partial
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-5.html#jvms-5.6"
+
+criteria:
+  - Resolves registered native methods by declaring class, name, and descriptor.
+  - Throws UnsatisfiedLinkError when no implementation is bound.
+  - Preserves the missing native call as a native stack frame.
+
+limitations:
+  - Binding is limited to the internal registry and does not load general native libraries.
+  - UnsatisfiedLinkError message punctuation differs from the reference JVM.

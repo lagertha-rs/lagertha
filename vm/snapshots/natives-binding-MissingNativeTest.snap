@@ -1,0 +1,21 @@
+---
+source: vm/tests/integration_test.rs
+expression: combined
+---
+===== Lagertha VM =====
+----- exit: Some(1) -----
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.UnsatisfiedLinkError: void natives.binding.MissingNativeTest.missing()
+	at natives.binding.MissingNativeTest.missing(Native Method)
+	at natives.binding.MissingNativeTest.main(MissingNativeTest.java:11)
+
+===== Real JVM =====
+----- exit: Some(1) -----
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.UnsatisfiedLinkError: 'void natives.binding.MissingNativeTest.missing()'
+	at natives.binding.MissingNativeTest.missing(Native Method)
+	at natives.binding.MissingNativeTest.main(MissingNativeTest.java:11)

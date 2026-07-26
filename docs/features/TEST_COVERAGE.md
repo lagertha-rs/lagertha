@@ -8,10 +8,10 @@ Coverage means passing integration snapshot evidence for a feature; it does not 
 
 | Metric | Count |
 |---|---:|
-| Features | 30 |
-| Snapshot tests | 45 |
-| Success tests | 39 |
-| Error tests | 6 |
+| Features | 37 |
+| Snapshot tests | 53 |
+| Success tests | 45 |
+| Error tests | 8 |
 
 ## Feature Coverage
 
@@ -41,6 +41,52 @@ Snapshot tests: 1
 | Category | Test | Description |
 |---|---|---|
 | Success | [`StaticFieldPreparationTest.java`](../../vm/tests/testdata/class_loading/preparation/StaticFieldPreparationTest.java) | Verifies class and interface static fields expose prepared defaults before explicit initializers. |
+
+### `exceptions.handler-selection`
+
+Implementation: **Implemented**  
+Snapshot tests: 1
+
+| Category | Test | Description |
+|---|---|---|
+| Success | [`HandlerSelectionTest.java`](../../vm/tests/testdata/exceptions/handling/HandlerSelectionTest.java) | Verifies exact, superclass, ordered, catch-all, nested, mismatched, and normal exception-table paths. |
+
+### `exceptions.propagation`
+
+Implementation: **Partial**  
+Snapshot tests: 2
+
+| Category | Test | Description |
+|---|---|---|
+| Success | [`FinallyUnwindingTest.java`](../../vm/tests/testdata/exceptions/propagation/FinallyUnwindingTest.java) | Verifies finally paths execute after normal and abrupt completion and rethrow the original exception. |
+| Success | [`FrameUnwindingTest.java`](../../vm/tests/testdata/exceptions/propagation/FrameUnwindingTest.java) | Verifies multi-frame, constructor, and replacement-exception propagation skips abruptly completed code. |
+
+### `exceptions.stack-traces`
+
+Implementation: **Partial**  
+Snapshot tests: 1
+
+| Category | Test | Description |
+|---|---|---|
+| Success | [`StackTraceTest.java`](../../vm/tests/testdata/exceptions/stack_traces/StackTraceTest.java) | Verifies explicit stack-trace output contains the throw site and ordered Java callers. |
+
+### `exceptions.throwing`
+
+Implementation: **Partial**  
+Snapshot tests: 1
+
+| Category | Test | Description |
+|---|---|---|
+| Success | [`ThrowingTest.java`](../../vm/tests/testdata/exceptions/throwing/ThrowingTest.java) | Verifies explicit throws preserve identity and message, while throwing null produces NullPointerException. |
+
+### `exceptions.uncaught-reporting`
+
+Implementation: **Partial**  
+Snapshot tests: 1
+
+| Category | Test | Description |
+|---|---|---|
+| Error | [`UncaughtExceptionTest.java`](../../vm/tests/testdata/exceptions/reporting/UncaughtExceptionTest.java) | Verifies an exception escaping main reports its type, message, and caller frames before failure. |
 
 ### `execution.arrays.access-exceptions`
 
@@ -300,6 +346,24 @@ Snapshot tests: 1
 |---|---|---|
 | Success | [`NullCastTest.java`](../../vm/tests/testdata/execution/references/casting/NullCastTest.java) | Verifies checkcast accepts null for class, interface, and array targets. |
 
+### `natives.binding`
+
+Implementation: **Partial**  
+Snapshot tests: 1
+
+| Category | Test | Description |
+|---|---|---|
+| Error | [`MissingNativeTest.java`](../../vm/tests/testdata/natives/binding/MissingNativeTest.java) | Verifies an unbound native method throws UnsatisfiedLinkError with a native stack frame. |
+
+### `natives.class.assertion-status`
+
+Implementation: **Partial**  
+Snapshot tests: 1
+
+| Category | Test | Description |
+|---|---|---|
+| Success | [`AssertionStatusTest.java`](../../vm/tests/testdata/natives/class/AssertionStatusTest.java) | Verifies assertions are enabled, true conditions complete, and false details construct AssertionError. |
+
 ## Features Without Integration Tests
 
 None.
@@ -311,5 +375,11 @@ None.
 ## Partial Features With Regression Tests
 
 - `class-loading.initialization`
+- `exceptions.propagation`
+- `exceptions.stack-traces`
+- `exceptions.throwing`
+- `exceptions.uncaught-reporting`
 - `execution.references.casting`
+- `natives.binding`
+- `natives.class.assertion-status`
 

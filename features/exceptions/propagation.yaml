@@ -1,0 +1,15 @@
+name: Exception propagation
+description: Abruptly completes frames until a caller provides a matching handler.
+status: partial
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.6.5"
+
+criteria:
+  - Discards intervening Java frames while preserving the thrown exception object.
+  - Propagates exceptions from constructors and exception handlers.
+  - Skips instructions following an abruptly completed invocation.
+  - Executes compiler-generated catch-all and rethrow paths for finally blocks.
+  - Releases monitors held by synchronized methods during abrupt completion.
+
+limitations:
+  - Synchronized-method monitor acquisition and release are not implemented.
+  - Internal failures during handler lookup can replace Java propagation with a VM error.
