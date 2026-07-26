@@ -1046,7 +1046,13 @@ pub(super) fn handle_lrem(thread: &mut JavaThreadState) -> Result<(), JvmError> 
     if v2 == 0 {
         throw_exception!(ArithmeticException, "/ by zero")?
     }
-    thread.stack.push_operand(Value::Long(v1 % v2))
+    thread.stack.push_operand(Value::Long(v1.wrapping_rem(v2)))
+}
+
+#[inline]
+pub(super) fn handle_lneg(thread: &mut JavaThreadState) -> Result<(), JvmError> {
+    let value = thread.stack.pop_long_val()?;
+    thread.stack.push_operand(Value::Long(value.wrapping_neg()))
 }
 
 #[inline]

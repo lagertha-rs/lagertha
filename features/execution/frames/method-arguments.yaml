@@ -1,0 +1,11 @@
+name: Method arguments
+description: Transfers receiver and argument values into callee local variable slots.
+status: implemented
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.6.1"
+
+criteria:
+  - Preserves static argument order across category-1 and category-2 values.
+  - Places an instance receiver before explicit method arguments.
+  - Places a constructor receiver before explicit constructor arguments.
+  - Passes primitive and reference values by value.
+  - Passes null and array references.

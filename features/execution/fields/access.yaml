@@ -1,0 +1,10 @@
+name: Field access
+description: Resolves and accesses instance and static fields.
+status: implemented
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-5.html#jvms-5.4.3.2"
+
+criteria:
+  - Reads and writes instance fields.
+  - Reads default and initialized instance field values.
+  - Reads and writes static fields.
+  - Resolves inherited fields through a subclass instance.

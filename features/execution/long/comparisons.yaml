@@ -1,0 +1,8 @@
+name: Long comparisons
+description: Evaluates signed long comparison expressions.
+status: implemented
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.11.7"
+
+criteria:
+  - Compares signed long values by order.
+  - Evaluates long equality and inequality.

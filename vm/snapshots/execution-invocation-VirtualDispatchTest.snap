@@ -1,0 +1,16 @@
+---
+source: vm/tests/integration_test.rs
+expression: combined
+---
+===== Lagertha VM =====
+----- exit: Some(0) -----
+----- STDOUT -----
+
+----- STDERR -----
+
+
+===== Real JVM =====
+----- exit: Some(0) -----
+----- STDOUT -----
+
+----- STDERR -----

@@ -1,0 +1,8 @@
+name: Static method invocation
+description: Resolves and invokes class and interface static methods.
+status: implemented
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.invokestatic"
+
+criteria:
+  - Invokes a static class method without a receiver.
+  - Invokes a static interface method without a receiver.

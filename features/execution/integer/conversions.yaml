@@ -8,3 +8,4 @@ criteria:
   - Narrows integers to signed short values.
   - Narrows integers to unsigned char values.
   - Promotes narrowed char values back to integers without sign extension.
+  - Applies narrowing conversion after compound assignments and increment or decrement.

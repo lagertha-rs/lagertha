@@ -1,0 +1,9 @@
+name: Unconditional branches
+description: Executes forward and backward unconditional control transfers.
+status: implemented
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.goto"
+
+criteria:
+  - Transfers execution forward without fallthrough.
+  - Transfers execution backward to continue repeated control flow.
+  - Exits nested compiled control-flow regions at the selected target.

@@ -1,0 +1,9 @@
+name: Long bitwise operations
+description: Executes long shifts and bitwise operations with JVM-defined semantics.
+status: implemented
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.11.3"
+
+criteria:
+  - Masks long shift distances to six bits.
+  - Distinguishes arithmetic and logical right shifts.
+  - Implements long complement, conjunction, disjunction, and exclusive-or operations.

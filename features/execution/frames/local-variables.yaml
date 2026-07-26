@@ -1,0 +1,9 @@
+name: Local variables
+description: Stores and loads JVM computational values in local variable slots.
+status: implemented
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.6.1"
+
+criteria:
+  - Stores and loads int, float, reference, long, and double computational values.
+  - Preserves category-2 long and double values across two local slots.
+  - Stores null, object, and array references in reference local slots.

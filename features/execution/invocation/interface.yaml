@@ -1,0 +1,8 @@
+name: Interface method invocation
+description: Resolves and invokes methods through interface references.
+status: implemented
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.invokeinterface"
+
+criteria:
+  - Selects an implementing class method through an interface reference.
+  - Selects and invokes an inherited interface default method.

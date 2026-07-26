@@ -1,0 +1,10 @@
+name: Conditional branches
+description: Executes value-dependent conditional control flow.
+status: implemented
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.11.7"
+
+criteria:
+  - Selects control flow from integer zero and nonzero conditions.
+  - Preserves short-circuit evaluation of compiled conditional expressions.
+  - Selects the correct compiled conditional-expression branch.
+  - Repeats and exits compiled loop control flow.
