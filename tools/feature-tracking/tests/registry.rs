@@ -32,7 +32,7 @@ fn tracked_fixture_metadata_and_snapshots_are_valid() {
                 .source_path
                 .ends_with("class_format/InterfaceFlagWithoutAbstractTest.rns")
         })
-        .expect("migrated fixture should be tracked");
+        .expect("RNS fixture should be tracked");
 
     assert_eq!(fixture.metadata.feature, "class-format.interface-flags");
     assert_eq!(fixture.metadata.category, TestCategory::Error);
@@ -80,7 +80,7 @@ fn repository_feature_report_contains_details_and_counts() {
 }
 
 #[test]
-fn checked_in_migration_reports_are_current() {
+fn checked_in_generated_reports_are_current() {
     let repository_root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     let registry = validate_registry(&repository_root.join("features"))
         .expect("feature registry should be valid");
@@ -105,7 +105,7 @@ fn checked_in_migration_reports_are_current() {
 }
 
 #[test]
-fn migration_inventory_finds_untracked_legacy_entries() {
+fn repository_fixture_inventory_is_clean() {
     let repository_root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     let registry = validate_registry(&repository_root.join("features"))
         .expect("feature registry should be valid");
@@ -118,11 +118,14 @@ fn migration_inventory_finds_untracked_legacy_entries() {
     .expect("migration inventory should be built");
     let report = render_migration_inventory(&repository_root, &inventory);
 
-    assert!(!inventory.is_clean());
-    assert!(!inventory.untracked_entries.is_empty());
-    assert!(inventory.entry_count > inventory.tracked_entries.len());
-    assert!(report.contains("## Untracked Entries"));
-    assert!(report.contains("HelloWorldOkMain.java"));
+    assert!(inventory.is_clean(), "{report}");
+    assert_eq!(inventory.entry_count, inventory.tracked_entries.len());
+    assert!(inventory.untracked_entries.is_empty());
+    assert!(inventory.invalid_entries.is_empty());
+    assert!(inventory.missing_snapshots.is_empty());
+    assert!(inventory.orphan_snapshots.is_empty());
+    assert!(inventory.pending_snapshots.is_empty());
+    assert!(inventory.identity_collisions.is_empty());
 }
 
 fn temporary_test_directory() -> PathBuf {

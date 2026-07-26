@@ -75,7 +75,7 @@ Enable runtime tracing with the `log-runtime-traces` feature:
 
 ```bash
 cargo run -p vm --features log-runtime-traces -- \
-  -c vm/tests/testdata/compiled hello_world.basic.HelloWorldOkMain
+  -c vm/tests/testdata/compiled bootstrap.main.HelloWorldTest
 ```
 
 Enable a JDWP listener with `--jdwp-port <port>`.

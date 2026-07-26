@@ -108,7 +108,7 @@ fn compile_rns_fixtures() {
     }
 
     for file in &rns_files {
-        let rel = fixture_output_path(file, "rns");
+        let rel = fixture_output_path(file);
         let mut out = PathBuf::from(COMPILED_FIXTURES_ROOT);
         out.push(&rel);
         out.set_extension("class");
@@ -151,12 +151,8 @@ fn collect_fixtures(extension: &str) -> Vec<PathBuf> {
     files
 }
 
-fn fixture_output_path(path: &Path, legacy_root: &str) -> PathBuf {
-    let relative = path
-        .strip_prefix(FIXTURES_ROOT)
-        .expect("fixture not under fixtures root");
-    relative
-        .strip_prefix(legacy_root)
-        .unwrap_or(relative)
+fn fixture_output_path(path: &Path) -> PathBuf {
+    path.strip_prefix(FIXTURES_ROOT)
+        .expect("fixture not under fixtures root")
         .to_path_buf()
 }

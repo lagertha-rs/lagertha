@@ -199,7 +199,13 @@ pub fn build_migration_inventory(
             }
         };
         let has_metadata = has_metadata_header(&path, &source);
-        if !has_metadata && !is_named_entry_source(&path) {
+        if !is_named_entry_source(&path) {
+            if has_metadata {
+                inventory.invalid_entries.push(format!(
+                    "{}: metadata is only allowed on *Test.java or *Test.rns entries",
+                    path.display()
+                ));
+            }
             continue;
         }
 
@@ -226,7 +232,6 @@ pub fn build_migration_inventory(
                         .tracked_by_category
                         .entry(metadata.category.to_string())
                         .or_default() += 1;
-                    validate_entry_name(&path, &metadata.category, &mut inventory.invalid_entries);
                 }
                 Err(errors) => inventory.invalid_entries.extend(errors.messages),
             }
@@ -296,7 +301,7 @@ pub fn render_migration_inventory(
     inventory: &MigrationInventory,
 ) -> String {
     let mut report = String::new();
-    writeln!(report, "# Integration Test Migration Inventory\n").unwrap();
+    writeln!(report, "# Integration Fixture Inventory\n").unwrap();
     writeln!(report, "| Metric | Count |").unwrap();
     writeln!(report, "|---|---:|").unwrap();
     writeln!(report, "| Source files | {} |", inventory.source_count).unwrap();
@@ -840,7 +845,15 @@ pub fn validate_tracked_fixtures(
                 continue;
             }
         };
-        if !has_metadata_header(&path, &source) {
+        let named_entry = is_named_entry_source(&path);
+        let metadata_header = has_metadata_header(&path, &source);
+        if !named_entry {
+            if metadata_header {
+                messages.push(format!(
+                    "{}: metadata is only allowed on *Test.java or *Test.rns entries",
+                    path.display()
+                ));
+            }
             continue;
         }
 
@@ -866,8 +879,6 @@ pub fn validate_tracked_fixtures(
                 continue;
             }
         };
-        validate_entry_name(&path, &metadata.category, &mut messages);
-
         let snapshot_path = snapshots_root.join(format!("{}.snap", identity.replace('/', "-")));
         if !snapshot_path.is_file() {
             messages.push(format!(
@@ -923,9 +934,7 @@ fn has_metadata_header(path: &Path, source: &str) -> bool {
 fn is_named_entry_source(path: &Path) -> bool {
     path.file_stem()
         .and_then(|stem| stem.to_str())
-        .is_some_and(|stem| {
-            stem.ends_with("Test") || stem.ends_with("OkMain") || stem.ends_with("ErrMain")
-        })
+        .is_some_and(|stem| stem.ends_with("Test"))
 }
 
 pub fn fixture_identity(fixtures_root: &Path, path: &Path, source: &str) -> Result<String, String> {
@@ -971,13 +980,6 @@ fn rns_fixture_identity(fixtures_root: &Path, path: &Path, source: &str) -> Resu
             fixtures_root.display()
         )
     })?;
-    let mut components = relative.components();
-    let first = components.next();
-    let relative = if first.is_some_and(|component| component.as_os_str() == "rns") {
-        components.as_path()
-    } else {
-        relative
-    };
     let output_path = relative.with_extension("");
     let output_identity = output_path
         .iter()
@@ -1001,23 +1003,6 @@ fn rns_fixture_identity(fixtures_root: &Path, path: &Path, source: &str) -> Resu
         ));
     }
     Ok(output_identity)
-}
-
-fn validate_entry_name(path: &Path, category: &TestCategory, messages: &mut Vec<String>) {
-    let stem = path
-        .file_stem()
-        .and_then(|stem| stem.to_str())
-        .unwrap_or_default();
-    let valid = stem.ends_with("Test")
-        || matches!(category, TestCategory::Success) && stem.ends_with("OkMain")
-        || matches!(category, TestCategory::Error) && stem.ends_with("ErrMain");
-    if !valid {
-        messages.push(format!(
-            "{}: {:?} entry must end with Test or its legacy outcome suffix",
-            path.display(),
-            category
-        ));
-    }
 }
 
 fn feature_id(root: &Path, path: &Path) -> Result<String, String> {
@@ -1225,10 +1210,10 @@ criteria:
 // @test description = "Adds two values."
 // @test category = "success"
 
-class AddOkMain {}
+class AddTest {}
 "#;
 
-        let metadata = parse_test_metadata(Path::new("AddOkMain.java"), source).unwrap();
+        let metadata = parse_test_metadata(Path::new("AddTest.java"), source).unwrap();
 
         assert_eq!(metadata.feature, "opcodes.arithmetic.iadd");
         assert_eq!(metadata.description, "Adds two values.");
@@ -1244,7 +1229,7 @@ class AddOkMain {}
 .class_end
 "#;
 
-        let metadata = parse_test_metadata(Path::new("BadErrMain.rns"), source).unwrap();
+        let metadata = parse_test_metadata(Path::new("BadTest.rns"), source).unwrap();
 
         assert_eq!(metadata.description, "Rejects a \"bad\" interface.");
         assert_eq!(metadata.category, TestCategory::Error);
@@ -1257,7 +1242,7 @@ class AddOkMain {}
 // @test category = "success"
 "#;
 
-        let errors = parse_test_metadata(Path::new("AddOkMain.java"), source).unwrap_err();
+        let errors = parse_test_metadata(Path::new("AddTest.java"), source).unwrap_err();
 
         assert!(errors.messages()[0].contains("expected `// @test feature"));
     }
@@ -1270,72 +1255,48 @@ class AddOkMain {}
 ; @test owner = "lvm-class"
 "#;
 
-        let errors = parse_test_metadata(Path::new("BadErrMain.rns"), source).unwrap_err();
+        let errors = parse_test_metadata(Path::new("BadTest.rns"), source).unwrap_err();
 
         assert!(errors.messages()[0].contains("exactly three metadata comments"));
     }
 
     #[test]
     fn derives_java_snapshot_identity_from_package() {
-        let source = "package opcodes.arithmetic.iadd;\nclass AddOkMain {}\n";
+        let source = "package opcodes.arithmetic.iadd;\nclass AddTest {}\n";
 
-        let identity = java_fixture_identity(Path::new("AddOkMain.java"), source).unwrap();
+        let identity = java_fixture_identity(Path::new("AddTest.java"), source).unwrap();
 
-        assert_eq!(identity, "opcodes/arithmetic/iadd/AddOkMain");
+        assert_eq!(identity, "opcodes/arithmetic/iadd/AddTest");
     }
 
     #[test]
     fn derives_rns_snapshot_identity_from_compiled_path() {
         let root = Path::new("tests/testdata");
-        let path = root.join("rns/class_format/BadErrMain.rns");
-        let source = ".class interface class_format/BadErrMain\n.class_end\n";
+        let path = root.join("class_format/BadTest.rns");
+        let source = ".class interface class_format/BadTest\n.class_end\n";
 
         let identity = rns_fixture_identity(root, &path, source).unwrap();
 
-        assert_eq!(identity, "class_format/BadErrMain");
+        assert_eq!(identity, "class_format/BadTest");
     }
 
     #[test]
     fn rejects_rns_class_that_differs_from_compiled_path() {
         let root = Path::new("tests/testdata");
-        let path = root.join("rns/class_format/BadErrMain.rns");
-        let source = ".class interface other/BadErrMain\n.class_end\n";
+        let path = root.join("class_format/BadTest.rns");
+        let source = ".class interface other/BadTest\n.class_end\n";
 
         let error = rns_fixture_identity(root, &path, source).unwrap_err();
 
-        assert!(error.contains("does not match compiled path class_format/BadErrMain"));
+        assert!(error.contains("does not match compiled path class_format/BadTest"));
     }
 
     #[test]
-    fn category_must_match_legacy_outcome_suffix() {
-        let mut messages = Vec::new();
-
-        validate_entry_name(
-            Path::new("FailureOkMain.java"),
-            &TestCategory::Error,
-            &mut messages,
-        );
-
-        assert_eq!(messages.len(), 1);
-        assert!(messages[0].contains("legacy outcome suffix"));
-    }
-
-    #[test]
-    fn marked_entry_name_does_not_encode_category() {
-        for category in [TestCategory::Success, TestCategory::Error] {
-            let mut messages = Vec::new();
-
-            validate_entry_name(Path::new("ArithmeticTest.java"), &category, &mut messages);
-
-            assert!(messages.is_empty());
-        }
-    }
-
-    #[test]
-    fn discovers_marked_and_legacy_entry_names() {
+    fn discovers_only_test_entry_names() {
         assert!(is_named_entry_source(Path::new("ArithmeticTest.java")));
-        assert!(is_named_entry_source(Path::new("ArithmeticOkMain.java")));
-        assert!(is_named_entry_source(Path::new("ArithmeticErrMain.rns")));
+        assert!(is_named_entry_source(Path::new("ArithmeticTest.rns")));
+        assert!(!is_named_entry_source(Path::new("ArithmeticOkMain.java")));
+        assert!(!is_named_entry_source(Path::new("ArithmeticErrMain.rns")));
         assert!(!is_named_entry_source(Path::new("ArithmeticHelper.java")));
     }
 
@@ -1359,8 +1320,8 @@ class AddOkMain {}
         };
         let fixtures = vec![
             TrackedFixture {
-                source_path: PathBuf::from("/repo/vm/tests/testdata/AOkMain.java"),
-                snapshot_path: PathBuf::from("/repo/vm/snapshots/AOkMain.snap"),
+                source_path: PathBuf::from("/repo/vm/tests/testdata/ATest.java"),
+                snapshot_path: PathBuf::from("/repo/vm/snapshots/ATest.snap"),
                 metadata: TestMetadata {
                     feature: "a.covered".to_string(),
                     description: "Covers A | B.".to_string(),
@@ -1368,8 +1329,8 @@ class AddOkMain {}
                 },
             },
             TrackedFixture {
-                source_path: PathBuf::from("/repo/vm/tests/testdata/CErrMain.rns"),
-                snapshot_path: PathBuf::from("/repo/vm/snapshots/CErrMain.snap"),
+                source_path: PathBuf::from("/repo/vm/tests/testdata/CTest.rns"),
+                snapshot_path: PathBuf::from("/repo/vm/snapshots/CTest.snap"),
                 metadata: TestMetadata {
                     feature: "c.partial".to_string(),
                     description: "Preserves known behavior.".to_string(),
@@ -1406,7 +1367,7 @@ Snapshot tests: 1
 
 | Category | Test | Description |
 |---|---|---|
-| Success | [`AOkMain.java`](../../vm/tests/testdata/AOkMain.java) | Covers A \| B. |
+| Success | [`ATest.java`](../../vm/tests/testdata/ATest.java) | Covers A \| B. |
 
 ### `b.missing`
 
@@ -1422,7 +1383,7 @@ Snapshot tests: 1
 
 | Category | Test | Description |
 |---|---|---|
-| Error | [`CErrMain.rns`](../../vm/tests/testdata/CErrMain.rns) | Preserves known behavior. |
+| Error | [`CTest.rns`](../../vm/tests/testdata/CTest.rns) | Preserves known behavior. |
 
 ## Features Without Integration Tests
 

@@ -9,12 +9,18 @@ Feature status describes declared JVM behavior. Test counts mean passing integra
 | Status | Features |
 |---|---:|
 | Implemented | 29 |
-| Partial | 10 |
+| Partial | 11 |
 | Missing | 0 |
 | Blocked | 0 |
 | Deferred | 0 |
 
 ## Feature Index
+
+### bootstrap
+
+| Feature | Status | Tests | Description |
+|---|---|---:|---|
+| `bootstrap.main-method` | Partial | 1 | Selects an initial class and invokes its main method to drive VM execution. |
 
 ### class-format
 
@@ -81,6 +87,28 @@ Feature status describes declared JVM behavior. Test counts mean passing integra
 | `natives.system.arraycopy` | Partial | 3 | Copies array subsequences with Java type, bounds, overlap, and exception semantics. |
 
 ## Feature Details
+
+### `bootstrap.main-method`
+
+Selects an initial class and invokes its main method to drive VM execution.
+
+Status: **Partial**  
+Specification: <https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-5.html#jvms-5.2>  
+Snapshot tests: 1
+
+#### Criteria
+
+- Loads, links, and initializes the selected initial class or interface.
+- Selects a Java SE 25 candidate main method.
+- Supplies the required string argument array when applicable.
+- Invokes the selected main method and lets it drive further execution.
+
+#### Limitations
+
+- Startup only looks up a main method with descriptor ([Ljava/lang/String;)V.
+- No-argument, instance, inherited, and non-public Java SE 25 candidate main methods are not selected.
+- Program arguments are not exposed by the launcher or supplied as a String array.
+- Missing or unsupported main methods do not consistently produce specified launcher failure behavior.
 
 ### `class-format.interface-flags`
 
