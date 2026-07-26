@@ -1,0 +1,13 @@
+name: Uncaught exception reporting
+description: Reports an uncaught main-thread exception and terminates unsuccessfully.
+status: partial
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-5.html#jvms-5.7"
+
+criteria:
+  - Terminates the VM unsuccessfully when an exception escapes the main method.
+  - Reports the thread name, exception type, message, and Java frames.
+  - Dispatches the exception through the main thread group.
+
+limitations:
+  - Only main-thread reporting has integration evidence.
+  - Custom handlers, secondary threads, and failures during reporting are not supported or tested.

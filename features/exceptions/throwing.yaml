@@ -1,0 +1,14 @@
+name: Explicit exception throwing
+description: Throws exception references with the athrow instruction.
+status: partial
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-2.html#jvms-2.11.9"
+
+criteria:
+  - Throws a non-null exception object and preserves its identity.
+  - Throws NullPointerException when the athrow operand is null.
+  - Supplies the thrown reference to a matching exception handler.
+  - Clears the operand stack before entering a matching handler.
+
+limitations:
+  - Handler entry pushes the exception onto the existing operand stack instead of clearing it first.
+  - Abrupt synchronized-method completion does not release the method monitor.
