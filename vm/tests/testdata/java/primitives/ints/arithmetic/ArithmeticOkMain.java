@@ -1,3 +1,7 @@
+// @test feature = "execution.integer.arithmetic"
+// @test description = "Verifies comprehensive source-level integer operations and edge cases."
+// @test category = "success"
+
 package primitives.ints.arithmetic.comprehensive;
 
 public class ArithmeticOkMain {

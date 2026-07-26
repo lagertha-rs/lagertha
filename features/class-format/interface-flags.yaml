@@ -1,0 +1,8 @@
+name: Interface access flags
+description: Validates access flag combinations for interface class files.
+status: implemented
+spec: JVMS 4.1
+
+criteria:
+  - Requires ACC_ABSTRACT when ACC_INTERFACE is set.
+  - Rejects ACC_FINAL, ACC_SUPER, ACC_ENUM, and ACC_MODULE on interfaces.

@@ -8,7 +8,7 @@ expression: "&combined"
 
 ----- STDERR -----
 Exception in thread "main" java.lang.ArithmeticException: / by zero
-	at primitives.ints.errors.division_by_zero.DivisionByZeroErrMain.main(DivisionByZeroErrMain.java:5)
+	at primitives.ints.errors.division_by_zero.DivisionByZeroErrMain.main(DivisionByZeroErrMain.java:9)
 
 ===== Real JVM =====
 ----- exit: Some(1) -----
@@ -16,4 +16,4 @@ Exception in thread "main" java.lang.ArithmeticException: / by zero
 
 ----- STDERR -----
 Exception in thread "main" java.lang.ArithmeticException: / by zero
-	at primitives.ints.errors.division_by_zero.DivisionByZeroErrMain.main(DivisionByZeroErrMain.java:5)
+	at primitives.ints.errors.division_by_zero.DivisionByZeroErrMain.main(DivisionByZeroErrMain.java:9)

@@ -1,0 +1,13 @@
+name: Integer arithmetic
+description: Executes integer arithmetic and related operations with JVM-defined semantics.
+status: implemented
+spec: JVMS 2.11.3
+
+criteria:
+  - Wraps addition, subtraction, multiplication, and negation on overflow.
+  - Implements signed division and remainder, including the minimum-value edge case.
+  - Throws ArithmeticException when an integer divisor is zero.
+  - Masks shift distances and distinguishes arithmetic from logical right shifts.
+  - Implements integer complement, conjunction, disjunction, and exclusive-or operations.
+  - Narrows integers to byte, short, and char values.
+  - Implements signed comparisons and increment and decrement expressions.

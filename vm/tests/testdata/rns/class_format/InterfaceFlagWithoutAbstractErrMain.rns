@@ -1,3 +1,7 @@
+; @test feature = "class-format.interface-flags"
+; @test description = "Rejects an interface missing ACC_ABSTRACT."
+; @test category = "error"
+
 .class interface class_format/InterfaceFlagWithoutAbstractErrMain
 .super java/lang/Object
 
