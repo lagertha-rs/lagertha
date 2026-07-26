@@ -1,7 +1,7 @@
 name: Interface access flags
 description: Validates access flag combinations for interface class files.
 status: implemented
-spec: JVMS 4.1
+spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.1"
 
 criteria:
   - Requires ACC_ABSTRACT when ACC_INTERFACE is set.

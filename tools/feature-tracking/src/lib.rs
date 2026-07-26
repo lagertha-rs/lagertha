@@ -558,7 +558,11 @@ pub fn render_feature_report(
         writeln!(
             report,
             "Specification: {}  ",
-            feature.spec.as_deref().unwrap_or("Not specified")
+            feature
+                .spec
+                .as_deref()
+                .map(|spec| format!("<{spec}>"))
+                .unwrap_or_else(|| "Not specified".to_string())
         )
         .unwrap();
         writeln!(
@@ -1052,6 +1056,7 @@ fn parse_feature_document(id: &str, path: &Path, source: &str) -> Result<Feature
     require_list(&mut messages, id, "criteria", Some(&feature.criteria));
     if let Some(spec) = &feature.spec {
         require_text(&mut messages, id, "spec", spec);
+        validate_spec_url(&mut messages, id, spec);
     }
 
     match feature.status {
@@ -1103,6 +1108,27 @@ fn require_text(messages: &mut Vec<String>, id: &str, field: &str, value: &str) 
     }
 }
 
+fn validate_spec_url(messages: &mut Vec<String>, id: &str, spec: &str) {
+    const JVMS_ROOT: &str = "https://docs.oracle.com/javase/specs/jvms/se25/html/";
+    const JLS_ROOT: &str = "https://docs.oracle.com/javase/specs/jls/se25/html/";
+
+    let valid =
+        [(JVMS_ROOT, "jvms-"), (JLS_ROOT, "jls-")]
+            .into_iter()
+            .any(|(root, fragment_prefix)| {
+                spec.strip_prefix(root).is_some_and(|reference| {
+                    reference.split_once('#').is_some_and(|(page, fragment)| {
+                        page.ends_with(".html") && fragment.starts_with(fragment_prefix)
+                    })
+                })
+            });
+    if !valid {
+        messages.push(format!(
+            "{id}: spec must be a direct Java SE 25 JVMS or JLS section URL"
+        ));
+    }
+}
+
 fn require_list(messages: &mut Vec<String>, id: &str, field: &str, values: Option<&[String]>) {
     match values {
         Some([]) | None => messages.push(format!("{id}: {field} must not be empty")),
@@ -1136,7 +1162,7 @@ mod tests {
 name: Integer addition
 description: Adds two integer values using Java wrapping semantics.
 status: implemented
-spec: JVMS 6.5.iadd
+spec: https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.iadd
 criteria:
   - Decodes the iadd opcode.
 "#;
@@ -1175,6 +1201,22 @@ criteria:
 
         assert_eq!(messages.len(), 1);
         assert!(messages[0].contains("unknown field `owner`"));
+    }
+
+    #[test]
+    fn rejects_non_url_specification_reference() {
+        let source = BASE.replace(
+            "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.iadd",
+            "JVMS 6.5.iadd",
+        );
+
+        let messages =
+            parse_feature_document("opcodes.iadd", Path::new("iadd.yaml"), &source).unwrap_err();
+
+        assert_eq!(
+            messages,
+            ["opcodes.iadd: spec must be a direct Java SE 25 JVMS or JLS section URL"]
+        );
     }
 
     #[test]
