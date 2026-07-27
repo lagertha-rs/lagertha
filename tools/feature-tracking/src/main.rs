@@ -105,7 +105,7 @@ fn run_report(kind: ReportKind, mut args: impl Iterator<Item = OsString>) {
         ReportKind::Coverage => {
             render_test_coverage_report(&version, &repository_root, &registry, &fixtures)
         }
-        ReportKind::Features => render_feature_report(&version, &registry, &fixtures),
+        ReportKind::Features => render_feature_report(&version, &registry),
     };
 
     if let Some(output) = output {

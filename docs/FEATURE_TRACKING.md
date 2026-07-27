@@ -274,25 +274,32 @@ approved snapshots.
 
 ### Feature Report
 
-`docs/features/README.md` answers: "What is implemented?"
+`docs/features/README.md` is the public capability report. It answers: "What
+does Lagertha currently support within its declared feature scope?"
 
 It contains:
 
-- Features grouped by category.
-- Current implementation status.
-- Feature descriptions and criteria.
-- Known limitations, blockers, and deferred reasons.
-- Specification references.
-- Integration snapshot count for each feature.
+- A clear early-stage and registry-scope disclaimer.
+- Human-readable capability names linked to stable feature IDs.
+- Status definitions that distinguish declared scope from broad JVM support.
+- A summary of known gaps in tracked capabilities for roadmap planning.
+- Detailed descriptions, declared scope, limitations, blockers, deferred
+  reasons, and Java SE 25 specification references.
+
+The public report does not include integration-test counts. Test inventory and
+evidence belong in `TEST_COVERAGE.md`.
 
 Example summary:
 
-| Feature | Status | Tests | Description |
-|---|---|---:|---|
-| `opcodes.arithmetic.iadd` | Implemented | 2 | Integer addition |
-| `opcodes.arithmetic.isub` | Implemented | 0 | Integer subtraction |
-| `opcodes.references.checkcast` | Partial | 1 | Reference casts |
-| `opcodes.invocation.invokedynamic` | Blocked | 0 | Dynamic invocation |
+| Capability | Stable ID | Status | Summary |
+|---|---|---|---|
+| [Integer addition](#feature-opcodes-arithmetic-iadd) | `opcodes.arithmetic.iadd` | Implemented | Adds integer values with JVM overflow semantics. |
+| [Reference casting](#feature-opcodes-references-checkcast) | `opcodes.references.checkcast` | Partial | Checks whether a reference can be cast to a target type. |
+
+The report only describes capabilities present in the registry. Status totals
+or the absence of a `missing` entry must never be presented as complete Java 25
+coverage. `Implemented` means all declared criteria for that feature are
+implemented, not every behavior in its broader area or linked specification.
 
 ### Test Coverage Report
 
@@ -324,7 +331,8 @@ Snapshot tests: 2
 
 The report must not calculate criterion coverage percentages. A linked passing
 snapshot proves integration evidence for its feature, not exhaustive proof of
-every criterion.
+every criterion. This internal evidence must not be copied into the public
+feature report as test counts.
 
 ## Validation
 

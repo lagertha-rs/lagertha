@@ -490,64 +490,65 @@ pub fn render_test_coverage_report(
     report
 }
 
-pub fn render_feature_report(
-    version: &str,
-    registry: &FeatureRegistry,
-    fixtures: &[TrackedFixture],
-) -> String {
-    let mut snapshot_counts = BTreeMap::<&str, usize>::new();
-    for fixture in fixtures {
-        *snapshot_counts
-            .entry(&fixture.metadata.feature)
-            .or_default() += 1;
-    }
-
+pub fn render_feature_report(version: &str, registry: &FeatureRegistry) -> String {
     let mut categories = BTreeMap::<&str, Vec<(&str, &Feature)>>::new();
-    let mut status_counts = BTreeMap::<String, usize>::new();
     for (id, feature) in registry.iter() {
         let category = id.split('.').next().unwrap_or(id);
         categories.entry(category).or_default().push((id, feature));
-        *status_counts.entry(feature.status.to_string()).or_default() += 1;
     }
 
     let mut report = String::new();
-    writeln!(report, "# Lagertha Features\n").unwrap();
+    writeln!(report, "# Lagertha Feature Support\n").unwrap();
     writeln!(report, "Generated for Lagertha `{version}`.\n").unwrap();
     writeln!(
         report,
-        "Feature status describes declared JVM behavior. Test counts mean passing integration snapshot evidence, not exhaustive criterion coverage.\n"
+        "Lagertha is an early-stage educational JVM targeting Java 25. This report covers capabilities explicitly recorded in the feature registry; it is not a complete inventory of Java 25 or JVM functionality.\n"
     )
     .unwrap();
-    writeln!(report, "## Summary\n").unwrap();
-    writeln!(report, "| Status | Features |").unwrap();
-    writeln!(report, "|---|---:|").unwrap();
-    for status in [
-        Status::Implemented,
-        Status::Partial,
-        Status::Missing,
-        Status::Blocked,
-        Status::Deferred,
-    ] {
-        writeln!(
-            report,
-            "| {status} | {} |",
-            status_counts.get(&status.to_string()).copied().unwrap_or(0)
-        )
-        .unwrap();
-    }
-    report.push('\n');
+    writeln!(
+        report,
+        "For execution evidence and internal test mapping, see [Integration Test Coverage](TEST_COVERAGE.md).\n"
+    )
+    .unwrap();
 
-    writeln!(report, "## Feature Index\n").unwrap();
-    for (category, features) in categories {
-        writeln!(report, "### {category}\n").unwrap();
-        writeln!(report, "| Feature | Status | Tests | Description |").unwrap();
-        writeln!(report, "|---|---|---:|---|").unwrap();
+    writeln!(report, "## Understanding Statuses\n").unwrap();
+    writeln!(report, "| Status | Meaning |").unwrap();
+    writeln!(report, "|---|---|").unwrap();
+    writeln!(report, "| Implemented | All declared scope criteria are implemented. This does not imply complete support for the broader JVM area. |").unwrap();
+    writeln!(
+        report,
+        "| Partial | Some declared behavior works; listed limitations remain. |"
+    )
+    .unwrap();
+    writeln!(
+        report,
+        "| Missing | No meaningful implementation exists for the declared scope. |"
+    )
+    .unwrap();
+    writeln!(report, "| Blocked | Work depends on another capability. |").unwrap();
+    writeln!(
+        report,
+        "| Deferred | Work is intentionally outside the current horizon. |\n"
+    )
+    .unwrap();
+    writeln!(
+        report,
+        "Declared scope defines the boundary evaluated by a status. In particular, **Implemented** does not mean every behavior in the linked specification section is supported.\n"
+    )
+    .unwrap();
+
+    writeln!(report, "## Capability Index\n").unwrap();
+    for (category, features) in &categories {
+        writeln!(report, "### {}\n", humanize_category(category)).unwrap();
+        writeln!(report, "| Capability | Stable ID | Status | Summary |").unwrap();
+        writeln!(report, "|---|---|---|---|").unwrap();
         for (id, feature) in features {
             writeln!(
                 report,
-                "| `{id}` | {} | {} | {} |",
+                "| [{}](#{}) | `{id}` | {} | {} |",
+                markdown_table_text(&feature.name),
+                feature_anchor(id),
                 feature.status,
-                snapshot_counts.get(id).copied().unwrap_or(0),
                 markdown_table_text(&feature.description)
             )
             .unwrap();
@@ -555,44 +556,95 @@ pub fn render_feature_report(
         report.push('\n');
     }
 
-    writeln!(report, "## Feature Details\n").unwrap();
-    for (id, feature) in registry.iter() {
-        writeln!(report, "### `{id}`\n").unwrap();
-        writeln!(report, "{}\n", feature.description).unwrap();
-        writeln!(report, "Status: **{}**  ", feature.status).unwrap();
+    writeln!(report, "## Known Gaps in Tracked Capabilities\n").unwrap();
+    writeln!(report, "This section summarizes incomplete capabilities already present in the registry. It is not a complete project roadmap or inventory of missing Java 25 functionality.\n").unwrap();
+    writeln!(report, "| Capability | Status | Primary gap |").unwrap();
+    writeln!(report, "|---|---|---|").unwrap();
+    for (id, feature) in registry
+        .iter()
+        .filter(|(_, feature)| feature.status != Status::Implemented)
+    {
         writeln!(
             report,
-            "Specification: {}  ",
-            feature
-                .spec
-                .as_deref()
-                .map(|spec| format!("<{spec}>"))
-                .unwrap_or_else(|| "Not specified".to_string())
+            "| [{}](#{}) | {} | {} |",
+            markdown_table_text(&feature.name),
+            feature_anchor(id),
+            feature.status,
+            markdown_table_text(&feature_gap(feature))
         )
         .unwrap();
-        writeln!(
-            report,
-            "Snapshot tests: {}\n",
-            snapshot_counts.get(id).copied().unwrap_or(0)
-        )
-        .unwrap();
-        writeln!(report, "#### Criteria\n").unwrap();
-        render_markdown_list(&mut report, &feature.criteria);
-        if let Some(limitations) = &feature.limitations {
-            writeln!(report, "#### Limitations\n").unwrap();
-            render_markdown_list(&mut report, limitations);
-        }
-        if let Some(blocked_by) = &feature.blocked_by {
-            writeln!(report, "#### Blocked By\n").unwrap();
-            render_markdown_list(&mut report, blocked_by);
-        }
-        if let Some(reason) = &feature.reason {
-            writeln!(report, "#### Deferred Reason\n").unwrap();
-            writeln!(report, "{reason}\n").unwrap();
+    }
+    report.push('\n');
+
+    writeln!(report, "## Capability Details\n").unwrap();
+    for (category, features) in categories {
+        writeln!(report, "### {}\n", humanize_category(category)).unwrap();
+        for (id, feature) in features {
+            writeln!(report, "<a id=\"{}\"></a>\n", feature_anchor(id)).unwrap();
+            writeln!(report, "#### {}\n", feature.name).unwrap();
+            writeln!(report, "{}\n", feature.description).unwrap();
+            writeln!(report, "**Stable ID:** `{id}`  ").unwrap();
+            writeln!(report, "**Status:** {}  ", feature.status).unwrap();
+            writeln!(
+                report,
+                "**Java SE 25 reference:** {}\n",
+                feature
+                    .spec
+                    .as_deref()
+                    .map(|spec| format!("[Specification]({spec})"))
+                    .unwrap_or_else(|| "No JVMS/JLS reference recorded.".to_string())
+            )
+            .unwrap();
+            writeln!(report, "##### Declared Scope\n").unwrap();
+            render_markdown_list(&mut report, &feature.criteria);
+            if let Some(limitations) = &feature.limitations {
+                writeln!(report, "##### Current Limitations\n").unwrap();
+                render_markdown_list(&mut report, limitations);
+            }
+            if let Some(blocked_by) = &feature.blocked_by {
+                writeln!(report, "##### Blocked By\n").unwrap();
+                for blocker in blocked_by {
+                    writeln!(report, "- [`{blocker}`](#{})", feature_anchor(blocker)).unwrap();
+                }
+                report.push('\n');
+            }
+            if let Some(reason) = &feature.reason {
+                writeln!(report, "##### Deferral Reason\n").unwrap();
+                writeln!(report, "{reason}\n").unwrap();
+            }
         }
     }
 
     report
+}
+
+fn feature_anchor(id: &str) -> String {
+    format!("feature-{}", id.replace('.', "-"))
+}
+
+fn humanize_category(category: &str) -> String {
+    let mut category = category.replace('-', " ");
+    if let Some(first) = category.get_mut(0..1) {
+        first.make_ascii_uppercase();
+    }
+    category
+}
+
+fn feature_gap(feature: &Feature) -> String {
+    if let Some(limitation) = feature
+        .limitations
+        .as_ref()
+        .and_then(|limitations| limitations.first())
+    {
+        return limitation.clone();
+    }
+    if let Some(blocked_by) = &feature.blocked_by {
+        return format!("Blocked by {}.", blocked_by.join(", "));
+    }
+    if let Some(reason) = &feature.reason {
+        return reason.clone();
+    }
+    "No meaningful implementation exists for the declared scope.".to_string()
 }
 
 pub fn write_report_atomic(path: &Path, report: &str) -> std::io::Result<()> {
