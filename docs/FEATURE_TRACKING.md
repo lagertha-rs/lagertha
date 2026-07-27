@@ -376,12 +376,13 @@ source-code handler detection, and incidental bytecode presence do not count.
 
 ## Release Workflow
 
-For a release, after the full integration suite passes:
+For a release, the workflow:
 
 1. Validates feature files and fixture metadata.
-2. Generates `docs/features/README.md`.
-3. Generates `docs/features/TEST_COVERAGE.md`.
-4. Add both generated reports to the release pull request.
+2. Generates `docs/features/README.md` with the release version.
+3. Generates `docs/features/TEST_COVERAGE.md` with the release version.
+4. Runs the full workspace test suite against those generated reports.
+5. Adds both reports to the release pull request.
 
 Generated reports describe the latest released version. Their header should
 include the release version and explain that coverage means passing integration

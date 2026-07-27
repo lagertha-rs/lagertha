@@ -72,6 +72,13 @@ jobs:
       - name: Build
         run: cargo build --workspace --verbose --locked
 
+      - name: Generate feature reports
+        run: |
+          cargo run --locked -p feature-tracking -- coverage "$RELEASE_VERSION" \
+            --output docs/features/TEST_COVERAGE.md
+          cargo run --locked -p feature-tracking -- feature-report "$RELEASE_VERSION" \
+            --output docs/features/README.md
+
       - name: Test
         run: cargo test --workspace --verbose --locked
 
