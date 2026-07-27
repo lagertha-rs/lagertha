@@ -64,19 +64,16 @@ fn repository_feature_report_contains_details_and_counts() {
     let repository_root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     let registry = validate_registry(&repository_root.join("features"))
         .expect("feature registry should be valid");
-    let fixtures = validate_tracked_fixtures(
-        &repository_root.join("vm/tests/testdata"),
-        &repository_root.join("vm/snapshots"),
-        &registry,
-    )
-    .expect("tracked fixtures should be valid");
 
-    let report = render_feature_report("test", &registry, &fixtures);
+    let report = render_feature_report("test", &registry);
 
-    assert!(report.contains("### execution"));
-    assert!(report.contains("| `execution.integer.arithmetic` | Implemented | 5 |"));
+    assert!(report.contains("### Execution"));
+    assert!(report.contains("[Integer arithmetic](#feature-execution-integer-arithmetic)"));
+    assert!(report.contains("`execution.integer.arithmetic`"));
     assert!(report.contains("- Throws ArithmeticException when an integer divisor is zero."));
-    assert_eq!(report, render_feature_report("test", &registry, &fixtures));
+    assert!(!report.contains("Snapshot tests"));
+    assert!(!report.contains("| Tests |"));
+    assert_eq!(report, render_feature_report("test", &registry));
 }
 
 #[test]
@@ -92,7 +89,7 @@ fn checked_in_generated_reports_are_current() {
     .expect("tracked fixtures should be valid");
     let coverage =
         render_test_coverage_report("unreleased", &repository_root, &registry, &fixtures);
-    let features = render_feature_report("unreleased", &registry, &fixtures);
+    let features = render_feature_report("unreleased", &registry);
 
     assert_eq!(
         fs::read_to_string(repository_root.join("docs/features/TEST_COVERAGE.md")).unwrap(),
