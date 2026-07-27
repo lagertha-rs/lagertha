@@ -87,18 +87,20 @@ fn checked_in_generated_reports_are_current() {
         &registry,
     )
     .expect("tracked fixtures should be valid");
-    let coverage =
-        render_test_coverage_report("unreleased", &repository_root, &registry, &fixtures);
-    let features = render_feature_report("unreleased", &registry);
+    let checked_coverage =
+        fs::read_to_string(repository_root.join("docs/features/TEST_COVERAGE.md")).unwrap();
+    let checked_features =
+        fs::read_to_string(repository_root.join("docs/features/README.md")).unwrap();
+    let coverage_version = report_version(&checked_coverage);
+    let feature_version = report_version(&checked_features);
+    assert_eq!(coverage_version, feature_version);
 
-    assert_eq!(
-        fs::read_to_string(repository_root.join("docs/features/TEST_COVERAGE.md")).unwrap(),
-        coverage
-    );
-    assert_eq!(
-        fs::read_to_string(repository_root.join("docs/features/README.md")).unwrap(),
-        features
-    );
+    let coverage =
+        render_test_coverage_report(coverage_version, &repository_root, &registry, &fixtures);
+    let features = render_feature_report(feature_version, &registry);
+
+    assert_eq!(checked_coverage, coverage);
+    assert_eq!(checked_features, features);
 }
 
 #[test]
@@ -134,4 +136,14 @@ fn temporary_test_directory() -> PathBuf {
         "lagertha-feature-tracking-{}-{nonce}",
         std::process::id()
     ))
+}
+
+fn report_version(report: &str) -> &str {
+    report
+        .lines()
+        .find_map(|line| {
+            line.strip_prefix("Generated for Lagertha `")
+                .and_then(|version| version.strip_suffix("`."))
+        })
+        .expect("generated report should declare its Lagertha version")
 }

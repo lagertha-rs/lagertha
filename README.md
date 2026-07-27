@@ -1,105 +1,66 @@
-# Toy Java Virtual Machine
+# Lagertha
 
-This project is an educational implementation of a Java Virtual Machine following
-the [Java Virtual Machine Specification](https://docs.oracle.com/javase/specs/jvms/se25/html/). It aims to provide a
-simple but functional runtime for executing Java bytecode. I'm targeting fully featured Java 25 support.
+Lagertha is an early-stage educational Java Virtual Machine implementation written in Rust. It incrementally targets
+Java 25, using the Java SE 25 specifications as its source of truth.
 
-## Status
+The project focuses on understanding and implementing JVM behavior directly:
+class-file processing, runtime linking, heap representation, bytecode execution, native integration, and observable Java
+semantics. Lagertha is not yet broadly compatible with Java applications.
 
-This project is in early development. Hello World works!
+## Project Status
 
-**See [docs/STATUS.md](docs/STATUS.md) for detailed implementation status.**
+Support is capability-specific. A parser entry, interpreter arm, native registration, or stub does not by itself mean
+that a feature is supported.
 
-### Current Highlights
+- [Feature support](docs/features/README.md) presents capabilities recorded in the feature registry, including declared
+  scope, Java SE 25 references, and known limitations.
+- [Integration test coverage](docs/features/TEST_COVERAGE.md) maps those capabilities to passing Lagertha and
+  reference-JDK snapshot tests.
 
-- ~148/200 bytecode opcodes implemented
-- Integer/long/byte/short/char arithmetic with full tests
-- Arrays (primitive + object) with tests
-- Exception handling (try-catch-finally, stack traces) with tests
-- Basic class loading from JImage and classpath
+These generated reports cover the current registry, not the complete Java 25 feature set.
 
-### Known Limitations
+## Related Project
 
-- `invokedynamic` not implemented (blocks lambdas, modern string concat)
-- `checkcast` is a stub (always passes)
-- Module system not implemented (initPhase2 skipped)
-- Single-threaded only (monitors are no-op)
-- No garbage collection
+[Runestaff](https://github.com/lagertha-rs/runestaff) provides `rnsc`, which generates exact or intentionally invalid
+class files for Lagertha integration tests.
 
-## Project Structure
+## Build And Run
 
-This workspace consists of several crates:
+Lagertha currently requires JDK `25.0.1`, with `JAVA_HOME` pointing to that JDK, and `rnsc 0.2.1`. See
+the [building guide](docs/BUILDING.md) for complete setup and CI-equivalent verification instructions.
 
-- **lvm-class** - Library that parses and maps the binary representation of `.class` files to Rust structures
-- **lvm-common** - Utility library with shared functionality used across the workspace
-- **runtime** - Library implementing the virtual machine that executes Java bytecode
-- **vm** - Binary application that launches the runtime
+```bash
+cargo install rnsc --version 0.2.1 --locked
+cargo build --workspace --locked
+cargo run -p vm -- -c <class-directory> <package.Main>
+```
 
-The RNS language toolchain (rns-lang, rnsc, rns-lsp) lives in a separate repository: [lagertha-rs/runestaff](https://github.com/lagertha-rs/runestaff).
+Current launcher constraints:
+
+- Classpath entries must be directories; JAR classpaths are not supported.
+- Multiple classpath entries use `;` as separator, including on Unix.
+- Main class names may use dots or slashes and must omit `.class`.
+- Java program arguments are not currently exposed by the launcher.
+
+Run `cargo run -p vm -- --help` for available launcher options.
+
+## Workspace
+
+| Crate              | Responsibility                                                                      |
+|--------------------|-------------------------------------------------------------------------------------|
+| `lvm-common`       | JVM descriptors, signatures, Java types, and shared byte utilities                  |
+| `lvm-class`        | Java 25 class-file model, parser, bytecode decoder, verifier, and optional writer   |
+| `jimage`           | Memory-mapped reader for classes stored in the JDK runtime image                    |
+| `runtime`          | Bootstrap, class loading and linking, heap, interpreter, natives, threads, and JDWP |
+| `vm`               | CLI launcher and VM integration-test target                                         |
+| `feature-tracking` | Internal feature-registry validation and report generation                          |
 
 ## Documentation
 
-### Implementation Details
-
-TODO
-
-### References
-
-- [JVM Specification SE 25](https://docs.oracle.com/javase/specs/jvms/se25/html/)
-
-### Launch CI locally
-
-This project uses GitHub Actions for continuous integration. It is possible to run the CI pipeline locally
-using [act](https://github.com/nektos/act.git)
-
-When the act tool is installed, it is necessary to use the `large` image to have all dependencies available.
-
-```bash
-cat ~/.config/act/actrc
--P ubuntu-latest=catthehacker/ubuntu:full-latest
--P ubuntu-22.04=catthehacker/ubuntu:full-22.04
--P ubuntu-20.04=catthehacker/ubuntu:full-20.04
--P ubuntu-18.04=catthehacker/ubuntu:full-18.04
-```
-
-I use the default `large` image from act, which is called `catthehacker/ubuntu:full-latest`.
-
-To launch the CI pipeline, in the project root execute:
-
-```bash
-act
-```
-
-# Test data
-
-## Description
-
-In my opinion the tests right now are poorly organized. I want to improve that in the future. But right now
-it is really important to have at least something, because the project is evolving fast and I want to be sure
-that I don't break anything.
-
-## Contents
-
-- `build.rs`: Each crate that requires Java test fixtures has a `build.rs` script that automatically compiles Java
-  source files during the build process. This is integrated into Cargo's build system, so fixtures are prepared
-  automatically when running `cargo build` or `cargo test`.
-- `lvm-class` tests reads all `.class` complied from all classes from `fixtures.toml`, all classes used in `runtime`
-  tests, and all classes from `vm/tests`. It checks that it is parsed correctly.
-- `lvm-class/fixtures.toml`: A configuration file defining test fixtures from java standard libraries. Used only by
-  `lvm-class` to test parsing of real-world class files. There is an assertion somewhere in `runtime` crate, whenever
-  a jdk class is loaded, it is checked if it is present in this file. This is to ensure that the class file is correctly
-  parsed and mapped to Rust structures.
-- `runtime/testdata`: A directory containing Java source files for runtime tests. Each subdirectory represents a test
-  case. This layer should cover a wide range of Java features and edge cases, taking a snapshots of the vm state after
-  execution, and checking the heap, string pool and the top of the frame stack.
-- `vm/tests`: Integration tests for the `vm` binary. These tests execute the `vm` binary with various Java classes
-  and check the output against expected results.
-
-## Usage
-
-Test fixtures are prepared automatically by the `build.rs` scripts during `cargo build` or `cargo test`. No manual
-fixture preparation is needed. Each crate compiles its Java test files to its own `tests/testdata/compiled` directory.
-
-## TODO:
-
-- delete snapshots for custom cases without Main postfix
+- [Building and running](docs/BUILDING.md)
+- [Testing](docs/TESTING.md)
+- [Feature tracking](docs/FEATURE_TRACKING.md)
+- [Feature support](docs/features/README.md)
+- [Integration test coverage](docs/features/TEST_COVERAGE.md)
+- [Java Virtual Machine Specification, Java SE 25](https://docs.oracle.com/javase/specs/jvms/se25/html/index.html)
+- [Java Language Specification, Java SE 25](https://docs.oracle.com/javase/specs/jls/se25/html/index.html)
