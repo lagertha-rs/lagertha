@@ -12,3 +12,7 @@ vm/tests/testdata/compiled
 
 # Local cargo config (patch overrides)
 .cargo/
+
+# Downloaded Java SE specification cache
+.cache/
+__pycache__/
