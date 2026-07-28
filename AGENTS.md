@@ -19,10 +19,11 @@ registration, or stub exists; support requires working behavior and appropriate
 evidence.
 
 Feature specification references must be direct links into these SE 25 sources,
-not plain article labels. Before adding or changing any specification link, use
-`curl --fail --silent --show-error --location` to verify the page exists. For a
-fragment link, also inspect the fetched HTML and verify its fragment ID exists;
-curl does not send URL fragments to the server. Never add an unverified link.
+not plain article labels. Use the local cache documented in
+[`docs/SPECIFICATIONS.md`](docs/SPECIFICATIONS.md) to search, read, and verify
+pages and fragment IDs without repeated network access. Refresh the cache only
+when it is missing, the Java SE version changes, or current Oracle content must
+be reconfirmed. Never add an unverified link.
 
 ## Organization And Local Workspace
 
@@ -72,6 +73,7 @@ Read the relevant guide before working in that area:
 - [`docs/BUILDING.md`](docs/BUILDING.md): required toolchain, building, CI-equivalent checks, and running the VM.
 - [`docs/TESTING.md`](docs/TESTING.md): focused tests, fixture compilation, integration-test discovery, and snapshot review.
 - [`docs/FEATURE_TRACKING.md`](docs/FEATURE_TRACKING.md): feature state and integration-coverage tracking.
+- [`docs/SPECIFICATIONS.md`](docs/SPECIFICATIONS.md): local Java SE 25 specification cache, search, and link verification.
 
 Do not duplicate commands or test mechanics in this file. Update the owning
 guide when those workflows change.

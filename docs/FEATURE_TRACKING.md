@@ -166,11 +166,10 @@ When present, `spec` must be a direct section link into one of these SE 25
 specifications, including its fragment. Plain labels such as `JVMS 6.5.iadd` are
 not valid registry references.
 
-Before adding or changing a specification link, verify its page with
-`curl --fail --silent --show-error --location`. URL fragments are not sent to
-the server, so also inspect the returned HTML and verify the fragment ID exists.
-Do not add unverified links. Registry validation enforces URL shape without
-performing network access.
+Before adding or changing a specification link, verify its page and fragment
+against the original HTML in the local cache described in
+[`SPECIFICATIONS.md`](SPECIFICATIONS.md). Do not add unverified links. Registry
+validation enforces URL shape without performing network access.
 
 Implementation state and test coverage are independent. An implemented feature
 may have no tests, while a partial feature may have extensive regression tests.
