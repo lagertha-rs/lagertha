@@ -71,6 +71,37 @@ Keep fixtures focused enough that their intended capability and expected result
 are clear. Follow [`FEATURE_TRACKING.md`](FEATURE_TRACKING.md) for fixture
 metadata and feature-coverage ownership.
 
+## Issue-Driven TDD
+
+For behavioral Issues, establish the integration failure before changing
+production code:
+
+1. Read the Issue, relevant feature definition, and direct Java SE 25 sections.
+2. Choose Java for source-level behavior or RNS for exact class-file behavior.
+3. Add the smallest focused fixture with its intended final `success` or `error`
+   category. The category describes both VMs after implementation; it is not an
+   expected-failure marker for current Lagertha behavior.
+4. Encode expected semantics in assertions or exit behavior so the red result
+   proves a behavioral gap rather than only a missing snapshot.
+5. Run the focused integration test and confirm Lagertha fails for the intended
+   reason, not because of compilation, metadata, discovery, or unrelated setup.
+6. If the harness stops after Lagertha's category check, run the compiled class
+   manually on the reference JDK with `java -ea` to verify the oracle behavior.
+7. Use `javap -c -p` when emitted instruction choice or symbolic ownership is
+   part of the claim.
+
+Stop there for the red phase. Do not accept a snapshot, update generated
+reports, or expect feature-tracking validation to pass before an approved
+snapshot exists.
+
+After implementation reaches the intended behavior:
+
+1. Rerun the focused integration test on Lagertha and the reference JDK.
+2. Review and accept the combined snapshot semantically.
+3. Rerun the focused test against the approved snapshot.
+4. Run feature-tracking validation.
+5. Run broader checks required by the affected subsystem.
+
 ## Snapshot Review
 
 Review changed snapshots with:
@@ -96,9 +127,11 @@ does not itself assert that their outputs are equivalent.
 2. Give the entry source a `*Test.java` or `*Test.rns` name.
 3. Add exactly three metadata comments at the start of the entry source.
 4. Keep the case focused on one primary feature.
-5. Run the feature-tracking validator and focused integration test.
-6. Review and accept the new snapshot semantically.
-7. Run broader tests required by the affected subsystem.
+5. Run the focused integration test.
+6. Review and accept the new snapshot semantically when intended behavior works
+   on both VMs.
+7. Rerun the focused test, then run feature-tracking validation.
+8. Run broader tests required by the affected subsystem.
 
 ## Feature Tracking
 
