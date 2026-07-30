@@ -81,44 +81,69 @@ fn run_metadata_case(source_path: &Path) {
     cmd.arg("-c").arg(&class_path).arg(&main_class);
 
     let output = cmd.output().expect("Cannot run Lagertha VM");
-    match metadata.category {
-        TestCategory::Success => assert!(
-            output.status.success(),
-            "Lagertha should succeed for {}: {}",
-            source_path.display(),
-            String::from_utf8_lossy(&output.stderr)
-        ),
-        TestCategory::Error => assert!(
-            !output.status.success(),
-            "Lagertha should fail for {}",
-            source_path.display()
-        ),
-    }
-    let lvm_stdout = String::from_utf8_lossy(&output.stdout)
-        .trim_end()
-        .to_string();
-    let lvm_stderr = String::from_utf8_lossy(&output.stderr)
-        .trim_end()
-        .to_string();
+    let lvm_stdout = String::from_utf8_lossy(&output.stdout).trim_end().to_string();
+    let lvm_stderr = String::from_utf8_lossy(&output.stderr).trim_end().to_string();
     let lvm_status = output.status.code();
+
+    match metadata.category {
+        TestCategory::Success => {
+            if !output.status.success() {
+                panic!(
+                    "\n\nLagertha FAILED (expected success) for {}\n\
+                     Exit code: {:?}\n\
+                     --- STDOUT ---\n{}\n\
+                     --- STDERR ---\n{}\n",
+                    source_path.display(),
+                    lvm_status,
+                    lvm_stdout,
+                    lvm_stderr
+                );
+            }
+        }
+        TestCategory::Error => {
+            if output.status.success() {
+                panic!(
+                    "\n\nLagertha SUCCEEDED (expected failure) for {}\n\
+                     --- STDOUT ---\n{}\n\
+                     --- STDERR ---\n{}\n",
+                    source_path.display(),
+                    lvm_stdout,
+                    lvm_stderr
+                );
+            }
+        }
+    }
 
     let (jvm_stdout, jvm_stderr, jvm_status) = run_real_jvm(&class_path, &main_class);
     let jvm_stdout = jvm_stdout.trim_end().to_string();
     let jvm_stderr = jvm_stderr.trim_end().to_string();
     match metadata.category {
-        TestCategory::Success => assert_eq!(
-            jvm_status,
-            Some(0),
-            "real JVM should succeed for {}: {:?}",
-            source_path.display(),
-            jvm_stderr
-        ),
-        TestCategory::Error => assert_ne!(
-            jvm_status,
-            Some(0),
-            "real JVM should fail for {}",
-            source_path.display()
-        ),
+        TestCategory::Success => {
+            if jvm_status != Some(0) {
+                panic!(
+                    "\n\nReference JVM FAILED (expected success) for {}\n\
+                     Exit code: {:?}\n\
+                     --- STDOUT ---\n{}\n\
+                     --- STDERR ---\n{}\n",
+                    source_path.display(),
+                    jvm_status,
+                    jvm_stdout,
+                    jvm_stderr
+                );
+            }
+        }
+        TestCategory::Error => {
+            if jvm_status == Some(0) {
+                panic!(
+                    "\n\nReference JVM SUCCEEDED (expected failure) for {}\n\
+                     --- STDOUT ---\n{}\n\
+                     --- STDERR ---\n{}\n",
+                    source_path.display(),
+                    jvm_stdout,
+                    jvm_stderr
+                );
+            }
+        }
     }
 
     let combined = render_combined(

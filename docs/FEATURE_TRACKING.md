@@ -191,11 +191,9 @@ vm/tests/testdata/
 └── opcodes/
 ```
 
-The build selects the compiler by extension:
-
-- `.java` uses `javac`.
-- `.rns` uses `rnsc`.
-- `compiled/` remains generated output.
+See [`TESTING.md`](TESTING.md) for fixture compilation, discovery, Issue-driven
+TDD, and snapshot mechanics. This guide owns fixture metadata, identity, feature
+assignment, and permanent coverage state.
 
 ## Test Metadata
 
@@ -218,7 +216,7 @@ RNS example:
 ; @test description = "Rejects an interface missing ACC_ABSTRACT."
 ; @test category = "error"
 
-.class interface InterfaceFlagWithoutAbstractTest
+.class interface class_format/InterfaceFlagWithoutAbstractTest
 ```
 
 | Field | Meaning |
@@ -227,8 +225,11 @@ RNS example:
 | `description` | Exact behavior asserted by the test |
 | `category` | Expected test outcome |
 
-The source path provides test identity. The filename or class name provides its
-display name. No separate test ID or test name is needed.
+Java fixture identity is the declared package plus the source filename stem.
+RNS fixture identity is its source path relative to `vm/tests/testdata`, without
+the extension, and the `.class` declaration must match that identity. Snapshot
+names replace identity path separators with `-`. No separate test ID or test
+name is needed.
 
 ### Test Categories
 
@@ -236,6 +237,10 @@ Start with two categories:
 
 - `success`: Lagertha and the reference JVM should exit successfully.
 - `error`: Lagertha and the reference JVM should reject or fail.
+
+Categories describe intended final behavior on both VMs. `error` is not an
+expected-failure marker for behavior Lagertha has not implemented. See
+[`TESTING.md`](TESTING.md#issue-driven-tdd) for the red-phase workflow.
 
 Additional categories should only be introduced when they change harness
 behavior. A future `known-divergence` category may represent intentionally
