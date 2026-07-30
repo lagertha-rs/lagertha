@@ -111,25 +111,23 @@ impl InstanceClass {
             let is_static = method.is_static();
             let is_constructor = method_key.name == method_area.br().init_sym
                 || method_key.name == method_area.br().clinit_sym;
+            let is_private = method.is_private();
             let method_id = method_area.push_method(method);
+            declared_index.insert(method_key, method_id);
 
-            // TODO: need to think about private as well. Private methods should not be in vtable
-            // but it can be called with invokevirtual from the same class...
-            if !is_static && !is_constructor {
+            if method_key.name == method_area.br().clinit_sym {
+                method_area
+                    .get_instance_class(&this_id)?
+                    .base
+                    .set_clinit(method_id)?;
+            }
+
+            if !is_static && !is_constructor && !is_private {
                 if let Some(pos) = vtable_index.get(&method_key) {
                     vtable[*pos as usize] = method_id;
                 } else {
                     vtable_index.insert(method_key, vtable.len() as u16);
                     vtable.push(method_id);
-                }
-            } else {
-                if method_key.name == method_area.br().clinit_sym {
-                    method_area
-                        .get_instance_class(&this_id)?
-                        .base
-                        .set_clinit(method_id)?;
-                } else {
-                    declared_index.insert(method_key, method_id);
                 }
             }
         }
@@ -403,19 +401,16 @@ impl InstanceClass {
         Ok(self.get_vtable()?[pos as usize])
     }
 
-    pub fn get_special_method_id(&self, key: &MethodKey) -> Result<MethodId, JvmError> {
-        if let Some(id) = self.get_special_method_id_opt(key) {
+    pub fn get_declared_method_id(&self, key: &MethodKey) -> Result<MethodId, JvmError> {
+        if let Some(id) = self.get_declared_method_id_opt(key) {
             return Ok(id);
         }
         throw_exception!(NoSuchMethodError, method_key: *key, class_sym: self.name())
     }
 
-    pub fn get_special_method_id_opt(&self, key: &MethodKey) -> Option<MethodId> {
+    pub fn get_declared_method_id_opt(&self, key: &MethodKey) -> Option<MethodId> {
         if let Some(method_id) = self.get_declared_methods().ok()?.get(key) {
             return Some(*method_id);
-        }
-        if let Some(method_id) = self.get_vtable_index().ok()?.get(key) {
-            return Some(self.get_vtable().ok()?[*method_id as usize]);
         }
         None
     }

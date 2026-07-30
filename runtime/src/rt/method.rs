@@ -75,6 +75,10 @@ impl Method {
     pub fn is_static(&self) -> bool {
         self.flags.is_static()
     }
+    
+    pub fn is_private(&self) -> bool {
+        self.flags.is_private()
+    }
 
     pub fn is_abstract(&self) -> bool {
         self.flags.is_abstract()

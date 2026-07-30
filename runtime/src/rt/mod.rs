@@ -326,7 +326,7 @@ impl JvmClass {
     // TODO: it is more like a stub right now, no guarantees that method is actually static
     pub fn get_static_method_id(&self, key: &MethodKey) -> Result<MethodId, JvmError> {
         match self {
-            JvmClass::Instance(inst) => inst.get_special_method_id(key),
+            JvmClass::Instance(inst) => inst.get_declared_method_id(key),
             JvmClass::Interface(i) => i.get_methods().get(key).copied().ok_or(JvmError::Todo(
                 "No such method in InterfaceClass".to_string(),
             )),
@@ -336,9 +336,19 @@ impl JvmClass {
         }
     }
 
+    // TODO: it is more like a stub right now, no guarantees that method is actually static
     pub fn get_static_method_id_opt(&self, key: &MethodKey) -> Option<MethodId> {
         match self {
-            JvmClass::Instance(inst) => inst.get_special_method_id_opt(key),
+            JvmClass::Instance(inst) => inst.get_declared_method_id_opt(key),
+            JvmClass::Interface(i) => i.get_methods().get(key).copied(),
+            _ => None,
+        }
+    }
+
+    pub fn get_declared_method_id_opt(&self, key: &MethodKey) -> Option<MethodId> {
+        match self {
+            JvmClass::Instance(inst) => inst.get_declared_method_id_opt(key),
+            // TODO: not sure it is correct
             JvmClass::Interface(i) => i.get_methods().get(key).copied(),
             _ => None,
         }

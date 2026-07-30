@@ -177,7 +177,7 @@ impl VirtualMachine {
         let thread_constructor_id = self
             .method_area_read()
             .get_instance_class(&thread_class_id)?
-            .get_special_method_id(&self.br().thread_thread_group_and_name_constructor_mk)?;
+            .get_declared_method_id(&self.br().thread_thread_group_and_name_constructor_mk)?;
         Interpreter::invoke_instance_method(
             main_thread,
             thread_constructor_id,
@@ -221,7 +221,7 @@ impl VirtualMachine {
             let ma = self.method_area_read();
             let thread_group_class = ma.get_instance_class(&system_thread_group_class_id)?;
             (
-                thread_group_class.get_special_method_id(&self.br().no_arg_constructor_mk)?,
+                thread_group_class.get_declared_method_id(&self.br().no_arg_constructor_mk)?,
                 thread_group_class.get_instance_size()?,
             )
         };
@@ -247,7 +247,7 @@ impl VirtualMachine {
             let ma = self.method_area_read();
             let thread_group_class = ma.get_instance_class(&system_thread_group_class_id)?;
             (
-                thread_group_class.get_special_method_id(
+                thread_group_class.get_declared_method_id(
                     &self.br().thread_group_parent_and_name_constructor_mk,
                 )?,
                 thread_group_class.get_instance_size()?,
@@ -283,7 +283,7 @@ impl VirtualMachine {
         let init_phase1_method_id = self
             .method_area_read()
             .get_instance_class(&system_class_id)?
-            .get_special_method_id(&init_phase1_method_key)?;
+            .get_declared_method_id(&init_phase1_method_key)?;
 
         Interpreter::invoke_static_method(thread, init_phase1_method_id, vec![])?;
 
@@ -292,7 +292,7 @@ impl VirtualMachine {
                let init_phase2_method_id = self
                    .method_area
                    .get_instance_class(&system_class_id)?
-                   .get_special_method_id(&init_phase2_method_key)?;
+                   .get_declared_method_id(&init_phase2_method_key)?;
 
                Interpreter::invoke_static_method(
                    thread_id,
@@ -325,7 +325,7 @@ impl VirtualMachine {
             let ma = self.method_area_read();
             let class = ma.get_instance_class(&class_id)?;
             (
-                class.get_special_method_id(
+                class.get_declared_method_id(
                     // TODO: fix interner usage, replace with direct symbol
                     &MethodKey {
                         name: self.interner().get_or_intern(exception_ref.name),
@@ -455,7 +455,7 @@ pub fn start(config: VmConfig) -> Result<(), ()> {
         .method_area_read()
         .get_instance_class(&main_class_id)
         .unwrap()
-        .get_special_method_id(&vm.br().main_mk)
+        .get_declared_method_id(&vm.br().main_mk)
         .map_err(|_| JvmError::MainClassNotFound(vm.config.main_class.replace('/', ".")))
         .unwrap();
     debug_log_method!(&main_method_id, "Main method found");

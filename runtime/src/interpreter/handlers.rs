@@ -944,6 +944,10 @@ pub(super) fn handle_invokevirtual(thread: &mut JavaThreadState, idx: u16) -> Re
         .get_cp_by_method_id(&cur_frame_method_id)?
         .get_method_view(&idx, vm.interner())?;
     let method_key: MethodKey = target_method_view.name_and_type.into();
+    let symbolic_owner_id = vm.method_area_write().get_class_id_or_load(
+        target_method_view.class_sym,
+        thread.id,
+    )?;
 
     let target_method_desc_id = vm
         .method_area_write()
@@ -957,12 +961,20 @@ pub(super) fn handle_invokevirtual(thread: &mut JavaThreadState, idx: u16) -> Re
         + 1;
 
     let object_ref = thread.stack.peek_operand_at(arg_count - 1)?.as_obj_ref()?;
-    let actual_class_id = vm.heap_read().get_class_id(object_ref)?;
+    let receiver_class_id = vm.heap_read().get_class_id(object_ref)?;
 
     let target_method_id = vm
         .method_area_read()
-        .get_class(&actual_class_id)
-        .get_vtable_method_id(&method_key)?;
+        .get_class(&symbolic_owner_id)
+        .get_declared_method_id_opt(&method_key)
+        .filter(|id| vm.method_area_read().get_method(id).is_private())
+        .map(Ok)
+        .unwrap_or_else(|| {
+            vm.method_area_read()
+                .get_class(&receiver_class_id)
+                .get_vtable_method_id(&method_key)
+        })?;
+
     let args = Interpreter::prepare_method_args(thread, target_method_id)?;
     Interpreter::invoke_method_internal(thread, target_method_id, args)
 }
@@ -1423,7 +1435,7 @@ pub(super) fn handle_invokespecial(thread: &mut JavaThreadState, idx: u16) -> Re
     let target_method_id = vm
         .method_area_read()
         .get_instance_class(&target_class_id)?
-        .get_special_method_id(&target_method_view.name_and_type.into())?;
+        .get_declared_method_id(&target_method_view.name_and_type.into())?;
     let args = Interpreter::prepare_method_args(thread, target_method_id)?;
     Interpreter::invoke_method_internal(thread, target_method_id, args)
 }
