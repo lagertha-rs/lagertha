@@ -629,4 +629,17 @@ impl MethodArea {
         target_class.set_mirror_ref(mirror_ref)?;
         Ok(mirror_ref)
     }
+
+    pub fn resolve_class_method(&mut self, symbolic_owner_id: ClassId, mk: MethodKey) -> Result<MethodId, JvmError> {
+        let mut next = Some(symbolic_owner_id);
+        while let Some(id) = next {
+            let class = self.get_class(&id);
+            if let Some(method_id) = class.get_declared_method_id_opt(&mk) {
+                return Ok(method_id);
+            }
+            next = class.get_super_id();
+        }
+        // TODO: also need to check interfaces
+        throw_exception!(NoSuchMethodError, method_key: mk, class_sym: self.get_class(&symbolic_owner_id).get_name())
+    }
 }

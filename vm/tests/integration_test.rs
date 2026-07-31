@@ -81,8 +81,12 @@ fn run_metadata_case(source_path: &Path) {
     cmd.arg("-c").arg(&class_path).arg(&main_class);
 
     let output = cmd.output().expect("Cannot run Lagertha VM");
-    let lvm_stdout = String::from_utf8_lossy(&output.stdout).trim_end().to_string();
-    let lvm_stderr = String::from_utf8_lossy(&output.stderr).trim_end().to_string();
+    let lvm_stdout = String::from_utf8_lossy(&output.stdout)
+        .trim_end()
+        .to_string();
+    let lvm_stderr = String::from_utf8_lossy(&output.stderr)
+        .trim_end()
+        .to_string();
     let lvm_status = output.status.code();
 
     match metadata.category {
