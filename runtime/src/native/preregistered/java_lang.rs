@@ -403,7 +403,8 @@ fn java_lang_stack_trace_element_init_stack_trace_elements(
             .method_area_read()
             .get_class(&class_id)
             .get_source_file()
-            .unwrap_or(vm.interner().get_or_intern("TODO: Unknown Source"));
+            // TODO: don't hardcode
+            .unwrap_or(vm.interner().get_or_intern("Unknown Source"));
         let class_name = vm
             .heap_write()
             .alloc_string_from_interned_with_char_mapping(

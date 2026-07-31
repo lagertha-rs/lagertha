@@ -1,0 +1,16 @@
+; @test feature = "execution.invocation.virtual"
+; @test description = "Rejects invokevirtual when the symbolic owner does not declare the receiver method."
+; @test category = "error"
+
+.class public execution/invocation/SymbolicOwnerResolutionTest
+.super java/lang/Object
+
+.method public static main ([Ljava/lang/String;)V
+    .code stack 2 locals 1
+      getstatic java/lang/System out Ljava/io/PrintStream;
+      ldc @string "symbolic owner must control resolution"
+      invokevirtual java/io/FilterOutputStream println (Ljava/lang/String;)V
+      return
+    .code_end
+.method_end
+.class_end
