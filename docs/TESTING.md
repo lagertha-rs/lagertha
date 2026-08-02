@@ -78,17 +78,29 @@ production code:
 
 1. Read the Issue, relevant feature definition, and direct Java SE 25 sections.
 2. Choose Java for source-level behavior or RNS for exact class-file behavior.
-3. Add the smallest focused fixture with its intended final `success` or `error`
+3. Before writing fixtures, build a bounded behavior matrix from the relevant
+   specification algorithm. Include applicable success, precedence, inherited
+   or recursive lookup, visibility and flag, ambiguity, boundary, and specified
+   error branches. Mark source-illegal cases that require RNS and record any
+   intentionally deferred branch with a reason.
+4. Choose the smallest sufficient fixture set for the matrix, not merely the
+   first example that fails. Keep closely related assertions together, but use
+   separate entries when an earlier failure would prevent a later branch from
+   executing or when branches need distinct expected outcomes.
+5. Add each focused fixture with its intended final `success` or `error`
    category. The category describes both VMs after implementation; it is not an
    expected-failure marker for current Lagertha behavior.
-4. Encode expected semantics in assertions or exit behavior so the red result
+6. Encode expected semantics in assertions or exit behavior so the red result
    proves a behavioral gap rather than only a missing snapshot.
-5. Run the focused integration test and confirm Lagertha fails for the intended
+7. Run each focused integration test and confirm Lagertha fails for the intended
    reason, not because of compilation, metadata, discovery, or unrelated setup.
-6. If the harness stops after Lagertha's category check, run the compiled class
+8. If the harness stops after Lagertha's category check, run the compiled class
    manually on the reference JDK with `java -ea` to verify the oracle behavior.
-7. Use `javap -c -p` when emitted instruction choice or symbolic ownership is
+9. Use `javap -c -p` when emitted instruction choice or symbolic ownership is
    part of the claim.
+10. Reconcile every confirmed missing behavior with the affected feature YAML.
+    Change `implemented` to `partial` and add a precise limitation when required;
+    do not wait for implementation to make the capability claim accurate.
 
 Stop there for the red phase. Do not accept a snapshot, update generated
 reports, or expect feature-tracking validation to pass before an approved

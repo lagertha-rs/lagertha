@@ -88,6 +88,13 @@ guide when those workflows change.
   test inputs. Do not normalize them merely because `javac` cannot emit them.
 - Keep changes within the active Issue's scope. Record discovered work as a
   follow-up instead of silently expanding the change.
+- Before designing or reviewing behavioral tests, derive the relevant case
+  matrix from the JVMS and JLS. Consider direct and inherited declarations,
+  precedence, visibility and flags, recursive lookup, ambiguity, and specified
+  failures. Use separate fixtures when one failure would mask another branch.
+- When research or a failing test confirms a missing required behavior, update
+  the affected feature YAML status or limitations in the same work. Keep
+  feature claims and integration evidence explicit even before implementation.
 - TODO comments are neither requirements nor roadmap commitments. Do not derive
   task scope or create Issues from them alone.
 - Avoid manual feature counts and implementation claims. Follow the feature
