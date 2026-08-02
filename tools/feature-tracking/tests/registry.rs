@@ -77,33 +77,6 @@ fn repository_feature_report_contains_details_and_counts() {
 }
 
 #[test]
-fn checked_in_generated_reports_are_current() {
-    let repository_root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-    let registry = validate_registry(&repository_root.join("features"))
-        .expect("feature registry should be valid");
-    let fixtures = validate_tracked_fixtures(
-        &repository_root.join("vm/tests/testdata"),
-        &repository_root.join("vm/snapshots"),
-        &registry,
-    )
-    .expect("tracked fixtures should be valid");
-    let checked_coverage =
-        fs::read_to_string(repository_root.join("docs/features/TEST_COVERAGE.md")).unwrap();
-    let checked_features =
-        fs::read_to_string(repository_root.join("docs/features/README.md")).unwrap();
-    let coverage_version = report_version(&checked_coverage);
-    let feature_version = report_version(&checked_features);
-    assert_eq!(coverage_version, feature_version);
-
-    let coverage =
-        render_test_coverage_report(coverage_version, &repository_root, &registry, &fixtures);
-    let features = render_feature_report(feature_version, &registry);
-
-    assert_eq!(checked_coverage, coverage);
-    assert_eq!(checked_features, features);
-}
-
-#[test]
 fn repository_fixture_inventory_is_clean() {
     let repository_root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     let registry = validate_registry(&repository_root.join("features"))

@@ -962,21 +962,21 @@ pub(super) fn handle_invokevirtual(thread: &mut JavaThreadState, idx: u16) -> Re
     let object_ref = thread.stack.peek_operand_at(arg_count - 1)?.as_obj_ref()?;
     let receiver_class_id = vm.heap_read().get_class_id(object_ref)?;
 
-    let resolved_method_id = vm.method_area_write().resolve_class_method(
-        symbolic_owner_id,
-        method_key
-    )?;
+    let resolved_method_id = vm
+        .method_area_write()
+        .resolve_class_method(symbolic_owner_id, method_key)?;
 
-    let target_method_id =
-        if vm
-            .method_area_read().get_method(&resolved_method_id).is_private() {
-            resolved_method_id
-        } else {
-            vm
-                .method_area_read()
-                .get_class(&receiver_class_id)
-                .get_vtable_method_id(&method_key)?
-        };
+    let target_method_id = if vm
+        .method_area_read()
+        .get_method(&resolved_method_id)
+        .is_private()
+    {
+        resolved_method_id
+    } else {
+        vm.method_area_read()
+            .get_class(&receiver_class_id)
+            .get_vtable_method_id(&method_key)?
+    };
 
     /*
     let target_method_id = vm
