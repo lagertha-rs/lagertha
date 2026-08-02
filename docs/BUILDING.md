@@ -80,7 +80,7 @@ cargo run -p vm --features log-runtime-traces -- \
 
 Enable a JDWP listener with `--jdwp-port <port>`.
 
-### Java Source Launcher
+### Java/RNS Source Launcher
 
 Use the development launcher to find a Java or RNS source, compile it, and run
 its main class on Lagertha:
@@ -97,7 +97,10 @@ Java sources compile with sibling `.java` files; RNS sources compile with
 argument lists all `.java` and `.rns` sources outside `.cache`, `.git`,
 `.github`, `docs`, `features`, and `target`.
 
-Direct runs compile into ignored `.cache/java-run` and print the compiler and
-Lagertha commands before execution. Sources under `vm/tests/testdata`
-also offer the integration harness, which runs Lagertha and the reference JDK.
-Use `--mode vm` or `--mode integration` to skip that prompt.
+The launcher always asks how to run the selected source. Sources named
+`*Test.java` or `*Test.rns` under `vm/tests/testdata` offer the integration
+harness, Lagertha, the real JVM, and a combined Lagertha-then-JVM run. Other
+sources offer the latter three choices. The combined run compiles once and
+keeps both runtime outputs separated with clear labels. Direct runs compile
+into ignored `.cache/java-run`. Use `--mode vm`, `--mode jvm`, `--mode both`, or
+`--mode integration` to skip the launch prompt.
