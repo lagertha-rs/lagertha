@@ -102,5 +102,6 @@ The launcher always asks how to run the selected source. Sources named
 harness, Lagertha, the real JVM, and a combined Lagertha-then-JVM run. Other
 sources offer the latter three choices. The combined run compiles once and
 keeps both runtime outputs separated with clear labels. Direct runs compile
-into ignored `.cache/java-run`. Use `--mode vm`, `--mode jvm`, `--mode both`, or
+into ignored `.cache/java-run`; Cargo build noise stays hidden while program
+output remains visible. Use `--mode vm`, `--mode jvm`, `--mode both`, or
 `--mode integration` to skip the launch prompt.
