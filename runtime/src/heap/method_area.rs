@@ -630,7 +630,11 @@ impl MethodArea {
         Ok(mirror_ref)
     }
 
-    pub fn resolve_class_method(&mut self, symbolic_owner_id: ClassId, mk: MethodKey) -> Result<MethodId, JvmError> {
+    pub fn resolve_class_method(
+        &mut self,
+        symbolic_owner_id: ClassId,
+        mk: MethodKey,
+    ) -> Result<MethodId, JvmError> {
         let mut next = Some(symbolic_owner_id);
         while let Some(id) = next {
             let class = self.get_class(&id);
