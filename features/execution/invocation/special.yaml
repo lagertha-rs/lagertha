@@ -1,8 +1,13 @@
 name: Special method invocation
 description: Invokes a selected superclass implementation without virtual dispatch.
-status: implemented
+status: partial
 spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.invokespecial"
 
 criteria:
   - Invokes a superclass method selected by a super call.
   - Bypasses an overriding method on the current receiver class.
+
+limitations:
+  - Constructor invocation does not validate that the resolved constructor is declared by the symbolic owner.
+  - Invocation does not reject a resolved static method with IncompatibleClassChangeError.
+  - Method selection does not apply the ACC_SUPER rule.

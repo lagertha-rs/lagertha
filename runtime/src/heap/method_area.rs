@@ -638,6 +638,15 @@ impl MethodArea {
         let mut next = Some(symbolic_owner_id);
         while let Some(id) = next {
             let class = self.get_class(&id);
+            // TODO: should we check it here, or in invokevirtual because invokespecial also calls it
+            if class.is_interface() {
+                // TODO: I do a lot convert / to . need some helper
+                let interface_name = self.interner.resolve(&class.get_name()).replace('/', ".");
+                throw_exception!(
+                    IncompatibleClassChangeError,
+                    "Found interface {interface_name}, but class was expected"
+                )?
+            }
             if let Some(method_id) = class.get_declared_method_id_opt(&mk) {
                 return Ok(method_id);
             }
