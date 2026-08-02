@@ -39,8 +39,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--mode",
-        choices=("vm", "integration"),
-        help="skip the run-mode prompt for integration fixtures",
+        choices=("vm", "jvm", "both", "integration"),
+        help="skip the launch-mode prompt",
     )
     return parser.parse_args()
 
@@ -113,27 +113,51 @@ def is_fixture(source: Path) -> bool:
     return source.is_relative_to(FIXTURES_ROOT)
 
 
-def choose_mode(source: Path, requested_mode: str | None) -> str:
-    if requested_mode == "integration" and not is_fixture(source):
-        raise ValueError("integration mode requires a source under vm/tests/testdata")
-    if requested_mode:
-        return requested_mode
-    if not is_fixture(source):
-        return "vm"
+def has_integration_test(source: Path) -> bool:
+    return is_fixture(source) and source.stem.endswith("Test")
 
-    print("Run mode:")
-    print("  1. Integration test (Lagertha and reference JDK)")
-    print("  2. Lagertha directly")
+
+def choose_mode(source: Path, requested_mode: str | None) -> str:
+    modes = [
+        ("vm", "Lagertha VM"),
+        ("jvm", "Real JVM (JAVA_HOME)"),
+        ("both", "Lagertha VM + Real JVM (JAVA_HOME)"),
+    ]
+    if has_integration_test(source):
+        modes.insert(
+            0,
+            ("integration", "Integration test (Lagertha + Real JVM)"),
+        )
+
+    available_modes = {mode for mode, _ in modes}
+    if requested_mode:
+        if requested_mode not in available_modes:
+            raise ValueError(
+                "integration mode requires a *Test.java or *Test.rns source "
+                "under vm/tests/testdata"
+            )
+        return requested_mode
+
+    print()
+    print("=" * 72)
+    print(" Launch source")
+    print(f" {source.relative_to(ROOT)}")
+    print("=" * 72)
+    for index, (_, label) in enumerate(modes, start=1):
+        print(f"  {index}. {label}")
+
     while True:
         try:
-            answer = input("Select mode [1]: ").strip()
+            answer = input("Select launch mode [1]: ").strip()
         except EOFError as error:
-            raise ValueError("run-mode selection requires interactive input") from error
-        if answer in ("", "1"):
-            return "integration"
-        if answer == "2":
-            return "vm"
-        print("Enter 1 or 2.", file=sys.stderr)
+            raise ValueError(
+                "launch-mode selection requires interactive input"
+            ) from error
+        if answer == "":
+            return modes[0][0]
+        if answer.isdigit() and 1 <= int(answer) <= len(modes):
+            return modes[int(answer) - 1][0]
+        print(f"Enter a number from 1 to {len(modes)}.", file=sys.stderr)
 
 
 def print_and_run(command: list[str], extra_env: dict[str, str] | None = None) -> int:
@@ -156,6 +180,7 @@ def run_integration_test(source: Path) -> int:
         raise ValueError(
             "integration harness only discovers *Test.java or *Test.rns sources"
         )
+    print_runtime_banner("Integration test: Lagertha + Real JVM")
     command = [
         "cargo",
         "test",
@@ -182,6 +207,15 @@ def javac_path() -> str:
     return "javac"
 
 
+def java_path() -> str:
+    java_home = os.environ.get("JAVA_HOME")
+    if java_home:
+        candidate = Path(java_home) / "bin" / "java"
+        if candidate.is_file():
+            return str(candidate)
+    return "java"
+
+
 def main_class_name(source: Path) -> str:
     contents = source.read_text(encoding="utf-8")
     if source.suffix == ".rns":
@@ -200,7 +234,7 @@ def main_class_name(source: Path) -> str:
     return source.stem
 
 
-def run_with_vm(source: Path) -> int:
+def compile_source(source: Path) -> tuple[int, str]:
     shutil.rmtree(CACHE_ROOT, ignore_errors=True)
     CACHE_ROOT.mkdir(parents=True)
     main_class = main_class_name(source)
@@ -217,7 +251,9 @@ def run_with_vm(source: Path) -> int:
             *(str(sibling) for sibling in sibling_sources),
         ]
     else:
-        class_file = CACHE_ROOT.joinpath(*main_class.split(".")).with_suffix(".class")
+        class_file = CACHE_ROOT.joinpath(
+            *main_class.split(".")
+        ).with_suffix(".class")
         class_file.parent.mkdir(parents=True, exist_ok=True)
         compile_command = [
             "rnsc",
@@ -228,12 +264,23 @@ def run_with_vm(source: Path) -> int:
         ]
     compile_status = print_and_run(compile_command)
     if compile_status != 0:
-        return compile_status
+        return compile_status, main_class
 
     class_file = CACHE_ROOT.joinpath(*main_class.split(".")).with_suffix(".class")
     if not class_file.is_file():
         raise ValueError(f"compiler did not produce expected main class: {class_file}")
+    return 0, main_class
 
+
+def print_runtime_banner(title: str) -> None:
+    print()
+    print("=" * 72)
+    print(f" {title}")
+    print("=" * 72, flush=True)
+
+
+def run_compiled_vm(main_class: str) -> int:
+    print_runtime_banner("Lagertha VM")
     run_command = [
         "cargo",
         "run",
@@ -249,6 +296,42 @@ def run_with_vm(source: Path) -> int:
     return print_and_run(run_command, cargo_environment())
 
 
+def run_compiled_jvm(main_class: str) -> int:
+    print_runtime_banner("Real JVM (JAVA_HOME)")
+    run_command = [
+        java_path(),
+        "-ea",
+        "-cp",
+        str(CACHE_ROOT),
+        main_class,
+    ]
+    return print_and_run(run_command)
+
+
+def run_with_vm(source: Path) -> int:
+    compile_status, main_class = compile_source(source)
+    if compile_status != 0:
+        return compile_status
+    return run_compiled_vm(main_class)
+
+
+def run_with_jvm(source: Path) -> int:
+    compile_status, main_class = compile_source(source)
+    if compile_status != 0:
+        return compile_status
+    return run_compiled_jvm(main_class)
+
+
+def run_with_both(source: Path) -> int:
+    compile_status, main_class = compile_source(source)
+    if compile_status != 0:
+        return compile_status
+
+    vm_status = run_compiled_vm(main_class)
+    jvm_status = run_compiled_jvm(main_class)
+    return vm_status if vm_status != 0 else jvm_status
+
+
 def main() -> int:
     args = parse_args()
     try:
@@ -257,6 +340,10 @@ def main() -> int:
         mode = choose_mode(source, args.mode)
         if mode == "integration":
             return run_integration_test(source)
+        if mode == "jvm":
+            return run_with_jvm(source)
+        if mode == "both":
+            return run_with_both(source)
         return run_with_vm(source)
     except (OSError, UnicodeError, ValueError) as error:
         print(f"error: {error}", file=sys.stderr)
