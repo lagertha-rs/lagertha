@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compile a Java source and run it with Lagertha."""
+"""Compile a Java or RNS source and run it with Lagertha."""
 
 from __future__ import annotations
 
@@ -21,16 +21,21 @@ PACKAGE_PATTERN = re.compile(
     r"^\s*package\s+([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*)\s*;",
     re.MULTILINE,
 )
+RNS_CLASS_PATTERN = re.compile(r"^\s*\.class\s+([^\r\n;]+)", re.MULTILINE)
+RNS_PACKAGE_PATTERN = re.compile(
+    r"^\s*\.package\s+([A-Za-z_$][\w$]*(?:[/.$][A-Za-z_$][\w$]*)*)\s*(?:;|$)",
+    re.MULTILINE,
+)
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Find, compile, and run a Java source with Lagertha."
+        description="Find, compile, and run a Java or RNS source with Lagertha."
     )
     parser.add_argument(
         "source",
         nargs="?",
-        help="source path, filename, or filename without .java",
+        help="source path, filename, or filename without its extension",
     )
     parser.add_argument(
         "--mode",
@@ -40,7 +45,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def find_java_sources() -> list[Path]:
+def find_sources() -> list[Path]:
     sources: list[Path] = []
     for current, directories, files in os.walk(ROOT):
         directories[:] = sorted(
@@ -49,13 +54,17 @@ def find_java_sources() -> list[Path]:
             if directory not in EXCLUDED_DIRS
         )
         current_path = Path(current)
-        sources.extend(current_path / name for name in files if name.endswith(".java"))
+        sources.extend(
+            current_path / name
+            for name in files
+            if name.endswith((".java", ".rns"))
+        )
     return sorted(sources, key=lambda path: path.relative_to(ROOT).as_posix())
 
 
 def choose_source(sources: list[Path], heading: str) -> Path:
     if not sources:
-        raise ValueError("no Java sources found")
+        raise ValueError("no Java or RNS sources found")
 
     print(heading)
     for index, source in enumerate(sources, start=1):
@@ -73,7 +82,7 @@ def choose_source(sources: list[Path], heading: str) -> Path:
 
 def resolve_source(query: str | None, sources: list[Path]) -> Path:
     if query is None:
-        return choose_source(sources, "Java sources:")
+        return choose_source(sources, "Java and RNS sources:")
 
     requested_path = Path(query).expanduser()
     path_candidates = [requested_path]
@@ -87,14 +96,14 @@ def resolve_source(query: str | None, sources: list[Path]) -> Path:
             continue
         if resolved in sources:
             return resolved
-        if resolved.is_file() and resolved.suffix == ".java":
+        if resolved.is_file() and resolved.suffix in (".java", ".rns"):
             raise ValueError(f"source is outside scanned paths: {resolved}")
 
     name = requested_path.name
-    stem = name.removesuffix(".java")
+    stem = name.removesuffix(".java").removesuffix(".rns")
     matches = [source for source in sources if source.stem == stem]
     if not matches:
-        raise ValueError(f"Java source not found: {query}")
+        raise ValueError(f"Java or RNS source not found: {query}")
     if len(matches) == 1:
         return matches[0]
     return choose_source(matches, f"Multiple sources match {query!r}:")
@@ -144,7 +153,9 @@ def print_and_run(command: list[str], extra_env: dict[str, str] | None = None) -
 
 def run_integration_test(source: Path) -> int:
     if not source.stem.endswith("Test"):
-        raise ValueError("integration harness only discovers *Test.java sources")
+        raise ValueError(
+            "integration harness only discovers *Test.java or *Test.rns sources"
+        )
     command = [
         "cargo",
         "test",
@@ -173,6 +184,16 @@ def javac_path() -> str:
 
 def main_class_name(source: Path) -> str:
     contents = source.read_text(encoding="utf-8")
+    if source.suffix == ".rns":
+        class_match = RNS_CLASS_PATTERN.search(contents)
+        if not class_match:
+            raise ValueError(f"RNS class declaration not found: {source}")
+        class_name = class_match.group(1).split()[-1]
+        package_match = RNS_PACKAGE_PATTERN.search(contents)
+        if package_match:
+            class_name = f"{package_match.group(1)}/{class_name}"
+        return class_name.replace("/", ".")
+
     package_match = PACKAGE_PATTERN.search(contents)
     if package_match:
         return f"{package_match.group(1)}.{source.stem}"
@@ -182,25 +203,36 @@ def main_class_name(source: Path) -> str:
 def run_with_vm(source: Path) -> int:
     shutil.rmtree(CACHE_ROOT, ignore_errors=True)
     CACHE_ROOT.mkdir(parents=True)
+    main_class = main_class_name(source)
 
-    sibling_sources = sorted(source.parent.glob("*.java"))
-    compile_command = [
-        javac_path(),
-        "-encoding",
-        "UTF-8",
-        "-g",
-        "-d",
-        str(CACHE_ROOT),
-        *(str(sibling) for sibling in sibling_sources),
-    ]
+    if source.suffix == ".java":
+        sibling_sources = sorted(source.parent.glob("*.java"))
+        compile_command = [
+            javac_path(),
+            "-encoding",
+            "UTF-8",
+            "-g",
+            "-d",
+            str(CACHE_ROOT),
+            *(str(sibling) for sibling in sibling_sources),
+        ]
+    else:
+        class_file = CACHE_ROOT.joinpath(*main_class.split(".")).with_suffix(".class")
+        class_file.parent.mkdir(parents=True, exist_ok=True)
+        compile_command = [
+            "rnsc",
+            "asm",
+            str(source),
+            "-o",
+            str(class_file),
+        ]
     compile_status = print_and_run(compile_command)
     if compile_status != 0:
         return compile_status
 
-    main_class = main_class_name(source)
     class_file = CACHE_ROOT.joinpath(*main_class.split(".")).with_suffix(".class")
     if not class_file.is_file():
-        raise ValueError(f"javac did not produce expected main class: {class_file}")
+        raise ValueError(f"compiler did not produce expected main class: {class_file}")
 
     run_command = [
         "cargo",
@@ -220,7 +252,7 @@ def run_with_vm(source: Path) -> int:
 def main() -> int:
     args = parse_args()
     try:
-        sources = find_java_sources()
+        sources = find_sources()
         source = resolve_source(args.source, sources)
         mode = choose_mode(source, args.mode)
         if mode == "integration":
