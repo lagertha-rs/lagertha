@@ -9,6 +9,7 @@ vm/tests/testdata/compiled
 
 .run*
 /*.rns
+/*.java
 
 # Local cargo config (patch overrides)
 .cargo/

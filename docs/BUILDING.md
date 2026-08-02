@@ -79,3 +79,23 @@ cargo run -p vm --features log-runtime-traces -- \
 ```
 
 Enable a JDWP listener with `--jdwp-port <port>`.
+
+### Java Source Launcher
+
+Use the development launcher to find a Java source, compile it with its sibling
+sources, and run its main class on Lagertha:
+
+```bash
+./tools/run-java.py HelloWorldTest
+./tools/run-java.py path/to/Main.java
+```
+
+The source argument may be a path, filename, or filename without `.java`.
+Duplicate filenames produce a numbered path chooser. Omitting the argument
+lists all Java sources outside `.cache`, `.git`, `.github`, `docs`, `features`,
+and `target`.
+
+Direct runs compile into ignored `.cache/java-run` and print both the `javac`
+and Lagertha commands before execution. Sources under `vm/tests/testdata`
+also offer the integration harness, which runs Lagertha and the reference JDK.
+Use `--mode vm` or `--mode integration` to skip that prompt.
