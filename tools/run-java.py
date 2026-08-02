@@ -184,6 +184,7 @@ def run_integration_test(source: Path) -> int:
     command = [
         "cargo",
         "test",
+        "--quiet",
         "-p",
         "vm",
         "--test",
@@ -284,6 +285,7 @@ def run_compiled_vm(main_class: str) -> int:
     run_command = [
         "cargo",
         "run",
+        "--quiet",
         "--package",
         "vm",
         "--bin",
