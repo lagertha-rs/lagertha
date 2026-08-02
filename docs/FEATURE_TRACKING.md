@@ -338,6 +338,14 @@ snapshot proves integration evidence for its feature, not exhaustive proof of
 every criterion. This internal evidence must not be copied into the public
 feature report as test counts.
 
+Integration evidence should still make materially different specification
+branches explicit. For behavioral work, derive a bounded case matrix from the
+relevant JVMS or JLS algorithm and use separate fixtures when one branch can
+mask another. Typical dimensions include declaration precedence, direct versus
+inherited or recursive lookup, access and flags, ambiguity, and specified error
+outcomes. Do not inflate counts with equivalent examples; record source-illegal
+or intentionally deferred branches in the active Issue handoff.
+
 ## Validation
 
 Validate the feature registry and fixture metadata locally:
@@ -400,6 +408,13 @@ request:
 1. Update the relevant feature YAML status, criteria, or limitations.
 2. Add or update a Java or RNS integration fixture.
 3. Add or update the approved snapshot.
+
+Confirmed gaps are also behavioral tracking changes. As soon as specification
+research or red evidence proves that a required behavior is absent, change the
+affected feature from `implemented` to `partial` and add a precise limitation.
+When implementation closes a limitation, remove it only after focused behavior
+and snapshot evidence pass. Feature limitations describe durable capability
+state, not temporary Issue progress.
 
 GitHub Issues remain responsible for planned work, prioritization, and progress.
 Feature files describe permanent capability state after that work lands.
