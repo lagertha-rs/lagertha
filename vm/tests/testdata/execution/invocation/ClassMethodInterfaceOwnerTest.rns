@@ -1,0 +1,15 @@
+; @test feature = "execution.invocation.virtual"
+; @test description = "Rejects a class method reference whose symbolic owner resolves to an interface."
+; @test category = "error"
+
+.class public execution/invocation/ClassMethodInterfaceOwnerTest
+.super java/lang/Object
+
+.method public static main ([Ljava/lang/String;)V
+    .code stack 1 locals 1
+      getstatic java/lang/System out Ljava/io/PrintStream;
+      invokevirtual java/io/Flushable flush ()V
+      return
+    .code_end
+.method_end
+.class_end

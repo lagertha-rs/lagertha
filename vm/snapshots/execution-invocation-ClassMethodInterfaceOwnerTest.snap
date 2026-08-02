@@ -1,0 +1,19 @@
+---
+source: vm/tests/integration_test.rs
+expression: combined
+---
+===== Lagertha VM =====
+----- exit: Some(1) -----
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.IncompatibleClassChangeError: Found interface java.io.Flushable, but class was expected
+	at execution.invocation.ClassMethodInterfaceOwnerTest.main(Unknown Source)
+
+===== Real JVM =====
+----- exit: Some(1) -----
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.IncompatibleClassChangeError: Found interface java.io.Flushable, but class was expected
+	at execution.invocation.ClassMethodInterfaceOwnerTest.main(Unknown Source)

@@ -1,9 +1,15 @@
 name: Virtual method invocation
 description: Selects and invokes instance methods through class hierarchies.
-status: implemented
+status: partial
 spec: "https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-6.html#jvms-6.5.invokevirtual"
 
 criteria:
   - Selects an override from the runtime receiver class.
   - Invokes concrete implementations of abstract superclass methods.
   - Invokes inherited concrete methods.
+
+limitations:
+  - Class method resolution does not search superinterfaces after class and superclass lookup fails, including maximally-specific selection and private or static interface-method exclusion.
+  - Class method resolution does not enforce access control on the resolved declaration.
+  - Class method resolution does not reject a class method reference whose symbolic owner resolves to an interface.
+  - Class method resolution does not implement signature-polymorphic lookup.
