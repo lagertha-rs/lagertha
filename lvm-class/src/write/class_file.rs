@@ -54,6 +54,10 @@ impl ClassFileBuilder {
         self
     }
 
+    pub fn interfaces(mut self, interfaces: Vec<u16>) -> Self {
+        self.interfaces = interfaces;
+    }
+
     pub fn build(self) -> Option<ClassFile> {
         Some(ClassFile {
             minor_version: self.minor_version,
