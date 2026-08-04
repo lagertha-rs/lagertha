@@ -1,6 +1,6 @@
 # Integration Test Coverage
 
-Generated for Lagertha `0.6.0`.
+Generated for Lagertha `0.7.0`.
 
 Coverage means passing integration snapshot evidence for a feature; it does not prove every criterion.
 
