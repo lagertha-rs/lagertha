@@ -56,6 +56,7 @@ impl ClassFileBuilder {
 
     pub fn interfaces(mut self, interfaces: Vec<u16>) -> Self {
         self.interfaces = interfaces;
+        self
     }
 
     pub fn build(self) -> Option<ClassFile> {
