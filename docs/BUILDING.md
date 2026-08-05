@@ -48,7 +48,7 @@ CI runs:
 
 ```bash
 cargo fmt --all -- --check
-cargo build --workspace --verbose --locked
+cargo build --workspace --all-features --verbose --locked
 cargo test --workspace --verbose --locked
 ```
 
