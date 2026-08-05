@@ -1,6 +1,6 @@
 # Lagertha Feature Support
 
-Generated for Lagertha `0.7.1`.
+Generated for Lagertha `0.7.2`.
 
 Lagertha is an early-stage educational JVM targeting Java 25. This report covers capabilities explicitly recorded in the feature registry; it is not a complete inventory of Java 25 or JVM functionality.
 
