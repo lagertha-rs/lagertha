@@ -826,7 +826,7 @@ checksum = "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682"
 
 [[package]]
 name = "jimage"
-version = "0.7.0"
+version = "0.7.1"
 dependencies = [
  "lvm-common",
  "memmap2",
@@ -916,7 +916,7 @@ checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
 
 [[package]]
 name = "lvm-class"
-version = "0.7.0"
+version = "0.7.1"
 dependencies = [
  "lvm-common",
  "num_enum",
@@ -924,7 +924,7 @@ dependencies = [
 
 [[package]]
 name = "lvm-common"
-version = "0.7.0"
+version = "0.7.1"
 dependencies = [
  "num_enum",
  "tracing-subscriber",
@@ -1286,7 +1286,7 @@ dependencies = [
 
 [[package]]
 name = "runtime"
-version = "0.7.0"
+version = "0.7.1"
 dependencies = [
  "byteorder",
  "dashmap",
@@ -1862,7 +1862,7 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 
 [[package]]
 name = "vm"
-version = "0.7.0"
+version = "0.7.1"
 dependencies = [
  "assert_cmd",
  "clap",
