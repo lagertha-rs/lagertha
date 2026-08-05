@@ -25,8 +25,8 @@ impl ClassFile {
         bytes.extend(&self.this_class.to_be_bytes());
         bytes.extend(&self.super_class.to_be_bytes());
         bytes.extend(&(self.interfaces.len() as u16).to_be_bytes());
-        if !self.interfaces.is_empty() {
-            todo!("assembling interfaces is not implemented yet");
+        for entry in &self.interfaces {
+            bytes.extend(&entry.to_be_bytes());
         }
         bytes.extend(&(self.fields.len() as u16).to_be_bytes());
         if !self.fields.is_empty() {
