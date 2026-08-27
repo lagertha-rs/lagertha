@@ -966,11 +966,69 @@ pub(super) fn handle_invokevirtual(thread: &mut JavaThreadState, idx: u16) -> Re
         .method_area_write()
         .resolve_class_method(symbolic_owner_id, method_key)?;
 
-    let target_method_id = if vm
+    let (
+        resolved_method_is_private,
+        resolved_method_is_static,
+        resolved_method_class_id,
+        resolved_method_signature,
+        resolved_method_class_name,
+    ) = {
+        let method_area = vm.method_area_read();
+        let resolved_method = method_area.get_method(&resolved_method_id);
+        let class_name = method_area
+            .interner()
+            .resolve(
+                &method_area
+                    .get_class(&resolved_method.class_id())
+                    .get_name(),
+            )
+            .replace('/', ".");
+        let method_name = method_area.interner().resolve(&resolved_method.name);
+        let signature = method_area
+            .get_method_descriptor(&resolved_method.descriptor_id())
+            .to_java_signature(&class_name, method_name);
+        (
+            resolved_method.is_private(),
+            resolved_method.is_static(),
+            resolved_method.class_id(),
+            signature,
+            class_name,
+        )
+    };
+    if resolved_method_is_static {
+        throw_exception!(
+            IncompatibleClassChangeError,
+            format!("Expecting non-static method '{resolved_method_signature}'")
+        )?
+    }
+    let caller_class_id = vm
         .method_area_read()
-        .get_method(&resolved_method_id)
-        .is_private()
-    {
+        .get_method(&cur_frame_method_id)
+        .class_id();
+    let same_nest = {
+        let method_area = vm.method_area_read();
+        method_area.get_class(&caller_class_id).get_nest_host()
+            == method_area
+                .get_class(&resolved_method_class_id)
+                .get_nest_host()
+    };
+    if resolved_method_is_private && !same_nest {
+        let caller_class_name = {
+            let method_area = vm.method_area_read();
+            method_area
+                .interner()
+                .resolve(&method_area.get_class(&caller_class_id).get_name())
+                .replace('/', ".")
+        };
+        throw_exception!(
+            IllegalAccessError,
+            format!(
+                "class {caller_class_name} tried to access private method '{resolved_method_signature}' ({caller_class_name} and {resolved_method_class_name} are in unnamed module of loader 'app')"
+            )
+        )?
+    }
+
+    let target_method_id = if resolved_method_is_private {
         resolved_method_id
     } else {
         vm.method_area_read()

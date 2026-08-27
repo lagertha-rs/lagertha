@@ -1,0 +1,19 @@
+.class public execution/invocation/VirtualStaticTarget
+.super java/lang/Object
+
+.method public <init> ()V
+  .code stack 1 locals 1
+    aload_0
+    invokespecial @methodref java/lang/Object <init> ()V
+    return
+  .code_end
+.method_end
+
+.method public static value ()I
+  .code stack 1 locals 0
+    bipush 1
+    ireturn
+  .code_end
+.method_end
+
+.class_end

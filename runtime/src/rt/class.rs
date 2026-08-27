@@ -21,7 +21,6 @@ pub struct InstanceClass {
 
     pub cp: RuntimeConstantPool,
 
-    pub declared_method_index: OnceCell<HashMap<MethodKey, MethodId>>,
     pub vtable: OnceCell<Vec<MethodId>>,
     pub vtable_index: OnceCell<HashMap<MethodKey, u16>>,
     pub itable: OnceCell<HashMap<MethodKey, MethodId>>,
@@ -44,6 +43,14 @@ impl InstanceClass {
         attributes: Vec<ClassAttribute>,
     ) -> Result<ClassId, JvmError> {
         let name = cp.get_class_sym(&this_class, method_area.interner())?;
+        let nest_host = attributes
+            .iter()
+            .find_map(|attribute| match attribute {
+                ClassAttribute::NestHost { host_class_idx, .. } => Some(host_class_idx),
+                _ => None,
+            })
+            .map(|host_class_idx| cp.get_class_sym(host_class_idx, method_area.interner()))
+            .transpose()?;
 
         //TODO: clean up
         let mut source_file = None;
@@ -55,9 +62,8 @@ impl InstanceClass {
         }
 
         let class = JvmClass::Instance(Box::new(Self {
-            base: BaseClass::new(name, flags, super_id, source_file),
+            base: BaseClass::new(name, flags, super_id, source_file, nest_host),
             cp,
-            declared_method_index: OnceCell::new(),
             vtable: OnceCell::new(),
             vtable_index: OnceCell::new(),
             itable: OnceCell::new(),
@@ -133,7 +139,7 @@ impl InstanceClass {
         }
 
         let this = method_area.get_instance_class(&this_id)?;
-        this.set_declared_methods(declared_index)?;
+        this.base.set_declared_methods(declared_index)?;
         Ok((vtable, vtable_index))
     }
 
@@ -236,17 +242,8 @@ impl InstanceClass {
             let cp = &method_area.get_instance_class(&this_id)?.cp;
             let interface_name = cp.get_class_sym(&interface, method_area.interner())?;
             let interface_id = method_area.get_class_id_or_load(interface_name, thread_id)?;
-            interface_ids.insert(interface_id);
+            method_area.collect_interface_ids(interface_id, &mut interface_ids)?;
             direct_interfaces.insert(interface_id);
-
-            /* TODO: probably need to handle superinterfaces as well
-                something like:
-                if let Ok(interface_class) = method_area.get_interface_class(&interface_id) {
-                for super_interface_id in interface_class.get_super_interfaces() {
-                    interface_ids.insert(*super_interface_id);
-                }
-            }
-                 */
         }
         let this = method_area.get_instance_class(&this_id)?;
         this.base.set_interfaces(interface_ids)?;
@@ -276,11 +273,27 @@ impl InstanceClass {
             let interface_class = method_area.get_interface_class(interface)?;
             let interface_methods = interface_class.get_methods();
             for (method_key, method_id) in interface_methods {
+                let method = method_area.get_method(method_id);
+                if method.is_private() || method.is_static() {
+                    continue;
+                }
                 let impl_method_id = match vtable_index.get(method_key) {
-                    Some(&idx) => vtable[idx as usize],
+                    Some(&idx) => {
+                        let current_method_id = vtable[idx as usize];
+                        let current_method = method_area.get_method(&current_method_id);
+                        let current_owner_id = current_method.class_id();
+                        if method_area.get_class(&current_owner_id).is_interface()
+                            && method_area.is_subinterface_of(*interface, current_owner_id)?
+                        {
+                            vtable[idx as usize] = *method_id;
+                            *method_id
+                        } else {
+                            current_method_id
+                        }
+                    }
                     None => {
                         // not in vtable yet
-                        if !method_area.get_method(method_id).is_abstract() {
+                        if !method.is_abstract() {
                             // Default method - add to vtable
                             let idx = vtable.len() as u16;
                             vtable_index.insert(*method_key, idx);
@@ -409,7 +422,7 @@ impl InstanceClass {
     }
 
     pub fn get_declared_method_id_opt(&self, key: &MethodKey) -> Option<MethodId> {
-        if let Some(method_id) = self.get_declared_methods().ok()?.get(key) {
+        if let Some(method_id) = self.base.get_declared_methods().ok()?.get(key) {
             return Some(*method_id);
         }
         None
@@ -429,21 +442,6 @@ impl InstanceClass {
     pub(crate) fn get_vtable_index(&self) -> Result<&HashMap<MethodKey, u16>, JvmError> {
         self.vtable_index.get().ok_or(JvmError::Todo(
             "Vtable index not initialized yet".to_string(),
-        ))
-    }
-
-    fn set_declared_methods(
-        &self,
-        declared_index: HashMap<MethodKey, MethodId>,
-    ) -> Result<(), JvmError> {
-        self.declared_method_index
-            .set(declared_index)
-            .map_err(|_| JvmError::Todo("Declared methods already initialized".to_string()))
-    }
-
-    fn get_declared_methods(&self) -> Result<&HashMap<MethodKey, MethodId>, JvmError> {
-        self.declared_method_index.get().ok_or(JvmError::Todo(
-            "Declared methods not initialized yet".to_string(),
         ))
     }
 

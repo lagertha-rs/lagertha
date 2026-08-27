@@ -7,7 +7,7 @@ expression: combined
 ----- STDOUT -----
 
 ----- STDERR -----
-Exception in thread "main" java.lang.NoSuchMethodError: void java.io.FilterOutputStream.println(java.lang.String)
+Exception in thread "main" java.lang.NoSuchMethodError: 'void java.io.FilterOutputStream.println(java.lang.String)'
 	at execution.invocation.SymbolicOwnerResolutionTest.main(Unknown Source)
 
 ===== Real JVM =====
