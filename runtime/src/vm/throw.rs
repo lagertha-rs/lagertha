@@ -28,9 +28,10 @@ macro_rules! build_exception {
         let desc_str = interner.resolve(&$mk.desc);
         let class_name = interner.resolve(&$class_sym);
         let method_name = interner.resolve(&$mk.name);
-        let msg = lvm_common::descriptor::MethodDescriptor::try_from(desc_str)
+        let signature = lvm_common::descriptor::MethodDescriptor::try_from(desc_str)
             .unwrap()
             .to_java_signature(class_name, method_name);
+        let msg = format!("'{signature}'");
         crate::error::JvmError::JavaExceptionDescriptor(
             crate::error::JavaExceptionDescriptor::with_message(
                 crate::error::JavaExceptionKind::$kind,

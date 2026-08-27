@@ -29,12 +29,22 @@ impl InterfaceClass {
         method_area: &mut MethodArea,
         super_id: Option<ClassId>,
         this_class: u16,
+        attributes: &[ClassAttribute],
     ) -> Result<ClassId, JvmError> {
         let name = cp.get_class_sym(&this_class, method_area.interner())?;
+        // TODO: probably I need to parse attributes as separate fields to avoid search
+        let nest_host = attributes
+            .iter()
+            .find_map(|attribute| match attribute {
+                ClassAttribute::NestHost { host_class_idx, .. } => Some(host_class_idx),
+                _ => None,
+            })
+            .map(|host_class_idx| cp.get_class_sym(host_class_idx, method_area.interner()))
+            .transpose()?;
 
         //TODO: source file name? etc
         let class = JvmClass::Interface(Box::new(Self {
-            base: BaseClass::new(name, flags, super_id, None),
+            base: BaseClass::new(name, flags, super_id, None, nest_host),
             cp,
             methods: OnceCell::new(),
         }));
@@ -135,17 +145,8 @@ impl InterfaceClass {
             let cp = &method_area.get_interface_class(&this_id)?.cp;
             let interface_name = cp.get_class_sym(&interface, method_area.interner())?;
             let interface_id = method_area.get_class_id_or_load(interface_name, thread_id)?;
-            interface_ids.insert(interface_id);
+            method_area.collect_interface_ids(interface_id, &mut interface_ids)?;
             direct_interfaces.insert(interface_id);
-
-            /* TODO: probably need to handle superinterfaces as well
-                something like:
-                if let Ok(interface_class) = method_area.get_interface_class(&interface_id) {
-                for super_interface_id in interface_class.get_super_interfaces() {
-                    interface_ids.insert(*super_interface_id);
-                }
-            }
-                 */
         }
         let this = method_area.get_interface_class(&this_id)?;
         this.base.set_interfaces(interface_ids)?;
@@ -175,7 +176,14 @@ impl InterfaceClass {
         thread_id: ThreadId,
     ) -> Result<ClassId, JvmError> {
         let cp = Self::prepare_cp(cf.cp, &mut cf.attributes);
-        let this_id = Self::load(cf.access_flags, cp, method_area, super_id, cf.this_class)?;
+        let this_id = Self::load(
+            cf.access_flags,
+            cp,
+            method_area,
+            super_id,
+            cf.this_class,
+            &cf.attributes,
+        )?;
 
         Self::link_methods(cf.methods, this_id, method_area)?;
         Self::link_fields(cf.fields, this_id, method_area)?;

@@ -1,0 +1,19 @@
+---
+source: vm/tests/integration_test.rs
+expression: combined
+---
+===== Lagertha VM =====
+----- exit: Some(1) -----
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.IllegalAccessError: class execution.invocation.PrivateSuperclassInterfaceResolutionTest tried to access private method 'int execution.invocation.PrivateMethodSuperclass.value()' (execution.invocation.PrivateSuperclassInterfaceResolutionTest and execution.invocation.PrivateMethodSuperclass are in unnamed module of loader 'app')
+	at execution.invocation.PrivateSuperclassInterfaceResolutionTest.main(PrivateSuperclassInterfaceResolutionTest.java:10)
+
+===== Real JVM =====
+----- exit: Some(1) -----
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.IllegalAccessError: class execution.invocation.PrivateSuperclassInterfaceResolutionTest tried to access private method 'int execution.invocation.PrivateMethodSuperclass.value()' (execution.invocation.PrivateSuperclassInterfaceResolutionTest and execution.invocation.PrivateMethodSuperclass are in unnamed module of loader 'app')
+	at execution.invocation.PrivateSuperclassInterfaceResolutionTest.main(PrivateSuperclassInterfaceResolutionTest.java:10)

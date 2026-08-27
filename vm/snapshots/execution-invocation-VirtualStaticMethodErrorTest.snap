@@ -1,0 +1,19 @@
+---
+source: vm/tests/integration_test.rs
+expression: combined
+---
+===== Lagertha VM =====
+----- exit: Some(1) -----
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.IncompatibleClassChangeError: Expecting non-static method 'int execution.invocation.VirtualStaticTarget.value()'
+	at execution.invocation.VirtualStaticMethodErrorTest.main(VirtualStaticMethodErrorTest.java:9)
+
+===== Real JVM =====
+----- exit: Some(1) -----
+----- STDOUT -----
+
+----- STDERR -----
+Exception in thread "main" java.lang.IncompatibleClassChangeError: Expecting non-static method 'int execution.invocation.VirtualStaticTarget.value()'
+	at execution.invocation.VirtualStaticMethodErrorTest.main(VirtualStaticMethodErrorTest.java:9)

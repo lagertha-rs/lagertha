@@ -8,7 +8,6 @@ use crate::rt::field::{InstanceField, StaticField};
 use crate::rt::interface::InterfaceClass;
 use crate::vm::Value;
 use crate::{MethodId, Symbol};
-use itertools::Either;
 use lvm_class::flags::ClassFlags;
 use lvm_common::jtype::PrimitiveType;
 use once_cell::sync::OnceCell;
@@ -58,6 +57,10 @@ pub trait ClassLike {
 
     fn get_source_file(&self) -> Option<Symbol> {
         self.base().source_file
+    }
+
+    fn get_nest_host(&self) -> Symbol {
+        self.base().get_nest_host()
     }
 
     fn has_static_field(&self, field_key: &FieldKey) -> Result<bool, JvmError> {
@@ -127,8 +130,10 @@ pub struct BaseClass {
     super_id: Option<ClassId>,
     state: AtomicU8,
     mirror_ref: OnceCell<HeapRef>,
-    interfaces: OnceCell<HashSet<ClassId>>,
-    direct_interfaces: OnceCell<HashSet<ClassId>>,
+    interfaces: OnceCell<HashSet<ClassId>>, // All transitive interfaces implemented/inherited by class
+    direct_interfaces: OnceCell<HashSet<ClassId>>, // Interfaces directly listed in class file
+    declared_method_index: OnceCell<HashMap<MethodKey, MethodId>>, // All methods declared by this class
+    nest_host: Option<Symbol>,
     static_fields: OnceCell<HashMap<FieldKey, StaticField>>,
     clinit: OnceCell<MethodId>,
     source_file: Option<Symbol>,
@@ -140,6 +145,7 @@ impl BaseClass {
         flags: ClassFlags,
         super_id: Option<ClassId>,
         source_file: Option<Symbol>,
+        nest_host: Option<Symbol>,
     ) -> Self {
         Self {
             name,
@@ -149,9 +155,11 @@ impl BaseClass {
             state: AtomicU8::new(ClassState::Loaded as u8),
             mirror_ref: OnceCell::new(),
             interfaces: OnceCell::new(),
+            declared_method_index: OnceCell::new(),
             direct_interfaces: OnceCell::new(),
             static_fields: OnceCell::new(),
             clinit: OnceCell::new(),
+            nest_host,
         }
     }
 
@@ -174,6 +182,10 @@ impl BaseClass {
         self.direct_interfaces.get().ok_or(JvmError::Todo(
             "BaseClass direct_interfaces not set".to_string(),
         ))
+    }
+
+    fn get_nest_host(&self) -> Symbol {
+        self.nest_host.unwrap_or(self.name)
     }
 
     fn set_interfaces(&self, interfaces: HashSet<ClassId>) -> Result<(), JvmError> {
@@ -202,6 +214,21 @@ impl BaseClass {
             "BaseClass static_fields not set".to_string(),
         ))
     }
+
+    fn set_declared_methods(
+        &self,
+        declared_index: HashMap<MethodKey, MethodId>,
+    ) -> Result<(), JvmError> {
+        self.declared_method_index
+            .set(declared_index)
+            .map_err(|_| JvmError::Todo("Declared methods already initialized".to_string()))
+    }
+
+    fn get_declared_methods(&self) -> Result<&HashMap<MethodKey, MethodId>, JvmError> {
+        self.declared_method_index.get().ok_or(JvmError::Todo(
+            "Declared methods not initialized yet".to_string(),
+        ))
+    }
 }
 
 // TODO: something like that...
@@ -226,6 +253,7 @@ impl From<u8> for ClassState {
     }
 }
 
+//TODO: rename? it can be easily confused with a row bitecode struct
 pub enum JvmClass {
     Instance(Box<InstanceClass>),
     Interface(Box<InterfaceClass>),
@@ -361,6 +389,16 @@ impl JvmClass {
             JvmClass::PrimitiveArray(pac) => pac.name,
             JvmClass::InstanceArray(oac) => oac.name,
             JvmClass::Primitive(pc) => pc.name,
+        }
+    }
+
+    pub fn get_nest_host(&self) -> Symbol {
+        match self {
+            JvmClass::Instance(class) => class.get_nest_host(),
+            JvmClass::Interface(interface) => interface.get_nest_host(),
+            JvmClass::PrimitiveArray(_) | JvmClass::InstanceArray(_) | JvmClass::Primitive(_) => {
+                self.get_name()
+            }
         }
     }
 

@@ -7,9 +7,17 @@ criteria:
   - Selects an override from the runtime receiver class.
   - Invokes concrete implementations of abstract superclass methods.
   - Invokes inherited concrete methods.
+  - Resolves class method references through the declaring class and superclass hierarchy before interface fallback.
+  - Resolves methods declared by direct and inherited superinterfaces.
+  - Ignores private and static interface methods during class method resolution.
+  - Selects a unique concrete maximally-specific superinterface method.
+  - Rejects interface symbolic owners with IncompatibleClassChangeError.
+  - Rejects unresolved method references with NoSuchMethodError.
+  - Rejects resolved static methods used by invokevirtual with IncompatibleClassChangeError.
+  - Enforces private method access, including same-nest access.
 
 limitations:
-  - Class method resolution does not search superinterfaces after class and superclass lookup fails, including maximally-specific selection and private or static interface-method exclusion.
-  - Class method resolution does not enforce access control on the resolved declaration.
-  - Class method resolution does not reject a class method reference whose symbolic owner resolves to an interface.
   - Class method resolution does not implement signature-polymorphic lookup.
+  - Access control does not yet implement all package, protected, public, module, and loader checks.
+  - Virtual selection does not yet throw AbstractMethodError when no concrete implementation is selected.
+  - Virtual selection does not yet throw IncompatibleClassChangeError for multiple concrete maximally-specific interface methods.

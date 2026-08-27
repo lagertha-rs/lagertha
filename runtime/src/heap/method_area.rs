@@ -24,7 +24,7 @@ use lvm_common::descriptor::MethodDescriptor;
 use lvm_common::error::MethodDescriptorErr;
 use lvm_common::jtype::{AllocationType, JavaType, PrimitiveType};
 use once_cell::sync::OnceCell;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, RwLock};
 
 pub struct MethodArea {
@@ -630,29 +630,154 @@ impl MethodArea {
         Ok(mirror_ref)
     }
 
+    pub(crate) fn collect_interface_ids(
+        &self,
+        interface_id: ClassId,
+        interfaces: &mut HashSet<ClassId>,
+    ) -> Result<(), JvmError> {
+        if !interfaces.insert(interface_id) {
+            return Ok(());
+        }
+
+        let superinterfaces = self.get_class(&interface_id).get_direct_interfaces()?;
+        for superinterface_id in superinterfaces {
+            self.collect_interface_ids(*superinterface_id, interfaces)?;
+        }
+
+        Ok(())
+    }
+
+    fn collect_interface_method_candidates(
+        &self,
+        interface_id: ClassId,
+        method_key: &MethodKey,
+        visited: &mut HashSet<ClassId>,
+        candidates: &mut Vec<(ClassId, MethodId)>,
+    ) -> Result<(), JvmError> {
+        if !visited.insert(interface_id) {
+            return Ok(());
+        }
+
+        let interface = self.get_interface_class(&interface_id)?;
+        if let Some(method_id) = interface.get_methods().get(method_key).copied() {
+            let method = self.get_method(&method_id);
+            if !method.is_private() && !method.is_static() {
+                candidates.push((interface_id, method_id));
+            }
+        }
+
+        let superinterfaces = interface.get_direct_interfaces()?;
+        for superinterface_id in superinterfaces {
+            self.collect_interface_method_candidates(
+                *superinterface_id,
+                method_key,
+                visited,
+                candidates,
+            )?;
+        }
+
+        Ok(())
+    }
+
+    pub(crate) fn is_subinterface_of(
+        &self,
+        subinterface_id: ClassId,
+        superinterface_id: ClassId,
+    ) -> Result<bool, JvmError> {
+        let mut visited = HashSet::new();
+        let mut pending = self
+            .get_class(&subinterface_id)
+            .get_direct_interfaces()?
+            .iter()
+            .copied()
+            .collect::<Vec<_>>();
+
+        while let Some(interface_id) = pending.pop() {
+            if !visited.insert(interface_id) {
+                continue;
+            }
+            if interface_id == superinterface_id {
+                return Ok(true);
+            }
+            pending.extend(
+                self.get_class(&interface_id)
+                    .get_direct_interfaces()?
+                    .iter()
+                    .copied(),
+            );
+        }
+
+        Ok(false)
+    }
+
     pub fn resolve_class_method(
         &mut self,
         symbolic_owner_id: ClassId,
         mk: MethodKey,
     ) -> Result<MethodId, JvmError> {
-        let mut next = Some(symbolic_owner_id);
-        while let Some(id) = next {
+        let owner = self.get_class(&symbolic_owner_id);
+        if owner.is_interface() {
+            let interface_name = self.interner.resolve(&owner.get_name()).replace('/', ".");
+            throw_exception!(
+                IncompatibleClassChangeError,
+                "Found interface {interface_name}, but class was expected"
+            )?
+        }
+
+        // JVMS 5.4.3.3 searches the complete class hierarchy before interfaces.
+        let mut next_class = Some(symbolic_owner_id);
+        while let Some(id) = next_class {
             let class = self.get_class(&id);
-            // TODO: should we check it here, or in invokevirtual because invokespecial also calls it
-            if class.is_interface() {
-                // TODO: I do a lot convert / to . need some helper
-                let interface_name = self.interner.resolve(&class.get_name()).replace('/', ".");
-                throw_exception!(
-                    IncompatibleClassChangeError,
-                    "Found interface {interface_name}, but class was expected"
-                )?
-            }
             if let Some(method_id) = class.get_declared_method_id_opt(&mk) {
                 return Ok(method_id);
             }
-            next = class.get_super_id();
+            next_class = class.get_super_id();
         }
-        // TODO: also need to check interfaces
-        throw_exception!(NoSuchMethodError, method_key: mk, class_sym: self.get_class(&symbolic_owner_id).get_name())
+
+        // Gather direct interfaces from every class in the hierarchy, then
+        // recursively visit each interface's direct superinterfaces.
+        let mut visited = HashSet::with_capacity(8);
+        let mut candidates = Vec::new();
+        let mut next_class = Some(symbolic_owner_id);
+        while let Some(id) = next_class {
+            let class = self.get_class(&id);
+            for interface_id in class.get_direct_interfaces()? {
+                self.collect_interface_method_candidates(
+                    *interface_id,
+                    &mk,
+                    &mut visited,
+                    &mut candidates,
+                )?;
+            }
+            next_class = class.get_super_id();
+        }
+
+        let mut maximally_specific = Vec::new();
+        for &(interface_id, method_id) in &candidates {
+            let mut has_more_specific = false;
+            for &(other_interface_id, _) in &candidates {
+                if interface_id != other_interface_id
+                    && self.is_subinterface_of(other_interface_id, interface_id)?
+                {
+                    has_more_specific = true;
+                    break;
+                }
+            }
+            if !has_more_specific {
+                maximally_specific.push(method_id);
+            }
+        }
+
+        if maximally_specific.len() == 1 && !self.get_method(&maximally_specific[0]).is_abstract() {
+            return Ok(maximally_specific[0]);
+        }
+
+        // JVMS permits an arbitrary eligible result when no unique concrete
+        // maximally-specific method exists. Selection handles later failure.
+        if let Some((_, method_id)) = candidates.first() {
+            return Ok(*method_id);
+        }
+
+        throw_exception!(NoSuchMethodError, method_key: mk, class_sym: owner.get_name())
     }
 }
